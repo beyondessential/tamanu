@@ -346,7 +346,7 @@ describe('User', () => {
 
   describe('User facility methods', () => {
     let superUser = null;
-    let linkedUser = null;
+    let user = null;
     let unlinkedUser = null;
 
     const linkedUserFacilities = [facility1, sensitiveFacility];
@@ -356,16 +356,20 @@ describe('User', () => {
       jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
     };
 
-    beforeAll(async () => {
+    // Defaults for all of the tests in this block. We override as needed
+    beforeEach(async () => {
       await models.Setting.set('auth.restrictUsersToFacilities', true);
+      mockLoginFacilityPermission(user, false);
+    });
 
+    beforeAll(async () => {
       superUser = await models.User.create(
         createUser({
           role: 'admin',
         }),
       );
 
-      linkedUser = await models.User.create(
+      user = await models.User.create(
         createUser({
           role: 'practitioner',
         }),
@@ -381,12 +385,12 @@ describe('User', () => {
         linkedUserFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
-            userId: linkedUser.id,
+            userId: user.id,
           });
         }),
       );
 
-      await linkedUser.reload({ include: 'facilities' });
+      await user.reload({ include: 'facilities' });
     });
 
     describe('allowedFacilities', () => {
@@ -396,9 +400,8 @@ describe('User', () => {
       });
 
       it('user with login permission should return all non-sensitive facilities plus linked facilities', async () => {
-        await models.Setting.set('auth.restrictUsersToFacilities', true);
-        mockLoginFacilityPermission(linkedUser, true);
-        const userFacilities = await linkedUser.allowedFacilities();
+        mockLoginFacilityPermission(user, true);
+        const userFacilities = await user.allowedFacilities();
         expect(userFacilities).toContainEqual(facility1);
         expect(userFacilities).toContainEqual(facility2);
         expect(userFacilities).toContainEqual(facility3);
@@ -407,7 +410,7 @@ describe('User', () => {
 
       it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
-        const userFacilities = await linkedUser.allowedFacilities();
+        const userFacilities = await user.allowedFacilities();
         expect(userFacilities).toContainEqual(facility1);
         expect(userFacilities).toContainEqual(facility2);
         expect(userFacilities).toContainEqual(facility3);
@@ -415,13 +418,11 @@ describe('User', () => {
       });
 
       it('should return linked facilities from user_facilities table', async () => {
-        await models.Setting.set('auth.restrictUsersToFacilities', true);
-        const userFacilities = await linkedUser.allowedFacilities();
+        const userFacilities = await user.allowedFacilities();
         expect(userFacilities).toStrictEqual(linkedUserFacilities);
       });
 
       it('should return empty array if no linked facilities', async () => {
-        await models.Setting.set('auth.restrictUsersToFacilities', true);
         const userFacilities = await unlinkedUser.allowedFacilities();
         expect(userFacilities).toHaveLength(0);
       });
@@ -429,17 +430,13 @@ describe('User', () => {
 
     describe('allowedFacilityIds', () => {
       it('should get special "ALL" key when superuser', async () => {
-        jest
-          .spyOn(superUser, 'allowedFacilities')
-          .mockImplementation(() => CAN_ACCESS_ALL_FACILITIES);
         const superUserFacilityIds = await superUser.allowedFacilityIds();
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
       it('login permission should return all non-sensitive facilities plus linked facilities', async () => {
-        await models.Setting.set('auth.restrictUsersToFacilities', true);
-        mockLoginFacilityPermission(linkedUser, true);
-        const userFacilityIds = await linkedUser.allowedFacilityIds();
+        mockLoginFacilityPermission(user, true);
+        const userFacilityIds = await user.allowedFacilityIds();
         expect(userFacilityIds).toContainEqual(facility1.id);
         expect(userFacilityIds).toContainEqual(facility2.id);
         expect(userFacilityIds).toContainEqual(facility3.id);
@@ -448,7 +445,7 @@ describe('User', () => {
 
       it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
-        const userFacilityIds = await linkedUser.allowedFacilityIds();
+        const userFacilityIds = await user.allowedFacilityIds();
         expect(userFacilityIds).toContainEqual(facility1.id);
         expect(userFacilityIds).toContainEqual(facility2.id);
         expect(userFacilityIds).toContainEqual(facility3.id);
@@ -456,13 +453,10 @@ describe('User', () => {
       });
 
       it('should return linked facility ids from user_facilities table', async () => {
-        jest.spyOn(linkedUser, 'allowedFacilities').mockImplementation(() => linkedUserFacilities);
-        const userFacilityIds = await linkedUser.allowedFacilityIds();
+        const userFacilityIds = await user.allowedFacilityIds();
         expect(userFacilityIds).toStrictEqual(linkedUserFacilityIds);
       });
       it('should return empty array if no linked facilities', async () => {
-        jest.spyOn(unlinkedUser, 'allowedFacilities').mockImplementation(() => []);
-        await models.Setting.set('auth.restrictUsersToFacilities', true);
         const userFacilityIds = await unlinkedUser.allowedFacilityIds();
         expect(userFacilityIds).toHaveLength(0);
       });
@@ -477,13 +471,10 @@ describe('User', () => {
       });
 
       it('should return true if user is linked to the facility', async () => {
-        jest
-          .spyOn(linkedUser, 'allowedFacilityIds')
-          .mockImplementation(() => [facility1.id, facility2.id]);
-        expect(await linkedUser.canAccessFacility(facility1.id)).toBe(true);
-        expect(await linkedUser.canAccessFacility(facility2.id)).toBe(true);
-        expect(await linkedUser.canAccessFacility(facility3.id)).toBe(false);
-        expect(await linkedUser.canAccessFacility(sensitiveFacility.id)).toBe(false);
+        expect(await user.canAccessFacility(facility1.id)).toBe(true);
+        expect(await user.canAccessFacility(facility2.id)).toBe(false);
+        expect(await user.canAccessFacility(facility3.id)).toBe(false);
+        expect(await user.canAccessFacility(sensitiveFacility.id)).toBe(true);
       });
     });
 
