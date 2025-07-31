@@ -325,9 +325,9 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-            medicationAlreadyOrderedWarningTimeout: {
+            medicationAlreadyOrderedConfirmationTimeout: {
               description:
-                'Warn users if they try to order a medication that has been ordered within the timeout period',
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
               type: yup.number().positive(),
               defaultValue: 24,
               unit: 'hours',

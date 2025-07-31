@@ -82,14 +82,14 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   const [orderingClinicianId, setOrderingClinicianId] = useState(null);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [showAlreadyOrderedWarning, setShowAlreadyOrderedWarning] = useState(false);
+  const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
   const api = useApi();
   const queryClient = useQueryClient();
   const practitionerSuggester = useSuggester('practitioner');
   const { getSetting } = useSettings();
 
-  const medicationAlreadyOrderedWarningTimeout = getSetting(
-    'features.pharmacyOrder.medicationAlreadyOrderedWarningTimeout',
+  const medicationAlreadyOrderedConfirmationTimeout = getSetting(
+    'features.pharmacyOrder.medicationAlreadyOrderedConfirmationTimeout',
   );
 
   const {
@@ -155,9 +155,10 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         p =>
           p.selected &&
           p.lastOrderedAt &&
-          new Date(p.lastOrderedAt) > subHours(new Date(), medicationAlreadyOrderedWarningTimeout),
+          new Date(p.lastOrderedAt) >
+            subHours(new Date(), medicationAlreadyOrderedConfirmationTimeout),
       ),
-    [prescriptions, medicationAlreadyOrderedWarningTimeout],
+    [prescriptions, medicationAlreadyOrderedConfirmationTimeout],
   );
 
   const selectAllChecked = useMemo(() => {
@@ -230,7 +231,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     if (!validateForm()) return;
 
     if (getAlreadyOrderedPrescriptions().length > 0) {
-      setShowAlreadyOrderedWarning(true);
+      setShowAlreadyOrderedConfirmation(true);
       return;
     }
 
@@ -241,7 +242,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     onClose();
     setTimeout(() => {
       setShowSuccess(false);
-      setShowAlreadyOrderedWarning(false);
+      setShowAlreadyOrderedConfirmation(false);
       setComments('');
       setPrescriptions(initialPrescriptions);
     }, 200);
@@ -297,7 +298,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     );
   }
 
-  if (showAlreadyOrderedWarning) {
+  if (showAlreadyOrderedConfirmation) {
     return (
       <StyledModal
         title={
@@ -325,8 +326,8 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           <DialogPrimaryText>
             <TranslatedText
               stringId="pharmacyOrder.orderConfirmation.message"
-              fallback="The above medications have already been ordered within the past :medicationAlreadyOrderedWarningTimeout hours"
-              replacements={{ medicationAlreadyOrderedWarningTimeout }}
+              fallback="The above medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
+              replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
             />
           </DialogPrimaryText>
           <DialogSecondaryText>
@@ -337,7 +338,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           </DialogSecondaryText>
         </DialogContent>
         <ConfirmCancelBackRow
-          onBack={() => setShowAlreadyOrderedWarning(false)}
+          onBack={() => setShowAlreadyOrderedConfirmation(false)}
           onCancel={handleClose}
           onConfirm={handleSendOrder}
           data-testid="confirmcancelrow-7g3j"
