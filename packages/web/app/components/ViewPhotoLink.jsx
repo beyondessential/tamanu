@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { subject } from '@casl/ability';
 import { useApi } from '../api';
 import { getImageSourceFromData } from '../utils';
 import { Modal } from './Modal';
@@ -8,6 +9,8 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
 import { Divider } from '@material-ui/core';
 import { LoadingIndicator } from './LoadingIndicator';
+import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';
+import { useAuth } from '../contexts/Auth';
 
 const Image = styled.img`
   display: block;
@@ -47,12 +50,13 @@ const TextDisplay = ({ isChartView }) => {
 };
 
 const Footer = ({ hasError, onDelete, onClose }) => {
-  const RowComponent = hasError ? ButtonRow : SpaceBetweenButtonRow;
+  const showDeleteButton = onDelete && !hasError;
+  const RowComponent = showDeleteButton ? SpaceBetweenButtonRow : ButtonRow;
   return (
     <>
       <Divider style={{ margin: '32px -32px 30px -32px' }} data-testid="divider-ib6q" />
       <RowComponent>
-        {!hasError && (
+        {showDeleteButton && (
           <OutlinedButton onClick={onDelete} data-testid="outlinedbutton-y5xo">
             <TranslatedText
               stringId="general.action.delete"
@@ -84,13 +88,15 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
   return <Image src={getImageSourceFromData(imageData)} data-testid="image-7oxc" />;
 };
 
-export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
-  const [showModal, setShowModal] = useState(false);
+export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }) => {
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const api = useApi();
+  const { ability } = useAuth();
   const openModalCallback = useCallback(async () => {
-    setShowModal(true);
+    setIsPhotoModalOpen(true);
     if (!navigator.onLine) {
       setImageData(null);
       setErrorMessage(
@@ -110,6 +116,7 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
   }, [api, imageId]);
   const isChartView = !!chartTitle;
   const title = isChartView ? `${chartTitle} | View image` : 'Image';
+  const canDelete = ability.can('delete', subject('Charting', { id: surveyId }));
 
   return (
     <>
@@ -118,19 +125,26 @@ export const ViewPhotoLink = ({ imageId, chartTitle = null }) => {
       </TextButton>
       <Modal
         title={title}
-        open={showModal}
-        onClose={() => setShowModal(false)}
+        open={isPhotoModalOpen}
+        onClose={() => setIsPhotoModalOpen(false)}
         data-testid="modal-zpy7"
       >
         <ImageModalContent imageData={imageData} errorMessage={errorMessage} />
         {isChartView && (
           <Footer
             hasError={!!errorMessage}
-            onDelete={() => {}}
-            onClose={() => setShowModal(false)}
+            onDelete={canDelete ? () => setIsDeleteModalOpen(true) : null}
+            onClose={() => setIsPhotoModalOpen(false)}
           />
         )}
       </Modal>
+      {canDelete && (
+        <DeletePhotoLinkModal
+          open={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          answerId={answerId}
+        />
+      )}
     </>
   );
 };

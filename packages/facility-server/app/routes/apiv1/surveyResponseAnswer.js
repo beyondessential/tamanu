@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+import { subject } from '@casl/ability';
 import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
 import {
   CHARTING_DATA_ELEMENT_IDS,
@@ -288,5 +289,56 @@ surveyResponseAnswer.post(
     const newAnswer = await postSurveyResponseAnswer(req);
 
     res.send(newAnswer);
+  }),
+);
+
+surveyResponseAnswer.put(
+  '/photo/:id',
+  asyncHandler(async (req, res) => {
+    const { db, models, params } = req;
+    const { SurveyResponseAnswer, Attachment } = models;
+    const { id } = params;
+
+    // Find answer
+    const answerObject = await SurveyResponseAnswer.findByPk(id, {
+      include: [
+        {
+          // Ensure answer is photo type
+          required: true,
+          model: models.ProgramDataElement,
+          where: { type: PROGRAM_DATA_ELEMENT_TYPES.PHOTO },
+        },
+        {
+          required: true,
+          model: models.SurveyResponse,
+          as: 'surveyResponse',
+        },
+      ],
+    });
+
+    if (!answerObject) {
+      throw new InvalidParameterError('Invalid answer ID.');
+    }
+
+    req.checkPermission(
+      'delete',
+      subject('Charting', { id: answerObject.surveyResponse.surveyId }),
+    );
+
+    await db.transaction(async () => {
+      // Blank out the attachment. We need to upsert because the record
+      // might not exist on facility server.
+      await Attachment.upsert({
+        id: answerObject.body,
+        data: Buffer.from([]),
+        type: 'image/jpeg',
+        size: 0,
+      });
+
+      // Update answer to empty string (needed for logs and table display)
+      await answerObject.update({ body: '' });
+    });
+
+    res.send(answerObject);
   }),
 );
