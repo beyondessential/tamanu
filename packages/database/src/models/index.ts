@@ -35,6 +35,7 @@ export * from './ReferenceDataRelation';
 export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
+export * from './ProcedureAssistantClinician';
 
 export * from './EncounterDiagnosis';
 export * from './Prescription';
@@ -88,6 +89,7 @@ export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
+export * from './ProcedureTypeSurvey';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
