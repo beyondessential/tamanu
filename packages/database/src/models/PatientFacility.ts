@@ -59,7 +59,7 @@ export class PatientFacility extends Model {
   }
 
   static async createOrUpdate(values: Partial<PatientFacility>, options: UpsertOptions) {
-    const [record] = await super.upsert({ ...values, lastInteractedTime: new Date() }, {
+    const [record] = await super.upsert(values, {
       returning: true,
       conflictFields: ['patient_id', 'facility_id'],
       ...options,
