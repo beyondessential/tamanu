@@ -18,11 +18,16 @@ jest.mock('./utils', () => ({
   clearPersistedSyncSessionRecords: jest.fn(),
 }));
 
+jest.mock('./utils/manageSnapshotTable', () => ({
+  dropSnapshotTable: jest.fn(),
+}));
+
 jest.mock('../../infra/db', () => ({
   Database: {
     models: {},
     client: {
       transaction: jest.fn(),
+      query: jest.fn(),
     },
   },
 }));
