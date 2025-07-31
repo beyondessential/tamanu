@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { subject } from '@casl/ability';
 
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedText } from '../Translation';
@@ -35,6 +36,7 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
 `;
 
 export const CoreComplexChartData = ({
+  coreComplexChartSurveyId,
   handleDeleteChart,
   selectedSurveyId,
   currentInstanceId,
@@ -58,16 +60,19 @@ export const CoreComplexChartData = ({
       ),
       action: () => setModalOpen(true),
       permissionCheck: () => {
-        return ability?.can('delete', 'Charting');
+        return ability?.can('delete', subject('Charting', { id: coreComplexChartSurveyId }));
       },
     },
-  ];
+  ].filter(({ permissionCheck }) => {
+    return permissionCheck ? permissionCheck() : true;
+  });
 
   const isFieldVisible = (value, fieldId) =>
     !!value || fieldVisibility[fieldId] === VISIBILITY_STATUSES.CURRENT;
 
   const isTypeVisible = isFieldVisible(type, CHARTING_DATA_ELEMENT_IDS.complexChartType);
   const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
+  const showMenuButton = data.length === 0 && actions.length > 0;
 
   return (
     <>
@@ -117,7 +122,7 @@ export const CoreComplexChartData = ({
             </CoreComplexChartSingleInfoWrapper>
           ) : null}
         </CoreComplexChartInfoWrapper>
-        {data.length === 0 ? <MenuButton actions={actions} data-testid="menubutton-ypvb" /> : null}
+        {showMenuButton ? <MenuButton actions={actions} data-testid="menubutton-ypvb" /> : null}
       </CoreComplexChartDataRow>
     </>
   );

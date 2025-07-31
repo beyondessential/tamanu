@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
+import { subject } from '@casl/ability';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -34,7 +35,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   );
 
   const { ability } = useAuth();
-  const canCreateChart = ability.can('create', 'Charting');
+  const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
   const initialValues = useMemo(
     () => getFormInitialValues(
