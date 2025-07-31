@@ -92,6 +92,13 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 export const FILTER_PHOTOS = { name: 'Photos (.jpg, .jpeg)', extensions: ['jpg', 'jpeg'] };
 
+const getFilterNames = (filters) => {
+  if (filters.length === 1 && filters[0].name === FILTER_PHOTOS.name) {
+    return filters[0].extensions.join(' or ');
+  }
+  return filters.map((filter) => filter.name).join(', ');
+};
+
 export const FileChooserInput = ({
   value = '',
   label,
@@ -99,6 +106,13 @@ export const FileChooserInput = ({
   filters,
   onChange,
   smallDisplay = false,
+  buttonText = (
+    <TranslatedText
+      stringId="chooseFile.button.label"
+      fallback="Choose file"
+      data-testid="translatedtext-9peo"
+    />
+  ),
   ...props
 }) => {
   const { getSetting } = useSettings();
@@ -111,6 +125,7 @@ export const FileChooserInput = ({
   const inputRef = useRef(null);
 
   const showFileDialog = () => {
+    if (!inputRef.current) return;
     inputRef.current.click();
   };
 
@@ -136,6 +151,10 @@ export const FileChooserInput = ({
 
   const onClear = () => {
     onChange({ target: { name, value: '' } });
+
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
   };
 
   return (
@@ -165,11 +184,7 @@ export const FileChooserInput = ({
                 color="primary"
                 data-testid="button-1mo9"
               >
-                <TranslatedText
-                  stringId="chooseFile.button.label"
-                  fallback="Choose file"
-                  data-testid="translatedtext-9peo"
-                />
+                {buttonText}
               </Button>
               <HintText data-testid="hinttext-oxv8">
                 <TranslatedText
@@ -184,7 +199,7 @@ export const FileChooserInput = ({
                   fallback="Supported file types"
                   data-testid="translatedtext-k2w3"
                 />
-                : {filters.map((filter) => filter.name).join(', ')}
+                : {getFilterNames(filters)}
               </HintText>
             </>
           )}
