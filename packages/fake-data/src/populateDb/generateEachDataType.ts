@@ -15,6 +15,8 @@ import {
   createMedication,
   createAccessLog,
   generateImportData,
+  createProcedure,
+  createAppointment,
 } from './helpers/index.js';
 
 export const generateEachDataType = async (models: Models): Promise<void> => {
@@ -122,6 +124,15 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       userId: user.id,
       patientId: patient.id,
       facilityId: facility.id,
+    }),
+    await createProcedure({ models, limit, encounterId: encounter.id }),
+    await createAppointment({
+      models,
+      limit,
+      encounterId: encounter.id,
+      locationGroupId: locationGroup.id,
+      patientId: patient.id,
+      clinicianId: user.id,
     }),
   ]);
 };

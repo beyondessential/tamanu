@@ -15,6 +15,7 @@ interface CreateEncounterParams extends CommonParams {
   noteCount?: number;
   diagnosisCount?: number;
   isDischarged?: boolean;
+  isTriage?: boolean;
 }
 export const createEncounter = async ({
   models,
@@ -27,8 +28,9 @@ export const createEncounter = async ({
   noteCount = chance.integer({ min: 1, max: 5 }),
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
+  isTriage = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
-  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis } = models;
+  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis, Triage } = models;
 
   const encounter = await Encounter.create(
     fake(Encounter, {
@@ -75,6 +77,14 @@ export const createEncounter = async ({
       }),
     ),
   );
+
+  if (isTriage) {
+    await Triage.create(
+      fake(Triage, {
+        encounterId: encounter.id,
+      }),
+    );
+  }
 
   if (isDischarged) {
     await Discharge.create(

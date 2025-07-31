@@ -11,3 +11,4 @@ export * from './survey.js';
 export * from './vaccine.js';
 export * from './importData.js';
 export * from './medication.js';
+export * from './procedure.js';
