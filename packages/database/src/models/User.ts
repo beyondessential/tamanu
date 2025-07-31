@@ -278,18 +278,17 @@ export class User extends Model {
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
-
     const userLinkedFacilities = this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
 
     // If setting is false or user has login permission, combine linked facilities with all non-sensitive ones
     if (!restrictUsersToFacilities || hasLoginPermission) {
-      const allNonSensitiveFacilities = await Facility.findAll({
+      const nonSensitiveFacilities = await Facility.findAll({
         where: { isSensitive: false },
         attributes: ['id', 'name'],
         raw: true,
       });
 
-      const combinedFacilities = unionBy(userLinkedFacilities, allNonSensitiveFacilities, 'id');
+      const combinedFacilities = unionBy(userLinkedFacilities, nonSensitiveFacilities, 'id');
       return combinedFacilities;
     }
 
