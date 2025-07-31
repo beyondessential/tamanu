@@ -27,7 +27,7 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
 
     // Query differs from postgres version because of sqlite limitations
     await queryRunner.query(`
-      WITH max_dates AS (
+    WITH max_dates AS (
         SELECT 
           pf.id as patient_facility_id,
           MAX(e.createdAt) as max_encounter_date,
@@ -49,10 +49,17 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
       SET lastInteractedTime = (
         SELECT 
           CASE
-            WHEN COALESCE(md.max_encounter_date, '0') > COALESCE(md.max_registration_date, '0')
-              AND COALESCE(md.max_encounter_date, '0') > md.facility_created_at
+            WHEN md.max_encounter_date IS NOT NULL 
+              AND md.max_registration_date IS NOT NULL
+              AND md.max_encounter_date > md.max_registration_date
+              AND md.max_encounter_date > md.facility_created_at
             THEN md.max_encounter_date
-            WHEN COALESCE(md.max_registration_date, '0') > md.facility_created_at
+            WHEN md.max_encounter_date IS NOT NULL 
+              AND md.max_registration_date IS NULL
+              AND md.max_encounter_date > md.facility_created_at
+            THEN md.max_encounter_date
+            WHEN md.max_registration_date IS NOT NULL
+              AND md.max_registration_date > md.facility_created_at
             THEN md.max_registration_date
             ELSE md.facility_created_at
           END
