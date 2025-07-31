@@ -124,12 +124,16 @@ export const saveChangesFromMemory = async (
   for (const model of sortedModels) {
     const recordsForModel = preparedRecordByModel[model.name];
     if (recordsForModel.length > 0) {
-      await executeInserts(
-        model.getTransactionalRepository(),
-        recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
-        syncSettings.maxRecordsPerInsertBatch,
-        progressCallback,
-      );
+      if (model.name === 'User') {
+        await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
+      } else {
+        await executeInserts(
+          model.getTransactionalRepository(),
+          recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
+          syncSettings.maxRecordsPerInsertBatch,
+          progressCallback,
+        );
+      }
     }
   }
 };
