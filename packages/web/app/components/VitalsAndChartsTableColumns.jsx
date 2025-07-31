@@ -160,7 +160,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 
 const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
   return (cells) => {
-    const { value, config, validationCriteria, historyLogs, component } = cells[date];
+    const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
     const isCalculatedQuestion =
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
     const isMultiSelect =
@@ -176,6 +176,8 @@ const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, char
     if (isPhoto && value) {
       return (
         <ViewPhotoLink
+          answerId={answerId}
+          surveyId={component.surveyId}
           imageId={value}
           data-testid="viewphotolink-chrt"
           chartTitle={chartTitle}
