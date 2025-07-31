@@ -19,7 +19,10 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   tablesForFullResync: string[],
-  { pullIncomingChanges: { maxRecordsPerSnapshotBatch, lastInteractedThreshold } }: MobileSyncSettings,
+  {
+    pullIncomingChanges: { maxRecordsPerSnapshotBatch },
+    lastInteractedThreshold,
+  }: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ totalPulled: number; pullUntil: number }> => {
   await createSnapshotTable();
