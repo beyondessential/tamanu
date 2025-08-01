@@ -1,10 +1,9 @@
 ({ generateEachDataType } = require('@tamanu/fake-data/populateDb'))
-console.time('generate-10000-sets');
-for (let i = 0; i < 10000; i++) {
-  console.log(`Generating set ${i + 1}/10000...`);
+for (let i = 0; i < 3000; i++) {
+  console.log(`Generating set ${i + 1}/3000...`);
   await generateEachDataType(models);
 }
-console.timeEnd('generate-10000-sets');
+console.timeEnd('generate-3000-sets');
 
 
 Baseline debug log
@@ -13,3 +12,21 @@ Baseline debug log
 completedAt":"2025-07-31T21:42:52.057Z"}
 
 Changes debug log
+{"startedAt":"2025-07-31T22:03:00.057Z",
+"since":-1,"changesCount":356408,"
+completedAt":"2025-07-31T22:03:16.376Z"}
+
+
+ SELECT * FROM logs.debug_logs 
+WHERE type = 'syncLookupUpdate' 
+  AND (info->>'changesCount')::integer > 0
+ORDER BY (info->>'startedAt')::timestamp DESC;
+
+Autodeploy before
+id   | 07f0595c-d118-45c1-a4cc-5804a0694d91
+type | syncLookupUpdate
+info | {"startedAt":"2025-08-01T02:16:40.003Z","
+since":-1,"changesCount":759715,"
+completedAt":"2025-08-01T02:17:11.479Z"}
+
+Autodeploy after
