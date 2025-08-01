@@ -4,7 +4,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import { Box, IconButton } from '@material-ui/core';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
-import { TranslatedText } from '../Translation';
+import { TranslatedReferenceData } from '../Translation';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
@@ -22,7 +22,7 @@ const StyledInfoCard = styled(InfoCard)`
   }
 `;
 
-const ChartInstanceInfoLabel = styled(TranslatedText)`
+const ChartInstanceInfoLabel = styled(TranslatedReferenceData)`
   font-weight: 500;
 `;
 
@@ -49,6 +49,7 @@ export const ChartInstanceInfoSection = ({
   fieldVisibility,
   patient,
   selectedChartSurveyName,
+  coreComplexDataElements,
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { encounter } = useEncounter();
@@ -76,6 +77,14 @@ export const ChartInstanceInfoSection = ({
     queryClient.invalidateQueries(['encounterComplexChartInstances', encounter.id, chartSurveyId]);
     setIsEditModalOpen(false);
   };
+
+  const {
+    instanceNameDataElement,
+    dateDataElement,
+    typeDataElement,
+    subtypeDataElement,
+  } = coreComplexDataElements;
+
   return (
     <>
       <FormModal title={title} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
@@ -112,8 +121,9 @@ export const ChartInstanceInfoSection = ({
           fontSize={14}
           label={
             <ChartInstanceInfoLabel
-              stringId="complexChartInstance.location"
-              fallback="Location:"
+              category="programDataElement"
+              value={instanceNameDataElement?.id}
+              fallback={instanceNameDataElement?.name}
               data-testid="chartinstanceinfolabel-2vmu"
             />
           }
@@ -124,8 +134,9 @@ export const ChartInstanceInfoSection = ({
           fontSize={14}
           label={
             <ChartInstanceInfoLabel
-              stringId="complexChartInstance.date"
-              fallback="Date & time of onset:"
+              category="programDataElement"
+              value={dateDataElement?.id}
+              fallback={dateDataElement?.name}
               data-testid="chartinstanceinfolabel-xn1c"
             />
           }
@@ -138,8 +149,9 @@ export const ChartInstanceInfoSection = ({
             fontSize={14}
             label={
               <ChartInstanceInfoLabel
-                stringId="complexChartInstance.type"
-                fallback="Type:"
+                category="programDataElement"
+                value={typeDataElement?.id}
+                fallback={typeDataElement?.name}
                 data-testid="chartinstanceinfolabel-m3or"
               />
             }
@@ -153,8 +165,9 @@ export const ChartInstanceInfoSection = ({
             fontSize={14}
             label={
               <ChartInstanceInfoLabel
-                stringId="complexChartInstance.subtype"
-                fallback="Sub type:"
+                category="programDataElement"
+                value={subtypeDataElement?.id}
+                fallback={subtypeDataElement?.name}
                 data-testid="chartinstanceinfolabel-p5wn"
               />
             }

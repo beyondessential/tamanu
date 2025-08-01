@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
 import { useAuth } from '../../contexts/Auth';
-import { TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
 import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
@@ -44,6 +44,7 @@ export const CoreComplexChartData = ({
   type,
   subtype,
   fieldVisibility,
+  coreComplexDataElements,
 }) => {
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
@@ -74,6 +75,8 @@ export const CoreComplexChartData = ({
   const isSubtypeVisible = isFieldVisible(subtype, CHARTING_DATA_ELEMENT_IDS.complexChartSubtype);
   const showMenuButton = data.length === 0 && actions.length > 0;
 
+  const { dateDataElement, typeDataElement, subtypeDataElement } = coreComplexDataElements;
+
   return (
     <>
       <DeleteChartModal
@@ -86,11 +89,12 @@ export const CoreComplexChartData = ({
         <CoreComplexChartInfoWrapper data-testid="corecomplexchartinfowrapper-zn2k">
           <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-qen9">
             <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-a7s5">
-              <TranslatedText
-                stringId="complexChartInstance.date"
-                fallback="Date & time of onset:"
-                data-testid="translatedtext-moh0"
-              />
+              <TranslatedReferenceData
+                category="programDataElement"
+                value={dateDataElement?.id}
+                fallback={dateDataElement?.name}
+                data-testid="translatedreferencedata-moh0"
+              />{dateDataElement ? ':' : null}
             </CoreComplexChartInfoHeader>
             <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
@@ -98,11 +102,12 @@ export const CoreComplexChartData = ({
           {isTypeVisible ? (
             <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-2jla">
               <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-4k95">
-                <TranslatedText
-                  stringId="complexChartInstance.type"
-                  fallback="Type:"
-                  data-testid="translatedtext-4z04"
-                />
+                <TranslatedReferenceData
+                  category="programDataElement"
+                  value={typeDataElement?.id}
+                  fallback={typeDataElement?.name}
+                  data-testid="translatedreferencedata-4z04"
+                />{typeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -112,11 +117,12 @@ export const CoreComplexChartData = ({
           {isSubtypeVisible ? (
             <CoreComplexChartSingleInfoWrapper data-testid="corecomplexchartsingleinfowrapper-h7z6">
               <CoreComplexChartInfoHeader data-testid="corecomplexchartinfoheader-bgio">
-                <TranslatedText
-                  stringId="complexChartInstance.subtype"
-                  fallback="Sub type:"
-                  data-testid="translatedtext-9x05"
-                />
+                <TranslatedReferenceData
+                  category="programDataElement"
+                  value={subtypeDataElement?.id}
+                  fallback={subtypeDataElement?.name}
+                  data-testid="translatedreferencedata-9x05"
+                />{subtypeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>
