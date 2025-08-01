@@ -13,6 +13,11 @@ import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Patient } from '~/models/Patient';
 import { PatientFieldDefinition } from '~/models/PatientFieldDefinition';
 import { useSettings } from '~/ui/contexts/SettingsContext';
+import { TranslatedReferenceData } from '~/ui/components/Translations/TranslatedReferenceData';
+import { ReferenceDataType } from '~/types/IReferenceData';
+import { PATIENT_DATA_FIELDS } from '~/ui/helpers/patient';
+import { ADDRESS_HIERARCHY_FIELD_ID } from '~/ui/components/Forms/PatientAdditionalDataForm/HierarchyField';
+import { ADDITIONAL_DATA_FIELDS } from '~/ui/helpers/additionalData';
 
 interface AdditionalInfoProps {
   onEdit: (
@@ -38,12 +43,56 @@ function getPadFieldData(data: PatientAdditionalData, fieldName: string): string
   return data?.[fieldName];
 }
 
+const getAddressHierarchyData = (
+  patient: Patient,
+  patientAdditionalData: PatientAdditionalData,
+) => {
+  return [
+    [
+      ADDITIONAL_DATA_FIELDS.DIVISION_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.divisionId}
+        category={ReferenceDataType.Division}
+        fallback={patientAdditionalData?.division?.name}
+        value={patientAdditionalData?.divisionId}
+      />,
+    ],
+    [
+      ADDITIONAL_DATA_FIELDS.SUBDIVISION_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.subdivisionId}
+        category={ReferenceDataType.Subdivision}
+        fallback={patientAdditionalData?.subdivision?.name}
+        value={patientAdditionalData?.subdivisionId}
+      />,
+    ],
+    [
+      ADDITIONAL_DATA_FIELDS.SETTLEMENT_ID,
+      <TranslatedReferenceData
+        key={patientAdditionalData?.settlementId}
+        category={ReferenceDataType.Settlement}
+        fallback={patientAdditionalData?.settlement?.name}
+        value={patientAdditionalData?.settlementId}
+      />,
+    ],
+    [
+      PATIENT_DATA_FIELDS.VILLAGE_ID,
+      <TranslatedReferenceData
+        key={patient.villageId}
+        category={ReferenceDataType.Village}
+        fallback={patient.village?.name}
+        value={patient.villageId}
+      />,
+    ],
+  ];
+};
+
 export const AdditionalInfo = ({
   patient,
   onEdit,
   dataSections,
 }: AdditionalInfoProps): ReactElement => {
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const {
     customPatientSections,
     customPatientFieldValues,
@@ -53,7 +102,10 @@ export const AdditionalInfo = ({
     error,
   } = usePatientAdditionalData(patient.id);
 
-  const customDataById = mapValues(customPatientFieldValues, nestedObject => nestedObject[0].value);
+  const customDataById = mapValues(
+    customPatientFieldValues,
+    (nestedObject) => nestedObject[0].value,
+  );
 
   // Display general error
   if (error) {
@@ -64,18 +116,19 @@ export const AdditionalInfo = ({
   const isEditable = getSetting<boolean>('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
-  const additionalSections = dataSections.map(({ title, dataFields, fields: displayFields, sectionKey }) => {
-    const fields = dataFields || displayFields;
-    const onEditCallback = (): void =>
-      onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
+  const additionalSections = dataSections.map(
+    ({ title, dataFields, fields: displayFields, sectionKey }) => {
+      const fields = dataFields || displayFields;
+      const onEditCallback = (): void =>
+        onEdit(patientAdditionalData, title, false, null, customPatientFieldValues, sectionKey);
 
-      const fieldsWithData = fields.map(field => {
-        if (field === 'villageId' || field.name === 'villageId') {
-          return ['villageId', patient.village?.name];
+      const fieldsWithData = fields.flatMap((field: string) => {
+        if (field === ADDRESS_HIERARCHY_FIELD_ID) {
+          return getAddressHierarchyData(patient, patientAdditionalData);
         } else if (Object.keys(customDataById).includes(field)) {
-          return [field, customDataById[field]];
+          return [[field, customDataById[field]]];
         } else {
-          return [field, getPadFieldData(patientAdditionalData, field)];
+          return [[field, getPadFieldData(patientAdditionalData, field)]];
         }
       });
 
@@ -85,8 +138,9 @@ export const AdditionalInfo = ({
 
   const customSections = customPatientSections.map(([_categoryId, fields]) => {
     const title = fields[0].category.name;
-    const onEditCallback = (): void => onEdit(null, title, true, fields, customPatientFieldValues, null);
-    const mappedFields = fields.map(field => {
+    const onEditCallback = (): void =>
+      onEdit(null, title, true, fields, customPatientFieldValues, null);
+    const mappedFields = fields.map((field) => {
       const { id, name } = field;
       const [customFieldValue] = customPatientFieldValues[id] || [];
       return [name, customFieldValue?.value];

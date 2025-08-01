@@ -29,6 +29,7 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
     const entity = await models.ReferenceData.getNode({
       type: leafNodeType,
     });
+
     const ancestors = await entity?.getAncestors();
     return [...ancestors, entity];
   });
@@ -36,8 +37,9 @@ const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: Ref
   const configuredFieldTypes =
     error || loading || !hierarchy
       ? [leafNodeType] // If there is an error, or nothing is configured just display the bottom level field
-      : hierarchy.map(entity => entity.type);
-  return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
+      : hierarchy.map((entity) => entity.type);
+
+  return fields.filter((f) => configuredFieldTypes.includes(f.referenceType));
 };
 
 interface HierarchyFieldsProps {
@@ -51,7 +53,7 @@ export const HierarchyFields = ({
   leafNodeType = ReferenceDataType.Village,
   relationType = ReferenceDataRelationType.AddressHierarchy,
 }: HierarchyFieldsProps) => {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const hierarchyFields = useAddressHierarchy(fields, leafNodeType);
 
   return (
@@ -59,6 +61,12 @@ export const HierarchyFields = ({
       {hierarchyFields.map(({ label, name, referenceType }, index) => {
         const parentFieldData = hierarchyFields[index - 1];
         const parentId = get(values, parentFieldData?.name);
+
+        const clearRestOfFields = () => {
+          hierarchyFields.slice(index + 1).forEach((field) => {
+            setFieldValue(field.name, '');
+          });
+        };
 
         return (
           <HierarchyFieldItem
@@ -69,6 +77,7 @@ export const HierarchyFields = ({
             name={name}
             label={label}
             referenceType={referenceType}
+            onChange={clearRestOfFields}
           />
         );
       })}

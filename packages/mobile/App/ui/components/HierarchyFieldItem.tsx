@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
-import { useFormikContext } from 'formik';
+import React from 'react';
 import { AutocompleteModalField } from './AutocompleteModal/AutocompleteModalField';
 import { Field } from './Forms/FormField';
 import { Suggester } from '../helpers/suggester';
 import { useBackend } from '~/ui/hooks';
-import { IReferenceData } from '~/types';
 
 export const HierarchyFieldItem = ({
   isFirstLevel,
@@ -13,9 +11,9 @@ export const HierarchyFieldItem = ({
   referenceType,
   name,
   label,
+  onChange,
 }) => {
   const { models } = useBackend();
-  const { setFieldValue, dirty } = useFormikContext();
 
   const suggesterInstance = new Suggester({
     model: models.ReferenceData,
@@ -24,21 +22,13 @@ export const HierarchyFieldItem = ({
         type: referenceType,
       },
       relations: ['parents'],
-    },
-    filter: (item: IReferenceData) => {
-      if (isFirstLevel || !parentId) {
-        return true;
-      }
-      const parent = item.parents[0];
-      return parent?.referenceDataParentId === parentId && parent?.type === relationType;
+      hierarchy: {
+        parentId,
+        relationType,
+        isFirstLevel,
+      },
     },
   });
-
-  // Clear the value of the field when the parent field changes
-  useEffect(() => {
-    if (!dirty) return;
-    setFieldValue(name, '');
-  }, [name, parentId]);
 
   return (
     <Field
@@ -47,6 +37,7 @@ export const HierarchyFieldItem = ({
       disabled={!isFirstLevel && !parentId}
       name={name}
       label={label}
+      onChange={onChange}
     />
   );
 };

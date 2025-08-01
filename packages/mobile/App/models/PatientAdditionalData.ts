@@ -238,7 +238,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
     const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
-    await PatientAdditionalData.updateValues(additionalData.id, values);
+    return await PatientAdditionalData.updateValues(additionalData.id, values);
   }
 
   static sanitizeRecordDataForPush(rows) {
