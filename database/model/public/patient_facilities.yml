@@ -42,3 +42,13 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_facilities."
+          - name: last_interacted_time
+            data_type: timestamp with time zone
+            description: "{{ doc('patient_facilities__last_interacted_time') }}"
+            data_tests:
+              - not_null
+          - name: created_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('patient_facilities__created_at_sync_tick') }}"
+            data_tests:
+              - not_null

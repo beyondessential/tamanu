@@ -70,6 +70,7 @@ import { addProgramRegistryConditionCategories1749085185000 } from './1749085185
 import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
 import { addPatientAllergiesTable1750787000000 } from './1750787000000-addPatientAllergiesTable';
 import { addMedicationAdministrationRecordTable1750787001000 } from './1750787001000-addMedicationAdministrationRecordTable';
+import { addLastInteractedTimeToPatientFacilities1752709361030 } from './1752709361030-addLastInteractedTimeToPatientFacilities';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -143,4 +144,5 @@ export const migrationList = [
   updateMedicationsDBSchema1750786972719,
   addPatientAllergiesTable1750787000000,
   addMedicationAdministrationRecordTable1750787001000,
+  addLastInteractedTimeToPatientFacilities1752709361030,
 ];
