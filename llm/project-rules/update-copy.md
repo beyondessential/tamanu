@@ -10,7 +10,7 @@ Use this rule when a user wants to update copy/text for translated buttons, stri
 
 3. **Update the fallback text**: Change the fallback/default text to the new wording the user requested.
 
-4. **Update the stringId if needed**: If the wording has changed significantly in meaning or context (not just minor tweaks), update the stringId to reflect the new purpose/meaning of the text.
+4. **Update the stringId**: If the wording has changed meaningfully (i.e. not just a typo tweak, added conjunction, or change in pluralisation), update the stringId to reflect the new text.
 
 5. **Search for all instances**: Use search tools to find all places in the codebase where the old stringId or text is used to ensure consistency.
 
