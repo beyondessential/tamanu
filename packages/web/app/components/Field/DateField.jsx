@@ -193,6 +193,7 @@ export const DateInput = ({
         'data-testid': `${dataTestId}-input`,
       }}
       style={isPlaceholder ? { color: Colors.softText } : undefined}
+      data-testid={dataTestId}
       {...props}
     />
   );
@@ -205,6 +206,7 @@ export const DateInput = ({
         inputProps,
       }}
       style={{ color: Colors.softText }}
+      data-testid={dataTestId}
       {...props}
     />
   );
