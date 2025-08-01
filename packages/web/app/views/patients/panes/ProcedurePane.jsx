@@ -7,6 +7,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -22,6 +23,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane data-testid="tabpane-q1xp">
       <ProcedureModal
+        key={editedProcedure} /* Ensures that the modal is reset on close */
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}

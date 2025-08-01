@@ -9,7 +9,7 @@ export const procedure = express.Router();
 procedure.get('/:id', async (req, res) => {
   const { models } = req;
   const { ProcedureAssistantClinician } = models;
-  const procedure = await findRouteObject(req, 'Procedure');
+  const procedure = await findRouteObject(req, 'Procedure'); // permission check happens internally
 
   const assistantClinicians = await ProcedureAssistantClinician.findAll({
     where: { procedureId: procedure.id },
@@ -31,6 +31,7 @@ procedure.post('/surveyResponse', async (req, res) => {
     models,
     body: { procedureId },
   } = req;
+  req.checkPermission('create', 'Procedure');
 
   const responseRecord = await req.db.transaction(async () => {
     const newSurveyResponse = await createSurveyResponse(req, res);

@@ -29,6 +29,7 @@ export const SurveyViewForm = ({
   patientAdditionalData,
   currentUser,
   patientProgramRegistration,
+  showCancelButton,
 }) => {
   const { getTranslation } = useTranslation();
   const { components } = survey;
@@ -91,6 +92,7 @@ export const SurveyViewForm = ({
         errors={errors}
         setStatus={setStatus}
         status={status}
+        showCancelButton={showCancelButton}
         data-testid="surveyscreenpaginator-8wns"
       />
     );
