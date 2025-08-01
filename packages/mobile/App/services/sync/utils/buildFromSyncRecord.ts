@@ -9,7 +9,7 @@ export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
     .getRepository()
     .metadata.relationIds.map((rid): [string, string] => [
       rid.propertyName,
-      rid.relation.propertyName,
+      rid.propertyName,
     ]);
 
 /*
