@@ -60,7 +60,6 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
         LEFT JOIN patient_program_registrations ppr
           ON pf.patientId = ppr.patientId
           AND pf.facilityId = ppr.registeringFacilityId
-        WHERE (e.id IS NULL OR l.id IS NOT NULL OR ppr.id IS NOT NULL)
         GROUP BY pf.id, pf.createdAt
       )
       UPDATE patient_facilities 

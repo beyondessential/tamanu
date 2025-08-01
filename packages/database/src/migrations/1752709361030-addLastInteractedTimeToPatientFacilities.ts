@@ -61,7 +61,6 @@ export async function up(query: QueryInterface): Promise<void> {
       LEFT JOIN patient_program_registrations ppr
         ON pf.patient_id = ppr.patient_id
         AND pf.facility_id = ppr.registering_facility_id
-      WHERE (e.id IS NULL OR l.id IS NOT NULL OR ppr.id IS NOT NULL)
       GROUP BY pf.id, pf.created_at
     )
     UPDATE patient_facilities 
