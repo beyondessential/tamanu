@@ -3,6 +3,7 @@ import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
+import { typeORMDriver } from 'react-native-quick-sqlite'
 
 const LOG_LEVELS = __DEV__
   ? [
@@ -16,6 +17,7 @@ const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
+  driver: typeORMDriver,
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,
