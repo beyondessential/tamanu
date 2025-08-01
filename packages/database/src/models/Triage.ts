@@ -4,11 +4,8 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
@@ -81,10 +78,7 @@ export class Triage extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-    };
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static async create(data: any): Promise<any> {
@@ -104,13 +98,13 @@ export class Triage extends Model {
     }
 
     const reasons = await Promise.all(
-      [data.chiefComplaintId, data.secondaryComplaintId].map((x) => ReferenceData.findByPk(x)),
+      [data.chiefComplaintId, data.secondaryComplaintId].map(x => ReferenceData.findByPk(x)),
     );
 
     // TODO: to handle translations for triage reason for encounter
     const reasonsText = reasons
-      .filter((x) => x)
-      .map((x) => x?.name)
+      .filter(x => x)
+      .map(x => x?.name)
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
