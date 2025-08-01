@@ -3,10 +3,9 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
-import { buildSyncLookupSelect } from 'sync';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class VitalLog extends Model {
   declare id: string;
