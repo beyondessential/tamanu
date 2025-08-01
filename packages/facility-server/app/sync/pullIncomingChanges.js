@@ -37,7 +37,8 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
       fromId,
       limit,
     });
-    fromId = records[records.length - 1]?.id;
+    const { id, sortOrder } = records[records.length - 1];
+    fromId = btoa(JSON.stringify({ sortOrder, id }));
     totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 
@@ -48,11 +49,14 @@ export const pullIncomingChanges = async (centralServer, sequelize, sessionId, s
 
     log.info('FacilitySyncManager.savingChangesToSnapshot', { count: records.length });
 
-    const recordsToSave = records.map(r => ({
+    const recordsToSave = records.map(r => {
+      delete r.sortOrder;
+      return {
       ...r,
       data: { ...r.data, updatedAtSyncTick: SYNC_TICK_FLAGS.INCOMING_FROM_CENTRAL_SERVER }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
-    }));
+    };
+  });
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
