@@ -3,6 +3,7 @@ import { parse } from 'csv-parse/sync';
 import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
+import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 interface Artifact {
   artifact_type: string;
@@ -11,8 +12,8 @@ interface Artifact {
 
 interface Translation {
   stringId: string;
-  default?: string; // from 2.36 maybe?
-  en?: string; // from 2.28
+  [DEFAULT_LANGUAGE_CODE]?: string;
+  [ENGLISH_LANGUAGE_CODE]?: string;
   fallback?: string; // legacy
 }
 
@@ -72,12 +73,13 @@ export const STEPS: Steps = [
           await models.TranslatedString.sequelize.query(
             `
                 INSERT INTO translated_strings (string_id, text, language)
-                VALUES ${translationRows.map(() => "(?, ?, 'default')").join(', ')}
+                VALUES ${translationRows.map(() => `(?, ?, '${DEFAULT_LANGUAGE_CODE}')`).join(', ')}
                 ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
               `,
             {
               replacements: translationRows.flatMap(row => {
-                const text = row.default ?? row.en ?? row.fallback;
+                const text =
+                  row[DEFAULT_LANGUAGE_CODE] ?? row[ENGLISH_LANGUAGE_CODE] ?? row.fallback;
                 return text ? [row.stringId, text] : [];
               }),
               type: QueryTypes.INSERT,
