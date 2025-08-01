@@ -78,14 +78,6 @@ export const createEncounter = async ({
     ),
   );
 
-  if (isTriage) {
-    await Triage.create(
-      fake(Triage, {
-        encounterId: encounter.id,
-      }),
-    );
-  }
-
   if (isDischarged) {
     await Discharge.create(
       fake(Discharge, {
