@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import Collapse from '@material-ui/core/Collapse';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
@@ -28,6 +29,7 @@ import { ProcedureAdditionalData } from './ProcedureAdditionalData';
 import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
 import { useRefreshCount } from '../../hooks/useRefreshCount';
+import { useApi } from '../../api';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
@@ -63,6 +65,11 @@ const Divider = styled(MuiDivider)`
   margin: 10px 0 20px;
 `;
 
+const useProgramResponsesQuery = (patientId, procedureId) => {
+  const api = useApi();
+  return useQuery([], () => api.get(`patient/${patientId}/programResponses`, { procedureId }));
+};
+
 export const ProcedureForm = React.memo(
   ({
     onCancel,
@@ -82,6 +89,7 @@ export const ProcedureForm = React.memo(
     const { patientId } = useParams();
     const { data: patient } = usePatientDataQuery(patientId);
     const procedureId = editedObject?.id;
+    const { data: programResponses } = useProgramResponsesQuery(patientId, procedureId);
 
     return (
       <Form
@@ -297,18 +305,22 @@ export const ProcedureForm = React.memo(
                 setSelectedSurveyId={setSelectedSurveyId}
               />
               <Divider />
-              <ProgramsTable
-                endpoint={`patient/${patientId}/programResponses`}
-                patient={patient}
-                fetchOptions={{ procedureId }}
-                tableOptions={{
-                  disablePagination: true,
-                  allowExport: false,
-                  refreshTable: updateRefreshCount,
-                  refreshCount,
-                }}
-              />
-              <Divider />
+              {programResponses?.data?.length > 0 && (
+                <>
+                  <ProgramsTable
+                    endpoint={`patient/${patientId}/programResponses`}
+                    patient={patient}
+                    fetchOptions={{ procedureId }}
+                    tableOptions={{
+                      disablePagination: true,
+                      allowExport: false,
+                      refreshTable: updateRefreshCount,
+                      refreshCount,
+                    }}
+                  />
+                  <Divider />
+                </>
+              )}
               <FormSubmitCancelRow
                 onCancel={handleCancel}
                 onConfirm={submitForm}

@@ -32,6 +32,8 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
+  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
+  const [unSavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
