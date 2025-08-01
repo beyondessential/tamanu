@@ -10,7 +10,7 @@ import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
 import { getAnswersFromData, notifyError } from '../../utils';
 import { Colors } from '../../constants';
-import { CancelAdditionalDataModal, UnSavedChangesModal } from './ProcedureFormModals.jsx';
+import { CancelAdditionalDataModal } from './ProcedureFormModals';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -139,6 +139,7 @@ export const ProcedureAdditionalData = ({
               patient={patient}
               patientAdditionalData={patientAdditionalData}
               currentUser={currentUser}
+              showCancelButton
             />
           </SurveyBox>
         )}
