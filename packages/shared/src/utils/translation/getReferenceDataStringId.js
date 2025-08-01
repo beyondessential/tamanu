@@ -7,7 +7,7 @@ import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
  * @example "test.value" → "test_value"
  * @example "hello.world test" → "hello_world_test"
  */
-const formatOptionForStringId = str => str.toString().replace(/[\s.]/g, '_');
+const formatOptionForStringId = str => String(str).replace(/[\s.]/g, '_');
 
 /**
  * Returns the stringId for a reference data option.
