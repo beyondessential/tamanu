@@ -390,9 +390,9 @@ encounterRelations.get(
       const prescriptionIds = responseData.map(p => p.id);
       const [pharmacyOrderPrescriptions] = await db.query(
         `
-        SELECT prescription_id as prescription_id, max(created_at) as last_ordered_at 
+        SELECT prescription_id, max(created_at) as last_ordered_at 
         FROM pharmacy_order_prescriptions 
-        WHERE prescription_id IN (:prescriptionIds) GROUP BY prescription_id
+        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
       `,
         { replacements: { prescriptionIds } },
       );
