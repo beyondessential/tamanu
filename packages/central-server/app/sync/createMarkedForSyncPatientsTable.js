@@ -6,8 +6,14 @@ export const createMarkedForSyncPatientsTable = async (
   isFullSync,
   facilityIds,
   since,
+  lastInteractedThreshold,
 ) => {
   const tableName = getMarkedForSyncPatientsTableName(sessionId, isFullSync);
+
+  const lastInteractedTimeClause = lastInteractedThreshold ? `
+    ORDER BY last_interacted_time DESC
+    LIMIT :lastInteractedThreshold
+  ` : '';
 
   await sequelize.query(
     `
@@ -23,11 +29,13 @@ export const createMarkedForSyncPatientsTable = async (
         ? 'AND created_at_sync_tick > :since' // get all the NEW marked for sync patients if it is FULL sync
         : 'AND created_at_sync_tick <= :since' // get all the EXISTING marked for sync patients if it is regular sync
     }
+    ${lastInteractedTimeClause}
   `,
     {
       replacements: {
         facilityIds,
         since,
+        lastInteractedThreshold,
       },
       type: sequelize.QueryTypes.SELECT,
     },

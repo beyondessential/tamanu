@@ -166,6 +166,7 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
+        lastInteractedThreshold,
         deviceId,
       } = body;
       const since = parseInt(sinceString, 10);
@@ -177,6 +178,7 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
+        lastInteractedThreshold,
         deviceId,
       });
       res.json({});

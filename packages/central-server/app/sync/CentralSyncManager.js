@@ -365,7 +365,7 @@ export class CentralSyncManager {
 
   async setupSnapshotForPull(
     sessionId,
-    { since, facilityIds, tablesToInclude, tablesForFullResync, deviceId },
+    { since, facilityIds, tablesToInclude, tablesForFullResync, lastInteractedThreshold, deviceId },
     unmarkSessionAsProcessing,
   ) {
     let transactionTimeout;
@@ -423,6 +423,7 @@ export class CentralSyncManager {
         true,
         facilityIds,
         since,
+        lastInteractedThreshold,
       );
 
       const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
@@ -431,6 +432,7 @@ export class CentralSyncManager {
         false,
         facilityIds,
         since,
+        lastInteractedThreshold,
       );
 
       // query settings table and return true if any facility has set syncAllLabRequests to true
