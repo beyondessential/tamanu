@@ -15,7 +15,6 @@ interface CreateEncounterParams extends CommonParams {
   noteCount?: number;
   diagnosisCount?: number;
   isDischarged?: boolean;
-  isTriage?: boolean;
 }
 export const createEncounter = async ({
   models,
@@ -28,7 +27,6 @@ export const createEncounter = async ({
   noteCount = chance.integer({ min: 1, max: 5 }),
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
-  isTriage = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
   const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis, Triage } = models;
 
