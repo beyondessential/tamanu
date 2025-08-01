@@ -341,11 +341,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
       updatedAtByField: null, // this is to allow the trigger to properly populate it
     };
   },
-  PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
+  PatientFacility: ({
+    patientId = fakeUUID(),
+    facilityId = fakeUUID(),
+    lastInteractedTime = fakeDate(),
+  }) => {
     return {
       id: `${patientId};${facilityId}`,
       patientId,
       facilityId,
+      lastInteractedTime,
     };
   },
   PatientDeathData: () => {
