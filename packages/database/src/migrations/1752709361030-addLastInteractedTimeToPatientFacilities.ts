@@ -26,6 +26,11 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex('patient_facilities', ['facility_id', 'created_at_sync_tick']);
 
   // Query uses limited syntax to match mobile sqlite migration query
+  // Calculate last interaction time based on:
+  // - Patient facility creation time
+  // - Latest encounter time (if location belongs to same facility)
+  // - Latest program registration time (if for same facility)
+  // If no interaction time is found, use the patient facility creation time
   await query.sequelize.query(`
     WITH calculated_interaction_times AS (
       SELECT 
@@ -61,14 +66,15 @@ export async function up(query: QueryInterface): Promise<void> {
       LEFT JOIN patient_program_registrations ppr
         ON pf.patient_id = ppr.patient_id
         AND pf.facility_id = ppr.registering_facility_id
+      WHERE l.id IS NOT NULL OR ppr.id IS NOT NULL
       GROUP BY pf.id, pf.created_at
     )
     UPDATE patient_facilities 
-    SET last_interacted_time = (
+    SET last_interacted_time = COALESCE((
       SELECT calculated_last_interacted_time 
       FROM calculated_interaction_times 
       WHERE calculated_interaction_times.id = patient_facilities.id
-    );
+    ), created_at)
   `);
 }
 

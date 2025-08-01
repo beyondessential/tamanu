@@ -26,6 +26,11 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
     `);
 
     // Query differs from postgres version because of sqlite limitations
+    // Calculate last interaction time based on:
+    // - Patient facility creation time
+    // - Latest encounter time (if location belongs to same facility)
+    // - Latest program registration time (if for same facility)
+    // If no interaction time is found, use the patient facility creation time
     await queryRunner.query(`
       WITH calculated_interaction_times AS (
         SELECT 
@@ -60,14 +65,15 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
         LEFT JOIN patient_program_registrations ppr
           ON pf.patientId = ppr.patientId
           AND pf.facilityId = ppr.registeringFacilityId
+        WHERE l.id IS NOT NULL OR ppr.id IS NOT NULL
         GROUP BY pf.id, pf.createdAt
       )
       UPDATE patient_facilities 
-      SET lastInteractedTime = (
+      SET lastInteractedTime = COALESCE((
         SELECT calculated_last_interacted_time 
         FROM calculated_interaction_times 
         WHERE calculated_interaction_times.id = patient_facilities.id
-      );
+      ), createdAt)
     `);
   }
 
