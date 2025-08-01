@@ -1,6 +1,7 @@
 import { capitalize } from 'lodash';
 import { getDisplayDate } from './patientCertificates/getDisplayDate';
 import { ageInYears, formatShort } from '@tamanu/utils/dateTime';
+import { getDisplayAge } from '@tamanu/utils/date';
 
 export const getName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
 export const getSex = ({ sex }) => `${capitalize(sex)}`;
@@ -10,13 +11,14 @@ export const getDob = ({ dateOfBirth }, { getLocalisation, getTranslation }) =>
     ? getDisplayDate(dateOfBirth, 'dd/MM/yyyy', getLocalisation)
     : getTranslation('general.fallback.unknown', 'Unknown');
 
-export const getDobWithAge = ({ dateOfBirth }, { getTranslation }) => {
+export const getDobWithAge = ({ dateOfBirth }, { getTranslation, getSetting }) => {
   if (!dateOfBirth) return getTranslation('general.fallback.unknown', 'Unknown');
 
   const dob = formatShort(dateOfBirth);
-  const age = ageInYears(dateOfBirth);
+  const ageDisplayFormat = getSetting ? getSetting('ageDisplayFormat') : null;
+  const age = ageDisplayFormat ? getDisplayAge(dateOfBirth, ageDisplayFormat) : `${ageInYears(dateOfBirth)} ${getTranslation('dateTime.unit.years', 'years')}`;
 
-  return `${dob} (${age} ${getTranslation('dateTime.unit.years', 'years')})`;
+  return `${dob} (${age})`;
 };
 
 export const getDateOfDeath = ({ dateOfDeath }, { getLocalisation, getTranslation }) => {

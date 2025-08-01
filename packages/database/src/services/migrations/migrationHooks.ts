@@ -54,8 +54,8 @@ export const tablesWithoutTrigger = (
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      LEFT JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      LEFT JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
@@ -90,8 +90,8 @@ export const tablesWithTrigger = (
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE

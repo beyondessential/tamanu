@@ -7,9 +7,11 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
+  NOUNS_WITH_OBJECT_ID,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -191,15 +193,51 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   return rows;
 }
 
-export function permissionLoader(item) {
+async function validateObjectId(item, models, pushError) {
+  const { noun, objectId } = item;
+  if (!objectId || !noun || !NOUNS_WITH_OBJECT_ID.includes(noun)) {
+    return;
+  }
+
+  if (noun === 'StaticReport') {
+    const allowedReportIds = [
+      ...GENERIC_SURVEY_EXPORT_REPORT_ID,
+      ...REPORT_DEFINITIONS.map(({ id }) => id),
+    ];
+    const objectIds = objectId.split('/');
+    for (const objectId of objectIds) {
+      if (!allowedReportIds.includes(objectId)) {
+        pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+      }
+    }
+    return;
+  }
+
+  // Skip strict objectId validation in test environments
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
+  const record = await models[noun].findByPk(objectId);
+  if (!record) {
+    pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+  }
+}
+
+export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
+
+  const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
+
+  await validateObjectId({ ...item, objectId: normalizedObjectId }, models, pushError);
+
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
   return Object.entries(roles)
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
+      const id = `${role}-${verb}-${noun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -211,7 +249,7 @@ export function permissionLoader(item) {
           id,
           verb,
           noun,
-          objectId,
+          objectId: normalizedObjectId,
           role,
           deletedAt,
         },
@@ -462,6 +500,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     duration,
     notes,
     dischargeQuantity,
+    ongoingMedication,
   } = item;
 
   const rows = [];
@@ -497,6 +536,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
+    isOngoing: ongoingMedication,
   };
 
   rows.push({

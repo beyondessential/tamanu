@@ -43,7 +43,7 @@ import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { MedicationDiscontinueModal } from '../components/Medication/MedicationDiscontinueModal';
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
@@ -267,7 +267,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         />
       </DarkestText>
       <Box fontSize={'14px'} color={Colors.midText}>
-        {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+        {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
         {getTranslatedFrequency(medication.frequency, getTranslation)}
       </Box>
     </Box>
@@ -296,6 +296,7 @@ const MEDICATION_COLUMNS = (
   getEnumTranslation,
   handleDiscontinueMedication,
   canUpdateMedication,
+  canWriteSensitiveMedication,
 ) => [
   {
     key: 'medication',
@@ -324,12 +325,15 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-8e5k"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.quantity`}
         component={NumberFieldWithoutLabel}
         data-testid="field-ksmf"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -343,14 +347,17 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-opjr"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
         isClearable={false}
         component={TranslatedSelectField}
         enumValues={REPEATS_LABELS}
         data-testid="field-ium3"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -366,12 +373,15 @@ const MEDICATION_COLUMNS = (
         {
           key: 'Discontinued',
           title: '',
-          accessor: medication => (
-            <DiscontinuedAccessor
-              medication={medication}
-              handleDiscontinueMedication={handleDiscontinueMedication}
-            />
-          ),
+          accessor: medication =>
+            medication?.medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication ? (
+              <div />
+            ) : (
+              <DiscontinuedAccessor
+                medication={medication}
+                handleDiscontinueMedication={handleDiscontinueMedication}
+              />
+            ),
           width: '75px',
         },
       ]
@@ -658,6 +668,7 @@ export const DischargeForm = ({
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
+  const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
 
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
@@ -673,9 +684,22 @@ export const DischargeForm = ({
   const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications =
-    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
+  const activeMedications = (encounterMedications?.data || []).filter(
+    medication => !medication.discontinued,
+  );
+  const onGoingMedications = (ongoingPrescriptions?.data || [])
+    .filter(p => !p.discontinued)
+    .filter(
+      p =>
+        !activeMedications.some(
+          am =>
+            am.medicationId === p.medicationId &&
+            am.doseAmount === p.doseAmount &&
+            am.units === p.units &&
+            am.route === p.route &&
+            am.frequency === p.frequency,
+        ),
+    );
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...onGoingMedications],
     encounter,
@@ -871,6 +895,7 @@ export const DischargeForm = ({
                     getEnumTranslation,
                     handleDiscontinueMedication,
                     canUpdateMedication,
+                    canWriteSensitiveMedication,
                   )}
                   data={activeMedications}
                   data-testid="tableformfields-i8q7"

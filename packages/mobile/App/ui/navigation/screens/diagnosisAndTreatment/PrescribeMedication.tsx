@@ -42,6 +42,7 @@ import { Button } from '~/ui/components/Button';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { add } from 'date-fns';
 import { Prescription } from '~/models/Prescription';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
 
 export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): ReactElement => {
   const { models } = useBackend();
+  const { ability } = useAuth();
   const user = useSelector(authUserSelector);
   const [patientAllergies, setPatientAllergies] = useState<PatientAllergy[]>([]);
   const { getTranslation } = useTranslation();
@@ -106,7 +108,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
   }, [selectedPatient?.id, models.PatientAllergy]);
 
   const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateActiveEncounter(selectedPatient.id, user.id);
+    const encounter = await models.Encounter.getOrCreateActiveEncounter(
+      selectedPatient.id,
+      user.id,
+    );
 
     const idealTimes =
       values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
@@ -145,6 +150,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigateToHistory();
   }, []);
 
+  const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = new Suggester({
     model: ReferenceData,
     options: {
@@ -159,6 +165,10 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
       value: record.entity_id,
       ...record,
     }),
+    filter: (data: any) => {
+      const isSensitive = data.referenceDrug_isSensitive;
+      return !isSensitive || canCreateSensitiveMedication;
+    }
   });
 
   const practitionerSuggester = new Suggester({
@@ -271,28 +281,41 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                     ))
                   ) : (
                     <ColumnView>
-                      {!isMarkedForSync && (
+                      {isMarkedForSync ? (
                         <StyledText
                           color={theme.colors.MAIN_SUPER_DARK}
                           fontStyle="italic"
                           fontWeight={500}
                         >
                           <TranslatedText
-                            stringId="medication.allergies.notMarkedForSync"
-                            fallback="Patient record not marked for sync."
+                            stringId="medication.allergies.noneRecorded"
+                            fallback="None recorded"
                           />
                         </StyledText>
+                      ) : (
+                        <>
+                          <StyledText
+                            color={theme.colors.MAIN_SUPER_DARK}
+                            fontStyle="italic"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="medication.allergies.notMarkedForSync"
+                              fallback="Patient record not marked for sync."
+                            />
+                          </StyledText>
+                          <StyledText
+                            color={theme.colors.MAIN_SUPER_DARK}
+                            fontStyle="italic"
+                            fontWeight={500}
+                          >
+                            <TranslatedText
+                              stringId="medication.allergies.unknownAllergies"
+                              fallback="Allergies unknown."
+                            />
+                          </StyledText>
+                        </>
                       )}
-                      <StyledText
-                        color={theme.colors.MAIN_SUPER_DARK}
-                        fontStyle="italic"
-                        fontWeight={500}
-                      >
-                        <TranslatedText
-                          stringId="medication.allergies.unknownAllergies"
-                          fallback="Allergies unknown."
-                        />
-                      </StyledText>
                     </ColumnView>
                   )}
                 </RowView>
@@ -524,16 +547,6 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   labelColor={theme.colors.TEXT_DARK}
                   labelFontSize={14}
                   fieldFontSize={14}
-                />
-
-                <Field
-                  component={Checkbox}
-                  name="isPhoneOrder"
-                  text={
-                    <TranslatedText stringId="medication.phoneOrder.label" fallback="Phone order" />
-                  }
-                  fieldFontSize={14}
-                  fieldColor={theme.colors.TEXT_DARK}
                 />
 
                 <Field

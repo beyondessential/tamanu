@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyledText, StyledView } from '/styled/common';
+import { StyledText, StyledView } from '~/ui/styled/common';
 import { theme } from '../../styled/theme';
-import { FrequencySuggester, FrequencySuggestion } from '../../helpers/FrequencySuggester';
+import { FrequencySuggester, FrequencySuggestion } from '../../helpers/frequencySuggester';
 import {
   getTranslatedFrequencySynonyms,
   getFrequencySuggestions,

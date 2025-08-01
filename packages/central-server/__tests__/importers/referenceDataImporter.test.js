@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -7,7 +8,9 @@ import {
 } from '@tamanu/constants/importable';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
@@ -408,7 +411,7 @@ describe('Data definition import', () => {
 
       const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(
         (option) =>
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.patientFieldDefinition.${patientFieldDefinition.id}.option.${camelCase(option)}`,
+          getReferenceDataOptionStringId(patientFieldDefinition.id, 'patientFieldDefinition', option),
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
@@ -701,27 +704,27 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
+    const beforeImport = await Permission.findOne({ where: { noun: 'User' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
 
     const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(initialPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
 
     const afterImport = await Permission.findOne({
-      where: { noun: 'RevokeTest' },
+      where: { noun: 'User' },
       paranoid: false,
     });
     expect(afterImport).toBeTruthy();
     const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(revokedPermissions).toEqual(
-      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.not.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(revokedPermissions.length).toBe(0);
 
@@ -729,7 +732,7 @@ describe('Permissions import', () => {
 
     const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(reinstatedPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(reinstatedPermissions.length).toBe(1);
   });
