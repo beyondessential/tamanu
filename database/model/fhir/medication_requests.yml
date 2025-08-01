@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: medication_requests
-        description: '{{ doc("fhir__table__medication_requests") }}'
+        description: "{{ doc('fhir__table__medication_requests') }}"
         config:
           tags: []
         columns:
