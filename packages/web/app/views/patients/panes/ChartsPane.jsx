@@ -341,6 +341,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
         {isComplexChart ? (
           <ComplexChartModal
             {...baseChartModalProps}
+            selectedChartSurveyName={selectedChartSurveyName}
             complexChartInstance={currentComplexChartInstance}
             complexChartFormMode={complexChartFormMode}
             fieldVisibility={fieldVisibility}
