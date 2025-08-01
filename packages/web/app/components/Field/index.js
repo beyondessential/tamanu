@@ -18,6 +18,7 @@ export * from './UnsupportedPhotoField';
 export * from './ImagingPriorityField';
 export * from './SearchField';
 export * from './SwitchField';
+export * from './MultiAutocompleteField';
 
 // fancy fields
 export * from './HierarchyFieldItem';
