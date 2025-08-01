@@ -17,7 +17,7 @@ export const createImagingRequest = async ({
   encounterId,
   locationGroupId,
   isResulted = chance.bool(),
-  areaIds = null,
+  areaIds = [],
 }: CreateImagingRequestParams): Promise<void> => {
   const { ImagingRequest, ImagingResult, ImagingRequestArea } = models;
   const imagingRequest = await ImagingRequest.create(
