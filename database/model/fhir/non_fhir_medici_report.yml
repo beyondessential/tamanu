@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: non_fhir_medici_report
-        description: '{{ doc("fhir__table__non_fhir_medici_report") }}'
-        tags: []
+        description: "{{ doc('fhir__table__non_fhir_medici_report') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
