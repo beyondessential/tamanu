@@ -31,6 +31,74 @@ export const centralSettings = {
         },
       },
     },
+    sync: {
+      description: 'Settings related to sync',
+      highRisk: true,
+      properties: {
+        streaming: {
+          properties: {
+            enabled: {
+              description: 'Use streaming endpoints',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            databasePollBatchSize: {
+              description:
+                'The number of records to poll in a single batch for a streaming endpoint',
+              type: yup.number().positive().integer().min(1),
+              defaultValue: 100,
+            },
+            databasePollInterval: {
+              description: 'The interval in milliseconds to poll the database for a streaming wait',
+              type: yup.number().positive().integer().min(10),
+              defaultValue: 1000,
+            },
+          },
+        },
+      },
+    },
+    mobileSync: {
+      description: 'Settings related to mobile sync',
+      highRisk: true,
+      properties: {
+        saveIncomingChanges: {
+          description: 'Settings applied to saving changes step of sync',
+          // TODO: These two settings likely will be made redundant when streaming is implemented
+          // and we know the byte size of the batches
+          properties: {
+            maxBatchesToKeepInMemory: {
+              description:
+                'The number of batches to keep in memory during saveChanges, currently equal to n * pullIncomingChanges.maxRecordsPerSnapshotBatch',
+              type: yup.number().positive().integer(),
+              defaultValue: 5,
+            },
+            maxRecordsPerInsertBatch: {
+              description: 'The number of records to insert in a single batch',
+              type: yup.number().positive().integer(),
+              defaultValue: 500,
+            },
+          },
+        },
+        pullIncomingChanges: {
+          description: 'Settings applied to pulling incoming changes step of sync',
+          properties: {
+            maxRecordsPerSnapshotBatch: {
+              description:
+                'The number of records to store within a single row in the snapshot table',
+              type: yup.number().positive().integer(),
+              defaultValue: 1000,
+            },
+          },
+        },
+        useUnsafePragmaSettingsForInitialSync: {
+          name: 'Use unsafe pragma settings for initial sync',
+          description:
+            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
@@ -56,10 +124,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },

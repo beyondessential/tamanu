@@ -1,27 +1,29 @@
-import RNFS from 'react-native-fs';
-import { chunk } from 'lodash';
 import { In } from 'typeorm';
+import { chunk } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
-import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
-import { readFileInDocuments } from '../../../ui/helpers/file';
-import { getDirPath } from './getFilePath';
+import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
+import { SQLITE_MAX_PARAMETERS } from '~/infra/db/limits';
+import { MobileSyncSettings } from '../MobileSyncManager';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
  * @param model
  * @param changes
+ * @param insertBatchSize
  * @param progressCallback
  * @returns
  */
 export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
+  insertBatchSize: number,
+  progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const idToIncomingRecord = Object.fromEntries(
     changes.filter(c => c.data).map(e => [e.data.id, e]),
@@ -73,58 +75,77 @@ export const saveChangesForModel = async (
 
   // run each import process
   if (recordsForCreate.length > 0) {
-    await executeInserts(model, recordsForCreate);
+    await executeInserts(model, recordsForCreate, insertBatchSize, progressCallback);
   }
   if (recordsForUpdate.length > 0) {
-    await executeUpdates(model, recordsForUpdate);
+    await executeUpdates(model, recordsForUpdate, progressCallback);
   }
   if (recordsForDelete.length > 0) {
-    await executeDeletes(model, recordsForDelete);
+    await executeDeletes(model, recordsForDelete, progressCallback);
   }
   if (recordsForRestore.length > 0) {
-    await executeRestores(model, recordsForRestore);
+    await executeRestores(model, recordsForRestore, progressCallback);
   }
+};
+
+const groupRecordsByType = async (batchIds: number[]): Promise<Record<string, SyncRecord[]>> => {
+  const recordsByType: Record<string, SyncRecord[]> = {};
+
+  const batchRecords = await getSnapshotBatchesByIds(batchIds);
+
+  for (const record of batchRecords) {
+    const recordType = record.recordType;
+    if (!recordsByType[recordType]) {
+      recordsByType[recordType] = [];
+    }
+    recordsByType[recordType].push(record);
+  }
+
+  return recordsByType;
 };
 
 /**
  * Save all the incoming changes in the right order of dependency,
- * using the data stored in sync_session_records previously
+ * efficiently grouping by model during single batch iteration
+ * @param sessionId
  * @param incomingChangesCount
  * @param incomingModels
  * @param progressCallback
  * @returns
  */
 export const saveIncomingChanges = async (
-  sessionId: string,
   incomingChangesCount: number,
   incomingModels: Partial<typeof MODELS_MAP>,
+  { maxBatchesToKeepInMemory, maxRecordsPerInsertBatch }: MobileSyncSettings['saveIncomingChanges'],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const sortedModels = await sortInDependencyOrder(incomingModels);
-
   let savedRecordsCount = 0;
+  const allBatchIds = await getSnapshotBatchIds();
+  for (const batchIds of chunk(allBatchIds, maxBatchesToKeepInMemory)) {
+    const recordsByType = await groupRecordsByType(batchIds);
+    const sortedModels = await sortInDependencyOrder(incomingModels);
 
-  for (const model of sortedModels) {
-    const recordType = model.getTableName();
-    const files = await RNFS.readDir(
-      `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
-    );
+    for (const model of sortedModels) {
+      const recordType = model.getTableName();
+      const recordsForModel = recordsByType[recordType] || [];
 
-    for (const { path } of files) {
-      const base64 = await readFileInDocuments(path);
-      const batchString = Buffer.from(base64, 'base64').toString();
+      if (recordsForModel.length > 0) {
+        const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
+        const sanitizedRecords = hasSanitizeMethod
+          ? model.sanitizePulledRecordData(recordsForModel)
+          : recordsForModel;
 
-      const batch = JSON.parse(batchString);
-      const hasSanitizeMethod = 'sanitizePulledRecordData' in model;
-      const sanitizedBatch = hasSanitizeMethod
-        ? model.sanitizePulledRecordData(batch)
-        : batch;
+        const chunkProgressCallback = (processedCount: number) => {
+          savedRecordsCount += processedCount;
+          progressCallback(
+            incomingChangesCount,
+            savedRecordsCount,
+            `Processed ${savedRecordsCount}/${incomingChangesCount} records...`,
+          );
+        };
 
-      await saveChangesForModel(model, sanitizedBatch);
-
-      savedRecordsCount += sanitizedBatch.length;
-      const progressMessage = `Saving ${incomingChangesCount} records...`;
-      progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
+        await saveChangesForModel(model, sanitizedRecords, maxRecordsPerInsertBatch, chunkProgressCallback);
+      }
     }
   }
 };
