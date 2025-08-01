@@ -9,7 +9,7 @@ export class Prescription extends Model {
   declare isOngoing?: boolean;
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
-  declare doseAmount: number;
+  declare doseAmount: string;
   declare units: string;
   declare frequency: string;
   declare idealTimes?: string[];
@@ -17,7 +17,7 @@ export class Prescription extends Model {
   declare date: string;
   declare startDate: string;
   declare endDate?: string;
-  declare durationValue?: number | null;
+  declare durationValue?: string | null;
   declare durationUnit?: string | null;
   declare indication?: string;
   declare isPhoneOrder?: boolean;
