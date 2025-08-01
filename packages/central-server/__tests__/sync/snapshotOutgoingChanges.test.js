@@ -613,16 +613,19 @@ describe('snapshotOutgoingChanges', () => {
         patientId: patient1.id,
         facilityId: facility.id,
         lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+        createdAtSyncTick: 1,
       });
       await PatientFacility.create({
         patientId: patient2.id,
         facilityId: facility.id,
         lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
+        createdAtSyncTick: 2,
       });
       await PatientFacility.create({
         patientId: patient3.id,
         facilityId: facility.id,
         lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
+        createdAtSyncTick: 3,
       });
 
       const startTime = new Date();
@@ -686,7 +689,7 @@ describe('snapshotOutgoingChanges', () => {
         syncSession.id,
         false,
         [facility.id],
-        0,
+        4,
         lastInteractedThreshold,
       );
 
