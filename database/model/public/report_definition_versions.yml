@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_definition_versions
-        description: '{{ doc("table__report_definition_versions") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__report_definition_versions') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: character varying(255)

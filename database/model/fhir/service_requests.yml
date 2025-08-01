@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: service_requests
-        description: '{{ doc("fhir__table__service_requests") }}'
-        tags: []
+        description: "{{ doc('fhir__table__service_requests') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_area_external_codes
-        description: '{{ doc("table__imaging_area_external_codes") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__imaging_area_external_codes') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
