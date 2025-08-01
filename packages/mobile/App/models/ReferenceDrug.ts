@@ -17,6 +17,8 @@ export class ReferenceDrug extends BaseModel {
   @Column({ type: 'varchar', nullable: true })
   notes: string;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  isSensitive: boolean;
 
   @OneToOne(() => ReferenceData, referenceData => referenceData.referenceDrug)
   @JoinColumn()

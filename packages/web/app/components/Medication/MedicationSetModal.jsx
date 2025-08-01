@@ -312,6 +312,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onConfirmEdit = data => {
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+
     const medicationIndex = selectedMedicationSet.children.findIndex(
       child => child.id === editingMedication.id,
     );

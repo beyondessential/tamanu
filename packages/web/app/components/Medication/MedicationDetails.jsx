@@ -96,6 +96,7 @@ export const MedicationDetails = ({
   const canPauseMedication = ability?.can('write', 'Medication');
   const canCreateMedicationPharmacyNote = ability?.can('create', 'MedicationPharmacyNote');
   const canUpdateMedicationPharmacyNote = ability?.can('write', 'MedicationPharmacyNote');
+  const canWriteSensitiveMedication = ability?.can('write', 'SensitiveMedication');
 
   const [openDiscontinueModal, setOpenDiscontinueModal] = useState(false);
   const [openPauseModal, setOpenPauseModal] = useState(false);
@@ -113,6 +114,7 @@ export const MedicationDetails = ({
   );
   const pauseData = data?.pauseRecord;
   const isPausing = !!pauseData && !medication.discontinued;
+  const isSensitive = medication?.medication?.referenceDrug?.isSensitive;
 
   const leftDetails = [
     {
@@ -482,41 +484,48 @@ export const MedicationDetails = ({
                 </>
               ) : (
                 <>
-                  <Box display={'flex'} style={{ gap: '10px' }}>
-                    {canDiscontinueMedication && (
-                      <NoteModalActionBlocker>
-                        <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
-                          <TranslatedText
-                            stringId="medication.details.discontinue"
-                            fallback="Discontinue"
-                          />
-                        </OutlinedButton>
-                      </NoteModalActionBlocker>
-                    )}
-                    {canPauseMedication &&
-                      !isOngoingPrescription &&
-                      (isPausing ? (
+                  {isSensitive && !canWriteSensitiveMedication ? (
+                    <div />
+                  ) : (
+                    <Box display={'flex'} style={{ gap: '10px' }}>
+                      {canDiscontinueMedication && (
                         <NoteModalActionBlocker>
-                          <OutlinedButton onClick={() => setOpenResumeModal(true)}>
+                          <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
                             <TranslatedText
-                              stringId="medication.details.resume"
-                              fallback="Resume"
+                              stringId="medication.details.discontinue"
+                              fallback="Discontinue"
                             />
                           </OutlinedButton>
                         </NoteModalActionBlocker>
-                      ) : (
-                        <NoteModalActionBlocker>
-                          <OutlinedButton
-                            onClick={() => setOpenPauseModal(true)}
-                            disabled={
-                              medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
-                            }
-                          >
-                            <TranslatedText stringId="medication.details.pause" fallback="Pause" />
-                          </OutlinedButton>
-                        </NoteModalActionBlocker>
-                      ))}
-                  </Box>
+                      )}
+                      {canPauseMedication &&
+                        !isOngoingPrescription &&
+                        (isPausing ? (
+                          <NoteModalActionBlocker>
+                            <OutlinedButton onClick={() => setOpenResumeModal(true)}>
+                              <TranslatedText
+                                stringId="medication.details.resume"
+                                fallback="Resume"
+                              />
+                            </OutlinedButton>
+                          </NoteModalActionBlocker>
+                        ) : (
+                          <NoteModalActionBlocker>
+                            <OutlinedButton
+                              onClick={() => setOpenPauseModal(true)}
+                              disabled={
+                                medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
+                              }
+                            >
+                              <TranslatedText
+                                stringId="medication.details.pause"
+                                fallback="Pause"
+                              />
+                            </OutlinedButton>
+                          </NoteModalActionBlocker>
+                        ))}
+                    </Box>
+                  )}
                   {isPausing || isOngoingPrescription || !canCreateMedicationPharmacyNote ? (
                     <Button onClick={onClose}>
                       <TranslatedText stringId="general.action.close" fallback="Close" />
