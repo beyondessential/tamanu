@@ -10,6 +10,7 @@ interface CreateAppointmentParams extends CommonParams {
   locationGroupId: string;
   patientId: string;
   clinicianId: string;
+  encounterId: string;
 }
 
 export const createAppointment = async ({
@@ -17,6 +18,7 @@ export const createAppointment = async ({
   locationGroupId,
   patientId,
   clinicianId,
+  encounterId = null,
 }: CreateAppointmentParams): Promise<void> => {
   const { Appointment } = models;
   await Appointment.create(
@@ -24,6 +26,7 @@ export const createAppointment = async ({
       patientId: patientId || (await randomRecordId(models, 'Patient')),
       clinicianId: clinicianId || (await randomRecordId(models, 'User')),
       locationGroupId: locationGroupId || (await randomRecordId(models, 'LocationGroup')),
+      encounterId,
     }),
   );
 };
