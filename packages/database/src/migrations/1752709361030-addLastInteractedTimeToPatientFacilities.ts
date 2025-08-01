@@ -27,10 +27,9 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // Query uses limited syntax to match mobile sqlite migration query
   // Calculate last interaction time based on:
-  // - Patient facility creation time
-  // - Latest encounter time (if location belongs to same facility)
-  // - Latest program registration time (if for same facility)
-  // If no interaction time is found, use the patient facility creation time
+  // - Encounters in that facility for that patient
+  // - Program registrations in that facility for that patient
+  // - If no interaction time is found, use the patient facility creation time
   await query.sequelize.query(`
     WITH calculated_interaction_times AS (
       SELECT 

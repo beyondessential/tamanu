@@ -27,10 +27,9 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
 
     // Query differs from postgres version because of sqlite limitations
     // Calculate last interaction time based on:
-    // - Patient facility creation time
-    // - Latest encounter time (if location belongs to same facility)
-    // - Latest program registration time (if for same facility)
-    // If no interaction time is found, use the patient facility creation time
+    // - Encounters in that facility for that patient
+    // - Program registrations in that facility for that patient
+    // - If no interaction time is found, use the patient facility creation time
     await queryRunner.query(`
       WITH calculated_interaction_times AS (
         SELECT 
