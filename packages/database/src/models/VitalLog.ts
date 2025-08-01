@@ -3,9 +3,9 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 import { Model } from './Model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class VitalLog extends Model {
   declare id: string;
@@ -103,7 +103,7 @@ export class VitalLog extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: buildEncounterLinkedLookupSelect(this),
       joins: `
         INNER JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
         INNER JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
