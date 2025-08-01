@@ -42,7 +42,7 @@ export type MobileSyncSettings = {
     maxRecordsPerSnapshotBatch: number;
   };
   useUnsafeSchemaForInitialSync: boolean;
-  lastInteractedThreshold: number;
+  lastInteractedThreshold: number | null;
 };
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;

@@ -192,7 +192,7 @@ export class CentralServerConnection {
     since: number,
     tableNames: string[],
     tablesForFullResync: string[],
-    lastInteractedThreshold: number,
+    lastInteractedThreshold: number | null,
   ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
     const body = {
