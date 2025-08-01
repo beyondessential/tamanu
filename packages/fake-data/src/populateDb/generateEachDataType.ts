@@ -95,6 +95,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       userId: user.id,
       encounterId: encounter.id,
       locationGroupId: locationGroup.id,
+      areaIds: [referenceData.id],
     }),
     await createRepeatingAppointment({
       models,

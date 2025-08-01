@@ -3,14 +3,13 @@ import { randomRecordId } from '@tamanu/database/demoData/utilities';
 
 import { fake, chance } from '../../fake/index.js';
 import type { CommonParams } from './common.js';
-import { times } from 'lodash';
 
 interface CreateImagingRequestParams extends CommonParams {
   userId: string;
   encounterId: string;
   locationGroupId: string;
   isResulted?: boolean;
-  areaCount?: number;
+  areaIds?: string[];
 }
 export const createImagingRequest = async ({
   models,
@@ -18,7 +17,7 @@ export const createImagingRequest = async ({
   encounterId,
   locationGroupId,
   isResulted = chance.bool(),
-  areaCount = chance.integer({ min: 1, max: 5 }),
+  areaIds = null,
 }: CreateImagingRequestParams): Promise<void> => {
   const { ImagingRequest, ImagingResult, ImagingRequestArea } = models;
   const imagingRequest = await ImagingRequest.create(
@@ -33,11 +32,11 @@ export const createImagingRequest = async ({
     }),
   );
 
-  times(areaCount, async () => {
+  areaIds.forEach(async areaId => {
     await ImagingRequestArea.create(
       fake(ImagingRequestArea, {
         imagingRequestId: imagingRequest.id,
-        areaId: (await randomRecordId(models, 'ReferenceData')).id,
+        areaId: areaId,
       }),
     );
   });
