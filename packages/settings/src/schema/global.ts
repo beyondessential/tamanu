@@ -1199,6 +1199,34 @@ export const globalSettings = {
             },
           },
         },
+        patientPortalRegisteredFormEmail: {
+          description: 'The email sent to a registered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$registrationLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalUnregisteredFormEmail: {
+          description: 'The email sent to an unregistered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Before you can access this form, you must register for a Tamanu Patient Portal account.\n\nPlease follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$. Once you have set up your patient portal account, you will be able to log in and access the requested form.\n\n$registrationLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
         appointmentConfirmation: {
           description: 'The email sent to confirm an appointment',
           properties: {

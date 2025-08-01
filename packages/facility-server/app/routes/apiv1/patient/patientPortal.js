@@ -23,8 +23,25 @@ const getPatientOrThrow = async ({ models, patientId }) => {
   return patient;
 };
 
+const getPatientUserOrThrow = async ({ models, patientId }) => {
+  const patientUser = await models.PatientUser.findOne({
+    where: { patientId },
+  });
+  if (!patientUser) {
+    throw new NotFoundError(
+      'Patient has not been registered for portal access. Please register the patient first.',
+    );
+  }
+  return patientUser;
+};
+
 const constructRegistrationLink = () => {
   // TODO - construct the registration link for the patient portal
+  return `http://localhost:5173/`;
+};
+
+const constructLoginLink = () => {
+  // TODO - construct the login link for the patient portal
   return `http://localhost:5173/`;
 };
 
@@ -40,15 +57,8 @@ const registerPatient = async ({ patient, models }) => {
 };
 
 const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
-  const patientUser = await models.PatientUser.findOne({
-    where: { patientId: patient.id },
-  });
-
-  if (!patientUser) {
-    throw new NotFoundError(
-      'Patient has not been registered for portal access. Please register the patient first.',
-    );
-  }
+  await getPatientUserOrThrow({ models, patientId: patient.id });
+  const facility = await models.Facility.findByPk(facilityId);
 
   // TODO - fetch the **unexpired** token for the patient user, throw if none exists
 
@@ -56,9 +66,14 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
     'templates.patientPortalRegistrationEmail',
   );
 
+  const subject = replaceInTemplate(patientPortalRegistrationTemplate.subject, {
+    facilityName: facility.name,
+  });
+
   const content = replaceInTemplate(patientPortalRegistrationTemplate.body, {
     firstName: patient.firstName,
     lastName: patient.lastName,
+    facilityName: facility.name,
     registrationLink: constructRegistrationLink(),
   });
 
@@ -68,7 +83,78 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
     channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
     destination: patientEmail,
-    subject: patientPortalRegistrationTemplate.subject,
+    subject,
+    content,
+  });
+};
+
+/**
+ * This sends an email to an already registered patient to complete a form.
+ */
+const sendRegisteredFormEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
+  await getPatientUserOrThrow({ models, patientId: patient.id });
+  const facility = await models.Facility.findByPk(facilityId);
+
+  const patientPortalRegisteredFormTemplate = await settings[facilityId].get(
+    'templates.patientPortalRegisteredFormEmail',
+  );
+
+  const subject = replaceInTemplate(patientPortalRegisteredFormTemplate.subject, {
+    facilityName: facility.name,
+  });
+
+  const content = replaceInTemplate(patientPortalRegisteredFormTemplate.body, {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    facilityName: facility.name,
+    registrationLink: constructLoginLink(),
+  });
+
+  await models.PatientCommunication.create({
+    patientId: patient.id,
+    type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM,
+    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    status: COMMUNICATION_STATUSES.QUEUED,
+    destination: patientEmail,
+    subject,
+    content,
+  });
+};
+
+/**
+ * This sends an email to an unregistered patient to complete a form.
+ * It will contain a registration link rather than a login link.
+ * Note that the PatientUser model should have been created before calling this method.
+ */
+const sendUnregisteredFormEmail = async ({
+  patient,
+  patientEmail,
+  models,
+  settings,
+  facilityId,
+}) => {
+  // Although this email is for an unregistered patient, they should still have been registered (PatientUser created) before calling this method.
+  await getPatientUserOrThrow({ models, patientId: patient.id });
+  const facility = await models.Facility.findByPk(facilityId);
+
+  const patientPortalUnregisteredFormTemplate = await settings[facilityId].get(
+    'templates.patientPortalUnregisteredFormEmail',
+  );
+
+  const content = replaceInTemplate(patientPortalUnregisteredFormTemplate.body, {
+    firstName: patient.firstName,
+    lastName: patient.lastName,
+    facilityName: facility.name,
+    registrationLink: constructRegistrationLink(),
+  });
+
+  await models.PatientCommunication.create({
+    patientId: patient.id,
+    type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM,
+    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    status: COMMUNICATION_STATUSES.QUEUED,
+    destination: patientEmail,
+    subject: patientPortalUnregisteredFormTemplate.subject,
     content,
   });
 };
@@ -136,11 +222,14 @@ patientPortal.post(
 patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
-    const { models, user } = req;
+    const { models, user, settings, facilityId } = req;
     const { id: patientId } = req.params;
-    const { formId, assignedAt } = req.body;
+    const { formId, assignedAt, email: patientEmail } = req.body;
 
     const patient = await getPatientOrThrow({ models, patientId });
+    const patientUser = await models.PatientUser.findOne({
+      where: { patientId: patient.id },
+    });
 
     const survey = await models.Survey.findByPk(formId);
     if (!survey) {
@@ -154,7 +243,27 @@ patientPortal.post(
       assignedAt: assignedAt,
     });
 
-    // TODO - send an email to patient if they have registered for the portal
+    // If the patient has not yet registered for the portal, we need to register them and send the unregistered form email.
+    // Otherwise, we just send the registered form email.
+    if (!patientUser) {
+      await registerPatient({ patient, models });
+      await sendUnregisteredFormEmail({
+        patient,
+        // Prioritise email passed in - but it's optional
+        patientEmail: patientEmail ?? patientUser.email,
+        models,
+        settings,
+        facilityId,
+      });
+    } else {
+      await sendRegisteredFormEmail({
+        patient,
+        patientEmail: patientEmail ?? patientUser.email,
+        models,
+        settings,
+        facilityId,
+      });
+    }
 
     res.send({ patientSurveyAssignment });
   }),
