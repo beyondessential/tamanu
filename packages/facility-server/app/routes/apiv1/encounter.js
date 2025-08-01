@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
@@ -38,6 +38,7 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import { keyBy } from 'lodash';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -258,7 +259,7 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, query, db } = req;
     const { Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
@@ -350,15 +351,32 @@ encounterRelations.get(
       distinct: true,
     });
 
-    const objects = await Prescription.findAll({
+    const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map(x => x.forResponse());
+    let responseData = prescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [pharmacyOrderPrescriptions] = await db.query(
+        `
+        SELECT prescription_id, max(created_at) as last_ordered_at 
+        FROM pharmacy_order_prescriptions 
+        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
 
-    res.send({ count, data });
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: toDateTimeString(lastOrderedAts[p.id]?.last_ordered_at),
+      }));
+    }
+
+    res.send({ count, data: responseData });
   }),
 );
 
