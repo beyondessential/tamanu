@@ -312,7 +312,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       >
         <AlreadyOrderedMedicationsWrapper>
           <PharmacyOrderMedicationTable
-            data={tableData}
+            data={getAlreadyOrderedPrescriptions()}
             error={error}
             isLoading={isLoading}
             cellOnChange={cellOnChange}
