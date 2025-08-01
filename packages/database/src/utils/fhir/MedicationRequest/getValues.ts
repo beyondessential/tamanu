@@ -53,14 +53,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     requester,
     subject,
     encounter,
-    note: pharmacyOrder.comments
-      ? [
-          new FhirAnnotation({
-            author: recorder,
-            text: pharmacyOrder.comments,
-          }),
-        ]
-      : null,
+    note: note(pharmacyOrder, recorder),
     resolved:
       requester.isResolved() &&
       recorder.isResolved() &&
@@ -208,4 +201,25 @@ function getFrequencyPeriodUnit(prescription: Prescription) {
     default:
       throw new Error(`Unmapped frequency: ${prescription.frequency}`);
   }
+}
+
+function note(pharmacyOrder: PharmacyOrder, recorder: FhirReference) {
+  const notes = [];
+  if (pharmacyOrder.comments) {
+    notes.push(
+      new FhirAnnotation({
+        author: recorder,
+        text: pharmacyOrder.comments,
+      }),
+    );
+  }
+  if (pharmacyOrder.isDischargePrescription) {
+    notes.push(
+      new FhirAnnotation({
+        author: recorder,
+        text: 'discharge_prescription',
+      }),
+    );
+  }
+  return notes.length > 0 ? notes : null;
 }
