@@ -131,6 +131,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           encounterId: resources.encounter.id,
           orderingClinicianId: resources.practitioner.id,
           comments: 'Test comments',
+          isDischargePrescription: true,
         }),
       );
       const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
@@ -243,6 +244,9 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         note: [
           {
             text: pharmacyOrder.comments,
+          },
+          {
+            text: 'discharge_prescription',
           },
         ],
       });
