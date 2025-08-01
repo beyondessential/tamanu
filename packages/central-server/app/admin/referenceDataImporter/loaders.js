@@ -463,7 +463,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 }
 
 export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes } = item;
+  const { id: drugId, route, units, notes, isSensitive = false } = item;
   const rows = [];
 
   let existingDrug;
@@ -479,6 +479,7 @@ export async function drugLoader(item, { models }) {
     route,
     units,
     notes,
+    isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
