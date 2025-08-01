@@ -24,12 +24,16 @@ export const onCreateEncounterMarkPatientForSync = (encounterModel: typeof Encou
     // upsert patient_facilities record to mark the patient for sync in this facility
     await encounterModel.sequelize?.query(
       `
-      INSERT INTO patient_facilities (patient_id, facility_id)
-      VALUES (:patientId, :facilityId )
-      ON CONFLICT (patient_id, facility_id) DO NOTHING;
+      INSERT INTO patient_facilities (patient_id, facility_id, last_interacted_time)
+      VALUES (:patientId, :facilityId, :lastInteractedTime)
+      ON CONFLICT (patient_id, facility_id) DO UPDATE SET last_interacted_time = :lastInteractedTime;
     `,
       {
-        replacements: { patientId, facilityId: location?.facilityId },
+        replacements: {
+          patientId,
+          facilityId: location?.facilityId,
+          lastInteractedTime: new Date()
+        },
         // if the patient was created within a transaction, it may not be committed when the hook
         // fires, so this query needs to run in the same transaction
         transaction,
