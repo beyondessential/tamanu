@@ -590,4 +590,115 @@ describe('snapshotOutgoingChanges', () => {
       expect(outgoingSnapshotRecords.length).toEqual(0);
     });
   });
+
+  describe('lastInteractedThreshold', () => {
+    let patient1;
+    let patient2;
+    let patient3;
+    let facility;
+    let syncSession;
+
+    beforeEach(async () => {
+      const { Patient, PatientFacility, Facility, SyncSession } = models;
+      
+      // Create patients with different last_interacted_time values
+      patient1 = await Patient.create(fake(Patient));
+      patient2 = await Patient.create(fake(Patient));
+      patient3 = await Patient.create(fake(Patient));
+      
+      facility = await Facility.create(fake(Facility));
+      
+      // Create patient facilities with different last_interacted_time values
+      await PatientFacility.create({
+        patientId: patient1.id,
+        facilityId: facility.id,
+        lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+      });
+      await PatientFacility.create({
+        patientId: patient2.id,
+        facilityId: facility.id,
+        lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
+      });
+      await PatientFacility.create({
+        patientId: patient3.id,
+        facilityId: facility.id,
+        lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
+      });
+
+      const startTime = new Date();
+      syncSession = await SyncSession.create({
+        startTime,
+        lastConnectionTime: startTime,
+      });
+      await createSnapshotTable(ctx.store.sequelize, syncSession.id);
+    });
+
+    it('limits patients based on lastInteractedThreshold when creating marked for sync table', async () => {
+      const lastInteractedThreshold = 2;
+      
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        [facility.id],
+        0,
+        lastInteractedThreshold,
+      );
+
+      // Query the created table to verify only 2 patients are included
+      const [rows] = await ctx.store.sequelize.query(
+        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
+      );
+
+      expect(rows.length).toBe(2);
+      
+      // Should include the patients with the most recent last_interacted_time
+      const patientIds = rows.map(row => row.patient_id).sort();
+      expect(patientIds).toEqual([patient2.id, patient3.id].sort());
+    });
+
+    it('includes all patients when lastInteractedThreshold is not provided', async () => {
+      const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        true,
+        [facility.id],
+        0,
+        null, // no threshold
+      );
+
+      // Query the created table to verify all patients are included
+      const [rows] = await ctx.store.sequelize.query(
+        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
+      );
+
+      expect(rows.length).toBe(3);
+      
+      const patientIds = rows.map(row => row.patient_id).sort();
+      expect(patientIds).toEqual([patient1.id, patient2.id, patient3.id].sort());
+    });
+
+    it('works with incremental sync patients table', async () => {
+      const lastInteractedThreshold = 1;
+      
+      const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
+        ctx.store.sequelize,
+        syncSession.id,
+        false,
+        [facility.id],
+        0,
+        lastInteractedThreshold,
+      );
+
+      // Query the created table to verify only 1 patient is included
+      const [rows] = await ctx.store.sequelize.query(
+        `SELECT patient_id FROM ${incrementalSyncPatientsTable} ORDER BY patient_id`
+      );
+
+      expect(rows.length).toBe(1);
+      
+      // Should include the patient with the most recent last_interacted_time
+      expect(rows[0].patient_id).toBe(patient3.id);
+    });
+  });
 });
