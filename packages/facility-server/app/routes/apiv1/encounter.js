@@ -14,6 +14,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
   SURVEY_TYPES,
+  DASHBOARD_ONLY_TASK_TYPES
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -818,6 +819,9 @@ encounterRelations.get(
         status: { [Op.in]: statuses },
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+        taskType: {
+          [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
         },
         ...(assignedTo && {
           [Op.and]: literal(`
