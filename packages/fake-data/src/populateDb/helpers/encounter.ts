@@ -28,7 +28,7 @@ export const createEncounter = async ({
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
-  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis, Triage } = models;
+  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis } = models;
 
   const encounter = await Encounter.create(
     fake(Encounter, {
