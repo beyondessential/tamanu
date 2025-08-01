@@ -2,7 +2,7 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS  } from '../../../infra/db/limits';
+import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -31,24 +31,24 @@ export const executeInserts = async (
     }
   }
 
-
-  for (const batchOfRows of chunk(
-    deduplicated,
-    2000
-  )) {
+  for (const batchOfRows of chunk(deduplicated, 2000)) {
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
       if (batchOfRows.length === 0) continue;
-      
+
       const tableName = repository.metadata.tableName;
       const columns = Object.keys(batchOfRows[0]);
+      const columnNames = columns.reduce(
+        (acc, col, index) => acc + (index === 0 ? '' : ', ') + `"${col}"`,
+        '',
+      );
       const placeholders = columns.map(() => '?').join(', ');
       const valuesPlaceholders = batchOfRows.map(() => `(${placeholders})`).join(', ');
-      
-      const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES ${valuesPlaceholders}`;
+
+      const query = `INSERT INTO ${tableName} (${columnNames}) VALUES ${valuesPlaceholders}`;
       const values = batchOfRows.flatMap(row => columns.map(col => row[col]));
-      
+
       await repository.query(query, values);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
