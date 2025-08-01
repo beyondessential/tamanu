@@ -21,11 +21,14 @@ export const UnSavedChangesModal = ({ open, onCancel, onConfirm }) => (
     confirmButtonText={
       <TranslatedText
         stringId="procedure.modal.unsavedChanges.confirm"
-        fallback="Continue editing"
+        fallback="Discard changes"
       />
     }
     cancelButtonText={
-      <TranslatedText stringId="procedure.modal.unsavedChanges.cancel" fallback="Discard changes" />
+      <TranslatedText
+        stringId="procedure.modal.unsavedChanges.cancel"
+        fallback="Continue editing"
+      />
     }
     customContent={
       <p>
@@ -53,13 +56,13 @@ export const UnSavedProcedureProgramModal = ({ open, onCancel, onConfirm }) => (
     confirmButtonText={
       <TranslatedText
         stringId="procedure.modal.unsavedAdditionalData.confirm"
-        fallback="Continue editing"
+        fallback="Save procedure"
       />
     }
     cancelButtonText={
       <TranslatedText
         stringId="procedure.modal.unsavedAdditionalData.cancel"
-        fallback="Save procedure"
+        fallback="Continue editing"
       />
     }
     customContent={
@@ -88,13 +91,13 @@ export const CancelAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
     confirmButtonText={
       <TranslatedText
         stringId="procedure.modal.cancelAdditionalData.confirm"
-        fallback="Continue editing"
+        fallback="Cancel additional data"
       />
     }
     cancelButtonText={
       <TranslatedText
         stringId="procedure.modal.cancelAdditionalData.cancel"
-        fallback="Cancel additional data"
+        fallback="Continue editing"
       />
     }
     customContent={
