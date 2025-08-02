@@ -1,6 +1,10 @@
 import { Repository } from "typeorm";
 import { DataToPersist } from "../types";
 
+/** 
+ * Much faster than typeorm bulk insert or save
+ * Prepare a raw query and execute it with the values
+ */
 export const preparedInsert = async (repository: Repository<any>, rows: DataToPersist[]) => {
     const tableName = repository.metadata.tableName;
     const columns = Object.keys(rows[0]);

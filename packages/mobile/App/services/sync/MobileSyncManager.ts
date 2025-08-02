@@ -388,21 +388,26 @@ export class MobileSyncManager {
     };
     await Database.setUnsafePragma();
     await Database.client.transaction(async transactionEntityManager => {
-      const incomingModels = getTransactingModelsForDirection(
-        this.models,
-        SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        transactionEntityManager,
-      );
-      const sortedModels = await sortInDependencyOrder(incomingModels);
-      const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, sortedModels, syncSettings, progressCallback);
-      };
-
-      await pullRecordsInBatches(
-        { centralServer: this.centralServer, sessionId, recordTotal },
-        processStreamedDataFunction,
-      );
-      await this.postPull(transactionEntityManager, pullUntil);
+      try {
+        const incomingModels = getTransactingModelsForDirection(
+          this.models,
+          SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+          transactionEntityManager,
+        );
+        const sortedModels = await sortInDependencyOrder(incomingModels);
+        const processStreamedDataFunction = async (records: any) => {
+          await saveChangesFromMemory(records, sortedModels, syncSettings, progressCallback);
+        };
+        
+        await pullRecordsInBatches(
+          { centralServer: this.centralServer, sessionId, recordTotal },
+          processStreamedDataFunction,
+        );
+        await this.postPull(transactionEntityManager, pullUntil);
+      } catch (err) {
+        console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', error);
+        throw err;
+      } 
     });
   }
 
@@ -436,6 +441,7 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
     await Database.client.transaction(async transactionEntityManager => {
+      try {
       const incomingModels = getTransactingModelsForDirection(
         this.models,
         SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -444,6 +450,10 @@ export class MobileSyncManager {
       const sortedModels = await sortInDependencyOrder(incomingModels);
       await saveChangesFromSnapshot(sortedModels, syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
+      } catch (err) {
+        console.error('MobileSyncManager.pullIncrementalSync(): Error pulling incremental sync', err);
+        throw err;
+      }
     });
   }
 
