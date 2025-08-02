@@ -9,7 +9,7 @@ export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
     .getRepository()
     .metadata.relationIds.map((rid): [string, string] => [
       rid.propertyName,
-      rid.propertyName,
+      rid.relation.propertyName,
     ]);
 
 /*
@@ -41,4 +41,23 @@ export const buildFromSyncRecord = (
 
   const dbRecord = mapFields(fieldMapping, pick(data, includedColumns));
   return dbRecord;
+};
+
+export const buildForRawInsertFromSyncRecord = (
+  model: typeof BaseModel,
+  { data, isDeleted }: SyncRecordData,
+): DataToPersist => {
+  const includedColumns = extractIncludedColumns(model);
+  const record = pick(data, includedColumns);
+  record.isDeleted = isDeleted;
+  return record;
+};
+
+export const buildForRawInsertFromSyncRecords = (
+  model: typeof BaseModel,
+  records: SyncRecordData[],
+): DataToPersist[] => {
+  const includedColumns = extractIncludedColumns(model);
+  // Skip field mapping for raw insert - keep original field names
+  return records.map(({ data }) => pick(data, includedColumns));
 };

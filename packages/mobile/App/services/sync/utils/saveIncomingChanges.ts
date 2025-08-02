@@ -2,13 +2,22 @@ import { In } from 'typeorm';
 import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
-import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
 import { MODELS_ARRAY } from '~/models/modelsMap';
+import {
+  buildForRawInsertFromSyncRecord,
+  buildForRawInsertFromSyncRecords,
+  buildFromSyncRecord,
+} from './buildFromSyncRecord';
+
+type ModelRecords = {
+  model: typeof BaseModel;
+  records: SyncRecord[];
+};
 
 const forceGC = () => {
   if (typeof gc === 'function') {
@@ -64,7 +73,7 @@ export const saveChangesForModel = async (
 
   const recordsForCreate = changes
     .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
-    .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
+    .map(change => buildForRawInsertFromSyncRecord(model, change));
 
   const recordsForUpdate = changes
     .filter(c => idsForUpdate.has(c.recordId))
@@ -96,22 +105,26 @@ export const saveChangesForModel = async (
 const prepareChangesForModels = (
   records: SyncRecord[],
   incomingModels: typeof MODELS_ARRAY,
-): Record<string, SyncRecord[]> => {
+): ModelRecords[] => {
   const recordsByType = groupBy(records, 'recordType');
-  const changesByModel: Record<string, SyncRecord[]> = {};
+  const modelChanges: ModelRecords[] = [];
   for (const model of incomingModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
-    if (recordsForModel.length > 0) {
-      changesByModel[model.name] =
+    if (!recordsForModel.length) {
+      continue;
+    }
+    modelChanges.push({
+      model,
+      records:
         'sanitizePulledRecordData' in model
           ? model.sanitizePulledRecordData(recordsForModel)
-          : recordsForModel;
-    }
+          : recordsForModel,
+    });
   }
   // Force garbage collection to free up memory
   // otherwise the memory will be exhausted during this step in larger syncs
   forceGC();
-  return changesByModel;
+  return modelChanges;
 };
 
 export const saveChangesFromMemory = async (
@@ -120,20 +133,17 @@ export const saveChangesFromMemory = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = prepareChangesForModels(records, sortedModels);
-  for (const model of sortedModels) {
-    const recordsForModel = preparedRecordByModel[model.name];
-    if (recordsForModel) {
-      if (model.name === 'User') {
-        await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
-      } else {
-        await executeInserts(
-          model.getTransactionalRepository(),
-          recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
-          syncSettings.maxRecordsPerInsertBatch,
-          progressCallback,
-        );
-      }
+  const modelChanges = prepareChangesForModels(records, sortedModels);
+  for (const { model, records } of modelChanges) {
+    if (model.name === 'User') {
+      await saveChangesForModel(model, records, syncSettings, progressCallback);
+    } else {
+      await executeInserts(
+        model.getTransactionalRepository(),
+        buildForRawInsertFromSyncRecords(model, records),
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
     }
   }
 };
@@ -147,12 +157,9 @@ export const saveChangesFromSnapshot = async (
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
-    for (const model of sortedModels) {
-      const recordsForModel = preparedRecordByModel[model.name];
-      if (recordsForModel) {
-        await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
-      }
+    const modelChanges = await prepareChangesForModels(batchRecords, sortedModels);
+    for (const { model, records } of modelChanges) {
+      await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
   }
 };
