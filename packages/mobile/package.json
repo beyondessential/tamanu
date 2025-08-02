@@ -3,7 +3,7 @@
   "version": "2.38.0",
   "private": true,
   "scripts": {
-    "android": "npx react-native start  --reset-cache",
+    "android": "npx react-native start --reset-cache",
     "build:android": "cd android && ./gradlew clean && ./gradlew app:assembleRelease && cd ..",
     "clean:deps": "rimraf node_modules",
     "start": "rnstl --silent && react-native start",
@@ -19,7 +19,6 @@
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "patch-package",
-    "patch": "patch-package --exclude 'nothing' typeorm",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "postinstall": "cd ../.. && npm run prepare",
