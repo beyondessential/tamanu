@@ -55,8 +55,6 @@ export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).l
 export interface PullParams {
   sessionId: string;
   recordTotal: number;
-  centralServer: CentralServerConnection;
-  syncSettings: MobileSyncSettings;
   pullUntil: number;
 }
 
@@ -359,8 +357,6 @@ export class MobileSyncManager {
       sessionId,
       pullUntil,
       recordTotal: totalToPull,
-      centralServer: this.centralServer,
-      syncSettings: this.syncSettings,
     };
     if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
@@ -403,7 +399,6 @@ export class MobileSyncManager {
   async pullIncrementalSync({
     sessionId,
     recordTotal,
-    centralServer,
     pullUntil,
   }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
@@ -418,7 +413,12 @@ export class MobileSyncManager {
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { centralServer, sessionId, recordTotal, progressCallback: pullProgressCallback },
+      {
+        centralServer: this.centralServer,
+        sessionId,
+        recordTotal,
+        progressCallback: pullProgressCallback,
+      },
       processStreamedDataFunction,
     );
 
