@@ -1,9 +1,10 @@
 import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import { typeORMDriver } from 'react-native-quick-sqlite'
 import { DevSettings } from 'react-native';
+
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
-import { typeORMDriver } from 'react-native-quick-sqlite'
 
 const LOG_LEVELS = __DEV__
   ? [
