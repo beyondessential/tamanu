@@ -27,7 +27,7 @@ const forceGC = () => {
 export const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
-  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
+  { maxRecordsPerInsertBatch = 2000 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const repository = model.getTransactionalRepository();

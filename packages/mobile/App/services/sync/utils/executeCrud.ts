@@ -2,7 +2,8 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
+import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
+import { preparedInsert } from './preparedInsert';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -30,26 +31,9 @@ export const executeInserts = async (
       idsAdded.add(id);
     }
   }
-
-  for (const batchOfRows of chunk(deduplicated, 2000)) {
+  for (const batchOfRows of chunk(deduplicated, insertBatchSize)) {
     try {
-      // insert with listeners turned off, so that it doesn't cause a patient to be marked for
-      // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
-      if (batchOfRows.length === 0) continue;
-
-      const tableName = repository.metadata.tableName;
-      const columns = Object.keys(batchOfRows[0]);
-      const columnNames = columns.reduce(
-        (acc, col, index) => acc + (index === 0 ? '' : ', ') + `"${col}"`,
-        '',
-      );
-      const placeholders = columns.map(() => '?').join(', ');
-      const valuesPlaceholders = batchOfRows.map(() => `(${placeholders})`).join(', ');
-
-      const query = `INSERT INTO ${tableName} (${columnNames}) VALUES ${valuesPlaceholders}`;
-      const values = batchOfRows.flatMap(row => columns.map(col => row[col]));
-
-      await repository.query(query, values);
+      await preparedInsert(repository, batchOfRows);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
@@ -65,7 +49,6 @@ export const executeInserts = async (
     }
     progressCallback(batchOfRows.length);
   }
-
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
     await executeDeletes(repository, softDeleted);
