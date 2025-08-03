@@ -601,14 +601,12 @@ describe('snapshotOutgoingChanges', () => {
     beforeEach(async () => {
       const { Patient, PatientFacility, Facility, SyncSession } = models;
       
-      // Create patients with different last_interacted_time values
       patient1 = await Patient.create(fake(Patient));
       patient2 = await Patient.create(fake(Patient));
       patient3 = await Patient.create(fake(Patient));
       
       facility = await Facility.create(fake(Facility));
-      
-      // Create patient facilities with different last_interacted_time values
+  
       await PatientFacility.create({
         patientId: patient1.id,
         facilityId: facility.id,
@@ -647,8 +645,7 @@ describe('snapshotOutgoingChanges', () => {
         0,
         lastInteractedThreshold,
       );
-
-      // Query the created table to verify only 2 patients are included
+ // Query the created table to verify only 2 patients are included
       const [rows] = await ctx.store.sequelize.query(
         `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
       );
@@ -670,7 +667,6 @@ describe('snapshotOutgoingChanges', () => {
         null, // no threshold
       );
 
-      // Query the created table to verify all patients are included
       const [rows] = await ctx.store.sequelize.query(
         `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
       );
@@ -693,7 +689,6 @@ describe('snapshotOutgoingChanges', () => {
         lastInteractedThreshold,
       );
 
-      // Query the created table to verify only 1 patient is included
       const [rows] = await ctx.store.sequelize.query(
         `SELECT patient_id FROM ${incrementalSyncPatientsTable} ORDER BY patient_id`
       );
