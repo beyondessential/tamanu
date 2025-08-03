@@ -67,7 +67,11 @@ export class AuthService {
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
     const configFacilityId = await readConfig('facilityId', null);
-    if (!configFacilityId) throw new Error('No facility id stored in config');
+    if (!configFacilityId) {
+      throw new Error(
+        'You need to first link this device to a facility before you can login offline.',
+      );
+    }
 
     console.log('Signing in locally as', email);
     const { User } = this.models;
