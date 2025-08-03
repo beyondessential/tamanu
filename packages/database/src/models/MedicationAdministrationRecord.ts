@@ -1,5 +1,12 @@
 import { DataTypes, Op, type Transaction } from 'sequelize';
-import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  ENCOUNTER_TYPES,
+  SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  TASK_STATUSES,
+  TASK_TYPES,
+} from '@tamanu/constants';
 import {
   addDays,
   addHours,
@@ -14,11 +21,14 @@ import config from 'config';
 import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
+  findAdministrationTimeSlotFromIdealTime,
+  getDateFromTimeString,
 } from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { Task } from './Task';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -34,6 +44,8 @@ export class MedicationAdministrationRecord extends Model {
   declare isEdited?: boolean;
   declare isError?: boolean;
   declare errorNotes?: string;
+
+  declare prescription?: Prescription;
 
   static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
@@ -78,6 +90,11 @@ export class MedicationAdministrationRecord extends Model {
               });
               await prescription.save();
             }
+
+            // Create a task for the MAR if it's not recorded yet
+            if (!mar.status) {
+              await this.createMedicationDueTaskForMar(mar);
+            }
           },
           afterUpdate: async (mar: MedicationAdministrationRecord) => {
             // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
@@ -95,6 +112,11 @@ export class MedicationAdministrationRecord extends Model {
                 discontinued: true,
               });
               await prescription.save();
+            }
+
+            const previousStatus = mar.previous('status');
+            if (!previousStatus && mar.status) {
+              await this.checkAndCompleteMedicationDueTask(mar);
             }
           },
         },
@@ -242,6 +264,145 @@ export class MedicationAdministrationRecord extends Model {
     }
   }
 
+  static async createMedicationDueTaskForMar(mar: MedicationAdministrationRecord) {
+    const { models } = this.sequelize;
+    const { Task, Encounter, EncounterPrescription, Prescription } = models;
+
+    const prescription = await Prescription.findByPk(mar.prescriptionId);
+
+    // Skip if this is a PRN medication
+    if (!prescription || prescription.isPrn) return;
+
+    const encounterPrescription = await EncounterPrescription.findOne({
+      where: { prescriptionId: prescription.id },
+      include: [
+        {
+          model: Encounter,
+          as: 'encounter',
+          attributes: ['id', 'encounterType', 'endDate'],
+        },
+      ],
+    });
+    const encounter = encounterPrescription?.encounter;
+
+    // Skip if this is not an inpatient encounter or is discharged
+    if (!encounter || encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate)
+      return;
+
+    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
+    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
+    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
+
+    const existingTask = await Task.findOne({
+      where: {
+        encounterId: encounter.id,
+        dueTime: {
+          [Op.gte]: toDateTimeString(startTime),
+          [Op.lt]: toDateTimeString(endTime),
+        },
+        status: TASK_STATUSES.TODO,
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      },
+      attributes: ['id'],
+    });
+
+    // Skip if the task at the same ideal time already exists
+    if (existingTask) return;
+
+    await Task.create({
+      taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      encounterId: encounter.id,
+      name: 'Medication Due',
+      dueTime: new Date(mar.dueAt),
+      status: TASK_STATUSES.TODO,
+      requestTime: getCurrentDateTimeString(),
+      requestedByUserId: SYSTEM_USER_UUID,
+    });
+  }
+
+  /**
+   * If all MARs at the same ideal time as the task are recorded (GIVEN or NOT_GIVEN), mark the task as completed by the system user
+   */
+  static async checkAndCompleteMedicationDueTask(mar: MedicationAdministrationRecord) {
+    const { models } = this.sequelize;
+    const { Task, EncounterPrescription, MedicationAdministrationRecord, Prescription } = models;
+
+    const encounterPrescription = await EncounterPrescription.findOne({
+      where: { prescriptionId: mar.prescriptionId },
+      attributes: ['encounterId'],
+    });
+    if (!encounterPrescription) return;
+
+    const encounterId = encounterPrescription.encounterId;
+
+    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
+    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
+    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
+
+    const task = await Task.findOne({
+      where: {
+        encounterId,
+        dueTime: {
+          [Op.gte]: toDateTimeString(startTime),
+          [Op.lt]: toDateTimeString(endTime),
+        },
+        status: TASK_STATUSES.TODO,
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      },
+      attributes: ['id', 'dueTime'],
+    });
+
+    if (!task) return;
+
+    // Check if there is another unrecorded MAR at the same ideal time as the task
+    const unrecordedMar = await MedicationAdministrationRecord.findOne({
+      where: {
+        id: {
+          [Op.ne]: mar.id,
+        },
+        dueAt: {
+          [Op.gte]: toDateTimeString(startTime),
+          [Op.lt]: toDateTimeString(endTime),
+        },
+        status: null,
+      },
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          attributes: ['id'],
+          required: true,
+          include: [
+            {
+              model: EncounterPrescription,
+              as: 'encounterPrescription',
+              attributes: ['encounterId'],
+              required: true,
+              where: {
+                encounterId,
+              },
+            },
+          ],
+        },
+      ],
+      attributes: ['id'],
+    });
+
+    // Skip if there is still at least one unrecorded MAR
+    if (unrecordedMar) return;
+
+    await Task.update(
+      {
+        status: TASK_STATUSES.COMPLETED,
+        completedTime: getCurrentDateTimeString(),
+        completedByUserId: SYSTEM_USER_UUID,
+      },
+      {
+        where: { id: task.id },
+      },
+    );
+  }
+
   /**
    * Removes medication administration records that are no longer valid due to:
    * 1. The encounter being discharged (MARs with due dates after the encounter end date)
@@ -284,23 +445,90 @@ export class MedicationAdministrationRecord extends Model {
           model: Prescription,
           as: 'prescription',
           required: true,
+          attributes: ['id'],
           include: [
             {
               model: EncounterPrescription,
               as: 'encounterPrescription',
               required: true,
               include: ['encounter'],
+              attributes: ['id'],
             },
           ],
         },
       ],
+      attributes: ['id', 'dueAt'],
       transaction,
     });
+
+    const marIdsToRemove = marsToRemove.map(mar => mar.id);
+
+    // Remove tasks that are no longer valid
+    for (const mar of marsToRemove) {
+      const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
+      const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
+      const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
+
+      const encounter = mar?.prescription?.encounterPrescription?.encounter;
+      if (!encounter) continue;
+
+      const existingTask = await Task.findOne({
+        where: {
+          encounterId: encounter.id,
+          dueTime: {
+            [Op.gte]: toDateTimeString(startTime),
+            [Op.lt]: toDateTimeString(endTime),
+          },
+          status: TASK_STATUSES.TODO,
+          taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+        },
+        attributes: ['id'],
+      });
+
+      if (!existingTask) continue;
+
+      const unrecordedMar = await MedicationAdministrationRecord.findOne({
+        where: {
+          id: {
+            [Op.notIn]: marIdsToRemove,
+          },
+          dueAt: {
+            [Op.gte]: toDateTimeString(startTime),
+            [Op.lt]: toDateTimeString(endTime),
+          },
+          status: null,
+        },
+        include: [
+          {
+            model: Prescription,
+            as: 'prescription',
+            attributes: ['id'],
+            required: true,
+            include: [
+              {
+                model: EncounterPrescription,
+                as: 'encounterPrescription',
+                attributes: ['encounterId'],
+                required: true,
+                where: {
+                  encounterId: encounter.id,
+                },
+              },
+            ],
+          },
+        ],
+        attributes: ['id'],
+      });
+
+      if (unrecordedMar) continue;
+
+      await existingTask.destroy({ transaction });
+    }
 
     await this.destroy({
       where: {
         id: {
-          [Op.in]: marsToRemove.map(mar => mar.id),
+          [Op.in]: marIdsToRemove,
         },
       },
       transaction,

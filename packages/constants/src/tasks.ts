@@ -60,3 +60,10 @@ export const TASK_DELETE_BY_SYSTEM_REASON = 'taskdeletionreason-deletedbysystem'
 export const TASK_DELETE_RECORDED_IN_ERROR_REASON_ID = 'taskdeletionreason-recordedinerror';
 
 export const TASK_DELETE_PATIENT_DISCHARGED_REASON_ID = 'taskdeletionreason-patientdischarged';
+
+export const TASK_TYPES = {
+  NORMAL_TASK: 'normal_task',
+  MEDICATION_DUE_TASK: 'medication_due_task',
+};
+
+export const DASHBOARD_ONLY_TASK_TYPES = [TASK_TYPES.MEDICATION_DUE_TASK];
