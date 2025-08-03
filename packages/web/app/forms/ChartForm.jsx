@@ -10,7 +10,7 @@ import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useSurveyQuery } from '../api/queries/useSurveyQuery.js';
+import { useSurveyQuery } from '../api/queries/useSurveyQuery';
 import { getFormInitialValues, getValidationSchema } from '../utils';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
