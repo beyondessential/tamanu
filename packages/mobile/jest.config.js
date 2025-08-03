@@ -2,11 +2,13 @@ module.exports = {
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
+    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm|react-native-quick-sqlite)',
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
-    '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
+    '\\.(ts|tsx)$': ['<rootDir>/../../node_modules/ts-jest', {
+      tsconfig: 'tsconfig.json',
+    }],
   },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/../../node_modules/', 'e2e'],
@@ -27,6 +29,7 @@ module.exports = {
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
     'react-native-sqlite-storage': 'react-native-quick-sqlite',
+    'react-native-quick-sqlite': '<rootDir>/__mocks__/react-native-quick-sqlite.ts',
   },
   globals: {
     'ts-jest': {

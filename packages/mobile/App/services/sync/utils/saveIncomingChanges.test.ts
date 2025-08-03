@@ -8,6 +8,12 @@ jest.mock('./buildFromSyncRecord', () => {
     buildFromSyncRecord: jest.fn().mockImplementation((model, data) => {
       return data;
     }),
+    buildForRawInsertFromSyncRecord: jest.fn().mockImplementation((model, change) => {
+      return { ...change.data, isDeleted: change.isDeleted };
+    }),
+    buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((model, records) => {
+      return records.map(record => record.data);
+    }),
   };
 });
 // Mock dependencies like `model.find`
