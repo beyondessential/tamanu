@@ -10,7 +10,6 @@ import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { UserFacility } from './UserFacility';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
-import { Facility } from './Facility';
 import { type PureAbility } from '@casl/ability';
 import { union } from 'lodash';
 import { MODELS_MAP } from './modelsMap';
