@@ -645,7 +645,6 @@ describe('snapshotOutgoingChanges', () => {
         0,
         lastInteractedThreshold,
       );
- // Query the created table to verify only 2 patients are included
       const [rows] = await ctx.store.sequelize.query(
         `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id;`
       );
