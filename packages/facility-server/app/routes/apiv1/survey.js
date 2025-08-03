@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { CHARTING_SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
@@ -44,7 +44,15 @@ survey.get(
       models: { Survey },
     } = req;
 
-    const chartSurveys = await Survey.getChartSurveys();
+    const chartSurveys = await Survey.findAll({
+      where: {
+        surveyType: {
+          [Op.in]: CHARTING_SURVEY_TYPES,
+        },
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+      order: [['name', 'ASC']],
+    });
     const permittedChartSurveys = chartSurveys.filter((survey) =>
       req.ability.can('list', subject('Charting', { id: survey.id })),
     );
