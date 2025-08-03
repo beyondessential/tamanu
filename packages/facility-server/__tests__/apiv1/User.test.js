@@ -365,9 +365,6 @@ describe('User', () => {
     const linkedUserFacilities = [facility1, sensitiveFacility1];
     const linkedUserFacilityIds = linkedUserFacilities.map(f => f.id);
 
-    const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
-    const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
-
     // Mock the permission for user [verb: 'login', noun: 'Facility']
     const mockLoginFacilityPermission = async (user, hasPermission) => {
       jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
@@ -419,12 +416,16 @@ describe('User', () => {
       it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilities = await userWithUserFacilities.allowedFacilities();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
 
       it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilities = await userWithUserFacilities.allowedFacilities();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
 
@@ -454,12 +455,18 @@ describe('User', () => {
       it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilityIds = await userWithUserFacilities.allowedFacilityIds();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
         expect(userFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
       });
 
       it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilityIds = await userWithUserFacilities.allowedFacilityIds();
+
+        const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
+        const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
         expect(userFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
       });
 
