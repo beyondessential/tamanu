@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
 
-export class addfacilityIsSensitiveColumn1752187477000 implements MigrationInterface {
+export class addFacilityIsSensitiveColumn1752187477000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const facilitiesTable = await getTable(queryRunner, 'facilities');
     await queryRunner.addColumn(
