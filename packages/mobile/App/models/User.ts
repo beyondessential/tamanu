@@ -76,7 +76,9 @@ export class User extends BaseModel implements IUser {
     const hasLoginPermission = ability.can('login', 'Facility');
     const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
 
-    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    const sensitiveFacilities = await Facility.getRepository().count({
+      where: { isSensitive: true },
+    });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
       return CAN_ACCESS_ALL_FACILITIES;
 
