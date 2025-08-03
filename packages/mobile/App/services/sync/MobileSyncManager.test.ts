@@ -142,7 +142,7 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
     });
 
-    it("should call pullIncomingChanges() with the correct 'sessionId' and 'syncSettings'", async () => {
+    it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {
       jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
       jest
@@ -157,12 +157,7 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId, {
-        maxBatchesToKeepInMemory: 10,
-        maxRecordsPerInsertBatch: 100,
-        maxRecordsPerSnapshotBatch: 1000,
-        useUnsafeSchemaForInitialSync: false,
-      });
+      expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
     });
   });
 
