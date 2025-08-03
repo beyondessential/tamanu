@@ -9,7 +9,6 @@ import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
 } from '../sync/buildEncounterLinkedLookupFilter';
-import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 
 export class VitalLog extends Model {
   declare id: string;
