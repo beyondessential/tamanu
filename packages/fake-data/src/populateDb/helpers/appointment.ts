@@ -10,7 +10,7 @@ interface CreateAppointmentParams extends CommonParams {
   locationGroupId: string;
   patientId: string;
   clinicianId: string;
-  encounterId: string;
+  encounterId: string | null;
 }
 
 export const createAppointment = async ({
