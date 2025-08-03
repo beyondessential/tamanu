@@ -82,7 +82,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
             await api.post(`procedure/${updatedData.id}`, updatedData);
             onSaved();
           }}
-          onCancel={onCloseClick}
+          onCancel={onClose}
           editedObject={editedProcedure}
           departmentSuggester={departmentSuggester}
           locationSuggester={locationSuggester}
