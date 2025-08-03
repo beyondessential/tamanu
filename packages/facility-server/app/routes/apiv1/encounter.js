@@ -751,7 +751,6 @@ encounterRelations.get(
           as: 'survey',
           where: {
             surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
-            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           },
         },
       ],
