@@ -25,6 +25,7 @@ import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 import { TransactingModel } from './utils/getModelsForDirection';
+import { type EntityManager } from 'typeorm';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -320,7 +321,6 @@ export class MobileSyncManager {
    * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
    * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
    *
-   * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
    */
   async pullIncomingChanges(sessionId: string): Promise<void> {
@@ -449,12 +449,11 @@ export class MobileSyncManager {
     });
   }
 
-  /**
-   * Post-pull actions should be run inside the save transaction
-   * @param entityManager - the entity manager for the save transaction
-   * @param pullUntil - the new value for the last successful pull
-   */
-  async postPull(entityManager: any, pullUntil: number) {
+  async postPull(entityManager: EntityManager, pullUntil: number) {
+    if (!entityManager.queryRunner?.isTransactionActive) {
+      throw new Error('MobileSyncManager.postPull(): Not in transaction');
+    }
+
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
 
     const tablesForFullResync = await localSystemFactRepository.findOne({
