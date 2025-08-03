@@ -368,6 +368,7 @@ describe('User', () => {
     const expectedCombinedFacilities = [...nonSensitiveFacilities, sensitiveFacility1];
     const expectedCombinedFacilityIds = expectedCombinedFacilities.map(f => f.id);
 
+    // Mock the permission for user [verb: 'login', noun: 'Facility']
     const mockLoginFacilityPermission = async (user, hasPermission) => {
       jest.spyOn(user, 'hasPermission').mockImplementation(() => hasPermission);
     };
@@ -415,7 +416,7 @@ describe('User', () => {
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('should return all non-sensitive facilities plus the linked facilities for a user with facility login permission', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilities = await userWithUserFacilities.allowedFacilities();
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
@@ -450,7 +451,7 @@ describe('User', () => {
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('should return all non-sensitive facilities plus the linked facilities for a user with facility login permission', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilityIds = await userWithUserFacilities.allowedFacilityIds();
         expect(userFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
