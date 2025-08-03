@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: socket_io_attachments
-        description: '{{ doc("table__socket_io_attachments") }}'
-        tags:
-          - system
+        description: "{{ doc('table__socket_io_attachments') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid

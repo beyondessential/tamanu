@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: templates
-        description: '{{ doc("table__templates") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__templates') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid

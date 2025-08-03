@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: ips_requests
-        description: '{{ doc("table__ips_requests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__ips_requests') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
