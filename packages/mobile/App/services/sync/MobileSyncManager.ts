@@ -436,7 +436,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels) as any;
+        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {

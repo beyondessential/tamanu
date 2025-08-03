@@ -1,6 +1,6 @@
 import { getManager } from 'typeorm';
 
-import { MODELS_MAP } from '../../../models/modelsMap';
+import { ArrayOfModels, MODELS_MAP } from '../../../models/modelsMap';
 
 type DependencyMap = {
   [tableName: string]: string[];
@@ -64,9 +64,9 @@ const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: st
  */
 export const sortInDependencyOrder = async (
   models: Partial<typeof MODELS_MAP>,
-): Promise<Array<typeof MODELS_MAP[keyof typeof MODELS_MAP]>> => {
+): Promise<ArrayOfModels> => {
   const dependencyMap = await getDependencyMap(models);
-  const sorted: Array<typeof MODELS_MAP[keyof typeof MODELS_MAP]> = [];
+  const sorted: ArrayOfModels = [];
   const stillToSort = { ...models };
 
   while (Object.keys(stillToSort).length > 0) {
