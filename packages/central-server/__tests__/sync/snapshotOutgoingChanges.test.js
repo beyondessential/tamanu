@@ -653,8 +653,8 @@ describe('snapshotOutgoingChanges', () => {
       expect(rows.length).toBe(2);
       
       // Should include the patients with the most recent last_interacted_time
-      const patientIds = rows.map(row => row.patient_id);
-      expect(patientIds).toEqual([patient2.id, patient3.id]);
+      const patientIds = rows.map(row => row.patient_id).sort();
+      expect(patientIds).toEqual([patient2.id, patient3.id].sort());
     });
 
     it('includes all patients when lastInter  actedThreshold is not provided', async () => {
