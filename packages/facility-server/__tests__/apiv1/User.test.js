@@ -475,11 +475,11 @@ describe('User', () => {
         expect(userFacilityIds).toStrictEqual(linkedUserFacilityIds);
       });
 
-      it('should return empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
+      it('should return an empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
         const userFacilityIds = await userWithoutUserFacilities.allowedFacilityIds();
         expect(userFacilityIds).toHaveLength(0);
       });
-      it('should return all non-sensitive facility ids if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
+      it('should return all non-sensitive facility ids if there are no linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilityIds = await userWithoutUserFacilities.allowedFacilityIds();
         expect(userFacilityIds).toEqual(expect.arrayContaining(nonSensitiveFacilityIds));
