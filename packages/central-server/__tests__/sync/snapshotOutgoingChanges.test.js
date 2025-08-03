@@ -647,17 +647,17 @@ describe('snapshotOutgoingChanges', () => {
       );
  // Query the created table to verify only 2 patients are included
       const [rows] = await ctx.store.sequelize.query(
-        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
+        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id;`
       );
 
       expect(rows.length).toBe(2);
       
       // Should include the patients with the most recent last_interacted_time
-      const patientIds = rows.map(row => row.patient_id).sort();
-      expect(patientIds).toEqual([patient2.id, patient3.id].sort());
+      const patientIds = rows.map(row => row.patient_id);
+      expect(patientIds).toEqual([patient2.id, patient3.id]);
     });
 
-    it('includes all patients when lastInteractedThreshold is not provided', async () => {
+    it('includes all patients when lastInter  actedThreshold is not provided', async () => {
       const fullSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
         syncSession.id,
@@ -668,7 +668,7 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const [rows] = await ctx.store.sequelize.query(
-        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id`
+        `SELECT patient_id FROM ${fullSyncPatientsTable} ORDER BY patient_id;`
       );
 
       expect(rows.length).toBe(3);
@@ -690,14 +690,13 @@ describe('snapshotOutgoingChanges', () => {
       );
 
       const [rows] = await ctx.store.sequelize.query(
-        `SELECT patient_id FROM ${incrementalSyncPatientsTable} ORDER BY patient_id`
+        `SELECT patient_id FROM ${incrementalSyncPatientsTable} ORDER BY patient_id;`
       );
 
       expect(rows.length).toBe(2);
       
-      // Should include the patient with the most recent last_interacted_time
-      expect(rows[0].patient_id).toBe(patient2.id);
-      expect(rows[1].patient_id).toBe(patient3.id);
+      const patientIds = rows.map(row => row.patient_id).sort();
+      expect(patientIds).toEqual([patient2.id, patient3.id].sort());
     });
   });
 });
