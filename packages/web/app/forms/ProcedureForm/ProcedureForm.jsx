@@ -16,18 +16,14 @@ import {
   LocationField,
   TextField,
   TimeField,
-} from '../../components/Field';
+} from '../../components/Field/index';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
 import { FormGrid } from '../../components/FormGrid';
 import { FormSubmitCancelRow } from '../../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
-import { FORM_TYPES } from '../../constants/index.js';
+import { FORM_TYPES } from '../../constants/index';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import { ProcedureAdditionalData } from './ProcedureAdditionalData';
-import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
-import { usePatientDataQuery } from '../../api/queries/usePatientDataQuery';
-import { useRefreshCount } from '../../hooks/useRefreshCount';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
