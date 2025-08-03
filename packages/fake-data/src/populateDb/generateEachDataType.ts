@@ -56,7 +56,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
   });
 
   await Promise.all([
-    await createLabRequest({
+    createLabRequest({
       models,
       limit,
       departmentId: department.id,
@@ -66,22 +66,22 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       patientId: patient.id,
       labTestTypeId: labTestType.id,
     }),
-    await createProgramRegistry({
+    createProgramRegistry({
       models,
       limit,
       userId: user.id,
       patientId: patient.id,
       programRegistryId: programRegistry.id,
     }),
-    await createSurveyResponse({ models, limit, encounterId: encounter.id, surveyId: survey.id }),
-    await createDbReport({ models, limit, userId: user.id }),
-    await createAdministeredVaccine({
+    createSurveyResponse({ models, limit, encounterId: encounter.id, surveyId: survey.id }),
+    createDbReport({ models, limit, userId: user.id }),
+    createAdministeredVaccine({
       models,
       limit,
       scheduledVaccineId: scheduledVaccine.id,
       encounterId: encounter.id,
     }),
-    await createInvoice({
+    createInvoice({
       models,
       limit,
       encounterId: encounter.id,
@@ -89,7 +89,7 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       referenceDataId: referenceData.id,
       productId: invoiceProduct.id,
     }),
-    await createImagingRequest({
+    createImagingRequest({
       models,
       limit,
       userId: user.id,
@@ -97,37 +97,37 @@ export const generateEachDataType = async (models: Models): Promise<void> => {
       locationGroupId: locationGroup.id,
       areaIds: [referenceData.id],
     }),
-    await createRepeatingAppointment({
+    createRepeatingAppointment({
       models,
       limit,
       locationGroupId: locationGroup.id,
       patientId: patient.id,
       clinicianId: user.id,
     }),
-    await createTask({
+    createTask({
       models,
       limit,
       encounterId: encounter.id,
       userId: user.id,
       referenceDataId: referenceData.id,
     }),
-    await createPatientCommunication({ models, limit, patientId: patient.id }),
-    await createMedication({
+    createPatientCommunication({ models, limit, patientId: patient.id }),
+    createMedication({
       models,
       limit,
       encounterId: encounter.id,
       patientId: patient.id,
       referenceDataId: referenceData.id,
     }),
-    await createAccessLog({
+    createAccessLog({
       models,
       limit,
       userId: user.id,
       patientId: patient.id,
       facilityId: facility.id,
     }),
-    await createProcedure({ models, limit, encounterId: encounter.id }),
-    await createAppointment({
+    createProcedure({ models, limit, encounterId: encounter.id }),
+    createAppointment({
       models,
       limit,
       encounterId: encounter.id,
