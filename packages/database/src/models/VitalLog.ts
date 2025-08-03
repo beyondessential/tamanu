@@ -6,6 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 
 export class VitalLog extends Model {
   declare id: string;
@@ -104,11 +105,20 @@ export class VitalLog extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterLinkedLookupSelect(this),
-      joins: `
-        INNER JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
-        INNER JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
-        INNER JOIN encounters ON survey_responses.encounter_id = encounters.id
-      `,
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        {
+          model: this.sequelize.models.SurveyResponseAnswer,
+          joinColumn: 'answer_id',
+          required: true,
+        },
+        {
+          model: this.sequelize.models.SurveyResponse,
+          joinColumn: 'response_id',
+          required: true,
+        },
+        'encounters',
+      ]),
     };
   }
 }
