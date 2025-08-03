@@ -32,14 +32,16 @@ export const createImagingRequest = async ({
     }),
   );
 
-  areaIds.forEach(async areaId => {
-    await ImagingRequestArea.create(
-      fake(ImagingRequestArea, {
-        imagingRequestId: imagingRequest.id,
-        areaId: areaId,
-      }),
-    );
-  });
+  await Promise.all(
+    areaIds.map(async areaId => {
+      await ImagingRequestArea.create(
+        fake(ImagingRequestArea, {
+          imagingRequestId: imagingRequest.id,
+          areaId: areaId,
+        }),
+      );
+    }),
+  );
 
   if (isResulted) {
     await ImagingResult.create(

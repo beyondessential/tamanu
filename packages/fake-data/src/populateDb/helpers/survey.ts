@@ -22,12 +22,15 @@ export const createSurveyResponse = async ({
       encounterId: encounterId || (await randomRecordId(models, 'Encounter')),
     }),
   );
-  times(answerCount, async () => {
-    await SurveyResponseAnswer.create(
-      fake(SurveyResponseAnswer, {
-        responseId: surveyResponse.id,
-        dataElementId: (await randomRecordId(models, 'ProgramDataElement')).id,
-      }),
-    );
-  });
+
+  await Promise.all(
+    times(answerCount, async () => {
+      await SurveyResponseAnswer.create(
+        fake(SurveyResponseAnswer, {
+          responseId: surveyResponse.id,
+          dataElementId: await randomRecordId(models, 'ProgramDataElement'),
+        }),
+      );
+    }),
+  );
 };
