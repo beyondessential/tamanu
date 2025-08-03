@@ -77,13 +77,6 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 1000,
         },
-        useUnsafePragmaSettingsForInitialSync: {
-          name: 'Use unsafe pragma settings for initial sync',
-          description:
-            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
-          type: yup.boolean(),
-          defaultValue: false,
-        },
       },
     },
     questionCodeIds: {
