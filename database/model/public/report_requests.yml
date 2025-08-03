@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_requests
-        description: '{{ doc("table__report_requests") }}'
-        tags:
-          - system
+        description: "{{ doc('table__report_requests') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)
