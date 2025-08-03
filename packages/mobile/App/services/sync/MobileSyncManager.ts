@@ -320,7 +320,6 @@ export class MobileSyncManager {
    *
    * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
-   * @param syncSettings - the sync settings for the sync session
    */
   async pullIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
