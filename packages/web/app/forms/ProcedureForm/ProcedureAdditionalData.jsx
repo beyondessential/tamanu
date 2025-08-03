@@ -103,13 +103,13 @@ export const ProcedureAdditionalData = ({
       <Container>
         <Heading>
           <TranslatedText
-            stringId="procedure.form.addionalDataHeading"
+            stringId="procedure.form.additionalDataHeading"
             fallback=" Additional data"
           />
         </Heading>
         <LeadText>
           <TranslatedText
-            stringId="procedure.form.addionalDataText"
+            stringId="procedure.form.additionalDataText"
             fallback="Add any additional data to the procedure record by selecting a form below."
           />
         </LeadText>
