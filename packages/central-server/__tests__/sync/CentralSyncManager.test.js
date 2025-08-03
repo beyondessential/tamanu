@@ -3217,6 +3217,8 @@ describe('CentralSyncManager', () => {
       describe('Program/Survey clinical data', () => {
         let sensitiveSurveyResponse;
         let nonSensitiveSurveyResponse;
+        let sensitiveSurveyResponseAnswer;
+        let nonSensitiveSurveyResponseAnswer;
 
         beforeEach(async () => {
           sensitiveSurveyResponse = await models.SurveyResponse.create(
@@ -3227,6 +3229,17 @@ describe('CentralSyncManager', () => {
           nonSensitiveSurveyResponse = await models.SurveyResponse.create(
             fake(models.SurveyResponse, {
               encounterId: nonSensitiveEncounter.id,
+            }),
+          );
+
+          sensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
+            fake(models.SurveyResponseAnswer, {
+              responseId: sensitiveSurveyResponse.id,
+            }),
+          );
+          nonSensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
+            fake(models.SurveyResponseAnswer, {
+              responseId: nonSensitiveSurveyResponse.id,
             }),
           );
         });
@@ -3240,16 +3253,6 @@ describe('CentralSyncManager', () => {
         });
 
         it("won't sync sensitive encounter survey response answers", async () => {
-          const sensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
-            fake(models.SurveyResponseAnswer, {
-              responseId: sensitiveSurveyResponse.id,
-            }),
-          );
-          const nonSensitiveSurveyResponseAnswer = await models.SurveyResponseAnswer.create(
-            fake(models.SurveyResponseAnswer, {
-              responseId: nonSensitiveSurveyResponse.id,
-            }),
-          );
           await checkSensitiveRecordFiltering({
             model: models.SurveyResponseAnswer,
             sensitiveId: sensitiveSurveyResponseAnswer.id,
@@ -3272,6 +3275,24 @@ describe('CentralSyncManager', () => {
             model: models.Referral,
             sensitiveId: sensitiveReferral.id,
             nonSensitiveId: nonSensitiveReferral.id,
+          });
+        });
+
+        it("won't sync sensitive encounter vital logs", async () => {
+          const sensitiveVitalLog = await models.VitalLog.create(
+            fake(models.VitalLog, {
+              answerId: sensitiveSurveyResponseAnswer.id,
+            }),
+          );
+          const nonSensitiveVitalLog = await models.VitalLog.create(
+            fake(models.VitalLog, {
+              answerId: nonSensitiveSurveyResponseAnswer.id,
+            }),
+          );
+          await checkSensitiveRecordFiltering({
+            model: models.VitalLog,
+            sensitiveId: sensitiveVitalLog.id,
+            nonSensitiveId: nonSensitiveVitalLog.id,
           });
         });
       });
