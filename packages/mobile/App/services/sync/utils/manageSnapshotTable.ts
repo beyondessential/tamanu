@@ -1,4 +1,4 @@
-import { Database } from '../../../infra/db';
+import { Database } from '~/infra/db';
 import { chunk } from 'lodash';
 
 export const insertSnapshotRecords = async (

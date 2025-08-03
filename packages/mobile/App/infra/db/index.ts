@@ -29,6 +29,7 @@ const TEST_CONNECTION_CONFIG = {
   type: 'sqlite',
   database: `/tmp/tamanu-mobile-test-${Date.now()}-${process.env.JEST_WORKER_ID}.db`,
   logging: false,
+  driver: typeORMDriver,
   // logging: LOG_LEVELS,
   synchronize: true,
   entities: MODELS_ARRAY,

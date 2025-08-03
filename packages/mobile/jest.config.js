@@ -26,9 +26,7 @@ module.exports = {
     '^/domain(.*)$': '<rootDir>/App/domain$1',
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
-    '/presentation(.*)$': '<rootDir>/App/presentation$1',
-    'react-native-sqlite-storage': '<rootDir>/node_modules/react-native-quick-sqlite',
-    'typeorm': '<rootDir>/node_modules/typeorm/index.js',
+    'react-native-sqlite-storage': 'react-native-quick-sqlite',
   },
   globals: {
     'ts-jest': {
