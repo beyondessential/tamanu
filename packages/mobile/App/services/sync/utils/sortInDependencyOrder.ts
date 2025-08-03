@@ -1,6 +1,6 @@
 import { getManager } from 'typeorm';
 
-import { MODELS_MAP, ArrayOfModels } from '../../../models/modelsMap';
+import { MODELS_MAP } from '../../../models/modelsMap';
 
 type DependencyMap = {
   [tableName: string]: string[];
@@ -25,7 +25,7 @@ const getDependencyMap = async (models: Partial<typeof MODELS_MAP>): Promise<Dep
       dependencyMap[modelName] = [];
     }
     const dependencies = await entityManager.query(
-      `PRAGMA foreign_key_list(${model.getRepository().metadata.tableName})`,
+      `PRAGMA foreign_key_list(${(model as any).getRepository().metadata.tableName})`,
     );
     dependencyMap[modelName] = dependencies.map((d) => tableNameToModelName[d.table]);
   }
@@ -48,7 +48,7 @@ const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: st
   const tableNameToModelName = {};
 
   Object.values(models).forEach((model) => {
-    const tableName = model.getRepository().metadata.tableName;
+    const tableName = (model as any).getRepository().metadata.tableName;
     const modelName = model.name;
     tableNameToModelName[tableName] = modelName;
   });
@@ -64,9 +64,9 @@ const getTableNameToModelName = (models: Partial<typeof MODELS_MAP>): { [key: st
  */
 export const sortInDependencyOrder = async (
   models: Partial<typeof MODELS_MAP>,
-): Promise<ArrayOfModels> => {
+): Promise<Array<typeof MODELS_MAP[keyof typeof MODELS_MAP]>> => {
   const dependencyMap = await getDependencyMap(models);
-  const sorted = [];
+  const sorted: Array<typeof MODELS_MAP[keyof typeof MODELS_MAP]> = [];
   const stillToSort = { ...models };
 
   while (Object.keys(stillToSort).length > 0) {

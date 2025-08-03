@@ -1,11 +1,11 @@
 import { pick } from 'lodash';
 
-import { DataToPersist, SyncRecordData } from '../types';
+import { DataToPersist, SyncRecord } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
 
 export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
-  model
+  (model as any)
     .getRepository()
     .metadata.relationIds.map((rid): [string, string] => [
       rid.propertyName,
@@ -31,7 +31,7 @@ const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown })
 
 export const buildFromSyncRecord = (
   model: typeof BaseModel,
-  data: SyncRecordData,
+  { data }: SyncRecord,
 ): DataToPersist => {
   // find columns to include
   const includedColumns = extractIncludedColumns(model);
@@ -45,7 +45,7 @@ export const buildFromSyncRecord = (
 
 export const buildForRawInsertFromSyncRecord = (
   model: typeof BaseModel,
-  { data, isDeleted }: SyncRecordData,
+  { data, isDeleted }: SyncRecord,
 ): DataToPersist => {
   const includedColumns = extractIncludedColumns(model);
   const record = pick(data, includedColumns);
@@ -55,7 +55,7 @@ export const buildForRawInsertFromSyncRecord = (
 
 export const buildForRawInsertFromSyncRecords = (
   model: typeof BaseModel,
-  records: SyncRecordData[],
+  records: SyncRecord[],
 ): DataToPersist[] => {
   const includedColumns = extractIncludedColumns(model);
   // Skip field mapping for raw insert - keep original field names

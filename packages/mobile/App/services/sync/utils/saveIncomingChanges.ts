@@ -3,19 +3,18 @@ import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
-import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
-import { MODELS_ARRAY } from '~/models/modelsMap';
 import {
   buildForRawInsertFromSyncRecord,
   buildForRawInsertFromSyncRecords,
   buildFromSyncRecord,
 } from './buildFromSyncRecord';
+import { type TransactingModel } from './getModelsForDirection';
 
 type ModelRecords = {
-  model: typeof BaseModel;
+  model: TransactingModel;
   records: SyncRecord[];
 };
 
@@ -34,7 +33,7 @@ const forceGC = () => {
  * @returns
  */
 export const saveChangesForModel = async (
-  model: typeof BaseModel,
+  model: TransactingModel,
   changes: SyncRecord[],
   { maxRecordsPerInsertBatch = 2000 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
@@ -77,15 +76,15 @@ export const saveChangesForModel = async (
 
   const recordsForUpdate = changes
     .filter(c => idsForUpdate.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .map((record) => buildFromSyncRecord(model, record));
 
   const recordsForRestore = changes
     .filter(c => idsForRestore.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .map((record) => buildFromSyncRecord(model, record));
 
   const recordsForDelete = changes
     .filter(c => idsForDelete.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .map((record) => buildFromSyncRecord(model, record));
 
   // run each import process
   if (recordsForCreate.length > 0) {
@@ -104,7 +103,7 @@ export const saveChangesForModel = async (
 
 const prepareChangesForModels = (
   records: SyncRecord[],
-  incomingModels: typeof MODELS_ARRAY,
+  incomingModels: TransactingModel[],
 ): ModelRecords[] => {
   const recordsByType = groupBy(records, 'recordType');
   const modelChanges: ModelRecords[] = [];
@@ -117,7 +116,7 @@ const prepareChangesForModels = (
       model,
       records:
         'sanitizePulledRecordData' in model
-          ? model.sanitizePulledRecordData(recordsForModel)
+          ? (model as any).sanitizePulledRecordData(recordsForModel)
           : recordsForModel,
     });
   }
@@ -129,7 +128,7 @@ const prepareChangesForModels = (
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  sortedModels: typeof MODELS_ARRAY,
+  sortedModels: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
@@ -149,7 +148,7 @@ export const saveChangesFromMemory = async (
 };
 
 export const saveChangesFromSnapshot = async (
-  sortedModels: typeof MODELS_ARRAY,
+  sortedModels: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {

@@ -5,13 +5,13 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {
   return {
-    buildFromSyncRecord: jest.fn().mockImplementation((model, data) => {
+    buildFromSyncRecord: jest.fn().mockImplementation((_model, {data}) => {
       return data;
     }),
-    buildForRawInsertFromSyncRecord: jest.fn().mockImplementation((model, change) => {
+    buildForRawInsertFromSyncRecord: jest.fn().mockImplementation((_model, change) => {
       return { ...change.data, isDeleted: change.isDeleted };
     }),
-    buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((model, records) => {
+    buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
       return records.map(record => record.data);
     }),
   };

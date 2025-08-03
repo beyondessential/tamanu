@@ -24,6 +24,7 @@ import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
+import { TransactingModel } from './utils/getModelsForDirection';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -55,7 +56,8 @@ export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).l
 export interface PullParams {
   sessionId: string;
   recordTotal: number;
-  pullUntil: number;
+  pullUntil?: number;
+  progressCallback?: (incrementalPulled: number) => void;
 }
 
 export class MobileSyncManager {
@@ -378,7 +380,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels);
+        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
         const processStreamedDataFunction = async (records: any) => {
           await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
         };
@@ -434,7 +436,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels);
+        const sortedModels = await sortInDependencyOrder(incomingModels) as any;
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
