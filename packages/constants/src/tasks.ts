@@ -67,4 +67,3 @@ export const TASK_TYPES = {
 };
 
 export const DASHBOARD_ONLY_TASK_TYPES = [TASK_TYPES.MEDICATION_DUE_TASK];
-export const MEDICATION_DUE_TASK_NAME = 'Medication Due';

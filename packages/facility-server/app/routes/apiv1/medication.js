@@ -20,8 +20,6 @@ import {
   NOTE_TYPES,
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
-  TASK_STATUSES,
-  TASK_TYPES
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes } from 'sequelize';
@@ -868,8 +866,6 @@ medication.put(
         doseIndex: 0,
       });
 
-      await checkAndCompleteMedicationDueTask(record, models);
-
       return record;
     });
 
@@ -1040,8 +1036,6 @@ medication.put(
           marId: record.id,
         },
       });
-
-      await checkAndCompleteMedicationDueTask(record, models);
 
       return record;
     });
@@ -1434,66 +1428,3 @@ medication.get(
     res.send(transformedResults);
   }),
 );
-
-/**
- * If all MARs at the same time as the task are recorded (GIVEN or NOT_GIVEN), mark the task as completed by the system user
- */
-async function checkAndCompleteMedicationDueTask(mar, models) {
-  const { Task, EncounterPrescription, MedicationAdministrationRecord } = models;
-
-  const encounterPrescription = await EncounterPrescription.findOne({
-    where: { prescriptionId: mar.prescriptionId },
-    attributes: ['encounterId'],
-  });
-
-  if (!encounterPrescription) return;
-
-  const encounterId = encounterPrescription.encounterId;
-
-  const task = await Task.findOne({
-    where: {
-      encounterId,
-      dueTime: mar.dueAt,
-      status: TASK_STATUSES.TODO,
-      taskType: TASK_TYPES.MEDICATION_DUE_TASK,
-    },
-    attributes: ['id', 'dueTime'],
-  });
-
-  if (!task) return;
-
-  const encounterPrescriptions = await EncounterPrescription.findAll({
-    where: {
-      encounterId,
-    },
-    attributes: ['prescriptionId'],
-  });
-
-  const prescriptionIds = encounterPrescriptions.map((ep) => ep.prescriptionId);
-  if (prescriptionIds.length === 0) return;
-
-  // Check if there is an unrecorded MAR at the same time as the task
-  const unrecordedMar = await MedicationAdministrationRecord.findOne({
-    where: {
-      dueAt: task.dueTime,
-      prescriptionId: { [Op.in]: prescriptionIds },
-      // Status is null means the MAR is not recorded yet
-      status: null
-    },
-    attributes: ['id'],
-  });
-
-  // Skip if there is still at least one unrecorded MAR
-  if (unrecordedMar) return;
-
-  await Task.update(
-    {
-      status: TASK_STATUSES.COMPLETED,
-      completedTime: getCurrentDateTimeString(),
-      completedByUserId: SYSTEM_USER_UUID,
-    },
-    {
-      where: { id: task.id },
-    },
-  );
-}
