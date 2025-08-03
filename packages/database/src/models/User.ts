@@ -273,27 +273,32 @@ export class User extends Model {
 
     const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
     const hasLoginPermission = await this.hasPermission('login', 'Facility');
+    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
+
+    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
+      return CAN_ACCESS_ALL_FACILITIES;
 
     // Get user's linked facilities
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
-    const userLinkedFacilities = this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+    const userFacilities = this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
 
-    // If setting is false or user has login permission, combine linked facilities with all non-sensitive ones
-    if (!restrictUsersToFacilities || hasLoginPermission) {
+    if (hasAllNonSensitiveFacilityAccess) {
+      // Combine any explicitly linked facilities with all non-sensitive facilities
       const nonSensitiveFacilities = await Facility.findAll({
         where: { isSensitive: false },
         attributes: ['id', 'name'],
         raw: true,
       });
 
-      const combinedFacilities = unionBy(userLinkedFacilities, nonSensitiveFacilities, 'id');
+      const combinedFacilities = unionBy(userFacilities, nonSensitiveFacilities, 'id');
       return combinedFacilities;
     }
 
     // Otherwise return only the facilities the user is linked to (including sensitive ones)
-    return userLinkedFacilities;
+    return userFacilities;
   }
 
   async allowedFacilityIds() {
@@ -305,9 +310,9 @@ export class User extends Model {
   }
 
   async canAccessFacility(id: string) {
-    const userLinkedFacilities = await this.allowedFacilityIds();
-    if (userLinkedFacilities === CAN_ACCESS_ALL_FACILITIES) return true;
-    return userLinkedFacilities.includes(id);
+    const allowedFacilityIds = await this.allowedFacilityIds();
+    if (allowedFacilityIds === CAN_ACCESS_ALL_FACILITIES) return true;
+    return allowedFacilityIds.includes(id);
   }
 
   static async filterAllowedFacilities(

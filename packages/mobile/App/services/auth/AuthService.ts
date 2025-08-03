@@ -85,10 +85,11 @@ export class AuthService {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    const ability = generateAbilityForUser(user);
-    const linkedFacility = await readConfig('facilityId', '');
-    const canAccessFacility = await user.canAccessFacility(linkedFacility, ability, this.models);
+    const linkedFacilityId = await readConfig('facilityId', null);
+    if (!linkedFacilityId) throw new Error('No facility id stored in config');
 
+    const ability = generateAbilityForUser(user);
+    const canAccessFacility = await user.canAccessFacility(linkedFacilityId, ability, this.models);
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }

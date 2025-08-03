@@ -68,14 +68,18 @@ export class User extends BaseModel implements IUser {
   }
 
   async allowedFacilityIds(ability: PureAbility, models: typeof MODELS_MAP) {
+    const { Facility, Setting } = models;
     if (this.isSuperUser()) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
 
-    const restrictUsersToFacilities = await models.Setting.getByKey(
-      'auth.restrictUsersToFacilities',
-    );
+    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
     const hasLoginPermission = ability.can('login', 'Facility');
+    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
+
+    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
+      return CAN_ACCESS_ALL_FACILITIES;
 
     // Get user's linked facilities (including sensitive ones)
     const userFacilities = await UserFacility.getRepository().find({
@@ -85,8 +89,8 @@ export class User extends BaseModel implements IUser {
     });
     const userLinkedFacilityIds = userFacilities.map(f => f.facilityId);
 
-    // If restrictions are disabled or user has login permission, combine linked facilities with all non-sensitive ones
-    if (!restrictUsersToFacilities || hasLoginPermission) {
+    if (hasAllNonSensitiveFacilityAccess) {
+      // Combine any explicitly linked facilities with all non-sensitive facilities
       const allNonSensitiveFacilities = await Facility.getRepository().find({
         where: { isSensitive: false },
         select: ['id'],
