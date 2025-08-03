@@ -678,7 +678,7 @@ describe('snapshotOutgoingChanges', () => {
     });
 
     it('works with incremental sync patients table', async () => {
-      const lastInteractedThreshold = 1;
+      const lastInteractedThreshold = 2;
       
       const incrementalSyncPatientsTable = await createMarkedForSyncPatientsTable(
         ctx.store.sequelize,
@@ -693,10 +693,11 @@ describe('snapshotOutgoingChanges', () => {
         `SELECT patient_id FROM ${incrementalSyncPatientsTable} ORDER BY patient_id`
       );
 
-      expect(rows.length).toBe(1);
+      expect(rows.length).toBe(2);
       
       // Should include the patient with the most recent last_interacted_time
-      expect(rows[0].patient_id).toBe(patient3.id);
+      expect(rows[0].patient_id).toBe(patient2.id);
+      expect(rows[1].patient_id).toBe(patient3.id);
     });
   });
 });
