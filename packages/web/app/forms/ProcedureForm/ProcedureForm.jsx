@@ -14,14 +14,14 @@ import {
   LocationField,
   TextField,
   TimeField,
-} from '../components/Field';
-import { MultiAutocompleteField } from '../components/Field/MultiAutocompleteField';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { useAuth } from '../contexts/Auth';
+} from '../../components/Field/index.js';
+import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField.jsx';
+import { FormGrid } from '../../components/FormGrid.js';
+import { FormSubmitCancelRow } from '../../components/ButtonRow.jsx';
+import { foreignKey, optionalForeignKey } from '../../utils/validation.js';
+import { FORM_TYPES } from '../../constants/index.js';
+import { TranslatedText } from '../../components/Translation/TranslatedText.jsx';
+import { useAuth } from '../../contexts/Auth.js';
 
 const suggesterType = PropTypes.shape({
   fetchSuggestions: PropTypes.func,
