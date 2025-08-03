@@ -156,7 +156,7 @@ export const saveChangesFromSnapshot = async (
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const modelChanges = await prepareChangesForModels(batchRecords, sortedModels);
+    const modelChanges = prepareChangesForModels(batchRecords, sortedModels);
     for (const { model, records } of modelChanges) {
       await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
