@@ -66,6 +66,9 @@ export class AuthService {
     { email, password }: SyncConnectionParameters,
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
+    const configFacilityId = await readConfig('facilityId', null);
+    if (!configFacilityId) throw new Error('No facility id stored in config');
+
     console.log('Signing in locally as', email);
     const { User } = this.models;
     const user = await User.findOne({
@@ -85,11 +88,8 @@ export class AuthService {
       throw new AuthenticationError(invalidUserCredentialsMessage);
     }
 
-    const linkedFacilityId = await readConfig('facilityId', null);
-    if (!linkedFacilityId) throw new Error('No facility id stored in config');
-
     const ability = generateAbilityForUser(user);
-    const canAccessFacility = await user.canAccessFacility(linkedFacilityId, ability, this.models);
+    const canAccessFacility = await user.canAccessFacility(configFacilityId, ability, this.models);
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
