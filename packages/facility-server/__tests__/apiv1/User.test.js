@@ -413,7 +413,7 @@ describe('User', () => {
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with the "login" permission to "Facility"', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilities = await userWithUserFacilities.allowedFacilities();
 
@@ -452,7 +452,7 @@ describe('User', () => {
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('should return all non-sensitive facilities plus the linked facilities for a user with [verb: "login", noun: "Facility"] permission', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with the "login" permission to "Facility"', async () => {
         mockLoginFacilityPermission(userWithUserFacilities, true);
         const userFacilityIds = await userWithUserFacilities.allowedFacilityIds();
 
