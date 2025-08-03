@@ -5,7 +5,10 @@ import { Model } from './Model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
 
 export class VitalLog extends Model {
@@ -105,8 +108,7 @@ export class VitalLog extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([
-        this.tableName,
+      joins: buildEncounterLinkedLookupJoins(this, [
         {
           model: this.sequelize.models.SurveyResponseAnswer,
           joinColumn: 'answer_id',
