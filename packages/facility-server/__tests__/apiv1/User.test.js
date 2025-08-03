@@ -410,34 +410,34 @@ describe('User', () => {
     });
 
     describe('allowedFacilities', () => {
-      it('should get special "ALL" key when superuser', async () => {
+      it('should get special "ALL" key when the user is a superuser', async () => {
         const superUserFacilities = await superUser.allowedFacilities();
         expect(superUserFacilities).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('user with login permission should return all non-sensitive facilities plus linked facilities', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with facility login permission', async () => {
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilities = await linkedUser.allowedFacilities();
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
 
-      it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilities = await linkedUser.allowedFacilities();
         expect(userFacilities).toEqual(expect.arrayContaining(expectedCombinedFacilities));
       });
 
-      it('should return linked facilities from user_facilities table', async () => {
+      it('should return the linked facilities from the user_facilities table', async () => {
         const userFacilities = await linkedUser.allowedFacilities();
         expect(userFacilities).toStrictEqual(linkedUserFacilities);
       });
 
-      it('should return empty array if no linked facilities with setting on', async () => {
+      it('should return an empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
         const userFacilities = await unlinkedUser.allowedFacilities();
         expect(userFacilities).toHaveLength(0);
       });
 
-      it('should return all non-sensitive facilities if no linked facilities with setting off', async () => {
+      it('should return all non-sensitive facilities if there are no linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilities = await unlinkedUser.allowedFacilities();
         expect(userFacilities).toEqual(expect.arrayContaining(nonSensitiveFacilities));
@@ -445,33 +445,33 @@ describe('User', () => {
     });
 
     describe('allowedFacilityIds', () => {
-      it('should get special "ALL" key when superuser', async () => {
+      it('should get special "ALL" key when the user is a superuser', async () => {
         const superUserFacilityIds = await superUser.allowedFacilityIds();
         expect(superUserFacilityIds).toBe(CAN_ACCESS_ALL_FACILITIES);
       });
 
-      it('login permission should return all non-sensitive facilities plus linked facilities', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities for a user with facility login permission', async () => {
         mockLoginFacilityPermission(linkedUser, true);
         const userFacilityIds = await linkedUser.allowedFacilityIds();
         expect(userFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
       });
 
-      it('setting disabled should return all non-sensitive facilities plus linked facilities', async () => {
+      it('should return all non-sensitive facilities plus the linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilityIds = await linkedUser.allowedFacilityIds();
         expect(userFacilityIds).toEqual(expect.arrayContaining(expectedCombinedFacilityIds));
       });
 
-      it('should return linked facility ids from user_facilities table', async () => {
+      it('should return linked facility ids from the user_facilities table', async () => {
         const userFacilityIds = await linkedUser.allowedFacilityIds();
         expect(userFacilityIds).toStrictEqual(linkedUserFacilityIds);
       });
 
-      it('should return empty array if no linked facilities with setting on', async () => {
+      it('should return empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
         const userFacilityIds = await unlinkedUser.allowedFacilityIds();
         expect(userFacilityIds).toHaveLength(0);
       });
-      it('should return all non-sensitive facility ids if no linked facilities with setting off', async () => {
+      it('should return all non-sensitive facility ids if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const userFacilityIds = await unlinkedUser.allowedFacilityIds();
         expect(userFacilityIds).toEqual(expect.arrayContaining(nonSensitiveFacilityIds));
@@ -479,7 +479,7 @@ describe('User', () => {
     });
 
     describe('canAccessFacility', () => {
-      it('should return true for every facility if superuser', async () => {
+      it('should return true for every facility if the user is a superuser', async () => {
         expect(await superUser.canAccessFacility(facility1.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility2.id)).toBe(true);
         expect(await superUser.canAccessFacility(facility3.id)).toBe(true);
@@ -487,7 +487,7 @@ describe('User', () => {
         expect(await superUser.canAccessFacility(sensitiveFacility2.id)).toBe(true);
       });
 
-      it('should return true if user is linked to the facility', async () => {
+      it('should return true if the user is linked to the facility', async () => {
         expect(await linkedUser.canAccessFacility(facility1.id)).toBe(true);
         expect(await linkedUser.canAccessFacility(facility2.id)).toBe(false);
         expect(await linkedUser.canAccessFacility(facility3.id)).toBe(false);
