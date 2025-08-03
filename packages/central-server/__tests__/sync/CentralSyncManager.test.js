@@ -52,7 +52,7 @@ describe('CentralSyncManager', () => {
     },
   };
 
-  const initializeCentralSyncManager = (config) => {
+  const initializeCentralSyncManager = config => {
     // Have to load test function within test scope so that we can mock dependencies per test case
     const {
       CentralSyncManager: TestCentralSyncManager,
@@ -109,14 +109,14 @@ describe('CentralSyncManager', () => {
 
   const prepareMockedPullOnlyModelQueryPromise = async () => {
     let resolveUpdateLookupTableWaitingPromise;
-    const modelQueryWaitingPromise = new Promise((resolve) => {
+    const modelQueryWaitingPromise = new Promise(resolve => {
       resolveUpdateLookupTableWaitingPromise = async () => resolve(true);
     });
 
     // Build the fakeModelPromise so that it can block the snapshotting process,
     // then we can insert some new records while snapshotting is happening
     let resolveMockedQueryPromise;
-    const mockedModelUpdateLookupTableQueryPromise = new Promise((resolve) => {
+    const mockedModelUpdateLookupTableQueryPromise = new Promise(resolve => {
       // count: 100 is not correct but shouldn't matter in this test case
       resolveMockedQueryPromise = async () => resolve([[{ maxId: null, count: 100 }]]);
     });
@@ -275,9 +275,9 @@ describe('CentralSyncManager', () => {
       const originalPrepareSession = centralSyncManager.prepareSession.bind(centralSyncManager);
       let dataValuesAtStartTime = null;
 
-      const fakeCentralSyncManagerPrepareSession = (session) => {
+      const fakeCentralSyncManagerPrepareSession = session => {
         const originalMarkAsStartedAt = session.markAsStartedAt.bind(session);
-        const fakeSessionMarkAsStartedAt = async (tick) => {
+        const fakeSessionMarkAsStartedAt = async tick => {
           const result = await originalMarkAsStartedAt(tick);
           await session.reload();
           dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
@@ -516,7 +516,7 @@ describe('CentralSyncManager', () => {
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
       const patientProgramRegistrationChange = outgoingChanges.find(
-        (c) => c.recordType === 'patient_program_registrations',
+        c => c.recordType === 'patient_program_registrations',
       );
       expect(patientProgramRegistrationChange.changelogRecords).toEqual(
         expect.arrayContaining([
@@ -589,7 +589,7 @@ describe('CentralSyncManager', () => {
 
       const firstOutgoingChanges = await centralSyncManager.getOutgoingChanges(firstSessionId, {});
       const firstPatientProgramRegistrationChange = firstOutgoingChanges.find(
-        (c) => c.recordType === 'patient_program_registrations',
+        c => c.recordType === 'patient_program_registrations',
       );
       expect(firstPatientProgramRegistrationChange.changelogRecords).toEqual(
         expect.arrayContaining([
@@ -629,7 +629,7 @@ describe('CentralSyncManager', () => {
         {},
       );
       const secondPatientProgramRegistrationChange = secondOutgoingChanges.find(
-        (c) => c.recordType === 'patient_program_registrations',
+        c => c.recordType === 'patient_program_registrations',
       );
 
       // Verify only the new changelog record is included
@@ -708,7 +708,7 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const patientProgramRegistrationChange = outgoingChanges.find(
-        (c) => c.recordType === 'patient_program_registrations',
+        c => c.recordType === 'patient_program_registrations',
       );
 
       // Verify that only changes up to NEW_SYNC_TICK are included
@@ -797,7 +797,7 @@ describe('CentralSyncManager', () => {
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
       const patientProgramRegistrationChange = outgoingChanges.find(
-        (c) => c.recordType === 'patient_program_registrations',
+        c => c.recordType === 'patient_program_registrations',
       );
 
       // Verify that the change at the boundary tick is included
@@ -902,8 +902,8 @@ describe('CentralSyncManager', () => {
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
         const encounterIds = outgoingChanges
-          .filter((c) => c.recordType === 'encounters')
-          .map((c) => c.recordId);
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
 
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(expect.arrayContaining([encounter1.id, encounter2.id]));
@@ -989,8 +989,8 @@ describe('CentralSyncManager', () => {
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
         const encounterIds = outgoingChanges
-          .filter((c) => c.recordType === 'encounters')
-          .map((c) => c.recordId);
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
 
         // Assert if outgoing changes contain the encounters (fully) for the marked for sync patients
         expect(encounterIds).toEqual(
@@ -1048,12 +1048,190 @@ describe('CentralSyncManager', () => {
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
         const sessionTwoEncounterIds = outgoingChanges
-          .filter((c) => c.recordType === 'encounters')
-          .map((c) => c.recordId);
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
 
         // Assert if outgoing changes contain only encounter2 and not encounter1
         expect(sessionTwoEncounterIds).toHaveLength(1);
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
+      });
+
+      describe('lastInteractedThreshold', () => {
+        it('does full patient sync for newly marked patients even with lastInteractedThreshold', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+          const patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient2 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient3 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const facility = await models.Facility.create({
+            ...fake(models.Facility),
+          });
+          await models.User.create(fakeUser());
+          await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+
+          // Create encounters for all patients at the old sync tick
+          const encounter1 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+          const encounter2 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient2.id,
+          });
+          const encounter3 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient3.id,
+          });
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+
+          // ~ ~ ~ Mark patients for sync (newly marked) with different lastInteractedTimes
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: patient1.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+          });
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: patient2.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
+          });
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: patient3.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
+          });
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+              facilityIds: [facility.id],
+              lastInteractedThreshold: 2, // Should limit to 2 most recent patients
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          const encounterIds = outgoingChanges
+            .filter(c => c.recordType === 'encounters')
+            .map(c => c.recordId);
+
+          // Should include encounter2 and encounter3 (full sync for newly marked patients with most recent interactions)
+          // Should NOT include encounter1 (patient not in top 2 by lastInteractedTime)
+          expect(encounterIds).toEqual(expect.arrayContaining([encounter2.id, encounter3.id]));
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
+        });
+
+        it('does not do full patient sync for existing marked patients even with recent interactions and lastInteractedThreshold', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+          const RECENT_INTERACTION_TICK = 18;
+
+          // ~ ~ ~ Set up old data
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+          const patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient2 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const facility = await models.Facility.create({
+            ...fake(models.Facility),
+          });
+          await models.User.create(fakeUser());
+          await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+
+          // Create encounters for both patients at the old sync tick
+          const encounter1 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+          const encounter2 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient2.id,
+          });
+
+          // Mark patient1 for sync at the old tick (not newly marked)
+          await models.PatientFacility.create({
+            id: models.PatientFacility.generateId(),
+            patientId: patient1.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+          });
+
+          // Simulate recent interaction for patient1 (bumps updated_at_sync_tick)
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, RECENT_INTERACTION_TICK);
+          await models.PatientFacility.update(
+            {
+              lastInteractedTime: new Date('2024-01-01T16:00:00Z'), // More recent interaction
+            },
+            { where: { patientId: patient1.id, facilityId: facility.id } },
+          );
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+
+          // Create a new encounter for patient1 after the recent interaction
+          const encounter3 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+              facilityIds: [facility.id],
+              lastInteractedThreshold: 1, // Should include patient1 due to recent interaction
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          const encounterIds = outgoingChanges
+            .filter(c => c.recordType === 'encounters')
+            .map(c => c.recordId);
+
+          // Should NOT include encounter1 (patient not newly marked for sync, even with recent interaction)
+          // Should NOT include encounter2 (patient not marked for sync)
+          // Should include encounter3 (incremental sync for existing marked patient)
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter2.id]));
+          expect(encounterIds).toEqual(expect.arrayContaining([encounter3.id]));
+        });
       });
     });
 
@@ -1131,8 +1309,8 @@ describe('CentralSyncManager', () => {
           ({ recordId }) => recordId !== SYSTEM_USER_UUID,
         );
         expect(outgoingChanges.length).toBe(3);
-        expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
-          [facility, program, survey].map((r) => r.id).sort(),
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
         );
       });
 
@@ -1186,8 +1364,8 @@ describe('CentralSyncManager', () => {
           ({ recordId }) => recordId !== SYSTEM_USER_UUID,
         );
         expect(outgoingChanges.length).toBe(3);
-        expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
-          [facility, program, survey].map((r) => r.id).sort(),
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
         );
       });
 
@@ -1279,8 +1457,8 @@ describe('CentralSyncManager', () => {
         ).filter(({ recordId }) => recordId !== SYSTEM_USER_UUID);
 
         expect(outgoingChanges.length).toBe(3);
-        expect(outgoingChanges.map((r) => r.recordId).sort()).toEqual(
-          [facility, program, survey].map((r) => r.id).sort(),
+        expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(
+          [facility, program, survey].map(r => r.id).sort(),
         );
       });
     });
@@ -1379,13 +1557,13 @@ describe('CentralSyncManager', () => {
             labTestPanelRequestId: labTestPanelRequest1.id, // make one of them part of a panel
           });
           labRequest1 = await models.LabRequest.create(labRequest1Data);
-          const labRequest1TestsData = labRequest1Data.labTestTypeIds.map((labTestTypeId) => ({
+          const labRequest1TestsData = labRequest1Data.labTestTypeIds.map(labTestTypeId => ({
             ...fake(models.LabTest),
             labRequestId: labRequest1.id,
             labTestTypeId,
           }));
           labRequest1Tests = await Promise.all(
-            labRequest1TestsData.map((lt) => models.LabTest.create(lt)),
+            labRequest1TestsData.map(lt => models.LabTest.create(lt)),
           );
           const labRequest2Data = await randomLabRequest(models, {
             patientId: patient2.id,
@@ -1393,13 +1571,13 @@ describe('CentralSyncManager', () => {
             status: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           });
           labRequest2 = await models.LabRequest.create(labRequest2Data);
-          const labRequest2TestsData = labRequest2Data.labTestTypeIds.map((labTestTypeId) => ({
+          const labRequest2TestsData = labRequest2Data.labTestTypeIds.map(labTestTypeId => ({
             ...fake(models.LabTest),
             labRequestId: labRequest2.id,
             labTestTypeId,
           }));
           labRequest2Tests = await Promise.all(
-            labRequest2TestsData.map((lt) => models.LabTest.create(lt)),
+            labRequest2TestsData.map(lt => models.LabTest.create(lt)),
           );
 
           // Create marked for sync patient to test if lab request still sync through normal full sync
@@ -1421,13 +1599,13 @@ describe('CentralSyncManager', () => {
             fullSyncedPatientLabRequestData,
           );
           const fullSyncedPatientLabRequestTestsData =
-            fullSyncedPatientLabRequestData.labTestTypeIds.map((labTestTypeId) => ({
+            fullSyncedPatientLabRequestData.labTestTypeIds.map(labTestTypeId => ({
               ...fake(models.LabTest),
               labRequestId: fullSyncedPatientLabRequest.id,
               labTestTypeId,
             }));
           fullSyncedPatientLabRequestTests = await Promise.all(
-            fullSyncedPatientLabRequestTestsData.map((lt) => models.LabTest.create(lt)),
+            fullSyncedPatientLabRequestTestsData.map(lt => models.LabTest.create(lt)),
           );
         });
 
@@ -1457,22 +1635,22 @@ describe('CentralSyncManager', () => {
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
           // Test if the outgoingChanges contain all the lab requests, and their associated records
-          expect(outgoingChanges.map((r) => r.recordId)).toEqual(
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([
               encounter1.id,
               labTestPanelRequest1.id,
               labRequest1.id,
-              ...labRequest1Tests.map((lt) => lt.id),
+              ...labRequest1Tests.map(lt => lt.id),
               encounter2.id,
               labRequest2.id,
-              ...labRequest2Tests.map((lt) => lt.id),
+              ...labRequest2Tests.map(lt => lt.id),
               fullSyncedPatientEncounter.id,
               fullSyncedPatientLabRequest.id,
-              ...fullSyncedPatientLabRequestTests.map((lt) => lt.id),
+              ...fullSyncedPatientLabRequestTests.map(lt => lt.id),
             ]),
           );
           // Test that the outgoingChanges also contains the lab requests of the patients that are marked for sync
-          expect(outgoingChanges.map((r) => r.recordId)).toEqual(
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
           );
         });
@@ -1503,19 +1681,19 @@ describe('CentralSyncManager', () => {
           const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
 
           // Test that the outgoingChanges don't contain the lab requests of the patients that are not marked for sync
-          expect(outgoingChanges.map((r) => r.recordId)).not.toEqual(
+          expect(outgoingChanges.map(r => r.recordId)).not.toEqual(
             expect.arrayContaining([
               encounter1.id,
               labTestPanelRequest1.id,
               labRequest1.id,
-              ...labRequest1Tests.map((lt) => lt.id),
+              ...labRequest1Tests.map(lt => lt.id),
               encounter2.id,
               labRequest2.id,
-              ...labRequest2Tests.map((lt) => lt.id),
+              ...labRequest2Tests.map(lt => lt.id),
             ]),
           );
           // Test that the outgoingChanges contain the lab requests of the patients that are marked for sync
-          expect(outgoingChanges.map((r) => r.recordId)).toEqual(
+          expect(outgoingChanges.map(r => r.recordId)).toEqual(
             expect.arrayContaining([fullSyncedPatientEncounter.id, fullSyncedPatientLabRequest.id]),
           );
         });
@@ -1588,7 +1766,7 @@ describe('CentralSyncManager', () => {
 
         expect(changes).toHaveLength(4);
 
-        expect(changes.map((c) => c.data.id).sort()).toEqual(
+        expect(changes.map(c => c.data.id).sort()).toEqual(
           [patient1.id, patient2.id, patient3.id, patient4.id].sort(),
         );
       });
@@ -1659,7 +1837,7 @@ describe('CentralSyncManager', () => {
         );
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const returnedEncounter = outgoingChanges.find((c) => c.recordType === 'encounters');
+        const returnedEncounter = outgoingChanges.find(c => c.recordType === 'encounters');
 
         const insertedEncounter = await models.Encounter.findByPk(encounterData.id);
         const expectedDischargedEndDate = toDateTimeString(
@@ -1674,8 +1852,8 @@ describe('CentralSyncManager', () => {
         expect(outgoingChanges).toHaveLength(3);
         expect(returnedEncounter.data.id).toBe(encounterData.id);
         expect(returnedEncounter.data.endDate).toBe(expectedDischargedEndDate);
-        expect(outgoingChanges.find((c) => c.recordType === 'notes')).toBeDefined();
-        expect(outgoingChanges.find((c) => c.recordType === 'discharges')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'notes')).toBeDefined();
+        expect(outgoingChanges.find(c => c.recordType === 'discharges')).toBeDefined();
       });
     });
 
@@ -1744,12 +1922,12 @@ describe('CentralSyncManager', () => {
         );
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'patients');
+        const returnedPatients = outgoingChanges.filter(c => c.recordType === 'patients');
         const returnedExistingPatient = returnedPatients.find(
-          (p) => p.data.id === existingPatient.id,
+          p => p.data.id === existingPatient.id,
         );
         const returnedSyncedPatient = returnedPatients.find(
-          (p) => p.data.id === toBeSyncedPatientData.id,
+          p => p.data.id === toBeSyncedPatientData.id,
         );
 
         const persistedSyncedPatient = await models.Patient.findByPk(toBeSyncedPatientData.id);
@@ -1830,7 +2008,7 @@ describe('CentralSyncManager', () => {
         );
 
         const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const returnedPatients = outgoingChanges.filter((c) => c.recordType === 'patients');
+        const returnedPatients = outgoingChanges.filter(c => c.recordType === 'patients');
 
         // Check if no patient is updated and pulled back to facility
         expect(returnedPatients).toHaveLength(0);
@@ -1981,7 +2159,7 @@ describe('CentralSyncManager', () => {
       );
 
       const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-      const returnedAppointments = outgoingChanges.filter((c) => c.recordType === 'appointments');
+      const returnedAppointments = outgoingChanges.filter(c => c.recordType === 'appointments');
 
       // Check if the out of bounds appointments are deleted
       expect(returnedAppointments).toEqual(
@@ -2063,12 +2241,12 @@ describe('CentralSyncManager', () => {
     it('prevents concurrent edits from sharing the same sync tick as the device sync tick', async () => {
       let tickTock;
       let unblockTickTock;
-      const blockTickTockPromise = new Promise((resolve) => {
+      const blockTickTockPromise = new Promise(resolve => {
         unblockTickTock = resolve;
       });
 
       let flagTickTockBlocked;
-      const isTickTockBlockedPromise = new Promise((resolve) => {
+      const isTickTockBlockedPromise = new Promise(resolve => {
         flagTickTockBlocked = resolve;
       });
 
@@ -2297,7 +2475,7 @@ describe('CentralSyncManager', () => {
     it('inserts incoming changes into snapshots', async () => {
       const patient1 = await models.Patient.create(fake(models.Patient));
       const patient2 = await models.Patient.create(fake(models.Patient));
-      const changes = [patient1, patient2].map((r) => ({
+      const changes = [patient1, patient2].map(r => ({
         direction: SYNC_SESSION_DIRECTION.OUTGOING,
         isDeleted: !!r.deletedAt,
         recordType: 'patients',
@@ -2317,7 +2495,7 @@ describe('CentralSyncManager', () => {
       await waitForSession(centralSyncManager, sessionId);
 
       await centralSyncManager.addIncomingChanges(sessionId, changes);
-      const incomingChanges = changes.map((c) => ({
+      const incomingChanges = changes.map(c => ({
         ...c,
         direction: SYNC_SESSION_DIRECTION.INCOMING,
         updatedAtByFieldSum: null,
@@ -2509,7 +2687,7 @@ describe('CentralSyncManager', () => {
       });
 
       expect(lookupData).toHaveLength(2);
-      expect(lookupData.find((d) => d.recordType === 'patients')).toEqual(
+      expect(lookupData.find(d => d.recordType === 'patients')).toEqual(
         expect.objectContaining({
           recordId: patient1.id,
           recordType: 'patients',
@@ -2549,7 +2727,7 @@ describe('CentralSyncManager', () => {
       const newCurrentSyncTime = (await models.LocalSystemFact.get(FACT_CURRENT_SYNC_TICK)) - 1;
 
       expect(lookupData2).toHaveLength(2);
-      expect(lookupData2.find((d) => d.recordType === 'patients')).toEqual(
+      expect(lookupData2.find(d => d.recordType === 'patients')).toEqual(
         expect.objectContaining({
           recordId: patient1.id,
           recordType: 'patients',
