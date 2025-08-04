@@ -31,7 +31,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
 
   const columns = [
     {
-      key: 'createdAt',
+      key: 'assignedAt',
       title: (
         <TranslatedText
           stringId="patientSurveyAssignment.table.column.dateRequested"
@@ -89,7 +89,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
         endpoint={`patient/${patient.id}/portal/forms`}
         columns={columns}
         initialSort={{
-          orderBy: 'createdAt',
+          orderBy: 'assignedAt',
           order: 'desc',
         }}
         noDataMessage={

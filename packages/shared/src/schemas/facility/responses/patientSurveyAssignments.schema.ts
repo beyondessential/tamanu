@@ -13,4 +13,4 @@ export const PatientSurveyAssignmentsSchema = z.object({
   status: z.enum(PATIENT_SURVEY_ASSIGNMENTS_STATUSES),
 });
 
-export type Patient = z.infer<typeof PatientSchema>;
+export type PatientSurveyAssignments = z.infer<typeof PatientSurveyAssignmentsSchema>;
