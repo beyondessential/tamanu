@@ -35,6 +35,14 @@ const getPatientUserOrThrow = async ({ models, patientId }) => {
   return patientUser;
 };
 
+const getSurveyOrThrow = async ({ models, surveyId }) => {
+  const survey = await models.Survey.findByPk(surveyId);
+  if (!survey) {
+    throw new NotFoundError('Survey not found');
+  }
+  return survey;
+};
+
 const constructRegistrationLink = () => {
   // TODO - construct the registration link for the patient portal
   return `http://localhost:5173/`;
@@ -230,18 +238,13 @@ patientPortal.post(
     const patientUser = await models.PatientUser.findOne({
       where: { patientId: patient.id },
     });
+    const survey = await getSurveyOrThrow({ models, surveyId: formId });
 
-    const survey = await models.Survey.findByPk(formId);
-    if (!survey) {
-      throw new NotFoundError('Survey not found');
+    if (!patientEmail && (!patientUser || !patientUser.email)) {
+      throw new ValidationError(
+        'Patient has no registered email address - provide an email to send the form.',
+      );
     }
-
-    const patientSurveyAssignment = await models.PatientSurveyAssignment.create({
-      patientId: patient.id,
-      surveyId: survey.id,
-      assignedById: user.id,
-      assignedAt: assignedAt,
-    });
 
     // If the patient has not yet registered for the portal, we need to register them and send the unregistered form email.
     // Otherwise, we just send the registered form email.
@@ -249,7 +252,6 @@ patientPortal.post(
       await registerPatient({ patient, models });
       await sendUnregisteredFormEmail({
         patient,
-        // Prioritise email passed in - but it's optional
         patientEmail: patientEmail ?? patientUser.email,
         models,
         settings,
@@ -264,6 +266,13 @@ patientPortal.post(
         facilityId,
       });
     }
+
+    const patientSurveyAssignment = await models.PatientSurveyAssignment.create({
+      patientId: patient.id,
+      surveyId: survey.id,
+      assignedById: user.id,
+      assignedAt: assignedAt,
+    });
 
     res.send({ patientSurveyAssignment });
   }),

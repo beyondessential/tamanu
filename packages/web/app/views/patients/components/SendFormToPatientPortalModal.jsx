@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import {
-  ConfirmCancelRow,
+  FormSubmitCancelRow,
   Modal,
   ModalGenericButtonRow,
   TranslatedText,
@@ -11,10 +11,17 @@ import {
 } from '../../../components';
 import { SendIcon } from '../../../components/Icons/SendIcon';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
-import { usePatientSurveyAssignmentsQuery } from '../../../api/queries/usePatientSurveyAssignmentsQuery';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
 export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPortal }) => {
+  const handleSubmit = useCallback(
+    async ({ email }) => {
+      await onSendToPatientPortal(email);
+    },
+    [onSendToPatientPortal],
+  );
+
   return (
     <Modal
       open={open}
@@ -26,20 +33,24 @@ export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPor
         />
       }
     >
-      <ModalGenericButtonRow>
-        <ConfirmCancelRow
-          onConfirm={() => {
-            onSendToPatientPortal();
-          }}
-          onCancel={onClose}
-          confirmText={
-            <TranslatedText
-              stringId="program.action.sendToPatientPortal"
-              fallback="Send to patient portal"
+      <EmailAddressConfirmationForm
+        onCancel={onClose}
+        onSubmit={handleSubmit}
+        renderButtons={submitForm => (
+          <ModalGenericButtonRow>
+            <FormSubmitCancelRow
+              onConfirm={submitForm}
+              onCancel={onClose}
+              confirmText={
+                <TranslatedText
+                  stringId="program.action.sendToPatientPortal"
+                  fallback="Send to patient portal"
+                />
+              }
             />
-          }
-        />
-      </ModalGenericButtonRow>
+          </ModalGenericButtonRow>
+        )}
+      />
     </Modal>
   );
 };
@@ -47,25 +58,23 @@ export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPor
 export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
   const [open, setOpen] = useState(false);
   const patient = useSelector(state => state.patient);
-  const { data: duplicateSurveyAssignments } = usePatientSurveyAssignmentsQuery({
-    patientId: patient.id,
-    surveyId: formId,
-    enabled: !!formId,
-  });
-
-  console.log('duplicateSurveyAssignments', duplicateSurveyAssignments);
 
   const { mutate: sendPatientPortalForm } = useSendPatientPortalForm({
     onSuccess: () => {
       toast.success('Form sent to patient portal');
+      setOpen(false);
+    },
+    onError: error => {
+      toast.error(error.message);
     },
   });
 
-  const handleSendToPatientPortal = () => {
+  const handleSendToPatientPortal = email => {
     sendPatientPortalForm({
       patientId: patient.id,
       formId,
       assignedAt: getCurrentDateTimeString(),
+      email,
     });
   };
 
