@@ -1096,6 +1096,30 @@ describe('Programs import', () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
+
+      it('Should refuse to import a complex chart with visualisation config', async () => {
+        const { stats, errors } = await doImport({
+          file: 'charting-complex-visualisation-config-invalid',
+          dryRun: true,
+        });
+
+        const errorMessages = [
+          "sheetName: Core, code: 'ComplexChartType', Visualisation config is not allowed for complex charts",
+          "validationCriteria: this field has unspecified keys: min, max, normalRange on Core at row 4",
+          "sheetName: Test Chart, code: 'testchartcode2', Visualisation config is not allowed for complex charts",
+        ];
+
+        errors.forEach((error, i) => {
+          expect(error.message).toEqual(errorMessages[i]);
+        });
+
+        expect(stats).toMatchObject({
+          Program: { created: 1, updated: 0, errored: 0 },
+          Survey: { created: 2, updated: 0, errored: 0 },
+          ProgramDataElement: { created: 8, updated: 0, errored: 2 },
+          SurveyScreenComponent: { created: 7, updated: 0, errored: 1 },
+        });
+      });
     });
   });
 
