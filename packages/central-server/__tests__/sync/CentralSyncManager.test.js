@@ -3835,10 +3835,8 @@ describe('CentralSyncManager', () => {
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
-        // Change facility to non-sensitive
+        // Capture the non-sensitive state
         await facility.update({ isSensitive: false });
-
-        // Update lookup table again
         await centralSyncManager.updateLookupTable();
 
         // Check that the historical sensitive data is still unsynced to the non-sensitive facility
