@@ -12,6 +12,7 @@ import {
   PATIENT_SURVEY_ASSIGNMENTS_STATUSES,
 } from '@tamanu/constants';
 import { PatientSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/patientSurveyAssignments.schema';
+import { SendPortalFormRequestSchema } from '@tamanu/shared/schemas/facility/requests/sendPortalForm.schema';
 
 export const patientPortal = express.Router();
 
@@ -232,7 +233,7 @@ patientPortal.post(
   asyncHandler(async (req, res) => {
     const { models, user, settings, facilityId } = req;
     const { id: patientId } = req.params;
-    const { formId, assignedAt, email: patientEmail } = req.body;
+    const { formId, assignedAt, email: patientEmail } = SendPortalFormRequestSchema.parse(req.body);
 
     const patient = await getPatientOrThrow({ models, patientId });
     const patientUser = await models.PatientUser.findOne({
