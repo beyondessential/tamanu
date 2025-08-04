@@ -16,7 +16,6 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
-  VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -814,7 +813,6 @@ encounterRelations.get(
           as: 'survey',
           where: {
             surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
-            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           },
         },
       ],

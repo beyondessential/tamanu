@@ -1,4 +1,4 @@
-import { DataTypes, Op } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import {
   CHARTING_SURVEY_TYPES,
   SURVEY_TYPES,
@@ -78,18 +78,6 @@ export class Survey extends Model {
   static getVitalsSurvey() {
     return this.findOne({
       where: { surveyType: SURVEY_TYPES.VITALS },
-    });
-  }
-
-  static getChartSurveys() {
-    return this.findAll({
-      where: {
-        surveyType: {
-          [Op.in]: CHARTING_SURVEY_TYPES,
-        },
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
-      order: [['name', 'ASC']],
     });
   }
 

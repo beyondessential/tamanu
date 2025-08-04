@@ -32,10 +32,10 @@ export const ChartDataProvider = ({ children }) => {
     if (chartWithResponse?.data) {
       // Prioritize user preference, chart with response is only a fallback
       const hasUserPreference = !!userPreferences?.selectedChartTypeId;
-      const userPreferenceIsCurrent = chartSurveys?.chartSurveys?.some(
+      const userPreferenceIsSelectable = chartSurveys?.chartSurveys?.some(
         (survey) => survey.id === userPreferences?.selectedChartTypeId,
       );
-      if (hasUserPreference && userPreferenceIsCurrent) {
+      if (hasUserPreference && userPreferenceIsSelectable) {
         setSelectedChartTypeId(userPreferences?.selectedChartTypeId);
       } else {
         setSelectedChartTypeId(chartWithResponse?.data?.survey.id);
