@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: migrations
-        description: '{{ doc("logs__table__migrations") }}'
-        tags: []
+        description: "{{ doc('logs__table__migrations') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

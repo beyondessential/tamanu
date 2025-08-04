@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: signers
-        description: '{{ doc("table__signers") }}'
-        tags:
-          - system
+        description: "{{ doc('table__signers') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: character varying(255)

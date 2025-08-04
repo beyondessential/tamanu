@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: task_template_designations
-        description: '{{ doc("table__task_template_designations") }}'
-        tags: []
+        description: "{{ doc('table__task_template_designations') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
