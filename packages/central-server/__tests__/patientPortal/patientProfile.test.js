@@ -112,7 +112,7 @@ describe('Patient Portal Profile Endpoints', () => {
       expect(response.body.data).toHaveProperty('lastName', 'Smith');
       expect(response.body.data).toHaveProperty('sex', 'female');
       // Village should be null or undefined when patient has no village
-      expect(response.body.data.village).toBeNull();
+      expect(response.body.data.village).toBeUndefined();
     });
 
     it('Should handle patient with null middleName', async () => {

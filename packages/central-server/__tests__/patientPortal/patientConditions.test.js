@@ -1,6 +1,7 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
 
@@ -48,12 +49,7 @@ describe('Patient Portal Conditions Endpoints', () => {
     });
 
     // Login to get auth token
-    const loginResponse = await baseApp.post('/api/portal/login').send({
-      email: TEST_PATIENT_EMAIL,
-    });
-
-    expect(loginResponse).toHaveSucceeded();
-    authToken = loginResponse.body.token;
+    authToken = await getPatientAuthToken(baseApp, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -138,11 +134,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: false,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'bob@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -197,11 +189,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: undefined, // Undefined resolved status
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'alice@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -273,11 +261,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: true,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'charlie@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -311,11 +295,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'diana@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'diana@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')

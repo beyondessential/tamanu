@@ -1,10 +1,11 @@
 import asyncHandler from 'express-async-handler';
-import { Op, literal, where } from 'sequelize';
+import { Op } from 'sequelize';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 import { LocationGroupSchema } from '@tamanu/shared/schemas/patientPortal/responses/locationGroup.schema';
 import { FacilitySchema } from '@tamanu/shared/schemas/patientPortal/responses/facility.schema';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 const APPOINTMENT_ATTRIBUTES = {
   appointment: getAttributesFromSchema(AppointmentSchema),
@@ -44,6 +45,8 @@ export const getUpcomingAppointments = asyncHandler(async (req, res) => {
   const { models } = req.store;
 
   const appointmentIncludes = createAppointmentIncludes(models);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const appointments = await models.Appointment.findAll({
     where: {
@@ -51,9 +54,9 @@ export const getUpcomingAppointments = asyncHandler(async (req, res) => {
       locationGroupId: {
         [Op.not]: null,
       },
-      [Op.and]: [
-        where(literal('"Appointment"."start_time"::TIMESTAMP'), Op.gte, literal("DATE 'today'")),
-      ],
+      startTime: {
+        [Op.gte]: toDateTimeString(today),
+      },
     },
     attributes: APPOINTMENT_ATTRIBUTES.appointment,
     include: appointmentIncludes,

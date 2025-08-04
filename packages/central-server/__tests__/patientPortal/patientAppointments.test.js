@@ -2,6 +2,7 @@ import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
+import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
 
@@ -78,12 +79,7 @@ describe('Patient Portal Appointments Endpoints', () => {
     });
 
     // Login to get auth token
-    const loginResponse = await baseApp.post('/api/portal/login').send({
-      email: TEST_PATIENT_EMAIL,
-    });
-
-    expect(loginResponse).toHaveSucceeded();
-    authToken = loginResponse.body.token;
+    authToken = await getPatientAuthToken(baseApp, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -167,11 +163,7 @@ describe('Patient Portal Appointments Endpoints', () => {
         clinicianId: testExaminer.id,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'jane@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'jane@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/appointments/upcoming')
@@ -245,11 +237,7 @@ describe('Patient Portal Appointments Endpoints', () => {
         clinicianId: testExaminer.id,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'bob@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/appointments/upcoming')
@@ -306,11 +294,7 @@ describe('Patient Portal Appointments Endpoints', () => {
         clinicianId: null, // No clinician
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'alice@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/appointments/upcoming')
@@ -368,11 +352,7 @@ describe('Patient Portal Appointments Endpoints', () => {
         notes: null, // Null notes
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'charlie@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/appointments/upcoming')
@@ -410,11 +390,7 @@ describe('Patient Portal Appointments Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'diana@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, 'diana@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/appointments/upcoming')
