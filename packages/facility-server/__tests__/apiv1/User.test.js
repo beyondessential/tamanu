@@ -360,7 +360,7 @@ describe('User', () => {
     let userWithoutFacilities = null;
 
     const nonSensitiveFacilities = [facility1, facility2, facility3];
-    const userFacilities = [facility1, sensitiveFacility1];
+    const userAllowedFacilities = [facility1, sensitiveFacility1];
 
     // Mock the permission for user [verb: 'login', noun: 'Facility']
     const mockLoginFacilityPermission = async (user, hasPermission) => {
@@ -393,7 +393,7 @@ describe('User', () => {
       );
 
       await Promise.all(
-        userFacilities.map(async facility => {
+        userAllowedFacilities.map(async facility => {
           return await models.UserFacility.create({
             facilityId: facility.id,
             userId: userWithFacilities.id,
@@ -428,7 +428,7 @@ describe('User', () => {
 
       it('should return the linked facilities from the user_facilities table', async () => {
         const allowedFacilities = await userWithFacilities.allowedFacilities();
-        expect(allowedFacilities).toStrictEqual(userFacilities);
+        expect(allowedFacilities).toStrictEqual(userAllowedFacilities);
       });
 
       it('should return an empty array if there are no linked facilities when restrictUsersToFacilities is enabled', async () => {
@@ -470,7 +470,7 @@ describe('User', () => {
       it('should return linked facility ids from the user_facilities table', async () => {
         const allowedFacilityIds = await userWithFacilities.allowedFacilityIds();
 
-        const userFacilityIds = userFacilities.map(f => f.id);
+        const userFacilityIds = userAllowedFacilities.map(f => f.id);
         expect(allowedFacilityIds).toStrictEqual(userFacilityIds);
       });
 
@@ -521,11 +521,11 @@ describe('User', () => {
       });
 
       it('should filter allowed facilities by facilityIds argument if normal user', async () => {
-        const userAllowedFacilities = await models.User.filterAllowedFacilities(
-          userFacilities,
+        const allowedFacilities = await models.User.filterAllowedFacilities(
+          userAllowedFacilities,
           configFacilityIds,
         );
-        expect(userAllowedFacilities).toStrictEqual(userFacilities);
+        expect(allowedFacilities).toStrictEqual(userAllowedFacilities);
       });
     });
   });
