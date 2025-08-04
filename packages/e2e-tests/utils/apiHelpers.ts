@@ -7,14 +7,9 @@ import { Patient, User } from '@tamanu/database';
 import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
 
-export const createApiContext = async ({ page }: { page: Page }) => {
-  const token = await getItemFromLocalStorage(page, 'apiToken');
-
+export const createApiContext = async () => {
   return request.newContext({
     baseURL: constructFacilityUrl('/'),
-    extraHTTPHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 };
 
@@ -179,7 +174,7 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
 
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientId}`);
-  
+
   const verifyResponse = await api.get(verifyPatientUrl);
 
   if (!verifyResponse.ok()) {
@@ -187,7 +182,7 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
   }
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientId}/death`);
-  
+
   const deathData = {
     clinicianId: user.id,
     facilityId,

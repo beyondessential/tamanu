@@ -8,7 +8,7 @@ export class LabRequestModalBase {
   readonly form: Locator;
   readonly heading: Locator;
   readonly description: Locator;
-  
+
   // Page 1: Basic lab request details (shared across all modals)
   readonly requestingClinicianInput: Locator;
   readonly requestDateTimeInput: Locator;
@@ -16,7 +16,7 @@ export class LabRequestModalBase {
   readonly prioritySelect: Locator;
   readonly panelRadioButton: Locator;
   readonly individualRadioButton: Locator;
-  
+
   // Action buttons (shared across all modals)
   readonly backButton: Locator;
   readonly cancelButton: Locator;
@@ -28,7 +28,7 @@ export class LabRequestModalBase {
     this.form = page.getByTestId('styledform-5o5i');
     this.heading = page.getByTestId('heading3-keat');
     this.description = page.getByTestId('styledbodytext-8egc');
-    
+
     // Page 1: Basic lab request details
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
@@ -36,7 +36,7 @@ export class LabRequestModalBase {
     this.prioritySelect = page.getByTestId('selectinput-phtg-select');
     this.panelRadioButton = page.getByTestId('radio-il3t-panel');
     this.individualRadioButton = page.getByTestId('radio-il3t-individual');
-    
+
     // Action buttons
     this.backButton = page.getByTestId('styledbackbutton-016f');
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');
@@ -63,12 +63,12 @@ export class LabRequestModalBase {
 
   async validateRequestingClinician() {
     const currentUser = await this.getCurrentUser();
-    await expect(this.requestingClinicianInput).toHaveValue(currentUser.displayName); 
+    await expect(this.requestingClinicianInput).toHaveValue(currentUser.displayName);
     return currentUser.displayName;
   }
 
   async getCurrentUser() {
-    const api = await createApiContext({ page: this.page });
+    const api = await createApiContext();
     const currentUser = await getUser(api);
     return currentUser;
   }
@@ -76,4 +76,4 @@ export class LabRequestModalBase {
   getCurrentDateTime(): string {
     return format(new Date(), "yyyy-MM-dd'T'HH:mm");
   }
-} 
+}
