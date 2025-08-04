@@ -1,6 +1,6 @@
-import { DAYS_OF_WEEK } from '@tamanu/constants';
-import { isSameDay } from 'date-fns';
-import { eachDayInMonth } from './dateTime';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY, REPEAT_FREQUENCY_UNIT_PLURAL_LABELS } from '@tamanu/constants';
+import { isSameDay, add, parseISO, set, format, endOfDay, addMonths, isBefore } from 'date-fns';
+import { eachDayInMonth, toDateString } from './dateTime';
 
 export const eachWeekdayInMonth = (date: Date, weekday = date.getDay()) =>
   eachDayInMonth(date).filter((day) => day.getDay() === weekday);
@@ -26,3 +26,58 @@ export const getWeekdayOrdinalPosition = (date: Date) => {
   const nthWeekday = matchingWeekdays.findIndex((day) => isSameDay(day, date)) + 1;
   return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
 };
+
+export const adjustDateForFrequency = (
+  date: Date,
+  repeatUnit: keyof typeof REPEAT_FREQUENCY,
+  dayOfWeek: string,
+  nthWeekday: number,
+) => {
+  if (repeatUnit === REPEAT_FREQUENCY.MONTHLY) {
+    return set(date, {
+      date: weekdayAtOrdinalPosition(date, dayOfWeek, nthWeekday)!.getDate(),
+    });
+  }
+  return date;
+};
+
+export const getNextFrequencyDate = (
+  date: string,
+  repeatFrequency: number,
+  repeatUnit: keyof typeof REPEAT_FREQUENCY,
+) => {
+  const dayOfWeek = format(parseISO(date), 'iiiiii').toUpperCase();
+  const nthWeekday = getWeekdayOrdinalPosition(new Date(date));
+
+  const incrementedDate = add(parseISO(date), {
+    [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[repeatUnit]]: repeatFrequency,
+  });
+
+  return toDateString(adjustDateForFrequency(incrementedDate, repeatUnit, dayOfWeek, nthWeekday)) as string;
+};
+
+export const generateFutureAssignmentDates = (
+  date: string,
+  repeatFrequency: number,
+  repeatUnit: keyof typeof REPEAT_FREQUENCY,
+  repeatEndDate?: string,
+  maxViewableMonthsAhead = 12,
+) => {
+  const maxGenerationDate = endOfDay(addMonths(new Date(), maxViewableMonthsAhead));
+  const endGenerationDate = repeatEndDate && isBefore(endOfDay(parseISO(repeatEndDate)), maxGenerationDate) 
+    ? parseISO(repeatEndDate) 
+    : maxGenerationDate;
+  
+  let nextAssignmentDate = getNextFrequencyDate(date, repeatFrequency, repeatUnit);
+  const assignmentDates: string[] = [];
+  
+  while (isBefore(parseISO(nextAssignmentDate), endGenerationDate)) {
+    assignmentDates.push(nextAssignmentDate);
+
+    nextAssignmentDate = getNextFrequencyDate(
+      assignmentDates.at(-1)!, repeatFrequency, repeatUnit
+    );
+  }
+
+  return assignmentDates;
+}
