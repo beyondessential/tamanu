@@ -80,7 +80,7 @@ export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
 export const getAdministeredVaccines = asyncHandler(async (req, res) => {
   const { patient } = req;
 
-  const administeredVaccines = (await patient.getAdministeredVaccines())?.data;
+  const administeredVaccines = (await patient.getAdministeredVaccines()).data;
 
   res.send({
     data: administeredVaccines.map(vaccine => AdministeredVaccineSchema.parse(vaccine)),
