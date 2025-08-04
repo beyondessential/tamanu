@@ -25,7 +25,6 @@ import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedReferenceData } from '../../components';
-import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -189,7 +188,6 @@ const SurveyFlow = ({ patient, currentUser }) => {
             data-testid="surveyselector-bn1a"
           />
         </FormGrid>
-        <SendFormToPatientPortalModal />
       </ProgramsPane>
     );
   }
