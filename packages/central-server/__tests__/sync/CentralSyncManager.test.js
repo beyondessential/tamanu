@@ -1457,7 +1457,8 @@ describe('CentralSyncManager', () => {
           expect(encounterIds).toEqual(expect.arrayContaining([encounter3.id]));
         });
       });
-      describe('syncAllLabRequests', () => {
+    });
+    describe('syncAllLabRequests', () => {
         let facility;
         let otherFacility;
         let encounter1;
