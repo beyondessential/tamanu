@@ -3831,32 +3831,57 @@ describe('CentralSyncManager', () => {
           endDate: null,
         });
 
-        // Update lookup table to capture the sensitive state
+        // Initialize sync manager and update lookup table to capture the sensitive state
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
-        // Capture the non-sensitive state
+        // Change facility to non-sensitive and update lookup table
         await facility.update({ isSensitive: false });
         await centralSyncManager.updateLookupTable();
 
         // Check that the historical sensitive data is still unsynced to the non-sensitive facility
-        const encounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [nonSensitiveFacility.id],
+          },
+          () => true,
         );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const encounterIds = outgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
         expect(encounterIds).not.toContain(encounter.id);
 
         // Edit the encounter to trigger a new sync
         await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
-
-        // Update lookup table after the edit
         await centralSyncManager.updateLookupTable();
 
         // The encounter should now be synced to the non-sensitive facility
-        const updatedEncounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
+        const { sessionId: updatedSessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, updatedSessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          updatedSessionId,
+          {
+            since: 1,
+            facilityIds: [nonSensitiveFacility.id],
+          },
+          () => true,
         );
+
+        const updatedOutgoingChanges = await centralSyncManager.getOutgoingChanges(
+          updatedSessionId,
+          {},
+        );
+        const updatedEncounterIds = updatedOutgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
         expect(updatedEncounterIds).toContain(encounter.id);
       });
 
@@ -3882,31 +3907,57 @@ describe('CentralSyncManager', () => {
           endDate: null,
         });
 
-        // Update lookup table to capture the non-sensitive state
+        // Initialize sync manager and update lookup table to capture the non-sensitive state
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
-        // Check that the non sensitive facility syncs the encounter down
-        const encounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
+        // Check that the non-sensitive facility syncs the encounter down
+        const { sessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, sessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          sessionId,
+          {
+            since: 1,
+            facilityIds: [nonSensitiveFacility.id],
+          },
+          () => true,
         );
+
+        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+        const encounterIds = outgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
         expect(encounterIds).toContain(encounter.id);
 
-        // Change facility to sensitive
+        // Change facility to sensitive and update lookup table
         await facility.update({ isSensitive: true });
+        await centralSyncManager.updateLookupTable();
 
         // Edit the encounter to trigger a new sync
         await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
-
-        // Update lookup table after the edit
         await centralSyncManager.updateLookupTable();
 
         // The new encounter changes should not be synced to the non-sensitive facility
-        const updatedEncounterIds = await getOutgoingIdsForRecordType(
-          nonSensitiveFacility.id,
-          'encounters',
+        const { sessionId: updatedSessionId } = await centralSyncManager.startSession();
+        await waitForSession(centralSyncManager, updatedSessionId);
+
+        await centralSyncManager.setupSnapshotForPull(
+          updatedSessionId,
+          {
+            since: 1,
+            facilityIds: [nonSensitiveFacility.id],
+          },
+          () => true,
         );
+
+        const updatedOutgoingChanges = await centralSyncManager.getOutgoingChanges(
+          updatedSessionId,
+          {},
+        );
+        const updatedEncounterIds = updatedOutgoingChanges
+          .filter(c => c.recordType === 'encounters')
+          .map(c => c.recordId);
         expect(updatedEncounterIds).not.toContain(encounter.id);
       });
     });
