@@ -370,8 +370,8 @@ export class MobileSyncManager {
 
   async pullInitialSync({ sessionId, recordTotal, pullUntil }: PullParams): Promise<void> {
     let totalSaved = 0;
-    const progressCallback = (incrementalPulled: number) => {
-      totalSaved += Number(incrementalPulled);
+    const progressCallback = (incrementalSaved: number) => {
+      totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
     await Database.setUnsafePragma();
@@ -427,8 +427,8 @@ export class MobileSyncManager {
 
     this.setSyncStage(3);
     let totalSaved = 0;
-    const saveProgressCallback = (incrementalPulled: number) => {
-      totalSaved += Number(incrementalPulled);
+    const saveProgressCallback = (incrementalSaved: number) => {
+      totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
     await Database.client.transaction(async transactionEntityManager => {
