@@ -23,7 +23,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
     const { config: configString } = question;
@@ -49,7 +49,7 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
   const patientDataQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
@@ -376,7 +376,7 @@ export class SurveyResponse extends Model {
     });
 
     const findDataElement = (id: string) => {
-      const component = questions.find((c) => c.dataElement.id === id);
+      const component = questions.find(c => c.dataElement.id === id);
       if (!component) return null;
       return component.dataElement;
     };
