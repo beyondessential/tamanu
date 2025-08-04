@@ -5,11 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_vrs_data
-        description: '{{ doc("table__patient_vrs_data") }}'
+        description: "{{ doc('table__patient_vrs_data') }}"
         __generator:
           js_class: PatientVRSData
-        tags:
-          - patient
+        config:
+          tags:
+            - patient
         columns:
           - name: id
             data_type: character varying(255)

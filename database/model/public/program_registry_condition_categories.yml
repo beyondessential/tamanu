@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: program_registry_condition_categories
-        description: '{{ doc("table__program_registry_condition_categories") }}'
-        tags: []
+        description: "{{ doc('table__program_registry_condition_categories') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: text

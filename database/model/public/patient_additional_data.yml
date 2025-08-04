@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_additional_data
-        description: '{{ doc("table__patient_additional_data") }}'
-        tags:
-          - patient
+        description: "{{ doc('table__patient_additional_data') }}"
+        config:
+          tags:
+            - patient
         columns:
           - name: created_at
             data_type: timestamp with time zone
