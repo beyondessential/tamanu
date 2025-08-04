@@ -95,14 +95,14 @@ export function validateProgramDataElementRecords(
     const { validationCriteria = '' } = surveyScreenComponentRecord.values;
 
     try {
-      if (config.validateQuestionConfigs.enabled) {
-        validateVisualisationConfig(visualisationConfig, validationCriteria);
-      }
       if (
         visualisationConfig &&
         [SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE].includes(surveyType)
       ) {
         throw new Error('Visualisation config is not allowed for complex charts');
+      }
+      if (config.validateQuestionConfigs.enabled) {
+        validateVisualisationConfig(visualisationConfig, validationCriteria);
       }
       if (surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
         validateComplexChartCoreQuestion(programDataElementRecord, surveyScreenComponentRecord);

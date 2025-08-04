@@ -1109,9 +1109,7 @@ describe('Programs import', () => {
           "sheetName: Test Chart, code: 'testchartcode2', Visualisation config is not allowed for complex charts",
         ];
 
-        errors.forEach((error, i) => {
-          expect(error.message).toEqual(errorMessages[i]);
-        });
+        expect(errors.map(e => e.message)).toEqual(errorMessages);
 
         expect(stats).toMatchObject({
           Program: { created: 1, updated: 0, errored: 0 },
