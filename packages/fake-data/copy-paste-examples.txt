@@ -1,9 +1,41 @@
 ({ generateEachDataType } = require('@tamanu/fake-data/populateDb'))
-for (let i = 0; i < 3000; i++) {
-  console.log(`Generating set ${i + 1}/3000...`);
+for (let i = 0; i < 5000; i++) {
+  console.log(`Generating set ${i + 1}/5000...`);
   await generateEachDataType(models);
 }
-console.timeEnd('generate-3000-sets');
+console.timeEnd('generate-5000-sets');
+
+// Option 2: Controlled concurrency (recommended for high volume)
+// const { default: pLimit } = await import('p-limit');
+// const limit = pLimit(50); // Limit to 50 concurrent operations
+// 
+// const promises = Array.from({ length: 5000 }, (_, i) => 
+//   limit(() => generateEachDataType(models).then(() => {
+//     console.log(`Completed set ${i + 1}/5000...`);
+//   }))
+// );
+// 
+// console.time('generate-5000-sets');
+// await Promise.all(promises);
+console.timeEnd('generate-5000-sets');
+
+// Option 3: Batch processing (best for very high volume)
+// const batchSize = 100;
+// const totalSets = 5000;
+// 
+// console.time('generate-5000-sets');
+// for (let batch = 0; batch < totalSets; batch += batchSize) {
+//   const batchPromises = Array.from({ length: Math.min(batchSize, totalSets - batch) }, (_, i) => {
+//     const setIndex = batch + i + 1;
+//     return generateEachDataType(models).then(() => {
+//       console.log(`Completed set ${setIndex}/${totalSets}...`);
+//     });
+//   });
+//   
+//   await Promise.all(batchPromises);
+//   console.log(`Completed batch ${Math.floor(batch / batchSize) + 1}/${Math.ceil(totalSets / batchSize)}`);
+// }
+// console.timeEnd('generate-5000-sets');
 
 
 Baseline debug log
@@ -29,4 +61,23 @@ info | {"startedAt":"2025-08-01T02:16:40.003Z","
 since":-1,"changesCount":759715,"
 completedAt":"2025-08-01T02:17:11.479Z"}
 
+
 Autodeploy after
+4240f368-fa17-42a5-8113-97d20df1aa6e | 
+syncLookupUpdate | 
+{"startedAt":"2025-08-01T02:46:40.001Z","since":-1,
+"changesCount":759715,"
+completedAt":"2025-08-01T02:47:22.512Z"}
+
+
+BEFORE 
+759715 records
+startedAt: 2025-08-01T02:16:40.003Z
+completedAt: 2025-08-01T02:17:11.479Z
+~31 Seconds 
+
+AFTER
+759715 records
+startedAt: 2025-08-01T02:46:40.001Z
+completedAt: 2025-08-01T02:47:22.512Z
+~42 Seconds
