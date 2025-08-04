@@ -542,6 +542,7 @@ export const MedicationForm = ({
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
+  const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -610,11 +611,21 @@ export const MedicationForm = ({
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
+    if (isFinalizingMedication) {
+      return;
+    }
+    
+    setIsFinalizingMedication(true);
     setAwaitingPrint(isPrinting);
     if (onDirtyChange) {
       onDirtyChange(dirty);
     }
-    await submitForm(data);
+    
+    try {
+      await submitForm(data);
+    } finally {
+      setIsFinalizingMedication(false);
+    }
   };
 
   const getInitialValues = () => {
@@ -976,6 +987,7 @@ export const MedicationForm = ({
                   onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
                   variant="outlined"
                   startIcon={<PrintIcon />}
+                  disabled={isFinalizingMedication}
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -999,6 +1011,7 @@ export const MedicationForm = ({
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
+                  disabled={isFinalizingMedication}
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
