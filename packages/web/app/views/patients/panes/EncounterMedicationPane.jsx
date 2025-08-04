@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
+import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
+import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
 import {
@@ -27,6 +29,7 @@ import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMe
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
+import { useSettings } from '../../../contexts/Settings';
 
 const TableButtonRow = styled.div`
   display: flex;
@@ -69,7 +72,12 @@ const TableContainer = styled.div`
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { ability } = useAuth();
   const queryClient = useQueryClient();
+  const { getSetting } = useSettings();
+
+  const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
+
   const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
+  const [pharmacyOrderModalOpen, setPharmacyOrderModalOpen] = useState(false);
   const [medicationImportModalOpen, setMedicationImportModalOpen] = useState(false);
   const [refreshEncounterMedications, setRefreshEncounterMedications] = useState(0);
   const { navigateToMar, navigateToEncounter } = usePatientNavigation();
@@ -103,7 +111,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     p => !p.discontinued,
   );
   const encounterPrescriptions = encounterPrescriptionsData?.data;
-  const canPrintPrescription = ability.can('read', 'Medication');
+  const canOrderPrescription = ability.can('read', 'Medication');
   const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =
     !!importableOngoingPrescriptions?.length && !isEncounterDischarged;
@@ -148,6 +156,11 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           }}
           data-testid="medicationmodal-s2hv"
         />
+        <PharmacyOrderModal
+          encounter={encounter}
+          open={pharmacyOrderModalOpen}
+          onClose={() => setPharmacyOrderModalOpen(false)}
+        />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
           open={printMedicationModalOpen}
@@ -190,30 +203,57 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                     </ThemedTooltip>
                   </StyledTextButton>
                 )}
-                {canPrintPrescription && (
-                  <NoteModalActionBlocker>
-                    <StyledTextButton
-                      onClick={() => setPrintMedicationModalOpen(true)}
-                      disabled={readonly}
-                      color="primary"
-                      data-testid="styledtextbutton-hbja"
-                    >
-                      <ThemedTooltip
-                        title={
-                          <Box width="60px" fontWeight={400}>
-                            <TranslatedText
-                              stringId="medication.action.printPrescription"
-                              fallback="Print prescription"
-                            />
-                          </Box>
-                        }
+                {canOrderPrescription && (
+                  <>
+                    <NoteModalActionBlocker>
+                      <StyledTextButton
+                        onClick={() => setPrintMedicationModalOpen(true)}
+                        disabled={readonly}
+                        color="primary"
+                        data-testid="styledtextbutton-hbja"
                       >
-                        <Box display={'flex'}>
-                          <PrintIcon />
-                        </Box>
-                      </ThemedTooltip>
-                    </StyledTextButton>
-                  </NoteModalActionBlocker>
+                        <ThemedTooltip
+                          title={
+                            <Box width="60px" fontWeight={400}>
+                              <TranslatedText
+                                stringId="medication.action.printPrescription"
+                                fallback="Print prescription"
+                              />
+                            </Box>
+                          }
+                        >
+                          <Box display={'flex'}>
+                            <PrintIcon />
+                          </Box>
+                        </ThemedTooltip>
+                      </StyledTextButton>
+                    </NoteModalActionBlocker>
+                    {pharmacyOrderEnabled && (
+                      <NoteModalActionBlocker>
+                        <StyledTextButton
+                          onClick={() => setPharmacyOrderModalOpen(true)}
+                          disabled={readonly}
+                          color="primary"
+                          data-testid="styledtextbutton-uhgj"
+                        >
+                          <ThemedTooltip
+                            title={
+                              <Box width="60px" fontWeight={400}>
+                                <TranslatedText
+                                  stringId="medication.action.pharmacyOrder"
+                                  fallback="Order medication from pharmacy"
+                                />
+                              </Box>
+                            }
+                          >
+                            <Box display={'flex'}>
+                              <ShoppingCart />
+                            </Box>
+                          </ThemedTooltip>
+                        </StyledTextButton>
+                      </NoteModalActionBlocker>
+                    )}
+                  </>
                 )}
               </>
             )}

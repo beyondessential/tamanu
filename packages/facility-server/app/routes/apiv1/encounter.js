@@ -194,6 +194,41 @@ encounter.post(
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
+encounter.post(
+  '/:id/pharmacyOrder',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, body } = req;
+    const { id } = params;
+    req.checkPermission('write', 'Encounter');
+    req.checkPermission('read', 'Medication');
+    const encounterObject = await models.Encounter.findByPk(id);
+    if (!encounterObject) throw new NotFoundError();
+
+    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+
+    const result = await db.transaction(async () => {
+      const pharmacyOrder = await models.PharmacyOrder.create({
+        orderingClinicianId,
+        comments,
+        encounterId: id,
+      });
+
+      await models.PharmacyOrderPrescription.bulkCreate(
+        pharmacyOrderPrescriptions.map(prescription => ({
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.prescriptionId,
+          quantity: prescription.quantity,
+          repeats: prescription.repeats,
+        })),
+      );
+
+      return pharmacyOrder;
+    });
+
+    res.send(result);
+  }),
+);
+
 encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
 encounter.delete('/:id', deleteEncounter);
@@ -362,6 +397,7 @@ encounterRelations.get(
     },
   }),
 );
+
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
 encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
