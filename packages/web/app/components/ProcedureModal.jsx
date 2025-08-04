@@ -75,7 +75,9 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 const useProgramResponsesQuery = (patientId, procedureId) => {
   const api = useApi();
-  return useQuery([], () => api.get(`patient/${patientId}/programResponses`, { procedureId }));
+  return useQuery(['patient', patientId, 'programResponses'], () =>
+    api.get(`patient/${patientId}/programResponses`, { procedureId }),
+  );
 };
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {

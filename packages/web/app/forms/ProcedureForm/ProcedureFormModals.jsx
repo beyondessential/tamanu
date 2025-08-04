@@ -33,7 +33,7 @@ export const UnSavedChangesModal = ({ open, onCancel, onConfirm }) => (
     customContent={
       <p>
         <TranslatedText
-          stringId="procedure.modal.unsavedChanges.title"
+          stringId="procedure.modal.unsavedChanges.content"
           fallback="You have unsaved changes. Are you sure you want to cancel? Any unsaved changes will be lost."
         />
       </p>
@@ -68,8 +68,8 @@ export const UnSavedProcedureProgramModal = ({ open, onCancel, onConfirm }) => (
     customContent={
       <p>
         <TranslatedText
-          stringId="procedure.modal.unsavedAdditionalData.title"
-          fallback="Additional data as not been saved. Are you sure you would like save the procedure without submitting the additional data? Any additional data entered will be lost."
+          stringId="procedure.modal.unsavedAdditionalData.content"
+          fallback="Additional data has not been saved. Are you sure you would like save the procedure without submitting the additional data? Any additional data entered will be lost."
         />
       </p>
     }
@@ -103,7 +103,7 @@ export const CancelAdditionalDataModal = ({ open, onCancel, onConfirm }) => (
     customContent={
       <p>
         <TranslatedText
-          stringId="procedure.modal.cancelAdditionalData.title"
+          stringId="procedure.modal.cancelAdditionalData.content"
           fallback="Are you sure you would like to cancel adding additional data? Any data added will not be saved."
         />
       </p>
