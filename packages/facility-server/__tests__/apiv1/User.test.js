@@ -360,8 +360,6 @@ describe('User', () => {
     let userWithoutFacilities = null;
 
     const nonSensitiveFacilities = [facility1, facility2, facility3];
-    const nonSensitiveFacilityIds = nonSensitiveFacilities.map(f => f.id);
-
     const userFacilities = [facility1, sensitiveFacility1];
 
     // Mock the permission for user [verb: 'login', noun: 'Facility']
@@ -483,6 +481,8 @@ describe('User', () => {
       it('should return all non-sensitive facility ids if there are no linked facilities when restrictUsersToFacilities is disabled', async () => {
         await models.Setting.set('auth.restrictUsersToFacilities', false);
         const allowedFacilityIds = await userWithoutFacilities.allowedFacilityIds();
+
+        const nonSensitiveFacilityIds = nonSensitiveFacilities.map(f => f.id);
         expect(allowedFacilityIds).toEqual(expect.arrayContaining(nonSensitiveFacilityIds));
       });
     });
