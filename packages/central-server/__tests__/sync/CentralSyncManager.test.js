@@ -1100,21 +1100,17 @@ describe('CentralSyncManager', () => {
 
           await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
-          // ~ ~ ~ Mark patients for sync (newly marked) with different lastInteractedTimes
           await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
             patientId: patient1.id,
             facilityId: facility.id,
             lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
           });
           await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
             patientId: patient2.id,
             facilityId: facility.id,
             lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
           });
           await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
             patientId: patient3.id,
             facilityId: facility.id,
             lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
@@ -1183,7 +1179,6 @@ describe('CentralSyncManager', () => {
 
           // Mark patient1 for sync at the old tick (not newly marked)
           await models.PatientFacility.create({
-            id: models.PatientFacility.generateId(),
             patientId: patient1.id,
             facilityId: facility.id,
             lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
