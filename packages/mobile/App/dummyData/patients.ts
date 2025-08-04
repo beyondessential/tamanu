@@ -1,8 +1,8 @@
 import { Chance } from 'chance';
 import { sample } from 'lodash';
 import { GenderOptions } from '/helpers/constants';
-import { bloodOptions } from '/helpers/additionalData';
 import { IPatient } from '~/types';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 const defaultGenerator = new Chance();
 
@@ -32,8 +32,7 @@ export const generatePatient = (generator = defaultGenerator): IPatient => {
     middleName,
     lastName,
     culturalName: generator.bool() ? '' : generator.name(),
-    bloodType: generator.pickone(bloodOptions).value,
     sex: gender,
-    dateOfBirth: generator.birthday(),
+    dateOfBirth: toDateString(generator.birthday()),
   };
 };

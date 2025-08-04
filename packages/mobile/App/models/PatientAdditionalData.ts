@@ -32,9 +32,9 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @PrimaryColumn()
   id: string;
 
-  @ManyToOne(() => Patient, (patient) => patient.additionalData)
+  @ManyToOne(() => Patient, patient => patient.additionalData)
   patient: Patient;
-  @RelationId(({ patient }) => patient)
+  @RelationId((patientAdditionalData: PatientAdditionalData) => patientAdditionalData.patient)
   patientId: string;
 
   @Column({ nullable: true })
@@ -84,47 +84,47 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @ReferenceDataRelation()
   nationality?: ReferenceData;
-  @RelationId(({ nationality }) => nationality)
+  @RelationId(({ nationality }: PatientAdditionalData) => nationality)
   nationalityId?: string;
 
   @ReferenceDataRelation()
   country?: ReferenceData;
-  @RelationId(({ country }) => country)
+  @RelationId(({ country }: PatientAdditionalData) => country)
   countryId?: string;
 
   @ReferenceDataRelation()
   division?: ReferenceData;
-  @RelationId(({ division }) => division)
+  @RelationId(({ division }: PatientAdditionalData) => division)
   divisionId?: string;
 
   @ReferenceDataRelation()
   subdivision?: ReferenceData;
-  @RelationId(({ subdivision }) => subdivision)
+  @RelationId(({ subdivision }: PatientAdditionalData) => subdivision)
   subdivisionId?: string;
 
   @ReferenceDataRelation()
   medicalArea?: ReferenceData;
-  @RelationId(({ medicalArea }) => medicalArea)
+  @RelationId(({ medicalArea }: PatientAdditionalData) => medicalArea)
   medicalAreaId?: string;
 
   @ReferenceDataRelation()
   nursingZone?: ReferenceData;
-  @RelationId(({ nursingZone }) => nursingZone)
+  @RelationId(({ nursingZone }: PatientAdditionalData) => nursingZone)
   nursingZoneId?: string;
 
   @ReferenceDataRelation()
   settlement?: ReferenceData;
-  @RelationId(({ settlement }) => settlement)
+  @RelationId(({ settlement }: PatientAdditionalData) => settlement)
   settlementId?: string;
 
   @ReferenceDataRelation()
   ethnicity?: ReferenceData;
-  @RelationId(({ ethnicity }) => ethnicity)
+  @RelationId(({ ethnicity }: PatientAdditionalData) => ethnicity)
   ethnicityId?: string;
 
   @ReferenceDataRelation()
   occupation?: ReferenceData;
-  @RelationId(({ occupation }) => occupation)
+  @RelationId(({ occupation }: PatientAdditionalData) => occupation)
   occupationId?: string;
 
   @ReferenceDataRelation()
@@ -149,7 +149,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @ManyToOne(() => Facility)
   healthCenter: Facility;
-  @RelationId(({ healthCenter }) => healthCenter)
+  @RelationId(({ healthCenter }: PatientAdditionalData) => healthCenter)
   healthCenterId?: string;
 
   @Column({ nullable: true })
@@ -157,7 +157,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   async assignIdAsPatientId(): Promise<void> {
-    this.id = this.patient;
+    this.id = this.patientId;
   }
 
   @BeforeInsert()
@@ -175,7 +175,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
-      includedColumns.forEach((camelCaseKey) => {
+      includedColumns.forEach(camelCaseKey => {
         if (this[snakeCase(camelCaseKey)] !== undefined) {
           newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
         }
@@ -186,7 +186,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     ) {
       // retain the old sync ticks from previous updatedAtByField
       newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
-      includedColumns.forEach((camelCaseKey) => {
+      includedColumns.forEach(camelCaseKey => {
         const snakeCaseKey = snakeCase(camelCaseKey);
         // when saving relation id for instance, typeorm requires saving using
         // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
@@ -211,7 +211,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
-    await Patient.markForSync(this.patient);
+    await Patient.markForSync(this.patientId);
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
@@ -242,7 +242,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -257,7 +257,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
