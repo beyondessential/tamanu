@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: medication_administration_record_doses
-        description: '{{ doc("table__medication_administration_record_doses") }}'
-        tags: []
+        description: "{{ doc('table__medication_administration_record_doses') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
