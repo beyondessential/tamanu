@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import {
