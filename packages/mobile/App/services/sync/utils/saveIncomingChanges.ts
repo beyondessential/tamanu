@@ -112,12 +112,12 @@ const prepareChangesForModels = (
     if (!recordsForModel.length) {
       continue;
     }
+    const sanitizedData = 'sanitizePulledRecordData' in model
+          ? (model as any).sanitizePulledRecordData(recordsForModel)
+          : recordsForModel;
     modelChanges.push({
       model,
-      records:
-        'sanitizePulledRecordData' in model
-          ? (model as any).sanitizePulledRecordData(recordsForModel)
-          : recordsForModel,
+      records: sanitizedData,
     });
   }
   // Force garbage collection to free up memory
