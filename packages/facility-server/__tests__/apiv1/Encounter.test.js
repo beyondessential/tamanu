@@ -1009,7 +1009,7 @@ describe('Encounter', () => {
         const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
         const { body } = result;
-        expect(body.data[0].lastOrderedAt).toEqual(toDateTimeString(fakeCreatedAt));
+        expect(body.data[0].lastOrderedAt).toEqual(fakeCreatedAt.toISOString());
       });
     });
 

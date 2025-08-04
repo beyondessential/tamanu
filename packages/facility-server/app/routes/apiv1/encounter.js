@@ -400,7 +400,7 @@ encounterRelations.get(
 
       responseData = responseData.map(p => ({
         ...p,
-        lastOrderedAt: toDateTimeString(lastOrderedAts[p.id]?.last_ordered_at),
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
       }));
     }
 
