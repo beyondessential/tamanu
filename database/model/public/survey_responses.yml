@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: survey_responses
-        description: '{{ doc("table__survey_responses") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__survey_responses') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
