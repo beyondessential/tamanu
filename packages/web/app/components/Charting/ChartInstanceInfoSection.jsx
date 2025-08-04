@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 import { Box, IconButton } from '@material-ui/core';
+import { subject } from '@casl/ability';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
 import { TranslatedReferenceData } from '../Translation';
@@ -13,6 +14,7 @@ import { getAnswersFromData } from '../../utils';
 import { useApi } from '../../api';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '../../contexts/Translation';
+import { useAuth } from '../../contexts/Auth';
 
 const StyledInfoCard = styled(InfoCard)`
   border-radius: 0;
@@ -55,6 +57,7 @@ export const ChartInstanceInfoSection = ({
   const { encounter } = useEncounter();
   const api = useApi();
   const queryClient = useQueryClient();
+  const { ability } = useAuth();
   const { getTranslation } = useTranslation();
   const {
     chartInstanceId,
@@ -68,6 +71,7 @@ export const ChartInstanceInfoSection = ({
   const isSubtypeVisible = isVisible(fieldVisibility, chartSubtype, false);
   const actionText = getTranslation('general.action.edit', 'Edit');
   const title = `${selectedChartSurveyName} | ${actionText}`;
+  const canEdit = ability.can('write', subject('Charting', { id: chartSurveyId }));
   const handleEdit = async ({ survey, ...data }) => {
     const responseData = {
       answers: await getAnswersFromData(data, survey),
@@ -100,20 +104,22 @@ export const ChartInstanceInfoSection = ({
         elevated={false}
         contentMarginBottom={20}
         headerContent={
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="flex-end"
-            marginTop="-1rem"
-            marginRight="-1rem"
-          >
-            <StyledIconButton
-              onClick={() => setIsEditModalOpen(true)}
-              data-testid="stylediconbutton-edit-fkzu"
+          canEdit ? (
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="flex-end"
+              marginTop="-1rem"
+              marginRight="-1rem"
             >
-              <StyledEditIcon />
-            </StyledIconButton>
-          </Box>
+              <StyledIconButton
+                onClick={() => setIsEditModalOpen(true)}
+                data-testid="stylediconbutton-edit-fkzu"
+              >
+                <StyledEditIcon />
+              </StyledIconButton>
+            </Box>
+          ) : null
         }
         data-testid="styledinfocard-vd5f"
       >
