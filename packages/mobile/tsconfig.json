@@ -16,9 +16,9 @@
       "/interfaces/*": ["App/ui/interfaces/*"],
       "/helpers/*": ["App/ui/helpers/*"],
       "/types/*": ["App/types/*"],
-      "/navigation/*": ["App/ui/navigation/*"],      
-      "/containers/*":["App/ui/containers/*"],
-      "/contexts/*":["App/ui/contexts/*"],
+      "/navigation/*": ["App/ui/navigation/*"],
+      "/containers/*": ["App/ui/containers/*"],
+      "/contexts/*": ["App/ui/contexts/*"],
       "/store/*": ["App/ui/store/*"],
       "/models/*": ["App/ui/models/*"],
       "/services/*": ["App/ui/services/*"],
@@ -26,8 +26,26 @@
       "/data/*": ["App/data/*"],
       "/infra/*": ["App/infra/*"],
       "/presentation/*": ["App/presentation/*"],
-      "/migrations/*": ["App/migrations/*"]
+      "/migrations/*": ["App/migrations/*"],
+      // Add path mappings for monorepo packages to handle subpath imports
+      "@tamanu/constants": ["../constants/src"],
+      "@tamanu/constants/*": ["../constants/src/*"],
+      "@tamanu/shared": ["../shared/src"],
+      "@tamanu/shared/*": ["../shared/src/*"],
+      "@tamanu/database": ["../database/src"],
+      "@tamanu/database/*": ["../database/src/*"],
+      "@tamanu/utils": ["../utils/src"],
+      "@tamanu/utils/*": ["../utils/src/*"],
+      "@tamanu/fake-data": ["../fake-data/src"],
+      "@tamanu/fake-data/*": ["../fake-data/src/*"],
+      "@tamanu/settings": ["../settings/src"],
+      "@tamanu/settings/*": ["../settings/src/*"],
+      "@tamanu/api-client": ["../api-client/src"],
+      "@tamanu/api-client/*": ["../api-client/src/*"],
+      "@tamanu/upgrade": ["../upgrade/src"],
+      "@tamanu/upgrade/*": ["../upgrade/src/*"]
     },
+    "module": "NodeNext",
     "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "jsx": "react",
@@ -37,10 +55,5 @@
     "noImplicitThis": false,
     "target": "es2019"
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "jest.config.mjs"
-  ]
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.mjs"]
 }

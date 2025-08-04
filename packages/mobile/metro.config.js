@@ -28,6 +28,20 @@ module.exports = {
       },
     ),
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs', 'json'],
+    // Add resolver for monorepo packages to handle subpath imports
+    resolverMainFields: ['react-native', 'browser', 'main'],
+    platforms: ['ios', 'android', 'native', 'web'],
+    // Handle @tamanu package subpath imports
+    alias: {
+      '@tamanu/constants': path.resolve(__dirname, '../constants'),
+      '@tamanu/shared': path.resolve(__dirname, '../shared'),
+      '@tamanu/database': path.resolve(__dirname, '../database'),
+      '@tamanu/utils': path.resolve(__dirname, '../utils'),
+      '@tamanu/fake-data': path.resolve(__dirname, '../fake-data'),
+      '@tamanu/settings': path.resolve(__dirname, '../settings'),
+      '@tamanu/api-client': path.resolve(__dirname, '../api-client'),
+      '@tamanu/upgrade': path.resolve(__dirname, '../upgrade'),
+    },
   },
 
   // http://facebook.github.io/react-native/blog/2019/03/12/releasing-react-native-059#faster-app-launches-with-inline-requires
