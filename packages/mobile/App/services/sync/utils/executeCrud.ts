@@ -3,7 +3,7 @@ import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
-import { preparedInsert } from './preparedInsert';
+import { executePreparedInsert } from './executePreparedInsert';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -33,7 +33,7 @@ export const executeInserts = async (
   }
   for (const batchOfRows of chunk(deduplicated, insertBatchSize)) {
     try {
-      await preparedInsert(repository, batchOfRows);
+      await executePreparedInsert(repository, batchOfRows);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error

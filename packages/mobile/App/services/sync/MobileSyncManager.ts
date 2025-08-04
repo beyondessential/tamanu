@@ -58,6 +58,7 @@ export interface PullParams {
   sessionId: string;
   recordTotal: number;
   pullUntil?: number;
+  centralServer: CentralServerConnection;
   progressCallback?: (incrementalPulled: number) => void;
 }
 
@@ -358,6 +359,7 @@ export class MobileSyncManager {
       sessionId,
       pullUntil,
       recordTotal: totalToPull,
+      centralServer: this.centralServer,
     };
     if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
@@ -386,7 +388,7 @@ export class MobileSyncManager {
         };
 
         await pullRecordsInBatches(
-          { centralServer: this.centralServer, sessionId, recordTotal },
+          { centralServer: this.centralServer, sessionId, recordTotal, pullUntil },
           processStreamedDataFunction,
         );
         await this.postPull(transactionEntityManager, pullUntil);
