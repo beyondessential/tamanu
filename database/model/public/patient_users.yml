@@ -43,10 +43,14 @@ sources:
             description: "{{ doc('patient_users__email') }}"
             data_tests:
               - unique
-              - not_null
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in patient_users."
+          - name: status
+            data_type: text
+            description: "{{ doc('patient_users__status') }}"
+            data_tests:
+              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_users."

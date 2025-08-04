@@ -13,3 +13,7 @@ TODO
 {% docs patient_users__email %}
 TODO
 {% enddocs %}
+
+{% docs patient_users__status %}
+TODO
+{% enddocs %}

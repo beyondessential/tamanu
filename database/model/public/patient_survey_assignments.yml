@@ -59,3 +59,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_survey_assignments."
             data_tests:
               - not_null
+          - name: assigned_at
+            data_type: character(19)
+            description: "{{ doc('patient_survey_assignments__assigned_at') }}"
+            data_tests:
+              - not_null
