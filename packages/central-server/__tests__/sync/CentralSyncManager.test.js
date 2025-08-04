@@ -3811,7 +3811,7 @@ describe('CentralSyncManager', () => {
         expect(encounterIds).not.toContain(sensitiveEncounterB.id);
       });
 
-      it('will leave historical sensitive data unsynced to non-sensitive facilities when the facility changes from sensitive to non-sensitive until it is edited', async () => {
+      it('will keep historical sensitive data unsynced to other facilities when a facility changes from sensitive to non-sensitive, until the data is edited', async () => {
         // Create a facility that starts as sensitive
         const facility = await models.Facility.create(fake(models.Facility, { isSensitive: true }));
         const department = await models.Department.create(
@@ -3860,7 +3860,7 @@ describe('CentralSyncManager', () => {
         expect(updatedEncounterIds).toContain(encounter.id);
       });
 
-      it('will leave historical data (now considered sensitive) synced to other facilities when a facility changes from non-sensitive to sensitive but will stop syncing new data', async () => {
+      it('will keep historical non-sensitive data synced to other facilities when a facility changes to sensitive, but stop syncing new changes', async () => {
         // Create a facility that starts as non-sensitive
         const facility = await models.Facility.create(
           fake(models.Facility, { isSensitive: false }),
