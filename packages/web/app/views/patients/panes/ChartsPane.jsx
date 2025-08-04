@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES } from '@tamanu/constants';
+import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { TabPane } from '../components';
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
@@ -319,8 +319,9 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     ? getTranslation('general.action.add', 'Add')
     : getTranslation('general.action.record', 'Record');
   const chartModalTitle = `${selectedChartSurveyName} | ${actionText}`;
-  const recordButtonEnabled =
-    (isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId);
+  const isCurrentChart = selectedChartSurvey?.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+  const recordButtonEnabled = isCurrentChart &&
+    ((isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId));
   const hasNoCharts = chartTypes.length === 0;
   const isWaitingForInstances = isInstancesQueryEnabled && isLoadingInstances;
   const canCreateCoreComplexInstance = ability.can('create', subject('Charting', { id: coreComplexChartSurveyId }));
@@ -383,7 +384,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                 chartTypes={chartTypes}
                 data-testid="chartdropdown-eox5"
               />
-              {isComplexChart && canCreateCoreComplexInstance? (
+              {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
                 <AddComplexChartButton
                   onClick={() => {
                     setChartSurveyIdToSubmit(coreComplexChartSurveyId);
