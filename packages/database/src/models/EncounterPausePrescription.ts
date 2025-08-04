@@ -1,13 +1,13 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import {
-  buildEncounterLinkedLookupJoins,
-  buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+import { buildEncounterPatientIdSelect } from '../sync';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;
@@ -135,8 +135,12 @@ export class EncounterPausePrescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, ['encounter_prescriptions', 'encounters']),
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'encounter_prescriptions',
+        'encounters',
+      ]),
     };
   }
 

@@ -5,15 +5,12 @@ import { Model } from './Model';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
-import {
-  buildEncounterLinkedLookupJoins,
-  buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;
@@ -89,15 +86,11 @@ export class SurveyResponseAnswer extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, [
-        {
-          model: this.sequelize.models.SurveyResponse,
-          joinColumn: 'response_id',
-          required: true,
-        },
-        'encounters',
-      ]),
+      select: buildEncounterPatientIdSelect(this),
+      joins: `
+        JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+        JOIN encounters ON survey_responses.encounter_id = encounters.id
+      `,
     };
   }
 
@@ -146,13 +139,13 @@ export class SurveyResponseAnswer extends Model {
       surveyResponse.surveyId!,
       { includeAllVitals: true },
     );
-    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
+    const calculatedScreenComponents = screenComponents.filter((c) => c.calculation);
     const updatedAnswerDataElement: ProgramDataElement = await (
       this as any
     ).getProgramDataElement();
     const answers: any[] = await (surveyResponse as any).getAnswers();
     const values: { [key: string]: any } = {};
-    answers.forEach(answer => {
+    answers.forEach((answer) => {
       values[answer.dataElementId] = answer.body;
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
@@ -172,7 +165,7 @@ export class SurveyResponseAnswer extends Model {
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
       const existingCalculatedAnswer = answers.find(
-        answer => answer.dataElementId === component.dataElement.id,
+        (answer) => answer.dataElementId === component.dataElement.id,
       );
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
