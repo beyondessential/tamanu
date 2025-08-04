@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
 
 import { OngoingConditionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
 
@@ -11,7 +12,7 @@ export const getOngoingConditions = asyncHandler(async (req, res) => {
   const ongoingConditions = await models.PatientCondition.findAll({
     where: {
       patientId: patient.id,
-      resolved: false, // Excluding resolved conditions for now
+      resolved: { [Op.ne]: true }, // Excluding resolved conditions for now
     },
     attributes: getAttributesFromSchema(OngoingConditionSchema),
     include: [
