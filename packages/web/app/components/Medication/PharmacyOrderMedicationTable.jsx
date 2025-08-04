@@ -44,7 +44,7 @@ export const COLUMN_KEYS = {
   LAST_ORDERED: 'lastOrdered',
 };
 
-const COLUMNS = (
+const getColumns = (
   getTranslation,
   getEnumTranslation,
   onSelectAll,
@@ -241,7 +241,7 @@ export const PharmacyOrderMedicationTable = ({
   return (
     <StyledTable
       headerColor={Colors.white}
-      columns={COLUMNS(
+      columns={getColumns(
         getTranslation,
         getEnumTranslation,
         handleSelectAll,
