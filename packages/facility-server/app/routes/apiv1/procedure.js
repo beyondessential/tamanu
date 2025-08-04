@@ -35,21 +35,20 @@ procedure.post('/surveyResponse', async (req, res) => {
   const responseRecord = await req.db.transaction(async () => {
     const newSurveyResponse = await createSurveyResponse(req, res);
 
-    if (procedureId) {
-      const date = getCurrentDateTimeString();
-      const procedure = await models.Procedure.findOrCreate({
-        where: { id: procedureId },
-        defaults: {
-          completed: false,
-          date,
-        },
-      });
+    const date = getCurrentDateTimeString();
+    const procedure = await models.Procedure.findOrCreate({
+      where: { id: procedureId },
+      defaults: {
+        completed: false,
+        date,
+      },
+    });
 
-      await models.ProcedureSurveyResponse.create({
-        surveyResponseId: newSurveyResponse.id,
-        procedureId: procedure[0].id, // procedure[0] is the found/created instance
-      });
-    }
+    await models.ProcedureSurveyResponse.create({
+      surveyResponseId: newSurveyResponse.id,
+      procedureId: procedure[0].id, // procedure[0] is the found/created instance
+    });
+
     return newSurveyResponse;
   });
 
