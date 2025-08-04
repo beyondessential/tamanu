@@ -616,12 +616,12 @@ export const MedicationForm = ({
     }
     
     setIsFinalizingMedication(true);
-    setAwaitingPrint(isPrinting);
-    if (onDirtyChange) {
-      onDirtyChange(dirty);
-    }
     
     try {
+      setAwaitingPrint(isPrinting);
+      if (onDirtyChange) {
+        onDirtyChange(dirty);
+      }
       await submitForm(data);
     } finally {
       setIsFinalizingMedication(false);
@@ -988,6 +988,7 @@ export const MedicationForm = ({
                   variant="outlined"
                   startIcon={<PrintIcon />}
                   disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -1012,6 +1013,7 @@ export const MedicationForm = ({
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
                   disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
