@@ -33,17 +33,14 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @RelationId(({ vaccine }) => vaccine)
   vaccineId: string;
 
-  @OneToMany(
-    () => AdministeredVaccine,
-    (administeredVaccine) => administeredVaccine.scheduledVaccine,
-  )
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.scheduledVaccine)
   administeredVaccines: AdministeredVaccine[];
 
   @Column({ default: false })
   hideFromCertificate: boolean;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @Column({ default: 0 })
   sortIndex: number;

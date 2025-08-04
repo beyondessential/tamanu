@@ -4,6 +4,7 @@ import { IPatientFieldDefinition } from '~/types';
 import { BaseModel } from './BaseModel';
 import { PatientFieldDefinitionCategory } from './PatientFieldDefinitionCategory';
 import { SYNC_DIRECTIONS } from './types';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 @Entity('patient_field_definitions')
 export class PatientFieldDefinition extends BaseModel implements IPatientFieldDefinition {
@@ -19,18 +20,18 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
   options?: string;
 
   @Column({ nullable: false })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @ManyToOne(
     () => PatientFieldDefinitionCategory,
-    (patientFieldDefinitionCategory) => patientFieldDefinitionCategory.patientFieldDefinitions,
+    patientFieldDefinitionCategory => patientFieldDefinitionCategory.patientFieldDefinitions,
   )
   category: PatientFieldDefinitionCategory;
   @RelationId(({ category }) => category)
   categoryId: string;
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -44,7 +45,7 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };

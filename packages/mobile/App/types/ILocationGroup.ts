@@ -1,3 +1,4 @@
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IFacility } from './IFacility';
 
@@ -6,5 +7,5 @@ export interface ILocationGroup {
   code: string;
   name: string;
   facility?: IFacility;
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 }

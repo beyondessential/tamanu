@@ -17,7 +17,7 @@ export class LocationGroup extends BaseModel implements ILocationGroup {
   name: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @ManyToOne(() => Facility)
   facility: IFacility;

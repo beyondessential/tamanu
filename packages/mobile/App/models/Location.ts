@@ -19,7 +19,7 @@ export class Location extends BaseModel implements ILocation {
   name: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @ManyToOne(() => Facility)
   facility: Facility;
@@ -30,7 +30,7 @@ export class Location extends BaseModel implements ILocation {
   @OneToMany(() => Encounter, ({ location }) => location)
   encounters: Location[];
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.location)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.location)
   administeredVaccines: AdministeredVaccine[];
 
   @ManyToOne(() => LocationGroup)

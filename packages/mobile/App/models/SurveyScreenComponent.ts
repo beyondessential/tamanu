@@ -37,7 +37,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   @Column({ nullable: true, type: 'text' })
   options?: string;
 
-  @ManyToOne(() => Survey, (survey) => survey.components)
+  @ManyToOne(() => Survey, survey => survey.components)
   survey: Survey;
 
   @RelationId(({ survey }) => survey)
@@ -50,7 +50,7 @@ export class SurveyScreenComponent extends BaseModel implements ISurveyScreenCom
   calculation?: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;

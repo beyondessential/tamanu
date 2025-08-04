@@ -23,7 +23,7 @@ export class Survey extends BaseModel implements ISurvey {
   @Column({ nullable: true })
   name?: string;
 
-  @ManyToOne(() => Program, (program) => program.surveys)
+  @ManyToOne(() => Program, program => program.surveys)
   program: Program;
 
   components: any;
@@ -32,7 +32,7 @@ export class Survey extends BaseModel implements ISurvey {
   isSensitive: boolean;
 
   @Column({ nullable: false, default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @Column({ nullable: false, default: false })
   notifiable: boolean;
@@ -77,7 +77,7 @@ export class Survey extends BaseModel implements ISurvey {
     const components = await vitalsSurvey.getComponents({ includeAllVitals });
 
     return {
-      dateComponent: components.find((c) => c.dataElementId === VitalsDataElements.dateRecorded),
+      dateComponent: components.find(c => c.dataElementId === VitalsDataElements.dateRecorded),
       components,
       name: vitalsSurvey.name,
       id: vitalsSurvey.id,

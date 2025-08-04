@@ -17,14 +17,14 @@ export class Department extends BaseModel implements IDepartment {
   name: string;
 
   @Column({ default: VisibilityStatus.Current })
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 
   @ManyToOne(() => Facility)
   facility: Facility;
 
-  @RelationId(({ facility }) => facility)
+  @RelationId(({ facility }: Department) => facility)
   facilityId: string;
 
-  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.department)
+  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.department)
   administeredVaccines: AdministeredVaccine[];
 }

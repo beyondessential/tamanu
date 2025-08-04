@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel, IdRelation } from './BaseModel';
-import { IAdministeredVaccine, InjectionSiteType } from '~/types';
+import { IAdministeredVaccine, InjectionSiteType, IScheduledVaccine } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { Location } from './Location';
@@ -18,7 +18,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   batch?: string;
 
   @Column()
-  status: string;
+  status: VaccineStatus;
 
   @Column({ nullable: true })
   reason?: string;
@@ -41,31 +41,31 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   givenBy?: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.administeredVaccines)
+  @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
   encounter: Encounter;
 
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => ScheduledVaccine, (scheduledVaccine) => scheduledVaccine.administeredVaccines)
-  scheduledVaccine: ScheduledVaccine;
+  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
+  scheduledVaccine: IScheduledVaccine;
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
 
-  @ManyToOne(() => User, (user) => user.recordedVaccines)
+  @ManyToOne(() => User, user => user.recordedVaccines)
   recorder: User;
 
   @RelationId(({ recorder }: AdministeredVaccine) => recorder)
   recorderId: string;
 
-  @ManyToOne(() => Location, (loc) => loc.administeredVaccines)
+  @ManyToOne(() => Location, loc => loc.administeredVaccines)
   location: Location;
 
   @RelationId(({ location }: AdministeredVaccine) => location)
   locationId: string;
 
-  @ManyToOne(() => Department, (dep) => dep.administeredVaccines)
+  @ManyToOne(() => Department, dep => dep.administeredVaccines)
   department: Department;
 
   @RelationId(({ department }: AdministeredVaccine) => department)
@@ -108,7 +108,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static sanitizeRecordDataForPush(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
@@ -123,7 +123,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   }
 
   static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
+    return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };

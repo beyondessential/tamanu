@@ -1,5 +1,6 @@
 import { IPatientFieldDefinitionCategory } from './IPatientFieldDefinitionCategory';
 import { ID } from './ID';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export interface IPatientFieldDefinition {
   id: ID;
@@ -7,5 +8,5 @@ export interface IPatientFieldDefinition {
   name: string;
   fieldType: string;
   options: string;
-  visibilityStatus: string;
+  visibilityStatus: VisibilityStatus;
 }
