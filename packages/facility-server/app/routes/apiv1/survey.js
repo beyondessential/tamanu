@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
@@ -41,22 +41,8 @@ survey.get(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const {
-      models: { Survey, SurveyResponse },
+      models: { Survey },
     } = req;
-
-    const historicalSurveysWithAnswers = await SurveyResponse.count({
-      include: [
-        {
-          model: Survey,
-          as: 'survey',
-          where: {
-            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-            surveyType: { [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] },
-          },
-        },
-      ],
-      group: ['surveyId'],
-    });
 
     const chartSurveys = await Survey.findAll({
       where: {
@@ -70,7 +56,17 @@ survey.get(
           },
           // Get all historical simple and complex charts with answers
           {
-            id: { [Op.in]: historicalSurveysWithAnswers.map((s) => s.surveyId) },
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal(
+                `EXISTS (SELECT 1 FROM survey_responses WHERE survey_responses.survey_id = "Survey".id AND survey_responses.deleted_at IS NULL)`,
+              ),
+            ],
           },
           // Get all complex core charts regardless of visibility status
           {
