@@ -20,6 +20,7 @@ export default async () =>
     plugins: [react()],
     resolve: {
       alias: {
+        '@api': path.resolve(__dirname, 'src/api'),
         '@utils': path.resolve(__dirname, 'src/utils'),
         '@auth': path.resolve(__dirname, 'src/auth'),
         '@routes': path.resolve(__dirname, 'src/routes'),

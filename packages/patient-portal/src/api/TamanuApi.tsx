@@ -12,6 +12,7 @@ export class TamanuApi extends BaseTamanuApi {
       agentName: 'patient-portal',
       agentVersion: appVersion,
       deviceId: getDeviceId(),
+      logger: console,
     });
   }
 }
