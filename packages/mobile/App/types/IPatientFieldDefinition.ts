@@ -7,6 +7,6 @@ export interface IPatientFieldDefinition {
   category: IPatientFieldDefinitionCategory;
   name: string;
   fieldType: string;
-  options: string;
+  options?: string;
   visibilityStatus: VisibilityStatus;
 }
