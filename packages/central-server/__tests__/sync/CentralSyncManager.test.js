@@ -1056,180 +1056,6 @@ describe('CentralSyncManager', () => {
         expect(sessionTwoEncounterIds[0]).toEqual(encounter2.id);
       });
 
-      describe('lastInteractedThreshold', () => {
-        it('does full patient sync for newly marked patients even with lastInteractedThreshold', async () => {
-          const OLD_SYNC_TICK = 10;
-          const NEW_SYNC_TICK = 20;
-
-          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
-          const patient1 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const patient2 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const patient3 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const facility = await models.Facility.create({
-            ...fake(models.Facility),
-          });
-          await models.User.create(fakeUser());
-          await models.Department.create({
-            ...fake(models.Department),
-            facilityId: facility.id,
-          });
-          await models.Location.create({
-            ...fake(models.Location),
-            facilityId: facility.id,
-          });
-
-          // Create encounters for all patients at the old sync tick
-          const encounter1 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient1.id,
-          });
-          const encounter2 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient2.id,
-          });
-          const encounter3 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient3.id,
-          });
-
-          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
-
-          await models.PatientFacility.create({
-            patientId: patient1.id,
-            facilityId: facility.id,
-            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
-          });
-          await models.PatientFacility.create({
-            patientId: patient2.id,
-            facilityId: facility.id,
-            lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
-          });
-          await models.PatientFacility.create({
-            patientId: patient3.id,
-            facilityId: facility.id,
-            lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
-          });
-
-          const centralSyncManager = initializeCentralSyncManager();
-          const { sessionId } = await centralSyncManager.startSession();
-          await waitForSession(centralSyncManager, sessionId);
-
-          await centralSyncManager.setupSnapshotForPull(
-            sessionId,
-            {
-              since: 15,
-              facilityIds: [facility.id],
-              lastInteractedThreshold: 2, // Should limit to 2 most recent patients
-            },
-            () => true,
-          );
-
-          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-          const encounterIds = outgoingChanges
-            .filter(c => c.recordType === 'encounters')
-            .map(c => c.recordId);
-
-          // Should include encounter2 and encounter3 (full sync for newly marked patients with most recent interactions)
-          // Should NOT include encounter1 (patient not in top 2 by lastInteractedTime)
-          expect(encounterIds).toEqual(expect.arrayContaining([encounter2.id, encounter3.id]));
-          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
-        });
-
-        it('does not do full patient sync for existing marked patients even with recent interactions and lastInteractedThreshold', async () => {
-          const OLD_SYNC_TICK = 10;
-          const NEW_SYNC_TICK = 20;
-          const RECENT_INTERACTION_TICK = 18;
-
-          // ~ ~ ~ Set up old data
-          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
-          const patient1 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const patient2 = await models.Patient.create({
-            ...fake(models.Patient),
-          });
-          const facility = await models.Facility.create({
-            ...fake(models.Facility),
-          });
-          await models.User.create(fakeUser());
-          await models.Department.create({
-            ...fake(models.Department),
-            facilityId: facility.id,
-          });
-          await models.Location.create({
-            ...fake(models.Location),
-            facilityId: facility.id,
-          });
-
-          // Create encounters for both patients at the old sync tick
-          const encounter1 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient1.id,
-          });
-          const encounter2 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient2.id,
-          });
-
-          // Mark patient1 for sync at the old tick (not newly marked)
-          await models.PatientFacility.create({
-            patientId: patient1.id,
-            facilityId: facility.id,
-            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
-          });
-
-          // Simulate recent interaction for patient1 (bumps updated_at_sync_tick)
-          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, RECENT_INTERACTION_TICK);
-          await models.PatientFacility.update(
-            {
-              lastInteractedTime: new Date('2024-01-01T16:00:00Z'), // More recent interaction
-            },
-            { where: { patientId: patient1.id, facilityId: facility.id } },
-          );
-
-          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
-
-          // Create a new encounter for patient1 after the recent interaction
-          const encounter3 = await models.Encounter.create({
-            ...(await createDummyEncounter(models)),
-            patientId: patient1.id,
-          });
-
-          const centralSyncManager = initializeCentralSyncManager();
-          const { sessionId } = await centralSyncManager.startSession();
-          await waitForSession(centralSyncManager, sessionId);
-
-          await centralSyncManager.setupSnapshotForPull(
-            sessionId,
-            {
-              since: 15,
-              facilityIds: [facility.id],
-              lastInteractedThreshold: 1, // Should include patient1 due to recent interaction
-            },
-            () => true,
-          );
-
-          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-          const encounterIds = outgoingChanges
-            .filter(c => c.recordType === 'encounters')
-            .map(c => c.recordId);
-
-          // Should NOT include encounter1 (patient not newly marked for sync, even with recent interaction)
-          // Should NOT include encounter2 (patient not marked for sync)
-          // Should include encounter3 (incremental sync for existing marked patient)
-          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
-          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter2.id]));
-          expect(encounterIds).toEqual(expect.arrayContaining([encounter3.id]));
-        });
-      });
-    });
-
     describe('handles concurrent transactions', () => {
       afterEach(async () => {
         // Revert to the original models
@@ -1459,6 +1285,178 @@ describe('CentralSyncManager', () => {
     });
 
     describe('handles sync special case configurations', () => {
+      describe('lastInteractedThreshold', () => {
+        it('does full patient sync for newly marked patients even with lastInteractedThreshold', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+          const patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient2 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient3 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const facility = await models.Facility.create({
+            ...fake(models.Facility),
+          });
+          await models.User.create(fakeUser());
+          await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+
+          // Create encounters for all patients at the old sync tick
+          const encounter1 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+          const encounter2 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient2.id,
+          });
+          const encounter3 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient3.id,
+          });
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+
+          await models.PatientFacility.create({
+            patientId: patient1.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+          });
+          await models.PatientFacility.create({
+            patientId: patient2.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T12:00:00Z'),
+          });
+          await models.PatientFacility.create({
+            patientId: patient3.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T14:00:00Z'),
+          });
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+              facilityIds: [facility.id],
+              lastInteractedThreshold: 2, // Should limit to 2 most recent patients
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          const encounterIds = outgoingChanges
+            .filter(c => c.recordType === 'encounters')
+            .map(c => c.recordId);
+
+          // Should include encounter2 and encounter3 (full sync for newly marked patients with most recent interactions)
+          // Should NOT include encounter1 (patient not in top 2 by lastInteractedTime)
+          expect(encounterIds).toEqual(expect.arrayContaining([encounter2.id, encounter3.id]));
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
+        });
+
+        it('does not do full patient sync for existing marked patients even with recent interactions and lastInteractedThreshold', async () => {
+          const OLD_SYNC_TICK = 10;
+          const NEW_SYNC_TICK = 20;
+          const RECENT_INTERACTION_TICK = 18;
+
+          // ~ ~ ~ Set up old data
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, OLD_SYNC_TICK);
+          const patient1 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const patient2 = await models.Patient.create({
+            ...fake(models.Patient),
+          });
+          const facility = await models.Facility.create({
+            ...fake(models.Facility),
+          });
+          await models.User.create(fakeUser());
+          await models.Department.create({
+            ...fake(models.Department),
+            facilityId: facility.id,
+          });
+          await models.Location.create({
+            ...fake(models.Location),
+            facilityId: facility.id,
+          });
+
+          // Create encounters for both patients at the old sync tick
+          const encounter1 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+          const encounter2 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient2.id,
+          });
+
+          // Mark patient1 for sync at the old tick (not newly marked)
+          await models.PatientFacility.create({
+            patientId: patient1.id,
+            facilityId: facility.id,
+            lastInteractedTime: new Date('2024-01-01T10:00:00Z'),
+          });
+
+          // Simulate recent interaction for patient1 (bumps updated_at_sync_tick)
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, RECENT_INTERACTION_TICK);
+          await models.PatientFacility.update(
+            {
+              lastInteractedTime: new Date('2024-01-01T16:00:00Z'), // More recent interaction
+            },
+            { where: { patientId: patient1.id, facilityId: facility.id } },
+          );
+
+          await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
+
+          // Create a new encounter for patient1 after the recent interaction
+          const encounter3 = await models.Encounter.create({
+            ...(await createDummyEncounter(models)),
+            patientId: patient1.id,
+          });
+
+          const centralSyncManager = initializeCentralSyncManager();
+          const { sessionId } = await centralSyncManager.startSession();
+          await waitForSession(centralSyncManager, sessionId);
+
+          await centralSyncManager.setupSnapshotForPull(
+            sessionId,
+            {
+              since: 15,
+              facilityIds: [facility.id],
+              lastInteractedThreshold: 1, // Should include patient1 due to recent interaction
+            },
+            () => true,
+          );
+
+          const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
+          const encounterIds = outgoingChanges
+            .filter(c => c.recordType === 'encounters')
+            .map(c => c.recordId);
+
+          // Should NOT include encounter1 (patient not newly marked for sync, even with recent interaction)
+          // Should NOT include encounter2 (patient not marked for sync)
+          // Should include encounter3 (incremental sync for existing marked patient)
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter1.id]));
+          expect(encounterIds).not.toEqual(expect.arrayContaining([encounter2.id]));
+          expect(encounterIds).toEqual(expect.arrayContaining([encounter3.id]));
+        });
+      });
       describe('syncAllLabRequests', () => {
         let facility;
         let otherFacility;
