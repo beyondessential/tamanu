@@ -42,6 +42,7 @@ export type MobileSyncSettings = {
     maxRecordsPerSnapshotBatch: number;
   };
   useUnsafeSchemaForInitialSync: boolean;
+  lastInteractedThreshold: number | null;
 };
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
@@ -327,7 +328,7 @@ export class MobileSyncManager {
       pullSince,
       incomingModelNames,
       tablesForFullResync?.value.split(','),
-      mobileSyncSettings.pullIncomingChanges,
+      mobileSyncSettings,
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );

@@ -192,6 +192,7 @@ export class CentralServerConnection {
     since: number,
     tableNames: string[],
     tablesForFullResync: string[],
+    lastInteractedThreshold: number | null,
   ): Promise<{ totalToPull: number; pullUntil: number }> {
     const facilityId = await readConfig('facilityId', '');
     const body = {
@@ -199,6 +200,7 @@ export class CentralServerConnection {
       facilityIds: [facilityId],
       tablesToInclude: tableNames,
       tablesForFullResync,
+      lastInteractedThreshold,
       deviceId: this.deviceId,
     };
     await this.post(`sync/${sessionId}/pull/initiate`, {}, body, {});

@@ -61,6 +61,20 @@ export const centralSettings = {
       description: 'Settings related to mobile sync',
       highRisk: true,
       properties: {
+        lastInteractedThreshold: {
+          name: 'Last interacted threshold',
+          description:
+            'Limits the number of patients to sync based on their last interaction time. Only the N most recently interacted-with patients will be synced. Set to null to disable.',
+          type: yup.number().positive().integer().nullable(),
+          defaultValue: null,
+        },
+        useUnsafePragmaSettingsForInitialSync: {
+          name: 'Use unsafe pragma settings for initial sync',
+          description:
+            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         saveIncomingChanges: {
           description: 'Settings applied to saving changes step of sync',
           // TODO: These two settings likely will be made redundant when streaming is implemented
@@ -89,13 +103,6 @@ export const centralSettings = {
               defaultValue: 1000,
             },
           },
-        },
-        useUnsafePragmaSettingsForInitialSync: {
-          name: 'Use unsafe pragma settings for initial sync',
-          description:
-            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
-          type: yup.boolean(),
-          defaultValue: false,
         },
       },
     },
