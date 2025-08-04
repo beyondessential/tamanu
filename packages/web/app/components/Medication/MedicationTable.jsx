@@ -147,7 +147,7 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
   );
 };
 
-const MEDICATION_COLUMNS = (
+const getMedicationColumns = (
   getTranslation,
   getEnumTranslation,
   disableTooltip,
@@ -357,7 +357,7 @@ export const EncounterMedicationTable = ({
         />
       )}
       <StyledDataFetchingTable
-        columns={MEDICATION_COLUMNS(
+        columns={getMedicationColumns(
           getTranslation,
           getEnumTranslation,
           !!selectedMedication,
