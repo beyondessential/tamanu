@@ -116,7 +116,7 @@ const AlreadyOrderedMedicationsWrapper = styled.div`
 `;
 
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
-  const [orderingClinicianId, setOrderingClinicianId] = useState(null);
+  const [orderingClinicianId, setOrderingClinicianId] = useState('');
   const [isDischargePrescription, setIsDischargePrescription] = useState(false);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
@@ -279,14 +279,10 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
-    onClose();
     setTimeout(() => {
-      setShowSuccess(false);
-      setShowAlreadyOrderedConfirmation(false);
-      setComments('');
-      setPrescriptions(initialPrescriptions);
+      onClose();
     }, 200);
-  }, [initialPrescriptions, onClose]);
+  }, [onClose]);
 
   const isFormValid = validateForm();
 

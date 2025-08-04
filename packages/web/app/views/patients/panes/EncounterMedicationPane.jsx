@@ -157,6 +157,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="medicationmodal-s2hv"
         />
         <PharmacyOrderModal
+          key={pharmacyOrderModalOpen}
           encounter={encounter}
           open={pharmacyOrderModalOpen}
           onClose={() => setPharmacyOrderModalOpen(false)}
