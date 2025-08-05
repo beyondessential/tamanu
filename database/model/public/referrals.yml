@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: referrals
-        description: '{{ doc("table__referrals") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__referrals') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: location_groups
-        description: '{{ doc("table__location_groups") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__location_groups') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

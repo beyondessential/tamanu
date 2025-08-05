@@ -5,10 +5,11 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_items
-        description: '{{ doc("table__note_items") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__note_items') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
         columns:
           - name: id
             data_type: uuid
