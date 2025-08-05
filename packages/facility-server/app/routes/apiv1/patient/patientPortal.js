@@ -171,6 +171,8 @@ const sendUnregisteredFormEmail = async ({
 patientPortal.get(
   '/:id/portal/status',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'PatientPortal');
+
     const { models } = req;
     const { id: patientId } = req.params;
 
@@ -198,6 +200,8 @@ patientPortal.get(
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'PatientPortal');
+
     const { models } = req;
     const { id: patientId } = req.params;
 
@@ -212,6 +216,8 @@ patientPortal.post(
 patientPortal.post(
   '/:id/portal/send-registration-email',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'PatientPortal');
+
     const { models, settings, facilityId } = req;
     const { id: patientId } = req.params;
     const { email: patientEmail } = req.body;
@@ -231,6 +237,8 @@ patientPortal.post(
 patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
+    req.checkPermission('create', 'PatientPortalForm');
+
     const { models, user, settings, facilityId } = req;
     const { id: patientId } = req.params;
     const { formId, assignedAt, email: patientEmail } = SendPortalFormRequestSchema.parse(req.body);
@@ -282,6 +290,8 @@ patientPortal.post(
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'PatientPortalForm');
+
     const { models, query } = req;
     const { id: patientId } = req.params;
 
@@ -357,6 +367,8 @@ patientPortal.get(
 patientPortal.delete(
   '/:id/portal/forms/:assignmentId',
   asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'PatientPortalForm');
+
     const { models } = req;
     const { id: patientId, assignmentId } = req.params;
 
