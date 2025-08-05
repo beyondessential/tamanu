@@ -186,7 +186,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 </>
               )}
               <FormSubmitCancelRow
-                onCancel={handleCancel}
+                onCancel={onClose}
                 onConfirm={submitForm}
                 confirmText={
                   <TranslatedText
