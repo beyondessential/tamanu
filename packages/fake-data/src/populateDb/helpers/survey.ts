@@ -25,7 +25,7 @@ export const createSurveyResponse = async ({
 
   await Promise.all(
     times(answerCount, async () => {
-      await SurveyResponseAnswer.create(
+      return SurveyResponseAnswer.create(
         fake(SurveyResponseAnswer, {
           responseId: surveyResponse.id,
           dataElementId: await randomRecordId(models, 'ProgramDataElement'),

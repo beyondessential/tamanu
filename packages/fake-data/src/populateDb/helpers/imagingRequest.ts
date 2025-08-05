@@ -33,14 +33,14 @@ export const createImagingRequest = async ({
   );
 
   await Promise.all(
-    areaIds.map(async areaId => {
-      await ImagingRequestArea.create(
+    areaIds.map(areaId =>
+      ImagingRequestArea.create(
         fake(ImagingRequestArea, {
           imagingRequestId: imagingRequest.id,
           areaId: areaId,
         }),
-      );
-    }),
+      ),
+    ),
   );
 
   if (isResulted) {
