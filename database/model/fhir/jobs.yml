@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: jobs
-        description: '{{ doc("fhir__table__jobs") }}'
-        tags: []
+        description: "{{ doc('fhir__table__jobs') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

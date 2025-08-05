@@ -2,12 +2,13 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: '{{ doc("generic__schema") }}'
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_lookup
-        description: '{{ doc("table__sync_lookup") }}'
-        tags:
-          - system
+        description: "{{ doc('table__sync_lookup') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: bigint

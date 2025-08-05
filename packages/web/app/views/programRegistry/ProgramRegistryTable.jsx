@@ -166,7 +166,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           let actions = [
             {
               label: (
-                <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
+                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
