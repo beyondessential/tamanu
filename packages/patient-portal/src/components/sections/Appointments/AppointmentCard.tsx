@@ -17,7 +17,7 @@ interface AppointmentCardProps {
 
 export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
   return (
-    <Card variant="outlined">
+    <Card variant="secondary">
       <CardContent>
         <LabelValueList>
           <LabelValueList.ListItem

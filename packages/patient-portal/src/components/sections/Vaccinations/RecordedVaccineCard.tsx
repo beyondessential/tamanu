@@ -12,13 +12,13 @@ export const RecordedVaccineCard: React.FC<RecordedVaccineCardProps> = ({ vaccin
   return (
     <Card variant="outlined">
       <CardContent>
-        <Typography variant="h4">{vaccine.vaccineName || '--'}</Typography>
+        <Typography variant="h4">{vaccine.scheduledVaccine?.label || '--'}</Typography>
         <Typography>
-          {vaccine.vaccineName || '--'} • {vaccine.date ? formatDate(vaccine.date) : '--'}
+          {vaccine.scheduledVaccine?.doseLabel || '--'} •{' '}
+          {vaccine.date ? formatDate(vaccine.date) : '--'}
         </Typography>
-        <Typography>
-          Given by: {formatVaccineGivenBy(vaccine)} • {formatVaccineFacilityOrCountry(vaccine)}
-        </Typography>
+        <Typography>Given by: {formatVaccineGivenBy(vaccine)}</Typography>
+        <Typography>Facility / Country: {formatVaccineFacilityOrCountry(vaccine)}</Typography>
       </CardContent>
     </Card>
   );

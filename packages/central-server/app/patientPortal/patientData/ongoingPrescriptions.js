@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 
 import { OngoingPrescriptionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
+import { Op } from 'sequelize';
 
 export const getOngoingPrescriptions = asyncHandler(async (req, res) => {
   const { patient } = req;
@@ -10,7 +11,7 @@ export const getOngoingPrescriptions = asyncHandler(async (req, res) => {
   const prescriptions = await models.Prescription.findAll({
     attributes: getAttributesFromSchema(OngoingPrescriptionSchema),
     where: {
-      discontinued: false,
+      discontinued: { [Op.not]: true },
     },
     include: [
       {
