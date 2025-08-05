@@ -163,6 +163,14 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
             value: pharmacyOrderPrescription.id,
           },
         ],
+        category: {
+          coding: [
+            {
+              system: 'https://hl7.org/fhir/R4B/codesystem-medicationrequest-category.html',
+              code: 'discharge',
+            },
+          ],
+        },
         groupIdentifier: [
           {
             system: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html',
@@ -244,9 +252,6 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
         note: [
           {
             text: pharmacyOrder.comments,
-          },
-          {
-            text: 'discharge_prescription',
           },
         ],
       });
