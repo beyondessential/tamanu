@@ -9,12 +9,14 @@ export class PharmacyOrder extends Model {
   declare orderingClinicianId: string;
   declare encounterId: string;
   declare comments?: string;
+  declare isDischargePrescription: boolean;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
         comments: DataTypes.TEXT,
+        isDischargePrescription: DataTypes.BOOLEAN,
       },
       {
         ...options,
