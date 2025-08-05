@@ -2940,7 +2940,14 @@ describe('CentralSyncManager', () => {
     });
 
     it('will sync sensitive encounters to itself', async () => {
-      const encounterIds = await getOutgoingIdsForRecordType(sensitiveFacility.id, 'encounters');
+      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      const encounterIds = await getOutgoingIdsForRecordType(
+        centralSyncManager,
+        sensitiveFacility.id,
+        'encounters',
+      );
       expect(encounterIds).toContain(sensitiveEncounter.id);
       expect(encounterIds).toContain(nonSensitiveEncounter.id);
     });
@@ -3729,7 +3736,11 @@ describe('CentralSyncManager', () => {
             scope: SETTINGS_SCOPES.FACILITY,
           });
 
+          const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+          await centralSyncManager.updateLookupTable();
+
           const labRequestIds = await getOutgoingIdsForRecordType(
+            centralSyncManager,
             sensitiveFacility.id,
             models.LabRequest.tableName,
           );
