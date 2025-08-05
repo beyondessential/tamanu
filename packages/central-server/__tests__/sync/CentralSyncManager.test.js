@@ -2908,10 +2908,7 @@ describe('CentralSyncManager', () => {
       });
     });
 
-    const getOutgoingIdsForRecordType = async (facilityId, recordType) => {
-      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
-      await centralSyncManager.updateLookupTable();
-
+    const getOutgoingIdsForRecordType = async (centralSyncManager, facilityId, recordType) => {
       const { sessionId } = await centralSyncManager.startSession();
       await waitForSession(centralSyncManager, sessionId);
 
@@ -2952,7 +2949,11 @@ describe('CentralSyncManager', () => {
       // Every test in this describe block should use this function to check that the sensitive record
       // is not synced to the non-sensitive facility
       const checkSensitiveRecordFiltering = async ({ model, sensitiveId, nonSensitiveId }) => {
+        const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+        await centralSyncManager.updateLookupTable();
+
         const recordIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
           nonSensitiveFacility.id,
           model.tableName,
         );
@@ -3840,48 +3841,23 @@ describe('CentralSyncManager', () => {
         await centralSyncManager.updateLookupTable();
 
         // Check that the historical sensitive data is still unsynced to the non-sensitive facility
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
+        const encounterIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          'encounters',
         );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const encounterIds = outgoingChanges
-          .filter(c => c.recordType === 'encounters')
-          .map(c => c.recordId);
         expect(encounterIds).not.toContain(encounter.id);
 
         // Edit the encounter to trigger a new sync
         await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
         await centralSyncManager.updateLookupTable();
 
-        // The encounter should now be synced to the non-sensitive facility
-        const { sessionId: updatedSessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, updatedSessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          updatedSessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
+        // Check that the new encounter changes are synced to the non-sensitive facility
+        const updatedEncounterIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          'encounters',
         );
-
-        const updatedOutgoingChanges = await centralSyncManager.getOutgoingChanges(
-          updatedSessionId,
-          {},
-        );
-        const updatedEncounterIds = updatedOutgoingChanges
-          .filter(c => c.recordType === 'encounters')
-          .map(c => c.recordId);
         expect(updatedEncounterIds).toContain(encounter.id);
       });
 
@@ -3911,53 +3887,28 @@ describe('CentralSyncManager', () => {
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
-        // Check that the non-sensitive facility syncs the encounter down
-        const { sessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, sessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          sessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
-        );
-
-        const outgoingChanges = await centralSyncManager.getOutgoingChanges(sessionId, {});
-        const encounterIds = outgoingChanges
-          .filter(c => c.recordType === 'encounters')
-          .map(c => c.recordId);
-        expect(encounterIds).toContain(encounter.id);
-
         // Change facility to sensitive and update lookup table
         await facility.update({ isSensitive: true });
         await centralSyncManager.updateLookupTable();
+
+        // Check that the historical non-sensitive data is still synced to the non-sensitive facility
+        const beforeEditEncounterIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          'encounters',
+        );
+        expect(beforeEditEncounterIds).toContain(encounter.id);
 
         // Edit the encounter to trigger a new sync
         await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
         await centralSyncManager.updateLookupTable();
 
-        // The new encounter changes should not be synced to the non-sensitive facility
-        const { sessionId: updatedSessionId } = await centralSyncManager.startSession();
-        await waitForSession(centralSyncManager, updatedSessionId);
-
-        await centralSyncManager.setupSnapshotForPull(
-          updatedSessionId,
-          {
-            since: 1,
-            facilityIds: [nonSensitiveFacility.id],
-          },
-          () => true,
+        // Check that the new encounter changes are not synced to the non-sensitive facility
+        const updatedEncounterIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          'encounters',
         );
-
-        const updatedOutgoingChanges = await centralSyncManager.getOutgoingChanges(
-          updatedSessionId,
-          {},
-        );
-        const updatedEncounterIds = updatedOutgoingChanges
-          .filter(c => c.recordType === 'encounters')
-          .map(c => c.recordId);
         expect(updatedEncounterIds).not.toContain(encounter.id);
       });
     });
