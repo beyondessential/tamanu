@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { Box, Link } from '@mui/material';
 import QRCode from 'qrcode';
-import { useSelector } from 'react-redux';
 
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -86,9 +85,7 @@ const QrCodeDisplay = ({ qrCode, registrationLink }) => {
   );
 };
 
-export const PatientPortalRegistrationModal = React.memo(() => {
-  const patient = useSelector(state => state.patient);
-
+export const PatientPortalRegistrationModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const [openSendToPatientModal, setOpenSendToPatientModal] = useState(false);
   const [registrationLink, setRegistrationLink] = useState(null);
