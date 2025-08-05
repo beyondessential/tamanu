@@ -16,6 +16,8 @@ import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 
+const CATEGORY_CODE_SYSTEM = 'https://hl7.org/fhir/R4B/codesystem-medicationrequest-category.html';
+
 export async function getValues(upstream: PharmacyOrderPrescription, models: Models) {
   const { PharmacyOrder } = models;
   const pharmacyOrder = await PharmacyOrder.findOne({ where: { id: upstream.pharmacyOrderId } });
@@ -36,6 +38,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     ],
     status: 'active',
     intent: 'order',
+    category: category(pharmacyOrder),
     groupIdentifier: [
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.pharmacyOrderId,
@@ -203,23 +206,30 @@ function getFrequencyPeriodUnit(prescription: Prescription) {
   }
 }
 
+function category(pharmacyOrder: PharmacyOrder) {
+  if (pharmacyOrder.isDischargePrescription) {
+    return new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: CATEGORY_CODE_SYSTEM,
+          code: 'discharge',
+        }),
+      ],
+    });
+  }
+
+  return null;
+}
+
 function note(pharmacyOrder: PharmacyOrder, recorder: FhirReference) {
-  const notes = [];
   if (pharmacyOrder.comments) {
-    notes.push(
+    return [
       new FhirAnnotation({
         author: recorder,
         text: pharmacyOrder.comments,
       }),
-    );
+    ];
   }
-  if (pharmacyOrder.isDischargePrescription) {
-    notes.push(
-      new FhirAnnotation({
-        author: recorder,
-        text: 'discharge_prescription',
-      }),
-    );
-  }
-  return notes.length > 0 ? notes : null;
+
+  return null;
 }
