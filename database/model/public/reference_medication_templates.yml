@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_medication_templates
-        description: '{{ doc("table__reference_medication_templates") }}'
-        tags: []
+        description: "{{ doc('table__reference_medication_templates') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

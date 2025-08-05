@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_test_types
-        description: '{{ doc("table__lab_test_types") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__lab_test_types') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

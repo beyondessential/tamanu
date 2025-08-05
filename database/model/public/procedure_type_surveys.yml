@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: procedure_type_surveys
-        description: '{{ doc("table__procedure_type_surveys") }}'
+        description: "{{ doc('table__procedure_type_surveys') }}"
         config:
           tags: []
         columns:

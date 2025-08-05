@@ -35,9 +35,11 @@ sources:
             description: "{{ doc('generic__updated_at') }} in procedure_survey_responses."
             data_tests:
               - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in procedure_survey_responses."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              procedure_survey_responses."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in procedure_survey_responses."
             data_tests:
               - not_null
