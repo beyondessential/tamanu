@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: certificate_notifications
-        description: '{{ doc("table__certificate_notifications") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__certificate_notifications') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

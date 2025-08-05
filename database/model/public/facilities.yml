@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: facilities
-        description: '{{ doc("table__facilities") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__facilities') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_products
-        description: '{{ doc("table__invoice_products") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__invoice_products') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
