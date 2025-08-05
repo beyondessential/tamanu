@@ -6,25 +6,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 setup('authenticate', async ({ loginPage }) => {
-  let authToken: string | null = null;
+  // Start waiting for the login response before triggering the action.
+  const loginResponsePromise = loginPage.page.waitForResponse(
+    response => response.url().includes('/login') && response.status() === 200,
+  );
 
-  // Listen for the login API response
-  loginPage.page.on('response', async (response) => {
-    if (response.url().includes('/login')) {
-      const responseBody = await response.json();
-      authToken = responseBody.token;
-    }
-  });
-
-  await loginPage.goto();
   await loginPage.login(process.env.TEST_EMAIL!, process.env.TEST_PASSWORD!);
 
-  // Wait for the response to be captured
-  await loginPage.page.waitForTimeout(1000);
+  const loginResponse = await loginResponsePromise;
+  const responseBody = await loginResponse.json();
+  const authToken = responseBody.token;
 
   if (authToken) {
     // Store the token in localStorage for future test runs
-    await loginPage.page.evaluate((token) => {
+    await loginPage.page.evaluate(token => {
       localStorage.setItem('apiToken', token);
     }, authToken);
   }
