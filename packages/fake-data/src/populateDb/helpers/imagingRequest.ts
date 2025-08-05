@@ -9,6 +9,7 @@ interface CreateImagingRequestParams extends CommonParams {
   encounterId: string;
   locationGroupId: string;
   isResulted?: boolean;
+  areaIds?: string[];
 }
 export const createImagingRequest = async ({
   models,
@@ -16,8 +17,9 @@ export const createImagingRequest = async ({
   encounterId,
   locationGroupId,
   isResulted = chance.bool(),
+  areaIds = [],
 }: CreateImagingRequestParams): Promise<void> => {
-  const { ImagingRequest, ImagingResult } = models;
+  const { ImagingRequest, ImagingResult, ImagingRequestArea } = models;
   const imagingRequest = await ImagingRequest.create(
     fake(ImagingRequest, {
       requestedById: userId || (await randomRecordId(models, 'User')),
@@ -28,6 +30,17 @@ export const createImagingRequest = async ({
       requestedDate: '2022-03-04 15:30:00',
       imagingType: chance.pickone(Object.values(IMAGING_TYPES)),
     }),
+  );
+
+  await Promise.all(
+    areaIds.map(areaId =>
+      ImagingRequestArea.create(
+        fake(ImagingRequestArea, {
+          imagingRequestId: imagingRequest.id,
+          areaId: areaId,
+        }),
+      ),
+    ),
   );
 
   if (isResulted) {

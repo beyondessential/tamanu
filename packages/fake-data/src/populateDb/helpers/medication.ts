@@ -24,6 +24,9 @@ export const createMedication = async ({
     fake(Prescription, {
       medicationId: referenceDataId,
     }),
+    {
+      hooks: false, // Disable hooks to prevent afterCreate from triggering
+    },
   );
 
   const encounterPrescription = await EncounterPrescription.create(

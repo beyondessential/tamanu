@@ -5,12 +5,12 @@ import { InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import {
-  buildEncounterLinkedLookupJoins,
-  buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+} from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class ImagingResult extends Model {
   declare id: string;
@@ -93,8 +93,12 @@ export class ImagingResult extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
+      select: buildEncounterPatientIdSelect(this),
+      joins: buildEncounterLinkedSyncFilterJoins([
+        this.tableName,
+        'imaging_requests',
+        'encounters',
+      ]),
     };
   }
 }

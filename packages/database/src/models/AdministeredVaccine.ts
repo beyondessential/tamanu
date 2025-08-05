@@ -5,8 +5,9 @@ import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { User } from './User';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class AdministeredVaccine extends Model {
   declare id: string;
@@ -140,7 +141,13 @@ export class AdministeredVaccine extends Model {
   }
 
   static buildSyncLookupQueryDetails() {
-    return buildEncounterLinkedLookupFilter(this);
+    return {
+      select: buildSyncLookupSelect(this, {
+        patientId: 'encounters.patient_id',
+        encounterId: 'encounters.id',
+      }),
+      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+    };
   }
 
   static async lastVaccinationForPatient(patientId: string, vaccineIds: string[] = []) {

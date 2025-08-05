@@ -13,8 +13,8 @@ import {
   buildNoteLinkedSyncFilter,
   getPatientIdColumnOfNotes,
 } from '../sync/buildNoteLinkedSyncFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Note extends Model {
   declare id: string;
@@ -76,7 +76,7 @@ export class Note extends Model {
   }
 
   static initRelations(models: Models) {
-    NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
+    NOTE_RECORD_TYPE_VALUES.forEach((modelName) => {
       this.belongsTo(models[modelName as keyof Models] as typeof Model, {
         foreignKey: 'recordId',
         as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
@@ -128,7 +128,7 @@ export class Note extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this, {
+      select: buildSyncLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
       }),
       joins: buildNoteLinkedJoins().join('\n'),
