@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: fhir_writes
-        description: '{{ doc("logs__table__fhir_writes") }}'
-        tags: []
+        description: "{{ doc('logs__table__fhir_writes') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid

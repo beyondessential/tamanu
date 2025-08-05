@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: refresh_tokens
-        description: '{{ doc("table__refresh_tokens") }}'
-        tags:
-          - system
+        description: "{{ doc('table__refresh_tokens') }}"
+        config:
+          tags:
+            - system
         columns:
           - name: id
             data_type: uuid

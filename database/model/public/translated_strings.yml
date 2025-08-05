@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: translated_strings
-        description: '{{ doc("table__translated_strings") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__translated_strings') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: text

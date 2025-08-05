@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: contributing_death_causes
-        description: '{{ doc("table__contributing_death_causes") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__contributing_death_causes') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
