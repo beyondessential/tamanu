@@ -101,6 +101,7 @@ export const PatientPortalRegistrationModal = React.memo(() => {
     },
   });
 
+  // Automatically register the patient when this modal is opened
   useEffect(() => {
     if (patient?.id) {
       registerPatientPortal({ patientId: patient.id });
