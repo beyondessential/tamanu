@@ -11,6 +11,7 @@ setup('authenticate', async ({ loginPage }) => {
     response => response.url().includes('/login') && response.status() === 200,
   );
 
+  await loginPage.goto();
   await loginPage.login(process.env.TEST_EMAIL!, process.env.TEST_PASSWORD!);
 
   const loginResponse = await loginResponsePromise;
