@@ -30,10 +30,7 @@ export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment })
           />
           <LabelValueList.ListItem
             label="Facility"
-            value={formatAppointmentFacility(
-              appointment.locationGroup?.facility,
-              appointment.locationGroup,
-            )}
+            value={formatAppointmentFacility(appointment.locationGroup)}
           />
           <LabelValueList.ListItem
             label="Area"

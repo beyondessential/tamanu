@@ -1,6 +1,12 @@
-import { SEX_LABELS } from '@tamanu/constants';
+import { SEX_LABELS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { format, startOfWeek, parseISO } from 'date-fns';
+
+import type { Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import type { OngoingPrescription } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
+import type { Appointment } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
+import type { Location } from '@tamanu/shared/schemas/patientPortal/responses/location.schema';
 
 export const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return '--/--/----';
@@ -11,9 +17,9 @@ export const formatDate = (dateString: string | null | undefined) => {
   }
 };
 
-export const formatSex = (sex: string | undefined) => {
+export const formatSex = (sex: Patient['sex'] | undefined) => {
   if (!sex) return '--';
-  return SEX_LABELS[sex as keyof typeof SEX_LABELS] || sex;
+  return SEX_LABELS[sex] || sex;
 };
 
 export const formatDisplayId = (displayId: string | undefined) => {
@@ -24,40 +30,38 @@ export const formatName = (name: string | null | undefined) => {
   return name || '--';
 };
 
-export const formatVillage = (village: { name?: string } | null | undefined) => {
+export const formatVillage = (village: Patient['village'] | null | undefined) => {
   return village?.name || '--';
 };
 
 // Medication-specific formatting functions
-export const formatDose = (doseAmount: number | null | undefined, units: string | undefined) => {
+export const formatDose = (
+  doseAmount: OngoingPrescription['doseAmount'],
+  units: OngoingPrescription['units'],
+) => {
   if (doseAmount === null || doseAmount === undefined || !units) return '--';
   return `${doseAmount} ${units}`;
 };
 
-export const formatFrequency = (frequency: string | undefined) => {
+export const formatFrequency = (frequency: OngoingPrescription['frequency']) => {
   if (!frequency) return '--';
   // This will be enhanced once we integrate with the translation system
   // For now, return the frequency as-is with basic formatting
-  return frequency.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return frequency.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
 };
 
-export const formatRoute = (route: string | undefined) => {
+export const formatRoute = (route: OngoingPrescription['route']) => {
   if (!route) return '--';
   // Basic route formatting - capitalize first letter
   return route.charAt(0).toUpperCase() + route.slice(1);
 };
 
-export const formatPrescriber = (prescriber?: { displayName?: string | null } | null) => {
+export const formatPrescriber = (prescriber: OngoingPrescription['prescriber']) => {
   return prescriber?.displayName || '--';
 };
 
 // Vaccination-specific formatting functions
-export const formatVaccineGivenBy = (vaccine: {
-  status: string;
-  givenElsewhere?: boolean | null;
-  givenBy?: string | null;
-  recorder?: { displayName?: string | null } | null;
-}) => {
+export const formatVaccineGivenBy = (vaccine: AdministeredVaccine) => {
   if (vaccine.status === 'NOT_GIVEN') {
     return 'Not given';
   }
@@ -67,31 +71,18 @@ export const formatVaccineGivenBy = (vaccine: {
   return vaccine.givenBy || vaccine.recorder?.displayName || '--';
 };
 
-export const formatVaccineFacilityOrCountry = (vaccine: {
-  givenElsewhere?: boolean | null;
-  givenBy?: string | null;
-  location?: { name?: string } | null;
-}) => {
+export const formatVaccineFacilityOrCountry = (vaccine: AdministeredVaccine) => {
   if (vaccine.givenElsewhere) {
     return vaccine.givenBy || '--';
   }
   return vaccine.location?.name || '--';
 };
 
-export const formatVaccineStatus = (status: string) => {
-  const statusMap: Record<string, string> = {
-    SCHEDULED: 'Scheduled',
-    UPCOMING: 'Upcoming',
-    DUE: 'Due',
-    OVERDUE: 'Overdue',
-    MISSED: 'Missed',
-    GIVEN: 'Given',
-    NOT_GIVEN: 'Not Given',
-  };
-  return statusMap[status] || status;
+export const formatVaccineStatus = (status: AdministeredVaccine['status']) => {
+  return VACCINE_STATUS_LABELS[status] || status;
 };
 
-export const getVaccineStatusColor = (status: string) => {
+export const getVaccineStatusColor = (status: AdministeredVaccine['status']) => {
   switch (status) {
     case 'SCHEDULED':
       return 'primary';
@@ -119,7 +110,9 @@ export const formatWeekOf = (dateString: string | null | undefined) => {
 };
 
 // Appointment-specific formatting functions
-export const formatAppointmentDateTime = (startTime: string | null | undefined) => {
+export const formatAppointmentDateTime = (
+  startTime: Appointment['startTime'] | null | undefined,
+) => {
   if (!startTime) return '--';
   try {
     const date = parseISO(startTime);
@@ -129,36 +122,21 @@ export const formatAppointmentDateTime = (startTime: string | null | undefined) 
   }
 };
 
-export const formatAppointmentClinician = (
-  clinician: { displayName?: string | null } | null | undefined,
-) => {
+export const formatAppointmentClinician = (clinician: Appointment['clinician']) => {
   return clinician?.displayName || '--';
 };
 
-export const formatAppointmentFacility = (
-  location:
-    | {
-        name?: string;
-        locationGroup?: { name?: string; facility?: { name?: string } | null } | null;
-      }
-    | null
-    | undefined,
-  locationGroup: { name?: string; facility?: { name?: string } | null } | null | undefined,
-) => {
-  // Priority: location.locationGroup.facility.name > locationGroup.facility.name > location.name > locationGroup.name
-  const facilityName = location?.locationGroup?.facility?.name || locationGroup?.facility?.name;
-  if (facilityName) return facilityName;
-
-  return location?.name || locationGroup?.name || '--';
+export const formatAppointmentFacility = (locationGroup: Appointment['locationGroup']) => {
+  return locationGroup?.facility?.name || '--';
 };
 
 export const formatAppointmentArea = (
-  location: { name?: string; locationGroup?: { name?: string } | null } | null | undefined,
-  locationGroup: { name?: string } | null | undefined,
+  location: Location | null | undefined,
+  locationGroup: Appointment['locationGroup'],
 ) => {
-  return location?.locationGroup?.name || locationGroup?.name || '--';
+  return locationGroup?.name || '--';
 };
 
-export const formatAppointmentType = (appointmentType: { name?: string } | null | undefined) => {
+export const formatAppointmentType = (appointmentType: Appointment['appointmentType']) => {
   return appointmentType?.name || '--';
 };

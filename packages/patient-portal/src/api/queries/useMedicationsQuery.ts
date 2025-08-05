@@ -5,7 +5,7 @@ import {
   type OngoingPrescription,
 } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
 import { useApi } from '../useApi';
-import { useAuth } from '../../auth/useAuth';
+import { useAuth } from '@auth/useAuth';
 import { transformArray } from '@utils/transformData';
 
 export const useMedicationsQuery = () => {

@@ -1,3 +1,5 @@
+import { VACCINE_STATUS } from '@tamanu/constants';
+
 import React from 'react';
 import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
 import type { UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
@@ -24,7 +26,7 @@ export const UpcomingVaccineCard: React.FC<UpcomingVaccineCardProps> = ({ vaccin
           </Typography>
           <Chip
             label={vaccine.status}
-            color={getVaccineStatusColor(vaccine.status)}
+            color={getVaccineStatusColor(vaccine.status as keyof typeof VACCINE_STATUS)}
             size="small"
             sx={{ width: 'fit-content' }}
           />
