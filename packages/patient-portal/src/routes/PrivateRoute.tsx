@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router';
 
 import { useAuth } from '@auth/useAuth';
 import { CircularProgress } from '@mui/material';
+import { PrivatePageLayout } from '../components/layouts/PrivatePageLayout';
 
 export const PrivateRoute = () => {
   const { user, loading } = useAuth();
@@ -15,5 +16,9 @@ export const PrivateRoute = () => {
     return <Navigate to="/login" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <PrivatePageLayout>
+      <Outlet />
+    </PrivatePageLayout>
+  );
 };

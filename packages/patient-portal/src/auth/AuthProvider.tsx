@@ -7,12 +7,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any | null>(null); // Using any for now
   const [loading, setLoading] = useState(false);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string) => {
     if (!api) throw new Error('API not available');
     setLoading(true);
     try {
-      // @ts-ignore - JS API method
-      const response = await api.login(email, password);
+      // empty password for now, update when we have full registration flow
+      const response = await api.login(email);
       setUser(response.user);
     } finally {
       setLoading(false);
