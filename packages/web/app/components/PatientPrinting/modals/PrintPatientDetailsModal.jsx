@@ -1,13 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { BookUser } from 'lucide-react';
 
 import { Modal } from '../../Modal';
 import { Button, OutlinedButton } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-
+import { BookUserIcon } from '../../Icons/BookUserIcon';
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
@@ -460,7 +459,12 @@ export const PrintPatientDetailsModal = ({ patient }) => {
   return (
     <>
       <OutlinedButton onClick={openModal} data-testid="button-kdtv">
-        <BookUser size={20} style={{ marginRight: 8 }} />
+        <BookUserIcon
+          htmlColor={Colors.primary}
+          width={20}
+          height={20}
+          style={{ marginRight: 8 }}
+        />
         <TranslatedText
           stringId="patient.detailsSidebar.action.patientResources"
           fallback="Patient resources"

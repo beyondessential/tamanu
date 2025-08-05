@@ -93,7 +93,6 @@
     "concurrently": "^8.2.2",
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
-    "lucide-react": "^0.525.0",
     "patch-package": "^8.0.0",
     "pm2": "^4.5.0",
     "re-resizable": "^6.11.2"
