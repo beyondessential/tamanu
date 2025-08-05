@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
 
 import { useSendPatientPortalRegistrationEmail } from '../../../api/mutations/useSendPatientPortalRegistrationEmailMutation';
@@ -21,12 +21,9 @@ export const SendToPatientModal = React.memo(({ open, onClose, patient }) => {
     },
   });
 
-  const handleSubmit = useCallback(
-    async ({ email }) => {
-      sendPatientPortalRegistrationEmail({ patientId: patient.id, email });
-    },
-    [patient.id, sendPatientPortalRegistrationEmail],
-  );
+  const handleSubmit = async ({ email }) => {
+    sendPatientPortalRegistrationEmail({ patientId: patient.id, email });
+  };
 
   return (
     <FormModal

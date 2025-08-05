@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { styled } from '@mui/material/styles';
+import { Box, Link } from '@mui/material';
 import QRCode from 'qrcode';
 import { useSelector } from 'react-redux';
 
@@ -11,9 +12,8 @@ import { Colors } from '../../../constants';
 import { SendIcon } from '../../Icons/SendIcon';
 import { useRegisterPatientPortal } from '../../../api/mutations/useRegisterPatientPortalMutation';
 import { SendToPatientModal } from './SendToPatientModal';
-import { Box, Link } from '@mui/material';
 
-const StyledButtonRow = styled('div')`
+const StyledButtonRow = styled(`div`)`
   display: flex;
   align-items: center;
   padding-inline: 1.75rem;
@@ -31,8 +31,14 @@ const StyledQrCodeContainer = styled(Box)`
   gap: 1.25rem;
 `;
 
-const generateQrCode = async registrationLink => {
-  return await QRCode.toDataURL(registrationLink);
+const StyledWarningContainer = styled(`div`)`
+  font-weight: bold;
+  margin-top: 1.25rem;
+  display: block;
+`;
+
+const generateQrCode = registrationLink => {
+  return QRCode.toDataURL(registrationLink);
 };
 
 const BottomRow = ({ onPrint, onSendToPatient, onClose }) => (
@@ -139,15 +145,13 @@ export const PatientPortalRegistrationModal = React.memo(() => {
           fallback="Please ask the patient to scan the QR code using their camera app and follow the prompts to create a Tamanu patient portal account. "
           data-testid="translatedtext-patient-portal-instructions-message"
         />
-        <br />
-        <br />
-        <span style={{ fontWeight: 'bold' }}>
+        <StyledWarningContainer>
           <TranslatedText
             stringId="patientDetails.resources.patientPortalRegistration.modal.whatsAppMessage"
             fallback="The Patient Portal uses WhatsApp for multi-factor authentication. Please ensure the patient has an active WhatsApp account in order to access the portal."
             data-testid="translatedtext-patient-portal-whatsapp-message"
           />
-        </span>
+        </StyledWarningContainer>
       </BodyText>
       <QrCodeDisplay qrCode={qrCode} registrationLink={registrationLink} />
     </Modal>
