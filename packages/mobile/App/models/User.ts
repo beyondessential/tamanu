@@ -8,7 +8,6 @@ import { LabRequest } from './LabRequest';
 import { VitalLog } from './VitalLog';
 import { SYNC_DIRECTIONS } from './types';
 import { VisibilityStatus } from '../visibilityStatuses';
-import { UserFacility } from './UserFacility';
 import { CAN_ACCESS_ALL_FACILITIES, SYSTEM_USER_UUID } from '~/constants';
 import { type PureAbility } from '@casl/ability';
 import { union } from 'lodash';
@@ -67,7 +66,7 @@ export class User extends BaseModel implements IUser {
   }
 
   async allowedFacilityIds(ability: PureAbility, models: typeof MODELS_MAP) {
-    const { Facility, Setting } = models;
+    const { Facility, Setting, UserFacility } = models;
     if (this.isSuperUser()) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
@@ -83,12 +82,12 @@ export class User extends BaseModel implements IUser {
       return CAN_ACCESS_ALL_FACILITIES;
 
     // Get user's linked facilities (including sensitive ones)
-    const userFacilities = await UserFacility.getRepository().find({
+    const explicitlyAllowedFacilities = await UserFacility.getRepository().find({
       where: {
         user: { id: this.id },
       },
     });
-    const userLinkedFacilityIds = userFacilities.map(f => f.facilityId);
+    const explicitlyAllowedFacilityIds = explicitlyAllowedFacilities.map(f => f.facilityId);
 
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
@@ -98,12 +97,12 @@ export class User extends BaseModel implements IUser {
       });
       const allNonSensitiveFacilityIds = allNonSensitiveFacilities.map(f => f.id);
 
-      const combinedFacilityIds = union(userLinkedFacilityIds, allNonSensitiveFacilityIds);
+      const combinedFacilityIds = union(explicitlyAllowedFacilityIds, allNonSensitiveFacilityIds);
       return combinedFacilityIds;
     }
 
     // Otherwise return only the facilities the user is linked to (including sensitive ones)
-    return userLinkedFacilityIds;
+    return explicitlyAllowedFacilityIds;
   }
 
   async canAccessFacility(id: string, ability: PureAbility, models: typeof MODELS_MAP) {

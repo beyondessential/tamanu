@@ -283,7 +283,8 @@ export class User extends Model {
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
-    const userFacilities = this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+    const explicitlyAllowedFacilities =
+      this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
 
     if (hasAllNonSensitiveFacilityAccess) {
       // Combine any explicitly linked facilities with all non-sensitive facilities
@@ -293,12 +294,12 @@ export class User extends Model {
         raw: true,
       });
 
-      const combinedFacilities = unionBy(userFacilities, nonSensitiveFacilities, 'id');
+      const combinedFacilities = unionBy(explicitlyAllowedFacilities, nonSensitiveFacilities, 'id');
       return combinedFacilities;
     }
 
     // Otherwise return only the facilities the user is linked to (including sensitive ones)
-    return userFacilities;
+    return explicitlyAllowedFacilities;
   }
 
   async allowedFacilityIds() {

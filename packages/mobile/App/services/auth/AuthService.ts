@@ -66,8 +66,8 @@ export class AuthService {
     { email, password }: SyncConnectionParameters,
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
-    const configFacilityId = await readConfig('facilityId', null);
-    if (!configFacilityId) {
+    const deviceFacilityId = await readConfig('facilityId', null);
+    if (!deviceFacilityId) {
       throw new Error(
         'You need to first link this device to a facility before you can login offline.',
       );
@@ -93,7 +93,7 @@ export class AuthService {
     }
 
     const ability = generateAbilityForUser(user);
-    const canAccessFacility = await user.canAccessFacility(configFacilityId, ability, this.models);
+    const canAccessFacility = await user.canAccessFacility(deviceFacilityId, ability, this.models);
     if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
