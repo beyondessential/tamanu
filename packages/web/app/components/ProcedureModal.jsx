@@ -110,8 +110,10 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
       render={({ submitForm, values, dirty }) => {
         const handleCancel = () => {
           if (selectedSurveyId) {
+            // selectedSurveyId is defined when a program form is in progress
             setUnSavedProgramFormOpen(true);
           } else if (dirty) {
+            // user has made other changes to procedure details
             setUnSavedChangesModalOpen(true);
           } else {
             onClose();
