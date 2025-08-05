@@ -555,6 +555,19 @@ export async function medicationSetLoader(item, { models, pushError }) {
     .map((id) => id.trim())
     .filter(Boolean);
 
+  const duplicateIds = medicationTemplateIds.filter(
+    (templateId, index) => medicationTemplateIds.indexOf(templateId) !== index
+  );
+  
+  if (duplicateIds.length > 0) {
+    const uniqueDuplicates = [...new Set(duplicateIds)];
+    pushError(
+      `Duplicate medication template IDs found in medication set "${id}": ${uniqueDuplicates.join(', ')}.`
+    );
+
+    return rows;
+  }
+
   let existingTemplateIds = [];
   if (medicationTemplateIds.length > 0) {
     const existingTemplates = await models.ReferenceData.findAll({
