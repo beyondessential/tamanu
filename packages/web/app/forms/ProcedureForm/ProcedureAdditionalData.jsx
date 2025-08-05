@@ -67,7 +67,7 @@ export const ProcedureAdditionalData = ({
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
-  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
+  const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
@@ -97,7 +97,7 @@ export const ProcedureAdditionalData = ({
   };
 
   const onCancel = () => {
-    setUnSavedChangesModalOpen(true);
+    setCancelFormModalOpen(true);
   };
 
   return (
@@ -145,12 +145,12 @@ export const ProcedureAdditionalData = ({
         )}
       </Container>
       <CancelAdditionalDataModal
-        open={unSavedChangesModalOpen}
+        open={cancelFormModalOpen}
         onCancel={() => {
-          setUnSavedChangesModalOpen(false);
+          setCancelFormModalOpen(false);
         }}
         onConfirm={() => {
-          setUnSavedChangesModalOpen(false);
+          setCancelFormModalOpen(false);
           setSelectedSurveyId(null);
         }}
       />

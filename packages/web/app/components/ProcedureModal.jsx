@@ -87,8 +87,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
-  const [unSavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
-  const [unSavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
+  const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
+  const [unsavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProgramResponsesQuery(patientId, procedureId);
 
@@ -198,7 +198,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
               />
             </FormModal>
             <UnSavedProcedureProgramModal
-              open={unSavedProgramFormOpen}
+              open={unsavedProgramFormOpen}
               onCancel={() => {
                 setUnSavedProgramFormOpen(false);
               }}
@@ -208,7 +208,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
               }}
             />
             <UnSavedChangesModal
-              open={unSavedChangesModalOpen}
+              open={unsavedChangesModalOpen}
               onCancel={() => {
                 setUnSavedChangesModalOpen(false);
               }}
