@@ -3841,12 +3841,12 @@ describe('CentralSyncManager', () => {
         await centralSyncManager.updateLookupTable();
 
         // Check that the historical sensitive data is still unsynced to the non-sensitive facility
-        const encounterIds = await getOutgoingIdsForRecordType(
+        const beforeEditEncounterIds = await getOutgoingIdsForRecordType(
           centralSyncManager,
           nonSensitiveFacility.id,
           'encounters',
         );
-        expect(encounterIds).not.toContain(encounter.id);
+        expect(beforeEditEncounterIds).not.toContain(encounter.id);
 
         // Edit the encounter to trigger a new sync
         await encounter.update({ reasonForEncounter: 'Updated reason for encounter' });
