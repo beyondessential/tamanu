@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import { Op } from 'sequelize';
 
@@ -30,7 +30,11 @@ location.get(
           as: 'locationGroup',
           where: {
             visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-            ...(bookableOnly ? { isBookable: true } : null),
+            ...(bookableOnly ? { 
+              isBookable: {
+                [Op.ne]: LOCATION_BOOKABLE_VIEW.NO
+              } 
+            } : null),
             ...(locationGroupIds ? { id: { [Op.in]: locationGroupIds } } : null),
           },
         },
