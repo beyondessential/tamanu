@@ -33,6 +33,13 @@ const TableContainer = styled.div`
   border-top: 1px solid ${Colors.outline};
 `;
 
+const UserSearchTitle = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 7px;
+  color: ${Colors.darkestText};
+`;
+
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   box-shadow: none;
   .MuiTableBody-root .MuiTableRow-root {
@@ -137,6 +144,9 @@ export const UserAdminView = React.memo(() => {
   return (
     <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
       <TableContainer>
+        <UserSearchTitle>
+          <TranslatedText stringId="admin.users.search.title" fallback="User search" />
+        </UserSearchTitle>
         <UserSearchBar
           onSearch={setSearchParameters}
           searchParameters={searchParameters}
@@ -154,6 +164,7 @@ export const UserAdminView = React.memo(() => {
           onRowClick={handleRowClick}
           data-testid="usertable-mpss"
           refreshCount={refreshCount}
+          allowExport={false}
         />
       </TableContainer>
 

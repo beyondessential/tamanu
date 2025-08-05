@@ -78,12 +78,30 @@ usersRouter.get(
       distinct: true,
     });
 
+    let orderClause;
+    
+    if (orderBy === 'roleName') {
+      orderClause = [
+        [
+          User.sequelize.literal(
+            `(SELECT "name" FROM "roles" WHERE "roles"."id" = "User"."role")`
+          ),
+          order.toUpperCase()
+        ]
+      ];
+    } else if (orderBy === 'designations') {
+      orderClause = [[{ model: UserDesignation, as: 'designations' }, { model: ReferenceData, as: 'referenceData' }, 'name', order.toUpperCase()]];
+    } else {
+      orderClause = [[orderBy, order.toUpperCase()]];
+    }
+
     const users = await User.findAll({
       where: whereClause,
       include: userInclude,
-      order: [[orderBy, order.toUpperCase()]],
+      order: orderClause,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      subQuery: false,
     });
 
     // Get role names for each user
