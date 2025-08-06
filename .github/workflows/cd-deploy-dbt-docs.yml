@@ -106,3 +106,14 @@ jobs:
             ## DBT Documentation
             The DBT documentation for this release is available at:
             - [DBT Docs](https://docs.data.bes.au/tamanu/${{ github.ref_name }})
+
+      - name: Post to meta
+        if: startsWith(github.ref, 'refs/tags/v')
+        continue-on-error: true
+        uses: ./.github/actions/meta-api
+        with:
+          url: ${{ vars.META_URL }}
+          crt: ${{ secrets.META_CERT }}
+          key: ${{ secrets.META_KEY }}
+          api: /artifacts/${{ github.ref_name }}/dbt-manifest/any
+          arg: --data-binary 'https://docs.data.bes.au/tamanu/${{ github.ref_name }}/manifest.json'
