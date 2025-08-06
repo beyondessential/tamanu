@@ -9,9 +9,5 @@ export const typeORMDriver = {
 
 export default {
   typeORMDriver,
-  openDatabase: jest.fn(),
-  deleteDatabase: jest.fn(),
-  DEBUG: jest.fn(),
-  enablePromise: jest.fn(),
-  disablePromise: jest.fn(),
+  ...typeORMDriver,
 }; 

@@ -30,11 +30,10 @@ const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown })
 };
 
 export const pickBySelectedColumns = (
-  { data, isDeleted }: SyncRecord,
+  { data }: SyncRecord,
   includedColumns: string[],
 ): DataToPersist => {
   const record = pick(data, includedColumns);
-  record.isDeleted = isDeleted;
   return record;
 };
 
@@ -57,5 +56,9 @@ export const buildForRawInsertFromSyncRecords = (
 ): DataToPersist[] => {
   const includedColumns = extractIncludedColumns(model);
   // Skip field mapping for raw insert - keep original field names
-  return records.map(record => pickBySelectedColumns(record, includedColumns));
+  return records.map(record => {
+    const data = pickBySelectedColumns(record, includedColumns);
+    data.isDeleted = record.isDeleted;
+    return data;
+  });
 };

@@ -146,7 +146,7 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [{ ...newRecord, isDeleted }], progressCallback);
+      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [newRecord], progressCallback);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
@@ -210,7 +210,7 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledWith(
         repository,
-        [{ ...newRecord, isDeleted }],
+        [newRecord],
         progressCallback,
       );
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
@@ -246,7 +246,7 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeRestores).toBeCalledTimes(1);
       expect(saveChangeModules.executeRestores).toBeCalledWith(
         repository,
-        [{ ...newRecord, isDeleted }],
+        [newRecord],
         progressCallback,
       );
     });
