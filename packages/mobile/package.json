@@ -19,10 +19,8 @@
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "patch-package": "patch-package",
-    "postinstall": "npm run patch-package",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
-  "postinstall": "cd ../.. && npm run prepare",
   "dependencies": {
     "@casl/ability": "^4.1.0",
     "@react-native-anywhere/polyfill-base64": "^0.0.1-alpha.0",
