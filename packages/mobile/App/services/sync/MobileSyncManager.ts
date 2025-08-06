@@ -89,12 +89,16 @@ export class MobileSyncManager {
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
-  syncSettings: MobileSyncSettings;
+  settings: SettingsService;
 
   constructor(centralServer: CentralServerConnection, settings: SettingsService) {
     this.centralServer = centralServer;
-    this.syncSettings = settings.getSetting<MobileSyncSettings>('mobileSync');
+    this.settings = settings;
     this.models = Database.models;
+  }
+
+  get syncSettings(): MobileSyncSettings {
+    return this.settings.getSetting<MobileSyncSettings>('mobileSync');
   }
 
   setSyncStage(syncStage: number): void {
