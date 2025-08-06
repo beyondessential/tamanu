@@ -24,7 +24,7 @@ import { EncounterPrescription } from './EncounterPrescription';
 import { EncounterType } from '~/types/IEncounter';
 import { Task } from './Task';
 import { TASK_STATUSES, TASK_TYPES } from '~/constants/tasks';
-import { getCurrentDateTimeString, toDateTimeString } from '~/ui/helpers/date';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { SYSTEM_USER_UUID } from '~/constants';
 
 @Entity('medication_administration_records')
@@ -211,7 +211,7 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     const existingTask = await Task.createQueryBuilder('task')
       .where('task.encounterId = :encounterId', { encounterId: encounter.id })
-      .andWhere('task.dueTime = :dueTime', { dueTime: mar.dueAt })  
+      .andWhere('task.dueTime = :dueTime', { dueTime: mar.dueAt })
       .andWhere('task.status = :status', { status: TASK_STATUSES.TODO })
       .andWhere('task.taskType = :taskType', { taskType: TASK_TYPES.MEDICATION_DUE_TASK })
       .andWhere('task.deletedAt IS NULL')
