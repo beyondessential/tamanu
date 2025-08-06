@@ -22,8 +22,9 @@ const EXCLUDED = [
   'vital_logs',
 ];
 
-const START = 'select now() as started;\n\n';
-const END = '\n\nselect now() as ended; select count(*) from logs.changes;';
+const START = 'begin;\nselect now() as started;\n\n';
+const END =
+  '\n\nselect now() as started;\ncommit;\nselect now() as ended;\nselect count(*) from logs.changes;';
 
 function generate(tables) {
   return (
