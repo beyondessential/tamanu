@@ -359,18 +359,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     />
                   </NestedFormGrid>
                 </ConditionalTooltip>
-                <Field
-                  name="designationIds"
-                  label={
-                    <TranslatedText
-                      stringId="general.localisedField.assignedTo.label"
-                      fallback="Assigned to"
-                    />
-                  }
-                  component={SuggesterSelectField}
-                  endpoint="designation"
-                  isMulti
-                />
                 <StyledCheckField
                   name="highPriority"
                   label={
