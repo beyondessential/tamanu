@@ -13,7 +13,6 @@ env:
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
-    !packages/mobile/node_modules
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
@@ -52,11 +51,11 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 17
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
@@ -73,7 +72,7 @@ jobs:
 
       - name: Run Migrations
         run: |
-          npm run --workspace @tamanu/central-server start migrate up
+          npm run --workspace @tamanu/central-server start upgrade
 
       - name: Generate DBT docs
         run: |
