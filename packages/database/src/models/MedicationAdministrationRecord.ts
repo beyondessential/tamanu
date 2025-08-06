@@ -21,13 +21,11 @@ import config from 'config';
 import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
-  findAdministrationTimeSlotFromIdealTime,
-  getDateFromTimeString,
 } from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
-import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Task } from './Task';
 
 export class MedicationAdministrationRecord extends Model {
@@ -289,17 +287,11 @@ export class MedicationAdministrationRecord extends Model {
     if (!encounter || encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate)
       return;
 
-    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
-    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
-    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
 
     const existingTask = await Task.findOne({
       where: {
         encounterId: encounter.id,
-        dueTime: {
-          [Op.gte]: toDateTimeString(startTime),
-          [Op.lt]: toDateTimeString(endTime),
-        },
+        dueTime: mar.dueAt,
         status: TASK_STATUSES.TODO,
         taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       },
@@ -313,7 +305,7 @@ export class MedicationAdministrationRecord extends Model {
       taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       encounterId: encounter.id,
       name: 'Medication Due',
-      dueTime: new Date(mar.dueAt),
+      dueTime: mar.dueAt,
       status: TASK_STATUSES.TODO,
       requestTime: getCurrentDateTimeString(),
       requestedByUserId: SYSTEM_USER_UUID,
@@ -335,17 +327,10 @@ export class MedicationAdministrationRecord extends Model {
 
     const encounterId = encounterPrescription.encounterId;
 
-    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
-    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
-    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
-
     const task = await Task.findOne({
       where: {
         encounterId,
-        dueTime: {
-          [Op.gte]: toDateTimeString(startTime),
-          [Op.lt]: toDateTimeString(endTime),
-        },
+        dueTime: mar.dueAt,
         status: TASK_STATUSES.TODO,
         taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       },
@@ -360,10 +345,7 @@ export class MedicationAdministrationRecord extends Model {
         id: {
           [Op.ne]: mar.id,
         },
-        dueAt: {
-          [Op.gte]: toDateTimeString(startTime),
-          [Op.lt]: toDateTimeString(endTime),
-        },
+        dueAt: mar.dueAt,
         status: null,
       },
       include: [
@@ -465,20 +447,13 @@ export class MedicationAdministrationRecord extends Model {
 
     // Remove tasks that are no longer valid
     for (const mar of marsToRemove) {
-      const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
-      const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
-      const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
-
       const encounter = mar?.prescription?.encounterPrescription?.encounter;
       if (!encounter) continue;
 
       const existingTask = await Task.findOne({
         where: {
           encounterId: encounter.id,
-          dueTime: {
-            [Op.gte]: toDateTimeString(startTime),
-            [Op.lt]: toDateTimeString(endTime),
-          },
+          dueTime: mar.dueAt,
           status: TASK_STATUSES.TODO,
           taskType: TASK_TYPES.MEDICATION_DUE_TASK,
         },
@@ -492,10 +467,7 @@ export class MedicationAdministrationRecord extends Model {
           id: {
             [Op.notIn]: marIdsToRemove,
           },
-          dueAt: {
-            [Op.gte]: toDateTimeString(startTime),
-            [Op.lt]: toDateTimeString(endTime),
-          },
+          dueAt: mar.dueAt,
           status: null,
         },
         include: [
