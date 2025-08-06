@@ -8,7 +8,7 @@ const { availableParallelism } = require('node:os');
 const { rimraf } = require('rimraf');
 const YAML = require('yaml');
 
-const { dbConfig } = require('../dbConfig.js');
+const { dbConfig } = require('./dbConfig.js');
 const { version } = require('../../../../package.json');
 
 async function run() {

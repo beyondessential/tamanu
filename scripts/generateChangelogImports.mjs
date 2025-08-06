@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { dbConfig } from './dbConfig.js';
+import { readFile } from 'fs/promises';
 
 const EXCLUDED = [
   // not useful to log
@@ -22,36 +22,16 @@ const EXCLUDED = [
   'vital_logs',
 ];
 
-async function getTables() {
-  const { client } = await dbConfig('central-server');
-  try {
-    const { rows } = await client.query(`
-  SELECT
-    t.table_name as table
-  FROM information_schema.tables t
-  LEFT JOIN information_schema.triggers triggers
-    ON t.table_name = triggers.event_object_table
-    AND t.table_schema = triggers.event_object_schema
-  WHERE
-    t.table_schema = 'public'
-    AND t.table_type != 'VIEW'
-    AND triggers.trigger_name = substring(concat('record_', lower(t.table_name), '_changelog'), 0, 64) -- Has changelog trigger
-    GROUP BY t.table_name -- Group to ensure unique results
-  `);
-    return rows.map(row => row.table).filter(table => !EXCLUDED.includes(table));
-  } finally {
-    await client.end();
-  }
-}
-
 const START = 'select now() as started;\n\n';
 const END = '\n\nselect now() as ended; select count(*) from logs.changes;';
 
-async function generate() {
-  return START + (await getTables())
-    .map(table =>
-      `
-      \echo ${table}
+function generate(tables) {
+  return (
+    START +
+    tables
+      .map(table =>
+        `
+      \\echo ${table}
       insert into logs.changes (
         table_oid, table_schema, table_name,
         logged_at, record_created_at, record_updated_at, record_deleted_at,
@@ -75,11 +55,24 @@ async function generate() {
         to_jsonb(t) as record_data
       from public.${table} t;
       `
-        .trim()
-        .replaceAll(/^ {4}/gm, ''),
-    )
-    .join('\n\n') + END;
+          .trim()
+          .replaceAll(/^ {4}/gm, ''),
+      )
+      .join('\n\n') +
+    END
+  );
 }
 
-const sql = await generate();
+const manifest = JSON.parse(await readFile('manifest.json', 'utf-8'));
+const tables = Object.values(manifest.sources)
+  .filter(
+    ({ schema, name, config: { meta } }) =>
+      schema === 'public' &&
+      !EXCLUDED.includes(name) &&
+      meta.triggers?.some(
+        trigger => trigger.startsWith('record_') && trigger.endsWith('_changelog'),
+      ),
+  )
+  .map(({ name }) => name);
+const sql = generate(tables);
 console.log(sql);
