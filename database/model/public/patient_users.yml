@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_users
-        description: '{{ doc("table__patient_users") }}'
+        description: "{{ doc('table__patient_users') }}"
         config:
           tags: []
         columns:
