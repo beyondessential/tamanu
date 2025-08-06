@@ -29,28 +29,26 @@ const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown })
   return newObj;
 };
 
-export const buildFromSyncRecord = (
-  model: typeof BaseModel,
-  { data }: SyncRecord,
+export const pickBySelectedColumns = (
+  { data, isDeleted }: SyncRecord,
+  includedColumns: string[],
 ): DataToPersist => {
-  // find columns to include
+  const record = pick(data, includedColumns);
+  record.isDeleted = isDeleted;
+  return record;
+};
+
+export const buildFromSyncRecords = (
+  model: typeof BaseModel,
+  records: SyncRecord[],
+): DataToPersist[] => {
   const includedColumns = extractIncludedColumns(model);
   // populate `fieldMapping` with `RelationId` to `Relation` mappings
   // (not necessary for `IdRelation`)
   const fieldMapping = getRelationIdsFieldMapping(model);
-
-  const dbRecord = mapFields(fieldMapping, pick(data, includedColumns));
-  return dbRecord;
-};
-
-export const buildForRawInsertFromSyncRecord = (
-  model: typeof BaseModel,
-  { data, isDeleted }: SyncRecord,
-): DataToPersist => {
-  const includedColumns = extractIncludedColumns(model);
-  const record = pick(data, includedColumns);
-  record.isDeleted = isDeleted;
-  return record;
+  return records.map(record =>
+    mapFields(fieldMapping, pickBySelectedColumns(record, includedColumns)),
+  );
 };
 
 export const buildForRawInsertFromSyncRecords = (
@@ -59,5 +57,5 @@ export const buildForRawInsertFromSyncRecords = (
 ): DataToPersist[] => {
   const includedColumns = extractIncludedColumns(model);
   // Skip field mapping for raw insert - keep original field names
-  return records.map(({ data }) => pick(data, includedColumns));
+  return records.map(record => pickBySelectedColumns(record, includedColumns));
 };

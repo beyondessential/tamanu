@@ -1,16 +1,12 @@
 import { In } from 'typeorm';
-import { chunk, groupBy } from 'lodash';
+import { chunk, groupBy, keyBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
-import {
-  buildForRawInsertFromSyncRecord,
-  buildForRawInsertFromSyncRecords,
-  buildFromSyncRecord,
-} from './buildFromSyncRecord';
+import { buildForRawInsertFromSyncRecords, buildFromSyncRecords } from './buildFromSyncRecord';
 import { type TransactingModel } from './getModelsForDirection';
 
 type ModelRecords = {
@@ -39,21 +35,20 @@ export const saveChangesForModel = async (
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const repository = model.getTransactionalRepository();
-  const idToIncomingRecord = Object.fromEntries(
-    changes.filter(c => c.data).map(e => [e.data.id, e]),
-  );
+  const allChanges = changes.filter(c => c.data);
+  const recordIds = allChanges.map(c => c.recordId);
+  const idToIncomingRecord = keyBy(allChanges, 'recordId');
+
   // split changes into create, update, delete
-  const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
-    const batchOfIds = incomingRecords.map(r => r.id);
+  for (const recordIdChunk of chunk(recordIds, SQLITE_MAX_PARAMETERS)) {
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
     const batchOfExisting = await repository.find({
-      where: { id: In(batchOfIds) },
+      where: { id: In(recordIdChunk) },
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
@@ -70,21 +65,25 @@ export const saveChangesForModel = async (
     });
   }
 
-  const recordsForCreate = changes
-    .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
-    .map(change => buildForRawInsertFromSyncRecord(model, change));
+  const recordsForCreate = buildForRawInsertFromSyncRecords(
+    model,
+    allChanges.filter(c => !idsForUpdate.has(c.recordId)),
+  ); // not existing in db
 
-  const recordsForUpdate = changes
-    .filter(c => idsForUpdate.has(c.recordId))
-    .map((record) => buildFromSyncRecord(model, record));
+  const recordsForUpdate = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForUpdate.has(c.recordId)),
+  );
 
-  const recordsForRestore = changes
-    .filter(c => idsForRestore.has(c.recordId))
-    .map((record) => buildFromSyncRecord(model, record));
+  const recordsForRestore = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForRestore.has(c.recordId)),
+  );
 
-  const recordsForDelete = changes
-    .filter(c => idsForDelete.has(c.recordId))
-    .map((record) => buildFromSyncRecord(model, record));
+  const recordsForDelete = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForDelete.has(c.recordId)),
+  );
 
   // run each import process
   if (recordsForCreate.length > 0) {
@@ -112,9 +111,10 @@ const prepareChangesForModels = (
     if (!recordsForModel.length) {
       continue;
     }
-    const sanitizedData = 'sanitizePulledRecordData' in model
-          ? (model as any).sanitizePulledRecordData(recordsForModel)
-          : recordsForModel;
+    const sanitizedData =
+      'sanitizePulledRecordData' in model
+        ? (model as any).sanitizePulledRecordData(recordsForModel)
+        : recordsForModel;
     modelChanges.push({
       model,
       records: sanitizedData,

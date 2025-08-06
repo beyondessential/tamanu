@@ -5,14 +5,11 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {
   return {
-    buildFromSyncRecord: jest.fn().mockImplementation((_model, {data}) => {
-      return data;
-    }),
-    buildForRawInsertFromSyncRecord: jest.fn().mockImplementation((_model, change) => {
-      return { ...change.data, isDeleted: change.isDeleted };
+    buildFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
+      return records.map(record => ({ ...record.data, isDeleted: record.isDeleted }));
     }),
     buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
-      return records.map(record => record.data);
+      return records.map(record => ({ ...record.data, isDeleted: record.isDeleted }));
     }),
   };
 });
@@ -149,7 +146,7 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [newRecord], progressCallback);
+      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [{ ...newRecord, isDeleted }], progressCallback);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
@@ -211,7 +208,11 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledWith(repository, [newRecord], progressCallback);
+      expect(saveChangeModules.executeDeletes).toBeCalledWith(
+        repository,
+        [{ ...newRecord, isDeleted }],
+        progressCallback,
+      );
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
   });
@@ -245,7 +246,7 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeRestores).toBeCalledTimes(1);
       expect(saveChangeModules.executeRestores).toBeCalledWith(
         repository,
-        [newRecord],
+        [{ ...newRecord, isDeleted }],
         progressCallback,
       );
     });
