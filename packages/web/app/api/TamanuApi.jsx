@@ -49,6 +49,7 @@ function restoreFromLocalStorage() {
 }
 
 function saveToLocalStorage({
+  token,
   localisation,
   server,
   availableFacilities,
@@ -57,6 +58,9 @@ function saveToLocalStorage({
   role,
   settings,
 }) {
+  if (token) {
+    localStorage.setItem(TOKEN, token);
+  }
   if (facilityId) {
     localStorage.setItem(FACILITY_ID, facilityId);
   }
@@ -131,12 +135,24 @@ export class TamanuApi extends ApiClient {
   }
 
   setToken(token, refreshToken) {
-    if (refreshToken) {
-      localStorage.setItem(TOKEN, refreshToken);
+    if (token) {
+      localStorage.setItem(TOKEN, token);
     } else {
       localStorage.removeItem(TOKEN);
     }
     return super.setToken(token, refreshToken);
+  }
+
+  async refreshToken(config = {}) {
+    const response = await this.post(
+      'refresh',
+      {
+        deviceId: this.deviceId,
+      },
+      config,
+    );
+    const { token, refreshToken: newRefreshToken } = response;
+    this.setToken(token, newRefreshToken);
   }
 
   async restoreSession() {
@@ -154,9 +170,8 @@ export class TamanuApi extends ApiClient {
       throw new Error('No stored session found.');
     }
 
-    this.setToken(null, token);
+    this.setToken(token);
     const config = { showUnknownErrorToast: false };
-    await this.refreshToken(config);
     const { user, ability } = await this.fetchUserData(permissions, config);
 
     return {
@@ -174,8 +189,9 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role } = output;
+    const { localisation, server, availableFacilities, permissions, role, token } = output;
     saveToLocalStorage({
+      token,
       localisation,
       server,
       availableFacilities,
