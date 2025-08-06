@@ -64,12 +64,9 @@ function checkForChanges(existing, normalizedValues, model) {
       const existingValue = existing[key];
       const normalizedValue = normalizedValues[key];
 
-      if (
-        typeof normalizedValue === 'number' && typeof existingValue === 'number') 
-      {
-        return normalizedValue !== existingValue;
+      if (typeof existingValue === 'number') {
+        return Number(normalizedValue) !== existingValue;
       }
-
       return existing.changed(key);
     });
 }
