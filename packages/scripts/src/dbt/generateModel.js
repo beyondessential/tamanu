@@ -48,7 +48,7 @@ async function getTablesInSchema(client, schemaName) {
   return (
     await client.query(
       `SELECT DISTINCT
-        name,
+        table_name as name,
          ('"' || table_schema || '"."' || table_name || '"')::regclass::oid as oid
       FROM information_schema.tables
       WHERE table_schema = $1
@@ -79,6 +79,24 @@ async function getColumnsInRelation(client, schemaName, tableName) {
       ? `${row.data_type}(${row.character_maximum_length})`
       : row.data_type,
   }));
+}
+
+/**
+ * @param {pg.Client} client
+ * @param {number} oid
+ * @returns {{ oid: number; name: string; }} A list of triggers that exist on the given table.
+ */
+async function getTriggers(client, oid) {
+  return (
+    await client.query(
+      `SELECT oid, tgname as name
+      FROM pg_trigger
+      WHERE tgisinternal = false AND tgrelid = $1`,
+      [oid],
+    )
+  ).rows
+    .filter(({ name }) => !name.startsWith('RI_'))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
@@ -123,6 +141,7 @@ async function readTablesFromDB(client, schemaName) {
     return {
       name,
       oid,
+      triggers: await getTriggers(client, oid),
       columns: (await getColumnsInRelation(client, schemaName, name)).map(column => {
         // Lazily evaluate constraints as it's only occasionally needed.
         column.getConstraints = () =>
@@ -286,7 +305,7 @@ function generateColumnDoc(column) {
 
 /**
  * @param {string} schemaName
- * @param {{ name: string; oid: string; columns: object[] }} table
+ * @param {{ name: string; oid: string; columns: object[]; triggers: { oid: number; name: string; }[] }} table
  * @param {string[]} genericColNames
  * @returns A table object, directly serialisable as dbt model.
  */
@@ -304,6 +323,9 @@ async function generateTableModel(schema, table, genericColNames) {
             description: `{{ doc('${docPrefix(schema, 'table')}__${table.name}') }}`,
             config: {
               tags: [],
+              meta: {
+                triggers: table.triggers.map(t => t.name),
+              },
             },
             columns: await Promise.all(
               table.columns.map(c =>
@@ -516,13 +538,17 @@ async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNa
 }
 
 async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
-  dbtSrc.sources[0].schema = schema.name;
-  dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
-  delete dbtSrc.sources[0].__generator;
+  const source = dbtSrc.sources[0];
+  source.schema = schema.name;
+  source.name = docPrefix(schema, 'tamanu');
+  delete source.__generator;
 
-  dbtSrc.sources[0].tables[0].description = `{{ doc('${docPrefix(schema, 'table')}__${
-    sqlTable.name
-  }') }}`;
+  const table = source.tables[0];
+  table.config = table.config ?? {};
+  table.config.meta = table.config.meta ?? {};
+  table.config.meta.triggers = sqlTable.triggers.map(t => t.name);
+
+  table.description = `{{ doc('${docPrefix(schema, 'table')}__${sqlTable.name}') }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
   await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
 }
