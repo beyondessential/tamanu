@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn, RelationId } from 'typeorm';
+import { Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Task } from './Task';
 import { ReferenceData } from './ReferenceData';
