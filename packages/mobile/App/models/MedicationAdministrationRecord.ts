@@ -231,12 +231,12 @@ export class MedicationAdministrationRecord extends BaseModel {
 
     await Task.createAndSaveOne({
       taskType: TASK_TYPES.MEDICATION_DUE_TASK,
-      encounterId: encounter.id,
+      encounter: encounter.id,
       name: 'Medication Due',
       dueTime: dueAtDate,
       status: TASK_STATUSES.TODO,
       requestTime: getCurrentDateTimeString(),
-      requestedByUserId: SYSTEM_USER_UUID,
+      requestedByUser: SYSTEM_USER_UUID,
     });
   }
 }

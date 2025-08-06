@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { User } from './User';
@@ -71,60 +71,50 @@ export class Task extends BaseModel {
   @Column({ type: 'varchar', nullable: false, default: 'normal-task' })
   taskType: string;
 
-  // Relations
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => Encounter)
+  encounter: Encounter;
+  @RelationId(({ encounter }) => encounter)
   encounterId?: string;
-  @ManyToOne(() => Encounter, { nullable: true })
-  @JoinColumn({ name: 'encounterId' })
-  encounter?: Encounter;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => User)
+  requestedByUser: User;
+  @RelationId(({ requestedByUser }) => requestedByUser)
   requestedByUserId?: string;
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'requestedByUserId' })
-  requestedBy?: User;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => User)
+  completedByUser: User;
+  @RelationId(({ completedByUser }) => completedByUser)
   completedByUserId?: string;
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'completedByUserId' })
-  completedBy?: User;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => User)
+  notCompletedByUser: User;
+  @RelationId(({ notCompletedByUser }) => notCompletedByUser)
   notCompletedByUserId?: string;
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'notCompletedByUserId' })
-  notCompletedBy?: User;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => User)
+  todoByUser: User;
+  @RelationId(({ todoByUser }) => todoByUser)
   todoByUserId?: string;
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'todoByUserId' })
-  todoBy?: User;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => User)
+  deletedByUser: User;
+  @RelationId(({ deletedByUser }) => deletedByUser)
   deletedByUserId?: string;
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn({ name: 'deletedByUserId' })
-  deletedBy?: User;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => ReferenceData)
+  notCompletedReason: ReferenceData;
+  @RelationId(({ notCompletedReason }) => notCompletedReason)
   notCompletedReasonId?: string;
-  @ManyToOne(() => ReferenceData, { nullable: true })
-  @JoinColumn({ name: 'notCompletedReasonId' })
-  notCompletedReason?: ReferenceData;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => ReferenceData)
+  deletedReason: ReferenceData;
+  @RelationId(({ deletedReason }) => deletedReason)
   deletedReasonId?: string;
-  @ManyToOne(() => ReferenceData, { nullable: true })
-  @JoinColumn({ name: 'deletedReasonId' })
-  deletedReason?: ReferenceData;
 
-  @Column({ type: 'varchar', nullable: true })
+  @ManyToOne(() => ReferenceData)
+  deletedReasonForSync: ReferenceData;
+  @RelationId(({ deletedReasonForSync }) => deletedReasonForSync)
   deletedReasonForSyncId?: string;
-  @ManyToOne(() => ReferenceData, { nullable: true })
-  @JoinColumn({ name: 'deletedReasonForSyncId' })
-  deletedReasonForSync?: ReferenceData;
 
   @OneToMany(() => TaskDesignation, taskDesignation => taskDesignation.task)
   designations: TaskDesignation[];

@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, RelationId } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { Task } from './Task';
 import { ReferenceData } from './ReferenceData';
@@ -8,15 +8,13 @@ import { SYNC_DIRECTIONS } from './types';
 export class TaskDesignation extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column({ type: 'varchar', nullable: false })
-  taskId: string;
-  @ManyToOne(() => Task, { nullable: false })
-  @JoinColumn({ name: 'taskId' })
+  @ManyToOne(() => Task)
   task: Task;
+  @RelationId(({ task }) => task)
+  taskId?: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  designationId: string;
-  @ManyToOne(() => ReferenceData, { nullable: false })
-  @JoinColumn({ name: 'designationId' })
+  @ManyToOne(() => ReferenceData)
   designation: ReferenceData;
+  @RelationId(({ designation }) => designation)
+  designationId?: string;
 }
