@@ -44,6 +44,10 @@ export class EncounterPrescription extends Model {
       foreignKey: 'encounterPrescriptionId',
       as: 'pausePrescriptions'
     });
+    this.hasMany(models.TaskEncounterPrescription, {
+      foreignKey: 'encounterPrescriptionId',
+      as: 'taskEncounterPrescriptions',
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

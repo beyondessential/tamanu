@@ -15,7 +15,7 @@ import {
   makeFilter,
 } from '../../utils/query';
 import { z } from 'zod';
-import { TASK_STATUSES } from '@tamanu/constants';
+import { TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
 import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
@@ -251,6 +251,10 @@ user.get(
           { '$designations.designationUsers.id$': req.user.id }, // get tasks assigned to the current user
           { '$designations.id$': { [Op.is]: null } }, // get tasks that are not assigned to anyone
         ],
+        [Op.or]: [
+          { taskType: { [Op.ne]: TASK_TYPES.MEDICATION_DUE_TASK } },
+          { '$taskEncounterPrescriptions.id$': { [Op.ne]: null } },
+        ]
       },
       include: [
         'requestedBy',
@@ -288,6 +292,11 @@ user.get(
             },
           ],
         },
+        {
+          model: models.TaskEncounterPrescription,
+          as: 'taskEncounterPrescriptions',
+          attributes: [],
+        }
       ],
       order: [...orderOptions, ...defaultOrder],
     };

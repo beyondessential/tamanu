@@ -264,7 +264,7 @@ export class MedicationAdministrationRecord extends Model {
 
   static async createMedicationDueTaskForMar(mar: MedicationAdministrationRecord) {
     const { models } = this.sequelize;
-    const { Task, Encounter, EncounterPrescription, Prescription } = models;
+    const { Task, TaskEncounterPrescription, Encounter, EncounterPrescription, Prescription } = models;
 
     const prescription = await Prescription.findByPk(mar.prescriptionId);
 
@@ -288,27 +288,32 @@ export class MedicationAdministrationRecord extends Model {
       return;
 
 
-    const existingTask = await Task.findOne({
+    let task = await Task.findOne({
       where: {
         encounterId: encounter.id,
         dueTime: mar.dueAt,
-        status: TASK_STATUSES.TODO,
         taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       },
       attributes: ['id'],
+      paranoid: false,
     });
 
     // Skip if the task at the same ideal time already exists
-    if (existingTask) return;
+    if (!task) {
+      task = await Task.create({
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+        encounterId: encounter.id,
+        name: 'Medication Due',
+        dueTime: mar.dueAt,
+        status: TASK_STATUSES.TODO,
+        requestTime: getCurrentDateTimeString(),
+        requestedByUserId: SYSTEM_USER_UUID,
+      });
+    }
 
-    await Task.create({
-      taskType: TASK_TYPES.MEDICATION_DUE_TASK,
-      encounterId: encounter.id,
-      name: 'Medication Due',
-      dueTime: mar.dueAt,
-      status: TASK_STATUSES.TODO,
-      requestTime: getCurrentDateTimeString(),
-      requestedByUserId: SYSTEM_USER_UUID,
+    await TaskEncounterPrescription.create({
+      taskId: task.id,
+      encounterPrescriptionId: encounterPrescription.id,
     });
   }
 
@@ -317,11 +322,11 @@ export class MedicationAdministrationRecord extends Model {
    */
   static async checkAndCompleteMedicationDueTask(mar: MedicationAdministrationRecord) {
     const { models } = this.sequelize;
-    const { Task, EncounterPrescription, MedicationAdministrationRecord, Prescription } = models;
+    const { Task, TaskEncounterPrescription, EncounterPrescription } = models;
 
     const encounterPrescription = await EncounterPrescription.findOne({
       where: { prescriptionId: mar.prescriptionId },
-      attributes: ['encounterId'],
+      attributes: ['id', 'encounterId'],
     });
     if (!encounterPrescription) return;
 
@@ -339,50 +344,12 @@ export class MedicationAdministrationRecord extends Model {
 
     if (!task) return;
 
-    // Check if there is another unrecorded MAR at the same ideal time as the task
-    const unrecordedMar = await MedicationAdministrationRecord.findOne({
+    await TaskEncounterPrescription.destroy({
       where: {
-        id: {
-          [Op.ne]: mar.id,
-        },
-        dueAt: mar.dueAt,
-        status: null,
+        taskId: task.id,
+        encounterPrescriptionId: encounterPrescription.id,
       },
-      include: [
-        {
-          model: Prescription,
-          as: 'prescription',
-          attributes: ['id'],
-          required: true,
-          include: [
-            {
-              model: EncounterPrescription,
-              as: 'encounterPrescription',
-              attributes: ['encounterId'],
-              required: true,
-              where: {
-                encounterId,
-              },
-            },
-          ],
-        },
-      ],
-      attributes: ['id'],
     });
-
-    // Skip if there is still at least one unrecorded MAR
-    if (unrecordedMar) return;
-
-    await Task.update(
-      {
-        status: TASK_STATUSES.COMPLETED,
-        completedTime: getCurrentDateTimeString(),
-        completedByUserId: SYSTEM_USER_UUID,
-      },
-      {
-        where: { id: task.id },
-      },
-    );
   }
 
   /**
@@ -394,7 +361,7 @@ export class MedicationAdministrationRecord extends Model {
    */
   static async removeInvalidMedicationAdministrationRecords(transaction?: Transaction | null) {
     const { models } = this.sequelize;
-    const { Prescription, EncounterPrescription } = models;
+    const { Prescription, EncounterPrescription, TaskEncounterPrescription } = models;
 
     const marsToRemove = await this.findAll({
       where: {
@@ -454,47 +421,19 @@ export class MedicationAdministrationRecord extends Model {
         where: {
           encounterId: encounter.id,
           dueTime: mar.dueAt,
-          status: TASK_STATUSES.TODO,
           taskType: TASK_TYPES.MEDICATION_DUE_TASK,
         },
         attributes: ['id'],
       });
 
-      if (!existingTask) continue;
+      if (!existingTask || !mar.prescription?.encounterPrescription?.id) continue;
 
-      const unrecordedMar = await MedicationAdministrationRecord.findOne({
+      await TaskEncounterPrescription.destroy({
         where: {
-          id: {
-            [Op.notIn]: marIdsToRemove,
-          },
-          dueAt: mar.dueAt,
-          status: null,
+          taskId: existingTask.id,
+          encounterPrescriptionId: mar.prescription.encounterPrescription.id,
         },
-        include: [
-          {
-            model: Prescription,
-            as: 'prescription',
-            attributes: ['id'],
-            required: true,
-            include: [
-              {
-                model: EncounterPrescription,
-                as: 'encounterPrescription',
-                attributes: ['encounterId'],
-                required: true,
-                where: {
-                  encounterId: encounter.id,
-                },
-              },
-            ],
-          },
-        ],
-        attributes: ['id'],
       });
-
-      if (unrecordedMar) continue;
-
-      await existingTask.destroy({ transaction });
     }
 
     await this.destroy({
