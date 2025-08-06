@@ -84,6 +84,37 @@ export const centralSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        dynamicLimiter: {
+          description: 'Settings for the sync page size dynamic limiter',
+          properties: {
+            initialLimit: {
+              description: 'The initial limit for the dynamic limiter',
+              type: yup.number().positive().integer(),
+              defaultValue: 10000,
+            },
+            minLimit: {
+              description: 'The minimum limit for the dynamic limiter',
+              type: yup.number().positive().integer(),
+              defaultValue: 1000,
+            },
+            maxLimit: {
+              description: 'The maximum limit for the dynamic limiter',
+              type: yup.number().positive().integer(),
+              defaultValue: 200000,
+            },
+            maxLimitChangePerPage: {
+              description: 'The maximum change per page for the dynamic limiter',
+              type: yup.number().positive().integer(),
+              defaultValue: 0.3,
+            },
+            optimalTimePerPage: {
+              description: 'The optimal time per page for the dynamic limiter',
+              type: yup.number().positive().integer(),
+              unit: 'ms',
+              defaultValue: 5000,
+            },
+          },
+        },
       },
     },
     questionCodeIds: {

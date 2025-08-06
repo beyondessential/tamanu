@@ -24,6 +24,7 @@ import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
+import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
@@ -48,6 +49,7 @@ export type MobileSyncSettings = {
   maxRecordsPerInsertBatch: number;
   maxRecordsPerSnapshotBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
+  dynamicLimiter: DynamicLimiterSettings;
 };
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
@@ -93,6 +95,10 @@ export class MobileSyncManager {
     this.centralServer = centralServer;
     this.settings = settings;
     this.models = Database.models;
+  }
+
+  get syncSettings(): MobileSyncSettings {
+    return this.settings.getSetting<MobileSyncSettings>('mobileSync');
   }
 
   setSyncStage(syncStage: number): void {
@@ -255,10 +261,8 @@ export class MobileSyncManager {
     
     console.log('MobileSyncManager.runSync(): Sync started');
 
-    const syncSettings = this.settings.getSetting<MobileSyncSettings>('mobileSync');
-
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
-    await this.pullIncomingChanges(sessionId, syncSettings);
+    await this.pullIncomingChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -324,9 +328,8 @@ export class MobileSyncManager {
    * 
    * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
-   * @param syncSettings - the sync settings for the sync session 
    */
-  async pullIncomingChanges(sessionId: string, syncSettings: MobileSyncSettings): Promise<void> {
+  async pullIncomingChanges(sessionId: string): Promise<void> {
     this.setSyncStage(2);
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
 
@@ -361,7 +364,6 @@ export class MobileSyncManager {
       sessionId,
       recordTotal: totalToPull,
       centralServer: this.centralServer,
-      syncSettings,
       pullUntil,
     };
     if (this.isInitialSync) {
@@ -375,7 +377,6 @@ export class MobileSyncManager {
     sessionId,
     recordTotal,
     pullUntil,
-    syncSettings,
   }: PullParams): Promise<void> {
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
@@ -395,7 +396,7 @@ export class MobileSyncManager {
       );
       const sortedModels = await sortInDependencyOrder(incomingModels);
       const processStreamedDataFunction = async (records: any) => {
-        await saveChangesFromMemory(records, sortedModels, syncSettings, progressCallback);
+        await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
       };
 
       await pullRecordsInBatches(
@@ -410,10 +411,9 @@ export class MobileSyncManager {
     sessionId,
     recordTotal,
     centralServer,
-    syncSettings,
     pullUntil,
   }: PullParams): Promise<void> {
-    const { maxRecordsPerSnapshotBatch = 1000 } = syncSettings;
+    const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
     };
@@ -442,7 +442,7 @@ export class MobileSyncManager {
         transactionEntityManager,
       );
       const sortedModels = await sortInDependencyOrder(incomingModels);
-      await saveChangesFromSnapshot(sortedModels, syncSettings, saveProgressCallback);
+      await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
       await this.postPull(transactionEntityManager, pullUntil);
     });
   }
