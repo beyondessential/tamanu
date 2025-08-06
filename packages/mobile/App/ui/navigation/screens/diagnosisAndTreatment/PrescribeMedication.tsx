@@ -444,7 +444,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                 <Field
                   component={Dropdown}
                   name="route"
-                  label={<TranslatedText stringId="medication.route.label" fallback="Route of administration" />}
+                  label={<TranslatedText stringId="medication.route.label" fallback="Route" />}
                   selectPlaceholderText={getTranslation('general.placeholder.select', 'Select')}
                   options={routeOptions}
                   required
