@@ -100,7 +100,7 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
   },
   {
     key: 'route',
-    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
+    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route of administration" />,
     sortable: false,
     accessor: data => <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />,
   },
