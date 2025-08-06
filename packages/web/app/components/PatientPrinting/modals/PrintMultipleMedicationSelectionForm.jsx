@@ -17,13 +17,11 @@ import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
+import { Colors } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
-import { useSelector } from 'react-redux';
-import { getAgeDurationFromDate } from '@tamanu/utils/date';
 
 const COLUMN_KEYS = {
   SELECTED: 'selected',
@@ -175,10 +173,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     selectAllOnInit: true,
   });
 
-  const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
-  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT;
-
   useEffect(() => {
     setPrescriberId(currentUser.id);
   }, [currentUser]);
@@ -211,7 +205,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         prescriptions={intersectionBy(medicationData, selectedRows, 'id')}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
-        patientWeight={showPatientWeight ? patientWeight : undefined}
+        patientWeight={patientWeight}
         data-testid="multipleprescriptionprintoutmodal-axek"
       />
       <PrescriberWrapper data-testid="prescriberwrapper-r57g">
@@ -249,7 +243,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           }
           data-testid="autocompleteinput-ampt"
         />
-        {showPatientWeight && (
+        
           <TextField
             field={{
               name: 'patientWeight',
@@ -269,7 +263,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
             type="number"
             data-testid="textfield-iw09"
           />
-        )}
       </PrescriberWrapper>
       <OuterLabelFieldWrapper
         label={
