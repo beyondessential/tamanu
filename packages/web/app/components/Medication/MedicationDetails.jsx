@@ -120,7 +120,7 @@ export const MedicationDetails = ({
       value: getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
     },
     {
-      label: <TranslatedText stringId="medication.details.route" fallback="Route of administration" />,
+      label: <TranslatedText stringId="medication.details.route" fallback="Route" />,
       value: <TranslatedEnum value={medication.route} enumValues={DRUG_ROUTE_LABELS} />,
     },
     {

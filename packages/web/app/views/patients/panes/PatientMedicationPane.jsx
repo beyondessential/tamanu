@@ -211,7 +211,7 @@ const ONGOING_MEDICATION_COLUMNS = (getTranslation, getEnumTranslation) => [
   },
   {
     key: 'route',
-    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route of administration" />,
+    title: <TranslatedText stringId="patient.medication.table.column.route" fallback="Route" />,
     accessor: data => (
       <CellText discontinued={data?.discontinued}>
         <TranslatedEnum value={data.route} enumValues={DRUG_ROUTE_LABELS} />
