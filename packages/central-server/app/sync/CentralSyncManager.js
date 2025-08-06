@@ -13,7 +13,7 @@ import {
   completeSyncSession,
   countSyncSnapshotRecords,
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   getModelsForPull,
   getModelsForPush,
   getSyncTicksOfPendingEdits,
@@ -601,8 +601,8 @@ export class CentralSyncManager {
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     const session = await this.connectToSession(sessionId);
-    const snapshotRecords = await findSyncSnapshotRecords(
-      this.store.sequelize,
+    const snapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      this.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,

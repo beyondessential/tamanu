@@ -1,9 +1,8 @@
 import { cloneDeep, chunk } from 'lodash';
-import { In } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { BaseModel } from '../../../models/BaseModel';
-import { SQLITE_MAX_PARAMETERS, MAX_RECORDS_IN_BULK_INSERT } from '~/infra/db/limits';
+import { MAX_RECORDS_IN_BULK_INSERT, SQLITE_MAX_PARAMETERS  } from '../../../infra/db/limits';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -12,7 +11,7 @@ function strippedIsDeleted(row) {
 }
 
 export const executeInserts = async (
-  model: typeof BaseModel,
+  repository: Repository<any>,
   rows: DataToPersist[],
   insertBatchSize: number,
   progressCallback: (processedCount: number) => void,
@@ -20,7 +19,6 @@ export const executeInserts = async (
   // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
-  const repository = model.getTransactionalRepository();
   const deduplicated = [];
   const idsAdded = new Set();
   const softDeleted = rows.filter(row => row.isDeleted).map(strippedIsDeleted);
@@ -40,14 +38,18 @@ export const executeInserts = async (
     try {
       // insert with listeners turned off, so that it doesn't cause a patient to be marked for
       // sync when e.g. an encounter associated with a sync-everywhere vaccine is synced in
-      await repository.insert(batchOfRows, { listeners: false });
+      await repository
+        .createQueryBuilder()
+        .insert({ listeners: false })
+        .values(batchOfRows)
+        .execute();
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
         batchOfRows.map(async row => {
           try {
-            await model.insert(row);
+            await repository.insert(row);
           } catch (error) {
             throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
@@ -59,17 +61,16 @@ export const executeInserts = async (
 
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
-    await executeDeletes(model, softDeleted);
+    await executeDeletes(repository, softDeleted);
   }
 };
 
 export const executeUpdates = async (
-  model: typeof BaseModel,
+  repository: Repository<any>,
   rows: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   try {
-    const repository = model.getTransactionalRepository();
     await Promise.all(rows.map(async row => repository.update({ id: row.id }, row)));
   } catch (e) {
     // try records individually, some may succeed and we want to capture the
@@ -77,7 +78,7 @@ export const executeUpdates = async (
     await Promise.all(
       rows.map(async row => {
         try {
-          await model.save(row);
+          await repository.save(row);
         } catch (error) {
           throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
         }
@@ -88,14 +89,13 @@ export const executeUpdates = async (
 };
 
 export const executeDeletes = async (
-  model: typeof BaseModel,
+  repository: Repository<any>,
   recordsForDelete: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForDelete.map(({ id }) => id);
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
-      const repository = model.getTransactionalRepository();
       const entities = await repository.find({ where: { id: In(batchOfIds) } });
       await repository.softRemove(entities);
     } catch (e) {
@@ -104,7 +104,7 @@ export const executeDeletes = async (
       await Promise.all(
         batchOfIds.map(async id => {
           try {
-            const entity = await model.findOne({ where: { id } });
+            const entity = await repository.findOne({ where: { id } });
             await entity.softRemove();
           } catch (error) {
             throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
@@ -115,11 +115,11 @@ export const executeDeletes = async (
     progressCallback?.(batchOfIds.length);
   }
 
-  await executeUpdates(model, recordsForDelete);
+  await executeUpdates(repository, recordsForDelete);
 };
 
 export const executeRestores = async (
-  model: typeof BaseModel,
+  repository: Repository<any>,
   recordsForRestore: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
@@ -127,7 +127,6 @@ export const executeRestores = async (
   await Promise.all(
     rowIds.map(async id => {
       try {
-        const repository = model.getTransactionalRepository();
         const entity = await repository.findOne({
           where: { id },
           withDeleted: true,
