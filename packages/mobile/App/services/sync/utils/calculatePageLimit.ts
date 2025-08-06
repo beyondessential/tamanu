@@ -9,7 +9,7 @@ export type DynamicLimiterSettings = {
 export const DYNAMIC_LIMITER_DEFAULTS = {
   initialLimit: 10000,
   minLimit: 1000,
-  maxLimit: 200000, // over this and we hit heap limit
+  maxLimit: 20000, // over this and we hit heap limit
   maxLimitChangePerPage: 0.3, // max 30% increase from batch to batch, or it is too jumpy
   optimalTimePerPage: 5000, // aim for 5 seconds per page
 };
