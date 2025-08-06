@@ -289,9 +289,10 @@ export class MedicationAdministrationRecord extends Model {
     if (!encounter || encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate)
       return;
 
-    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
-    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
-    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
+    const dueAtDate = new Date(mar.dueAt);
+    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(dueAtDate);
+    const startTime = getDateFromTimeString(timeSlot?.startTime, dueAtDate);
+    const endTime = getDateFromTimeString(timeSlot?.endTime, dueAtDate);
 
     const existingTask = await Task.findOne({
       where: {
@@ -313,7 +314,7 @@ export class MedicationAdministrationRecord extends Model {
       taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       encounterId: encounter.id,
       name: 'Medication Due',
-      dueTime: new Date(mar.dueAt),
+      dueTime: dueAtDate,
       status: TASK_STATUSES.TODO,
       requestTime: getCurrentDateTimeString(),
       requestedByUserId: SYSTEM_USER_UUID,
@@ -335,9 +336,10 @@ export class MedicationAdministrationRecord extends Model {
 
     const encounterId = encounterPrescription.encounterId;
 
-    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(new Date(mar.dueAt));
-    const startTime = getDateFromTimeString(timeSlot?.startTime, new Date(mar.dueAt));
-    const endTime = getDateFromTimeString(timeSlot?.endTime, new Date(mar.dueAt));
+    const dueAtDate = new Date(mar.dueAt);
+    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(dueAtDate);
+    const startTime = getDateFromTimeString(timeSlot?.startTime, dueAtDate);
+    const endTime = getDateFromTimeString(timeSlot?.endTime, dueAtDate);
 
     const task = await Task.findOne({
       where: {
