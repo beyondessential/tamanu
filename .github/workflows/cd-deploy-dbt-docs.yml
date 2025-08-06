@@ -86,12 +86,9 @@ jobs:
           role-to-assume: arn:aws:iam::491618206332:role/gha-dbt-docs-tamanu
           role-session-name: GHA@Tamanu=DBT
 
-      - shell: bash
-        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')" | tee -a $GITHUB_ENV
-
       - name: Upload docs to S3
         run: |
-          aws s3 sync database/docs/target s3://bes-data-docs/tamanu/${{ env.BRANCH_NAME }}/ \
+          aws s3 sync database/docs/target s3://bes-data-docs/tamanu/${{ github.ref_name }}/ \
             --delete \
             --cache-control "max-age=3600" \
             --exclude "*" \
@@ -109,4 +106,3 @@ jobs:
             ## DBT Documentation
             The DBT documentation for this release is available at:
             - [DBT Docs](https://docs.data.bes.au/tamanu/${{ github.ref_name }})
-
