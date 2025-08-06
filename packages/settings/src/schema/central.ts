@@ -104,7 +104,7 @@ export const centralSettings = {
             },
             maxLimitChangePerPage: {
               description: 'The maximum change per page for the dynamic limiter',
-              type: yup.number().positive().integer(),
+              type: yup.number().positive().min(0).max(1),
               defaultValue: 0.3,
             },
             optimalTimePerPage: {
