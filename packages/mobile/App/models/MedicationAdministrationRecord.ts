@@ -17,8 +17,6 @@ import {
 } from 'date-fns';
 import {
   areDatesInSameTimeSlot,
-  findAdministrationTimeSlotFromIdealTime,
-  getDateFromTimeString,
   getFirstAdministrationDate,
 } from '~/ui/helpers/medicationHelpers';
 import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
@@ -210,16 +208,10 @@ export class MedicationAdministrationRecord extends BaseModel {
     if (!encounter || encounter.encounterType !== EncounterType.Admission || encounter.endDate)
       return;
 
-    const dueAtDate = new Date(mar.dueAt);
-
-    const { timeSlot } = findAdministrationTimeSlotFromIdealTime(dueAtDate);
-    const startTime = getDateFromTimeString(timeSlot.startTime, dueAtDate);
-    const endTime = getDateFromTimeString(timeSlot.endTime, dueAtDate);
 
     const existingTask = await Task.createQueryBuilder('task')
       .where('task.encounterId = :encounterId', { encounterId: encounter.id })
-      .andWhere('task.dueTime >= :startTime', { startTime: toDateTimeString(startTime) })
-      .andWhere('task.dueTime < :endTime', { endTime: toDateTimeString(endTime) })
+      .andWhere('task.dueTime = :dueTime', { dueTime: mar.dueAt })  
       .andWhere('task.status = :status', { status: TASK_STATUSES.TODO })
       .andWhere('task.taskType = :taskType', { taskType: TASK_TYPES.MEDICATION_DUE_TASK })
       .andWhere('task.deletedAt IS NULL')
@@ -233,7 +225,7 @@ export class MedicationAdministrationRecord extends BaseModel {
       taskType: TASK_TYPES.MEDICATION_DUE_TASK,
       encounter: encounter.id,
       name: 'Medication Due',
-      dueTime: dueAtDate,
+      dueTime: mar.dueAt,
       status: TASK_STATUSES.TODO,
       requestTime: getCurrentDateTimeString(),
       requestedByUser: SYSTEM_USER_UUID,
