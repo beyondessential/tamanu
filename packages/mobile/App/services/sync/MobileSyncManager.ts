@@ -89,12 +89,16 @@ export class MobileSyncManager {
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
-  syncSettings: MobileSyncSettings;
+  settings: SettingsService;
 
   constructor(centralServer: CentralServerConnection, settings: SettingsService) {
     this.centralServer = centralServer;
-    this.syncSettings = settings.getSetting<MobileSyncSettings>('mobileSync');
+    this.settings = settings;
     this.models = Database.models;
+  }
+
+  get syncSettings(): MobileSyncSettings {
+    return this.settings.getSetting<MobileSyncSettings>('mobileSync');
   }
 
   setSyncStage(syncStage: number): void {
@@ -314,6 +318,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.pushOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
     );
+
   }
 
   /**
@@ -382,7 +387,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
+        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         const processStreamedDataFunction = async (records: any) => {
           await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
         };
@@ -399,11 +404,7 @@ export class MobileSyncManager {
     });
   }
 
-  async pullIncrementalSync({
-    sessionId,
-    recordTotal,
-    pullUntil,
-  }: PullParams): Promise<void> {
+  async pullIncrementalSync({ sessionId, recordTotal, pullUntil }: PullParams): Promise<void> {
     const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
@@ -438,7 +439,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
+        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {

@@ -1,10 +1,10 @@
 export { callWithBackoff } from './callWithBackoff';
 export { fetchWithTimeout } from './fetchWithTimeout';
+export { axiosWithTimeout } from './axiosWithTimeout';
 export { getModelsForDirection, getTransactingModelsForDirection } from './getModelsForDirection';
-export { getResponseJsonSafely } from './getResponseJsonSafely';
 export { getSyncTick } from './getSyncTick';
 export { pushOutgoingChanges } from './pushOutgoingChanges';
-export { saveIncomingChanges } from './saveIncomingChanges';
+export { saveChangesFromMemory, saveChangesFromSnapshot } from './saveIncomingChanges';
 export { setSyncTick } from './setSyncTick';
 export { sleepAsync } from './sleepAsync';
 export * from './snapshotOutgoingChanges';

@@ -6,7 +6,7 @@ import {
   OutdatedVersionError,
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
-import { fetchWithTimeout, sleepAsync } from './utils';
+import { axiosWithTimeout, sleepAsync } from './utils';
 
 jest.mock('~/infra/db', () => ({
   Database: {
@@ -18,7 +18,7 @@ jest.mock('~/infra/db', () => ({
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
-  fetchWithTimeout: jest.fn(),
+  axiosWithTimeout: jest.fn(),
   sleepAsync: jest.fn(),
 }));
 
@@ -30,7 +30,7 @@ jest.mock('/root/package.json', () => ({
   version: 'test-version',
 }));
 
-const mockFetchWithTimeout = fetchWithTimeout as jest.MockedFunction<any>;
+const mockAxiosWithTimeout = axiosWithTimeout as jest.MockedFunction<any>;
 const mockSleepAsync = sleepAsync as jest.MockedFunction<any>;
 
 const mockSessionId = 'test-session-id';
@@ -228,10 +228,10 @@ describe('CentralServerConnection', () => {
   });
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce({
-        json: async () => 'test-result',
+      mockAxiosWithTimeout.mockResolvedValueOnce({
+        data: 'test-result',
         status: 200,
-        ok: true,
+        statusText: 'OK',
       });
       const mockPath = 'test-path';
       const mockQuery = { test: 'test-query' };
@@ -241,7 +241,7 @@ describe('CentralServerConnection', () => {
       centralServerConnection.setToken(mockToken);
 
       const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
-      expect(fetchWithTimeout).toBeCalledWith(
+      expect(axiosWithTimeout).toBeCalledWith(
         `${mockHost}/api/${mockPath}?test=${mockQuery.test}`,
         {
           headers: mockHeaders,
@@ -261,33 +261,33 @@ describe('CentralServerConnection', () => {
       centralServerConnection.setToken(mockToken);
       centralServerConnection.setRefreshToken(mockRefreshToken);
       /**
-       * Mock three calls to fetchWithTimeout:
-       * 1. First call to fetchWithTimeout will return a 401 for invalid token
-       * 2. Second call to fetchWithTimeout will be refresh endpoint return a 200 with new tokens
-       * 3. Third call to fetchWithTimeout will be the original fetch call with new token
+       * Mock three calls to axiosWithTimeout:
+       * 1. First call to axiosWithTimeout will return a 401 for invalid token
+       * 2. Second call to axiosWithTimeout will be refresh endpoint return a 200 with new tokens
+       * 3. Third call to axiosWithTimeout will be the original fetch call with new token
        */
-      mockFetchWithTimeout
+      mockAxiosWithTimeout
         .mockResolvedValueOnce({
           status: 401,
         })
         .mockResolvedValueOnce({
-          json: () => ({
+          data: {
             token: mockNewToken,
             refreshToken: mockNewRefreshToken,
-          }),
+          },
           status: 200,
-          ok: true,
+          statusText: 'OK',
         })
         .mockResolvedValueOnce({
-          json: () => 'test-result',
+          data: 'test-result',
           status: 200,
-          ok: true,
+          statusText: 'OK',
         });
       const mockPath = 'test-path';
       await centralServerConnection.fetch(mockPath, {}, {});
       expect(refreshSpy).toHaveBeenCalledTimes(1);
 
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/api/${mockPath}`, {
+      expect(axiosWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/api/${mockPath}`, {
         headers: getHeadersWithToken(mockToken),
       });
       expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
@@ -295,20 +295,20 @@ describe('CentralServerConnection', () => {
         'statusChange',
         CentralConnectionStatus.Disconnected,
       );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/api/refresh`, {
+      expect(axiosWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/api/refresh`, {
         headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
         method: 'POST',
-        body: JSON.stringify({
+        data: {
           refreshToken: mockRefreshToken,
           deviceId: 'mobile-test-device-id',
-        }),
+        },
       });
       expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
         2,
         'statusChange',
         CentralConnectionStatus.Connected,
       );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/api/${mockPath}`, {
+      expect(axiosWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/api/${mockPath}`, {
         headers: getHeadersWithToken(mockNewToken),
       });
       // Check that the fetch would not recursively call itself again on failure post refresh
@@ -317,10 +317,10 @@ describe('CentralServerConnection', () => {
         'refresh',
         {},
         {
-          body: JSON.stringify({
+          data: {
             refreshToken: mockRefreshToken,
             deviceId: 'mobile-test-device-id',
-          }),
+          },
           skipAttemptRefresh: true,
           method: 'POST',
           headers: {
@@ -341,7 +341,7 @@ describe('CentralServerConnection', () => {
       );
     });
     it('should not call refresh if skipAttemptRefresh is true', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce({
+      mockAxiosWithTimeout.mockResolvedValueOnce({
         status: 401,
       });
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
@@ -352,14 +352,14 @@ describe('CentralServerConnection', () => {
     });
     it('should throw an error with updateUrl if version is outdated', async () => {
       const mockUpdateUrl = 'test-update-url';
-      mockFetchWithTimeout.mockResolvedValueOnce({
+      mockAxiosWithTimeout.mockResolvedValueOnce({
         status: 400,
-        json: async () => ({
+        data: {
           error: {
             name: 'InvalidClientVersion',
             updateUrl: 'test-update-url',
           },
-        }),
+        },
       });
       await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
         new OutdatedVersionError(mockUpdateUrl),

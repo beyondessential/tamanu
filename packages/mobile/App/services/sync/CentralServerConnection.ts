@@ -12,9 +12,10 @@ import {
   RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, axiosWithTimeout, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
+import { AxiosError } from 'axios';
 
 const API_PREFIX = 'api';
 
@@ -23,32 +24,39 @@ const fetchAndParse = async (
   config: FetchOptions,
   isLogin: boolean,
 ): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
-  }
+  try {
+    const response = await axiosWithTimeout(url, config);
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const { response } = error;
+      
+      if (response?.status === 401) {
+        throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+      }
 
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
+      if (response?.status === 400) {
+        const { error: responseError } = response.data || {};
+        if (responseError?.name === 'InvalidClientVersion') {
+          throw new OutdatedVersionError(responseError.updateUrl);
+        }
+      }
+
+      if (response?.status === 422) {
+        const { error: responseError } = response.data || {};
+        throw new RemoteError(responseError?.message, responseError, response.status);
+      }
+
+      if (response?.status && (response.status < 200 || response.status >= 300)) {
+        const { error: responseError } = response.data || {};
+        console.error('Response had non-OK value', { url, response: response.status });
+        throw new RemoteError(generalErrorMessage, responseError, response.status);
+      }
     }
+    
+    // Re-throw the original error if it's not an AxiosError
+    throw error;
   }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
 };
 
 export class CentralServerConnection {
@@ -60,7 +68,7 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  async connect(host: string): void {
+  async connect(host: string): Promise<void> {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
@@ -129,7 +137,7 @@ export class CentralServerConnection {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      data: body,
     });
   }
 

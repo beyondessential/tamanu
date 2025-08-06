@@ -5,7 +5,7 @@ import { MobileSyncSettings } from '../MobileSyncManager';
 jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {
   return {
-    buildFromSyncRecord: jest.fn().mockImplementation((_model, {data}) => {
+    buildFromSyncRecord: jest.fn().mockImplementation((_model, { data }) => {
       return data;
     }),
     buildForRawInsertFromSyncRecord: jest.fn().mockImplementation((_model, change) => {
@@ -149,7 +149,11 @@ describe('saveChangesForModel', () => {
       // assertions
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [newRecord], progressCallback);
+      expect(saveChangeModules.executeUpdates).toBeCalledWith(
+        repository,
+        [newRecord],
+        progressCallback,
+      );
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
@@ -211,7 +215,11 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledWith(repository, [newRecord], progressCallback);
+      expect(saveChangeModules.executeDeletes).toBeCalledWith(
+        repository,
+        [newRecord],
+        progressCallback,
+      );
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
   });
