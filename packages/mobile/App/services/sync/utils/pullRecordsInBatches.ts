@@ -8,12 +8,13 @@ export const pullRecordsInBatches = async (
     sessionId,
     recordTotal,
     progressCallback = () => {},
-    syncSettings: { dynamicLimiter } = {},
+    syncSettings = {}
   }: PullParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings;
   let fromId;
-  let limit = calculatePageLimit(dynamicLimiter);
+  let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -33,7 +34,7 @@ export const pullRecordsInBatches = async (
     const { id, sortOrder } = records[records.length - 1];
     fromId = btoa(JSON.stringify({ sortOrder, id }));
     totalPulled += records.length;
-    limit = calculatePageLimit(dynamicLimiter, limit, pullTime);
+    limit = calculatePageLimit(dynamicLimiterSettings, limit, pullTime);
 
     progressCallback(recordsToSave.length);
   }
