@@ -84,7 +84,7 @@ async function getColumnsInRelation(client, schemaName, tableName) {
 /**
  * @param {pg.Client} client
  * @param {number} oid
- * @returns {{ oid: number; name: string; }} A list of triggers that exist on the given table.
+ * @returns {Array<{ oid: number; name: string; }>} A list of triggers that exist on the given table.
  */
 async function getTriggers(client, oid) {
   return (
