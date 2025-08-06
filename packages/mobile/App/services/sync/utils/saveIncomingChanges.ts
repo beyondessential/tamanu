@@ -68,7 +68,7 @@ export const saveChangesForModel = async (
   const recordsForCreate = buildForRawInsertFromSyncRecords(
     model,
     allChanges.filter(c => !idsForUpdate.has(c.recordId)),
-  ); // not existing in db
+  );
 
   const recordsForUpdate = buildFromSyncRecords(
     model,
