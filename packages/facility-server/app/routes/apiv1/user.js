@@ -275,63 +275,65 @@ user.get(
                         AND mar.status IS NULL
                         AND mar.deleted_at IS NULL
 
-                        -- Check if MAR is not currently paused
+                        -- Check if MAR is not currently paused using LATERAL join for better performance
                         -- A MAR is NOT paused if either:
                         -- 1. Special case applies: next MAR is recorded and not paused, OR
                         -- 2. No pause overlaps with this MAR's time slot
-                        AND (
-                          -- Special case: if next MAR (in next time slot) is recorded and not paused,
-                          -- then current MAR should not be marked as paused regardless of pause overlap
-                          -- This matches MarStatus.jsx lines 170-186
-                          EXISTS (
-                            SELECT 1
-                            FROM medication_administration_records next_mar,
-                                 get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot,
-                                 get_medication_time_slot(next_mar.due_at::timestamp) AS next_mar_time_slot
-                            WHERE next_mar.prescription_id = mar.prescription_id
-                              AND next_mar.recorded_at IS NOT NULL  -- next MAR is recorded
-                              AND next_mar.deleted_at IS NULL
-                              -- Next MAR is in the time slot immediately after current MAR
-                              AND next_mar_time_slot.start_time = mar_time_slot.end_time
-                              -- There exists a pause that would normally affect current MAR but next MAR is not paused
-                              AND EXISTS (
-                                SELECT 1
-                                FROM encounter_pause_prescriptions epp
-                                WHERE epp.encounter_prescription_id = ep.id
-                                  AND epp.deleted_at IS NULL
-                                  -- Pause starts within current slot and ends after current slot
-                                  -- This matches the frontend logic in MarStatus.jsx lines 173-175
-                                  AND epp.pause_start_date::timestamp >= mar_time_slot.start_time
-                                  AND epp.pause_start_date::timestamp < mar_time_slot.end_time
-                                  AND epp.pause_end_date::timestamp > mar_time_slot.end_time
-                                  -- Check if next MAR would not be paused by this same pause
-                                  AND (
-                                    -- Check if next MAR is recorded before the pause starts
-                                    -- This matches the frontend logic in MarStatus.jsx lines 166-168
-                                    next_mar.recorded_at::timestamp <= epp.pause_start_date::timestamp
-                                    OR NOT (
-                                      -- Check if pause overlaps with the next MAR's time slot
-                                      -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
-                                      -- This matches the frontend logic in MarStatus.jsx line 188
-                                      epp.pause_start_date::timestamp < next_mar_time_slot.end_time
-                                      AND epp.pause_end_date::timestamp >= next_mar_time_slot.end_time
+                        AND EXISTS (
+                          SELECT 1
+                          FROM LATERAL get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot
+                          WHERE (
+                            -- Special case: if next MAR (in next time slot) is recorded and not paused,
+                            -- then current MAR should not be marked as paused regardless of pause overlap
+                            -- This matches MarStatus.jsx lines 170-186
+                            EXISTS (
+                              SELECT 1
+                              FROM medication_administration_records next_mar
+                              CROSS JOIN LATERAL get_medication_time_slot(next_mar.due_at::timestamp) AS next_mar_time_slot
+                              WHERE next_mar.prescription_id = mar.prescription_id
+                                AND next_mar.recorded_at IS NOT NULL  -- next MAR is recorded
+                                AND next_mar.deleted_at IS NULL
+                                -- Next MAR is in the time slot immediately after current MAR
+                                AND next_mar_time_slot.start_time = mar_time_slot.end_time
+                                -- There exists a pause that would normally affect current MAR but next MAR is not paused
+                                AND EXISTS (
+                                  SELECT 1
+                                  FROM encounter_pause_prescriptions epp
+                                  WHERE epp.encounter_prescription_id = ep.id
+                                    AND epp.deleted_at IS NULL
+                                    -- Pause starts within current slot and ends after current slot
+                                    -- This matches the frontend logic in MarStatus.jsx lines 173-175
+                                    AND epp.pause_start_date::timestamp >= mar_time_slot.start_time
+                                    AND epp.pause_start_date::timestamp < mar_time_slot.end_time
+                                    AND epp.pause_end_date::timestamp > mar_time_slot.end_time
+                                    -- Check if next MAR would not be paused by this same pause
+                                    AND (
+                                      -- Check if next MAR is recorded before the pause starts
+                                      -- This matches the frontend logic in MarStatus.jsx lines 166-168
+                                      next_mar.recorded_at::timestamp <= epp.pause_start_date::timestamp
+                                      OR NOT (
+                                        -- Check if pause overlaps with the next MAR's time slot
+                                        -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
+                                        -- This matches the frontend logic in MarStatus.jsx line 188
+                                        epp.pause_start_date::timestamp < next_mar_time_slot.end_time
+                                        AND epp.pause_end_date::timestamp >= next_mar_time_slot.end_time
+                                      )
                                     )
-                                  )
-                              )
-                          )
-                          OR
-                          -- Normal case: no pause overlaps with the MAR's time slot
-                          NOT EXISTS (
-                            SELECT 1
-                            FROM encounter_pause_prescriptions epp,
-                                 get_medication_time_slot(mar.due_at::timestamp) AS mar_time_slot
-                            WHERE epp.encounter_prescription_id = ep.id
-                              AND epp.deleted_at IS NULL
-                              -- Check if pause overlaps with the MAR's time slot
-                              -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
-                              -- This matches the frontend logic in MarStatus.jsx line 188
-                              AND epp.pause_start_date::timestamp < mar_time_slot.end_time
-                              AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
+                                )
+                            )
+                            OR
+                            -- Normal case: no pause overlaps with the MAR's time slot
+                            NOT EXISTS (
+                              SELECT 1
+                              FROM encounter_pause_prescriptions epp
+                              WHERE epp.encounter_prescription_id = ep.id
+                                AND epp.deleted_at IS NULL
+                                -- Check if pause overlaps with the MAR's time slot
+                                -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
+                                -- This matches the frontend logic in MarStatus.jsx line 188
+                                AND epp.pause_start_date::timestamp < mar_time_slot.end_time
+                                AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
+                            )
                           )
                         )
                     )

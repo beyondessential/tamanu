@@ -8,14 +8,12 @@ export async function up(query: QueryInterface) {
     AS $$
     DECLARE
         input_hour INTEGER;
-        input_minute INTEGER;
         slot_start_hour INTEGER;
         slot_end_hour INTEGER;
         base_date DATE;
     BEGIN
         -- Extract hour and minute from input
         input_hour := EXTRACT(HOUR FROM input_datetime);
-        input_minute := EXTRACT(MINUTE FROM input_datetime);
         base_date := DATE(input_datetime);
 
         -- Calculate which 2-hour slot this time falls into
