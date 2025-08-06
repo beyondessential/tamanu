@@ -14,48 +14,7 @@ import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientF
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
-export const SendFormToPatientPortalModal = ({ open, onClose, onSendToPatientPortal }) => {
-  const handleSubmit = useCallback(
-    async ({ email }) => {
-      await onSendToPatientPortal(email);
-    },
-    [onSendToPatientPortal],
-  );
-
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={
-        <TranslatedText
-          stringId="program.action.sendToPatientPortal"
-          fallback="Send to patient portal"
-        />
-      }
-    >
-      <EmailAddressConfirmationForm
-        onCancel={onClose}
-        onSubmit={handleSubmit}
-        renderButtons={submitForm => (
-          <ModalGenericButtonRow>
-            <FormSubmitCancelRow
-              onConfirm={submitForm}
-              onCancel={onClose}
-              confirmText={
-                <TranslatedText
-                  stringId="program.action.sendToPatientPortal"
-                  fallback="Send to patient portal"
-                />
-              }
-            />
-          </ModalGenericButtonRow>
-        )}
-      />
-    </Modal>
-  );
-};
-
-export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
+export const SendFormToPatientPortalModal = ({ disabled, formId, buttonText }) => {
   const [open, setOpen] = useState(false);
   const patient = useSelector(state => state.patient);
 
@@ -69,14 +28,17 @@ export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
     },
   });
 
-  const handleSendToPatientPortal = email => {
-    sendPatientPortalForm({
-      patientId: patient.id,
-      formId,
-      assignedAt: getCurrentDateTimeString(),
-      email,
-    });
-  };
+  const handleSubmit = useCallback(
+    async ({ email }) => {
+      sendPatientPortalForm({
+        patientId: patient.id,
+        formId,
+        assignedAt: getCurrentDateTimeString(),
+        email,
+      });
+    },
+    [sendPatientPortalForm, patient.id, formId],
+  );
 
   return (
     <>
@@ -86,16 +48,37 @@ export const SendFormToPatientPortalButton = ({ disabled, formId }) => {
         disabled={disabled}
       >
         <SendIcon width={12} height={12} style={{ marginRight: '0.25rem' }} />
-        <TranslatedText
-          stringId="program.action.sendToPatientPortal"
-          fallback="Send to patient portal"
-        />
+        {buttonText}
       </TextButton>
-      <SendFormToPatientPortalModal
+      <Modal
         open={open}
         onClose={() => setOpen(false)}
-        onSendToPatientPortal={handleSendToPatientPortal}
-      />
+        title={
+          <TranslatedText
+            stringId="program.action.sendToPatientPortal"
+            fallback="Send to patient portal"
+          />
+        }
+      >
+        <EmailAddressConfirmationForm
+          onCancel={() => setOpen(false)}
+          onSubmit={handleSubmit}
+          renderButtons={submitForm => (
+            <ModalGenericButtonRow>
+              <FormSubmitCancelRow
+                onConfirm={submitForm}
+                onCancel={() => setOpen(false)}
+                confirmText={
+                  <TranslatedText
+                    stringId="program.action.sendToPatientPortal"
+                    fallback="Send to patient portal"
+                  />
+                }
+              />
+            </ModalGenericButtonRow>
+          )}
+        />
+      </Modal>
     </>
   );
 };

@@ -150,6 +150,10 @@ const sendUnregisteredFormEmail = async ({
     'templates.patientPortalUnregisteredFormEmail',
   );
 
+  const subject = replaceInTemplate(patientPortalUnregisteredFormTemplate.subject, {
+    facilityName: facility.name,
+  });
+
   const content = replaceInTemplate(patientPortalUnregisteredFormTemplate.body, {
     firstName: patient.firstName,
     lastName: patient.lastName,
@@ -163,7 +167,7 @@ const sendUnregisteredFormEmail = async ({
     channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
     destination: patientEmail,
-    subject: patientPortalUnregisteredFormTemplate.subject,
+    subject,
     content,
   });
 };

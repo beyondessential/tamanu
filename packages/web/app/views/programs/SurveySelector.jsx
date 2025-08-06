@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import { Button } from '../../components/Button';
 import { ButtonRow } from '../../components/ButtonRow';
 import { SelectInput } from '../../components/Field/SelectField';
-import { SendFormToPatientPortalButton } from '../patients/components/SendFormToPatientPortalModal';
+import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
+import { TranslatedText } from '../../components';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -33,7 +34,16 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <SendFormToPatientPortalButton disabled={!value} formId={value} />
+        <SendFormToPatientPortalModal
+          disabled={!value}
+          formId={value}
+          buttonText={
+            <TranslatedText
+              stringId="program.action.sendToPatientPortal"
+              fallback="Send to patient portal"
+            />
+          }
+        />
         <Button
           onClick={handleSubmit}
           disabled={!value}
