@@ -1,5 +1,7 @@
 import { Connection, ConnectionOptions, createConnection, getConnectionManager } from 'typeorm';
+import { typeORMDriver } from 'react-native-quick-sqlite'
 import { DevSettings } from 'react-native';
+
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
 import { migrationList } from '~/migrations';
@@ -16,6 +18,7 @@ const CONNECTION_CONFIG = {
   type: 'react-native',
   database: 'tamanu',
   location: 'default',
+  driver: typeORMDriver,
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,

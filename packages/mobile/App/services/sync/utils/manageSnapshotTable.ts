@@ -1,5 +1,6 @@
-import { Database } from '../../../infra/db';
+import { Database } from '~/infra/db';
 import { chunk } from 'lodash';
+import { SyncRecord } from '../types';
 
 export const insertSnapshotRecords = async (
   records: Record<string, any>[],
@@ -19,7 +20,7 @@ export const getSnapshotBatchIds = async (): Promise<number[]> => {
 
 export const getSnapshotBatchesByIds = async (
   batchIds: number[],
-): Promise<Record<string, any>[]> => {
+): Promise<SyncRecord[]> => {
   if (batchIds.length === 0) {
     return [];
   }

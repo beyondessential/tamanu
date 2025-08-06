@@ -48,7 +48,7 @@ describe('MobileSyncManager', () => {
   let mobileSyncManager;
 
   beforeEach(() => {
-    mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService);
+    mobileSyncManager = new MobileSyncManager(centralServerConnection, mockSettingsService as any);
     jest.clearAllMocks();
   });
 
@@ -142,7 +142,7 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.pushOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
     });
 
-    it("should call pullIncomingChanges() with the correct 'sessionId' and 'syncSettings'", async () => {
+    it("should call pullIncomingChanges() with the correct 'sessionId'", async () => {
       jest.spyOn(mobileSyncManager, 'pushOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'pullIncomingChanges').mockImplementationOnce(jest.fn());
       jest
@@ -157,12 +157,7 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.pullIncomingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId, {
-        maxBatchesToKeepInMemory: 10,
-        maxRecordsPerInsertBatch: 100,
-        maxRecordsPerSnapshotBatch: 1000,
-        useUnsafeSchemaForInitialSync: false,
-      });
+      expect(mobileSyncManager.pullIncomingChanges).toBeCalledWith(mockSessionId);
     });
   });
 
@@ -173,9 +168,9 @@ describe('MobileSyncManager', () => {
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
       
-      getModelsForDirection.mockReturnValueOnce(modelsToPush);
-      getSyncTick.mockReturnValue(pushSince);
-      snapshotOutgoingChanges.mockReturnValueOnce(new Promise(resolve => {
+      (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+      (getSyncTick as jest.Mock).mockReturnValue(pushSince);
+      (snapshotOutgoingChanges as jest.Mock).mockReturnValueOnce(new Promise(resolve => {
         resolve([]);
       }));
 
@@ -189,8 +184,8 @@ describe('MobileSyncManager', () => {
       const sessionId = 'test-session';
       const newSyncClockTime = 4;
       
-      getModelsForDirection.mockReturnValueOnce(modelsToPush);
-      snapshotOutgoingChanges.mockImplementationOnce(() => []);
+      (getModelsForDirection as jest.Mock).mockReturnValueOnce(modelsToPush);
+      (snapshotOutgoingChanges as jest.Mock).mockImplementationOnce(() => []);
 
       await mobileSyncManager.pushOutgoingChanges(sessionId, newSyncClockTime);
 

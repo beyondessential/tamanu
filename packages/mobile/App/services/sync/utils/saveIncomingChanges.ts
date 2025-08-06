@@ -1,14 +1,18 @@
 import { In } from 'typeorm';
-import { chunk, groupBy } from 'lodash';
+import { chunk, groupBy, keyBy } from 'lodash';
 
 import { SyncRecord } from '../types';
-import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeDeletes, executeInserts, executeRestores, executeUpdates } from './executeCrud';
-import { BaseModel } from '../../../models/BaseModel';
 import { getSnapshotBatchIds, getSnapshotBatchesByIds } from './manageSnapshotTable';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
 import { MobileSyncSettings } from '../MobileSyncManager';
-import { MODELS_ARRAY } from '~/models/modelsMap';
+import { buildForRawInsertFromSyncRecords, buildFromSyncRecords } from './buildFromSyncRecord';
+import { type TransactingModel } from './getModelsForDirection';
+
+type ModelRecords = {
+  model: TransactingModel;
+  records: SyncRecord[];
+};
 
 const forceGC = () => {
   if (typeof gc === 'function') {
@@ -25,27 +29,26 @@ const forceGC = () => {
  * @returns
  */
 export const saveChangesForModel = async (
-  model: typeof BaseModel,
+  model: TransactingModel,
   changes: SyncRecord[],
-  { maxRecordsPerInsertBatch = 500 }: MobileSyncSettings,
+  { maxRecordsPerInsertBatch = 2000 }: MobileSyncSettings,
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
   const repository = model.getTransactionalRepository();
-  const idToIncomingRecord = Object.fromEntries(
-    changes.filter(c => c.data).map(e => [e.data.id, e]),
-  );
+  const allChanges = changes.filter(c => c.data);
+  const recordIds = allChanges.map(c => c.recordId);
+  const idToIncomingRecord = keyBy(allChanges, 'recordId');
+
   // split changes into create, update, delete
-  const recordsForUpsert = changes.filter(c => c.data).map(c => c.data);
   const idsForUpdate = new Set();
   const idsForRestore = new Set();
   const idsForDelete = new Set();
 
-  for (const incomingRecords of chunk(recordsForUpsert, SQLITE_MAX_PARAMETERS)) {
-    const batchOfIds = incomingRecords.map(r => r.id);
+  for (const recordIdChunk of chunk(recordIds, SQLITE_MAX_PARAMETERS)) {
     // add all records that already exist in the db to the list to be updated
     // even if they are being deleted or restored, we should also run an update query to keep the data in sync
     const batchOfExisting = await repository.find({
-      where: { id: In(batchOfIds) },
+      where: { id: In(recordIdChunk) },
       select: ['id', 'deletedAt'],
       withDeleted: true,
     });
@@ -62,21 +65,25 @@ export const saveChangesForModel = async (
     });
   }
 
-  const recordsForCreate = changes
-    .filter(c => !idsForUpdate.has(c.recordId)) // not existing in db
-    .map(({ isDeleted, data }) => ({ ...buildFromSyncRecord(model, data), isDeleted }));
+  const recordsForCreate = buildForRawInsertFromSyncRecords(
+    model,
+    allChanges.filter(c => !idsForUpdate.has(c.recordId)),
+  );
 
-  const recordsForUpdate = changes
-    .filter(c => idsForUpdate.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+  const recordsForUpdate = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForUpdate.has(c.recordId)),
+  );
 
-  const recordsForRestore = changes
-    .filter(c => idsForRestore.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+  const recordsForRestore = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForRestore.has(c.recordId)),
+  );
 
-  const recordsForDelete = changes
-    .filter(c => idsForDelete.has(c.recordId))
-    .map(({ data }) => buildFromSyncRecord(model, data));
+  const recordsForDelete = buildFromSyncRecords(
+    model,
+    allChanges.filter(c => idsForDelete.has(c.recordId)),
+  );
 
   // run each import process
   if (recordsForCreate.length > 0) {
@@ -95,51 +102,53 @@ export const saveChangesForModel = async (
 
 const prepareChangesForModels = (
   records: SyncRecord[],
-  incomingModels: typeof MODELS_ARRAY,
-): Record<string, SyncRecord[]> => {
+  incomingModels: TransactingModel[],
+): ModelRecords[] => {
   const recordsByType = groupBy(records, 'recordType');
-  const changesByModel: Record<string, SyncRecord[]> = {};
+  const modelChanges: ModelRecords[] = [];
   for (const model of incomingModels) {
     const recordsForModel = recordsByType[model.getTableName()] || [];
-    if (recordsForModel.length > 0) {
-      changesByModel[model.name] =
-        'sanitizePulledRecordData' in model
-          ? model.sanitizePulledRecordData(recordsForModel)
-          : recordsForModel;
+    if (!recordsForModel.length) {
+      continue;
     }
+    const sanitizedData =
+      'sanitizePulledRecordData' in model
+        ? (model as any).sanitizePulledRecordData(recordsForModel)
+        : recordsForModel;
+    modelChanges.push({
+      model,
+      records: sanitizedData,
+    });
   }
   // Force garbage collection to free up memory
   // otherwise the memory will be exhausted during this step in larger syncs
   forceGC();
-  return changesByModel;
+  return modelChanges;
 };
 
 export const saveChangesFromMemory = async (
   records: SyncRecord[],
-  sortedModels: typeof MODELS_ARRAY,
+  sortedModels: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const preparedRecordByModel = prepareChangesForModels(records, sortedModels);
-  for (const model of sortedModels) {
-    const recordsForModel = preparedRecordByModel[model.name];
-    if (recordsForModel) {
-      if (model.name === 'User') {
-        await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
-      } else {
-        await executeInserts(
-          model.getTransactionalRepository(),
-          recordsForModel.map(({ data }) => buildFromSyncRecord(model, data)),
-          syncSettings.maxRecordsPerInsertBatch,
-          progressCallback,
-        );
-      }
+  const modelChanges = prepareChangesForModels(records, sortedModels);
+  for (const { model, records } of modelChanges) {
+    if (model.name === 'User') {
+      await saveChangesForModel(model, records, syncSettings, progressCallback);
+    } else {
+      await executeInserts(
+        model.getTransactionalRepository(),
+        buildForRawInsertFromSyncRecords(model, records),
+        syncSettings.maxRecordsPerInsertBatch,
+        progressCallback,
+      );
     }
   }
 };
 
 export const saveChangesFromSnapshot = async (
-  sortedModels: typeof MODELS_ARRAY,
+  sortedModels: TransactingModel[],
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
@@ -147,12 +156,9 @@ export const saveChangesFromSnapshot = async (
   const batchIds = await getSnapshotBatchIds();
   for (const chunkBatchIds of chunk(batchIds, maxBatchesToKeepInMemory)) {
     const batchRecords = await getSnapshotBatchesByIds(chunkBatchIds);
-    const preparedRecordByModel = await prepareChangesForModels(batchRecords, sortedModels);
-    for (const model of sortedModels) {
-      const recordsForModel = preparedRecordByModel[model.name];
-      if (recordsForModel) {
-        await saveChangesForModel(model, recordsForModel, syncSettings, progressCallback);
-      }
+    const modelChanges = prepareChangesForModels(batchRecords, sortedModels);
+    for (const { model, records } of modelChanges) {
+      await saveChangesForModel(model, records, syncSettings, progressCallback);
     }
   }
 };
