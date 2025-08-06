@@ -6,10 +6,10 @@ jest.mock('./executeCrud');
 jest.mock('./buildFromSyncRecord', () => {
   return {
     buildFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
-      return records.map(record => ({ ...record.data, isDeleted: record.isDeleted }));
+      return records.map(record => record.data);
     }),
     buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
-      return records.map(record => ({ ...record.data, isDeleted: record.isDeleted }));
+      return records.map(record => record.data);
     }),
   };
 });
