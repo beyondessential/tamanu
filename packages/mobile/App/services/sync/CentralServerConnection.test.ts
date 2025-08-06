@@ -8,6 +8,14 @@ import {
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout, sleepAsync } from './utils';
 
+jest.mock('~/infra/db', () => ({
+  Database: {
+    client: {
+      query: jest.fn(),
+    },
+  },
+}));
+
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
   fetchWithTimeout: jest.fn(),

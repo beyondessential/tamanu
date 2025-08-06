@@ -79,7 +79,7 @@ patientProgramRegistration.post(
         { transaction },
       );
 
-      await models.PatientFacility.upsert(
+      await models.PatientFacility.createOrUpdate(
         {
           patientId,
           facilityId: registeringFacilityId,
