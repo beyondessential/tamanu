@@ -79,20 +79,35 @@ usersRouter.get(
     });
 
     let orderClause;
-    
-    if (orderBy === 'roleName') {
-      orderClause = [
-        [
-          User.sequelize.literal(
-            `(SELECT "name" FROM "roles" WHERE "roles"."id" = "User"."role")`
-          ),
-          order.toUpperCase()
-        ]
-      ];
-    } else if (orderBy === 'designations') {
-      orderClause = [[{ model: UserDesignation, as: 'designations' }, { model: ReferenceData, as: 'referenceData' }, 'name', order.toUpperCase()]];
-    } else {
-      orderClause = [[orderBy, order.toUpperCase()]];
+    const upperOrder = order.toUpperCase();
+    switch (orderBy) {
+      case 'roleName':
+        orderClause = [
+          [
+            User.sequelize.literal(
+              `(SELECT "name" FROM ${Role.getTableName()} WHERE ${Role.getTableName()}."id" = "User"."role")`,
+            ),
+            upperOrder,
+          ],
+        ];
+        break;
+      case 'designations':
+        orderClause = [
+          [
+            { model: UserDesignation, as: 'designations' },
+            { model: ReferenceData, as: 'referenceData' },
+            'name',
+            upperOrder,
+          ],
+        ];
+        break;
+      case 'displayName':
+      case 'email':
+      case 'phoneNumber':
+        orderClause = [[orderBy, upperOrder]];
+        break;
+      default:
+        throw new ValidationError(`Invalid orderBy value: ${orderBy}`);
     }
 
     const users = await User.findAll({
