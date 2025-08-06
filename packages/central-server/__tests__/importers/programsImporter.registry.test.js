@@ -17,7 +17,7 @@ describe('Programs import - Program Registry', () => {
     ctx = await createTestContext();
   });
 
-  const truncateTables = async () => {
+  beforeEach(async () => {
     const {
       Program,
       Survey,
@@ -28,7 +28,6 @@ describe('Programs import - Program Registry', () => {
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
-      TranslatedString,
     } = ctx.store.models;
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
@@ -39,14 +38,8 @@ describe('Programs import - Program Registry', () => {
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
-    await TranslatedString.destroy({ where: {}, force: true });
-  };
-
-  beforeEach(async () => {
-    await truncateTables();
   });
   afterAll(async () => {
-    await truncateTables();
     await ctx.close();
   });
 

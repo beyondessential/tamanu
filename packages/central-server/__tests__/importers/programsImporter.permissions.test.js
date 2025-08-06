@@ -15,39 +15,23 @@ describe('Programs import - Permissions', () => {
     models = ctx.store.models;
   });
 
-  const truncateTables = async () => {
+  beforeEach(async () => {
     const {
       Program,
       Survey,
-      PatientProgramRegistration,
-      ProgramRegistryClinicalStatus,
-      ProgramRegistryCondition,
-      ProgramRegistryConditionCategory,
-      ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
-      TranslatedString,
+      Permission,
+      Role,
     } = ctx.store.models;
-    await PatientProgramRegistration.destroy({ where: {}, force: true });
-    await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
-    await ProgramRegistryCondition.destroy({ where: {}, force: true });
-    await ProgramRegistryConditionCategory.destroy({ where: {}, force: true });
-    await ProgramRegistry.destroy({ where: {}, force: true });
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
-    await TranslatedString.destroy({ where: {}, force: true });
-  };
-
-  beforeEach(async () => {
-    await truncateTables();
-    const { Permission, Role } = ctx.store.models;
     await Permission.destroy({ where: {}, force: true });
     await Role.destroy({ where: {}, force: true });
   });
   afterAll(async () => {
-    await truncateTables();
     await ctx.close();
   });
 
