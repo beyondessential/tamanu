@@ -23,6 +23,7 @@ import { ADMINISTRATION_FREQUENCIES } from '~/constants/medications';
 import { EncounterPrescription } from './EncounterPrescription';
 import { EncounterType } from '~/types/IEncounter';
 import { Task } from './Task';
+import { TaskEncounterPrescription } from './TaskEncounterPrescription';
 import { TASK_STATUSES, TASK_TYPES } from '~/constants/tasks';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
 import { SYSTEM_USER_UUID } from '~/constants';
@@ -208,27 +209,31 @@ export class MedicationAdministrationRecord extends BaseModel {
     if (!encounter || encounter.encounterType !== EncounterType.Admission || encounter.endDate)
       return;
 
+    let task = await Task.findOne({
+      where: {
+        encounterId: encounter.id,
+        dueTime: mar.dueAt,
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      },
+      select: ['id'],
+    });
 
-    const existingTask = await Task.createQueryBuilder('task')
-      .where('task.encounterId = :encounterId', { encounterId: encounter.id })
-      .andWhere('task.dueTime = :dueTime', { dueTime: mar.dueAt })
-      .andWhere('task.status = :status', { status: TASK_STATUSES.TODO })
-      .andWhere('task.taskType = :taskType', { taskType: TASK_TYPES.MEDICATION_DUE_TASK })
-      .andWhere('task.deletedAt IS NULL')
-      .select(['task.id'])
-      .getOne();
+    // Create task if it doesn't exist
+    if (!task) {
+      task = await Task.createAndSaveOne({
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+        encounter: encounter.id,
+        name: 'Medication Due',
+        dueTime: mar.dueAt,
+        status: TASK_STATUSES.TODO,
+        requestTime: getCurrentDateTimeString(),
+        requestedByUser: SYSTEM_USER_UUID,
+      });
+    }
 
-    // Skip if the task at the same ideal time already exists
-    if (existingTask) return;
-
-    await Task.createAndSaveOne({
-      taskType: TASK_TYPES.MEDICATION_DUE_TASK,
-      encounter: encounter.id,
-      name: 'Medication Due',
-      dueTime: mar.dueAt,
-      status: TASK_STATUSES.TODO,
-      requestTime: getCurrentDateTimeString(),
-      requestedByUser: SYSTEM_USER_UUID,
+    await TaskEncounterPrescription.createAndSaveOne({
+      taskId: task.id,
+      encounterPrescriptionId: encounterPrescription.id,
     });
   }
 }

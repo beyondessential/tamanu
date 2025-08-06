@@ -42,6 +42,7 @@ export * from './PatientOngoingPrescription';
 export * from './EncounterPrescription';
 export * from './EncounterPausePrescription';
 export * from './EncounterPausePrescriptionHistory';
+export * from './TaskEncounterPrescription';
 
 export * from './EncounterDiet';
 export * from './LabRequest';

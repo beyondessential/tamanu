@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, TASK_STATUSES, TASK_TYPES } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import {
@@ -8,6 +8,10 @@ import {
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterPatientIdSelect } from '../sync';
+import {
+  findAdministrationTimeSlotFromIdealTime,
+  getDateFromTimeString,
+} from '@tamanu/shared/utils/medication';
 
 export class EncounterPausePrescription extends Model {
   declare id: string;
@@ -71,6 +75,34 @@ export class EncounterPausePrescription extends Model {
                 transaction: options.transaction,
               },
             );
+
+            const encounterPrescription = await this.sequelize.models.EncounterPrescription.findByPk(instance.encounterPrescriptionId);     
+            if (!encounterPrescription) return;
+
+            const dueAtDate = new Date(instance.pauseStartDate);
+            const { timeSlot } = findAdministrationTimeSlotFromIdealTime(dueAtDate);
+            const startDate = getDateFromTimeString(timeSlot?.startTime, dueAtDate);
+            const toPauseTasks = await this.sequelize.models.Task.findAll({
+              where: {
+                encounterId: encounterPrescription.encounterId,
+                dueTime: {
+                  [Op.gte]: startDate,
+                  [Op.lte]: instance.pauseEndDate,
+                },
+                status: TASK_STATUSES.TODO,
+                taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+              },
+              attributes: ['id'],
+            });
+            
+            await this.sequelize.models.TaskEncounterPrescription.destroy({
+              where: {
+                encounterPrescriptionId: instance.encounterPrescriptionId,
+                taskId: {
+                  [Op.in]: toPauseTasks.map((task) => task.id),
+                },
+              },
+            });
           },
 
           afterUpdate: async (instance: EncounterPausePrescription, options) => {
@@ -97,6 +129,53 @@ export class EncounterPausePrescription extends Model {
                   transaction: options.transaction,
                 },
               );
+
+              const encounterPrescription = await this.sequelize.models.EncounterPrescription.findByPk(instance.encounterPrescriptionId);
+              if (!encounterPrescription) return;
+
+              const previousPauseEndDate = instance.previous('pauseEndDate');
+
+              const pauseEndDate = new Date(instance.pauseEndDate);
+              const { timeSlot } = findAdministrationTimeSlotFromIdealTime(pauseEndDate);
+              const startDate = getDateFromTimeString(timeSlot?.startTime, pauseEndDate);
+              const toResumeTasks = await this.sequelize.models.Task.findAll({
+                where: {
+                  encounterId: encounterPrescription.encounterId,
+                  dueTime: {
+                    [Op.gte]: startDate,
+                    [Op.lte]: previousPauseEndDate,
+                  },
+                  taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+                },
+                attributes: ['id', 'status', 'dueTime', 'deletedAt'],
+                paranoid: false,
+              });
+
+              if (!toResumeTasks.length) return;
+
+              const dueTimes = toResumeTasks.map((task) => task.dueTime);
+              const recordedMars = await this.sequelize.models.MedicationAdministrationRecord.findAll({
+                where: {
+                  prescriptionId: encounterPrescription.prescriptionId,
+                  dueAt: { [Op.in]: dueTimes },
+                  recordedAt: { [Op.ne]: null },
+                },
+                attributes: ['dueAt'],
+              });
+              const recordedDueTimes = new Set(recordedMars.map((mar) => mar.dueAt));
+              
+              const tasksToRestore = toResumeTasks.filter((task) => !recordedDueTimes.has(task.dueTime));
+
+              if (tasksToRestore.length > 0) {
+                await this.sequelize.models.TaskEncounterPrescription.restore({
+                  where: {
+                    taskId: {
+                      [Op.in]: tasksToRestore.map((task) => task.id),
+                    },
+                    encounterPrescriptionId: instance.encounterPrescriptionId,
+                  },
+                });
+              }
             }
           },
         },

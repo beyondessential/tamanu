@@ -198,6 +198,10 @@ export class Task extends Model {
       foreignKey: 'taskId',
       as: 'designations',
     });
+    this.hasMany(models.TaskEncounterPrescription, {
+      foreignKey: 'taskId',
+      as: 'taskEncounterPrescriptions',
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

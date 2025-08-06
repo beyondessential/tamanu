@@ -6,6 +6,7 @@ import { ReferenceData } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 import { TaskDesignation } from './TaskDesignation';
+import { TaskEncounterPrescription } from './TaskEncounterPrescription';
 
 @Entity('tasks')
 export class Task extends BaseModel {
@@ -118,4 +119,7 @@ export class Task extends BaseModel {
 
   @OneToMany(() => TaskDesignation, taskDesignation => taskDesignation.task)
   designations: TaskDesignation[];
+
+  @OneToMany(() => TaskEncounterPrescription, taskEncounterPrescription => taskEncounterPrescription.task)
+  taskEncounterPrescriptions: TaskEncounterPrescription[];
 }
