@@ -72,7 +72,7 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
 
 const ComplexChartInstancesTab = styled(TabDisplay)`
   overflow: initial;
-  max-width: 400px;
+  flex: 1;
   .MuiTabs-root {
     z-index: 9;
     position: sticky;
