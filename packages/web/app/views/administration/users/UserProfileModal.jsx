@@ -63,6 +63,22 @@ const validationSchema = yup.object().shape({
   email: foreignKey(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .email()
     .translatedLabel(<TranslatedText stringId="admin.users.email.label" fallback="Email" />),
+  newPassword: yup.string().nullable(),
+  confirmPassword: yup
+    .string()
+    .nullable()
+    .test(
+      'passwords-match',
+      <TranslatedText stringId="validation.passwords.mismatch" fallback="Passwords do not match" />,
+      function(value) {
+        const { newPassword } = this.parent;
+        // Only validate if both passwords are provided
+        if (!newPassword && !value) return true;
+        if (newPassword && !value) return false;
+        if (!newPassword && value) return false;
+        return newPassword === value;
+      },
+    ),
 });
 
 export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
@@ -92,9 +108,18 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       {
         onSuccess: () => {
           handleRefresh();
-          toast.success(
-            getTranslation('admin.users.profile.success', 'User updated successfully!'),
-          );
+          if (values.newPassword && values.confirmPassword) {
+            toast.success(
+              getTranslation(
+                'admin.users.profile.successWithPassword',
+                'User updated successfully! Password changed.',
+              ),
+            );
+          } else {
+            toast.success(
+              getTranslation('admin.users.profile.success', 'User updated successfully!'),
+            );
+          }
           onClose();
         },
         onError: error => {
@@ -112,6 +137,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     designations: user?.designations?.map(d => d.designationId) || [],
     email: user?.email,
     phoneNumber: user?.phoneNumber,
+    newPassword: '',
+    confirmPassword: '',
   };
 
   return (
@@ -201,6 +228,56 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                       <TranslatedText stringId="admin.users.phoneNumber.label" fallback="Phone" />
                     }
                     component={TextField}
+                  />
+                </FormGrid>
+                <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
+                <FormGrid columns={2} nested>
+                  <SectionContainer gridColumn="span 2">
+                    <SectionTitle>
+                      <TranslatedText
+                        stringId="admin.users.changePassword.title"
+                        fallback="Change password"
+                      />
+                    </SectionTitle>
+                    <SectionSubtitle>
+                      <TranslatedText
+                        stringId="admin.users.changePassword.subtitle"
+                        fallback="Use the fields below to reset the users password."
+                      />
+                    </SectionSubtitle>
+                  </SectionContainer>
+                  <Field
+                    name="newPassword"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.newPassword.label"
+                        fallback="New password"
+                      />
+                    }
+                    placeholder={getTranslation(
+                      'admin.users.newPassword.placeholder',
+                      'Enter new password',
+                    )}
+                    component={TextField}
+                    type="password"
+                    required
+                    autoComplete="new-password"
+                  />
+                  <Field
+                    name="confirmPassword"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.confirmPassword.label"
+                        fallback="Confirm new password"
+                      />
+                    }
+                    placeholder={getTranslation(
+                      'admin.users.confirmPassword.placeholder',
+                      'Confirm new password',
+                    )}
+                    component={TextField}
+                    type="password"
+                    required
                   />
                 </FormGrid>
               </Container>
