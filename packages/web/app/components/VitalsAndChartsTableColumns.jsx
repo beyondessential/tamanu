@@ -43,11 +43,12 @@ const parseMultiselectValue = value => {
   }
 };
 
-const VitalsLimitedLinesCell = ({ value }) => (
+const VitalsLimitedLinesCell = ({ value, isEdited }) => (
   <LimitedLinesCell
     value={value}
     maxWidth="75px"
     maxLines={2}
+    isEdited={isEdited}
     data-testid="limitedlinescell-r6w3"
   />
 );

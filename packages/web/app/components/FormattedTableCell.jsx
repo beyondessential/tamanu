@@ -129,6 +129,7 @@ export const LimitedLinesCell = ({
   maxLines = 2,
   isOneLine = false,
   disableTooltip = false,
+  isEdited = false,
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -166,15 +167,18 @@ export const LimitedLinesCell = ({
   }
 
   return (
-    <TableTooltip
-      title={value ?? ''}
-      open={isClamped && tooltipOpen}
-      onOpen={() => setTooltipOpen(true)}
-      onClose={() => setTooltipOpen(false)}
-      data-testid="tabletooltip-fs9r"
-    >
-      {renderLimitedLinesCellWrapper()}
-    </TableTooltip>
+    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+      <TableTooltip
+        title={value ?? ''}
+        open={isClamped && tooltipOpen}
+        onOpen={() => setTooltipOpen(true)}
+        onClose={() => setTooltipOpen(false)}
+        data-testid="tabletooltip-fs9r"
+      >
+        {renderLimitedLinesCellWrapper()}
+      </TableTooltip>
+      {isEdited && isClamped && <span>*</span>}
+    </div>
   );
 };
 
@@ -221,7 +225,7 @@ export const RangeValidatedCell = React.memo(
         {...props}
         data-testid="cellcontainer-4zzh"
       >
-        <ValueWrapper value={formattedValue} data-testid="valuewrapper-nbfj" />
+        <ValueWrapper value={formattedValue} isEdited={isEdited} data-testid="valuewrapper-nbfj" />
       </CellContainer>
     );
 
