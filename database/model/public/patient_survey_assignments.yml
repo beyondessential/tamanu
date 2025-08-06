@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_survey_assignments
-        description: '{{ doc("table__patient_survey_assignments") }}'
+        description: "{{ doc('table__patient_survey_assignments') }}"
         config:
           tags: []
         columns:
