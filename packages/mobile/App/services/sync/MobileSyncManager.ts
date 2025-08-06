@@ -28,7 +28,7 @@ import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
 
 /**
  * Maximum progress that each stage contributes to the overall progress
-*/
+ */
 type StageMaxProgress = Record<number, number>;
 const STAGE_MAX_PROGRESS_INCREMENTAL: StageMaxProgress = {
   1: 33,
@@ -258,7 +258,7 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    
+
     console.log('MobileSyncManager.runSync(): Sync started');
 
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
@@ -306,6 +306,7 @@ export class MobileSyncManager {
         modelsToPush,
         sessionId,
         outgoingChanges,
+        this.syncSettings,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
       );
@@ -322,10 +323,10 @@ export class MobileSyncManager {
 
   /**
    * Syncing incoming changes follows two different paths:
-   * 
+   *
    * Initial sync: Pulls all records from server and saves them directly to database in a single transaction
    * Incremental sync: Pulls records to a snapshot table first, then saves them to database in a separate transaction
-   * 
+   *
    * Both approaches avoid a period of time where the local database may be "partially synced"
    * @param sessionId - the session id for the sync session
    */
@@ -336,7 +337,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    
+
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -373,11 +374,7 @@ export class MobileSyncManager {
     }
   }
 
-  async pullInitialSync({
-    sessionId,
-    recordTotal,
-    pullUntil,
-  }: PullParams): Promise<void> {
+  async pullInitialSync({ sessionId, recordTotal, pullUntil }: PullParams): Promise<void> {
     let totalPulled = 0;
     const progressCallback = (incrementalPulled: number) => {
       totalPulled += Number(incrementalPulled);
