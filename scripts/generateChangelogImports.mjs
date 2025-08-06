@@ -30,33 +30,32 @@ function generate(tables) {
     START +
     tables
       .map(table =>
+        `\\echo ${table}
+        insert into logs.changes (
+          table_oid, table_schema, table_name,
+          logged_at, record_created_at, record_updated_at, record_deleted_at,
+          updated_at_sync_tick, updated_by_user_id, record_id,
+          record_data
+        )
+        select
+          'public.${table}'::regclass::oid as table_oid,
+          'public' as table_schema,
+          '${table}' as table_name,
+
+          t.updated_at as logged_at,
+          coalesce(t.created_at, t.updated_at) as record_created_at,
+          coalesce(t.updated_at, t.created_at) as record_updated_at,
+          t.deleted_at as record_deleted_at,
+
+          t.updated_at_sync_tick as updated_at_sync_tick,
+          uuid_nil() as updated_by_user_id,
+          t.id::text as record_id,
+
+          to_jsonb(t) as record_data
+        from public.${table} t;
         `
-      \\echo ${table}
-      insert into logs.changes (
-        table_oid, table_schema, table_name,
-        logged_at, record_created_at, record_updated_at, record_deleted_at,
-        updated_at_sync_tick, updated_by_user_id, record_id,
-        record_data
-      )
-      select
-        'public.${table}'::regclass::oid as table_oid,
-        'public' as table_schema,
-        '${table}' as table_name,
-
-        t.updated_at as logged_at,
-        coalesce(t.created_at, t.updated_at) as record_created_at,
-        coalesce(t.updated_at, t.created_at) as record_updated_at,
-        t.deleted_at as record_deleted_at,
-
-        t.updated_at_sync_tick as updated_at_sync_tick,
-        uuid_nil() as updated_by_user_id,
-        t.id::text as record_id,
-
-        to_jsonb(t) as record_data
-      from public.${table} t;
-      `
           .trim()
-          .replaceAll(/^ {4}/gm, ''),
+          .replaceAll(/^ {8}/gm, ''),
       )
       .join('\n\n') +
     END
