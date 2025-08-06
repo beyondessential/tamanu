@@ -60,7 +60,15 @@ function checkForChanges(existing, normalizedValues, model) {
 
   return Object.keys(normalizedValues)
     .filter(key => !ignoredFields?.includes(key))
-    .some(key => existing.changed(key));
+    .some(key => {
+      const existingValue = existing[key];
+      const normalizedValue = normalizedValues[key];
+
+      if (typeof existingValue === 'number') {
+        return Number(normalizedValue) !== existingValue;
+      }
+      return existing.changed(key);
+    });
 }
 
 export async function importRows(
