@@ -1,7 +1,6 @@
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { resourcesThatCanDo } from '@tamanu/shared/utils/fhir/resources';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { isEqual, keyBy } from 'lodash';
 
 const buildDependencyMap = resources =>
   resources.reduce((acc, resource) => {
@@ -13,27 +12,26 @@ const sortResourcesInDependencyOrder = resources => {
   const dependencyMap = buildDependencyMap(resources);
 
   const sorted = [];
-  const stillToSort = keyBy(resources, 'name');
-  let previousPass = { ...stillToSort }; // Used to detect if we've made any changes in this pass
+  const stillToSort = new Map(resources.map(r => [r.name, r]));
+  let lastSize = -1;
 
-  while (Object.keys(stillToSort).length > 0) {
-    Object.values(stillToSort).forEach(model => {
-      const modelName = model.name;
-      const dependsOn = dependencyMap[modelName] || [];
-      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[d]);
-
-      if (dependenciesStillToSort.length === 0) {
-        sorted.push(model);
-        delete stillToSort[modelName];
-      }
-    });
-
-    if (isEqual(previousPass, stillToSort)) {
-      // If nothing changes in a pass, we're stuck in a loop
-      throw new Error(`Circular dependency detected: ${Object.keys(stillToSort).join(', ')}`);
+  while (stillToSort.size > 0) {
+    if (stillToSort.size === lastSize) {
+      // If the map size hasn't changed, we've made no progress and are in a loop.
+      const remaining = [...stillToSort.keys()].join(', ');
+      throw new Error(`Circular dependency detected: ${remaining}`);
     }
+    lastSize = stillToSort.size;
 
-    previousPass = { ...stillToSort };
+    for (const [modelName, model] of stillToSort) {
+      const dependsOn = dependencyMap[modelName] || [];
+      const hasUnresolvedDependencies = dependsOn.some(depName => stillToSort.has(depName));
+
+      if (!hasUnresolvedDependencies) {
+        sorted.push(model);
+        stillToSort.delete(modelName);
+      }
+    }
   }
 
   return sorted;
