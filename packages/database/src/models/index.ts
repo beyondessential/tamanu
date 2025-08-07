@@ -2,6 +2,7 @@ export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
+export * from './PatientUser';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -17,6 +18,8 @@ export * from './PatientContact';
 export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
+
+export * from './PatientSurveyAssignment';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';

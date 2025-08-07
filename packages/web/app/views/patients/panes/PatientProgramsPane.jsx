@@ -5,6 +5,7 @@ import { push } from 'connected-react-router';
 import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { PatientSurveyAssignmentsTable } from '../../../components/PatientSurveyAssignmentsTable';
 
 export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
         patient={patient}
         data-testid="datafetchingprogramstable-uytn"
       />
+      <PatientSurveyAssignmentsTable patient={patient} />
     </ContentPane>
   );
 });
