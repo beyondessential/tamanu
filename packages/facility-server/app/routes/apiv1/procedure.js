@@ -47,7 +47,7 @@ procedure.post('/surveyResponse', async (req, res) => {
 
     await models.ProcedureSurveyResponse.create({
       surveyResponseId: newSurveyResponse.id,
-      procedureId: procedure[0].id, // procedure[0] is the found/created instance
+      procedureId: procedure[0].id,
     });
 
     return newSurveyResponse;
