@@ -84,19 +84,23 @@ async function getColumnsInRelation(client, schemaName, tableName) {
 /**
  * @param {pg.Client} client
  * @param {number} oid
- * @returns {Array<{ oid: number; name: string; }>} A list of triggers that exist on the given table.
+ * @returns {Array<string>} A list of triggers that exist on the given table.
  */
 async function getTriggers(client, oid) {
   return (
-    await client.query(
-      `SELECT oid, tgname as name
-      FROM pg_trigger
-      WHERE tgisinternal = false AND tgrelid = $1`,
-      [oid],
-    )
-  ).rows
-    .filter(({ name }) => !name.startsWith('RI_'))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    (
+      await client.query(
+        `SELECT tgname as name
+        FROM pg_trigger
+        WHERE tgisinternal = false AND tgrelid = $1`,
+        [oid],
+      )
+    ).rows
+      .map(({ name }) => name)
+      // RI_ are Postgres-internal triggers; tgisinternal should take care of that, but hedge just in case
+      .filter(name => !name.startsWith('RI_'))
+      .sort()
+  );
 }
 
 /**
@@ -305,7 +309,7 @@ function generateColumnDoc(column) {
 
 /**
  * @param {string} schemaName
- * @param {{ name: string; oid: string; columns: object[]; triggers: { oid: number; name: string; }[] }} table
+ * @param {{ name: string; oid: number; columns: object[]; triggers: string[] }} table
  * @param {string[]} genericColNames
  * @returns A table object, directly serialisable as dbt model.
  */
@@ -324,7 +328,7 @@ async function generateTableModel(schema, table, genericColNames) {
             config: {
               tags: [],
               meta: {
-                triggers: table.triggers.map(t => t.name),
+                triggers: table.triggers,
               },
             },
             columns: await Promise.all(
@@ -546,7 +550,7 @@ async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   const table = source.tables[0];
   table.config = table.config ?? {};
   table.config.meta = table.config.meta ?? {};
-  table.config.meta.triggers = sqlTable.triggers.map(t => t.name);
+  table.config.meta.triggers = sqlTable.triggers;
 
   table.description = `{{ doc('${docPrefix(schema, 'table')}__${sqlTable.name}') }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
