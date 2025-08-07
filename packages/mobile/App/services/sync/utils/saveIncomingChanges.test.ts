@@ -208,11 +208,7 @@ describe('saveChangesForModel', () => {
       expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
       expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
       expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledWith(
-        repository,
-        [newRecord],
-        progressCallback,
-      );
+      expect(saveChangeModules.executeDeletes).toBeCalledWith(repository, [newRecord], progressCallback);
       expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
     });
   });

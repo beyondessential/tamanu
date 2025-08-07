@@ -24,7 +24,8 @@ import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
-import { TransactingModel } from './utils/getModelsForDirection';
+
+import { type TransactingModel } from './utils/getModelsForDirection';
 import { type EntityManager } from 'typeorm';
 
 /**
@@ -58,7 +59,8 @@ export interface PullParams {
   sessionId: string;
   recordTotal: number;
   pullUntil?: number;
-  centralServer: CentralServerConnection;
+  centralServer?: CentralServerConnection;
+  syncSettings?: MobileSyncSettings;
   progressCallback?: (incrementalPulled: number) => void;
 }
 
@@ -258,7 +260,7 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-
+    
     console.log('MobileSyncManager.runSync(): Sync started');
 
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
@@ -335,7 +337,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-
+    
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -361,10 +363,11 @@ export class MobileSyncManager {
 
     const pullParams: PullParams = {
       sessionId,
-      pullUntil,
       recordTotal: totalToPull,
+      pullUntil,
+      syncSettings: this.syncSettings,
       centralServer: this.centralServer,
-    };
+    }
     if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
@@ -372,7 +375,8 @@ export class MobileSyncManager {
     }
   }
 
-  async pullInitialSync({ sessionId, recordTotal, pullUntil }: PullParams): Promise<void> {
+  async pullInitialSync(pullParams: PullParams): Promise<void> {
+    const { recordTotal, pullUntil } = pullParams;
     let totalSaved = 0;
     const progressCallback = (incrementalSaved: number) => {
       totalSaved += Number(incrementalSaved);
@@ -392,7 +396,7 @@ export class MobileSyncManager {
         };
 
         await pullRecordsInBatches(
-          { centralServer: this.centralServer, sessionId, recordTotal, pullUntil },
+          pullParams,
           processStreamedDataFunction,
         );
         await this.postPull(transactionEntityManager, pullUntil);
@@ -403,11 +407,8 @@ export class MobileSyncManager {
     });
   }
 
-  async pullIncrementalSync({
-    sessionId,
-    recordTotal,
-    pullUntil,
-  }: PullParams): Promise<void> {
+  async pullIncrementalSync(pullParams: PullParams): Promise<void> {
+    const { recordTotal, pullUntil } = pullParams;
     const { maxRecordsPerSnapshotBatch = 1000 } = this.syncSettings;
     const processStreamedDataFunction = async (records: any) => {
       await insertSnapshotRecords(records, maxRecordsPerSnapshotBatch);
@@ -420,12 +421,7 @@ export class MobileSyncManager {
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      {
-        centralServer: this.centralServer,
-        sessionId,
-        recordTotal,
-        progressCallback: pullProgressCallback,
-      },
+      { ...pullParams, progressCallback: pullProgressCallback },
       processStreamedDataFunction,
     );
 

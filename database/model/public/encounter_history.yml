@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_history
-        description: '{{ doc("table__encounter_history") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounter_history') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid
