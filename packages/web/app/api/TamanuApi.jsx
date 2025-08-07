@@ -49,7 +49,6 @@ function restoreFromLocalStorage() {
 }
 
 function saveToLocalStorage({
-  token,
   localisation,
   server,
   availableFacilities,
@@ -58,9 +57,6 @@ function saveToLocalStorage({
   role,
   settings,
 }) {
-  if (token) {
-    localStorage.setItem(TOKEN, token);
-  }
   if (facilityId) {
     localStorage.setItem(FACILITY_ID, facilityId);
   }
@@ -192,9 +188,8 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role, token } = output;
+    const { localisation, server, availableFacilities, permissions, role } = output;
     saveToLocalStorage({
-      token,
       localisation,
       server,
       availableFacilities,
