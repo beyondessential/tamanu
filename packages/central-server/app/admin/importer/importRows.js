@@ -247,7 +247,14 @@ export async function importRows(
 
       if (existing) {
         if (normalizedValues.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
+          if (
+            ![
+              'Permission',
+              'SurveyScreenComponent',
+              'UserFacility',
+              'ProcedureTypeSurvey',
+            ].includes(model)
+          ) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           if (!existing.deletedAt) {
