@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - patient
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_patients_changed
+              - record_patients_changelog
+              - set_patients_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

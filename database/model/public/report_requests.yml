@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - system
+          meta:
+            triggers:
+              - notify_report_requests_changed
+              - record_report_requests_changelog
+              - set_report_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
