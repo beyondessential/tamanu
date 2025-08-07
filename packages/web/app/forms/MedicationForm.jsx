@@ -47,9 +47,10 @@ import {
   TextField,
   TranslatedSelectField,
 } from '../components';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { getAgeDurationFromDate } from '@tamanu/utils/date';
 import { useQueryClient } from '@tanstack/react-query';
 import { useApi, useSuggester } from '../api';
 import { useSelector } from 'react-redux';
@@ -531,7 +532,8 @@ export const MedicationForm = ({
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
   const patient = useSelector(state => state.patient);
-  const showPatientWeight = !isOngoingPrescription;
+  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
 
   const [submittedMedication, setSubmittedMedication] = useState(null);
