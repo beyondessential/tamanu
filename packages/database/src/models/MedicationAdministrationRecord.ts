@@ -268,8 +268,12 @@ export class MedicationAdministrationRecord extends Model {
 
     const prescription = await Prescription.findByPk(mar.prescriptionId);
 
+    if (!prescription) {
+      throw new Error('Prescription not found');
+    }
+
     // Skip if this is a PRN medication
-    if (!prescription || prescription.isPrn) return;
+    if (prescription.isPrn) return;
 
     const encounterPrescription = await EncounterPrescription.findOne({
       where: { prescriptionId: prescription.id },
@@ -283,10 +287,14 @@ export class MedicationAdministrationRecord extends Model {
     });
     const encounter = encounterPrescription?.encounter;
 
-    // Skip if this is not an inpatient encounter or is discharged
-    if (!encounter || encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate)
-      return;
+    if (!encounter) {
+      throw new Error('Encounter not found');
+    }
 
+    // Skip if this is not an inpatient encounter or is discharged
+    if (encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate) {
+      return;
+    }
 
     const existingTask = await Task.findOne({
       where: {
