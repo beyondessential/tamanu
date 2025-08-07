@@ -3,6 +3,7 @@ import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { EncounterPrescription } from './EncounterPrescription';
 
 export class Prescription extends Model {
   declare id: string;
@@ -32,6 +33,8 @@ export class Prescription extends Model {
   declare prescriberId?: string;
   declare discontinuingClinicianId?: string;
   declare medicationId?: string;
+
+  declare encounterPrescription?: EncounterPrescription;
 
   static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
