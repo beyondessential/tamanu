@@ -143,6 +143,9 @@ export class TamanuApi extends ApiClient {
     return super.setToken(token, refreshToken);
   }
 
+  // Overwrite base method to integrate with the facility-server refresh endpoint which just
+  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
+  // set up in facility-server
   async refreshToken(config = {}) {
     const response = await this.post(
       'refresh',
