@@ -8,7 +8,7 @@ const buildDependencyMap = resources =>
     return acc;
   }, {});
 
-const sortResourcesInDependencyOrder = resources => {
+export const sortResourcesInDependencyOrder = resources => {
   const dependencyMap = buildDependencyMap(resources);
 
   const sorted = [];
