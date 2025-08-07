@@ -22,6 +22,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane data-testid="tabpane-q1xp">
       <ProcedureModal
+        key={editedProcedure} /* Ensures that the modal is reset on close */
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}

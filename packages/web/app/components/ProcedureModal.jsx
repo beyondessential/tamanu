@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { useApi } from '../api';
 import { FormModal } from './FormModal';
+import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Form } from '../components/Field';
@@ -19,6 +19,10 @@ import { ProcedureAdditionalData } from '../forms/ProcedureForm/ProcedureAdditio
 import { DataFetchingProgramsTable } from '../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { useRefreshCount } from '../hooks/useRefreshCount';
+import {
+  UnSavedChangesModal,
+  UnSavedProcedureProgramModal,
+} from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
 
 const Heading = styled(Typography)`
@@ -83,6 +87,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
+  const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
+  const [unsavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProgramResponsesQuery(patientId, procedureId);
 
@@ -101,7 +107,18 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
         await api.post(`procedure/${updatedData.id}`, updatedData);
         onSaved();
       }}
-      render={({ submitForm, values }) => {
+      render={({ submitForm, values, dirty }) => {
+        const handleCancel = () => {
+          if (selectedSurveyId) {
+            // selectedSurveyId is defined when a program form is in progress
+            setUnSavedProgramFormOpen(true);
+          } else if (dirty) {
+            // user has made other changes to procedure details
+            setUnSavedChangesModalOpen(true);
+          } else {
+            onClose();
+          }
+        };
         return (
           <>
             <FormModal
@@ -181,6 +198,26 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 data-testid="formsubmitcancelrow-8gtl"
               />
             </FormModal>
+            <UnSavedProcedureProgramModal
+              open={unsavedProgramFormOpen}
+              onCancel={() => {
+                setUnSavedProgramFormOpen(false);
+              }}
+              onConfirm={() => {
+                setUnSavedProgramFormOpen(false);
+                onClose();
+              }}
+            />
+            <UnSavedChangesModal
+              open={unsavedChangesModalOpen}
+              onCancel={() => {
+                setUnSavedChangesModalOpen(false);
+              }}
+              onConfirm={() => {
+                setUnSavedChangesModalOpen(false);
+                onClose();
+              }}
+            />
           </>
         );
       }}
