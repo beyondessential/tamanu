@@ -21,7 +21,7 @@ const SelectInstructions = () => (
       All clinical data from both patient records will be retained. Clinical data includes encounters and encounter data, ongoing conditions, allergies, family history, and vaccination records.
     </p>
     <p>
-      All program registry data from both patient records will be retained. This includes registration details, program statuses, related conditions, and program form responses. If both patients have registrations for the same program, only the kept patient's program registration and associated data will be retained. However, program form responses from both patients will always be retained.
+      All program registry data from both patient records will be retained. This includes registration details, program statuses, related conditions, and program form responses. If both patients have registrations for the same program, only the kept patient&apos;s program registration and associated data will be retained. However, program form responses from both patients will always be retained.
     </p>
   </div>
 );
