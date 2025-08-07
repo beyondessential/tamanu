@@ -719,7 +719,7 @@ describe('Encounter', () => {
 
       beforeAll(async () => {
         medicationEncounter = await models.Encounter.create({
-          ...(await createDummyEncounter(models)),
+          ...(await createDummyEncounter(models, { current: true })),
           patientId: patient.id,
           reasonForEncounter: 'medication test',
         });
@@ -748,6 +748,87 @@ describe('Encounter', () => {
         expect(result.body.date).toBeTruthy();
       });
 
+      it('should create a medication set successfully', async () => {
+        const secondMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'TestDrug2',
+          code: 'test2',
+        });
+
+        const result = await app.post('/api/medication/medication-set').send({
+          encounterId: medicationEncounter.id,
+          medicationSet: [
+            {
+              medicationId: secondMedication.id,
+              prescriberId: app.user.id,
+              doseAmount: 2,
+              units: 'mg',
+              frequency: 'Immediately',
+              route: 'oral',
+              date: '2025-01-01',
+              startDate: getCurrentDateTimeString(),
+            },
+          ],
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body).toHaveLength(1);
+        expect(result.body[0].medicationId).toEqual(secondMedication.id);
+      });
+
+      it('should import ongoing medications successfully', async () => {
+        const ongoingPrescription1 = await models.Prescription.create({
+          medicationId: testMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'Immediately',
+          route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        const secondMedication = await models.ReferenceData.create({
+          type: 'drug',
+          name: 'TestDrug2',
+          code: 'test2',
+        });
+
+        const ongoingPrescription2 = await models.Prescription.create({
+          medicationId: secondMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 2,
+          units: 'mg',
+          frequency: 'Immediately',
+          route: 'oral',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        await models.PatientOngoingPrescription.bulkCreate([
+          {
+            patientId: patient.id,
+            prescriptionId: ongoingPrescription1.id,
+          },
+          {
+            patientId: patient.id,
+            prescriptionId: ongoingPrescription2.id,
+          },
+        ]);
+
+        const result = await app.post('/api/medication/import-ongoing').send({
+          encounterId: medicationEncounter.id,
+          prescriptionIds: [ongoingPrescription1.id, ongoingPrescription2.id],
+          prescriberId: app.user.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.count).toEqual(2);
+        expect(result.body.data).toHaveLength(2);
+        expect(result.body.data[0].medicationId).toEqual(testMedication.id);
+        expect(result.body.data[1].medicationId).toEqual(secondMedication.id);
+      });
+
       it('should get medications for an encounter', async () => {
         const result = await app.get(`/api/encounter/${medicationEncounter.id}/medications`);
         expect(result).toHaveSucceeded();
@@ -763,6 +844,79 @@ describe('Encounter', () => {
         expect(body.count).toBeGreaterThan(0);
         expect(body.data[0].medication.name).toEqual('Checkizol');
         expect(body.data[0].medication.code).toEqual('check');
+      });
+
+      it('should reject creating medication when encounter is discharged', async () => {
+        // Discharge the encounter first
+        const endDate = getCurrentDateTimeString();
+        await app.put(`/api/encounter/${medicationEncounter.id}`).send({
+          endDate,
+          discharge: {
+            dischargerId: app.user.id,
+          },
+        });
+
+        const result = await app
+          .post(`/api/medication/encounterPrescription/${medicationEncounter.id}`)
+          .send({
+            medicationId: testMedication.id,
+            prescriberId: app.user.id,
+            doseAmount: 1,
+            units: '%',
+            frequency: 'Immediately',
+            route: 'dermal',
+            date: '2025-01-01',
+            startDate: getCurrentDateTimeString(),
+          });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
+      });
+
+      it('should reject creating medication set when encounter is discharged', async () => {
+        const result = await app.post('/api/medication/medication-set').send({
+          encounterId: medicationEncounter.id,
+          medicationSet: [
+            {
+              medicationId: testMedication.id,
+              prescriberId: app.user.id,
+              doseAmount: 1,
+              units: '%',
+              frequency: 'Immediately',
+              route: 'dermal',
+              date: '2025-01-01',
+              startDate: getCurrentDateTimeString(),
+            },
+          ],
+        });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
+      });
+
+      it('should reject importing ongoing medications when encounter is discharged', async () => {
+        const ongoingPrescription = await models.Prescription.create({
+          medicationId: testMedication.id,
+          prescriberId: app.user.id,
+          doseAmount: 1,
+          units: '%',
+          frequency: 'Immediately',
+          route: 'dermal',
+          date: '2025-01-01',
+          startDate: getCurrentDateTimeString(),
+          isOngoing: true,
+        });
+
+        await models.PatientOngoingPrescription.create({
+          patientId: patient.id,
+          prescriptionId: ongoingPrescription.id,
+        });
+
+        const result = await app.post('/api/medication/import-ongoing').send({
+          encounterId: medicationEncounter.id,
+          prescriptionIds: [ongoingPrescription.id],
+          prescriberId: app.user.id,
+        });
+        expect(result).toHaveRequestError();
+        expect(result.body.error.message).toContain('is discharged');
       });
     });
 
