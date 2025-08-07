@@ -116,12 +116,37 @@ export const TextInput = ({
       return false;
     }
   };
+
+  const onDrop = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
+  const onDragOver = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
+  const onDragEnter = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <StyledTextField
         value={value}
         variant="outlined"
         onPaste={onPaste}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onDragEnter={onDragEnter}
         inputProps={{
           ...props.inputProps,
           'data-testid': `${dataTestId}-input`,
