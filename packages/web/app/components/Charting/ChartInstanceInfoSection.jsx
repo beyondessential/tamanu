@@ -90,10 +90,10 @@ export const ChartInstanceInfoSection = ({
   } = coreComplexDataElements;
 
   const editedObject = {
-    [instanceNameDataElement?.id]: chartInstanceName,
-    [dateDataElement?.id]: chartDate,
-    ...(isTypeVisible && { [typeDataElement?.id]: chartType }),
-    ...(isSubtypeVisible && { [subtypeDataElement?.id]: chartSubtype }),
+    ...(instanceNameDataElement?.id && { [instanceNameDataElement.id]: chartInstanceName }),
+    ...(dateDataElement?.id && { [dateDataElement.id]: chartDate }),
+    ...(isTypeVisible && typeDataElement?.id && { [typeDataElement.id]: chartType }),
+    ...(isSubtypeVisible && subtypeDataElement?.id && { [subtypeDataElement.id]: chartSubtype }),
   };
 
   return (

@@ -22,7 +22,7 @@ export const ChartForm = React.memo(({
   onSubmit,
   onClose,
   chartSurveyId,
-  editedObject,
+  editedObject = {},
   confirmText = (
     <TranslatedText
       stringId="general.action.record"
