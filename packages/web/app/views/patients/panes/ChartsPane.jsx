@@ -47,6 +47,7 @@ const StyledButtonGroup = styled(ButtonGroup)`
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
   border-bottom: 1px solid ${Colors.outline};
+  overflow-x: auto;
 `;
 
 const AddComplexChartButton = styled.span`
