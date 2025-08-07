@@ -5,7 +5,7 @@ import { Box, IconButton } from '@material-ui/core';
 import { subject } from '@casl/ability';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
-import { TranslatedReferenceData } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
@@ -89,6 +89,13 @@ export const ChartInstanceInfoSection = ({
     subtypeDataElement,
   } = coreComplexDataElements;
 
+  const editedObject = {
+    ...(instanceNameDataElement?.id && { [instanceNameDataElement.id]: chartInstanceName }),
+    ...(dateDataElement?.id && { [dateDataElement.id]: chartDate }),
+    ...(isTypeVisible && typeDataElement?.id && { [typeDataElement.id]: chartType }),
+    ...(isSubtypeVisible && subtypeDataElement?.id && { [subtypeDataElement.id]: chartSubtype }),
+  };
+
   return (
     <>
       <FormModal title={title} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
@@ -97,6 +104,14 @@ export const ChartInstanceInfoSection = ({
           onSubmit={handleEdit}
           patient={patient}
           chartSurveyId={chartSurveyId}
+          editedObject={editedObject}
+          confirmText={
+            <TranslatedText
+              stringId="general.action.save"
+              fallback="Save"
+              data-testid="translatedtext-fdms"
+            />
+          }
         />
       </FormModal>
       <StyledInfoCard

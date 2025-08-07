@@ -17,7 +17,20 @@ import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
 import { useTranslation } from '../contexts/Translation';
 
-export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId }) => {
+export const ChartForm = React.memo(({
+  patient,
+  onSubmit,
+  onClose,
+  chartSurveyId,
+  editedObject = {},
+  confirmText = (
+    <TranslatedText
+      stringId="general.action.record"
+      fallback="Record"
+      data-testid="translatedtext-6dm3"
+    />
+  ),
+}) => {
   const { currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const chartSurveyQuery = useChartSurveyQuery(chartSurveyId);
@@ -38,13 +51,17 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
   const canCreateChart = ability.can('create', subject('Charting', { id: chartSurveyId }));
 
   const initialValues = useMemo(
-    () => getFormInitialValues(
-    visibleComponents,
-    patient,
-    patientAdditionalData,
-    currentUser,
-  ), [visibleComponents, patient, patientAdditionalData, currentUser]);
-
+    () => {
+      const formInitialValues = getFormInitialValues(
+        visibleComponents,
+        patient,
+        patientAdditionalData,
+        currentUser,
+      );
+      return { ...formInitialValues, ...editedObject };
+    },
+    [visibleComponents, patient, patientAdditionalData, currentUser, editedObject],
+  );
   const validationSchema = useMemo(
     () => getValidationSchema(chartSurveyData, getTranslation),
     [chartSurveyData, getTranslation],
@@ -97,13 +114,7 @@ export const ChartForm = React.memo(({ patient, onSubmit, onClose, chartSurveyId
             setFieldValue={setFieldValue}
             submitButton={
               <FormSubmitCancelRow
-                confirmText={
-                  <TranslatedText
-                    stringId="general.action.record"
-                    fallback="Record"
-                    data-testid="translatedtext-6dm3"
-                  />
-                }
+                confirmText={confirmText}
                 onConfirm={submitForm}
                 onCancel={onClose}
                 data-testid="formsubmitcancelrow-1ah9"
