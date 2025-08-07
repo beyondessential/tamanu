@@ -67,6 +67,7 @@ const registerPatient = async ({ patient, models }) => {
 
 const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
   await getPatientUserOrThrow({ models, patientId: patient.id });
+
   const facility = await models.Facility.findByPk(facilityId);
 
   // TODO - fetch the **unexpired** token for the patient user, throw if none exists
@@ -74,7 +75,6 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
   const patientPortalRegistrationTemplate = await settings[facilityId].get(
     'templates.patientPortalRegistrationEmail',
   );
-
   const subject = replaceInTemplate(patientPortalRegistrationTemplate.subject, {
     facilityName: facility.name,
   });
@@ -222,9 +222,9 @@ patientPortal.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortal');
 
-    const { models, settings, facilityId } = req;
+    const { models, settings } = req;
     const { id: patientId } = req.params;
-    const { email: patientEmail } = req.body;
+    const { email: patientEmail, facilityId } = req.body;
 
     if (!patientEmail) {
       throw new ValidationError('Email is required');
@@ -243,9 +243,14 @@ patientPortal.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortalForm');
 
-    const { models, user, settings, facilityId } = req;
+    const { models, user, settings } = req;
     const { id: patientId } = req.params;
-    const { formId, assignedAt, email: patientEmail } = SendPortalFormRequestSchema.parse(req.body);
+    const {
+      formId,
+      assignedAt,
+      email: patientEmail,
+      facilityId,
+    } = SendPortalFormRequestSchema.parse(req.body);
 
     const patient = await getPatientOrThrow({ models, patientId });
     const patientUser = await models.PatientUser.findOne({
