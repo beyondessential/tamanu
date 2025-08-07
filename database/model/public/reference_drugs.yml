@@ -35,6 +35,11 @@ sources:
           - name: notes
             data_type: character varying(255)
             description: "{{ doc('reference_drugs__notes') }}"
+          - name: is_sensitive
+            data_type: boolean
+            description: "{{ doc('reference_drugs__is_sensitive') }}"
+            data_tests:
+              - not_null
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in reference_drugs."
