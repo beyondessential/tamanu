@@ -102,6 +102,7 @@ export const SelectInput = ({
   inputRef,
   inputProps = {},
   isClearable = true,
+  clearValue = undefined,
   customStyleObject,
   ['data-testid']: dataTestId,
   ...props
@@ -115,12 +116,12 @@ export const SelectInput = ({
     changedOption => {
       const userClickedClear = !changedOption;
       if (userClickedClear) {
-        onChange({ target: { value: undefined, name } });
+        onChange({ target: { value: clearValue, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name],
+    [onChange, name, clearValue],
   );
 
   const defaultStyles = {
