@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes
-        description: '{{ doc("table__notes") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__notes') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: uuid

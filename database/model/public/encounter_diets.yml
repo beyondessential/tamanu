@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_diets
-        description: '{{ doc("table__encounter_diets") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__encounter_diets') }}"
+        config:
+          tags:
+            - administration
         columns:
           - name: id
             data_type: uuid
