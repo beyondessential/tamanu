@@ -126,3 +126,8 @@ sources:
           - name: duration_unit
             data_type: character varying(255)
             description: "{{ doc('tasks__duration_unit') }}"
+          - name: task_type
+            data_type: character varying(255)
+            description: "{{ doc('tasks__task_type') }}"
+            data_tests:
+              - not_null
