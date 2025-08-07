@@ -142,19 +142,19 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const medications = useMemo(() => {
     const encounterPrescriptions = encounterPrescriptionsData?.data || [];
     const patientOngoingPrescriptions = patientOngoingPrescriptionsData?.data || [];
+
+    const encounterPrescriptionHashes = new Set(
+      encounterPrescriptions.map(
+        ep => `${ep.medicationId}-${ep.doseAmount}-${ep.units}-${ep.route}-${ep.frequency}`,
+      ),
+    );
+
     return patientOngoingPrescriptions
       .filter(p => !p.discontinued)
-      .filter(
-        p =>
-          !encounterPrescriptions.some(
-            ep =>
-              ep.medicationId === p.medicationId &&
-              ep.doseAmount === p.doseAmount &&
-              ep.units === p.units &&
-              ep.route === p.route &&
-              ep.frequency === p.frequency,
-          ),
-      );
+      .filter(p => {
+        const prescriptionHash = `${p.medicationId}-${p.doseAmount}-${p.units}-${p.route}-${p.frequency}`;
+        return !encounterPrescriptionHashes.has(prescriptionHash);
+      });
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medications, {

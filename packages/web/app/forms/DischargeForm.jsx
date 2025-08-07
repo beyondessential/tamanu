@@ -687,21 +687,20 @@ export const DischargeForm = ({
   const activeMedications = (encounterMedications?.data || []).filter(
     medication => !medication.discontinued,
   );
-  const onGoingMedications = (ongoingPrescriptions?.data || [])
+
+  const activeMedicationHashes = new Set(
+    activeMedications.map(
+      am => `${am.medicationId}-${am.doseAmount}-${am.units}-${am.route}-${am.frequency}`,
+    ),
+  );
+  const ongoingMedications = (ongoingPrescriptions?.data || [])
     .filter(p => !p.discontinued)
-    .filter(
-      p =>
-        !activeMedications.some(
-          am =>
-            am.medicationId === p.medicationId &&
-            am.doseAmount === p.doseAmount &&
-            am.units === p.units &&
-            am.route === p.route &&
-            am.frequency === p.frequency,
-        ),
-    );
+    .filter(p => {
+      const prescriptionHash = `${p.medicationId}-${p.doseAmount}-${p.units}-${p.route}-${p.frequency}`;
+      return !activeMedicationHashes.has(prescriptionHash);
+    });
   const medicationInitialValues = getMedicationsInitialValues(
-    [...activeMedications, ...onGoingMedications],
+    [...activeMedications, ...ongoingMedications],
     encounter,
   );
   const handleSubmit = useCallback(
@@ -910,7 +909,7 @@ export const DischargeForm = ({
                   fallback="Other ongoing medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={onGoingMedications.length === 0}>
+              <TableContainer $isEmpty={ongoingMedications.length === 0}>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
@@ -918,7 +917,7 @@ export const DischargeForm = ({
                     handleDiscontinueMedication,
                     canUpdateMedication,
                   )}
-                  data={onGoingMedications}
+                  data={ongoingMedications}
                   data-testid="tableformfields-i8q7"
                 />
               </TableContainer>
