@@ -20,4 +20,3 @@ export async function down(query: QueryInterface): Promise<void> {
     ALTER COLUMN start_date SET DEFAULT ''
   `);
 }
-

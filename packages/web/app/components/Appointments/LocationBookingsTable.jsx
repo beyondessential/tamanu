@@ -299,12 +299,15 @@ export const LocationBookingsTable = ({ patient }) => {
   });
 
   // Query to check if there are past location bookings
-  const pastBookingsQuery = useLocationBookingsQuery({
-    patientId: patient?.id,
-    before: getCurrentDateTimeString(),
-    after: '1970-01-01 00:00',
-    rowsPerPage: 1,
-  });
+  const pastBookingsQuery = useLocationBookingsQuery(
+    {
+      patientId: patient?.id,
+      before: getCurrentDateTimeString(),
+      after: '1970-01-01 00:00',
+      rowsPerPage: 1,
+    },
+    { keepPreviousData: true },
+  );
 
   const hasPastBookings = (pastBookingsQuery.data?.data?.length || 0) > 0;
 
