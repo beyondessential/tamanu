@@ -26,7 +26,7 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
         medication: medicationId,
         prnMedication: isPrn,
         doseAmount: isVariableDose ? 'variable' : doseAmount,
-        duration: `${durationValue} ${durationUnit}`,
+        duration: durationValue ? `${durationValue} ${durationUnit}` : null,
       };
     });
   }
