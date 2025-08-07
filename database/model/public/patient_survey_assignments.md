@@ -40,3 +40,9 @@ Reference to the [survey response](#!/source/source.tamanu.tamanu.survey_respons
 
 This field is only populated when the survey has been completed through the patient portal and a response has been recorded.
 {% enddocs %}
+
+{% docs patient_survey_assignments__assigned_at %}
+Timestamp when the survey was assigned to the patient for completion through the patient portal.
+
+This field is provided a value by the Tamanu web frontend when a survey assignment is created.
+{% enddocs %}

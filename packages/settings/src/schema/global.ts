@@ -1195,6 +1195,20 @@ export const globalSettings = {
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
+        patientPortalRegistrationEmail: {
+          description: 'The email sent to the patient to register for the patient portal',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Tamanu Patient Portal Registration',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Please follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$.\n\n$registrationLink$\n\nDo not respond to this email',
+            },
+          },
+        },
         appointmentConfirmation: {
           description: 'The email sent to confirm an appointment',
           properties: {

@@ -50,6 +50,7 @@ export const PERMISSION_NOUNS = [
   'PatientFamilyHistory',
   'PatientIssue',
   'PatientLetterTemplate',
+  'PatientPortal',
   'PatientProgramRegistration',
   'PatientProgramRegistrationCondition',
   'PatientSecondaryId',
