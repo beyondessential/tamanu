@@ -543,6 +543,7 @@ export const MedicationForm = ({
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
+  const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
   const [frequencyChanged, setFrequencyChanged] = useState(0);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
@@ -616,11 +617,21 @@ export const MedicationForm = ({
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
-    setAwaitingPrint(isPrinting);
-    if (onDirtyChange) {
-      onDirtyChange(dirty);
+    if (isFinalizingMedication) {
+      return;
     }
-    await submitForm(data);
+
+    setIsFinalizingMedication(true);
+
+    try {
+      setAwaitingPrint(isPrinting);
+      if (onDirtyChange) {
+        onDirtyChange(dirty);
+      }
+      await submitForm(data);
+    } finally {
+      setIsFinalizingMedication(false);
+    }
   };
 
   const getInitialValues = () => {
@@ -984,6 +995,8 @@ export const MedicationForm = ({
                   onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
                   variant="outlined"
                   startIcon={<PrintIcon />}
+                  disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -1007,6 +1020,8 @@ export const MedicationForm = ({
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
+                  disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
