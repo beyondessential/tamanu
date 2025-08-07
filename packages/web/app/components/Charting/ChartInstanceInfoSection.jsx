@@ -5,7 +5,7 @@ import { Box, IconButton } from '@material-ui/core';
 import { subject } from '@casl/ability';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
-import { TranslatedReferenceData } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
@@ -105,6 +105,13 @@ export const ChartInstanceInfoSection = ({
           patient={patient}
           chartSurveyId={chartSurveyId}
           editedObject={editedObject}
+          confirmText={
+            <TranslatedText
+              stringId="general.action.save"
+              fallback="Save"
+              data-testid="translatedtext-fdms"
+            />
+          }
         />
       </FormModal>
       <StyledInfoCard
