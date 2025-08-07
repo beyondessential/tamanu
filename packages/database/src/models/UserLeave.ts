@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export class UserLeave extends Model {
   declare id: string;
@@ -26,24 +26,10 @@ export class UserLeave extends Model {
         endDate: dateType('endDate', {
           allowNull: false,
         }),
-        userId: {
-          type: DataTypes.UUID,
-          allowNull: false,
-          field: 'user_id',
-        },
-        scheduledBy: {
-          type: DataTypes.UUID,
-          allowNull: false,
-          field: 'scheduled_by',
-        },
         scheduledAt: dateTimeType('scheduledAt', {
           allowNull: false,
+          defaultValue: getCurrentDateTimeString,
         }),
-        removedBy: {
-          type: DataTypes.UUID,
-          allowNull: true,
-          field: 'removed_by',
-        },
         removedAt: dateTimeType('removedAt', {
           allowNull: true,
         }),
@@ -51,9 +37,7 @@ export class UserLeave extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        paranoid: true,
-        tableName: 'user_leaves',
-      } as any,
+      },
     );
   }
 
@@ -79,4 +63,4 @@ export class UserLeave extends Model {
   static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
-} 
+}

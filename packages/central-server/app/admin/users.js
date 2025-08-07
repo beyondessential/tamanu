@@ -11,6 +11,7 @@ import {
   ValidationError,
   InvalidOperationError,
 } from '@tamanu/shared/errors';
+import { isBefore, startOfDay } from 'date-fns';
 
 export const usersRouter = express.Router();
 
@@ -181,8 +182,10 @@ usersRouter.post(
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
 
-    const today = getCurrentDateString();
-    if (endDate < today) {
+    const parsedEndDate = startOfDay(new Date(endDate));
+    const currentDate = startOfDay(new Date());
+
+    if (isBefore(parsedEndDate, currentDate)) {
       throw new InvalidOperationError('Cannot create leave in the past');
     }
 

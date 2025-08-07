@@ -28,7 +28,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' },
-      onDelete: 'SET NULL',
+      onDelete: 'CASCADE',
     },
     scheduled_at: {
       type: DataTypes.DATETIMESTRING,
@@ -38,7 +38,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.STRING,
       allowNull: true,
       references: { model: 'users', key: 'id' },
-      onDelete: 'SET NULL',
+      onDelete: 'CASCADE',
     },
     removed_at: {
       type: DataTypes.DATETIMESTRING,
