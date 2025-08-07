@@ -48,6 +48,7 @@ import { MedicationDiscontinueModal } from '../components/Medication/MedicationD
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { createPrescriptionHash } from '../utils/medications';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -688,17 +689,10 @@ export const DischargeForm = ({
     medication => !medication.discontinued,
   );
 
-  const activeMedicationHashes = new Set(
-    activeMedications.map(
-      am => `${am.medicationId}-${am.doseAmount}-${am.units}-${am.route}-${am.frequency}`,
-    ),
-  );
+  const activeMedicationHashes = new Set(activeMedications.map(createPrescriptionHash));
   const ongoingMedications = (ongoingPrescriptions?.data || [])
     .filter(p => !p.discontinued)
-    .filter(p => {
-      const prescriptionHash = `${p.medicationId}-${p.doseAmount}-${p.units}-${p.route}-${p.frequency}`;
-      return !activeMedicationHashes.has(prescriptionHash);
-    });
+    .filter(p => !activeMedicationHashes.has(createPrescriptionHash(p)));
   const medicationInitialValues = getMedicationsInitialValues(
     [...activeMedications, ...ongoingMedications],
     encounter,

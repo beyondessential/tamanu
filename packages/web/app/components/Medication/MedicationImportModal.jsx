@@ -22,6 +22,7 @@ import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { createPrescriptionHash } from '../../utils/medications';
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
   font-size: 14px;
@@ -143,18 +144,11 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
     const encounterPrescriptions = encounterPrescriptionsData?.data || [];
     const patientOngoingPrescriptions = patientOngoingPrescriptionsData?.data || [];
 
-    const encounterPrescriptionHashes = new Set(
-      encounterPrescriptions.map(
-        ep => `${ep.medicationId}-${ep.doseAmount}-${ep.units}-${ep.route}-${ep.frequency}`,
-      ),
-    );
+    const encounterPrescriptionHashes = new Set(encounterPrescriptions.map(createPrescriptionHash));
 
     return patientOngoingPrescriptions
       .filter(p => !p.discontinued)
-      .filter(p => {
-        const prescriptionHash = `${p.medicationId}-${p.doseAmount}-${p.units}-${p.route}-${p.frequency}`;
-        return !encounterPrescriptionHashes.has(prescriptionHash);
-      });
+      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)));
   }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medications, {

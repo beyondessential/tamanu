@@ -135,7 +135,7 @@ const TasksTable = new Table({
       name: 'taskType',
       type: 'varchar',
       isNullable: false,
-      default: "'normal-task'",
+      default: "'normal_task'",
     }),
     new TableColumn({
       name: 'encounterId',

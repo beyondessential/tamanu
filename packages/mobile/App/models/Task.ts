@@ -68,7 +68,7 @@ export class Task extends BaseModel {
   @DateTimeStringColumn({ nullable: true })
   deletedTime?: string;
 
-  @Column({ type: 'varchar', nullable: false, default: 'normal-task' })
+  @Column({ type: 'varchar', nullable: false, default: 'normal_task' })
   taskType: string;
 
   @ManyToOne(() => Encounter)
