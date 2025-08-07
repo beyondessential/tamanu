@@ -1,6 +1,6 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
-import { startCase } from 'lodash';
+import { get, startCase } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_LABELS,
@@ -8,6 +8,7 @@ import {
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
 } from '@tamanu/constants';
+import { formatShort, formatShortest, formatTime, parseDate } from '@tamanu/utils/dateTime';
 
 import { CertificateHeader, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -20,7 +21,6 @@ import { Footer } from './printComponents/Footer';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
-import { formatShort, formatTime } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
@@ -94,6 +94,52 @@ const tableStyles = StyleSheet.create({
     alignItems: 'flex-start',
   },
 });
+
+const getDateTitleArray = date => {
+  const parsedDate = parseDate(date);
+  const shortestDate = formatShortest(parsedDate);
+  const timeWithSeconds = formatTime(parsedDate);
+
+  return [shortestDate, timeWithSeconds.toLowerCase()];
+};
+
+const formatValue = (value, config) => {
+  const { rounding = 0, unit = '' } = config || {};
+  const float = Number.parseFloat(value);
+
+  if (isNaN(float)) {
+    return value || '—'; // em dash
+  }
+
+  const unitSuffix = unit && unit.length <= 2 ? unit : '';
+  if (rounding > 0 || rounding === 0) {
+    return `${float.toFixed(rounding)}${unitSuffix}`;
+  }
+  return `${float}${unitSuffix}`;
+};
+
+const getVitalsColumn = (startIndex, getTranslation, recordedDates) => {
+  const dateArray = [...recordedDates].reverse().slice(startIndex, startIndex + 12);
+  return [
+    {
+      key: 'measure',
+      title: getTranslation('vitals.table.column.measure', 'Measure'),
+      accessor: ({ value }) => value,
+      style: { width: 140, alignItems: 'flex-end' },
+    },
+    ...dateArray
+      .sort((a, b) => b.localeCompare(a))
+      .map(date => ({
+        title: getDateTitleArray(date),
+        key: date,
+        accessor: cells => {
+          const { value, config } = cells[date];
+          return formatValue(value, config);
+        },
+        style: { width: 60, },
+      })),
+  ];
+};
 
 const Table = props => <View style={tableStyles.table} {...props} />;
 const Row = props => (
@@ -307,12 +353,13 @@ const EncounterRecordPrintoutComponent = ({
   notes,
   discharge,
   medications,
-  getLocalisation,
+  localisation,
   vitalsData,
   recordedDates,
-  getVitalsColumn,
-  getSetting,
+  settings,
 }) => {
+  const getLocalisation = (key) => get(localisation, key);
+  const getSetting = (key) => get(settings, key);
   const { getTranslation, getEnumTranslation } = useLanguageContext();
   const { watermark, logo } = certificateData;
 
@@ -614,7 +661,7 @@ const EncounterRecordPrintoutComponent = ({
                 <TableSection
                   title={getTranslation('pdf.encounterRecord.section.vitals', 'Vitals')}
                   data={vitalsData}
-                  columns={getVitalsColumn(start)}
+                  columns={getVitalsColumn(start, getTranslation, recordedDates)}
                   type="vitals"
                 />
                 <Footer />

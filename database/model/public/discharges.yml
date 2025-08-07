@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: discharges
-        description: '{{ doc("table__discharges") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__discharges') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)

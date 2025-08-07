@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: certifiable_vaccines
-        description: '{{ doc("table__certifiable_vaccines") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__certifiable_vaccines') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)

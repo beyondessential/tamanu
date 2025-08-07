@@ -5,8 +5,9 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: tasks
-        description: '{{ doc("table__tasks") }}'
-        tags: []
+        description: "{{ doc('table__tasks') }}"
+        config:
+          tags: []
         columns:
           - name: id
             data_type: uuid
@@ -125,3 +126,8 @@ sources:
           - name: duration_unit
             data_type: character varying(255)
             description: "{{ doc('tasks__duration_unit') }}"
+          - name: task_type
+            data_type: character varying(255)
+            description: "{{ doc('tasks__task_type') }}"
+            data_tests:
+              - not_null
