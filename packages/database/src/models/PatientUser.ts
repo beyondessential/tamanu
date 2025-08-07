@@ -70,7 +70,7 @@ export class PatientUser extends Model {
       {
         ...options,
         indexes: [],
-        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

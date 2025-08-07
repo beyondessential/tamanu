@@ -19,6 +19,8 @@ export * from './PatientFieldDefinitionCategory';
 export * from './PatientFieldDefinition';
 export * from './PatientFieldValue';
 
+export * from './PatientSurveyAssignment';
+
 export * from './PatientDeathData';
 export * from './PatientBirthData';
 export * from './ContributingDeathCause';
