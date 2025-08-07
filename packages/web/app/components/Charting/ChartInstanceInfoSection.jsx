@@ -89,6 +89,13 @@ export const ChartInstanceInfoSection = ({
     subtypeDataElement,
   } = coreComplexDataElements;
 
+  const editedObject = {
+    [instanceNameDataElement?.id]: chartInstanceName,
+    [dateDataElement?.id]: chartDate,
+    ...(isTypeVisible && { [typeDataElement?.id]: chartType }),
+    ...(isSubtypeVisible && { [subtypeDataElement?.id]: chartSubtype }),
+  };
+
   return (
     <>
       <FormModal title={title} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
@@ -97,6 +104,7 @@ export const ChartInstanceInfoSection = ({
           onSubmit={handleEdit}
           patient={patient}
           chartSurveyId={chartSurveyId}
+          editedObject={editedObject}
         />
       </FormModal>
       <StyledInfoCard
