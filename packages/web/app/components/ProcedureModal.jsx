@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { addDays, parseISO } from 'date-fns';
-import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { useQuery } from '@tanstack/react-query';
-import Typography from '@material-ui/core/Typography';
-import MuiDivider from '@material-ui/core/Divider';
-import * as yup from 'yup';
-import { useApi } from '../api';
+
+import { useApi, useSuggester } from '../api';
+
 import { FormModal } from './FormModal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
