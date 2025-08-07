@@ -17,12 +17,12 @@ export const DYNAMIC_LIMITER_DEFAULTS = {
 // Set the current page size based on how long the previous page took to complete.
 export const calculatePageLimit = (
   {
-    initialLimit,
-    minLimit,
-    maxLimit,
-    maxLimitChangePerPage,
-    optimalTimePerPage,
-  }: DynamicLimiterSettings = DYNAMIC_LIMITER_DEFAULTS,
+    initialLimit = DYNAMIC_LIMITER_DEFAULTS.initialLimit,
+    minLimit = DYNAMIC_LIMITER_DEFAULTS.minLimit,
+    maxLimit = DYNAMIC_LIMITER_DEFAULTS.maxLimit,
+    maxLimitChangePerPage = DYNAMIC_LIMITER_DEFAULTS.maxLimitChangePerPage,
+    optimalTimePerPage = DYNAMIC_LIMITER_DEFAULTS.optimalTimePerPage,
+  }: DynamicLimiterSettings = {},
   currentLimit?: number,
   lastPageTime?: number,
 ): number => {
