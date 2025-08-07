@@ -93,7 +93,7 @@ export const centralSettings = {
             maxLimit: {
               description: 'The maximum limit for the dynamic limiter',
               type: yup.number().positive().integer(),
-              defaultValue: 200000,
+              defaultValue: 20000,
             },
             maxLimitChangePerPage: {
               description: 'The maximum change per page for the dynamic limiter',
