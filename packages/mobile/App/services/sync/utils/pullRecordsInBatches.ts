@@ -8,11 +8,11 @@ export const pullRecordsInBatches = async (
     sessionId,
     recordTotal,
     progressCallback = () => {},
-    syncSettings = {}
+    syncSettings,
   }: PullParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings;
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
   let fromId;
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
