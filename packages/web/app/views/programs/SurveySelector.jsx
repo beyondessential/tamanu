@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { Button, TextButton } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { ButtonRow } from '../../components/ButtonRow';
 import { SelectInput } from '../../components/Field/SelectField';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
@@ -9,10 +9,6 @@ import { TranslatedText } from '../../components';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
-`;
-
-const StyledTextButton = styled(TextButton)`
-  text-transform: none;
 `;
 
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
