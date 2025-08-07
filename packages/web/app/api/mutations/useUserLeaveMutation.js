@@ -10,3 +10,13 @@ export const useCreateUserLeaveMutation = (userId, options = {}) => {
     ...options,
   });
 };
+
+export const useDeleteUserLeaveMutation = (userId, options = {}) => {
+  const api = useApi();
+
+  return useMutation({
+    mutationKey: ['userLeaves', userId],
+    mutationFn: leaveId => api.delete(`admin/users/${userId}/leaves/${leaveId}`),
+    ...options,
+  });
+};

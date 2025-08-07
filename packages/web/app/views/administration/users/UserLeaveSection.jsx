@@ -3,14 +3,17 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider } from '@mui/material';
 import { Field, Form, DateField } from '../../../components/Field';
-import { TranslatedText, Button, Heading3, BodyText } from '../../../components';
+import { TranslatedText, Button, Heading3, BodyText, FormSubmitButton } from '../../../components';
 import { Colors, FORM_TYPES } from '../../../constants';
-import { useCreateUserLeaveMutation } from '../../../api/mutations/useUserLeaveMutation';
+import {
+  useCreateUserLeaveMutation,
+  useDeleteUserLeaveMutation,
+} from '../../../api/mutations/useUserLeaveMutation';
 import { useUserLeavesQuery } from '../../../api/queries/useUserLeaveQuery';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
 import { format } from 'date-fns';
-import { useApi } from '../../../api/useApi';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 
@@ -71,6 +74,12 @@ const ConfirmModalContent = styled(Box)`
   justify-content: center;
 `;
 
+const StyledFormSubmitButton = styled(FormSubmitButton)`
+  height: 40px;
+  width: 123px;
+  white-space: nowrap;
+`;
+
 const validationSchema = yup.object().shape({
   startDate: yup
     .string()
@@ -82,22 +91,41 @@ const validationSchema = yup.object().shape({
 
 export const UserLeaveSection = ({ user }) => {
   const { getTranslation } = useTranslation();
-  const api = useApi();
   const queryClient = useQueryClient();
-  const [isDeletingLeave, setIsDeletingLeave] = useState(false);
   const [leaveToDelete, setLeaveToDelete] = useState(null);
 
-  const { mutate: createLeave, isLoading: isCreatingLeave } = useCreateUserLeaveMutation(user.id, {
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['userLeaves', user.id],
-      });
-      toast.success(getTranslation('admin.users.leave.success', 'Leave scheduled successfully!'));
+  const { mutateAsync: createLeave, isLoading: isCreatingLeave } = useCreateUserLeaveMutation(
+    user.id,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['userLeaves', user.id],
+        });
+        toast.success(getTranslation('admin.users.leave.success', 'Leave scheduled successfully!'));
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
     },
-    onError: error => {
-      toast.error(error.message);
+  );
+
+  const { mutateAsync: deleteLeave, isLoading: isDeletingLeave } = useDeleteUserLeaveMutation(
+    user.id,
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['userLeaves', user.id],
+        });
+        toast.success(
+          getTranslation('admin.users.leave.deleteSuccess', 'Leave removed successfully!'),
+        );
+        setLeaveToDelete(null);
+      },
+      onError: error => {
+        toast.error(error.message);
+      },
     },
-  });
+  );
 
   const handleDeleteLeave = leave => {
     setLeaveToDelete(leave);
@@ -105,21 +133,7 @@ export const UserLeaveSection = ({ user }) => {
 
   const confirmDeleteLeave = async () => {
     if (isDeletingLeave || !leaveToDelete) return;
-    setIsDeletingLeave(true);
-    try {
-      await api.delete(`admin/users/${user.id}/leaves/${leaveToDelete.id}`);
-      queryClient.invalidateQueries({
-        queryKey: ['userLeaves', user.id],
-      });
-      toast.success(
-        getTranslation('admin.users.leave.deleteSuccess', 'Leave removed successfully!'),
-      );
-      setLeaveToDelete(null);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setIsDeletingLeave(false);
-    }
+    await deleteLeave(leaveToDelete.id);
   };
 
   const cancelDeleteLeave = () => {
@@ -139,7 +153,7 @@ export const UserLeaveSection = ({ user }) => {
       );
       return;
     }
-    createLeave(values);
+    await createLeave(values);
   };
 
   const formatDate = dateString => {
@@ -251,10 +265,16 @@ export const UserLeaveSection = ({ user }) => {
             />
           </ConfirmModalContent>
         }
-        confirmButtonText={
-          <TranslatedText stringId="admin.users.leave.delete.confirm" fallback="Remove leave" />
-        }
         cancelButtonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+        ConfirmButton={props => (
+          <StyledFormSubmitButton
+            disabled={isDeletingLeave}
+            showLoadingIndicator={isDeletingLeave}
+            {...props}
+          >
+            <TranslatedText stringId="admin.users.leave.delete.confirm" fallback="Remove leave" />
+          </StyledFormSubmitButton>
+        )}
       />
     </div>
   );
