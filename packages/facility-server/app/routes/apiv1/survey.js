@@ -51,6 +51,39 @@ survey.get(
 );
 
 survey.get(
+  '/procedureType/:procedureTypeId',
+  asyncHandler(async (req, res) => {
+    const { models, ability, params } = req;
+    const { procedureTypeId } = params;
+    const { ProcedureTypeSurvey } = models;
+
+    req.checkPermission('list', 'Survey');
+
+    const procedureTypeSurveys = await ProcedureTypeSurvey.findAll({
+      where: {
+        procedureTypeId: procedureTypeId,
+      },
+      include: [
+        {
+          model: models.Survey,
+          as: 'survey',
+          where: {
+            visibilityStatus: { [Op.ne]: VISIBILITY_STATUSES.HISTORICAL },
+          },
+        },
+      ],
+      order: [['survey', 'name', 'ASC']],
+    });
+
+    // Extract the surveys from the join results
+    const surveys = procedureTypeSurveys.map(pts => pts.survey);
+    const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
+
+    res.send(filteredSurveys);
+  }),
+);
+
+survey.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models, params } = req;

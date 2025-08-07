@@ -98,6 +98,11 @@ export class Procedure extends Model {
       as: 'AssistantClinicians',
       foreignKey: 'procedureId',
     });
+    this.belongsToMany(models.SurveyResponse, {
+      through: 'ProcedureSurveyResponse',
+      as: 'SurveyResponses',
+      foreignKey: 'procedureId',
+    });
   }
 
   forResponse() {
