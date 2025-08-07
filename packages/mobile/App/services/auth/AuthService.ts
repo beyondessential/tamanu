@@ -29,7 +29,7 @@ export class AuthService {
     this.models = models;
     this.centralServer = centralServer;
 
-    this.centralServer.emitter.on('error', (err) => {
+    this.centralServer.emitter.on('error', err => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -66,8 +66,15 @@ export class AuthService {
     { email, password }: SyncConnectionParameters,
     generateAbilityForUser: (user: User) => PureAbility,
   ): Promise<IUser> {
+    const deviceFacilityId = await readConfig('facilityId', null);
+    if (!deviceFacilityId) {
+      throw new Error(
+        'You need to first link this device to a facility before you can login offline.',
+      );
+    }
+
     console.log('Signing in locally as', email);
-    const { User, Setting } = this.models;
+    const { User } = this.models;
     const user = await User.findOne({
       where: {
         email,
@@ -86,14 +93,8 @@ export class AuthService {
     }
 
     const ability = generateAbilityForUser(user);
-    const restrictUsersToFacilities = await Setting.getByKey('auth.restrictUsersToFacilities');
-    const canLogIntoAllFacilities = ability.can('login', 'Facility');
-    const linkedFacility = await readConfig('facilityId', '');
-    if (
-      restrictUsersToFacilities &&
-      !canLogIntoAllFacilities &&
-      !(await user.canAccessFacility(linkedFacility))
-    ) {
+    const canAccessFacility = await user.canAccessFacility(deviceFacilityId, ability, this.models);
+    if (!canAccessFacility) {
       throw new AuthenticationError(forbiddenFacilityMessage);
     }
 
