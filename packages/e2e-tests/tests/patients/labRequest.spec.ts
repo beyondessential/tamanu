@@ -39,7 +39,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.nextButton.click();
       await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(panelsToSelect, panelCategories);
       await labRequestModal.finaliseButton.click();
-      await labRequestModal.panelModal.closeButton.click();
+      await labRequestModal.closeButton.click();
       await labRequestPane.waitForTableToLoad();
       await labRequestPane.sortTableByCategory();
       await labRequestPane.validateLabRequestTableContent(
@@ -85,13 +85,13 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.addNotes(noteToAdd);
       await labRequestModal.nextButton.click();
       const currentDateTime = labRequestModal.getCurrentDateTime();
-      await labRequestModal.panelModal.setDateTimeCollected(currentDateTime);
-      await labRequestModal.panelModal.selectFirstCollectedBy(0);
-      await labRequestModal.panelModal.selectFirstSpecimenType(0);
-      await labRequestModal.panelModal.selectFirstSite(0);
+      await labRequestModal.setDateTimeCollected(currentDateTime);
+      await labRequestModal.selectFirstCollectedBy(0);
+      await labRequestModal.selectFirstSpecimenType(0);
+      await labRequestModal.selectFirstSite(0);
       await labRequestModal.panelModal.validateSelectedPanelsAndCategoriesInSampleDetailsPage(panelsToSelect, panelCategories);
       await labRequestModal.finaliseButton.click();
-      await labRequestModal.panelModal.closeButton.click();
+      await labRequestModal.closeButton.click();
       await labRequestPane.waitForTableToLoad();  
       await labRequestPane.sortTableByCategory();
       await labRequestPane.validateLabRequestTableContent(
@@ -165,7 +165,6 @@ test.describe('Lab Request Tests', () => {
         department: department || 'Unknown',
         expectedCategories: distinctCategories,
         expectedSampleDate: 'Sample not collected',
-       
       });
       await labRequestModal.closeButton.click();
       await labRequestPane.waitForTableToLoad();

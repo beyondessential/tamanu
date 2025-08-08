@@ -208,14 +208,16 @@ export class LabRequestModalBase {
     await expect(itemInSampleDetails).toBeVisible();
   }
 
-  async setDateTimeCollected(dateTime: string,index: number = 0) {
+  // Set date/time collected for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  async setDateTimeCollected(dateTime: string, index: number = 0) {
     const input = this.dateTimeCollectedInputs.locator('input').nth(index);
     await input.click();
     await input.waitFor({ state: 'visible' });
     await input.fill(dateTime);
   }
   
-  async selectFirstCollectedBy(index: number) {
+  // Select first collected by option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  async selectFirstCollectedBy(index: number = 0) {
     const input = this.collectedByInputs.nth(index);
     await input.click();
     const firstOptionLocator = this.collectedBySuggestionsList.locator('ul').locator('li').first();
@@ -223,13 +225,15 @@ export class LabRequestModalBase {
     return await firstOptionLocator.textContent();
   }
 
-  async selectFirstSpecimenType(index: number) {
+  // Select first specimen type option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  async selectFirstSpecimenType(index: number = 0) {
     const input = this.specimenTypeInputs.nth(index);
     await input.click();
     await this.specimenTypeSuggestionsList.locator('ul').locator('li').first().click();
   }
 
-  async selectFirstSite(index: number) {
+  // Select first site option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  async selectFirstSite(index: number = 0) {
     const input = this.siteInputs.nth(index);
     await input.click();
     await this.siteSuggestionsList.first().click();
