@@ -3,11 +3,18 @@ import { SYNC_SESSION_DIRECTION } from '../constants';
 import { PullParams } from '../MobileSyncManager';
 
 export const pullRecordsInBatches = async (
-  { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
+  {
+    centralServer,
+    sessionId,
+    recordTotal,
+    progressCallback = () => {},
+    syncSettings,
+  }: PullParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
   let fromId;
-  let limit = calculatePageLimit();
+  let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -27,7 +34,7 @@ export const pullRecordsInBatches = async (
     const { id, sortOrder } = records[records.length - 1];
     fromId = btoa(JSON.stringify({ sortOrder, id }));
     totalPulled += records.length;
-    limit = calculatePageLimit(limit, pullTime);
+    limit = calculatePageLimit(dynamicLimiterSettings, limit, pullTime);
 
     progressCallback(recordsToSave.length);
   }
