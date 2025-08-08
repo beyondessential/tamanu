@@ -18,6 +18,7 @@ import { foreignKey } from '../../../utils/validation';
 import { useUpdateUserMutation } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
+import { UserLeaveSection } from './UserLeaveSection';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -26,7 +27,7 @@ const StyledFormModal = styled(FormModal)`
 `;
 
 const Container = styled(Box)`
-  padding: 16px 0px 34px;
+  padding: 16px 0px 20px;
 `;
 
 const SectionContainer = styled(Box)`
@@ -281,9 +282,12 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                   />
                 </FormGrid>
               </Container>
-              <div style={{ gridColumn: '1 / -1', margin: '0 -32px' }}>
+
+              <Divider sx={{ borderColor: Colors.outline }} />
+              <UserLeaveSection user={user} />
+              <Box mt="34px">
                 <Divider sx={{ borderColor: Colors.outline }} />
-              </div>
+              </Box>
               <Box mt={2.5} mb={-1.5} display="flex" justifyContent="flex-end" gap="16px">
                 {allowSave ? (
                   <>

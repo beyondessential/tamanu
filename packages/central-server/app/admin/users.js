@@ -1,10 +1,17 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { Op } from 'sequelize';
+import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { Op } from 'sequelize';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { ResourceConflictError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import {
+  ResourceConflictError,
+  NotFoundError,
+  ValidationError,
+  InvalidOperationError,
+} from '@tamanu/shared/errors';
+import { isBefore, startOfDay } from 'date-fns';
 
 export const usersRouter = express.Router();
 
@@ -189,6 +196,120 @@ usersRouter.post(
   }),
 );
 
+const userLeaveSchema = yup.object().shape({
+  startDate: yup.string().min(1, 'startDate is required').required(),
+  endDate: yup.string().min(1, 'endDate is required').required(),
+  force: yup.boolean().optional(),
+});
+
+// POST /:id/leave - Create leave for a user
+usersRouter.post(
+  '/:id/leaves',
+  asyncHandler(async (req, res) => {
+    const { models, params, body, user: currentUser } = req;
+    const { id: userId } = params;
+    const { UserLeave } = models;
+
+    req.checkPermission('write', 'User');
+
+    const data = await userLeaveSchema.validate(body);
+    const { startDate, endDate } = data;
+
+    const parsedEndDate = startOfDay(new Date(endDate));
+    const currentDate = startOfDay(new Date());
+
+    if (isBefore(parsedEndDate, currentDate)) {
+      throw new InvalidOperationError('Cannot create leave in the past');
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+      throw new InvalidOperationError('startDate must be before or equal to endDate');
+    }
+
+    // Check for overlapping leaves
+    const overlap = await UserLeave.findOne({
+      where: {
+        userId,
+        removedAt: null,
+        [Op.and]: [{ endDate: { [Op.gte]: startDate } }, { startDate: { [Op.lte]: endDate } }],
+      },
+    });
+
+    if (overlap) {
+      throw new InvalidOperationError('Leave overlaps with an existing leave');
+    }
+
+    const leave = await UserLeave.create({
+      userId,
+      startDate,
+      endDate,
+      scheduledBy: currentUser.id,
+      scheduledAt: getCurrentDateTimeString(),
+    });
+
+    res.send(leave);
+  }),
+);
+
+/**
+ * Get all leaves for a user
+ * If all is false, only upcoming leaves are returned
+ */
+usersRouter.get(
+  '/:id/leaves',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { id: userId } = params;
+
+    req.checkPermission('list', 'User');
+
+    let where = {
+      userId,
+      removedAt: null,
+    };
+
+    if (query.all !== 'true') {
+      where.endDate = {
+        [Op.gte]: getCurrentDateString(),
+      };
+    }
+
+    const leaves = await models.UserLeave.findAll({
+      where,
+      order: [['startDate', 'ASC']],
+    });
+
+    res.send(leaves);
+  }),
+);
+
+usersRouter.delete(
+  '/:id/leaves/:leaveId',
+  asyncHandler(async (req, res) => {
+    const { models, params, user: currentUser } = req;
+    const { id: userId, leaveId } = params;
+
+    req.checkPermission('write', 'User');
+
+    const leave = await models.UserLeave.findOne({
+      where: { id: leaveId, userId },
+    });
+
+    if (!leave) {
+      throw new NotFoundError('Leave not found');
+    }
+
+    if (leave.removedAt) {
+      throw new InvalidOperationError('Leave already removed');
+    }
+
+    leave.removedBy = currentUser.id;
+    leave.removedAt = getCurrentDateTimeString();
+    await leave.save();
+
+    res.send(leave);
+  }),
+);
 const UPDATE_VALIDATION = yup
   .object()
   .shape({
