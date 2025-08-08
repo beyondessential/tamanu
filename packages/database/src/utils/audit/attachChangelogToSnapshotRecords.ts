@@ -9,7 +9,7 @@ type QueryConfig = {
 };
 
 export const attachChangelogToSnapshotRecords = async (
-  { models, sequelize }: { models: Models, sequelize: Sequelize },
+  { models, sequelize }: { models: Models; sequelize: Sequelize },
   snapshotRecords: SyncSnapshotAttributes[],
   { minSourceTick, maxSourceTick }: QueryConfig,
 ): Promise<SyncSnapshotAttributesWithChangelog[]> => {
@@ -19,20 +19,20 @@ export const attachChangelogToSnapshotRecords = async (
 
   const changelogRecords = await sequelize.query(
     `
-   SELECT * FROM logs.changes
-    WHERE updated_at_sync_tick >= :minSourceTick
-    ${maxSourceTick ? 'AND updated_at_sync_tick <= :maxSourceTick' : ''}
-    AND (table_name || '-' || record_id) IN (:recordTypeAndIds)
+      SELECT * FROM logs.changes
+      WHERE updated_at_sync_tick >= ?
+      ${maxSourceTick ? 'AND updated_at_sync_tick <= ?' : ''}
+      AND (table_name, record_id) IN (VALUES ${snapshotRecords.map(() => `(?, ?)`).join(',')});
     `,
     {
       model: models.ChangeLog,
       type: QueryTypes.SELECT,
       mapToModel: true,
-      replacements: {
+      replacements: [
         minSourceTick,
-        maxSourceTick,
-        recordTypeAndIds: snapshotRecords.map(({ recordType, recordId }) => `${recordType}-${recordId}`),
-      },
+        ...(maxSourceTick ? [maxSourceTick] : []),
+        ...snapshotRecords.map(({ recordType, recordId }) => [recordType, recordId]).flat(),
+      ],
     },
   );
 
@@ -45,7 +45,7 @@ export const attachChangelogToSnapshotRecords = async (
     {},
   );
 
-  snapshotRecords.forEach((snapshotRecord) => {
+  snapshotRecords.forEach(snapshotRecord => {
     const id = `${snapshotRecord.recordType}-${snapshotRecord.recordId}`;
     (snapshotRecord as SyncSnapshotAttributesWithChangelog).changelogRecords =
       changelogRecordsByRecordId[id] || [];
