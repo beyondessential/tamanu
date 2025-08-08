@@ -123,6 +123,11 @@ const LimitedLinesCellWrapper = styled.div`
   ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
+const LimitedLinesCellContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+`;
+
 export const LimitedLinesCell = ({
   value,
   maxWidth,
@@ -167,7 +172,7 @@ export const LimitedLinesCell = ({
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+    <LimitedLinesCellContainer>
       <TableTooltip
         title={value ?? ''}
         open={isClamped && tooltipOpen}
@@ -178,7 +183,7 @@ export const LimitedLinesCell = ({
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
       {isEdited && isClamped && <span>*</span>}
-    </div>
+    </LimitedLinesCellContainer>
   );
 };
 
