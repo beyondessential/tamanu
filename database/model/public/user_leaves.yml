@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_leaves
-        description: '{{ doc("table__user_leaves") }}'
+        description: "{{ doc('table__user_leaves') }}"
         config:
           tags: []
         columns:

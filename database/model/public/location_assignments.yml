@@ -76,7 +76,6 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in location_assignments."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              location_assignments."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in location_assignments."
             data_tests:
               - not_null

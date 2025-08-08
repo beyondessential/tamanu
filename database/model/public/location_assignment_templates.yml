@@ -55,8 +55,7 @@ sources:
               - not_null
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              location_assignment_templates."
+            description: "{{ doc('generic__created_at') }} in location_assignment_templates."
             data_tests:
               - not_null
           - name: created_by
@@ -66,23 +65,19 @@ sources:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              location_assignment_templates."
+            description: "{{ doc('generic__updated_at') }} in location_assignment_templates."
             data_tests:
               - not_null
           - name: updated_by
             data_type: character varying(255)
-            description: "{{ doc('generic__updated_by') }} in
-              location_assignment_templates."
+            description: "{{ doc('generic__updated_by') }} in location_assignment_templates."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              location_assignment_templates."
+            description: "{{ doc('generic__deleted_at') }} in location_assignment_templates."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              location_assignment_templates."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in location_assignment_templates."
             data_tests:
               - not_null
