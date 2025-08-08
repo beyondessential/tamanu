@@ -39,10 +39,10 @@ async function getValuesFromImagingRequest(upstream: ImagingRequest, models: Mod
     (
       await ImagingAreaExternalCode.findAll({
         where: {
-          areaId: upstream.areas.map((area) => area.id),
+          areaId: upstream.areas.map(area => area.id),
         },
       })
-    ).map((ext) => [
+    ).map(ext => [
       ext.areaId,
       { code: ext.code, description: ext.description, updatedAt: ext.updatedAt },
     ]),
@@ -143,7 +143,7 @@ async function getValuesFromLabRequest(upstream: LabRequest, models: Models) {
     ],
     priority: validatePriority(upstream.priority?.name),
     code: labCode(upstream),
-    orderDetail: await labOrderDetails(upstream),
+    orderDetail: labOrderDetails(upstream),
     subject,
     encounter,
     occurrenceDateTime: formatFhirDate(upstream.requestedDate),
@@ -307,7 +307,7 @@ function labOrderDetails({ tests }: LabRequest) {
 }
 
 function labAnnotations(upstream: LabRequest) {
-  return upstream.notes.map((note) => {
+  return upstream.notes.map(note => {
     return new FhirAnnotation({
       time: formatFhirDate(note.date),
       text: note.content,

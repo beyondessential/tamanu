@@ -1,9 +1,7 @@
 import { DataTypes, type InitOptions } from 'sequelize';
 
 import { FHIR_INTERACTIONS } from '@tamanu/constants';
-import {
-  FhirReference,
-} from '@tamanu/shared/services/fhirTypes';
+import { FhirReference } from '@tamanu/shared/services/fhirTypes';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import {
@@ -52,6 +50,9 @@ export class FhirPatient extends FhirResource {
 
     this.UpstreamModels = [models.Patient];
     this.upstreams = [models.Patient, models.PatientAdditionalData];
+    this.referencedResources = [
+      // FhirPatients can reference eachother, but not flagging here to avoid a circular dependency
+    ];
   }
 
   static CAN_DO = new Set([
@@ -71,7 +72,7 @@ export class FhirPatient extends FhirResource {
     const mergedUp = await upstream?.getMergedUp();
     const mergedDown = await upstream?.getMergedDown();
 
-    return [...(mergedUp?.map((u) => u.id) || []), ...(mergedDown?.map((u) => u.id) || [])];
+    return [...(mergedUp?.map(u => u.id) || []), ...(mergedDown?.map(u => u.id) || [])];
   }
 
   static async queryToFindUpstreamIdsFromTable(
@@ -99,7 +100,8 @@ export class FhirPatient extends FhirResource {
     // Although that should not really happen, but it's better to be safe and not
     // expose the upstream link data.
     resource.link = resource.link.filter(
-      (link: Record<string, any>) => link.other.type !== FhirReference.unresolvedReferenceType(FhirPatient),
+      (link: Record<string, any>) =>
+        link.other.type !== FhirReference.unresolvedReferenceType(FhirPatient),
     );
     return resource;
   }
