@@ -47,6 +47,7 @@ const StyledButtonGroup = styled(ButtonGroup)`
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
   border-bottom: 1px solid ${Colors.outline};
+  overflow-x: auto;
 `;
 
 const AddComplexChartButton = styled.span`
@@ -72,7 +73,8 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
 
 const ComplexChartInstancesTab = styled(TabDisplay)`
   overflow: initial;
-  max-width: 400px;
+  flex: 1;
+  min-width: 200px;
   .MuiTabs-root {
     z-index: 9;
     position: sticky;

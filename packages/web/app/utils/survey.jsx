@@ -26,6 +26,7 @@ import {
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   PhotoField,
+  ChartInstanceNameField,
 } from '../components/Field';
 import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
@@ -66,9 +67,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: (props) => (
-    <LimitedTextField {...props} limit={15} />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
     <DateTimeField {...props} saveDateAsString />
   ),
