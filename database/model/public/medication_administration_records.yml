@@ -8,6 +8,11 @@ sources:
         description: "{{ doc('table__medication_administration_records') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_medication_administration_records_changed
+              - record_medication_administration_records_changelog
+              - set_medication_administration_records_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
