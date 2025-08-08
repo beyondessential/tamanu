@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { formatShort } from '@tamanu/utils/dateTime';
 
 const SectionSubtitle = styled(Box)`
   font-size: 14px;
@@ -156,14 +157,6 @@ export const UserLeaveSection = ({ user }) => {
     await createLeave(values);
   };
 
-  const formatDate = dateString => {
-    try {
-      return format(new Date(dateString), 'dd/MM/yyyy');
-    } catch {
-      return dateString;
-    }
-  };
-
   const initialValues = {
     startDate: '',
     endDate: '',
@@ -241,7 +234,7 @@ export const UserLeaveSection = ({ user }) => {
               .map(leave => (
                 <LeaveItem key={leave.id}>
                   <LeaveDates>
-                    {formatDate(leave.startDate)} - {formatDate(leave.endDate)}
+                    {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
                   </LeaveDates>
                   <RemoveLink onClick={() => handleDeleteLeave(leave)}>
                     <TranslatedText stringId="general.action.remove" fallback="Remove" />
