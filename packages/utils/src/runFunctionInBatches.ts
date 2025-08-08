@@ -5,6 +5,10 @@ export async function runFunctionInBatches<T, R>(
   functionToRun: (batch: T[]) => Promise<R[]>,
   batchSize = DEFAULT_BATCH_SIZE,
 ): Promise<R[]> {
+  if (batchSize <= 0) {
+    throw new Error('batchSize must be a positive number.');
+  }
+
   const results: R[] = [];
   for (let i = 0; i < arrayToBeBatched.length; i += batchSize) {
     const batch = arrayToBeBatched.slice(i, i + batchSize);
