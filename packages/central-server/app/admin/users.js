@@ -78,12 +78,45 @@ usersRouter.get(
       distinct: true,
     });
 
+    let orderClause;
+    const upperOrder = order.toUpperCase();
+    switch (orderBy) {
+      case 'roleName':
+        orderClause = [
+          [
+            User.sequelize.literal(
+              `(SELECT "name" FROM ${Role.getTableName()} WHERE ${Role.getTableName()}."id" = "User"."role")`,
+            ),
+            upperOrder,
+          ],
+        ];
+        break;
+      case 'designations':
+        orderClause = [
+          [
+            { model: UserDesignation, as: 'designations' },
+            { model: ReferenceData, as: 'referenceData' },
+            'name',
+            upperOrder,
+          ],
+        ];
+        break;
+      case 'displayName':
+      case 'email':
+      case 'phoneNumber':
+        orderClause = [[orderBy, upperOrder]];
+        break;
+      default:
+        throw new ValidationError(`Invalid orderBy value: ${orderBy}`);
+    }
+
     const users = await User.findAll({
       where: whereClause,
       include: userInclude,
-      order: [[orderBy, order.toUpperCase()]],
+      order: orderClause,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      subQuery: false,
     });
 
     // Get role names for each user
