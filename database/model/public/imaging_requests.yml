@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_requests
-        description: '{{ doc("table__imaging_requests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_requests') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_imaging_requests_changed
+              - record_imaging_requests_changelog
+              - set_imaging_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying

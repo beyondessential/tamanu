@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_requests
-        description: '{{ doc("table__report_requests") }}'
-        tags:
-          - system
+        description: "{{ doc('table__report_requests') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - notify_report_requests_changed
+              - record_report_requests_changelog
+              - set_report_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

@@ -202,6 +202,7 @@ const StyledIcon = styled.i`
   font-size: 1rem;
   line-height: 0.875rem;
   margin: 0.0625rem 0;
+  ${props => props.$color && `color: ${props.$color};`}
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -261,7 +262,7 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
-const MedicationAdministrationForm = () => {
+const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
@@ -292,10 +293,10 @@ const MedicationAdministrationForm = () => {
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
-    if (values.frequency) {
+    if (frequencyChanged) {
       handleResetToDefault();
     }
-  }, [values.frequency]);
+  }, [frequencyChanged]);
 
   const handleResetToDefault = () => {
     if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
@@ -543,6 +544,7 @@ export const MedicationForm = ({
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
   const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
+  const [frequencyChanged, setFrequencyChanged] = useState(0);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -587,6 +589,10 @@ export const MedicationForm = ({
       durationUnit: data.durationUnit || undefined,
       idealTimes,
     };
+    if (onConfirmEdit) {
+      onConfirmEdit(payload);
+      return;
+    }
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
@@ -614,9 +620,9 @@ export const MedicationForm = ({
     if (isFinalizingMedication) {
       return;
     }
-    
+
     setIsFinalizingMedication(true);
-    
+
     try {
       setAwaitingPrint(isPrinting);
       if (onDirtyChange) {
@@ -635,8 +641,8 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
-      ...editingMedication,
       timeSlots: defaultTimeSlots,
+      ...editingMedication,
     };
   };
 
@@ -649,7 +655,7 @@ export const MedicationForm = ({
     <>
       <Form
         suppressErrorDialog
-        onSubmit={onConfirmEdit || onSubmit}
+        onSubmit={onSubmit}
         onSuccess={() => {
           if (isEditing) return;
           if (encounterId) {
@@ -759,6 +765,7 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
+                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
               />
               <Field
                 name="isPrn"
@@ -813,6 +820,7 @@ export const MedicationForm = ({
                 if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
                   setValues({ ...values, durationValue: '', durationUnit: '' });
                 }
+                setFrequencyChanged(prev => prev + 1);
               }}
             />
             <Field
@@ -917,7 +925,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             {values.frequency ? (
-              <MedicationAdministrationForm />
+              <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
               <div style={{ gridColumn: '1 / -1' }}>
                 <FieldLabel>

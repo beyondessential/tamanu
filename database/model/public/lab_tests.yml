@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_tests
-        description: '{{ doc("table__lab_tests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__lab_tests') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_lab_tests_changed
+              - record_lab_tests_changelog
+              - set_lab_tests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

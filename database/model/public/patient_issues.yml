@@ -5,11 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_issues
-        description: '{{ doc("table__patient_issues") }}'
+        description: "{{ doc('table__patient_issues') }}"
         __generator:
           js_class: PatientIssue
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_issues_changed
+              - record_patient_issues_changelog
+              - set_patient_issues_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

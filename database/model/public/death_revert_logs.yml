@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: death_revert_logs
-        description: '{{ doc("table__death_revert_logs") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__death_revert_logs') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_death_revert_logs_changed
+              - record_death_revert_logs_changelog
+              - set_death_revert_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

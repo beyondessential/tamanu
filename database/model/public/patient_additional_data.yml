@@ -5,9 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_additional_data
-        description: '{{ doc("table__patient_additional_data") }}'
-        tags:
-          - patient
+        description: "{{ doc('table__patient_additional_data') }}"
+        config:
+          tags:
+            - patient
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_patient_additional_data_changed
+              - record_patient_additional_data_changelog
+              - set_patient_additional_data_updated_at_by_field
+              - set_patient_additional_data_updated_at_sync_tick
         columns:
           - name: created_at
             data_type: timestamp with time zone
