@@ -8,6 +8,8 @@ sources:
         description: "{{ doc('logs__table__debug_logs') }}"
         config:
           tags: []
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: uuid

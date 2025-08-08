@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_procedures_changed
+              - record_procedures_changelog
+              - set_procedures_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

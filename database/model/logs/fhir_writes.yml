@@ -8,6 +8,9 @@ sources:
         description: "{{ doc('logs__table__fhir_writes') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - record_fhir_writes_changelog
         columns:
           - name: id
             data_type: uuid
