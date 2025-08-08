@@ -61,6 +61,12 @@ export const SURVEY_TYPES = {
   COMPLEX_CHART_CORE: 'complexChartCore',
 };
 
+export const CHARTING_SURVEY_TYPES = [
+  SURVEY_TYPES.SIMPLE_CHART,
+  SURVEY_TYPES.COMPLEX_CHART,
+  SURVEY_TYPES.COMPLEX_CHART_CORE,
+];
+
 const PDE_DATE_RECORDED = 'pde-PatientVitalsDate';
 const PDE_TEMPERATURE = 'pde-PatientVitalsTemperature';
 const PDE_WEIGHT = 'pde-PatientVitalsWeight';
