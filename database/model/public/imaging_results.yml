@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_results
-        description: '{{ doc("table__imaging_results") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_results') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_imaging_results_changed
+              - record_imaging_results_changelog
+              - set_imaging_results_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

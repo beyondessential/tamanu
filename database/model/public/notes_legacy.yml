@@ -5,8 +5,14 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: notes_legacy
-        description: '{{ doc("table__notes_legacy") }}'
-        tags: []
+        description: "{{ doc('table__notes_legacy') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_notes_legacy_changed
+              - record_notes_legacy_changelog
+              - set_notes_legacy_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

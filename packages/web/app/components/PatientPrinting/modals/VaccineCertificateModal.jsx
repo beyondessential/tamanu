@@ -125,7 +125,6 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}
           data-testid="workerrenderedpdfviewer-e076"
-          settings={settings}
         />
       )}
     </Modal>

@@ -5,9 +5,14 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: pharmacy_order_prescriptions
-        description: '{{ doc("table__pharmacy_order_prescriptions") }}'
+        description: "{{ doc('table__pharmacy_order_prescriptions') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_pharmacy_order_prescriptions_changed
+              - record_pharmacy_order_prescriptions_changelog
+              - set_pharmacy_order_prescriptions_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

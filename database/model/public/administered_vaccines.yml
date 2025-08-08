@@ -4,9 +4,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: administered_vaccines
-        description: '{{ doc("table__administered_vaccines") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__administered_vaccines') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_administered_vaccines_changed
+              - record_administered_vaccines_changelog
+              - set_administered_vaccines_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

@@ -54,3 +54,6 @@ export const isWithinTimeSlot = (timeSlot, time, isFuture = false) => {
     return selectedTimeMinutes >= slotStartMinutes && selectedTimeMinutes <= slotEndMinutes;
   }
 };
+
+export const createPrescriptionHash = prescription =>
+  `${prescription.medicationId}-${prescription.doseAmount}-${prescription.units}-${prescription.route}-${prescription.frequency}`;
