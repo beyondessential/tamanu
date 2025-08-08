@@ -317,12 +317,15 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   });
 
   // Query to check if there are past appointments
-  const pastAppointmentsQuery = useOutpatientAppointmentsQuery({
-    patientId: patient?.id,
-    before: getCurrentDateTimeString(),
-    after: '1970-01-01 00:00',
-    rowsPerPage: 1,
-  });
+  const pastAppointmentsQuery = useOutpatientAppointmentsQuery(
+    {
+      patientId: patient?.id,
+      before: getCurrentDateTimeString(),
+      after: '1970-01-01 00:00',
+      rowsPerPage: 1,
+    },
+    { keepPreviousData: true },
+  );
 
   const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
 
