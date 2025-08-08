@@ -9,14 +9,15 @@ export async function up(query: QueryInterface): Promise<void> {
   `);
   // Remove the empty string default value
   await query.sequelize.query(`
-    ALTER TABLE prescriptions 
+    ALTER TABLE prescriptions
     ALTER COLUMN start_date DROP DEFAULT
   `);
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.sequelize.query(`
-    ALTER TABLE prescriptions 
+    ALTER TABLE prescriptions
     ALTER COLUMN start_date SET DEFAULT ''
   `);
 }
+

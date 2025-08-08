@@ -159,6 +159,7 @@ const SurveyResponsesPrintoutComponent = ({
   isReferral,
   facility,
   currentUser,
+  getSetting,
 }) => {
   const { watermark, logo } = certificateData;
 
@@ -200,7 +201,7 @@ const SurveyResponsesPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionSpacing />
-        <PatientDetails getLocalisation={getLocalisation} patient={patientData} />
+        <PatientDetails getLocalisation={getLocalisation} patient={patientData} getSetting={getSetting} />
 
         <SurveyResponseDetails surveyResponse={surveyResponse} />
         <SectionSpacing height={16} />

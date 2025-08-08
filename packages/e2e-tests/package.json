@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/e2e-tests",
-  "version": "2.36.5",
+  "version": "2.37.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,5 +14,8 @@
     "@playwright/test": "^1.42.1",
     "@types/node": "^20.9.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0"
   }
 }

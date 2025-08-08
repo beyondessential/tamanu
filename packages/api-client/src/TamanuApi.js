@@ -51,7 +51,7 @@ export class TamanuApi {
     }
   }
 
-  getHost() {
+  get host() {
     return this.#host;
   }
 
@@ -98,7 +98,7 @@ export class TamanuApi {
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
 
-      const { user, ability } = await this.fetchUserData(loginData.permissions, config);
+      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
       return { ...loginData, user, ability, server };
     })().finally(() => {
       this.#ongoingAuth = null;
@@ -122,31 +122,30 @@ export class TamanuApi {
     return this.post('changePassword', args);
   }
 
-  async refreshToken() {
+  async refreshToken(config = {}) {
     if (!this.#refreshToken) {
       throw new Error('No refresh token available');
     }
 
-    try {
-      const response = await this.post(
-        'refresh',
-        {
-          deviceId: this.deviceId,
-          refreshToken: this.#refreshToken,
-        },
-        { useAuthToken: false, waitForAuth: false },
-      );
-      const { token, refreshToken } = response;
-      this.setToken(token, refreshToken);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-    }
+    const response = await this.post(
+      'refresh',
+      {
+        deviceId: this.deviceId,
+        refreshToken: this.#refreshToken,
+      },
+      { ...config, useAuthToken: false, waitForAuth: false },
+    );
+    const { token, refreshToken } = response;
+    this.setToken(token, refreshToken);
   }
 
   setToken(token, refreshToken = null) {
     this.#authToken = token;
     this.#refreshToken = refreshToken;
+  }
+
+  hasToken() {
+    return Boolean(this.#authToken);
   }
 
   async fetch(endpoint, query = {}, options = {}) {
@@ -277,20 +276,6 @@ export class TamanuApi {
     const { error } = await getResponseErrorSafely(response, this.logger);
     const message = error?.message || response.status.toString();
 
-    // handle auth invalid
-    if (response.status === 401 && endpoint === 'login') {
-      const message =
-        (await response.json().then(
-          json => json.message,
-          () => null,
-        )) ?? 'Failed authentication';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(message);
-      }
-      throw new AuthInvalidError(message, response);
-    }
-
-    // handle forbidden error
     if (response.status === 403 && error) {
       throw new ForbiddenError(message, response);
     }
@@ -299,11 +284,15 @@ export class TamanuApi {
       throw new NotFoundError(message, response);
     }
 
-    // handle auth expiring
-    if (response.status === 401 && endpoint !== 'login' && this.#onAuthFailure) {
-      const message = 'Your session has expired. Please log in again.';
-      this.#onAuthFailure(message);
-      throw new AuthExpiredError(message, response);
+    if (response.status === 401) {
+      const errorMessage = error?.message || 'Failed authentication';
+      if (this.#onAuthFailure) {
+        this.#onAuthFailure(errorMessage);
+      }
+      throw new (endpoint === 'login' ? AuthInvalidError : AuthExpiredError)(
+        errorMessage,
+        response,
+      );
     }
 
     // handle version incompatibility

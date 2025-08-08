@@ -91,6 +91,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
           encounter={encounter}
           certificateData={certificateData}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           clinicianText={clinicianText}
           invoice={invoice}
           enablePatientInsurer={enablePatientInsurer}

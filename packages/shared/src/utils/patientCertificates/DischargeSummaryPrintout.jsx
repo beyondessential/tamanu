@@ -10,7 +10,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { Table } from './Table';
-import { getDose, getTranslatedFrequency } from '../medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
 
 const borderStyle = '1 solid black';
 const tableLabelWidth = 150;
@@ -139,7 +139,7 @@ const columns = (getTranslation, getEnumTranslation) => [
     accessor: medication => {
       return (
         <Text>
-          {getDose(medication, getTranslation, getEnumTranslation)}
+          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)}
           {medication?.isPrn && ` ${getTranslation('medication.table.prn', 'PRN')}`}
         </Text>
       );
@@ -216,7 +216,7 @@ const DischargeSummaryPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} />
+          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />

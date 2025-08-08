@@ -50,6 +50,27 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
+// Configuration for fields to ignore when checking for changes per model
+const IGNORED_FIELDS_BY_MODEL = {
+  SurveyScreenComponent: ['componentIndex'],
+};
+
+function checkForChanges(existing, normalizedValues, model) {
+  const ignoredFields = IGNORED_FIELDS_BY_MODEL[model] || [];
+
+  return Object.keys(normalizedValues)
+    .filter(key => !ignoredFields?.includes(key))
+    .some(key => {
+      const existingValue = existing[key];
+      const normalizedValue = normalizedValues[key];
+
+      if (typeof existingValue === 'number') {
+        return Number(normalizedValue) !== existingValue;
+      }
+      return existing.changed(key);
+    });
+}
+
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats: previousStats = {}, foreignKeySchemata = {}, skipExisting = false },
@@ -216,26 +237,53 @@ export async function importRows(
     }
 
     try {
+      // Normalize undefined values to null to avoid incorrect change detection
+      const normalizedValues = { ...values };
+      Object.keys(normalizedValues).forEach(key => {
+        if (normalizedValues[key] === undefined) {
+          normalizedValues[key] = null;
+        }
+      });
+
       if (existing) {
-        await existing.update(values);
-        if (values.deletedAt) {
+        if (normalizedValues.deletedAt) {
           if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
+          if (!existing.deletedAt) {
+            updateStat(stats, statkey(model, sheetName), 'updated');
+            updateStat(stats, statkey(model, sheetName), 'deleted');
+          } else {
+            updateStat(stats, statkey(model, sheetName), 'skipped');
+          }
+          await existing.update(normalizedValues);
           await existing.destroy();
-          updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
+          let hasUpdatedStats = false;
           if (existing.deletedAt) {
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
+            updateStat(stats, statkey(model, sheetName), 'updated');
+            hasUpdatedStats = true;
           }
-          updateStat(stats, statkey(model, sheetName), 'updated');
+
+          existing.set(normalizedValues);
+          const hasValueChanges = checkForChanges(existing, normalizedValues, model);
+
+          if (!hasUpdatedStats) {
+            if (hasValueChanges) {
+              updateStat(stats, statkey(model, sheetName), 'updated');
+            } else {
+              updateStat(stats, statkey(model, sheetName), 'skipped');
+            }
+          }
+          await existing.save();
         }
       } else {
-        await Model.create(values);
+        await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
-      const recordTranslationData = generateTranslationsForData(model, sheetName, values);
+      const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
       translationData.push(...recordTranslationData);
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');

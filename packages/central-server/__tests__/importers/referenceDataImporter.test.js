@@ -704,27 +704,27 @@ describe('Permissions import', () => {
   it('should revoke (and reinstate) a permission', async () => {
     const { Permission } = ctx.store.models;
 
-    const beforeImport = await Permission.findOne({ where: { noun: 'RevokeTest' } });
+    const beforeImport = await Permission.findOne({ where: { noun: 'User' } });
     expect(beforeImport).toBeFalsy();
 
     await doImport({ file: 'revoke-a' });
 
     const initialPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(initialPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(initialPermissions.length).toBe(1);
 
     await doImport({ file: 'revoke-b' });
 
     const afterImport = await Permission.findOne({
-      where: { noun: 'RevokeTest' },
+      where: { noun: 'User' },
       paranoid: false,
     });
     expect(afterImport).toBeTruthy();
     const revokedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(revokedPermissions).toEqual(
-      expect.not.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.not.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(revokedPermissions.length).toBe(0);
 
@@ -732,7 +732,7 @@ describe('Permissions import', () => {
 
     const reinstatedPermissions = await getPermissionsForRoles(ctx.store.models, 'reception');
     expect(reinstatedPermissions).toEqual(
-      expect.arrayContaining([{ noun: 'RevokeTest', verb: 'read' }]),
+      expect.arrayContaining([{ noun: 'User', verb: 'read' }]),
     );
     expect(reinstatedPermissions.length).toBe(1);
   });

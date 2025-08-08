@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
 
 import styled from 'styled-components';
-import { getDose } from '@tamanu/shared/utils/medication';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -32,6 +31,7 @@ import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { ConditionalTooltip } from '../../Tooltip';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -235,9 +235,9 @@ export const MarDetails = ({
   };
 
   const onSubmit = async (data, { setFieldValue }) => {
-    const isDoseAmountNotMatch = data.doses.some(
-      dose => Number(dose.doseAmount) !== Number(medication.doseAmount),
-    );
+    const isDoseAmountNotMatch =
+      !medication.isVariableDose &&
+      data.doses.some(dose => Number(dose.doseAmount) !== Number(medication.doseAmount));
     if (!showWarningModal && isDoseAmountNotMatch) {
       setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
       return;
@@ -504,9 +504,8 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              {getDose(
-                                { ...medication, doseAmount: dose.doseAmount },
-                                getTranslation,
+                              {getMarDoseDisplay(
+                                { doseAmount: dose.doseAmount, units: medication.units },
                                 getEnumTranslation,
                               )}
                             </DarkestText>

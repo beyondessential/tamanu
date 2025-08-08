@@ -18,6 +18,7 @@ import {
   MEDICATION_DURATION_UNITS,
   ADMINISTRATION_FREQUENCIES,
   DRUG_UNITS,
+  PERMISSION_NOUNS,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -138,9 +139,9 @@ export const LocationGroup = Base.shape({
 
 export const Permission = yup.object().shape({
   _yCell: yup.string().oneOf(['y', 'n'], 'permissions matrix must only use the letter y or n'), // validation-only, not stored in the database anywhere
-  verb: yup.string().required(),
-  noun: yup.string().required(),
-  objectId: yup.string().nullable(),
+  verb: yup.string().required().trim(),
+  noun: yup.string().required().trim().oneOf(PERMISSION_NOUNS, 'Noun is invalid or does not exist'),
+  objectId: yup.string().nullable().trim(),
   deletedAt: yup.date().nullable(),
 });
 

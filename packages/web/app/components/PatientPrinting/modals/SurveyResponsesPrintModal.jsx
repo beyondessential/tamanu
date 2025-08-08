@@ -96,6 +96,7 @@ export const SurveyResponsesPrintModal = React.memo(
             certificateData={certificateData}
             getLocalisation={getLocalisation}
             getTranslation={getTranslation}
+            getSetting={getSetting}
             isReferral={isReferral}
             currentUser={currentUser}
             facility={facility}

@@ -3,7 +3,7 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import {
   findAdministrationTimeSlotFromIdealTime,
-  getDose,
+  getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
@@ -74,6 +74,7 @@ export const MarTableRow = ({
 
   const handleRefreshMar = () => {
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+    queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
   };
 
   return (
@@ -97,7 +98,7 @@ export const MarTableRow = ({
           )}
         </Box>
         <Box>
-          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>

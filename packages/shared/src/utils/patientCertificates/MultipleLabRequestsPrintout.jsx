@@ -160,7 +160,7 @@ const LabRequestDetailsView = ({ labRequests }) => {
 };
 
 const MultipleLabRequestsPrintoutComponent = React.memo(
-  ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation }) => {
+  ({ patientData, labRequests, encounter, certificateData, getLocalisation, getTranslation, getSetting }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -172,7 +172,7 @@ const MultipleLabRequestsPrintoutComponent = React.memo(
               certificateTitle="Lab request"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} />
+              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} />

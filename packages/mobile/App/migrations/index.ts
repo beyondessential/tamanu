@@ -68,6 +68,8 @@ import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from '
 import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
 import { addProgramRegistryConditionCategories1749085185000 } from './1749085185000-addProgramRegistryConditionCategories';
 import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
+import { addPatientAllergiesTable1750787000000 } from './1750787000000-addPatientAllergiesTable';
+import { addMedicationAdministrationRecordTable1750787001000 } from './1750787001000-addMedicationAdministrationRecordTable';
 import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
 
 export const migrationList = [
@@ -140,5 +142,7 @@ export const migrationList = [
   addPatientProgramRegistrationInactiveFields1744234389088,
   addProgramRegistryConditionCategories1749085185000,
   updateMedicationsDBSchema1750786972719,
+  addPatientAllergiesTable1750787000000,
+  addMedicationAdministrationRecordTable1750787001000,
   correctPrescriptionStartDates1753393877000,
 ];
