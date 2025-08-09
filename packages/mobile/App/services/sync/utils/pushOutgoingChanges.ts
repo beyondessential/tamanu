@@ -2,7 +2,7 @@ import { SyncRecord } from '../types';
 import { MODELS_MAP } from '../../../models/modelsMap';
 
 import { CentralServerConnection } from '../CentralServerConnection';
-import { calculatePageLimit } from './calculatePageLimit';
+import { calculatePageLimit, calculatePageLimitWithMemoryGuard } from './calculatePageLimit';
 
 /**
  * Push outgoing changes in batches
@@ -30,7 +30,7 @@ export const pushOutgoingChanges = async (
     const endTime = Date.now();
 
     startOfPage = endOfPage;
-    limit = calculatePageLimit(limit, endTime - startTime);
+    limit = await calculatePageLimitWithMemoryGuard(limit, endTime - startTime);
     pushedRecordsCount += page.length;
 
     progressCallback(changes.length, pushedRecordsCount);

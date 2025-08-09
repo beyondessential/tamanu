@@ -1,7 +1,12 @@
 // File is mirrored on the facility server; if you change this, change the facility server too
+// Keep this module pure; platform-specific checks happen at call sites
+
+import { canIncreasePageSize } from './getMemoryUsage';
+
 const INITIAL_LIMIT = 10000;
 const MIN_LIMIT = 1000;
-const MAX_LIMIT = 10000000;
+const MAX_LIMIT = 10000000; // absolute cap
+
 export const OPTIMAL_TIME_PER_PAGE = 10000; // aim for 10 seconds per page
 const MAX_LIMIT_CHANGE_PER_PAGE = 0.3; // max 30% increase from batch to batch, or it is too jumpy
 
@@ -29,4 +34,18 @@ export const calculatePageLimit = (currentLimit?: number, lastPageTime?: number)
     MAX_LIMIT,
     Math.ceil(currentLimit + currentLimit * MAX_LIMIT_CHANGE_PER_PAGE),
   );
+};
+
+// Set the current page size based on how long the previous page took to complete.
+export const calculatePageLimitWithMemoryGuard = async (
+  currentLimit?: number,
+  lastPageTime?: number,
+  memoryThreshold: number = 0.6,
+): Promise<number> => {
+  const nextLimit = calculatePageLimit(currentLimit, lastPageTime);
+  if (nextLimit > currentLimit) {
+    const okToGrow = await canIncreasePageSize(memoryThreshold);
+    return okToGrow ? nextLimit : currentLimit;
+  }
+  return nextLimit;
 };
