@@ -27,18 +27,19 @@ export const executeInserts = async (
   for (const row of rows) {
     const { id } = row;
     if (!idsAdded.has(id)) {
-      deduplicated.push({ ...strippedIsDeleted(row), id });
+      delete row.isDeleted;
+      deduplicated.push(row);
       idsAdded.add(id);
     }
   }
-  for (const batchOfRows of chunk(deduplicated, insertBatchSize)) {
+
     try {
-      await executePreparedInsert(repository, batchOfRows);
+      await executePreparedInsert(repository, deduplicated, insertBatchSize, progressCallback);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
       await Promise.all(
-        batchOfRows.map(async row => {
+        deduplicated.map(async row => {
           try {
             await repository.insert(row);
           } catch (error) {
@@ -47,8 +48,7 @@ export const executeInserts = async (
         }),
       );
     }
-    progressCallback(batchOfRows.length);
-  }
+
   // To create soft deleted records, we need to first create them, then destroy them
   if (softDeleted.length > 0) {
     await executeDeletes(repository, softDeleted);

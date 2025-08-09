@@ -13,6 +13,8 @@ import { ObjectType } from 'typeorm/browser/common/ObjectType';
 import { FindManyOptions } from 'typeorm/browser/find-options/FindManyOptions';
 import { VisibilityStatus } from '../visibilityStatuses';
 import { BaseModel } from './BaseModel';
+import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
+import { getRelationIdsFieldMapping } from '~/services/sync/utils/buildFromSyncRecord';
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -38,6 +40,8 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
 
 export abstract class BaseModelWithoutId extends BaseEntity {
   static allModels = undefined;
+  static includedColumns = undefined;
+  static fieldMapping = undefined;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -62,6 +66,11 @@ export abstract class BaseModelWithoutId extends BaseEntity {
 
   static injectAllModels(allModels: Record<string, typeof BaseModelWithoutId>): void {
     this.allModels = allModels;
+  }
+
+  static setupStaticProperties(model: typeof BaseModel) {
+    model.includedColumns = extractIncludedColumns(model);
+    model.fieldMapping = getRelationIdsFieldMapping(model);
   }
 
   @BeforeInsert()

@@ -31,6 +31,7 @@ export const getTransactingModelsForDirection = (
   // Create a model map with getTransactionalRepository method bound to the transactional entity manager
   const transactionalModels = {};
   for (const [modelName, modelClass] of Object.entries(modelsForDirection)) {
+    modelClass.setupStaticProperties(modelClass);
     transactionalModels[modelName] = modelClass;
     transactionalModels[modelName].getTransactionalRepository = () =>
       entityManager.getRepository(modelClass);

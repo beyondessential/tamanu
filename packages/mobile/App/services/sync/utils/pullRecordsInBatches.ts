@@ -6,29 +6,42 @@ export const pullRecordsInBatches = async (
   { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
   processRecords: (records: any) => Promise<void>,
 ) => {
-  let fromId;
+  let fromId: string | undefined;
   let limit = calculatePageLimit();
   let totalPulled = 0;
 
-  // pull changes a page at a time
-  while (totalPulled < recordTotal) {
+  type PulledPage = { records: any[]; pullTime: number };
+  const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, limit, fromId);
+    const records = await centralServer.pull(sessionId, pageLimit, pageFromId);
     const pullTime = Date.now() - startTime;
-    const recordsToSave = records.map(r => ({
-      ...r,
-      // mark as never updated, so we don't push it back to the central server until the next update
-      data: { ...r.data, updated_at_sync_tick: -1 },
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    }));
+    return { records, pullTime };
+  };
 
+  // prime first page
+  let current = await fetchPage(limit, fromId);
+
+  while (totalPulled < recordTotal && current.records.length > 0) {
+    // compute next cursor and adjust page size based on how long the last pull took
+    const last = current.records.at(-1);
+    const nextFromId = last ? btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id })) : undefined;
+    limit = calculatePageLimit(limit, current.pullTime);
+
+    // prefetch next page in background
+    const nextPromise = nextFromId ? fetchPage(limit, nextFromId) : Promise.resolve({ records: [], pullTime: 0 });
+
+    // process current page while next is downloading
+    const recordsToSave = current.records.map(r => {
+      r.data.updated_at_sync_tick = -1;
+      r.direction = SYNC_SESSION_DIRECTION.INCOMING;
+      return r;
+    });
     await processRecords(recordsToSave);
-
-    const { id, sortOrder } = records[records.length - 1];
-    fromId = btoa(JSON.stringify({ sortOrder, id }));
-    totalPulled += records.length;
-    limit = calculatePageLimit(limit, pullTime);
-
+    totalPulled += current.records.length;
     progressCallback(recordsToSave.length);
+
+    // switch to next page
+    fromId = nextFromId;
+    current = await nextPromise;
   }
 };

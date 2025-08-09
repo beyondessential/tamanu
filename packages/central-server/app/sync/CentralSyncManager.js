@@ -608,7 +608,13 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.parameters;
+    const { minSourceTick, maxSourceTick, isMobile } = session.parameters || {};
+
+    // Mobile clients do not use per-record changelog; skipping attachment reduces DB work and payload
+    if (isMobile) {
+      return snapshotRecords;
+    }
+
     if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }

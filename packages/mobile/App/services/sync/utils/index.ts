@@ -1,7 +1,5 @@
 export { callWithBackoff } from './callWithBackoff';
-export { fetchWithTimeout } from './fetchWithTimeout';
 export { getModelsForDirection, getTransactingModelsForDirection } from './getModelsForDirection';
-export { getResponseJsonSafely } from './getResponseJsonSafely';
 export { getSyncTick } from './getSyncTick';
 export { pushOutgoingChanges } from './pushOutgoingChanges';
 export { saveChangesFromMemory, saveChangesFromSnapshot } from './saveIncomingChanges';

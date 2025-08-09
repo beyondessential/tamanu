@@ -40,6 +40,7 @@
     "@storybook/react-native": "^6.5.7",
     "@tamanu/shared": "*",
     "@testing-library/react-native": "^12.5.3",
+    "axios": "^1.11.0",
     "chance": "^1.1.4",
     "date-fns": "^2.7.0",
     "deprecated-react-native-prop-types": "^5.0.0",
