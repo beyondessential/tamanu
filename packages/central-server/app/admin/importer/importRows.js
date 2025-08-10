@@ -33,16 +33,16 @@ const existingRecordLoaders = {
   PatientAdditionalData: (PAD, { patientId }) => PAD.findByPk(patientId, { paranoid: false }),
   // PatientFieldValue model has a composite PK that uses patientId & definitionId
   PatientFieldValue: (PFV, { patientId, definitionId }) =>
-    PFV.findOne({ where: { patientId, definitionId } }, { paranoid: false }),
+    PFV.findOne({ where: { patientId, definitionId }, paranoid: false }),
   // TranslatedString model has a composite PK that uses stringId & language
   TranslatedString: (TS, { stringId, language }) =>
-    TS.findOne({ where: { stringId, language } }, { paranoid: false }),
+    TS.findOne({ where: { stringId, language }, paranoid: false }),
   ReferenceDataRelation: (RDR, { referenceDataId, referenceDataParentId, type }) =>
-    RDR.findOne({ where: { referenceDataId, referenceDataParentId, type } }, { paranoid: false }),
+    RDR.findOne({ where: { referenceDataId, referenceDataParentId, type }, paranoid: false }),
   TaskTemplateDesignation: (TTD, { taskTemplateId, designationId }) =>
-    TTD.findOne({ where: { taskTemplateId, designationId } }, { paranoid: false }),
+    TTD.findOne({ where: { taskTemplateId, designationId }, paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
-    UD.findOne({ where: { userId, designationId } }, { paranoid: false }),
+    UD.findOne({ where: { userId, designationId }, paranoid: false }),
 };
 
 function loadExisting(Model, values) {
@@ -60,7 +60,15 @@ function checkForChanges(existing, normalizedValues, model) {
 
   return Object.keys(normalizedValues)
     .filter(key => !ignoredFields?.includes(key))
-    .some(key => existing.changed(key));
+    .some(key => {
+      const existingValue = existing[key];
+      const normalizedValue = normalizedValues[key];
+
+      if (typeof existingValue === 'number') {
+        return Number(normalizedValue) !== existingValue;
+      }
+      return existing.changed(key);
+    });
 }
 
 export async function importRows(

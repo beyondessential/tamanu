@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_locations_changed
+              - record_locations_changelog
+              - set_locations_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

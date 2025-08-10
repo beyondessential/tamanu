@@ -10,6 +10,11 @@ sources:
           tags:
             - clinical
             - deprecated
+          meta:
+            triggers:
+              - notify_vitals_changed
+              - record_vitals_changelog
+              - set_vitals_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

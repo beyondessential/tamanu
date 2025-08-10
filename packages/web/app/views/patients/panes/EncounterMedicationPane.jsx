@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import { Box } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
@@ -20,7 +21,7 @@ import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
 import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
-import { ThemedTooltip } from '../../../components/Tooltip';
+import { ConditionalTooltip, ThemedTooltip } from '../../../components/Tooltip';
 import { AddMedicationIcon } from '../../../assets/icons/AddMedicationIcon';
 import { usePatientOngoingPrescriptionsQuery } from '../../../api/queries/usePatientOngoingPrescriptionsQuery';
 import { MedicationImportModal } from '../../../components/Medication/MedicationImportModal';
@@ -70,6 +71,7 @@ const TableContainer = styled.div`
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const { ability } = useAuth();
+  const queryClient = useQueryClient();
   const { getSetting } = useSettings();
 
   const pharmacyOrderEnabled = getSetting('features.pharmacyOrder.enabled');
@@ -104,6 +106,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
     encounter.patientId,
   );
 
+  const isEncounterDischarged = !!encounter.endDate;
   const importableOngoingPrescriptions = patientOngoingPrescriptions?.data?.filter(
     p => !p.discontinued,
   );
@@ -111,13 +114,18 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const canOrderPrescription = ability.can('read', 'Medication');
   const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =
-    !!importableOngoingPrescriptions?.length && !encounter.endDate;
+    !!importableOngoingPrescriptions?.length && !isEncounterDischarged;
   const canAccessMar = ability.can('read', 'MedicationAdministration');
 
   const handleNavigateToMar = () => {
     // Navigate to the medication tab first to ensure it will be back to the same tab after navigating to the MAR
     navigateToEncounter(encounter.id, { tab: ENCOUNTER_TAB_NAMES.MEDICATION }, true);
     navigateToMar();
+  };
+
+  const handleReloadTable = () => {
+    queryClient.invalidateQueries(['encounterMedication', encounter.id]);
+    setRefreshEncounterMedications(prev => prev + 1);
   };
 
   return (
@@ -135,7 +143,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             open
             onClose={() => setPrescriptionType(null)}
             openPrescriptionTypeModal={() => setPrescriptionTypeModalOpen(true)}
-            onReloadTable={() => setRefreshEncounterMedications(prev => prev + 1)}
+            onReloadTable={handleReloadTable}
           />
         )}
         <MedicationModal
@@ -266,20 +274,30 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
             )}
             {canCreatePrescription && (
               <NoteModalActionBlocker>
-                <StyledButtonWithPermissionCheck
-                  onClick={handleNewPrescription}
-                  disabled={readonly || medicationSetsLoading}
-                  verb="create"
-                  noun="Medication"
-                  data-testid="styledbuttonwithpermissioncheck-cagj"
-                  isLoading={medicationSetsLoading}
+                <ConditionalTooltip
+                  visible={isEncounterDischarged}
+                  title={
+                    <TranslatedText
+                      stringId="medication.action.newPrescription.tooltip"
+                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab.'"
+                    />
+                  }
                 >
-                  <TranslatedText
-                    stringId="medication.action.newPrescription"
-                    fallback="New prescription"
-                    data-testid="translatedtext-pikt"
-                  />
-                </StyledButtonWithPermissionCheck>
+                  <StyledButtonWithPermissionCheck
+                    onClick={handleNewPrescription}
+                    disabled={readonly || medicationSetsLoading || isEncounterDischarged}
+                    verb="create"
+                    noun="Medication"
+                    data-testid="styledbuttonwithpermissioncheck-cagj"
+                    isLoading={medicationSetsLoading}
+                  >
+                    <TranslatedText
+                      stringId="medication.action.newPrescription"
+                      fallback="New prescription"
+                      data-testid="translatedtext-pikt"
+                    />
+                  </StyledButtonWithPermissionCheck>
+                </ConditionalTooltip>
               </NoteModalActionBlocker>
             )}
           </ButtonGroup>
