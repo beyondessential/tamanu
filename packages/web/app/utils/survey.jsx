@@ -72,8 +72,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
     <DateTimeField {...props} saveDateAsString />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
 };
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
