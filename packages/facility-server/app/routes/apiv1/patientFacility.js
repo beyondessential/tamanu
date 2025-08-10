@@ -21,6 +21,7 @@ patientFacility.post('/$', async (req, res) => {
   const record = await models.PatientFacility.createOrUpdate({
     patientId,
     facilityId,
+    createdAtSyncTick: null,
   });
 
   // trigger a sync to immediately start pulling data for this patient
