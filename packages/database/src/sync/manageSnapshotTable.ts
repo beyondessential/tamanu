@@ -29,6 +29,7 @@ export const getMarkedForSyncPatientsTableName = (sessionId: string, isFullSync:
 
 export const createSnapshotTable = async (sequelize: Sequelize, sessionId: string) => {
   const tableName = getSnapshotTableName(sessionId);
+  const indexPrefix = tableName.replaceAll('.', '_').replaceAll('"', '').replaceAll('-', '');
   await sequelize.query(`
     CREATE TABLE ${tableName} (
       id BIGSERIAL PRIMARY KEY,
@@ -45,10 +46,8 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
     ) WITH (
       autovacuum_enabled = off
     );
-    CREATE INDEX ${tableName
-      .replaceAll('.', '_')
-      .replaceAll('"', '')
-      .replaceAll('-', '')}_direction_index ON ${tableName}(direction);
+    CREATE INDEX ${indexPrefix}_dir_index ON ${tableName}(direction);
+    CREATE INDEX ${indexPrefix}_dir_rt_id_index ON ${tableName}(direction, record_type, id);
   `);
 };
 

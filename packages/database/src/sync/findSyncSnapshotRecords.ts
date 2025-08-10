@@ -66,7 +66,6 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
   const sortedModels = sortInDependencyOrder(modelsForPull as Models);
 
   const { sortOrder: lastRecordTypeOrder, id: lastId } = fromId ? JSON.parse(atob(fromId)) : {};
-
   const records = await sequelize.query(
     `
       WITH priority(record_type, sort_order) AS (
@@ -93,7 +92,6 @@ export const findSyncSnapshotRecordsOrderByDependency = async (
       raw: true,
     },
   );
-
   return records.map(r =>
     Object.fromEntries(Object.entries(r).map(([key, value]) => [camel(key), value])),
   ) as SyncSnapshotAttributes[];

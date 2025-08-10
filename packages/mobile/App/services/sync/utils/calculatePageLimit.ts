@@ -1,11 +1,11 @@
 // File is mirrored on the facility server; if you change this, change the facility server too
-// Keep this module pure; platform-specific checks happen at call sites
+// Keep calculatePageLimit pure; platform specifics are only used in the guard wrapper
 
 import { canIncreasePageSize } from './getMemoryUsage';
 
-const INITIAL_LIMIT = 10000;
+const INITIAL_LIMIT = 100000;
 const MIN_LIMIT = 1000;
-const MAX_LIMIT = 10000000; // absolute cap
+const MAX_LIMIT = 10000000; 
 
 export const OPTIMAL_TIME_PER_PAGE = 10000; // aim for 10 seconds per page
 const MAX_LIMIT_CHANGE_PER_PAGE = 0.3; // max 30% increase from batch to batch, or it is too jumpy
@@ -45,6 +45,7 @@ export const calculatePageLimitWithMemoryGuard = async (
   const nextLimit = calculatePageLimit(currentLimit, lastPageTime);
   if (nextLimit > currentLimit) {
     const okToGrow = await canIncreasePageSize(memoryThreshold);
+    console.log('okToGrow: ', okToGrow, 'to: ', nextLimit, 'from: ', currentLimit, 'memoryThreshold: ', memoryThreshold);
     return okToGrow ? nextLimit : currentLimit;
   }
   return nextLimit;

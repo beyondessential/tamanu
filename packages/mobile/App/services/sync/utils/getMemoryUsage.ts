@@ -1,4 +1,7 @@
 import { NativeModules } from 'react-native';
+import { getDynamicMemoryThreshold } from './getDynamicMemoryThreshold';
+
+const MEMORY_THRESHOLD = getDynamicMemoryThreshold();
 
 type MemoryUsage = {
   maxBytes: number;
@@ -20,8 +23,10 @@ export const getMemoryUsageRatio = async (): Promise<number | undefined> => {
   return undefined;
 };
 
-export const canIncreasePageSize = async (threshold: number = 0.6): Promise<boolean> => {
+export const canIncreasePageSize = async (
+  threshold: number = MEMORY_THRESHOLD,
+): Promise<boolean> => {
   const ratio = await getMemoryUsageRatio();
-  if (ratio == null) return true; // if unknown, don't block increases
+  if (ratio == null) return true;
   return ratio < threshold;
 };

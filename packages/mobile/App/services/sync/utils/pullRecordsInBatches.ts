@@ -18,7 +18,6 @@ export const pullRecordsInBatches = async (
     return { records, pullTime };
   };
 
-  // prime first page
   let current = await fetchPage(limit, fromId);
 
   while (totalPulled < recordTotal && current.records.length > 0) {
