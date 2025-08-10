@@ -20,9 +20,9 @@ export class PatientFacility extends BaseModel {
 
   @Column({
     type: 'bigint',
-    default: '0',
+    nullable: true,
   })
-  createdAtSyncTick: string;
+  createdAtSyncTick: string | null;
 
   @ManyToOne(() => Patient)
   patient: Patient;
