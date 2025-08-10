@@ -22,7 +22,7 @@ export class PatientFacility extends BaseModel {
     type: 'bigint',
     nullable: true,
   })
-  createdAtSyncTick: string | null;
+  createdAtSyncTick?: string;
 
   @ManyToOne(() => Patient)
   patient: Patient;
