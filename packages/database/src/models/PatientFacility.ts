@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize, type UpsertOptions } from 'sequelize';
-import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
