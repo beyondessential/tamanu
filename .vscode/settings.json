@@ -1,6 +1,6 @@
 {
   "cSpell.language": "en-GB",
-  "cSpell.words": ["clearable", "Formik", "ilike", "singularize", "upsert", "upserted", "tamanu"],
+  "cSpell.words": ["clearable", "Formik", "ilike", "singularize", "tamanu", "upsert", "upserted"],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "eslint.experimental.useFlatConfig": true,
   "eslint.lintTask.enable": true,
