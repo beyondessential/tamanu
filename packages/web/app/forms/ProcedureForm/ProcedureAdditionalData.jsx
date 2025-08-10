@@ -3,7 +3,12 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { SelectInput, TranslatedReferenceData, TranslatedText } from '../../components';
+import {
+  FieldWithTooltip,
+  SelectInput,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../components';
 import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
@@ -11,6 +16,7 @@ import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries
 import { getAnswersFromData, notifyError } from '../../utils';
 import { Colors } from '../../constants';
 import { CancelAdditionalDataModal } from './ProcedureFormModals';
+import { useTranslation } from '../../contexts/Translation';
 
 const Container = styled.div`
   margin-bottom: 1.5rem;
@@ -67,6 +73,7 @@ export const ProcedureAdditionalData = ({
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
+  const { getTranslation } = useTranslation();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
@@ -100,6 +107,8 @@ export const ProcedureAdditionalData = ({
     setCancelFormModalOpen(true);
   };
 
+  const hasAdditionalDataForms = surveys?.length > 0;
+
   return (
     <>
       <Container>
@@ -115,7 +124,8 @@ export const ProcedureAdditionalData = ({
             fallback="Add any additional data to the procedure record by selecting a form below."
           />
         </LeadText>
-        <SelectInput
+        <FieldWithTooltip
+          component={SelectInput}
           name="survey"
           label={
             <TranslatedText
@@ -126,6 +136,15 @@ export const ProcedureAdditionalData = ({
           options={surveys}
           value={selectedSurveyId ?? ''}
           onChange={onFormSelect}
+          disabled={!hasAdditionalDataForms}
+          disabledTooltipText={
+            !hasAdditionalDataForms
+              ? getTranslation(
+                  'procedure.form.disabledAdditionalData.tooltip',
+                  'No forms available for selected procedure type',
+                )
+              : null
+          }
         />
         {survey && (
           <SurveyBox>

@@ -73,9 +73,9 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
   return toDateTimeString(addDays(parseISO(actualEndDateTime), 1));
 };
 
-const useProgramResponsesQuery = (patientId, procedureId) => {
+const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
-  return useQuery(['patient', patientId, 'programResponses'], () =>
+  return useQuery(['patient', patientId, 'programResponses', procedureId, refreshCount], () =>
     api.get(`patient/${patientId}/programResponses`, { procedureId }),
   );
 };
@@ -90,7 +90,11 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const [unsavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
   const procedureId = editedProcedure?.id;
-  const { data: programResponses } = useProgramResponsesQuery(patientId, procedureId);
+  const { data: programResponses } = useProcedureProgramResponsesQuery(
+    patientId,
+    procedureId,
+    refreshCount,
+  );
 
   return (
     <Form
@@ -159,7 +163,6 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 />
               </SubHeading>
               <ProcedureFormFields values={values} />
-              <Divider />
               <ProcedureAdditionalData
                 procedureId={procedureId}
                 patient={patient}
@@ -186,7 +189,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 </>
               )}
               <FormSubmitCancelRow
-                onCancel={onClose}
+                onCancel={handleCancel}
                 onConfirm={submitForm}
                 confirmText={
                   <TranslatedText
