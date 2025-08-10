@@ -463,7 +463,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 }
 
 export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes } = item;
+  const { id: drugId, route, units, notes, isSensitive = false } = item;
   const rows = [];
 
   let existingDrug;
@@ -479,6 +479,7 @@ export async function drugLoader(item, { models }) {
     route,
     units,
     notes,
+    isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -500,6 +501,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     duration,
     notes,
     dischargeQuantity,
+    ongoingMedication,
   } = item;
 
   const rows = [];
@@ -535,6 +537,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
+    isOngoing: ongoingMedication,
   };
 
   rows.push({
@@ -554,6 +557,17 @@ export async function medicationSetLoader(item, { models, pushError }) {
     .split(',')
     .map(id => id.trim())
     .filter(Boolean);
+
+  const duplicateIds = medicationTemplateIds.filter(
+    (templateId, index) => medicationTemplateIds.indexOf(templateId) !== index,
+  );
+
+  if (duplicateIds.length > 0) {
+    const uniqueDuplicates = [...new Set(duplicateIds)];
+    pushError(
+      `Duplicate medication template IDs found in medication set "${id}": ${uniqueDuplicates.join(', ')}.`,
+    );
+  }
 
   let existingTemplateIds = [];
   if (medicationTemplateIds.length > 0) {

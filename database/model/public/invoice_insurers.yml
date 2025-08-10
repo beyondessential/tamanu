@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_invoice_insurers_changed
+              - record_invoice_insurers_changelog
+              - set_invoice_insurers_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
