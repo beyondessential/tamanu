@@ -89,12 +89,22 @@ export const ChartInstanceInfoSection = ({
     subtypeDataElement,
   } = coreComplexDataElements;
 
-  const editedObject = {
-    ...(instanceNameDataElement?.id && { [instanceNameDataElement.id]: chartInstanceName }),
-    ...(dateDataElement?.id && { [dateDataElement.id]: chartDate }),
-    ...(isTypeVisible && typeDataElement?.id && { [typeDataElement.id]: chartType }),
-    ...(isSubtypeVisible && subtypeDataElement?.id && { [subtypeDataElement.id]: chartSubtype }),
-  };
+  const editedObject = {};
+  if (instanceNameDataElement?.id) {
+    editedObject[instanceNameDataElement.id] = chartInstanceName;
+  }
+  
+  if (dateDataElement?.id) {
+    editedObject[dateDataElement.id] = chartDate;
+  }
+  
+  if (isTypeVisible && typeDataElement?.id) {
+    editedObject[typeDataElement.id] = chartType;
+  }
+  
+  if (isSubtypeVisible && subtypeDataElement?.id) {
+    editedObject[subtypeDataElement.id] = chartSubtype;
+  }
 
   return (
     <>
