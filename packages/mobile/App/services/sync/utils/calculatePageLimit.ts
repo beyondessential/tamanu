@@ -3,7 +3,7 @@
 
 import { canIncreasePageSize } from './getMemoryUsage';
 
-const INITIAL_LIMIT = 100000;
+const INITIAL_LIMIT = 10000;
 const MIN_LIMIT = 1000;
 const MAX_LIMIT = 10000000; 
 
@@ -45,7 +45,6 @@ export const calculatePageLimitWithMemoryGuard = async (
   const nextLimit = calculatePageLimit(currentLimit, lastPageTime);
   if (nextLimit > currentLimit) {
     const okToGrow = await canIncreasePageSize(memoryThreshold);
-    console.log('okToGrow: ', okToGrow, 'to: ', nextLimit, 'from: ', currentLimit, 'memoryThreshold: ', memoryThreshold);
     return okToGrow ? nextLimit : currentLimit;
   }
   return nextLimit;
