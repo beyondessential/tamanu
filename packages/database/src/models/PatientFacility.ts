@@ -3,6 +3,7 @@ import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
+import type { ModelSanitizeArgs } from 'types/sync';
 
 export class PatientFacility extends Model {
   declare id: string;
@@ -87,6 +88,13 @@ export class PatientFacility extends Model {
       select: buildSyncLookupSelect(this, {
         facilityId: `${this.tableName}.facility_id`,
       }),
+    };
+  }
+
+  static sanitizeForCentralServer(values: ModelSanitizeArgs) {
+    return {
+      ...values,
+      createdAtSyncTick: null,
     };
   }
 }
