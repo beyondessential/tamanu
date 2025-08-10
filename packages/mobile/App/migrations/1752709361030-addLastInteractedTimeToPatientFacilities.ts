@@ -16,7 +16,7 @@ export class addLastInteractedTimeToPatientFacilities1752709361030 implements Mi
       new TableColumn({
         name: 'createdAtSyncTick',
         type: 'bigint',
-        isNullable: true,
+        default: '0',
       }),
     );
 
