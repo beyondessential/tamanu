@@ -1,12 +1,9 @@
 import { BeforeInsert, Entity, ManyToOne, PrimaryColumn, RelationId, Column } from 'typeorm';
 
-import { Database } from '../infra/db';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
-import { CURRENT_SYNC_TIME } from '../services/sync/constants';
-import { getSyncTick } from '../services/sync/utils';
 
 @Entity('patient_facilities')
 export class PatientFacility extends BaseModel {
@@ -51,7 +48,6 @@ export class PatientFacility extends BaseModel {
   }
 
   static async createOrUpdate({ patientId, facilityId }: Partial<PatientFacility>) {
-    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
     const record = await super.findOne({
       where: { patient: { id: patientId }, facility: { id: facilityId } },
     });
@@ -63,7 +59,6 @@ export class PatientFacility extends BaseModel {
     return super.createAndSaveOne({
       patient: patientId,
       facility: facilityId,
-      createdAtSyncTick: syncTick,
     });
   }
 }     
