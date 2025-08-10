@@ -2,7 +2,9 @@ import { DataTypes, Sequelize, type UpsertOptions } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { addCreatedAtSyncTickToPatientFacilities } from '../sync/hooks/addCreatedAtSyncTickToPatientFacillities';
 import type { InitOptions, Models } from '../types/model';
+import type { SyncSnapshotAttributes } from '../types/sync';
 
 export class PatientFacility extends Model {
   declare id: string;
@@ -84,5 +86,11 @@ export class PatientFacility extends Model {
         facilityId: `${this.tableName}.facility_id`,
       }),
     };
+  }
+
+  static async incomingSyncHook(
+    changes: SyncSnapshotAttributes[],
+  ) {
+    return addCreatedAtSyncTickToPatientFacilities(this, changes);
   }
 }

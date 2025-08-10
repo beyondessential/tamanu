@@ -5,8 +5,8 @@ import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
 import type { Appointment, AppointmentSchedule } from 'models';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { sanitizeRecord } from './sanitizeRecord';
+import { SYNC_SESSION_DIRECTION } from '../constants';
+import { sanitizeRecord } from '../sanitizeRecord';
 
 /**
  * The new changes will be persisted in the sync_snapshot table
