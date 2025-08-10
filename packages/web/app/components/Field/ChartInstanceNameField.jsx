@@ -9,9 +9,17 @@ const StyledLimitedTextField = styled(LimitedTextField)`
   }
 `;
 
+const getErrorMessage = (error, form, field) => {
+  if (!error || !form?.errors || !field?.name) {
+    return null;
+  }
+
+  return form.errors[field.name];
+};
+
 export const ChartInstanceNameField = (props) => {
   const { error, field, form } = props;
-  const errorMessage = error ? form.errors[field.name] : null;
+  const errorMessage = getErrorMessage(error, form, field);
 
   return (
     <StyledLimitedTextField
