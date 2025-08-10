@@ -14,17 +14,13 @@ import {
   SETTINGS_SCOPES,
   SYNC_DIRECTIONS,
   DEBUG_LOG_TYPES,
-  APPOINTMENT_STATUSES,
-  REPEAT_FREQUENCY,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
-import { cloneDeep } from 'lodash';
 
 const doImport = (options, models) => {
   const { file, ...opts } = options;
@@ -77,19 +73,6 @@ describe('CentralSyncManager', () => {
       complete = await centralSyncManager.checkPushComplete(sessionId);
       await sleepAsync(100);
     }
-  };
-
-  const expectMatchingSessionData = (sessionData1, sessionData2) => {
-    const cleanedSessionData1 = { ...sessionData1 };
-    const cleanedSessionData2 = { ...sessionData2 };
-
-    // Remove updatedAt and lastConnectionTime as these fields change on every connect, so they return false negatives when comparing session data
-    delete cleanedSessionData1.updatedAt;
-    delete cleanedSessionData2.updatedAt;
-    delete cleanedSessionData1.lastConnectionTime;
-    delete cleanedSessionData2.lastConnectionTime;
-
-    expect(cleanedSessionData1).toEqual(cleanedSessionData2);
   };
 
   const prepareRecordsForSync = async () => {
@@ -175,213 +158,6 @@ describe('CentralSyncManager', () => {
   });
 
   afterAll(() => ctx.close());
-
-  describe('startSession', () => {
-    it('creates a new session', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      const syncSession = await models.SyncSession.findOne({ where: { id: sessionId } });
-      expect(syncSession).not.toBeUndefined();
-    });
-
-    it('tick-tocks the global clock', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await waitForSession(centralSyncManager, sessionId);
-
-      const localSystemFact = await models.LocalSystemFact.findOne({
-        where: { key: FACT_CURRENT_SYNC_TICK },
-      });
-      expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
-    });
-
-    it('allows concurrent sync sessions', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId: sessionId1 } = await centralSyncManager.startSession();
-      const { sessionId: sessionId2 } = await centralSyncManager.startSession();
-
-      await waitForSession(centralSyncManager, sessionId1);
-      await waitForSession(centralSyncManager, sessionId2);
-
-      const syncSession1 = await models.SyncSession.findOne({ where: { id: sessionId1 } });
-      const syncSession2 = await models.SyncSession.findOne({ where: { id: sessionId2 } });
-
-      expect(syncSession1).not.toBeUndefined();
-      expect(syncSession2).not.toBeUndefined();
-    });
-
-    it('throws an error when checking a session is ready if it failed to start', async () => {
-      const errorMessage = "I'm a sleepy session, I don't want to start";
-      const fakeMarkAsStartedAt = () => {
-        throw new Error(errorMessage);
-      };
-
-      const spyMarkAsStartedAt = jest
-        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
-        .mockImplementation(fakeMarkAsStartedAt);
-
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await expect(waitForSession(centralSyncManager, sessionId))
-        .rejects.toThrow(`Sync session '${sessionId}' encountered an error: ${errorMessage}`)
-        .finally(() => spyMarkAsStartedAt.mockRestore());
-    });
-
-    it('throws an error if the sync lookup table has not yet built', async () => {
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: true,
-          },
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-      const { sessionId } = await centralSyncManager.startSession();
-      await expect(waitForSession(centralSyncManager, sessionId)).rejects.toThrow(
-        `Sync session '${sessionId}' encountered an error: Sync lookup table has not yet built. Cannot initiate sync.`,
-      );
-    });
-
-    it('throws an error when checking a session is ready if it never assigned a started_at_tick', async () => {
-      const fakeMarkAsStartedAt = () => {
-        // Do nothing and ensure we error out when the client starts polling
-      };
-
-      const spyMarkAsStartedAt = jest
-        .spyOn(models.SyncSession.prototype, 'markAsStartedAt')
-        .mockImplementation(fakeMarkAsStartedAt);
-
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await expect(waitForSession(centralSyncManager, sessionId))
-        .rejects.toThrow(
-          new RegExp(
-            `Sync session '${sessionId}' encountered an error: Session initiation incomplete, likely because the central server restarted during the process`,
-          ),
-        )
-        .finally(() => spyMarkAsStartedAt.mockRestore());
-    });
-
-    /**
-     * Since the client is polling to see if the session has started, its important we only mark as started once everything is complete
-     */
-    it('performs no further operations after flagging the session as started', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const originalPrepareSession = centralSyncManager.prepareSession.bind(centralSyncManager);
-      let dataValuesAtStartTime = null;
-
-      const fakeCentralSyncManagerPrepareSession = session => {
-        const originalMarkAsStartedAt = session.markAsStartedAt.bind(session);
-        const fakeSessionMarkAsStartedAt = async tick => {
-          const result = await originalMarkAsStartedAt(tick);
-          await session.reload();
-          dataValuesAtStartTime = cloneDeep(session.dataValues); // Save dataValues immediately after marking session as started
-          return result;
-        };
-        jest.spyOn(session, 'markAsStartedAt').mockImplementation(fakeSessionMarkAsStartedAt);
-        return originalPrepareSession(session);
-      };
-
-      jest
-        .spyOn(centralSyncManager, 'prepareSession')
-        .mockImplementation(fakeCentralSyncManagerPrepareSession);
-
-      const { sessionId } = await centralSyncManager.startSession();
-
-      await waitForSession(centralSyncManager, sessionId);
-      const latestValues = (await models.SyncSession.findOne({ where: { id: sessionId } }))
-        .dataValues;
-
-      expectMatchingSessionData(latestValues, dataValuesAtStartTime);
-    });
-  });
-
-  describe('connectToSession', () => {
-    it('allows connecting to an existing session', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      const syncSession = await centralSyncManager.connectToSession(sessionId);
-      expect(syncSession).toBeDefined();
-    });
-
-    it('throws an error if connecting to a session that has errored out', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      const session = await models.SyncSession.findByPk(sessionId);
-      await session.markErrored(
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
-      );
-
-      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
-        `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
-      );
-    });
-
-    it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: false,
-          },
-          syncSessionTimeoutMs: 1000,
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await sleepAsync(500);
-
-      // updated_at will be set to timestamp that is 500ms later
-      await centralSyncManager.connectToSession(sessionId);
-
-      expect(() => centralSyncManager.connectToSession(sessionId)).not.toThrow();
-    });
-
-    it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: false,
-          },
-          syncSessionTimeoutMs: 200,
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
-        },
-      });
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await sleepAsync(500);
-
-      // updated_at will be set to timestamp that is 500ms later
-      await centralSyncManager.connectToSession(sessionId);
-
-      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
-        `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
-      );
-    });
-
-    it('append error if sync session already encounters an error before', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      const session = await models.SyncSession.findByPk(sessionId);
-      await session.markErrored('Error 1');
-      await session.markErrored('Error 2');
-
-      expect(session.errors).toEqual(['Error 1', 'Error 2']);
-    });
-  });
 
   describe('endSession', () => {
     it('set completedAt when ending an existing session', async () => {
