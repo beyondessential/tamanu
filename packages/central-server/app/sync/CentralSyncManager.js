@@ -601,7 +601,6 @@ export class CentralSyncManager {
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     const session = await this.connectToSession(sessionId);
-    const { isMobile } = session.parameters;
     const snapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
       this.store,
       sessionId,
@@ -609,7 +608,7 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.parameters;
+    const { minSourceTick, maxSourceTick, isMobile } = session.parameters;
     
     // Currently on mobile we don't need to attach changelog to snapshot records
     // as changelog data is not stored on mobile. We can also skip if the source tick range is not available.
