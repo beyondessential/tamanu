@@ -84,7 +84,13 @@ export class Patient extends BaseModel implements IPatient {
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');
-    await PatientFacility.createOrUpdate({ patientId, facilityId });
+    const patientFacility = await PatientFacility.findOne({
+      where: { patient: { id: patientId }, facility: { id: facilityId } },
+    });
+
+    if (!patientFacility) {
+      await PatientFacility.createAndSaveOne({ patient: patientId, facility: facilityId });
+    }
   }
 
   static async findRecentlyViewed(): Promise<Patient[]> {
