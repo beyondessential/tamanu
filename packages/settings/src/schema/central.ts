@@ -70,19 +70,12 @@ export const centralSettings = {
         maxRecordsPerInsertBatch: {
           description: 'The number of records to insert in a single batch',
           type: yup.number().positive().integer(),
-          defaultValue: 500,
+          defaultValue: 2000,
         },
         maxRecordsPerSnapshotBatch: {
           description: 'The number of records to store within a single row in the snapshot table',
           type: yup.number().positive().integer(),
           defaultValue: 1000,
-        },
-        useUnsafePragmaSettingsForInitialSync: {
-          name: 'Use unsafe pragma settings for initial sync',
-          description:
-            'If true, the initial sync will use the optimized pragma settings for speed, but could lead to data loss if the device crashes',
-          type: yup.boolean(),
-          defaultValue: false,
         },
       },
     },

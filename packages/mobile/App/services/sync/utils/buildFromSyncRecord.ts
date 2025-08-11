@@ -1,11 +1,11 @@
 import { pick } from 'lodash';
 
-import { DataToPersist, SyncRecordData } from '../types';
+import { DataToPersist, SyncRecord } from '../types';
 import { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
 
 export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
-  model
+  (model as any)
     .getRepository()
     .metadata.relationIds.map((rid): [string, string] => [
       rid.propertyName,
@@ -29,16 +29,28 @@ const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown })
   return newObj;
 };
 
-export const buildFromSyncRecord = (
+export const buildFromSyncRecords = (
   model: typeof BaseModel,
-  data: SyncRecordData,
-): DataToPersist => {
-  // find columns to include
+  records: SyncRecord[],
+): DataToPersist[] => {
   const includedColumns = extractIncludedColumns(model);
   // populate `fieldMapping` with `RelationId` to `Relation` mappings
   // (not necessary for `IdRelation`)
   const fieldMapping = getRelationIdsFieldMapping(model);
+  return records.map(record =>
+    mapFields(fieldMapping, pick(record.data, includedColumns)),
+  );
+};
 
-  const dbRecord = mapFields(fieldMapping, pick(data, includedColumns));
-  return dbRecord;
+export const buildForRawInsertFromSyncRecords = (
+  model: typeof BaseModel,
+  records: SyncRecord[],
+): DataToPersist[] => {
+  const includedColumns = extractIncludedColumns(model);
+  // Skip field mapping for raw insert - keep original field names
+  return records.map(record => {
+    const data = pick(record.data, includedColumns);
+    data.isDeleted = record.isDeleted;
+    return data;
+  });
 };

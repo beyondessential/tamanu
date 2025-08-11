@@ -17,6 +17,7 @@ export interface SyncRecord {
   recordId: string;
   recordType: string;
   data: SyncRecordData;
+  sortOrder?: number;
   isDeleted?: boolean;
 }
 
