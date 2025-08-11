@@ -6,6 +6,8 @@ import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/databas
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -55,7 +57,7 @@ export async function createTestContext() {
   const baseApp = supertest.agent(appServer);
   baseApp.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
 
-  baseApp.asUser = async (user) => {
+  baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
     const token = await buildToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
@@ -68,7 +70,7 @@ export async function createTestContext() {
     return agent;
   };
 
-  baseApp.asRole = async (role) => {
+  baseApp.asRole = async role => {
     const newUser = await models.User.create(fake(models.User, { role }));
 
     return baseApp.asUser(newUser);
@@ -80,7 +82,7 @@ export async function createTestContext() {
 
   ctx.onClose(
     () =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         appServer.close(resolve);
       }),
   );
@@ -115,3 +117,19 @@ export async function withDateUnsafelyFaked(fakeDate, fn) {
   }
 }
 /* eslint-enable no-constructor-return,require-atomic-updates */
+
+export const waitForSession = async (centralSyncManager, sessionId) => {
+  let ready = false;
+  while (!ready) {
+    ready = await centralSyncManager.checkSessionReady(sessionId);
+    await sleepAsync(100);
+  }
+};
+
+export const waitForPushCompleted = async (centralSyncManager, sessionId) => {
+  let complete = false;
+  while (!complete) {
+    complete = await centralSyncManager.checkPushComplete(sessionId);
+    await sleepAsync(100);
+  }
+};

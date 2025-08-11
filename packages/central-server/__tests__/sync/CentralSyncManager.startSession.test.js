@@ -1,8 +1,7 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
-import { createTestContext } from '../utilities';
+import { createTestContext, waitForSession } from '../utilities';
 import { cloneDeep } from 'lodash';
 
 describe('CentralSyncManager', () => {
@@ -29,14 +28,6 @@ describe('CentralSyncManager', () => {
     TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 
     return new TestCentralSyncManager(ctx);
-  };
-
-  const waitForSession = async (centralSyncManager, sessionId) => {
-    let ready = false;
-    while (!ready) {
-      ready = await centralSyncManager.checkSessionReady(sessionId);
-      await sleepAsync(100);
-    }
   };
 
   const expectMatchingSessionData = (sessionData1, sessionData2) => {

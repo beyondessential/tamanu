@@ -7,7 +7,7 @@ import { fake } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
-import { createTestContext } from '../utilities';
+import { createTestContext, waitForSession } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
@@ -45,14 +45,6 @@ describe('CentralSyncManager', () => {
     TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 
     return new TestCentralSyncManager(ctx);
-  };
-
-  const waitForSession = async (centralSyncManager, sessionId) => {
-    let ready = false;
-    while (!ready) {
-      ready = await centralSyncManager.checkSessionReady(sessionId);
-      await sleepAsync(100);
-    }
   };
 
   const prepareRecordsForSync = async () => {

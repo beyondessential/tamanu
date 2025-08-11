@@ -1,10 +1,9 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SETTINGS_SCOPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { createTestContext } from '../utilities';
+import { createTestContext, waitForSession } from '../utilities';
 
 describe('CentralSyncManager', () => {
   let ctx;
@@ -30,14 +29,6 @@ describe('CentralSyncManager', () => {
     TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 
     return new TestCentralSyncManager(ctx);
-  };
-
-  const waitForSession = async (centralSyncManager, sessionId) => {
-    let ready = false;
-    while (!ready) {
-      ready = await centralSyncManager.checkSessionReady(sessionId);
-      await sleepAsync(100);
-    }
   };
 
   beforeAll(async () => {

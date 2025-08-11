@@ -7,7 +7,6 @@ import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
   SETTING_KEYS,
@@ -17,7 +16,7 @@ import {
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
-import { createTestContext } from '../utilities';
+import { createTestContext, waitForSession } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
@@ -56,22 +55,6 @@ describe('CentralSyncManager', () => {
     TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
 
     return new TestCentralSyncManager(ctx);
-  };
-
-  const waitForSession = async (centralSyncManager, sessionId) => {
-    let ready = false;
-    while (!ready) {
-      ready = await centralSyncManager.checkSessionReady(sessionId);
-      await sleepAsync(100);
-    }
-  };
-
-  const waitForPushCompleted = async (centralSyncManager, sessionId) => {
-    let complete = false;
-    while (!complete) {
-      complete = await centralSyncManager.checkPushComplete(sessionId);
-      await sleepAsync(100);
-    }
   };
 
   const prepareRecordsForSync = async () => {
