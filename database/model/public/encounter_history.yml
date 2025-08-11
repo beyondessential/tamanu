@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_encounter_history_changed
+              - record_encounter_history_changelog
+              - set_encounter_history_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

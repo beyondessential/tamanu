@@ -14,6 +14,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
   SURVEY_TYPES,
+  DASHBOARD_ONLY_TASK_TYPES
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -84,10 +85,10 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const medications = req.body.medications || {};
-        for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { quantity, repeats } = medicationValues;
-          const medication = await models.Prescription.findByPk(medicationId, {
+        const prescriptions = req.body.medications || {};
+        for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
+          const { quantity, repeats } = prescriptionValues;
+          const prescription = await models.Prescription.findByPk(prescriptionId, {
             include: [
               {
                 model: models.EncounterPrescription,
@@ -104,18 +105,25 @@ encounter.put(
             ],
           });
 
-          if (!medication || medication.discontinued) continue;
+          if (!prescription || prescription.discontinued) continue;
 
-          await medication.update({ quantity, repeats });
+          await prescription.update({ quantity, repeats });
           await models.EncounterPrescription.update(
             { isSelectedForDischarge: true },
-            { where: { encounterId: id, prescriptionId: medication.id } },
+            { where: { encounterId: id, prescriptionId: prescription.id } },
           );
-          // If the medication is ongoing, we need to add it to the patient's ongoing medications
-          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+          // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
+          if (prescription.isOngoing && prescription.encounterPrescription?.encounterId === id) {
+            const existingPatientOngoingPrescription =
+              await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+                encounterObject.patientId,
+                prescription,
+              );
+
+            if (existingPatientOngoingPrescription) continue;
             await models.PatientOngoingPrescription.create({
               patientId: encounterObject.patientId,
-              prescriptionId: medication.id,
+              prescriptionId: prescription.id,
             });
           }
         }
@@ -186,6 +194,41 @@ encounter.post(
 
 encounter.post('/:id/createPatientLetter', createPatientLetter('Encounter', 'encounterId'));
 
+encounter.post(
+  '/:id/pharmacyOrder',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, body } = req;
+    const { id } = params;
+    req.checkPermission('write', 'Encounter');
+    req.checkPermission('read', 'Medication');
+    const encounterObject = await models.Encounter.findByPk(id);
+    if (!encounterObject) throw new NotFoundError();
+
+    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+
+    const result = await db.transaction(async () => {
+      const pharmacyOrder = await models.PharmacyOrder.create({
+        orderingClinicianId,
+        comments,
+        encounterId: id,
+      });
+
+      await models.PharmacyOrderPrescription.bulkCreate(
+        pharmacyOrderPrescriptions.map(prescription => ({
+          pharmacyOrderId: pharmacyOrder.id,
+          prescriptionId: prescription.prescriptionId,
+          quantity: prescription.quantity,
+          repeats: prescription.repeats,
+        })),
+      );
+
+      return pharmacyOrder;
+    });
+
+    res.send(result);
+  }),
+);
+
 encounter.delete('/:id/documentMetadata/:documentMetadataId', deleteDocumentMetadata);
 
 encounter.delete('/:id', deleteEncounter);
@@ -231,7 +274,14 @@ encounterRelations.get(
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQueryOptions = {
+      where: medicationFilter,
       order: [
         [
           literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
@@ -260,6 +310,15 @@ encounterRelations.get(
           attributes: ['id', 'encounterId', 'isSelectedForDischarge'],
           where: {
             encounterId: params.id,
+          },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],
@@ -321,7 +380,7 @@ encounterRelations.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map((x) => x.forResponse());
+    const data = objects.map(x => x.forResponse());
 
     res.send({ count, data });
   }),
@@ -338,6 +397,7 @@ encounterRelations.get(
     },
   }),
 );
+
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
 encounterRelations.get('/:id/triages', simpleGetList('Triage', 'encounterId'));
 encounterRelations.get(
@@ -389,12 +449,12 @@ encounterRelations.get(
     });
 
     const data = await Promise.all(
-      objects.map(async (ir) => {
+      objects.map(async ir => {
         return {
           ...ir.forResponse(),
           ...(includeNote ? await ir.extractNotes() : undefined),
-          areas: ir.areas.map((a) => a.forResponse()),
-          results: ir.results.map((result) => result.forResponse()),
+          areas: ir.areas.map(a => a.forResponse()),
+          results: ir.results.map(result => result.forResponse()),
         };
       }),
     );
@@ -415,7 +475,7 @@ encounterRelations.get(
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
-    noteTypeCounts.forEach((n) => {
+    noteTypeCounts.forEach(n => {
       noteTypeToCount[n.noteType] = n.count;
     });
     res.send({ data: noteTypeToCount });
@@ -528,7 +588,7 @@ encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurve
 // Used in charts and vitals to query responses based on the date of a response answer
 async function getAnswersWithHistory(req) {
   const { db, params, query } = req;
-  const { id: encounterId, surveyId = null} = params;
+  const { id: encounterId, surveyId = null } = params;
   const { order = 'DESC', instanceId = null } = query;
 
   const isVitals = surveyId === null;
@@ -632,7 +692,7 @@ async function getAnswersWithHistory(req) {
     },
   );
 
-  const data = result.map((r) => r.result);
+  const data = result.map(r => r.result);
   return { count, data };
 }
 
@@ -657,7 +717,7 @@ async function getGraphData(req, dateDataElementId) {
     },
   });
 
-  const responseIds = dateAnswers.map((dateAnswer) => dateAnswer.responseId);
+  const responseIds = dateAnswers.map(dateAnswer => dateAnswer.responseId);
 
   const answers = await SurveyResponseAnswer.findAll({
     where: {
@@ -668,10 +728,10 @@ async function getGraphData(req, dateDataElementId) {
   });
 
   const data = answers
-    .map((answer) => {
+    .map(answer => {
       const { responseId } = answer;
       const recordedDateAnswer = dateAnswers.find(
-        (dateAnswer) => dateAnswer.responseId === responseId,
+        dateAnswer => dateAnswer.responseId === responseId,
       );
       const recordedDate = recordedDateAnswer.body;
       return { ...answer.dataValues, recordedDate };
@@ -764,7 +824,7 @@ encounterRelations.get(
 
 const encounterTasksQuerySchema = z.object({
   order: z.preprocess(
-    (value) => (typeof value === 'string' ? value.toUpperCase() : value),
+    value => (typeof value === 'string' ? value.toUpperCase() : value),
     z.enum(['ASC', 'DESC']).optional().default('ASC'),
   ),
   orderBy: z.enum(['dueTime', 'name']).optional().default('dueTime'),
@@ -796,6 +856,9 @@ encounterRelations.get(
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
         },
+        taskType: {
+          [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
+        },
         ...(assignedTo && {
           [Op.and]: literal(`
             EXISTS (
@@ -821,7 +884,7 @@ encounterRelations.get(
       offset: page * rowsPerPage,
       include: [...Task.getFullReferenceAssociations(), 'parentTask'],
     });
-    const results = queryResults.map((x) => x.forResponse());
+    const results = queryResults.map(x => x.forResponse());
 
     const count = await Task.count(baseQueryOptions);
     res.send({ data: results, count });

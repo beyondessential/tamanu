@@ -13,7 +13,6 @@ import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOut
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import type { Location } from './Location';
 import type { Patient } from './Patient';
@@ -21,6 +20,7 @@ import type { Discharge } from './Discharge';
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class Encounter extends Model {
   declare id: string;
@@ -383,9 +383,7 @@ export class Encounter extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-        encounterId: 'encounters.id',
+      select: buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
       }),
       joins: `
@@ -394,6 +392,8 @@ export class Encounter extends Model {
           FROM lab_requests
           WHERE updated_at_sync_tick > :since -- to only include lab requests that recently got attached to the encounters
         ) AS new_labs ON new_labs.encounter_id = encounters.id
+        LEFT JOIN locations ON encounters.location_id = locations.id
+        LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
       where: `
         encounters.updated_at_sync_tick > :since -- to include including normal encounters

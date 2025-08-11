@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_templates_changed
+              - record_templates_changelog
+              - set_templates_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
