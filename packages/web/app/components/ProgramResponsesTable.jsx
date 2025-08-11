@@ -190,6 +190,9 @@ export const DataFetchingProgramsTable = ({
         onClose={() => {
           setDeleteModalOpen(false);
           updateRefreshCount();
+          if (tableOptions.updateRefreshCount) {
+            tableOptions.updateRefreshCount();
+          }
         }}
         data-testid="deleteprogramresponsemodal-8539"
       />

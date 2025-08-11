@@ -181,7 +181,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                     tableOptions={{
                       disablePagination: true,
                       allowExport: false,
-                      refreshTable: updateRefreshCount,
+                      updateRefreshCount,
                       refreshCount,
                     }}
                   />
