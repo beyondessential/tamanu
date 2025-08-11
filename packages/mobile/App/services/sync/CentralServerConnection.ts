@@ -38,25 +38,21 @@ type RefreshResponse = {
 const API_PREFIX = 'api';
 
 const toRemoteError = (err: AxiosError, isLogin: boolean): Error => {
-  if (err.response?.status === 401) {
+  const status = err.response?.status;
+  const error = (err.response?.data as any)?.error;
+  if (status === 401) {
     return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
-  if (err.response?.status === 400) {
-    const error = (err.response.data as ErrorResponse)?.error;
+  if (status === 400) {
     if (error?.name === 'InvalidClientVersion') {
       return new OutdatedVersionError(error.updateUrl);
     }
   }
-  if (err.response?.status === 422) {
-    const error = (err.response.data as ErrorResponse)?.error;
-    return new RemoteError(error?.message, error, err.response.status);
+  if (status === 422) {
+    return new RemoteError(error?.message, error, status);
   }
-  const error = (err.response?.data as ErrorResponse)?.error;
-  console.error('Response had non-OK value', {
-    status: err.response?.status,
-    data: err.response?.data,
-  });
-  return new RemoteError(generalErrorMessage, error, err.response?.status);
+  console.error('Response had non-OK value', { status, data: err.response?.data });
+  return new RemoteError(generalErrorMessage, error, status);
 };
 
 export class CentralServerConnection {
