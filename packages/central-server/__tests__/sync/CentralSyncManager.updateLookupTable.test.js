@@ -21,7 +21,7 @@ const doImport = (options, models) => {
   });
 };
 
-describe('CentralSyncManager', () => {
+describe('updateLookupTable', () => {
   let ctx;
   let models;
 
@@ -131,7 +131,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('updateLookupTable', () => {
+  
     beforeEach(async () => {
       jest.resetModules();
     });
@@ -636,5 +636,4 @@ describe('CentralSyncManager', () => {
         },
       });
     });
-  });
 });

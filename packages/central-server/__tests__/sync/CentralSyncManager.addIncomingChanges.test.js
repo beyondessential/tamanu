@@ -5,7 +5,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession, waitForPushCompleted } from '../utilities';
 
-describe('CentralSyncManager', () => {
+describe('addIncomingChanges', () => {
   let ctx;
   let models;
   let sequelize;
@@ -62,7 +62,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('addIncomingChanges', () => {
+  
     beforeEach(async () => {
       jest.resetModules();
     });
@@ -244,5 +244,4 @@ describe('CentralSyncManager', () => {
         expect.arrayContaining(incomingChanges),
       );
     });
-  });
 });

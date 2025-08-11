@@ -6,7 +6,7 @@ import { settingsCache } from '@tamanu/settings';
 
 import { createTestContext, waitForSession, waitForPushCompleted } from '../utilities';
 
-describe('CentralSyncManager', () => {
+describe('CentralSyncManager Edge Cases', () => {
   let ctx;
   let models;
 

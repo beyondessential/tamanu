@@ -4,7 +4,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../utilities';
 
-describe('CentralSyncManager', () => {
+describe('connectToSession', () => {
   let ctx;
   let models;
 
@@ -60,7 +60,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('connectToSession', () => {
+  
     it('allows connecting to an existing session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
@@ -140,5 +140,4 @@ describe('CentralSyncManager', () => {
 
       expect(session.errors).toEqual(['Error 1', 'Error 2']);
     });
-  });
 });

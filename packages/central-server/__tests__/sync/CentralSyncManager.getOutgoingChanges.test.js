@@ -4,7 +4,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../utilities';
 
-describe('CentralSyncManager', () => {
+describe('getOutgoingChanges', () => {
   let ctx;
   let models;
 
@@ -60,7 +60,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('getOutgoingChanges', () => {
+  
     beforeEach(async () => {
       jest.resetModules();
     });
@@ -482,5 +482,4 @@ describe('CentralSyncManager', () => {
         ]),
       );
     });
-  });
 });

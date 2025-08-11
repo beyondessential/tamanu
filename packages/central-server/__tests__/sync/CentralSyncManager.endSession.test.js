@@ -3,7 +3,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../utilities';
 
-describe('CentralSyncManager', () => {
+describe('endSession', () => {
   let ctx;
   let models;
 
@@ -58,7 +58,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('endSession', () => {
+  
     it('set completedAt when ending an existing session', async () => {
       const centralSyncManager = initializeCentralSyncManager();
       const { sessionId } = await centralSyncManager.startSession();
@@ -77,5 +77,4 @@ describe('CentralSyncManager', () => {
       await centralSyncManager.endSession(sessionId);
       await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
     });
-  });
 });

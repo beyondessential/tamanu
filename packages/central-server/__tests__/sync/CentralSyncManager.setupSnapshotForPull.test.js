@@ -31,7 +31,7 @@ const doImport = (options, models) => {
   });
 };
 
-describe('CentralSyncManager', () => {
+describe('setupSnapshotForPull', () => {
   let ctx;
   let models;
   let sequelize;
@@ -142,8 +142,7 @@ describe('CentralSyncManager', () => {
 
   afterAll(() => ctx.close());
 
-  describe('setupSnapshotForPull', () => {
-    describe('handles snapshot process', () => {
+  describe('handles snapshot process', () => {
       it('returns all encounters for newly marked-for-sync patients', async () => {
         const OLD_SYNC_TICK = 10;
         const NEW_SYNC_TICK = 20;
@@ -1155,5 +1154,4 @@ describe('CentralSyncManager', () => {
         expect(existingPatientData.displayId).toBe(updatedPatientData.displayId);
       });
     });
-  });
 });
