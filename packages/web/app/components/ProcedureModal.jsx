@@ -171,7 +171,6 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 selectedSurveyId={selectedSurveyId}
                 setSelectedSurveyId={setSelectedSurveyId}
               />
-              <Divider />
               {programResponses?.data?.length > 0 && (
                 <>
                   <ProgramsTable
