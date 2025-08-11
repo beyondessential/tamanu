@@ -18,6 +18,7 @@ import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
 import { usersRouter } from './users';
 import { locationAssignmentsRouter } from './locationAssignments';
+import { locationRouter } from './location';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -70,6 +71,7 @@ adminRoutes.use('/template', templateRoutes);
 adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
+adminRoutes.use('/location', locationRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
