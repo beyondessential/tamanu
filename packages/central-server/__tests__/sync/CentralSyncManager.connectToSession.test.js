@@ -40,10 +40,6 @@ describe('connectToSession', () => {
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
-    await models.Program.truncate({ cascade: true, force: true });
-    await models.Survey.truncate({ cascade: true, force: true });
-    await models.ProgramDataElement.truncate({ cascade: true, force: true });
-    await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
     await models.User.create({
