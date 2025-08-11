@@ -161,7 +161,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 />
               }
               open={!!editedProcedure}
-              onClose={onClose}
+              onClose={handleCancel}
               data-testid="formmodal-otam"
             >
               <Heading>
