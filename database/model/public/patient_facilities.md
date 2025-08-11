@@ -18,14 +18,3 @@ Reference to the [facility](#!/source/source.tamanu.tamanu.facilities).
 {% docs patient_facilities__patient_id %}
 Reference to the [patient](#!/source/source.tamanu.tamanu.patients).
 {% enddocs %}
-
-{% docs patient_facilities__last_interacted_time %}
-The last time that a patient_facilities upsert was triggered
-This happens in cases like
-- On patient program registration creation
-- On encounter creation
-{% enddocs %}
-
-{% docs patient_facilities__created_at_sync_tick %}
-The current sync tick at time of creation
-{% enddocs %}
