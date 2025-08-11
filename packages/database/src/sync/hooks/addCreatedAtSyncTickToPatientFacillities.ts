@@ -22,7 +22,6 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
   }
 
   // Get current sync tick from local system facts
-  console.log(relevantChanges);
   const [currentSyncTick] = await PatientFacilityModel.sequelize.query(
     `SELECT local_system_fact(${FACT_CURRENT_SYNC_TICK}) as currentSyncTicik`,
     {
