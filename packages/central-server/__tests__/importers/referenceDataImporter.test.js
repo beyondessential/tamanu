@@ -409,9 +409,8 @@ describe('Data definition import', () => {
       });
       const stringIds = translations.map(translation => translation.stringId);
 
-      const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(
-        (option) =>
-          getReferenceDataOptionStringId(patientFieldDefinition.id, 'patientFieldDefinition', option),
+      const expectedStringIds = normaliseOptions(patientFieldDefinition.options).map(option =>
+        getReferenceDataOptionStringId(patientFieldDefinition.id, 'patientFieldDefinition', option),
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
@@ -631,10 +630,16 @@ describe('Data definition import', () => {
     });
 
     it('should be able to delete a formLink survey', async () => {
+      // First, import to create the associations
+      await doImport({ file: 'procedure-type-form-link-add' });
+      let procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      expect(procedureTypeSurveys).toHaveLength(2);
+
+      // Now, import a file that removes one of the associations
       const { errors } = await doImport({ file: 'procedure-type-form-link-delete' });
       expect(errors).toBeEmpty();
 
-      const procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
+      procedureTypeSurveys = await models.ProcedureTypeSurvey.findAll();
       expect(procedureTypeSurveys).toHaveLength(1);
       expect(procedureTypeSurveys[0].surveyId).toEqual(testSurvey1.id);
     });
