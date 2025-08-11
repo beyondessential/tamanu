@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -12,43 +13,29 @@ import {
   RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 const API_PREFIX = 'api';
 
-const fetchAndParse = async (
-  url: string,
-  config: FetchOptions,
-  isLogin: boolean,
-): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+const toRemoteError = (err: AxiosError, isLogin: boolean): Error => {
+  if (err.response?.status === 401) {
+    return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
-
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
+  if (err.response?.status === 400) {
+    const error = (err.response.data as any)?.error;
     if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
+      return new OutdatedVersionError(error.updateUrl);
     }
   }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
+  if (err.response?.status === 422) {
+    const error = (err.response.data as any)?.error;
+    return new RemoteError(error?.message, error, err.response.status);
   }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
+  const error = (err.response?.data as any)?.error;
+  console.error('Response had non-OK value', { status: err.response?.status, data: err.response?.data });
+  return new RemoteError(generalErrorMessage, error, err.response?.status);
 };
 
 export class CentralServerConnection {
@@ -59,8 +46,12 @@ export class CentralServerConnection {
   refreshToken: string | null;
 
   emitter = mitt();
+  client: AxiosInstance | null = null;
 
-  async connect(host: string): void {
+  async connect(host: string): Promise<void> {
+    this.client = axios.create({
+      timeout: 45 * 1000,
+    });
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
@@ -73,30 +64,38 @@ export class CentralServerConnection {
   async fetch(
     path: string,
     query: Record<string, string | number | boolean>,
-    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
+    { backoff, skipAttemptRefresh, timeout, headers: extraHeaders, method = 'GET', body, ...rest }: FetchOptions = {},
   ): Promise<any> {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
-
-    const queryString = Object.entries(query)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('&');
-    const url = `${this.host}/${API_PREFIX}/${path}${queryString && `?${queryString}`}`;
-    const extraHeaders = config?.headers || {};
+    const url = `${this.host}/${API_PREFIX}/${path}`;
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Accept: 'application/json',
       'X-Tamanu-Client': 'Tamanu Mobile',
       'X-Version': version,
-      ...extraHeaders,
+      ...(extraHeaders || {}),
     };
     const isLogin = path.startsWith('login');
     try {
-      const response = await callWithBackoff(
-        async () => fetchAndParse(url, { ...config, headers }, isLogin),
-        backoff,
-      );
+      const response = await callWithBackoff(async () => {
+        const configAxios: AxiosRequestConfig = {
+          url,
+          params: query,
+          method: method as any,
+          headers,
+          timeout,
+          data: body,
+          ...rest,
+        };
+        try {
+          const { data } = await this.client.request(configAxios);
+          return data;
+        } catch (e) {
+          throw toRemoteError(e as AxiosError, isLogin);
+        }
+      }, backoff);
       return response;
     } catch (err) {
       // Handle sync disconnection and attempt refresh if possible
@@ -106,7 +105,7 @@ export class CentralServerConnection {
         if (this.refreshToken && !skipAttemptRefresh) {
           await this.refresh();
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig = { ...config, skipAttemptRefresh: true };
+          const updatedConfig = { skipAttemptRefresh: true } as FetchOptions;
           return this.fetch(path, query, updatedConfig);
         }
       }
@@ -114,23 +113,13 @@ export class CentralServerConnection {
     }
   }
 
-  async get(
-    path: string,
-    query: Record<string, string | number | boolean>,
-    options?: FetchOptions,
-  ) {
+  async get(path: string, query: Record<string, string | number | boolean>, options?: FetchOptions) {
     return this.fetch(path, query, { ...options, method: 'GET' });
   }
 
   async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
-    return this.fetch(path, query, {
-      ...options,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    const headers = { 'Content-Type': 'application/json', ...(options?.headers || {}) };
+    return this.fetch(path, query, { ...options, method: 'POST', headers, body });
   }
 
   async delete(path: string, query: Record<string, string | number>) {
