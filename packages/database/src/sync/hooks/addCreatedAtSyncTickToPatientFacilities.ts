@@ -34,13 +34,13 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
 
   const tick = result[0].currentSyncTick;
 
-  const changesWithCreatedAtSyncTick = relevantChanges.map(change => {
+  const changesForInsert = relevantChanges.map(change => {
     change.data.createdAtSyncTick = tick;
     return change;
   });
 
   return {
-    inserts: changesWithCreatedAtSyncTick,
+    inserts: changesForInsert,
     updates: [],
   };
 };
