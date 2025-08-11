@@ -59,14 +59,18 @@ export const StyledTextField = styled(MuiTextField)`
   }
 
   // Hover state
-  .MuiOutlinedInput-root:not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root:not(.Mui-disabled):not(.Mui-error):hover .MuiOutlinedInput-notchedOutline {
     border-color: ${(props) => props.theme.palette.grey['400']};
   }
 
   // Focused state
-  .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline,
-  .MuiOutlinedInput-root.Mui-focused:hover .MuiOutlinedInput-notchedOutline {
+  .MuiOutlinedInput-root.Mui-focused:not(.Mui-error) .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-root.Mui-focused:not(.Mui-error):hover .MuiOutlinedInput-notchedOutline {
     border: 1px solid ${(props) => props.theme.palette.primary.main};
+  }
+
+  .MuiOutlinedInput-root.Mui-error.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-width: 1px;
   }
 
   // Place holder color when focused
@@ -112,12 +116,37 @@ export const TextInput = ({
       return false;
     }
   };
+
+  const onDrop = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
+  const onDragOver = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
+  const onDragEnter = (e) => {
+    if (!enablePasting && disableInputPasting) {
+      e.preventDefault();
+      return false;
+    }
+  };
+
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
       <StyledTextField
         value={value}
         variant="outlined"
         onPaste={onPaste}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onDragEnter={onDragEnter}
         inputProps={{
           ...props.inputProps,
           'data-testid': `${dataTestId}-input`,

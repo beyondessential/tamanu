@@ -18,6 +18,7 @@ export class DrugExporter extends ReferenceDataExporter {
       route: drug.referenceDrug?.route,
       units: drug.referenceDrug?.units,
       notes: drug.referenceDrug?.notes,
+      isSensitive: drug.referenceDrug?.isSensitive,
     }));
   }
 

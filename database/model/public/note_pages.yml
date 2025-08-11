@@ -5,10 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_pages
-        description: '{{ doc("table__note_pages") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__note_pages') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_note_pages_changed
+              - record_note_pages_changelog
+              - set_note_pages_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

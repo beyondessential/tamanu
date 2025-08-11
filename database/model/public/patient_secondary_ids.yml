@@ -5,11 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_secondary_ids
-        description: '{{ doc("table__patient_secondary_ids") }}'
+        description: "{{ doc('table__patient_secondary_ids') }}"
         __generator:
           js_class: PatientSecondaryId
-        tags:
-          - patient
+        config:
+          tags:
+            - patient
+          meta:
+            triggers:
+              - notify_patient_secondary_ids_changed
+              - record_patient_secondary_ids_changelog
+              - set_patient_secondary_ids_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

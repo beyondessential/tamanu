@@ -103,12 +103,7 @@ const COLUMNS = [
     sortable: false,
     accessor: ({ repeats, onChange }) => (
       <Box width="89px">
-        <NumberInput
-          value={repeats}
-          onChange={onChange}
-          required
-          data-testid="selectinput-ld3p"
-        />
+        <NumberInput value={repeats} onChange={onChange} required data-testid="selectinput-ld3p" />
       </Box>
     ),
   },
@@ -148,6 +143,7 @@ const HorizontalDivider = styled(Divider)`
 `;
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
+  const { ability, currentUser } = useAuth();
   const { getTranslation } = useTranslation();
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
@@ -160,16 +156,22 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
     api.get(`encounter/${encounter.id}/medications`),
   );
-  const defaultMedicationData = useMemo(() => data?.data.filter(m => !m.discontinued) || [], [
-    data,
-  ]);
+
+  const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
+  const defaultMedicationData = useMemo(
+    () =>
+      data?.data.filter(m => {
+        const isSensitive = m.medication?.referenceDrug?.isSensitive;
+        return !m.discontinued && (!isSensitive || canWriteSensitiveMedication);
+      }) || [],
+    [data, canWriteSensitiveMedication],
+  );
   const [medicationData, setMedicationData] = useState(defaultMedicationData);
 
   useEffect(() => {
     setMedicationData(defaultMedicationData);
   }, [defaultMedicationData]);
 
-  const { currentUser } = useAuth();
   const { selectedRows, selectableColumn } = useSelectableColumn(defaultMedicationData, {
     columnKey: COLUMN_KEYS.SELECTED,
     selectAllOnInit: true,

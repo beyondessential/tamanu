@@ -51,6 +51,8 @@ import { UserFacility } from './UserFacility';
 import { EncounterPrescription } from './EncounterPrescription';
 import { PatientOngoingPrescription } from './PatientOngoingPrescription';
 import { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
+import { Task } from './Task';
+import { TaskDesignation } from './TaskDesignation';
 
 export const MODELS_MAP = {
   ReferenceData,
@@ -106,6 +108,8 @@ export const MODELS_MAP = {
   Setting,
   Note,
   UserFacility,
+  Task,
+  TaskDesignation,
 };
 
 type AllValuesOfObject<T extends object> = Array<T[keyof T]>;

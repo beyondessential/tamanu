@@ -5,11 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_death_data
-        description: '{{ doc("table__patient_death_data") }}'
+        description: "{{ doc('table__patient_death_data') }}"
         __generator:
           js_class: PatientDeathData
-        tags:
-          - clinical
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_death_data_changed
+              - record_patient_death_data_changelog
+              - set_patient_death_data_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

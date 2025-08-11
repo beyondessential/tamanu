@@ -314,6 +314,7 @@ export const PatientMedicationPane = ({ patient }) => {
   const [allowDiscontinue, setAllowDiscontinue] = useState(false);
 
   const canCreateOngoingPrescription = ability.can('create', 'Medication');
+  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
 
   const onOngoingPrescriptionsFetched = useCallback(({ data }) => {
     setOngoingPrescriptions(data);
@@ -333,6 +334,29 @@ export const PatientMedicationPane = ({ patient }) => {
     setRefreshCount(prev => prev + 1);
     setSelectedMedication(null);
   };
+
+  const handleOngoingPrescriptionClick = (_, data) => {
+    const isSensitive = data?.medication?.referenceDrug?.isSensitive;
+    if (isSensitive && !canViewSensitiveMedications) {
+      return;
+    }
+    setSelectedMedication(data);
+    setAllowDiscontinue(true);
+  };
+
+  const handleDischargeMedicationClick = (_, data) => {
+    const isSensitive = data?.medication?.referenceDrug?.isSensitive;
+    if (isSensitive && !canViewSensitiveMedications) {
+      return;
+    }
+    setSelectedMedication(data);
+    setAllowDiscontinue(false);
+  };
+
+  const rowStyle = ({ medication }) =>
+    medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+      ? 'pointer-events: none;'
+      : '';
 
   return (
     <Box px={2.5} pb={2.5} overflow={'auto'}>
@@ -390,6 +414,7 @@ export const PatientMedicationPane = ({ patient }) => {
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/ongoing-prescriptions`}
           columns={ONGOING_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
+          rowStyle={rowStyle}
           noDataMessage={
             <NoDataContainer>
               <TranslatedText
@@ -402,10 +427,7 @@ export const PatientMedicationPane = ({ patient }) => {
           onDataFetched={onOngoingPrescriptionsFetched}
           $noData={ongoingPrescriptions.length === 0}
           refreshCount={refreshCount}
-          onClickRow={(_, data) => {
-            setSelectedMedication(data);
-            setAllowDiscontinue(true);
-          }}
+          onClickRow={handleOngoingPrescriptionClick}
           $maxHeight={'320px'}
         />
       </TableContainer>
@@ -443,6 +465,7 @@ export const PatientMedicationPane = ({ patient }) => {
         <StyledDataFetchingTable
           endpoint={`/patient/${patient.id}/last-inpatient-discharge-medications`}
           columns={DISCHARGE_MEDICATION_COLUMNS(getTranslation, getEnumTranslation)}
+          rowStyle={rowStyle}
           noDataMessage={
             <NoDataContainer>
               {lastInpatientEncounter ? (
@@ -462,10 +485,7 @@ export const PatientMedicationPane = ({ patient }) => {
           allowExport={false}
           onDataFetched={onDischargeMedicationsFetched}
           $noData={dischargeMedications.length === 0}
-          onClickRow={(_, data) => {
-            setSelectedMedication(data);
-            setAllowDiscontinue(false);
-          }}
+          onClickRow={handleDischargeMedicationClick}
           $maxHeight={'270px'}
         />
       </TableContainer>

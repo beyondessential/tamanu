@@ -182,7 +182,10 @@ const DischargeSummaryPrintoutComponent = ({
   const { diagnoses, procedures, medications } = encounter;
 
   const visibleMedications = medications
-    .filter(m => m.encounterPrescription?.isSelectedForDischarge)
+    .filter(
+      m =>
+        m.encounterPrescription?.isSelectedForDischarge && !m.medication.referenceDrug.isSensitive,
+    )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
   const visibleDiagnoses = diagnoses.filter(
     ({ certainty }) => !DIAGNOSIS_CERTAINTIES_TO_HIDE.includes(certainty),
@@ -190,11 +193,7 @@ const DischargeSummaryPrintoutComponent = ({
   const primaryDiagnoses = visibleDiagnoses.filter(d => d.isPrimary);
   const secondaryDiagnoses = visibleDiagnoses.filter(d => !d.isPrimary);
   const notes = discharge?.note;
-  const {
-    name: facilityName,
-    address: facilityAddress,
-    town: facilityTown,
-  } = discharge.address;
+  const { name: facilityName, address: facilityAddress, town: facilityTown } = discharge.address;
 
   // change header if facility details are present in discharge
   if (facilityName && facilityAddress && certificateData?.title) {
@@ -216,7 +215,11 @@ const DischargeSummaryPrintoutComponent = ({
           />
         </CertificateHeader>
         <SectionContainer>
-          <PatientDetailsWithAddress patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+          <PatientDetailsWithAddress
+            patient={patientData}
+            getLocalisation={getLocalisation}
+            getSetting={getSetting}
+          />
         </SectionContainer>
         <SectionContainer>
           <EncounterDetailsExtended encounter={encounter} discharge={discharge} />

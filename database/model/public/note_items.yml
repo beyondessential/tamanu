@@ -5,10 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: note_items
-        description: '{{ doc("table__note_items") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__note_items') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_note_items_changed
+              - record_note_items_changelog
+              - set_note_items_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

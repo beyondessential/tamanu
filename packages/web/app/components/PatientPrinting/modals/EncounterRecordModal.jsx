@@ -262,10 +262,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
 
   // Remove discontinued medications and sort by medication name
   const medications = encounter.medications
-    .filter(medication =>
-      encounter.endDate
-        ? medication.encounterPrescription?.isSelectedForDischarge
-        : !medication.discontinued,
+    .filter(
+      medication =>
+        (encounter.endDate
+          ? medication.encounterPrescription?.isSelectedForDischarge
+          : !medication.discontinued) && !medication.medication.referenceDrug.isSensitive,
     )
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 

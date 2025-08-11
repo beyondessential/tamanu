@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_item_discounts
-        description: '{{ doc("table__invoice_item_discounts") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_item_discounts') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_invoice_item_discounts_changed
+              - record_invoice_item_discounts_changelog
+              - set_invoice_item_discounts_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

@@ -5,8 +5,14 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: appointment_schedules
-        description: '{{ doc("table__appointment_schedules") }}'
-        tags: []
+        description: "{{ doc('table__appointment_schedules') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_appointment_schedules_changed
+              - record_appointment_schedules_changelog
+              - set_appointment_schedules_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

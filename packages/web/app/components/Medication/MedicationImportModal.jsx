@@ -21,6 +21,8 @@ import { useTranslation } from '../../contexts/Translation';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
+import { createPrescriptionHash } from '../../utils/medications';
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
   font-size: 14px;
@@ -131,8 +133,23 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
   const [prescriberId, setPrescriberId] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data, isLoading, error } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
-  const medications = useMemo(() => data?.data.filter(p => !p.discontinued) || [], [data]);
+  const { data: encounterPrescriptionsData } = useEncounterMedicationQuery(encounter.id);
+  const {
+    data: patientOngoingPrescriptionsData,
+    isLoading,
+    error,
+  } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
+
+  const medications = useMemo(() => {
+    const encounterPrescriptions = encounterPrescriptionsData?.data || [];
+    const patientOngoingPrescriptions = patientOngoingPrescriptionsData?.data || [];
+
+    const encounterPrescriptionHashes = new Set(encounterPrescriptions.map(createPrescriptionHash));
+
+    return patientOngoingPrescriptions
+      .filter(p => !p.discontinued)
+      .filter(p => !encounterPrescriptionHashes.has(createPrescriptionHash(p)));
+  }, [encounterPrescriptionsData, patientOngoingPrescriptionsData]);
 
   const { selectedRows, selectableColumn } = useSelectableColumn(medications, {
     columnKey: 'selected',

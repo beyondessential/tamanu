@@ -2,14 +2,10 @@ import { DataTypes } from 'sequelize';
 import { LAB_REQUEST_STATUSES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/shared/errors';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { SessionConfig } from '../types/sync';
 import type { LabTest } from './LabTest';
 import type { ReferenceData } from './ReferenceData';
@@ -17,6 +13,10 @@ import type { Encounter } from './Encounter';
 import type { User } from './User';
 import type { Note } from './Note';
 import type { LabTestPanelRequest } from './LabTestPanelRequest';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 interface LabRequestData {
   labTestTypeIds?: string[];
@@ -169,7 +169,7 @@ export class LabRequest extends Model {
 
       // then create tests
       await Promise.all(
-        labTestTypeIds.map((t) =>
+        labTestTypeIds.map(t =>
           LabTest.create({
             labTestTypeId: t,
             labRequestId: newLabRequest.id,
@@ -292,12 +292,10 @@ export class LabRequest extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-        encounterId: `${this.tableName}.encounter_id`,
+      select: buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'TRUE',
       }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+      joins: buildEncounterLinkedLookupJoins(this),
     };
   }
 

@@ -303,7 +303,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 17
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
@@ -315,16 +315,13 @@ jobs:
           npm i
           npm run build-shared
           npm run --workspace @tamanu/central-server build
-          npm run --workspace @tamanu/facility-server build
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
-          echo '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
 
       - name: Run Migrations
         run: |
-          npm run --workspace @tamanu/central-server start migrate up
-          npm run --workspace @tamanu/facility-server start migrate up
+          npm run --workspace @tamanu/central-server start upgrade
 
       - name: Check model is up to date
         run: |

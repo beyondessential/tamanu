@@ -269,6 +269,7 @@ export const EncounterMedicationTable = ({
   const queryClient = useQueryClient();
 
   const canCreatePrescription = ability.can('create', 'Medication');
+  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -292,11 +293,22 @@ export const EncounterMedicationTable = ({
     setMedications(data);
   }, []);
 
-  const rowStyle = ({ discontinued }) =>
-    discontinued
-      ? `
-        text-decoration: line-through;`
-      : '';
+  const rowStyle = ({ discontinued, medication }) => `
+    ${discontinued ? 'text-decoration: line-through;' : ''}
+    ${
+      medication.referenceDrug.isSensitive && !canViewSensitiveMedications
+        ? 'pointer-events: none;'
+        : ''
+    }
+  `;
+
+  const handleRowClick = row => {
+    const isSensitive = row.medication.referenceDrug.isSensitive;
+    if (isSensitive && !canViewSensitiveMedications) {
+      return;
+    }
+    setSelectedMedication(row);
+  };
 
   return (
     <div>
@@ -315,7 +327,7 @@ export const EncounterMedicationTable = ({
         elevated={false}
         allowExport={false}
         disablePagination
-        onRowClick={row => setSelectedMedication(row)}
+        onRowClick={handleRowClick}
         refreshCount={refreshCount}
         onDataFetched={onMedicationsFetched}
         $noData={medications.length === 0}

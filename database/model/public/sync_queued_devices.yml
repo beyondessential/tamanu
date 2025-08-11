@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_queued_devices
-        description: '{{ doc("table__sync_queued_devices") }}'
-        tags:
-          - system
+        description: "{{ doc('table__sync_queued_devices') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: text

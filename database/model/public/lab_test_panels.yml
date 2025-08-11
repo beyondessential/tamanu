@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_test_panels
-        description: '{{ doc("table__lab_test_panels") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__lab_test_panels') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_lab_test_panels_changed
+              - record_lab_test_panels_changelog
+              - set_lab_test_panels_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

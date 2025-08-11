@@ -33,6 +33,7 @@ export const makePatientLetter = async (req, { id, facilityId, ...data }) => {
       logoSrc={logo?.data}
       letterheadConfig={letterheadConfig}
       language={language}
+      settings={settings}
     />,
     filePath,
   );

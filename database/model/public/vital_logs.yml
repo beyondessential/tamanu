@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: vital_logs
-        description: '{{ doc("table__vital_logs") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__vital_logs') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_vital_logs_changed
+              - record_vital_logs_changelog
+              - set_vital_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

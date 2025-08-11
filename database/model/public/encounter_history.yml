@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounter_history
-        description: '{{ doc("table__encounter_history") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounter_history') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_encounter_history_changed
+              - record_encounter_history_changelog
+              - set_encounter_history_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

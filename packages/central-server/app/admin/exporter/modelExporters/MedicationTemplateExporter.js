@@ -6,7 +6,7 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
       include: ['referenceData'],
     });
 
-    return objects.map((object) => {
+    return objects.map(object => {
       const {
         medicationId,
         durationValue,
@@ -15,6 +15,7 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
         doseAmount,
         durationUnit,
         referenceDataId,
+        isOngoing,
         ...otherDataValues
       } = object.dataValues;
       return {
@@ -26,7 +27,8 @@ export class MedicationTemplateExporter extends ReferenceDataExporter {
         medication: medicationId,
         prnMedication: isPrn,
         doseAmount: isVariableDose ? 'variable' : doseAmount,
-        duration: `${durationValue} ${durationUnit}`,
+        duration: durationValue ? `${durationValue} ${durationUnit}` : null,
+        ongoingMedication: isOngoing,
       };
     });
   }

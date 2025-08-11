@@ -270,20 +270,6 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             )}
             {selectedTask.type === REFERENCE_TYPES.TASK_TEMPLATE && (
               <FormGrid style={{ gridColumn: 'span 2' }} data-testid="formgrid-2sm7">
-                <Field
-                  name="designationIds"
-                  label={
-                    <TranslatedText
-                      stringId="general.localisedField.assignedTo.label"
-                      fallback="Assigned to"
-                      data-testid="translatedtext-1kdb"
-                    />
-                  }
-                  component={SuggesterSelectField}
-                  endpoint="designation"
-                  isMulti
-                  data-testid="field-npey"
-                />
                 <NestedFormGrid data-testid="nestedformgrid-0y7w">
                   <Field
                     name="frequencyValue"

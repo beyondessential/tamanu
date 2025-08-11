@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: discharges
-        description: '{{ doc("table__discharges") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__discharges') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_discharges_changed
+              - record_discharges_changelog
+              - set_discharges_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
