@@ -27,13 +27,13 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
       type: QueryTypes.SELECT,
     },
   )) as { currentSyncTick: string }[];
+  
   if (!result || result.length === 0 || !result[0]?.currentSyncTick) {
     return;
   }
 
   const tick = result[0].currentSyncTick;
 
-  // Update the changes to set created_at_sync_tick
   const updatedChanges = relevantChanges.map(change => {
     change.data.createdAtSyncTick = tick;
     return change;
