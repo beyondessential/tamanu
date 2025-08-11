@@ -3,6 +3,7 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog } from '../../utils/audit';
+import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -25,10 +26,30 @@ export function createMigrationInterface(log, sequelize) {
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap:
-        (updown) =>
-        (...args) =>
-          sequelize.transaction(async () => updown(...args)),
+      wrap: (updown) => (...args) => sequelize.transaction(async () => {
+        // Extract just the filename from the full path
+        const migrationFile = updown.file || 'unknown';
+        const migrationName = migrationFile.includes('/') 
+          ? migrationFile.split('/').pop() 
+          : migrationFile;
+
+        // Create migration context object
+        const migrationContext = {
+          direction: updown.name,
+          serverType: global?.serverInfo?.serverType || 'unknown',
+          migrationName,
+        };
+
+        // Set the migration context as a transaction variable
+        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+
+        try {
+          const result = await updown(...args);
+          return result;
+        } finally {
+          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+        }
+      }),
 
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
