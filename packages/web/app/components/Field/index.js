@@ -18,6 +18,7 @@ export * from './PhotoField';
 export * from './ImagingPriorityField';
 export * from './SearchField';
 export * from './SwitchField';
+export * from './ChartInstanceNameField';
 
 // fancy fields
 export * from './HierarchyFieldItem';

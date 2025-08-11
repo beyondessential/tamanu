@@ -1,14 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { Divider } from '@mui/material';
 
 import { FormModal } from './FormModal';
 import { ChartForm } from '../forms/ChartForm';
 import { ChartInstanceInfoSection } from './Charting/ChartInstanceInfoSection';
 import { COMPLEX_CHART_FORM_MODES } from './Charting/constants';
+import { Colors } from '../constants';
 
 const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
   margin-bottom: 20px;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin: 24px 0px !important;
+  border-color: ${Colors.outline} !important;
 `;
 
 export const ComplexChartModal = ({
@@ -27,13 +34,16 @@ export const ComplexChartModal = ({
   return (
     <FormModal title={title} open={open} onClose={onClose} data-testid="formmodal-mbvq">
       {complexChartFormMode === COMPLEX_CHART_FORM_MODES.RECORD_CHART_ENTRY ? (
-        <StyledChartInstanceInfoSection
-          complexChartInstance={complexChartInstance}
-          fieldVisibility={fieldVisibility}
-          patient={patient}
-          selectedChartSurveyName={selectedChartSurveyName}
-          coreComplexDataElements={coreComplexDataElements}
-        />
+        <>
+          <StyledChartInstanceInfoSection
+            complexChartInstance={complexChartInstance}
+            fieldVisibility={fieldVisibility}
+            patient={patient}
+            selectedChartSurveyName={selectedChartSurveyName}
+            coreComplexDataElements={coreComplexDataElements}
+          />
+          <StyledDivider data-testid="divider-ccid" />
+        </>
       ) : null}
       <ChartForm
         onClose={onClose}
