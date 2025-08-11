@@ -60,84 +60,83 @@ describe('connectToSession', () => {
 
   afterAll(() => ctx.close());
 
-  
-    it('allows connecting to an existing session', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
+  it('allows connecting to an existing session', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-      const syncSession = await centralSyncManager.connectToSession(sessionId);
-      expect(syncSession).toBeDefined();
-    });
+    const syncSession = await centralSyncManager.connectToSession(sessionId);
+    expect(syncSession).toBeDefined();
+  });
 
-    it('throws an error if connecting to a session that has errored out', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
+  it('throws an error if connecting to a session that has errored out', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-      const session = await models.SyncSession.findByPk(sessionId);
-      await session.markErrored(
-        'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
-      );
+    const session = await models.SyncSession.findByPk(sessionId);
+    await session.markErrored(
+      'Snapshot processing incomplete, likely because the central server restarted during the snapshot',
+    );
 
-      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
-        `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
-      );
-    });
+    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+      `Sync session '${sessionId}' encountered an error: Snapshot processing incomplete, likely because the central server restarted during the snapshot`,
+    );
+  });
 
-    it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: false,
-          },
-          syncSessionTimeoutMs: 1000,
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+  it("does not throw an error when connecting to a session that has not taken longer than configured 'syncSessionTimeoutMs'", async () => {
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: false,
         },
-      });
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await sleepAsync(500);
-
-      // updated_at will be set to timestamp that is 500ms later
-      await centralSyncManager.connectToSession(sessionId);
-
-      expect(() => centralSyncManager.connectToSession(sessionId)).not.toThrow();
+        syncSessionTimeoutMs: 1000,
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
     });
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-    it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
-      const centralSyncManager = initializeCentralSyncManager({
-        sync: {
-          lookupTable: {
-            enabled: false,
-          },
-          syncSessionTimeoutMs: 200,
-          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+    await sleepAsync(500);
+
+    // updated_at will be set to timestamp that is 500ms later
+    await centralSyncManager.connectToSession(sessionId);
+
+    expect(() => centralSyncManager.connectToSession(sessionId)).not.toThrow();
+  });
+
+  it("throws an error when connecting to a session that has taken longer than configured 'syncSessionTimeoutMs'", async () => {
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: false,
         },
-      });
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
-
-      await sleepAsync(500);
-
-      // updated_at will be set to timestamp that is 500ms later
-      await centralSyncManager.connectToSession(sessionId);
-
-      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
-        `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
-      );
+        syncSessionTimeoutMs: 200,
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
     });
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-    it('append error if sync session already encounters an error before', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
+    await sleepAsync(500);
 
-      const session = await models.SyncSession.findByPk(sessionId);
-      await session.markErrored('Error 1');
-      await session.markErrored('Error 2');
+    // updated_at will be set to timestamp that is 500ms later
+    await centralSyncManager.connectToSession(sessionId);
 
-      expect(session.errors).toEqual(['Error 1', 'Error 2']);
-    });
+    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow(
+      `Sync session '${sessionId}' encountered an error: Sync session ${sessionId} timed out`,
+    );
+  });
+
+  it('append error if sync session already encounters an error before', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
+
+    const session = await models.SyncSession.findByPk(sessionId);
+    await session.markErrored('Error 1');
+    await session.markErrored('Error 2');
+
+    expect(session.errors).toEqual(['Error 1', 'Error 2']);
+  });
 });

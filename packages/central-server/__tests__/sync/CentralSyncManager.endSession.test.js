@@ -58,23 +58,22 @@ describe('endSession', () => {
 
   afterAll(() => ctx.close());
 
-  
-    it('set completedAt when ending an existing session', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
+  it('set completedAt when ending an existing session', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-      await centralSyncManager.endSession(sessionId);
-      const syncSession2 = await models.SyncSession.findOne({ where: { id: sessionId } });
-      expect(syncSession2.completedAt).not.toBeUndefined();
-    });
+    await centralSyncManager.endSession(sessionId);
+    const syncSession2 = await models.SyncSession.findOne({ where: { id: sessionId } });
+    expect(syncSession2.completedAt).not.toBeUndefined();
+  });
 
-    it('throws an error when connecting to a session that already ended', async () => {
-      const centralSyncManager = initializeCentralSyncManager();
-      const { sessionId } = await centralSyncManager.startSession();
-      await waitForSession(centralSyncManager, sessionId);
+  it('throws an error when connecting to a session that already ended', async () => {
+    const centralSyncManager = initializeCentralSyncManager();
+    const { sessionId } = await centralSyncManager.startSession();
+    await waitForSession(centralSyncManager, sessionId);
 
-      await centralSyncManager.endSession(sessionId);
-      await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
-    });
+    await centralSyncManager.endSession(sessionId);
+    await expect(centralSyncManager.connectToSession(sessionId)).rejects.toThrow();
+  });
 });
