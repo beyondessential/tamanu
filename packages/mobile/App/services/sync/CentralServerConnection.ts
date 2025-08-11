@@ -123,13 +123,20 @@ export class CentralServerConnection {
       return response;
     } catch (err) {
       // Handle sync disconnection and attempt refresh if possible
-
       if (err instanceof AuthenticationError && !isLogin) {
         this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
         if (this.refreshToken && !skipAttemptRefresh) {
           await this.refresh();
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig: FetchOptions = { skipAttemptRefresh: true };
+          const updatedConfig: FetchOptions = {
+            backoff,
+            skipAttemptRefresh: true,
+            timeout,
+            headers: extraHeaders,
+            method,
+            body,
+            ...rest,
+          };
           return this.fetch(path, query, updatedConfig);
         }
       }

@@ -337,6 +337,11 @@ describe('CentralServerConnection', () => {
         {},
         {
           skipAttemptRefresh: true,
+          backoff: undefined,
+          body: undefined,
+          headers: undefined,
+          method: 'GET',
+          timeout: undefined,
         },
       );
     });
