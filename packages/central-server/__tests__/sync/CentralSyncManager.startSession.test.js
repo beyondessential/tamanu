@@ -1,7 +1,11 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
-import { createTestContext, waitForSession } from '../utilities';
+import {
+  createTestContext,
+  waitForSession,
+  initializeCentralSyncManagerWithContext,
+} from '../utilities';
 import { cloneDeep } from 'lodash';
 
 describe('CentralSyncManager.startSession', () => {
@@ -9,25 +13,8 @@ describe('CentralSyncManager.startSession', () => {
   let models;
 
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
-  const DEFAULT_CONFIG = {
-    sync: {
-      lookupTable: {
-        enabled: false,
-      },
-      maxRecordsPerSnapshotChunk: 1000000000,
-    },
-  };
-
-  const initializeCentralSyncManager = config => {
-    // Have to load test function within test scope so that we can mock dependencies per test case
-    const {
-      CentralSyncManager: TestCentralSyncManager,
-    } = require('../../dist/sync/CentralSyncManager');
-
-    TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
-
-    return new TestCentralSyncManager(ctx);
-  };
+  const initializeCentralSyncManager = config =>
+    initializeCentralSyncManagerWithContext(ctx, config);
 
   const expectMatchingSessionData = (sessionData1, sessionData2) => {
     const cleanedSessionData1 = { ...sessionData1 };

@@ -7,7 +7,11 @@ import { fake } from '@tamanu/fake-data/fake';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { SYNC_DIRECTIONS, DEBUG_LOG_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 
-import { createTestContext, waitForSession } from '../utilities';
+import {
+  createTestContext,
+  waitForSession,
+  initializeCentralSyncManagerWithContext,
+} from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
@@ -26,25 +30,8 @@ describe('CentralSyncManager.updateLookupTable', () => {
   let models;
 
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
-  const DEFAULT_CONFIG = {
-    sync: {
-      lookupTable: {
-        enabled: false,
-      },
-      maxRecordsPerSnapshotChunk: 1000000000,
-    },
-  };
-
-  const initializeCentralSyncManager = config => {
-    // Have to load test function within test scope so that we can mock dependencies per test case
-    const {
-      CentralSyncManager: TestCentralSyncManager,
-    } = require('../../dist/sync/CentralSyncManager');
-
-    TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
-
-    return new TestCentralSyncManager(ctx);
-  };
+  const initializeCentralSyncManager = config =>
+    initializeCentralSyncManagerWithContext(ctx, config);
 
   const prepareRecordsForSync = async () => {
     // Pre insert the records below for snapshotting later

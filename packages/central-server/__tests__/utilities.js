@@ -133,3 +133,21 @@ export const waitForPushCompleted = async (centralSyncManager, sessionId) => {
     await sleepAsync(100);
   }
 };
+
+const DEFAULT_CONFIG = {
+  sync: {
+    lookupTable: {
+      enabled: false,
+    },
+    maxRecordsPerSnapshotChunk: 1000000000,
+  },
+};
+
+export const initializeCentralSyncManagerWithContext = (ctx, config) => {
+  // Have to load test function within test scope so that we can mock dependencies per test case
+  const { CentralSyncManager: TestCentralSyncManager } = require('../dist/sync/CentralSyncManager');
+
+  TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
+
+  return new TestCentralSyncManager(ctx);
+};

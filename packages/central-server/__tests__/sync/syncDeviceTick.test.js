@@ -3,32 +3,20 @@ import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
-import { createTestContext, waitForSession, waitForPushCompleted } from '../utilities';
+import {
+  createTestContext,
+  waitForSession,
+  waitForPushCompleted,
+  initializeCentralSyncManagerWithContext,
+} from '../utilities';
 
 describe('CentralSyncManager', () => {
   let ctx;
   let models;
   let sequelize;
 
-  const DEFAULT_CONFIG = {
-    sync: {
-      lookupTable: {
-        enabled: false,
-      },
-      maxRecordsPerSnapshotChunk: 1000000000,
-    },
-  };
-
-  const initializeCentralSyncManager = config => {
-    // Have to load test function within test scope so that we can mock dependencies per test case
-    const {
-      CentralSyncManager: TestCentralSyncManager,
-    } = require('../../dist/sync/CentralSyncManager');
-
-    TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
-
-    return new TestCentralSyncManager(ctx);
-  };
+  const initializeCentralSyncManager = config =>
+    initializeCentralSyncManagerWithContext(ctx, config);
 
   beforeAll(async () => {
     ctx = await createTestContext();
