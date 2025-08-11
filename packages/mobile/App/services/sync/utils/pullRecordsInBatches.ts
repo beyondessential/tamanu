@@ -36,6 +36,7 @@ export const pullRecordsInBatches = async (
 
     // Process current page while next is downloading
     const recordsToSave = current.records.map(r => {
+      // mark as never updated, so we don't push it back to the central server until
       r.data.updated_at_sync_tick = -1;
       r.direction = SYNC_SESSION_DIRECTION.INCOMING;
       return r;
