@@ -9,6 +9,10 @@ export const pullRecordsInBatches = async (
   { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
   processRecords: (records: SyncRecord[]) => Promise<void>,
 ) => {
+  if (recordTotal === 0) {
+    return;
+  }
+
   const fetchPage = async (pageLimit: number, pageFromId?: string): Promise<PulledPage> => {
     const startTime = Date.now();
     const records = await centralServer.pull(sessionId, pageLimit, pageFromId);
