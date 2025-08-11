@@ -1,6 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 describe('PatientFacility', () => {
   let app = null;
