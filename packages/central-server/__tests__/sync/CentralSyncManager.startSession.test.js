@@ -8,7 +8,6 @@ describe('CentralSyncManager.startSession', () => {
   let ctx;
   let models;
 
-  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
   const DEFAULT_CONFIG = {
     sync: {
@@ -49,7 +48,7 @@ describe('CentralSyncManager.startSession', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
@@ -89,7 +88,7 @@ describe('CentralSyncManager.startSession', () => {
     const localSystemFact = await models.LocalSystemFact.findOne({
       where: { key: FACT_CURRENT_SYNC_TICK },
     });
-    expect(parseInt(localSystemFact.value, 10)).toBe(DEFAULT_CURRENT_SYNC_TIME_VALUE + 2);
+    expect(parseInt(localSystemFact.value, 10)).toBe(2 + 2);
   });
 
   it('allows concurrent sync sessions', async () => {

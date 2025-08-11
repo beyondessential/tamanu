@@ -25,8 +25,6 @@ describe('CentralSyncManager', () => {
   const OLD_SYNC_TICK = 10;
   const NEW_SYNC_TICK = 20;
 
-  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
-
   const createEncounters = async (patientId, numberOfEncounters) => {
     return Promise.all(
       [...Array(numberOfEncounters).keys()].map(async () =>
@@ -111,7 +109,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.Note.truncate({ cascade: true, force: true });
     await models.PatientFacility.truncate({ force: true });
   });

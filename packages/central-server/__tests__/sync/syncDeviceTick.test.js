@@ -10,7 +10,6 @@ describe('CentralSyncManager', () => {
   let models;
   let sequelize;
 
-  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
   const DEFAULT_CONFIG = {
     sync: {
       lookupTable: {
@@ -37,7 +36,7 @@ describe('CentralSyncManager', () => {
   });
 
   beforeEach(async () => {
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });

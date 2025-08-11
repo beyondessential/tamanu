@@ -25,7 +25,6 @@ describe('CentralSyncManager.updateLookupTable', () => {
   let ctx;
   let models;
 
-  const DEFAULT_CURRENT_SYNC_TIME_VALUE = 2;
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
   const DEFAULT_CONFIG = {
     sync: {
@@ -108,7 +107,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
 
   beforeEach(async () => {
     jest.resetModules();
-    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, DEFAULT_CURRENT_SYNC_TIME_VALUE);
+    await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
