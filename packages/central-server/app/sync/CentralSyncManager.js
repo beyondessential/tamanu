@@ -410,7 +410,7 @@ export class CentralSyncManager {
       // work out if any patients were newly marked for sync since this device last connected, and
       // include changes from all time for those patients
       const newPatientFacilitiesCount = await models.PatientFacility.count({
-        where: { facilityId: { [Op.in]: facilityIds }, createdAtSyncTick: { [Op.gt]: since } },
+        where: { facilityId: { [Op.in]: facilityIds }, updatedAtSyncTick: { [Op.gt]: since } },
       });
       log.debug('CentralSyncManager.initiatePull', {
         facilityIds,
