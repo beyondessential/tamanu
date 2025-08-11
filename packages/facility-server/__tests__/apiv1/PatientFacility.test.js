@@ -1,6 +1,5 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants';
 
 describe('PatientFacility', () => {
   let app = null;
@@ -34,7 +33,7 @@ describe('PatientFacility', () => {
     const { Patient, Facility, PatientFacility } = models;
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
-    
+
     ctx.syncConnection.runSync = jest.fn().mockResolvedValue({});
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
