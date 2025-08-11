@@ -1,5 +1,6 @@
-import { generateMock } from '@anatine/zod-mock';
-import { createPatientSchema } from '@tamanu/facility-server/schemas/patient.schema';
+import { zocker } from 'zocker';
+
+import { createPatientSchema } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
 import { generateId } from '@tamanu/utils/generateId';
 import { CreateSchemaOptions } from './types';
 import { processMock } from './utils';
@@ -17,14 +18,16 @@ export const fakeCreatePatientRequestBody = (options: CreatePatientOptions) => {
     overrides = {},
   } = options;
 
-  const mock = generateMock(createPatientSchema, {
-    stringMap: {
-      displayId: () => generateId(),
-    },
-  });
+  const mock = zocker(createPatientSchema)
+    .supply(createPatientSchema.shape.displayId, generateId())
+    .generate();
 
   const final = {
-    ...processMock({ schema: createPatientSchema, mock, excludedFields }),
+    ...processMock({
+      schema: createPatientSchema,
+      mock,
+      excludedFields,
+    }),
     ...overrides,
     ...required,
   };

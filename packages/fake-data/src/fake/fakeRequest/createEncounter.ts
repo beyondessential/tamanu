@@ -1,8 +1,7 @@
-import { faker } from '@faker-js/faker';
-import { generateMock } from '@anatine/zod-mock';
-import { createEncounterSchema } from '@tamanu/facility-server/schemas/encounter.schema';
+import { zocker } from 'zocker';
 import { processMock } from './utils';
 import { CreateSchemaOptions } from './types';
+import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 
 type CreateEncounterOptions = CreateSchemaOptions<typeof createEncounterSchema>;
 
@@ -14,20 +13,14 @@ type CreateEncounterOptions = CreateSchemaOptions<typeof createEncounterSchema>;
 export const fakeCreateEncounterRequestBody = (options: CreateEncounterOptions) => {
   const { required, excludedFields = [], overrides = {} } = options;
 
-  const mock = generateMock(createEncounterSchema, {
-    stringMap: {
-      startDate: () => faker.date.recent().toISOString().split('T')[0],
-      reasonForEncounter: () => faker.lorem.sentence(),
-      // 50% chance of having an end date
-      endDate: () =>
-        faker.helpers.maybe(() => faker.date.recent().toISOString().split('T')[0], {
-          probability: 0.5,
-        }),
-    },
-  });
+  const mock = zocker(createEncounterSchema).generate();
 
   const final = {
-    ...processMock({ schema: createEncounterSchema, mock, excludedFields }),
+    ...processMock({
+      schema: createEncounterSchema,
+      mock,
+      excludedFields,
+    }),
     ...overrides,
     ...required,
   };

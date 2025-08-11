@@ -27,6 +27,7 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 
+import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -39,7 +40,6 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
-import { createEncounterSchema } from './encounter.schema';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 

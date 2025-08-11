@@ -13,58 +13,58 @@ import {
   PLACE_OF_BIRTH_TYPES,
 } from '@tamanu/constants';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
-import { foreignKey } from '@tamanu/shared/schemas/types';
+import { foreignKey, stringWithMaxLength } from '@tamanu/shared/schemas/types';
 
 export const createPatientSchema = z.object({
   // Required fields for patient creation
-  patientRegistryType: z.enum(Object.values(PATIENT_REGISTRY_TYPES)),
+  patientRegistryType: z.enum(PATIENT_REGISTRY_TYPES),
   facilityId: foreignKey,
 
   // Primary Details (from GenericPrimaryDetailsLayout)
-  displayId: z.string().optional(),
-  firstName: z.string().optional(),
-  middleName: z.string().optional(),
-  lastName: z.string().optional(),
-  culturalName: z.string().optional(),
-  email: z.string().email().optional(),
+  displayId: z.string().max(255).optional(),
+  firstName: z.string().max(255).optional(),
+  middleName: z.string().max(255).optional(),
+  lastName: z.string().max(255).optional(),
+  culturalName: z.string().max(255).optional(),
+  email: z.email().max(255).optional(),
   dateOfBirth: datetimeCustomValidation.optional(),
-  sex: z.enum([SEX_VALUES.MALE, SEX_VALUES.FEMALE, SEX_VALUES.OTHER]),
+  sex: z.enum(SEX_VALUES),
   villageId: foreignKey.optional(),
 
   // Identification Information (from GenericIdentificationFields)
-  birthCertificate: z.string().optional(),
-  drivingLicense: z.string().optional(),
-  passport: z.string().optional(),
+  birthCertificate: stringWithMaxLength.optional(),
+  drivingLicense: stringWithMaxLength.optional(),
+  passport: stringWithMaxLength.optional(),
+  // TODO: add max length to insurerId
   insurerId: foreignKey.optional(),
-  insurerPolicyNumber: z.string().optional(),
+  insurerPolicyNumber: stringWithMaxLength.optional(),
 
   // Contact Information (from GenericContactFields)
-  primaryContactNumber: z.string().optional(),
-  secondaryContactNumber: z.string().optional(),
-  emergencyContactName: z.string().optional(),
-  emergencyContactNumber: z.string().optional(),
+  // Contact numbers are handled as numbers with string coercion to match frontend validation
+  primaryContactNumber: z.coerce.number().optional(),
+  secondaryContactNumber: z.coerce.number().optional(),
+  emergencyContactName: stringWithMaxLength.optional(),
+  emergencyContactNumber: z.coerce.number().optional(),
 
   // Personal Information (from GenericPersonalFields)
-  title: z
-    .enum([TITLES.MR, TITLES.MRS, TITLES.MS, TITLES.MISS, TITLES.DR, TITLES.SR, TITLES.SN])
-    .optional(),
-  maritalStatus: z.enum(Object.values(MARTIAL_STATUS_VALUES)).optional(),
-  bloodType: z.enum(Object.values(BLOOD_TYPES)).optional(),
-  placeOfBirth: z.string().optional(),
+  title: z.enum(TITLES).optional(),
+  maritalStatus: z.enum(MARTIAL_STATUS_VALUES).optional(),
+  bloodType: z.enum(BLOOD_TYPES).optional(),
+  placeOfBirth: stringWithMaxLength.optional(),
   countryOfBirthId: foreignKey.optional(),
   nationalityId: foreignKey.optional(),
   ethnicityId: foreignKey.optional(),
   religionId: foreignKey.optional(),
-  educationalLevel: z.enum(Object.values(EDUCATIONAL_ATTAINMENT_TYPES)).optional(),
+  educationalLevel: z.enum(EDUCATIONAL_ATTAINMENT_TYPES).optional(),
   occupationId: foreignKey.optional(),
-  socialMedia: z.enum(Object.values(SOCIAL_MEDIA_TYPES)).optional(),
+  socialMedia: z.enum(SOCIAL_MEDIA_TYPES).optional(),
   patientBillingTypeId: foreignKey.optional(),
   motherId: foreignKey.optional(),
   fatherId: foreignKey.optional(),
 
   // Location Information (from GenericLocationFields)
-  cityTown: z.string().optional(),
-  streetVillage: z.string().optional(),
+  cityTown: stringWithMaxLength.optional(),
+  streetVillage: stringWithMaxLength.optional(),
   countryId: foreignKey.optional(),
   divisionId: foreignKey.optional(),
   subdivisionId: foreignKey.optional(),
@@ -75,12 +75,12 @@ export const createPatientSchema = z.object({
   // Birth Details (from GenericBirthFields - only when patientRegistryType is 'birth_registry')
   timeOfBirth: datetimeCustomValidation.optional(),
   gestationalAgeEstimate: z.number().min(1).max(45).optional(),
-  registeredBirthPlace: z.enum(Object.values(PLACE_OF_BIRTH_TYPES)).optional(),
+  registeredBirthPlace: z.enum(PLACE_OF_BIRTH_TYPES).optional(),
   birthFacilityId: foreignKey.optional(),
-  attendantAtBirth: z.enum(Object.values(ATTENDANT_OF_BIRTH_TYPES)).optional(),
-  nameOfAttendantAtBirth: z.string().optional(),
-  birthDeliveryType: z.enum(Object.values(BIRTH_DELIVERY_TYPES)).optional(),
-  birthType: z.enum(Object.values(BIRTH_TYPES)).optional(),
+  attendantAtBirth: z.enum(ATTENDANT_OF_BIRTH_TYPES).optional(),
+  nameOfAttendantAtBirth: stringWithMaxLength.optional(),
+  birthDeliveryType: z.enum(BIRTH_DELIVERY_TYPES).optional(),
+  birthType: z.enum(BIRTH_TYPES).optional(),
   birthWeight: z.number().min(0).max(6).optional(),
   birthLength: z.number().min(0).max(100).optional(),
   apgarScoreOneMinute: z.number().int().min(1).max(10).optional(),

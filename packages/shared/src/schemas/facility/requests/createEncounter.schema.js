@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { foreignKey } from '@tamanu/shared/schemas/types';
+import { foreignKey, stringWithMaxLength } from '@tamanu/shared/schemas/types';
 import { datetimeCustomValidation } from '@tamanu/utils/dateTime';
 
 export const createEncounterSchema = z.object({
   // Required fields for encounter creation
-  encounterType: z.enum(Object.values(ENCOUNTER_TYPES)),
+  encounterType: z.enum(ENCOUNTER_TYPES),
   startDate: datetimeCustomValidation,
   patientId: foreignKey,
   examinerId: foreignKey,
@@ -14,8 +14,8 @@ export const createEncounterSchema = z.object({
 
   // Optional fields
   endDate: datetimeCustomValidation.optional(),
-  reasonForEncounter: z.string().optional(),
-  deviceId: z.string().optional(),
+  reasonForEncounter: stringWithMaxLength.optional(),
+  deviceId: stringWithMaxLength.optional(),
   plannedLocationStartTime: datetimeCustomValidation,
   plannedLocationId: foreignKey.optional(),
   patientBillingTypeId: foreignKey.optional(),

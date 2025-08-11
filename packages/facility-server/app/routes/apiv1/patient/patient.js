@@ -2,8 +2,11 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
-import { createPatientSchema, updatePatientSchema } from './patient.schema';
 
+import {
+  createPatientSchema,
+  updatePatientSchema,
+} from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
 import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
 import {
   PATIENT_REGISTRY_TYPES,
