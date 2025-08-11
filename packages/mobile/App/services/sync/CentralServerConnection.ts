@@ -1,6 +1,6 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
