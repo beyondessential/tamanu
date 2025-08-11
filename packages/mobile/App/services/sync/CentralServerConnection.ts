@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -12,43 +13,46 @@ import {
   RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
+type ErrorResponse = {
+  error?: {
+    name?: string;
+    message?: string;
+    updateUrl?: string;
+  };
+};
+
+type PullMetadataResponse = {
+  totalToPull: number;
+  pullUntil: number;
+};
+
+type RefreshResponse = {
+  token?: string;
+  refreshToken?: string;
+};
+
 const API_PREFIX = 'api';
 
-const fetchAndParse = async (
-  url: string,
-  config: FetchOptions,
-  isLogin: boolean,
-): Promise<Record<string, unknown>> => {
-  const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+const toRemoteError = (err: AxiosError, isLogin: boolean): Error => {
+  const status = err.response?.status;
+  const error = (err.response?.data as ErrorResponse)?.error;
+  if (status === 401) {
+    return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
-
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
+  if (status === 400) {
     if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
+      return new OutdatedVersionError(error.updateUrl);
     }
   }
-
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
+  if (status === 422) {
+    return new RemoteError(error?.message, error, status);
   }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
+  console.error('Response had non-OK value', { status, data: err.response?.data });
+  return new RemoteError(generalErrorMessage, error, status);
 };
 
 export class CentralServerConnection {
@@ -59,8 +63,11 @@ export class CentralServerConnection {
   refreshToken: string | null;
 
   emitter = mitt();
+  client = axios.create({
+    timeout: 45 * 1000,
+  });
 
-  async connect(host: string): void {
+  async connect(host: string): Promise<void> {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
@@ -73,40 +80,63 @@ export class CentralServerConnection {
   async fetch(
     path: string,
     query: Record<string, string | number | boolean>,
-    { backoff, skipAttemptRefresh, ...config }: FetchOptions = {},
-  ): Promise<any> {
+    {
+      backoff,
+      skipAttemptRefresh,
+      timeout,
+      headers: extraHeaders,
+      method = 'GET',
+      body,
+      ...rest
+    }: FetchOptions = {},
+  ): Promise<unknown> {
     if (!this.host) {
       throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
     }
-
-    const queryString = Object.entries(query)
-      .map(([k, v]) => `${k}=${v}`)
-      .join('&');
-    const url = `${this.host}/${API_PREFIX}/${path}${queryString && `?${queryString}`}`;
-    const extraHeaders = config?.headers || {};
+    const url = `${this.host}/${API_PREFIX}/${path}`;
     const headers = {
       Authorization: `Bearer ${this.token}`,
       Accept: 'application/json',
       'X-Tamanu-Client': 'Tamanu Mobile',
       'X-Version': version,
-      ...extraHeaders,
+      ...(extraHeaders || {}),
     };
     const isLogin = path.startsWith('login');
     try {
-      const response = await callWithBackoff(
-        async () => fetchAndParse(url, { ...config, headers }, isLogin),
-        backoff,
-      );
+      const response = await callWithBackoff(async () => {
+        const configAxios: AxiosRequestConfig = {
+          url,
+          method,
+          headers,
+          timeout,
+          params: query,
+          data: body,
+          ...rest,
+        };
+        try {
+          const { data } = await this.client.request(configAxios);
+          return data;
+        } catch (e) {
+          throw toRemoteError(e as AxiosError, isLogin);
+        }
+      }, backoff);
       return response;
     } catch (err) {
       // Handle sync disconnection and attempt refresh if possible
-
       if (err instanceof AuthenticationError && !isLogin) {
         this.emitter.emit('statusChange', CentralConnectionStatus.Disconnected);
         if (this.refreshToken && !skipAttemptRefresh) {
           await this.refresh();
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig = { ...config, skipAttemptRefresh: true };
+          const updatedConfig: FetchOptions = {
+            backoff,
+            skipAttemptRefresh: true,
+            timeout,
+            headers: extraHeaders,
+            method,
+            body,
+            ...rest,
+          };
           return this.fetch(path, query, updatedConfig);
         }
       }
@@ -114,30 +144,29 @@ export class CentralServerConnection {
     }
   }
 
-  async get(
+  async get<T>(
     path: string,
     query: Record<string, string | number | boolean>,
     options?: FetchOptions,
-  ) {
-    return this.fetch(path, query, { ...options, method: 'GET' });
+  ): Promise<T> {
+    return this.fetch(path, query, { ...options, method: 'GET' }) as Promise<T>;
   }
 
-  async post(path: string, query: Record<string, string | number>, body, options?: FetchOptions) {
-    return this.fetch(path, query, {
-      ...options,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+  async post<T>(
+    path: string,
+    query: Record<string, string | number>,
+    body,
+    options?: FetchOptions,
+  ): Promise<T> {
+    const headers = { 'Content-Type': 'application/json', ...(options?.headers || {}) };
+    return this.fetch(path, query, { ...options, method: 'POST', headers, body }) as Promise<T>;
   }
 
   async delete(path: string, query: Record<string, string | number>) {
     return this.fetch(path, query, { method: 'DELETE' });
   }
 
-  async pollUntilTrue(endpoint: string): Promise<void> {
+  async pollUntilTrue(endpoint: string): Promise<unknown> {
     // poll the provided endpoint until we get a valid response
     const waitTime = 1000; // retry once per second
     const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
@@ -155,7 +184,7 @@ export class CentralServerConnection {
     const facilityId = await readConfig('facilityId', '');
 
     // start a sync session (or refresh our position in the queue)
-    const { sessionId, status } = await this.post(
+    const { sessionId, status } = (await this.post(
       'sync',
       {},
       {
@@ -165,7 +194,7 @@ export class CentralServerConnection {
         deviceId: this.deviceId,
         isMobile: true,
       },
-    );
+    )) as { sessionId?: string; status?: string };
 
     if (!sessionId) {
       // we're waiting in a queue
@@ -178,7 +207,9 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/ready`);
 
     // finally, fetch the new tick from starting the session
-    const { startedAtTick } = await this.get(`sync/${sessionId}/metadata`, {});
+    const { startedAtTick } = (await this.get(`sync/${sessionId}/metadata`, {})) as {
+      startedAtTick: number;
+    };
 
     return { sessionId, startedAtTick };
   }
@@ -208,7 +239,10 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get(`sync/${sessionId}/pull/metadata`, {});
+    return this.get<PullMetadataResponse>(
+      `sync/${sessionId}/pull/metadata`,
+      {},
+    );  
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
@@ -216,14 +250,14 @@ export class CentralServerConnection {
     if (fromId) {
       query.fromId = fromId;
     }
-    return this.get(`sync/${sessionId}/pull`, query, {
+    return await this.get<SyncRecord[]>(`sync/${sessionId}/pull`, query, {
       // allow 5 minutes for the sync pull as it can take a while
       // (the full 5 minutes would be pretty unusual! but just to be safe)
       timeout: 5 * 60 * 1000,
     });
   }
 
-  async push(sessionId: string, changes): Promise<void> {
+  async push(sessionId: string, changes): Promise<unknown> {
     return this.post(`sync/${sessionId}/push`, {}, { changes });
   }
 
@@ -274,7 +308,7 @@ export class CentralServerConnection {
   }
 
   async refresh(): Promise<void> {
-    const data = await this.post(
+    const data = await this.post<RefreshResponse>(
       'refresh',
       {},
       { refreshToken: this.refreshToken, deviceId: this.deviceId },
@@ -292,7 +326,7 @@ export class CentralServerConnection {
 
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      const data = await this.post(
+      const data = await this.post<LoginResponse>(
         'login',
         {},
         { email, password, deviceId: this.deviceId },
