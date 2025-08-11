@@ -609,7 +609,8 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    // if mobile, we don't need to attach changelog to snapshot records
+    // Currently on mobile we don't need to attach changelog to snapshot records
+    // as changelog data is not stored on mobile.
     if (isMobile) {
       return snapshotRecords;
     }
