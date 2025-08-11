@@ -27,20 +27,20 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
       type: QueryTypes.SELECT,
     },
   )) as { currentSyncTick: string }[];
-  
+
   if (!result || result.length === 0 || !result[0]?.currentSyncTick) {
     return;
   }
 
   const tick = result[0].currentSyncTick;
 
-  const updatedChanges = relevantChanges.map(change => {
+  const changesWithCreatedAtSyncTick = relevantChanges.map(change => {
     change.data.createdAtSyncTick = tick;
     return change;
   });
 
   return {
-    inserts: updatedChanges,
+    inserts: changesWithCreatedAtSyncTick,
     updates: [],
   };
 };
