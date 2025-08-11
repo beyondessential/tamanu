@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_program_registry_clinical_statuses_changed
+              - record_program_registry_clinical_statuses_changelog
+              - set_program_registry_clinical_statuses_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
