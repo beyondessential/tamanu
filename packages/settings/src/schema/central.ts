@@ -93,7 +93,7 @@ export const centralSettings = {
             maxLimit: {
               description: 'The maximum limit for the dynamic limiter',
               type: yup.number().positive().integer(),
-              defaultValue: 20000, // Any more than this and we can hit heap limit errors for devices with allocated memory for the process (memory class) <= 192 MB
+              defaultValue: 40000, // Any more than this and we can hit heap limit errors for devices with allocated memory for the process (memory class) <= 192 MB
               // This means older mid-range devices would fail to initial sync.
             },
             maxLimitChangePerPage: {
