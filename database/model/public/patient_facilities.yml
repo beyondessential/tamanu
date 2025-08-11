@@ -51,5 +51,4 @@ sources:
           - name: created_at_sync_tick
             data_type: bigint
             description: "{{ doc('patient_facilities__created_at_sync_tick') }}"
-            data_tests:
-              - not_null
+

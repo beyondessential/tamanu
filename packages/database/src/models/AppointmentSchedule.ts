@@ -21,7 +21,7 @@ import type { Appointment, AppointmentCreateData } from './Appointment';
 import { dateType } from './../types/model';
 import type { InitOptions, Models } from '../types/model';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
-import { resolveAppointmentSchedules } from '../sync/resolveAppointmentSchedules';
+import { resolveAppointmentSchedules } from '../sync/hooks/resolveAppointmentSchedules';
 
 export type AppointmentScheduleCreateData = Omit<
   AppointmentSchedule,

@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';
 import type { Patient } from 'models';
-import { SYNC_SESSION_DIRECTION } from './constants';
-import { sanitizeRecord } from './sanitizeRecord';
+import { SYNC_SESSION_DIRECTION } from '../constants';
+import { sanitizeRecord } from '../sanitizeRecord';
 
 /**
  * Resolve duplicated patient display IDs by

@@ -6,7 +6,7 @@ import {
 } from '@tamanu/shared/utils';
 import { Model } from './Model';
 import type { PatientAdditionalData } from './PatientAdditionalData';
-import { resolveDuplicatedPatientDisplayIds } from '../sync/resolveDuplicatedPatientDisplayIds';
+import { resolveDuplicatedPatientDisplayIds } from '../sync/hooks/resolveDuplicatedPatientDisplayIds';
 
 import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
 import type { SyncHookSnapshotChanges, SyncSnapshotAttributes } from 'types/sync';

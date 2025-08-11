@@ -1,8 +1,10 @@
 import { DataTypes, Sequelize, type UpsertOptions } from 'sequelize';
-import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { addCreatedAtSyncTickToPatientFacilities } from '../sync/hooks/addCreatedAtSyncTickToPatientFacillities';
 import type { InitOptions, Models } from '../types/model';
+import type { SyncSnapshotAttributes } from '../types/sync';
 
 export class PatientFacility extends Model {
   declare id: string;
@@ -44,11 +46,7 @@ export class PatientFacility extends Model {
         },
         createdAtSyncTick: {
           type: DataTypes.BIGINT,
-          allowNull: false,
-          defaultValue: Sequelize.cast(
-            Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'),
-            'bigint',
-          ),
+          allowNull: true,
         },
       },
       {
@@ -88,5 +86,11 @@ export class PatientFacility extends Model {
         facilityId: `${this.tableName}.facility_id`,
       }),
     };
+  }
+
+  static async incomingSyncHook(
+    changes: SyncSnapshotAttributes[],
+  ) {
+    return addCreatedAtSyncTickToPatientFacilities(this, changes);
   }
 }
