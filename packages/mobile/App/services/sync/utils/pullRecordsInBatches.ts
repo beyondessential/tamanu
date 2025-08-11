@@ -21,17 +21,15 @@ export const pullRecordsInBatches = async (
   };
 
   const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
-  let fromId: string | undefined;
   let limit = calculatePageLimit(syncSettings?.dynamicLimiter);
   let totalPulled = 0;
-  let current = await fetchPage(limit, fromId);
+  let current = await fetchPage(limit);
 
   while (totalPulled < recordTotal && current.records.length > 0) {
     // Get next cursor and adjust page size based on how long the last pull took
     const last = current.records.at(-1);
-    const nextFromId = last
-      ? btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id }))
-      : undefined;
+    const nextFromId = btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id }))
+    
     limit = calculatePageLimit(dynamicLimiterSettings, limit, current.pullTime);
 
     // Prefetch next page in background
@@ -51,7 +49,6 @@ export const pullRecordsInBatches = async (
     progressCallback(recordsToSave.length);
 
     // Switch to next page
-    fromId = nextFromId;
     current = await nextPromise;
   }
 };
