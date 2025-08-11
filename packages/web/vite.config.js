@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import json5Plugin from 'vite-plugin-json5';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { NodeModulesPolyfillPlugin } from 'esbuild-plugins/node-modules-polyfill';
 
 /** @see https://vitejs.dev/config */
 export default async () => {
@@ -29,7 +29,7 @@ export default async () => {
     plugins: [
       react(),
       json5Plugin(),
-      nodePolyfills({
+      NodeModulesPolyfillPlugin({
         include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
         globals: {
           Buffer: true,
