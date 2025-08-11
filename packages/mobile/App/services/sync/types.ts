@@ -1,5 +1,6 @@
 import { IUser } from '../../types';
 import { callWithBackoffOptions } from './utils/callWithBackoff';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
 export type DownloadRecordsResponse = {
   count: number;
@@ -19,6 +20,7 @@ export interface SyncRecord {
   data: SyncRecordData;
   sortOrder?: number;
   isDeleted?: boolean;
+  direction?: SYNC_SESSION_DIRECTION
 }
 
 export type PersistResult = {
