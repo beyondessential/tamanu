@@ -171,9 +171,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
@@ -314,6 +312,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onConfirmEdit = data => {
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+
     const medicationIndex = selectedMedicationSet.children.findIndex(
       child => child.id === editingMedication.id,
     );

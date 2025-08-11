@@ -7,3 +7,4 @@ export * from './usePatientPaymentsMutation';
 export * from './useNotificationsMutation';
 export { useUserPreferencesMutation } from './useUserPreferencesMutation';
 export { useUpdateProgramRegistryMutation } from './useUpdateProgramRegistryMutation';
+export * from './useUserMutation';

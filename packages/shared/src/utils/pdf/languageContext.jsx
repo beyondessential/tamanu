@@ -1,52 +1,13 @@
 /* eslint-disable no-undef */
 import React, { createContext, useContext, useMemo } from 'react';
-import { cloneDeep } from 'lodash';
-import path from 'path';
-import { FONT } from '@tamanu/constants';
-import { Font } from '@react-pdf/renderer';
+import { cloneDeep, get } from 'lodash';
 import { translationFactory } from '../translation/translationFactory';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { registerFonts } from './registerFonts';
 
-const baseDir =
-  typeof __dirname !== 'undefined' ? path.join(__dirname, '../../assets/fonts') : '/fonts';
-
-// body font
-Font.register({
-  family: FONT.BATTAMBANG,
-  fonts: [
-    {
-      src: path.join(baseDir, 'Battambang-Regular.ttf'),
-      fontWeight: 400,
-    },
-    {
-      src: path.join(baseDir, 'Battambang-900.ttf'),
-      fontWeight: 500,
-    },
-  ],
-});
-
-// title font
-Font.register({
-  family: FONT.MOUL,
-  src: path.join(baseDir, 'Moul-Regular.ttf'),
-});
-
-// title font
-Font.register({
-  family: 'Roboto',
-  src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf',
-});
-
-const boldFont = ['Helvetica-BoldOblique', 'Helvetica-Bold'];
+registerFonts();
 
 const LanguageContext = createContext({});
-
-const getDefaultLanguage = () => {
-  // in client
-  if (typeof window === 'object' && 'localStorage' in window) {
-    return window.localStorage.getItem('language');
-  }
-};
 
 export const useLanguageContext = () => {
   const ctx = useContext(LanguageContext);
@@ -55,33 +16,24 @@ export const useLanguageContext = () => {
 
 export const withLanguageContext = Component => props => {
   const context = useLanguageContext();
-  const { language, translations, ...other } = props;
+  const { translations, ...other } = props;
+
+  // If in the pdf.worker context we pass settings an an object not as a function
+  // and should build a getSetting function from it.
+  let { getSetting } = other;
+  if (!getSetting && props.settings) {
+    getSetting = key => get(props.settings, key);
+  }
+
+  const isGlobalFontEnabled = getSetting('features.useGlobalPdfFont');
+  const pdfFont = isGlobalFontEnabled ? 'GlobalPdfFont' : 'Helvetica';
+  const pdfFontBold = isGlobalFontEnabled ? 'GlobalPdfFont-Bold' : 'Helvetica-Bold';
 
   const contextValue = useMemo(() => {
     return {
-      makeIntlStyleSheet(style, forceToBodyFontWithGreaterFontWeight) {
+      makeIntlStyleSheet(style) {
         if (typeof style !== 'object') return {};
-        const currentLanguage = language || getDefaultLanguage();
-
-        const newStyles = cloneDeep(style);
-        const currentFontFamily = newStyles?.fontFamily;
-
-        if (
-          currentLanguage === 'km' &&
-          currentFontFamily &&
-          currentFontFamily !== FONT.MOUL &&
-          currentFontFamily !== FONT.BATTAMBANG
-        ) {
-          if (boldFont.includes(currentFontFamily) && !forceToBodyFontWithGreaterFontWeight) {
-            newStyles.fontFamily = FONT.MOUL;
-          } else {
-            newStyles.fontFamily = FONT.BATTAMBANG;
-            if (forceToBodyFontWithGreaterFontWeight) {
-              newStyles.fontWeight = 500;
-            }
-          }
-        }
-        return newStyles;
+        return cloneDeep(style);
       },
       getTranslation(stringId, fallback, translationOptions) {
         const translationFunc = translationFactory(translations);
@@ -95,15 +47,17 @@ export const withLanguageContext = Component => props => {
         const { value } = translationFunc(stringId, fallback);
         return value;
       },
+      pdfFont,
+      pdfFontBold,
     };
-  }, [language, translations]);
+  }, [translations, pdfFont, pdfFontBold]);
 
   // unsure that we are using only one provider for the component tree
   return 'makeIntlStyleSheet' in context ? (
-    <Component {...other} />
+    <Component {...other} getSetting={getSetting} />
   ) : (
     <LanguageContext.Provider value={contextValue}>
-      <Component {...other} />
+      <Component {...other} getSetting={getSetting} />
     </LanguageContext.Provider>
   );
 };

@@ -9,6 +9,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
+import { TranslatedReferenceData } from './Translation';
 
 const SectionSpacing = styled.div`
   height: 14px;
@@ -39,8 +40,14 @@ const COLUMNS = [
   },
   {
     key: 'value',
-    title: <TranslatedText stringId="surveyResponse.details.table.column.value" fallback="Value" data-testid="translatedtext-fah5" />,
-    accessor: ({ answer, sourceType, type, originalBody, componentConfig }) => (
+    title: (
+      <TranslatedText
+        stringId="surveyResponse.details.table.column.value"
+        fallback="Value"
+        data-testid="translatedtext-fah5"
+      />
+    ),
+    accessor: ({ answer, sourceType, type, originalBody, componentConfig, dataElementId }) => (
       <SurveyAnswerResult
         answer={answer}
         sourceType={sourceType}
@@ -48,6 +55,7 @@ const COLUMNS = [
         data-testid="surveyanswerresult-dhnv"
         originalBody={originalBody}
         componentConfig={componentConfig}
+        dataElementId={dataElementId}
       />
     ),
   },
@@ -118,22 +126,30 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     .filter(shouldShow)
     .map(component => {
       const { dataElement, id, config } = component;
-      const { type, name } = dataElement;
-      const answerObject = answers.find((a) => a.dataElementId === dataElement.id);
+      const { type, name, id: dataElementId } = dataElement;
+      const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
       const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
+
       return {
         id,
+        dataElementId,
         type,
         answer,
         originalBody,
-        name,
+        name: (
+          <TranslatedReferenceData
+            category="programDataElement"
+            value={dataElementId}
+            fallback={name}
+          />
+        ),
         sourceType,
         componentConfig: config,
       };
     })
-    .filter((r) => r.answer !== undefined);
+    .filter(r => r.answer !== undefined);
 
   return (
     <Modal

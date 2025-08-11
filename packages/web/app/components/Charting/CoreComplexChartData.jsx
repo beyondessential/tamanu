@@ -36,6 +36,7 @@ const CoreComplexChartSingleInfoWrapper = styled.span`
 export const CoreComplexChartData = ({
   handleDeleteChart,
   selectedSurveyId,
+  currentInstanceId,
   date,
   type,
   subtype,
@@ -44,7 +45,7 @@ export const CoreComplexChartData = ({
   const { ability } = useAuth();
   const [open, setModalOpen] = useState(false);
   const { encounter } = useEncounter();
-  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId);
+  const { data } = useEncounterChartsQuery(encounter.id, selectedSurveyId, currentInstanceId);
   const actions = [
     {
       label: (
@@ -65,7 +66,7 @@ export const CoreComplexChartData = ({
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartType] === VISIBILITY_STATUSES.CURRENT;
   const isSubtypeVisible =
     fieldVisibility[CHARTING_DATA_ELEMENT_IDS.complexChartSubtype] === VISIBILITY_STATUSES.CURRENT;
-
+    
   return (
     <>
       <DeleteChartModal

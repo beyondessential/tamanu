@@ -21,11 +21,11 @@ function newlinesToArray(data) {
 }
 
 function makeMandatory(validationCriteria) {
-    const { validationCriteria: originalValidationCriteria } = validationCriteria;
-    return JSON.stringify({
-      ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
-      mandatory: true,
-    });
+  const { validationCriteria: originalValidationCriteria } = validationCriteria;
+  return JSON.stringify({
+    ...(originalValidationCriteria ? JSON.parse(originalValidationCriteria) : {}),
+    mandatory: true,
+  });
 }
 
 function applyComponentTypeOverrides(type, surveyComponent) {
@@ -34,7 +34,7 @@ function applyComponentTypeOverrides(type, surveyComponent) {
     return {
       ...surveyComponent,
       validationCriteria: makeMandatory(validationCriteria),
-    }
+    };
   }
   return surveyComponent;
 }

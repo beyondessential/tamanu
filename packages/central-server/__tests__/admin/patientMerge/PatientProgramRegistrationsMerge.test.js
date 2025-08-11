@@ -10,6 +10,7 @@ describe('Merging Patient Program Registrations', () => {
   let ctx;
   let models;
   let programRegistry;
+  let secondProgramRegistry;
   let clinician;
 
   beforeAll(async () => {
@@ -17,13 +18,14 @@ describe('Merging Patient Program Registrations', () => {
     models = ctx.store.models;
     clinician = await models.User.create(fake(models.User));
     programRegistry = await setupProgramRegistry(models);
+    secondProgramRegistry = await setupProgramRegistry(models);
   });
 
   afterAll(async () => {
     await ctx.close();
   });
 
-  it('soft deletes and moves all registrations to keep patients', async () => {
+  it('soft deletes all duplicate unwanted registrations', async () => {
     const { PatientProgramRegistration } = models;
     const [keep, merge] = await makeTwoPatients(models);
 
@@ -40,21 +42,19 @@ describe('Merging Patient Program Registrations', () => {
     );
 
     // Merge patient has 1 active and 1 inactive registration
-    const unwantedRegistration1 = await PatientProgramRegistration.create(
+    await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
         programRegistryId: programRegistry.id,
         patientId: merge.id,
-        primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.ACTIVE,
         clinicianId: clinician.id,
         date: '2023-10-04 08:00:00',
       }),
     );
-    const unwantedRegistration2 = await PatientProgramRegistration.create(
+    await PatientProgramRegistration.create(
       fake(models.PatientProgramRegistration, {
-        programRegistryId: programRegistry.id,
+        programRegistryId: secondProgramRegistry.id,
         patientId: merge.id,
-        primaryContactNumber: 'merge-phone',
         registrationStatus: REGISTRATION_STATUSES.INACTIVE,
         clinicianId: clinician.id,
         date: '2023-11-04 08:00:00',
@@ -69,28 +69,31 @@ describe('Merging Patient Program Registrations', () => {
 
     const newKeepPatientRegistrations = await PatientProgramRegistration.findAll({
       where: { patientId: keep.id },
-      paranoid: false, // include the soft deleted registrations
+      paranoid: false, // include any soft deleted registrations
       raw: true,
     });
     const newMergePatientRegistrations = await PatientProgramRegistration.findAll({
       where: { patientId: merge.id },
+      paranoid: false, // include any soft deleted registrations
       raw: true,
     });
 
-    expect(newKeepPatientRegistrations.length).toEqual(3);
-    expect(newMergePatientRegistrations.length).toEqual(0);
+    expect(newKeepPatientRegistrations.length).toEqual(2);
+    expect(newMergePatientRegistrations.length).toEqual(2);
 
-    const afterMergeKeepRegistration = newKeepPatientRegistrations.find(
-      (r) => r.id === keepRegistration.id,
+    const firstRegistration = newKeepPatientRegistrations.find(
+      r => r.programRegistryId === programRegistry.id,
     );
-    const afterMergeUnwantedRegistration1 = newKeepPatientRegistrations.find(
-      (r) => r.id === unwantedRegistration1.id,
+    const secondRegistration = newKeepPatientRegistrations.find(
+      r => r.programRegistryId === secondProgramRegistry.id,
     );
-    const afterMergeUnwantedRegistration2 = newKeepPatientRegistrations.find(
-      (r) => r.id === unwantedRegistration2.id,
-    );
-    expect(afterMergeKeepRegistration.deletedAt).toBeNull();
-    expect(afterMergeUnwantedRegistration1.deletedAt).not.toBeNull();
-    expect(afterMergeUnwantedRegistration2.deletedAt).not.toBeNull();
+
+    expect(firstRegistration.id).toBe(keepRegistration.id);
+    expect(firstRegistration.deletedAt).toBeNull();
+
+    const expectedId = `${keep.id};${secondProgramRegistry.id}`;
+    expect(secondRegistration.id).toBe(expectedId);
+    expect(secondRegistration.patientId).toBe(keep.id);
+    expect(secondRegistration.deletedAt).toBeNull();
   });
 });

@@ -1,5 +1,12 @@
 import { DataTypes, Op, type Transaction } from 'sequelize';
-import { ADMINISTRATION_FREQUENCIES, SYNC_DIRECTIONS, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  ADMINISTRATION_FREQUENCIES,
+  ENCOUNTER_TYPES,
+  SYNC_DIRECTIONS,
+  SYSTEM_USER_UUID,
+  TASK_STATUSES,
+  TASK_TYPES,
+} from '@tamanu/constants';
 import {
   addDays,
   addHours,
@@ -11,11 +18,15 @@ import {
   startOfDay,
 } from 'date-fns';
 import config from 'config';
-import { getFirstAdministrationDate } from '@tamanu/shared/utils/medication';
+import {
+  getFirstAdministrationDate,
+  areDatesInSameTimeSlot,
+} from '@tamanu/shared/utils/medication';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { Task } from './Task';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -31,6 +42,8 @@ export class MedicationAdministrationRecord extends Model {
   declare isEdited?: boolean;
   declare isError?: boolean;
   declare errorNotes?: string;
+
+  declare prescription?: Prescription;
 
   static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
     super.init(
@@ -75,6 +88,11 @@ export class MedicationAdministrationRecord extends Model {
               });
               await prescription.save();
             }
+
+            // Create a task for the MAR if it's not recorded yet
+            if (!mar.status) {
+              await this.createMedicationDueTaskForMar(mar);
+            }
           },
           afterUpdate: async (mar: MedicationAdministrationRecord) => {
             // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
@@ -92,6 +110,11 @@ export class MedicationAdministrationRecord extends Model {
                 discontinued: true,
               });
               await prescription.save();
+            }
+
+            const previousStatus = mar.previous('status');
+            if (!previousStatus && mar.status) {
+              await this.checkAndCompleteMedicationDueTask(mar);
             }
           },
         },
@@ -114,6 +137,8 @@ export class MedicationAdministrationRecord extends Model {
    * It avoids creating duplicate records by checking the last existing MAR and
    * skips generation if the calculated due date falls outside the valid prescription period
    * or before the last generated MAR.
+   *
+   * IMPORTANT: keep it in sync with the mobile app's MedicationAdministrationRecord model
    *
    * @param prescription The prescription object for which to generate MARs.
    */
@@ -149,17 +174,10 @@ export class MedicationAdministrationRecord extends Model {
     // Get the first administration date for the prescription
     let firstAdministrationDate: Date | undefined;
     if (prescription.idealTimes && prescription.idealTimes.length > 0) {
-      try {
-        firstAdministrationDate = getFirstAdministrationDate(
-          new Date(prescription.startDate),
-          prescription.idealTimes,
-        );
-      } catch (error) {
-        console.error(
-          `Error calculating first administration date for prescription ${prescription.id}:`,
-          error,
-        );
-      }
+      firstAdministrationDate = getFirstAdministrationDate(
+        new Date(prescription.startDate),
+        prescription.idealTimes,
+      );
     }
 
     // Get the upcoming records should be generated time frame
@@ -195,10 +213,13 @@ export class MedicationAdministrationRecord extends Model {
           minutes,
           0,
         );
-        // Skip if the next due date is before the start date, after the end date, or after the prescription was discontinued
+
+        const prescriptionStartDate = new Date(prescription.startDate);
+        // Skip if the next due date is after the end date, or after the prescription was discontinued
         // For cron job, skip if the next due date is before the last due date (to avoid creating duplicate records)
         if (
-          nextDueDate < new Date(prescription.startDate) ||
+          (nextDueDate < prescriptionStartDate &&
+            !areDatesInSameTimeSlot(prescriptionStartDate, nextDueDate)) ||
           nextDueDate > endDate ||
           (lastMedicationAdministrationRecord &&
             nextDueDate <= new Date(lastMedicationAdministrationRecord.dueAt)) ||
@@ -225,8 +246,8 @@ export class MedicationAdministrationRecord extends Model {
           lastDueDate = startOfDay(addDays(lastDueDate, 7));
           break;
         case ADMINISTRATION_FREQUENCIES.ONCE_A_MONTH: {
-          // If the due date of the first administration is the 29th or 30th, then set the next due date to the 1st of the next month
           const lastDueDay = getDate(lastDueDate);
+          // If the due date of the first administration is the 29th or 30th or 31st, then set the next due date to the 1st of the second next month
           if (lastDueDay >= 29) {
             lastDueDate = startOfDay(setDate(addMonths(lastDueDate, 2), 1));
           } else {
@@ -239,6 +260,137 @@ export class MedicationAdministrationRecord extends Model {
           break;
       }
     }
+  }
+
+  static async createMedicationDueTaskForMar(mar: MedicationAdministrationRecord) {
+    const { models } = this.sequelize;
+    const { Task, Encounter, EncounterPrescription, Prescription } = models;
+
+    const prescription = await Prescription.findByPk(mar.prescriptionId);
+
+    if (!prescription) {
+      throw new Error('Prescription not found');
+    }
+
+    // Skip if this is a PRN medication
+    if (prescription.isPrn) return;
+
+    const encounterPrescription = await EncounterPrescription.findOne({
+      where: { prescriptionId: prescription.id },
+      include: [
+        {
+          model: Encounter,
+          as: 'encounter',
+          attributes: ['id', 'encounterType', 'endDate'],
+        },
+      ],
+    });
+    const encounter = encounterPrescription?.encounter;
+
+    if (!encounter) {
+      throw new Error('Encounter not found');
+    }
+
+    // Skip if this is not an inpatient encounter or is discharged
+    if (encounter.encounterType !== ENCOUNTER_TYPES.ADMISSION || encounter.endDate) {
+      return;
+    }
+
+    const existingTask = await Task.findOne({
+      where: {
+        encounterId: encounter.id,
+        dueTime: mar.dueAt,
+        status: TASK_STATUSES.TODO,
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      },
+      attributes: ['id'],
+    });
+
+    // Skip if the task at the same ideal time already exists
+    if (existingTask) return;
+
+    await Task.create({
+      taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      encounterId: encounter.id,
+      name: 'Medication Due',
+      dueTime: mar.dueAt,
+      status: TASK_STATUSES.TODO,
+      requestTime: getCurrentDateTimeString(),
+      requestedByUserId: SYSTEM_USER_UUID,
+    });
+  }
+
+  /**
+   * If all MARs at the same ideal time as the task are recorded (GIVEN or NOT_GIVEN), mark the task as completed by the system user
+   */
+  static async checkAndCompleteMedicationDueTask(mar: MedicationAdministrationRecord) {
+    const { models } = this.sequelize;
+    const { Task, EncounterPrescription, MedicationAdministrationRecord, Prescription } = models;
+
+    const encounterPrescription = await EncounterPrescription.findOne({
+      where: { prescriptionId: mar.prescriptionId },
+      attributes: ['encounterId'],
+    });
+    if (!encounterPrescription) return;
+
+    const encounterId = encounterPrescription.encounterId;
+
+    const task = await Task.findOne({
+      where: {
+        encounterId,
+        dueTime: mar.dueAt,
+        status: TASK_STATUSES.TODO,
+        taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+      },
+      attributes: ['id', 'dueTime'],
+    });
+
+    if (!task) return;
+
+    // Check if there is another unrecorded MAR at the same ideal time as the task
+    const unrecordedMar = await MedicationAdministrationRecord.findOne({
+      where: {
+        id: {
+          [Op.ne]: mar.id,
+        },
+        dueAt: mar.dueAt,
+        status: null,
+      },
+      include: [
+        {
+          model: Prescription,
+          as: 'prescription',
+          attributes: ['id'],
+          required: true,
+          include: [
+            {
+              model: EncounterPrescription,
+              as: 'encounterPrescription',
+              attributes: ['encounterId'],
+              required: true,
+              where: {
+                encounterId,
+              },
+            },
+          ],
+        },
+      ],
+      attributes: ['id'],
+    });
+
+    // Skip if there is still at least one unrecorded MAR
+    if (unrecordedMar) return;
+
+    await Task.update(
+      {
+        status: TASK_STATUSES.COMPLETED,
+        completedTime: getCurrentDateTimeString(),
+        completedByUserId: SYSTEM_USER_UUID,
+      },
+      {
+        where: { id: task.id },
+      },
+    );
   }
 
   /**
@@ -283,23 +435,80 @@ export class MedicationAdministrationRecord extends Model {
           model: Prescription,
           as: 'prescription',
           required: true,
+          attributes: ['id'],
           include: [
             {
               model: EncounterPrescription,
               as: 'encounterPrescription',
               required: true,
               include: ['encounter'],
+              attributes: ['id'],
             },
           ],
         },
       ],
+      attributes: ['id', 'dueAt'],
       transaction,
     });
+
+    const marIdsToRemove = marsToRemove.map(mar => mar.id);
+
+    // Remove tasks that are no longer valid
+    for (const mar of marsToRemove) {
+      const encounter = mar?.prescription?.encounterPrescription?.encounter;
+      if (!encounter) continue;
+
+      const existingTask = await Task.findOne({
+        where: {
+          encounterId: encounter.id,
+          dueTime: mar.dueAt,
+          status: TASK_STATUSES.TODO,
+          taskType: TASK_TYPES.MEDICATION_DUE_TASK,
+        },
+        attributes: ['id'],
+      });
+
+      if (!existingTask) continue;
+
+      const unrecordedMar = await MedicationAdministrationRecord.findOne({
+        where: {
+          id: {
+            [Op.notIn]: marIdsToRemove,
+          },
+          dueAt: mar.dueAt,
+          status: null,
+        },
+        include: [
+          {
+            model: Prescription,
+            as: 'prescription',
+            attributes: ['id'],
+            required: true,
+            include: [
+              {
+                model: EncounterPrescription,
+                as: 'encounterPrescription',
+                attributes: ['encounterId'],
+                required: true,
+                where: {
+                  encounterId: encounter.id,
+                },
+              },
+            ],
+          },
+        ],
+        attributes: ['id'],
+      });
+
+      if (unrecordedMar) continue;
+
+      await existingTask.destroy({ transaction });
+    }
 
     await this.destroy({
       where: {
         id: {
-          [Op.in]: marsToRemove.map((mar) => mar.id),
+          [Op.in]: marIdsToRemove,
         },
       },
       transaction,

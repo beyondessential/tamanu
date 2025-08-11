@@ -373,7 +373,7 @@ export const RelatedConditionsForm = ({
                 }
               }
 
-              if (initialValue === 'recordedInError') {
+              if (isRecordedInError(initialValue)) {
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={fieldName}
@@ -461,7 +461,7 @@ export const RelatedConditionsForm = ({
             <Divider />
             <Heading5 mt={0} mb={1}>
               <TranslatedText
-                stringId="programRegistry.relatedConditions"
+                stringId="programRegistry.relatedConditions.label"
                 fallback="Related conditions"
               />
             </Heading5>

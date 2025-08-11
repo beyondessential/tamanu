@@ -116,6 +116,9 @@ export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
 export * from './ReferenceMedicationTemplate';
 
+export * from './PharmacyOrder';
+export * from './PharmacyOrderPrescription';
+
 export * from './Notification';
 
 export * from './Signer';
@@ -145,3 +148,4 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './UserLeave';

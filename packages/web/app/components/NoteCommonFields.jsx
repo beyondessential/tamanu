@@ -185,6 +185,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
+  boxSizing: 'border-box',  
 };
 
 export const NoteContentField = ({

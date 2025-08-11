@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/facility-server",
-  "version": "2.36.0",
+  "version": "2.39.0",
   "private": true,
   "description": "Facility server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -40,6 +40,7 @@
     "@bugsnag/plugin-express": "^7.19.0",
     "@casl/ability": "^6.7.1",
     "@opentelemetry/api": "^1.9.0",
+    "@tamanu/api-client": "*",
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
     "@tamanu/shared": "*",
@@ -70,7 +71,6 @@
     "mkdirp": "^1.0.4",
     "morgan": "^1.9.0",
     "nanoid": "^3.1.32",
-    "node-fetch": "^2.6.1",
     "pg": "^8.5.1",
     "prompts": "^2.0.0",
     "react": "16.8.5",

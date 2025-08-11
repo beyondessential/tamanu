@@ -1,7 +1,7 @@
 import { log } from '@tamanu/shared/services/logging/log';
 import { saveChangesForModel } from '../../src/sync';
 import * as saveChangeModules from '../../src/sync/saveChanges';
-import { closeDatabase, createTestDatabase } from './utilities';
+import { closeDatabase, createTestDatabase } from '../utilities';
 import { describe, expect, it, vitest, beforeAll, afterEach, afterAll } from 'vitest';
 
 vitest.mock('../../src/sync/saveChanges', async () => ({

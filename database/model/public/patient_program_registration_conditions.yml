@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registration_conditions
-        description: '{{ doc("table__patient_program_registration_conditions") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_program_registration_conditions') }}"
+        config:
+          tags:
+            - clinical
         columns:
           - name: id
             data_type: character varying(255)
@@ -66,10 +67,8 @@ sources:
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__reason_for_change') }}"
           - name: patient_program_registration_id
-            data_type: uuid
+            data_type: text
             description: "{{ doc('patient_program_registration_conditions__patient_program_registration_id') }}"
-            data_tests:
-              - not_null
           - name: program_registry_condition_category_id
             data_type: text
             description: "{{ doc('patient_program_registration_conditions__program_registry_condition_category_id') }}"

@@ -1,12 +1,21 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
-import { SURVEY_TYPES, PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import {
+  SURVEY_TYPES,
+  PROGRAM_REGISTRY_CONDITION_CATEGORIES,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+} from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
+import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(60000);
@@ -32,6 +41,7 @@ describe('Programs import', () => {
       ProgramRegistry,
       ProgramDataElement,
       SurveyScreenComponent,
+      TranslatedString,
     } = ctx.store.models;
     await PatientProgramRegistration.destroy({ where: {}, force: true });
     await ProgramRegistryClinicalStatus.destroy({ where: {}, force: true });
@@ -42,6 +52,7 @@ describe('Programs import', () => {
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
     await Program.destroy({ where: {}, force: true });
+    await TranslatedString.destroy({ where: {}, force: true });
   };
 
   beforeEach(async () => {
@@ -145,6 +156,19 @@ describe('Programs import', () => {
     });
   });
 
+  it('should properly skip surveys as obsolete', async () => {
+    await doImport({ file: 'valid', dryRun: false });
+    await doImport({ file: 'obsolete', dryRun: false });
+    const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete-clone', dryRun: true });
+    console.log('stats', stats);
+    expect(errors).toBeEmpty();
+    expect(didntSendReason).toEqual('dryRun');
+    expect(stats).toMatchObject({
+      Program: { created: 0, skipped: 1, errored: 0 },
+      Survey: { created: 0, skipped: 1, errored: 0 },
+    });
+  });
+
   it('should soft delete survey questions', async () => {
     const { Survey, SurveyScreenComponent } = ctx.store.models;
 
@@ -177,7 +201,7 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
         ProgramDataElement: { updated: 3 },
-        SurveyScreenComponent: { updated: 1, deleted: 2 },
+        SurveyScreenComponent: { skipped: 1, deleted: 2 },
       });
     }
 
@@ -387,7 +411,7 @@ describe('Programs import', () => {
     it('Should import a valid vitals survey and delete visualisationConfig', async () => {
       const { ProgramDataElement } = ctx.store.models;
 
-      const validateVisualisationConfig = async (expectValue) => {
+      const validateVisualisationConfig = async expectValue => {
         const { visualisationConfig } = await ProgramDataElement.findOne({
           where: {
             code: 'PatientVitalsHeartRate',
@@ -445,8 +469,8 @@ describe('Programs import', () => {
         const { errors, stats } = await doImport({ file: 'vitals-delete-questions-2' });
         expect(errors).toBeEmpty();
         expect(stats).toMatchObject({
-          ProgramDataElement: { updated: 16 }, // deleter should NOT delete underlying PDEs
-          SurveyScreenComponent: { updated: 15, deleted: 1 },
+          ProgramDataElement: { skipped: 16 }, // deleter should NOT delete underlying PDEs
+          SurveyScreenComponent: { skipped: 15, deleted: 1 },
         });
       }
 
@@ -485,10 +509,10 @@ describe('Programs import', () => {
       expect(errors).toBeEmpty();
       expect(didntSendReason).toEqual('dryRun');
       expect(stats).toMatchObject({
-        Program: { created: 0, updated: 1, errored: 0 },
-        Survey: { created: 0, updated: 1, errored: 0 },
-        ProgramRegistry: { created: 0, updated: 1, errored: 0 },
-        ProgramRegistryClinicalStatus: { created: 1, updated: 3, errored: 0 },
+        Program: { created: 0, skipped: 1, errored: 0 },
+        Survey: { created: 0, skipped: 1, errored: 0 },
+        ProgramRegistry: { created: 0, skipped: 1, errored: 0 },
+        ProgramRegistryClinicalStatus: { created: 1, skipped: 1, updated: 2, errored: 0 },
       });
     });
 
@@ -540,14 +564,16 @@ describe('Programs import', () => {
     });
 
     it('should prevent changing currentlyAtType if there is existing data', async () => {
-      const { PatientProgramRegistration } = ctx.store.models;
+      const { Patient, PatientProgramRegistration } = ctx.store.models;
       await doImport({
         file: 'registry-valid-village',
         xml: true,
         dryRun: false,
       });
+      const patient = await Patient.create(fake(Patient));
       await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
         programRegistryId: 'programRegistry-ValidRegistry',
+        patientId: patient.id,
       });
       const { errors } = await doImport({
         file: 'registry-valid-facility',
@@ -560,14 +586,16 @@ describe('Programs import', () => {
     });
 
     it('should not prevent changing currentlyAtType if there is no existing data', async () => {
-      const { PatientProgramRegistration } = ctx.store.models;
+      const { Patient, PatientProgramRegistration } = ctx.store.models;
       await doImport({
         file: 'registry-valid-village',
         xml: true,
         dryRun: false,
       });
+      const patient = await Patient.create(fake(Patient));
       const registration = await findOneOrCreate(ctx.store.models, PatientProgramRegistration, {
         programRegistryId: 'programRegistry-ValidRegistry',
+        patientId: patient.id,
       });
       registration.villageId = null;
       registration.facilityId = null;
@@ -713,7 +741,7 @@ describe('Programs import', () => {
 
         // Check one of the entries
         const unknownCategory = result.find(
-          (row) => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+          row => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
         );
         expect(unknownCategory).toMatchObject({
           model: 'ProgramRegistryConditionCategory',
@@ -765,7 +793,7 @@ describe('Programs import', () => {
 
         // Make sure the UNKNOWN category is not in the result
         const unknownCategory = result.find(
-          (row) => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
+          row => row.values.code === PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN,
         );
         expect(unknownCategory).toBeUndefined();
       });
@@ -796,7 +824,7 @@ describe('Programs import', () => {
         expect(result).toHaveLength(Object.keys(PROGRAM_REGISTRY_CONDITION_CATEGORIES).length + 1);
 
         // Check the custom category
-        const customCategory = result.find((row) => row.values.code === 'custom-category');
+        const customCategory = result.find(row => row.values.code === 'custom-category');
         expect(customCategory).toMatchObject({
           model: 'ProgramRegistryConditionCategory',
           sheetRow: 1, // __rowNum__ - 1
@@ -838,7 +866,7 @@ describe('Programs import', () => {
         expect(stats).toMatchObject({
           Program: { created: 1, updated: 0, errored: 0 },
           Survey: { created: 2, updated: 0, errored: 0 },
-          ProgramDataElement: { created: 7, updated: 1, errored: 0 },
+          ProgramDataElement: { created: 7, skipped: 1, errored: 0 },
           SurveyScreenComponent: { created: 8, updated: 0, errored: 0 },
         });
       });
@@ -1068,6 +1096,93 @@ describe('Programs import', () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].message).toEqual(expectedError);
       });
+    });
+  });
+
+  describe('Translation', () => {
+    it('should create translations for the vitals survey', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      const translations = await models.TranslatedString.findAll();
+      const generatedStringIds = translations.map(translation => translation.stringId);
+
+      const programStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.program.program-testvitals`;
+      const surveyStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.survey.program-testvitals-vitalsgood`;
+
+      //check if the program and survey string ids are in the generated string ids
+      expect(generatedStringIds).toContain(programStringId);
+      expect(generatedStringIds).toContain(surveyStringId);
+
+      // Check each data element has an appropriate string id
+      const dataElements = await models.ProgramDataElement.findAll();
+      dataElements.forEach(dataElement => {
+        const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${dataElement.id}`;
+        expect(generatedStringIds).toContain(stringId);
+      });
+    });
+
+    it('should translate nested options', async () => {
+      await doImport({
+        file: 'vitals-valid',
+        dryRun: false,
+      });
+
+      // find an element with options
+      const programDataElement = await models.ProgramDataElement.findOne({
+        where: {
+          defaultOptions: {
+            [Op.ne]: null,
+          },
+        },
+      });
+
+      if (!programDataElement)
+        throw new Error('No program data element with options found in vitals-valid.xlsx');
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
+      });
+      const stringIds = translations.map(translation => translation.stringId);
+
+      const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
+        option =>
+          getReferenceDataOptionStringId(programDataElement.id, 'programDataElement', option),
+      );
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
+    });
+
+    it('should translate text and detail fields for survey screen components', async () => {
+      await doImport({
+        file: 'valid',
+        dryRun: false,
+      });
+
+      const surveyScreenComponents = await models.SurveyScreenComponent.findAll();
+      let expectedStringIds = [];
+      surveyScreenComponents.forEach(surveyScreenComponent => {
+        if (surveyScreenComponent.text) {
+          expectedStringIds.push(
+            `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.text.${surveyScreenComponent.id}`,
+          );
+        }
+        if (surveyScreenComponent.detail) {
+          expectedStringIds.push(
+            `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.detail.${surveyScreenComponent.id}`,
+          );
+        }
+      });
+
+      const translatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.surveyScreenComponent%' } },
+      });
+
+      const generatedStringIds = translatedStrings.map(translation => translation.stringId);
+
+      expect(generatedStringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 });

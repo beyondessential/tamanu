@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.36.0",
+  "version": "2.39.0",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
@@ -139,7 +139,6 @@
     "rimraf": "^6.0.1",
     "sqlite3": "^5.1.6",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.6.2",
     "uuid": "^11.0.3"
   },
   "detox": {

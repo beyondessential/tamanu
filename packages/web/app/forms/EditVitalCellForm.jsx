@@ -16,6 +16,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
+import { TranslatedOption } from '../components/Translation/TranslatedOptions';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -77,12 +78,23 @@ const LogTextSmall = styled(Typography)`
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   const { date, newValue, reasonForChange, userDisplayName } = logData;
-  const reasonForChangeOption = vitalEditReasons.find((option) => option.value === reasonForChange);
+  const reasonForChangeOption = vitalEditReasons.find(option => option.value === reasonForChange);
   const reasonForChangeLabel = reasonForChangeOption?.label ?? 'Unknown';
+
+  const translatedOption = newValue ? (
+    <TranslatedOption
+      value={newValue}
+      referenceDataId={vitalLabel?.props.value}
+      referenceDataCategory="programDataElement"
+    />
+  ) : (
+    <TranslatedText stringId="vitals.logEntry.deleted" fallback="Entry deleted" />
+  );
+
   return (
     <LogContainer data-testid="logcontainer-7d64">
       <LogText data-testid="logtext-bgs3">
-        {vitalLabel}: {newValue === '' ? 'Entry deleted' : newValue}
+        {vitalLabel}: {translatedOption}
       </LogText>
       {reasonForChange && (
         <LogText data-testid="logtext-kd9w">
@@ -122,13 +134,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     encounterType: encounter.encounterType,
   });
   const handleDeleteEntry = useCallback(
-    (setFieldValue) => {
+    setFieldValue => {
       setFieldValue(valueName, '');
       setIsDeleted(true);
     },
     [valueName],
   );
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     const newShapeData = {
       date: getCurrentDateTimeString(),
     };
@@ -155,7 +167,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose }) => {
     queryClient.invalidateQueries(['encounterVitals', encounter.id]);
     handleClose();
   };
-  const validateFn = (values) => {
+  const validateFn = values => {
     const errors = {};
     if (values[valueName] === initialValue) {
       errors[valueName] = 'New value cannot be the same as previous value.';

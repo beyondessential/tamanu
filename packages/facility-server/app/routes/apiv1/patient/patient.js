@@ -39,7 +39,7 @@ patientRoute.post(
     const { models, body: patient } = req;
 
     const potentialDuplicates = await models.Patient.sequelize.query(
-      `SELECT 
+      `SELECT
         p.*,
         reference_data.name AS "villageName"
       FROM find_potential_patient_duplicates(:patient) p
@@ -241,14 +241,14 @@ patientRoute.get(
       PATIENT_SORT_KEYS.firstName,
       PATIENT_SORT_KEYS.displayId,
     ]
-      .filter((v) => v !== orderBy)
-      .map((v) => `${v} ASC`)
+      .filter(v => v !== orderBy)
+      .map(v => `${v} ASC`)
       .join(', ');
 
     // query is always going to come in as strings, has to be set manually
     ['ageMax', 'ageMin']
-      .filter((k) => filterParams[k])
-      .forEach((k) => {
+      .filter(k => filterParams[k])
+      .forEach(k => {
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
@@ -265,7 +265,7 @@ patientRoute.get(
     // 2.d) the same rule of 2.b is applied in case we have two or more columns starting with what the user selected.
     // 2.e) The last rule for selected filters, is, if the user has selected any of those filters, we should also sort them alphabetically.
     if (!orderBy) {
-      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter((v) => filterParams[v]);
+      const selectedFilters = ['displayId', 'lastName', 'firstName'].filter(v => filterParams[v]);
       if (selectedFilters?.length) {
         filterSortReplacements = selectedFilters.reduce((acc, filter) => {
           return {
@@ -278,20 +278,18 @@ patientRoute.get(
         // Exact match sort
         const exactMatchSort = selectedFilters
           .map(
-            (filter) => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
+            filter => `upper(patients.${snakeCase(filter)}) = ${`:exactMatchSort${filter}`} DESC`,
           )
           .join(', ');
 
         // Begins with sort
         const beginsWithSort = selectedFilters
-          .map(
-            (filter) => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`,
-          )
+          .map(filter => `upper(patients.${snakeCase(filter)}) LIKE :beginsWithSort${filter} DESC`)
           .join(', ');
 
         // the last one is
         const alphabeticSort = selectedFilters
-          .map((filter) => `patients.${snakeCase(filter)} ASC`)
+          .map(filter => `patients.${snakeCase(filter)} ASC`)
           .join(', ');
 
         filterSort = `${exactMatchSort}, ${beginsWithSort}, ${alphabeticSort}`;
@@ -446,7 +444,7 @@ patientRoute.get(
       },
     );
 
-    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
 
     res.send({
       data: forResponse,
@@ -509,13 +507,29 @@ patientRoute.get(
     const { PatientOngoingPrescription, Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQuery = {
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
           where: { patientId },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
+          },
         },
       ],
     };
@@ -591,7 +605,14 @@ patientRoute.get(
       return;
     }
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const dischargeMedications = await Prescription.findAll({
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
@@ -600,6 +621,15 @@ patientRoute.get(
           where: {
             isSelectedForDischarge: true,
             encounterId: lastInpatientEncounter.id,
+          },
+        },
+        {
+          model: req.models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: req.models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],

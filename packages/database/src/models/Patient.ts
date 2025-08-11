@@ -22,6 +22,7 @@ export class Patient extends Model {
   declare dateOfDeath?: string;
   declare sex: string;
   declare email?: string;
+  declare villageId?: string;
   declare visibilityStatus?: string;
   declare mergedIntoId?: string;
   declare additionalData?: PatientAdditionalData[];
