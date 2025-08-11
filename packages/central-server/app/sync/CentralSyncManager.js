@@ -609,14 +609,11 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
-    // Currently on mobile we don't need to attach changelog to snapshot records
-    // as changelog data is not stored on mobile.
-    if (isMobile) {
+    const { minSourceTick, maxSourceTick } = session.parameters;
+    // On mobile, we don't need to attach changelogs. We also skip if the source tick range is not available.
+    if (isMobile || !minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
-    const { minSourceTick, maxSourceTick } = session.parameters;
-    if (!minSourceTick || !maxSourceTick) {
-      return snapshotRecords;
     }
 
     const recordsForPull = await attachChangelogToSnapshotRecords(this.store, snapshotRecords, {
