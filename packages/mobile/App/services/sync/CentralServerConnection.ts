@@ -46,12 +46,11 @@ export class CentralServerConnection {
   refreshToken: string | null;
 
   emitter = mitt();
-  client: AxiosInstance | null = null;
+  client = axios.create({
+    timeout: 45 * 1000,
+  });
 
   async connect(host: string): Promise<void> {
-    this.client = axios.create({
-      timeout: 45 * 1000,
-    });
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
@@ -82,10 +81,10 @@ export class CentralServerConnection {
       const response = await callWithBackoff(async () => {
         const configAxios: AxiosRequestConfig = {
           url,
-          params: query,
-          method: method as any,
+          method,
           headers,
           timeout,
+          params: query,
           data: body,
           ...rest,
         };
