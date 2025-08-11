@@ -21,24 +21,25 @@ export const pullRecordsInBatches = async (
   };
 
   let current = await fetchPage(limit, fromId);
+  const { records: currentRecords, pullTime: lastPullTime } = current;
 
-  while (totalPulled < recordTotal && current.records.length > 0) {
+  while (totalPulled < recordTotal && currentRecords.length > 0) {
     // compute next cursor and adjust page size based on how long the last pull took
-    const last = current.records.at(-1);
+    const last = currentRecords.at(-1);
     const nextFromId = last ? btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id })) : undefined;
-    limit = calculatePageLimit(limit, current.pullTime);
+    limit = calculatePageLimit(limit, lastPullTime);
 
     // prefetch next page in background
     const nextPromise = nextFromId ? fetchPage(limit, nextFromId) : Promise.resolve({ records: [], pullTime: 0 });
 
     // process current page while next is downloading
-    const recordsToSave = current.records.map(r => {
+    const recordsToSave = currentRecords.map(r => {
       r.data.updated_at_sync_tick = -1;
       r.direction = SYNC_SESSION_DIRECTION.INCOMING;
       return r;
     });
     await processRecords(recordsToSave);
-    totalPulled += current.records.length;
+    totalPulled += currentRecords.length;
     progressCallback(recordsToSave.length);
 
     // switch to next page
