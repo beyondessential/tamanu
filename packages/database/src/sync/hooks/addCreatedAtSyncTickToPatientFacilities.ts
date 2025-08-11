@@ -15,9 +15,10 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
   PatientFacilityModel: typeof PatientFacility,
   changes: SyncSnapshotAttributes[],
 ): Promise<SyncHookSnapshotChanges | undefined> => {
-  const relevantChanges = changes.filter(c => !c.isDeleted && c.data.createdAtSyncTick === null);
+  const newChanges = changes.filter(c => !c.isDeleted && c.data.createdAtSyncTick === null);
+  const existingChanges = changes.filter(c => c.data.createdAtSyncTick !== null);
 
-  if (relevantChanges.length === 0) {
+  if (newChanges.length === 0) {
     return;
   }
 
@@ -34,13 +35,13 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
 
   const tick = result[0].currentSyncTick;
 
-  const changesForInsert = relevantChanges.map(change => {
+  const changesForInsert = newChanges.map(change => {
     change.data.createdAtSyncTick = tick;
     return change;
   });
 
   return {
     inserts: changesForInsert,
-    updates: [],
+    updates: existingChanges,
   };
 };
