@@ -89,6 +89,8 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const [unsavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
+  const [unsavedProgramFormOnSubmitOpen, setUnsavedProgramFormOnSubmitOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null); // Add this line
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProcedureProgramResponsesQuery(
     patientId,
@@ -96,20 +98,29 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     refreshCount,
   );
 
+  const onSubmit = async data => {
+    const actualDateTime = getActualDateTime(data.date, data.startTime);
+    const updatedData = {
+      ...data,
+      date: actualDateTime,
+      startTime: actualDateTime,
+      endTime: getEndDateTime(data),
+      encounterId,
+    };
+
+    await api.post(`procedure/${updatedData.id}`, updatedData);
+    onSaved();
+  };
+
   return (
     <Form
       onSubmit={async data => {
-        const actualDateTime = getActualDateTime(data.date, data.startTime);
-        const updatedData = {
-          ...data,
-          date: actualDateTime,
-          startTime: actualDateTime,
-          endTime: getEndDateTime(data),
-          encounterId,
-        };
-
-        await api.post(`procedure/${updatedData.id}`, updatedData);
-        onSaved();
+        if (selectedSurveyId) {
+          setPendingFormData(data); // Store the form data
+          setUnsavedProgramFormOnSubmitOpen(true);
+        } else {
+          await onSubmit(data);
+        }
       }}
       render={({ submitForm, values, dirty }) => {
         const handleCancel = () => {
@@ -208,6 +219,20 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
               onConfirm={() => {
                 setUnSavedProgramFormOpen(false);
                 onClose();
+              }}
+            />
+            <UnSavedProcedureProgramModal
+              open={unsavedProgramFormOnSubmitOpen}
+              onCancel={() => {
+                setUnsavedProgramFormOnSubmitOpen(false);
+                setPendingFormData(null);
+              }}
+              onConfirm={async () => {
+                setUnsavedProgramFormOnSubmitOpen(false);
+                if (pendingFormData) {
+                  await onSubmit(pendingFormData);
+                  setPendingFormData(null);
+                }
               }}
             />
             <UnSavedChangesModal
