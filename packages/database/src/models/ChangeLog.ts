@@ -21,6 +21,7 @@ export class ChangeLog extends Model {
   declare deviceId: string;
   declare version: string;
   declare reason: string | null;
+  declare migrationContext: Record<string, any> | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -76,6 +77,10 @@ export class ChangeLog extends Model {
         },
         reason: {
           type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        migrationContext: {
+          type: DataTypes.JSONB,
           allowNull: true,
         },
       },
