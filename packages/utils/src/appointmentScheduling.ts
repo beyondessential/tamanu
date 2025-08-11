@@ -1,5 +1,5 @@
 import { DAYS_OF_WEEK, REPEAT_FREQUENCY, REPEAT_FREQUENCY_UNIT_PLURAL_LABELS } from '@tamanu/constants';
-import { isSameDay, add, parseISO, set, format, endOfDay, addMonths, isBefore } from 'date-fns';
+import { isSameDay, add, parseISO, set, format, addMonths } from 'date-fns';
 import { eachDayInMonth, toDateString } from './dateTime';
 
 export const eachWeekdayInMonth = (date: Date, weekday = date.getDay()) =>
@@ -63,15 +63,19 @@ export const generateFutureAssignmentDates = (
   repeatEndDate?: string,
   maxViewableMonthsAhead = 12,
 ) => {
-  const maxGenerationDate = endOfDay(addMonths(new Date(), maxViewableMonthsAhead));
-  const endGenerationDate = repeatEndDate && isBefore(endOfDay(parseISO(repeatEndDate)), maxGenerationDate) 
-    ? parseISO(repeatEndDate) 
+  const maxGenerationDate = toDateString(addMonths(new Date(), maxViewableMonthsAhead));
+  if (!maxGenerationDate) {
+    throw new Error('Assignment date is not a valid date');
+  }
+  
+  const endGenerationDate = repeatEndDate && repeatEndDate < maxGenerationDate
+    ? repeatEndDate
     : maxGenerationDate;
   
   let nextAssignmentDate = getNextFrequencyDate(date, repeatFrequency, repeatUnit);
   const assignmentDates: string[] = [];
-  
-  while (isBefore(parseISO(nextAssignmentDate), endGenerationDate)) {
+
+  while (endGenerationDate >= nextAssignmentDate) {
     assignmentDates.push(nextAssignmentDate);
 
     nextAssignmentDate = getNextFrequencyDate(

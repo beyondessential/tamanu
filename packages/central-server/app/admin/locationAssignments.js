@@ -11,6 +11,7 @@ export const locationAssignmentsRouter = express.Router();
 
 import {
   REPEAT_FREQUENCY_VALUES,
+  LOCATION_ASSIGNMENT_STATUS
 } from '@tamanu/constants';
 
 const locationAssignmentSchema = z.object({
@@ -86,7 +87,9 @@ locationAssignmentsRouter.get(
       }
     ];
 
-    const filters = {};
+    const filters = {
+      status: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
+    };
 
     if (after) {
       filters.date = { [Op.gte]: after };
@@ -188,7 +191,7 @@ locationAssignmentsRouter.post(
 async function createRepeatingLocationAssignment(req, body) {
   const {
     store: {
-      models: { LocationAssignmentTemplate, LocationAssignment }
+      models: { LocationAssignmentTemplate }
     },
     db,
     user,
@@ -216,17 +219,6 @@ async function createRepeatingLocationAssignment(req, body) {
       repeatEndDate,
       repeatFrequency,
       repeatUnit,
-      createdBy: user.id,
-      updatedBy: user.id,
-    });
-
-    await LocationAssignment.create({
-      userId,
-      locationId,
-      date,
-      startTime,
-      endTime,
-      templateId: template.id,
       createdBy: user.id,
       updatedBy: user.id,
     });

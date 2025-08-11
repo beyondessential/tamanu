@@ -1,5 +1,4 @@
-import { DataTypes } from 'sequelize';
-import { isEqual, parseISO } from 'date-fns';
+import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import { generateFutureAssignmentDates } from '@tamanu/utils/appointmentScheduling';
@@ -8,6 +7,7 @@ import {
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
+  LOCATION_ASSIGNMENT_STATUS,
 } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings/reader';
 
@@ -107,24 +107,19 @@ export class LocationAssignmentTemplate extends Model {
     ) as number;
 
     const { models } = this.sequelize;
+    const { UserLeave, LocationAssignment } = models;
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
         'LocationAssignmentTemplate.generateRepeatingLocationAssignments must always run inside a transaction',
       );
     }
 
-    const latestAssignment = await models.LocationAssignment.findOne({
+    const latestAssignment = await LocationAssignment.findOne({
       where: {
         templateId: this.id,
       },
       order: [['date', 'DESC']]
     });
-
-    if (!latestAssignment) {
-      throw new Error(
-        'Cannot find existing assignments within the schedule',
-      );
-    }
 
     const {
       repeatFrequency,
@@ -136,27 +131,56 @@ export class LocationAssignmentTemplate extends Model {
       endTime,
     } = this;
 
-    if (repeatEndDate && isEqual(parseISO(latestAssignment.date), parseISO(repeatEndDate))) {
+    if (latestAssignment && latestAssignment.date === repeatEndDate) {
       return;
     }
 
+    const startDate = latestAssignment?.date || this.date;
     const nextAssignmentDates = generateFutureAssignmentDates(
-      latestAssignment.date, repeatFrequency, repeatUnit, repeatEndDate, maxGenerationMonths
+      startDate, repeatFrequency, repeatUnit, repeatEndDate, maxGenerationMonths
     ).filter(date => date !== null);
+
+    const userLeaves = await UserLeave.findAll({
+      where: {
+        userId,
+        removedAt: null,
+        [Op.and]: [
+          { endDate: { [Op.gte]: startDate } },
+          { startDate: { [Op.lte]: nextAssignmentDates.at(-1) } },
+        ]
+      },
+    });
+
+     // if there is no assignment, add the first date
+    if (!latestAssignment) {
+      nextAssignmentDates.push(this.date);
+    }
 
     if (!nextAssignmentDates.length) return;
 
-    await models.LocationAssignment.bulkCreate(
-      nextAssignmentDates.map((date: string) => ({
+    const checkUserLeaveStatus = (date: string) => {
+      return userLeaves.some(leave => 
+        date >= leave.startDate && date <= leave.endDate
+      );
+    };
+
+    const newAssignments = nextAssignmentDates.map((date: string) => {
+      const isOnLeave = checkUserLeaveStatus(date);
+
+      return {
         userId,
         locationId,
         date,
         startTime,
         endTime,
+        status: isOnLeave ? LOCATION_ASSIGNMENT_STATUS.INACTIVE : LOCATION_ASSIGNMENT_STATUS.ACTIVE,
+        deactivationReason: isOnLeave ? 'user_on_leave' : undefined,
         templateId: this.id,
         createdBy: SYSTEM_USER_UUID,
         updatedBy: SYSTEM_USER_UUID,
-      }))
-    );
+      }
+    });
+
+    await models.LocationAssignment.bulkCreate(newAssignments);
   }
 }
