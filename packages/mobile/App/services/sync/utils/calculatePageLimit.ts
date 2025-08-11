@@ -6,12 +6,13 @@ export type DynamicLimiterSettings = {
   optimalTimePerPage?: number;
 };
 
+// These defaults are duplicated in the central settings schema mobileSync.dynamicLimiter
 export const DYNAMIC_LIMITER_DEFAULTS = {
   initialLimit: 10000,
   minLimit: 1000,
   maxLimit: 20000, // over this and we can hit heap limit on lower end devices
   maxLimitChangePerPage: 0.3, // max 30% increase from batch to batch, or it is too jumpy
-  optimalTimePerPage: 5000, // aim for 5 seconds per page
+  optimalTimePerPage: 10000, // aim for 10 seconds per page
 };
 
 // Set the current page size based on how long the previous page took to complete.

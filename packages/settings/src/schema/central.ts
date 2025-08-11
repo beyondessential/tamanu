@@ -93,18 +93,18 @@ export const centralSettings = {
             maxLimit: {
               description: 'The maximum limit for the dynamic limiter',
               type: yup.number().positive().integer(),
-              defaultValue: 20000,
+              defaultValue: 20000, // Any more than this and we can hit heap limit on lower end devices
             },
             maxLimitChangePerPage: {
               description: 'The maximum change per page for the dynamic limiter',
               type: yup.number().positive().min(0).max(1),
-              defaultValue: 0.3,
+              defaultValue: 0.3, //ax 30% increase from batch to batch, or it is too jumpy
             },
             optimalTimePerPage: {
               description: 'The optimal time per page for the dynamic limiter',
               type: yup.number().positive().integer(),
               unit: 'ms',
-              defaultValue: 5000,
+              defaultValue: 10000, // aim for 10 seconds per page
             },
           },
         },
