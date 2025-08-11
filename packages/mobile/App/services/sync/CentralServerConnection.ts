@@ -39,7 +39,7 @@ const API_PREFIX = 'api';
 
 const toRemoteError = (err: AxiosError, isLogin: boolean): Error => {
   const status = err.response?.status;
-  const error = (err.response?.data as any)?.error;
+  const error = (err.response?.data as ErrorResponse)?.error;
   if (status === 401) {
     return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
