@@ -41,6 +41,7 @@ export interface LoginResponse {
   localisation: object;
   settings: object;
   permissions: [];
+  allowedFacilities: { id: string }[] | 'ALL';
 }
 
 export type FetchOptions = {
