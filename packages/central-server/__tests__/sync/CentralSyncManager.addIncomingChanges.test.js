@@ -5,7 +5,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession, waitForPushCompleted } from '../utilities';
 
-describe('addIncomingChanges', () => {
+describe('CentralSyncManager.addIncomingChanges', () => {
   let ctx;
   let models;
   let sequelize;

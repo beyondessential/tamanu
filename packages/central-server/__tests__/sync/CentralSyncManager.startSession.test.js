@@ -4,7 +4,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { createTestContext, waitForSession } from '../utilities';
 import { cloneDeep } from 'lodash';
 
-describe('startSession', () => {
+describe('CentralSyncManager.startSession', () => {
   let ctx;
   let models;
 

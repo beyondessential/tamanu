@@ -21,7 +21,7 @@ const doImport = (options, models) => {
   });
 };
 
-describe('updateLookupTable', () => {
+describe('CentralSyncManager.updateLookupTable', () => {
   let ctx;
   let models;
 

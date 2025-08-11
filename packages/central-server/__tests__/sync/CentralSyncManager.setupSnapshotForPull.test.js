@@ -31,7 +31,7 @@ const doImport = (options, models) => {
   });
 };
 
-describe('setupSnapshotForPull', () => {
+describe('CentralSyncManager.setupSnapshotForPull', () => {
   let ctx;
   let models;
   let sequelize;

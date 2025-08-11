@@ -4,7 +4,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../utilities';
 
-describe('connectToSession', () => {
+describe('CentralSyncManager.connectToSession', () => {
   let ctx;
   let models;
 

@@ -3,7 +3,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 
 import { createTestContext, waitForSession } from '../utilities';
 
-describe('endSession', () => {
+describe('CentralSyncManager.endSession', () => {
   let ctx;
   let models;
 
