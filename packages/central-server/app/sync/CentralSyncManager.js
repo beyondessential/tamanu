@@ -601,6 +601,7 @@ export class CentralSyncManager {
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     const session = await this.connectToSession(sessionId);
+    const { isMobile } = session.parameters;
     const snapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
       this.store,
       sessionId,
@@ -608,6 +609,10 @@ export class CentralSyncManager {
       fromId,
       limit,
     );
+    // if mobile, we don't need to attach changelog to snapshot records
+    if (isMobile) {
+      return snapshotRecords;
+    }
     const { minSourceTick, maxSourceTick } = session.parameters;
     if (!minSourceTick || !maxSourceTick) {
       return snapshotRecords;
