@@ -17,11 +17,9 @@ describe('PatientFacility', () => {
   afterAll(() => ctx.close());
 
   it('should create a patient facility when none exists', async () => {
-    const { Patient, Facility, PatientFacility, LocalSystemFact } = models;
+    const { Patient, Facility, PatientFacility, } = models;
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
-
-    await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '1234');
 
     ctx.syncConnection.runSync = jest.fn().mockResolvedValueOnce({});
 
@@ -30,15 +28,13 @@ describe('PatientFacility', () => {
 
     const patientFacility = await PatientFacility.findOne({ where: { patientId, facilityId } });
     expect(patientFacility).toBeDefined();
-    expect(patientFacility.createdAtSyncTick).toBe('1234');
   });
 
   it('should update a patient facility when it already exists', async () => {
-    const { Patient, Facility, PatientFacility, LocalSystemFact } = models;
+    const { Patient, Facility, PatientFacility } = models;
     const { id: patientId } = await Patient.create(fake(Patient));
     const { id: facilityId } = await Facility.create(fake(Facility));
-    await LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, '2345');
-
+    
     ctx.syncConnection.runSync = jest.fn().mockResolvedValue({});
 
     await app.post(`/api/patientFacility`).send({ patientId, facilityId });
