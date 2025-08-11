@@ -11,7 +11,7 @@ export async function up(query: QueryInterface): Promise<void> {
   );
 }
 
-export async function down(query: QueryInterface): Promise<void> {
+export async function down(): Promise<void> {
   // It's not possible to reverse the migration to its original state,
   //
   // An edge case:
