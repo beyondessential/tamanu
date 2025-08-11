@@ -21,28 +21,26 @@ export const addCreatedAtSyncTickToPatientFacilities = async (
     return;
   }
 
-  // Get current sync tick from local system facts
-  const [currentSyncTick] = await PatientFacilityModel.sequelize.query(
-    `SELECT local_system_fact(${FACT_CURRENT_SYNC_TICK}) as currentSyncTicik`,
+  const result = (await PatientFacilityModel.sequelize.query(
+    `SELECT local_system_fact('${FACT_CURRENT_SYNC_TICK}', '0') as "currentSyncTick"`,
     {
       type: QueryTypes.SELECT,
     },
-  );
-
-  if (!currentSyncTick) {
+  )) as { currentSyncTick: string }[];
+  if (!result || result.length === 0 || !result[0]?.currentSyncTick) {
     return;
   }
+
+  const tick = result[0].currentSyncTick;
+
   // Update the changes to set created_at_sync_tick
-  const updatedChanges = relevantChanges.map(change => ({
-    ...change,
-    data: {
-      ...change.data,
-      createdAtSyncTick: currentSyncTick,
-    },
-  }));
+  const updatedChanges = relevantChanges.map(change => {
+    change.data.createdAtSyncTick = tick;
+    return change;
+  });
 
   return {
-    inserts: [],
-    updates: updatedChanges,
+    inserts: updatedChanges,
+    updates: [],
   };
 };
