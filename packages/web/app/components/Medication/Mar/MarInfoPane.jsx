@@ -10,7 +10,7 @@ import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  getDose,
+  getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { format } from 'date-fns';
@@ -115,7 +115,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
               />
             </Box>
             <Box mb={'3px'}>
-              {getDose(medication, getTranslation, getEnumTranslation)},{' '}
+              {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
               {getTranslatedFrequency(frequency, getTranslation)},{' '}
               {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
             </Box>

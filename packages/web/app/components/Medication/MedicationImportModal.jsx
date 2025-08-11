@@ -16,7 +16,7 @@ import {
   useSelectableColumn,
 } from '..';
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
-import { getDose, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { toast } from 'react-toastify';
@@ -84,7 +84,7 @@ const COLUMNS = (getTranslation, getEnumTranslation) => [
     sortable: false,
     accessor: data => (
       <Box whiteSpace={'pre'}>
-        {getDose(data, getTranslation, getEnumTranslation)}
+        {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
         {data.isPrn && ` ${getTranslation('patient.medication.table.prn', 'PRN')}`}
       </Box>
     ),

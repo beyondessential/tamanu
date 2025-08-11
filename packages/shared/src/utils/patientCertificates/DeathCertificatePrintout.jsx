@@ -43,7 +43,7 @@ const generalStyles = StyleSheet.create({
   },
 });
 
-const TableContainer = (props) => (
+const TableContainer = props => (
   <View style={[generalStyles.container, generalStyles.tableContainer]} {...props} />
 );
 
@@ -63,24 +63,19 @@ const infoBoxStyles = StyleSheet.create({
     paddingBottom: 30,
   },
   boldText: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 12,
-    fontWeight: 500,
   },
   infoText: {
-    fontFamily: 'Helvetica',
     fontSize: 12,
-    fontWeight: 400,
   },
   italicBoldText: {
-    fontFamily: 'Helvetica-BoldOblique',
+    fontStyle: 'italic',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 700,
   },
   italicText: {
-    fontFamily: 'Helvetica-Oblique',
     fontSize: 12,
-    fontWeight: 500,
+    fontWeight: 400,
   },
   underlinedText: {
     borderBottom: borderStyle,
@@ -103,9 +98,7 @@ const signStyles = StyleSheet.create({
     marginVertical: 30,
   },
   text: {
-    fontFamily: 'Helvetica-Bold',
     fontSize: 12,
-    fontWeight: 500,
     lineHeight: 1,
   },
   line: {
@@ -129,9 +122,9 @@ const signStyles = StyleSheet.create({
   },
 });
 
-const InfoBoxRow = (props) => <View style={infoBoxStyles.row} {...props} />;
+const InfoBoxRow = props => <View style={infoBoxStyles.row} {...props} />;
 
-const InfoBoxLabelCol = (props) => <View style={infoBoxStyles.labelCol} {...props} />;
+const InfoBoxLabelCol = props => <View style={infoBoxStyles.labelCol} {...props} />;
 
 const UnderlinedText = ({ text, style, props }) => (
   <View style={{ ...infoBoxStyles.infoText, ...infoBoxStyles.underlinedText, ...style }} {...props}>
@@ -156,7 +149,7 @@ const CauseField = ({ cause, label, helperText, ...props }) => {
     </View>
   );
 };
-const InfoBoxDataCol = (props) => <View style={infoBoxStyles.dataCol} {...props} />;
+const InfoBoxDataCol = props => <View style={infoBoxStyles.dataCol} {...props} />;
 
 const AuthorisedAndSignSection = () => {
   const { getTranslation } = useLanguageContext();
@@ -164,7 +157,7 @@ const AuthorisedAndSignSection = () => {
   return (
     <View style={signStyles.container}>
       <View style={signStyles.row}>
-        <P style={signStyles.text}>
+        <P bold style={signStyles.text}>
           {getTranslation(
             'pdf.deathCertificate.signature.authorisedBy',
             'Authorised by (print name)',
@@ -175,13 +168,13 @@ const AuthorisedAndSignSection = () => {
       </View>
       <View style={signStyles.row}>
         <View style={signStyles.leftCol}>
-          <Text style={signStyles.text}>
+          <Text bold style={signStyles.text}>
             {getTranslation('pdf.deathCertificate.signature.signed', 'Signed')}:{' '}
           </Text>
           <View style={signStyles.line} />
         </View>
         <View style={signStyles.rightCol}>
-          <Text style={signStyles.text}>
+          <Text bold style={signStyles.text}>
             {getTranslation('pdf.deathCertificate.signature.date', 'Date')}:
           </Text>
           <View style={signStyles.line} />
@@ -195,9 +188,9 @@ const placeOfDeathAccessor = ({ facility }) => {
   return facility?.name;
 };
 
-const getCauseName = (cause) => cause?.condition?.name;
+const getCauseName = cause => cause?.condition?.name;
 
-const getCauseInfo = (cause) => {
+const getCauseInfo = cause => {
   const name = cause?.condition?.name;
   const timeAfterOnset = cause?.timeAfterOnset;
   return { name, timeAfterOnset };
@@ -246,7 +239,7 @@ const PATIENT_DEATH_DETAILS = {
   ],
 };
 
-const SectionContainer = (props) => <View style={generalStyles.sectionContainer} {...props} />;
+const SectionContainer = props => <View style={generalStyles.sectionContainer} {...props} />;
 
 const DeathCertificatePrintoutComponent = React.memo(
   ({ patientData, certificateData, getLocalisation }) => {
@@ -330,7 +323,7 @@ const DeathCertificatePrintoutComponent = React.memo(
           <TableContainer>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles.boldText}>
+                <Text bold style={infoBoxStyles.boldText}>
                   {getTranslation('pdf.deathCertificate.causeOfDeath.primary.label.1', 'I')}
                   {'\n'}
                   {getTranslation(
@@ -343,7 +336,7 @@ const DeathCertificatePrintoutComponent = React.memo(
                     'leading to death*',
                   )}
                 </Text>
-                <Text style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
+                <Text bold style={[infoBoxStyles.italicBoldText, infoBoxStyles.marginTop]}>
                   {getTranslation(
                     'pdf.deathCertificate.antecedentCauses.label',
                     'Antecedent Causes',
@@ -408,7 +401,7 @@ const DeathCertificatePrintoutComponent = React.memo(
             </InfoBoxRow>
             <InfoBoxRow>
               <InfoBoxLabelCol>
-                <Text style={infoBoxStyles.boldText}>
+                <Text bold style={infoBoxStyles.boldText}>
                   {getTranslation('pdf.deathCertificate.contributingCauses.label.1', 'II')}
                   {'\n'}
                   {getTranslation(

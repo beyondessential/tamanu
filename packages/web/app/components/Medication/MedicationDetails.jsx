@@ -12,7 +12,7 @@ import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  getDose,
+  getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 
@@ -117,7 +117,7 @@ export const MedicationDetails = ({
   const leftDetails = [
     {
       label: <TranslatedText stringId="medication.details.dose" fallback="Dose" />,
-      value: getDose(medication, getTranslation, getEnumTranslation),
+      value: getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
     },
     {
       label: <TranslatedText stringId="medication.details.route" fallback="Route" />,

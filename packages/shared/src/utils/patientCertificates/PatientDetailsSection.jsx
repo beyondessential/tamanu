@@ -1,7 +1,7 @@
 import React from 'react';
 import { Col, LightDivider, Row } from './Layout';
 import { H3, P } from './Typography';
-import { getDob, getSex, getVillageName } from '../patientAccessors';
+import { getDobWithAge, getSex, getVillageName } from '../patientAccessors';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const patientFields = getTranslation => [
@@ -25,7 +25,7 @@ const patientFields = getTranslation => [
   {
     key: 'dateOfBirth',
     label: getTranslation('pdf.vaccineCertificate.patientDetails.dob', 'DOB'),
-    accessor: getDob,
+    accessor: getDobWithAge,
   },
   {
     key: 'villageName',
@@ -57,7 +57,7 @@ export const PatientDetailsSection = ({
             {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
               const value =
                 (accessor
-                  ? accessor(patient, { getLocalisation, getTranslation })
+                  ? accessor(patient, { getLocalisation, getTranslation, getSetting })
                   : patient[key]) || '';
               const label =
                 getTranslation(`general.localisedField.${key}.label.short`) ||

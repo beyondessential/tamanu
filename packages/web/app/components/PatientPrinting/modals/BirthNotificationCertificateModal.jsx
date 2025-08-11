@@ -11,6 +11,7 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { BirthNotificationCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useTranslation } from '../../../contexts/Translation';
+import { useSettings } from '../../../contexts/Settings';
 
 const useParent = (api, enabled, parentId) => {
   const { data: parentData, isLoading: isParentDataLoading } = useQuery(
@@ -85,9 +86,12 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   const { facilityId } = useAuth();
   const { getLocalisation } = useLocalisation();
   const { storedLanguage, translations } = useTranslation();
+  const { getSetting } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-  const { data: additionalData, isLoading: isAdditionalDataLoading } =
-    usePatientAdditionalDataQuery(patient.id);
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
   const { data: motherData, isLoading: isMotherDataLoading } = useParent(
     api,
     !!additionalData,
@@ -144,6 +148,7 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
           facility={facility}
           certificateData={certificateData}
           getLocalisation={getLocalisation}
+          getSetting={getSetting}
           language={storedLanguage}
           translations={translations}
           data-testid="birthnotificationcertificate-mwfw"

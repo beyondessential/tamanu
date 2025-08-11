@@ -1,7 +1,6 @@
 import React from 'react';
 import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
-import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
@@ -50,7 +49,6 @@ function restoreFromLocalStorage() {
 }
 
 function saveToLocalStorage({
-  token,
   localisation,
   server,
   availableFacilities,
@@ -59,9 +57,6 @@ function saveToLocalStorage({
   role,
   settings,
 }) {
-  if (token) {
-    localStorage.setItem(TOKEN, token);
-  }
   if (facilityId) {
     localStorage.setItem(FACILITY_ID, facilityId);
   }
@@ -97,15 +92,17 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  if (!error || typeof error.status !== 'number') {
+  const status = error?.response?.status;
+  if (!status || typeof status !== 'number') {
     return true;
   }
   // we don't want to show toast for 403 (no permission) errors
-  return error.status >= 400 && error.status != 403;
+  return status >= 400 && status != 403;
 }
 
 export function isErrorUnknownAllow404s(error) {
-  if (error?.status === 404) {
+  const status = error?.response?.status;
+  if (status === 404) {
     return false;
   }
   return isErrorUnknownDefault(error);
@@ -133,6 +130,15 @@ export class TamanuApi extends ApiClient {
     });
   }
 
+  setToken(token, refreshToken) {
+    if (refreshToken) {
+      localStorage.setItem(TOKEN, refreshToken);
+    } else {
+      localStorage.removeItem(TOKEN);
+    }
+    return super.setToken(token, refreshToken);
+  }
+
   async restoreSession() {
     const {
       token,
@@ -147,10 +153,11 @@ export class TamanuApi extends ApiClient {
     if (!token) {
       throw new Error('No stored session found.');
     }
-    this.setToken(token);
-    const user = await this.get('user/me');
-    this.user = user;
-    const ability = buildAbilityForUser(user, permissions);
+
+    this.setToken(null, token);
+    const config = { showUnknownErrorToast: false };
+    await this.refreshToken(config);
+    const { user, ability } = await this.fetchUserData(permissions, config);
 
     return {
       user,
@@ -167,9 +174,8 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { token, localisation, server, availableFacilities, permissions, role } = output;
+    const { localisation, server, availableFacilities, permissions, role } = output;
     saveToLocalStorage({
-      token,
       localisation,
       server,
       availableFacilities,
@@ -180,14 +186,12 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { token, settings } = await this.post('setFacility', { facilityId });
-    this.setToken(token);
+    const { settings } = await this.post('setFacility', { facilityId });
     saveToLocalStorage({
-      token,
       facilityId,
       settings,
     });
-    return { settings, token };
+    return { settings };
   }
 
   async fetch(endpoint, query, config) {

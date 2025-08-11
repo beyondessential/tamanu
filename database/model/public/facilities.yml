@@ -5,9 +5,10 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: facilities
-        description: '{{ doc("table__facilities") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__facilities') }}"
+        config:
+          tags:
+            - reference
         columns:
           - name: id
             data_type: character varying(255)
@@ -71,5 +72,10 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in facilities."
+            data_tests:
+              - not_null
+          - name: is_sensitive
+            data_type: boolean
+            description: "{{ doc('facilities__is_sensitive') }}"
             data_tests:
               - not_null

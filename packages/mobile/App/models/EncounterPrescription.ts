@@ -1,4 +1,4 @@
-import { ManyToOne, RelationId, Entity } from 'typeorm';
+import { ManyToOne, RelationId, Entity, Column } from 'typeorm';
 
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
@@ -8,6 +8,9 @@ import { Prescription } from './Prescription';
 @Entity('encounter_prescriptions')
 export class EncounterPrescription extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @Column({ nullable: false, default: false })
+  isSelectedForDischarge: boolean;
 
   @ManyToOne(() => Encounter)
   encounter: Encounter;

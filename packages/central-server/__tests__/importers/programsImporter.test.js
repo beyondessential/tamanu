@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { fake } from '@tamanu/fake-data/fake';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers/factory';
 import {
@@ -5,14 +7,14 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
 } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { programImporter } from '../../dist/admin/programImporter';
 import { autoFillConditionCategoryImport } from '../../dist/admin/programImporter/autoFillConditionCategoryImport';
 import { createTestContext } from '../utilities';
 import { makeRoleWithPermissions } from '../permissions';
 import './matchers';
-import { Op } from 'sequelize';
-import { camelCase } from 'lodash';
 import { normaliseOptions } from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
@@ -1147,7 +1149,7 @@ describe('Programs import', () => {
 
       const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
         option =>
-          `${REFERENCE_DATA_TRANSLATION_PREFIX}.programDataElement.${programDataElement.id}.option.${camelCase(option)}`,
+          getReferenceDataOptionStringId(programDataElement.id, 'programDataElement', option),
       );
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));

@@ -513,9 +513,9 @@ async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   dbtSrc.sources[0].name = docPrefix(schema, 'tamanu');
   delete dbtSrc.sources[0].__generator;
 
-  dbtSrc.sources[0].tables[0].description = `{{ doc("${docPrefix(schema, 'table')}__${
+  dbtSrc.sources[0].tables[0].description = `{{ doc('${docPrefix(schema, 'table')}__${
     sqlTable.name
-  }") }}`;
+  }') }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
   await handleColumns(schema, sqlTable.name, dbtSrc, sqlTable.columns, genericColNames);
 }
