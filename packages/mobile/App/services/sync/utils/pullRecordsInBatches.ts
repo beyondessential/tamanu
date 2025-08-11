@@ -6,7 +6,7 @@ import { type SyncRecord } from '../types';
 type PulledPage = { records: SyncRecord[]; pullTime: number };
 
 export const pullRecordsInBatches = async (
-  { centralServer, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
+  { centralServer, syncSettings, sessionId, recordTotal, progressCallback = () => {} }: PullParams,
   processRecords: (records: SyncRecord[]) => Promise<void>,
 ) => {
   if (recordTotal === 0) {
@@ -20,8 +20,9 @@ export const pullRecordsInBatches = async (
     return { records, pullTime };
   };
 
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
   let fromId: string | undefined;
-  let limit = calculatePageLimit();
+  let limit = calculatePageLimit(syncSettings?.dynamicLimiter);
   let totalPulled = 0;
   let current = await fetchPage(limit, fromId);
 
@@ -31,7 +32,7 @@ export const pullRecordsInBatches = async (
     const nextFromId = last
       ? btoa(JSON.stringify({ sortOrder: last.sortOrder, id: last.id }))
       : undefined;
-    limit = calculatePageLimit(limit, current.pullTime);
+    limit = calculatePageLimit(dynamicLimiterSettings, limit, current.pullTime);
 
     // Prefetch next page in background
     const nextPromise = nextFromId

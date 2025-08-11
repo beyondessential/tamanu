@@ -26,6 +26,7 @@ import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveInco
 import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
 import { type TransactingModel } from './utils/getModelsForDirection';
+import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
 import { type EntityManager } from 'typeorm';
 
 /**
@@ -51,6 +52,7 @@ export type MobileSyncSettings = {
   maxRecordsPerInsertBatch: number;
   maxRecordsPerSnapshotBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
+  dynamicLimiter: DynamicLimiterSettings;
 };
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
@@ -308,6 +310,7 @@ export class MobileSyncManager {
         modelsToPush,
         sessionId,
         outgoingChanges,
+        this.syncSettings,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
       );
@@ -390,15 +393,12 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
+        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         const processStreamedDataFunction = async (records: any) => {
           await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
         };
 
-        await pullRecordsInBatches(
-          pullParams,
-          processStreamedDataFunction,
-        );
+        await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
         console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
@@ -421,7 +421,10 @@ export class MobileSyncManager {
     };
     await createSnapshotTable();
     await pullRecordsInBatches(
-      { ...pullParams, progressCallback: pullProgressCallback },
+      {
+        ...pullParams,
+        progressCallback: pullProgressCallback,
+      },
       processStreamedDataFunction,
     );
 
@@ -438,7 +441,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = await sortInDependencyOrder(incomingModels) as TransactingModel[];
+        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
