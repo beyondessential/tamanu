@@ -129,7 +129,7 @@ export class CentralServerConnection {
         if (this.refreshToken && !skipAttemptRefresh) {
           await this.refresh();
           // Ensure that we don't get stuck in a loop of refreshes if the refresh token is invalid
-          const updatedConfig = { skipAttemptRefresh: true } as FetchOptions;
+          const updatedConfig: FetchOptions = { timeout, headers: extraHeaders, method, body, ...rest, skipAttemptRefresh: true };
           return this.fetch(path, query, updatedConfig);
         }
       }
