@@ -1,5 +1,5 @@
-import { DataTypes, Sequelize, type UpsertOptions } from 'sequelize';
-import { FACT_CURRENT_SYNC_TICK, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes } from 'sequelize';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
@@ -8,7 +8,6 @@ export class PatientFacility extends Model {
   declare id: string;
   declare patientId: string;
   declare facilityId: string;
-  declare lastInteractedTime: Date;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -37,34 +36,12 @@ export class PatientFacility extends Model {
             key: 'id',
           },
         },
-        lastInteractedTime: {
-          type: DataTypes.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.fn('now'),
-        },
-        createdAtSyncTick: {
-          type: DataTypes.BIGINT,
-          allowNull: false,
-          defaultValue: Sequelize.cast(
-            Sequelize.fn('local_system_fact', FACT_CURRENT_SYNC_TICK, '0'),
-            'bigint',
-          ),
-        },
       },
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
-  }
-
-  static async createOrUpdate(values: Partial<PatientFacility>, options: UpsertOptions) {
-    const [record] = await super.upsert({ ...values, lastInteractedTime: new Date() }, {
-      returning: true,
-      conflictFields: ['patient_id', 'facility_id'],
-      ...options,
-    } as UpsertOptions);
-    return record;
   }
 
   static initRelations(models: Models) {

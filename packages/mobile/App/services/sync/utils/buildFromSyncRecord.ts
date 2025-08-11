@@ -29,14 +29,6 @@ const mapFields = (mapping: [string, string][], obj: { [key: string]: unknown })
   return newObj;
 };
 
-export const pickBySelectedColumns = (
-  { data }: SyncRecord,
-  includedColumns: string[],
-): DataToPersist => {
-  const record = pick(data, includedColumns);
-  return record;
-};
-
 export const buildFromSyncRecords = (
   model: typeof BaseModel,
   records: SyncRecord[],
@@ -46,7 +38,7 @@ export const buildFromSyncRecords = (
   // (not necessary for `IdRelation`)
   const fieldMapping = getRelationIdsFieldMapping(model);
   return records.map(record =>
-    mapFields(fieldMapping, pickBySelectedColumns(record, includedColumns)),
+    mapFields(fieldMapping, pick(record.data, includedColumns)),
   );
 };
 
@@ -57,7 +49,7 @@ export const buildForRawInsertFromSyncRecords = (
   const includedColumns = extractIncludedColumns(model);
   // Skip field mapping for raw insert - keep original field names
   return records.map(record => {
-    const data = pickBySelectedColumns(record, includedColumns);
+    const data = pick(record.data, includedColumns);
     data.isDeleted = record.isDeleted;
     return data;
   });
