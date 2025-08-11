@@ -7,6 +7,7 @@ import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomLabRequest } from '@tamanu/database/demoData';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import {
   LAB_REQUEST_STATUSES,
   SETTING_KEYS,
@@ -16,7 +17,7 @@ import {
 } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
-import { createTestContext, waitForSession } from '../utilities';
+import { createTestContext, waitForSession, waitForPushCompleted } from '../utilities';
 import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
 import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
 
