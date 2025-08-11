@@ -8,6 +8,8 @@ sources:
         description: "{{ doc('table__sync_device_ticks') }}"
         config:
           tags: []
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: bigint
