@@ -2875,6 +2875,10 @@ describe('CentralSyncManager', () => {
       sensitiveFacility = await models.Facility.create(
         fake(models.Facility, { isSensitive: true }),
       );
+      await models.PatientFacility.create({
+        patientId: patient.id,
+        facilityId: sensitiveFacility.id,
+      });
       const sensitiveDepartment = await models.Department.create(
         fake(models.Department, { facilityId: sensitiveFacility.id }),
       );
@@ -2892,6 +2896,10 @@ describe('CentralSyncManager', () => {
       nonSensitiveFacility = await models.Facility.create(
         fake(models.Facility, { isSensitive: false }),
       );
+      await models.PatientFacility.create({
+        patientId: patient.id,
+        facilityId: nonSensitiveFacility.id,
+      });
       const nonSensitiveDepartment = await models.Department.create(
         fake(models.Department, { facilityId: nonSensitiveFacility.id }),
       );
@@ -3390,6 +3398,14 @@ describe('CentralSyncManager', () => {
               prescriptionId: nonSensitivePrescription.id,
             }),
           );
+        });
+
+        it("won't sync sensitive prescriptions", async () => {
+          await checkSensitiveRecordFiltering({
+            model: models.Prescription,
+            sensitiveId: sensitivePrescription.id,
+            nonSensitiveId: nonSensitivePrescription.id,
+          });
         });
 
         it("won't sync sensitive encounter prescriptions", async () => {
