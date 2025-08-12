@@ -18,7 +18,7 @@ export class ChangeLog extends Model {
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
   declare recordData: string;
-  declare migrationContext: Record<string, any> | null;
+  declare migrationContext: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -66,7 +66,7 @@ export class ChangeLog extends Model {
           allowNull: false,
         },
         migrationContext: {
-          type: DataTypes.JSONB,
+          type: DataTypes.TEXT,
           allowNull: true,
         },
       },
