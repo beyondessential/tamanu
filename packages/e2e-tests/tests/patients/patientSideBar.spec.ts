@@ -45,7 +45,7 @@ test.describe('Patient Side Bar', () => {
     );
 
     await expect(
-      patientDetailsPage.onGoingConditionNameWrapper.filter({
+      patientDetailsPage.ongoingConditionNameWrapper.filter({
         hasText: 'Required',
       }),
     ).toBeVisible();
