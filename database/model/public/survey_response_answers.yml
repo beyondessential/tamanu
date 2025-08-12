@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_survey_response_answers_changed
               - record_survey_response_answers_changelog
+              - set_survey_response_answers_updated_at
               - set_survey_response_answers_updated_at_sync_tick
         columns:
           - name: id

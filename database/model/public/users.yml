@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_users_changed
               - record_users_changelog
+              - set_users_updated_at
               - set_users_updated_at_sync_tick
         columns:
           - name: id

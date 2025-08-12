@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_death_revert_logs_changed
               - record_death_revert_logs_changelog
+              - set_death_revert_logs_updated_at
               - set_death_revert_logs_updated_at_sync_tick
         columns:
           - name: id
