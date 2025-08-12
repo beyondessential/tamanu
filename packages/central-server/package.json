@@ -103,7 +103,6 @@
     "react": "16.8.5",
     "react-dom": "16.8.5",
     "read": "^1.0.7",
-    "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sequelize": "^6.21.3",
     "socket.io": "^4.8.1",
