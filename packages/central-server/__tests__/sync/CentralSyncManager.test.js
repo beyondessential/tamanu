@@ -2876,6 +2876,7 @@ describe('CentralSyncManager', () => {
         fake(models.Facility, { isSensitive: true }),
       );
       await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
         patientId: patient.id,
         facilityId: sensitiveFacility.id,
       });
@@ -2897,6 +2898,7 @@ describe('CentralSyncManager', () => {
         fake(models.Facility, { isSensitive: false }),
       );
       await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
         patientId: patient.id,
         facilityId: nonSensitiveFacility.id,
       });
