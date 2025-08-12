@@ -578,7 +578,7 @@ export const MedicationForm = ({
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);
-      return Promise.reject({ message: 'Administration times discrepancy error' });
+      return Promise.reject();
     }
 
     const idealTimes = data.timeSlots.map(slot => slot.value);
