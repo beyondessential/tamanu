@@ -22,22 +22,19 @@ export function createMigrationInterface(log, sequelize) {
     throw new Error('Could not find migrations');
   }
 
+  // Closure context to store migration name and direction
+  const wrapContext = {};
+
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        // Extract just the filename from the full path
-        const migrationFile = updown.file || 'unknown';
-        const migrationName = migrationFile.includes('/') 
-          ? migrationFile.split('/').pop() 
-          : migrationFile;
-
         // Create migration context object
         const migrationContext = {
-          direction: updown.name,
+          direction: wrapContext.direction,
+          migrationName: wrapContext.migrationName,
           serverType: global?.serverInfo?.serverType || 'unknown',
-          migrationName,
         };
 
         // Set the migration context as a transaction variable
@@ -72,8 +69,16 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', (name) => {
+    wrapContext.direction = 'up';
+    wrapContext.migrationName = name;
+    log.info(`Applying migration: ${name}`);
+  });
+  umzug.on('reverting', (name) => {
+    wrapContext.direction = 'down';
+    wrapContext.migrationName = name;
+    log.info(`Reverting migration: ${name}`);
+  });
 
   return umzug;
 }
