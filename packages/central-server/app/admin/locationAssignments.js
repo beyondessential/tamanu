@@ -185,6 +185,81 @@ locationAssignmentsRouter.post(
   }),
 );
 
+const deleteLocationAssignmentSchema = z.object({
+  deleteFuture: z.string().optional().default('false')
+    .transform((value) => value.toLowerCase() === 'true'),
+});
+
+locationAssignmentsRouter.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'LocationSchedule');
+
+    const { id } = req.params;
+    const { user, store, db } = req;
+    const { LocationAssignment, LocationAssignmentTemplate } = store.models;
+
+    const query = await deleteLocationAssignmentSchema.parseAsync(req.query);
+
+    const assignment = await LocationAssignment.findByPk(id);
+    if (!assignment || assignment.status !== LOCATION_ASSIGNMENT_STATUS.ACTIVE) {
+      throw new InvalidOperationError('Location assignment not found');
+    }
+
+    await db.transaction(async () => {
+      if (query.deleteFuture) {
+        const templateId = assignment.templateId;
+        if (!templateId || !query.deleteFuture) {
+          return;
+        }
+
+        // Delete selected and future assignments for repeating location assignments
+        await LocationAssignment.destroy({
+          where: {
+            templateId,
+            date: { [Op.gte]: assignment.date },
+          },
+        });
+
+        const latestActiveAssignment = await LocationAssignment.findOne({
+          where: {
+            templateId,
+            status: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
+          },
+          order: [['date', 'DESC']],
+        });
+
+        // Update the repeat end date to the latest active assignment date
+        const repeatEndDate = latestActiveAssignment?.date || assignment.date;
+
+        await LocationAssignmentTemplate.update({
+          repeatEndDate,
+          updatedBy: user.id,
+        }, { 
+          where: { 
+            id: templateId,
+          } 
+        });
+      } else {
+        // Update the assignment to inactive to prevent it from being scheduled again
+        await LocationAssignment.update({
+          status: LOCATION_ASSIGNMENT_STATUS.INACTIVE,
+          deactivationReason: 'manually_deleted',
+          updatedBy: user.id,
+        },{
+          where: { 
+            id,
+          },
+        })
+      }
+    });
+
+    res.status(200).send({
+      success: true,
+    });
+  }),
+);
+
 /**
  * Create a repeating location assignment with template and generate initial assignment
  */
