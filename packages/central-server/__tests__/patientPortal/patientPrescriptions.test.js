@@ -272,6 +272,149 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       expect(prescription.medication).toHaveProperty('name', 'Ongoing Medication');
     });
 
+    it('Should only return ongoing prescriptions for the target patient (comprehensive filtering)', async () => {
+      const { Patient, PatientUser, Prescription, PatientOngoingPrescription, ReferenceData } =
+        store.models;
+
+      // Create target patient
+      const targetPatient = await Patient.create(
+        fake(Patient, {
+          displayId: 'FILTERTEST01',
+          firstName: 'Target',
+          lastName: 'Patient',
+        }),
+      );
+
+      const targetEmail = 'target.filter@test.com';
+      await PatientUser.create({
+        email: targetEmail,
+        patientId: targetPatient.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      // Create other patient
+      const otherPatient = await Patient.create(
+        fake(Patient, {
+          displayId: 'FILTERTEST02',
+          firstName: 'Other',
+          lastName: 'Patient',
+        }),
+      );
+
+      await PatientUser.create({
+        email: 'other.filter@test.com',
+        patientId: otherPatient.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      // Create medication reference data
+      const targetOngoingMed = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Target Ongoing', code: 'TONGO001' }),
+      );
+      const targetDiscontinuedMed = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Target Discontinued', code: 'TDISC001' }),
+      );
+      const otherOngoingMed = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Other Ongoing', code: 'OONGO001' }),
+      );
+      const otherDiscontinuedMed = await ReferenceData.create(
+        fake(ReferenceData, { type: 'drug', name: 'Other Discontinued', code: 'ODISC001' }),
+      );
+
+      // Create prescriptions
+      const nowIso = new Date().toISOString();
+      const targetOngoingRx = await Prescription.create({
+        medicationId: targetOngoingMed.id,
+        doseAmount: 10,
+        units: 'mg',
+        frequency: 'once daily',
+        route: 'oral',
+        date: nowIso,
+        startDate: nowIso,
+        isOngoing: true,
+        discontinued: false,
+        prescriberId: testPrescriber.id,
+      });
+
+      const targetDiscontinuedRx = await Prescription.create({
+        medicationId: targetDiscontinuedMed.id,
+        doseAmount: 10,
+        units: 'mg',
+        frequency: 'once daily',
+        route: 'oral',
+        date: nowIso,
+        startDate: nowIso,
+        isOngoing: false,
+        discontinued: true,
+        prescriberId: testPrescriber.id,
+      });
+
+      const otherOngoingRx = await Prescription.create({
+        medicationId: otherOngoingMed.id,
+        doseAmount: 10,
+        units: 'mg',
+        frequency: 'once daily',
+        route: 'oral',
+        date: nowIso,
+        startDate: nowIso,
+        isOngoing: true,
+        discontinued: false,
+        prescriberId: testPrescriber.id,
+      });
+
+      const otherDiscontinuedRx = await Prescription.create({
+        medicationId: otherDiscontinuedMed.id,
+        doseAmount: 10,
+        units: 'mg',
+        frequency: 'once daily',
+        route: 'oral',
+        date: nowIso,
+        startDate: nowIso,
+        isOngoing: false,
+        discontinued: true,
+        prescriberId: testPrescriber.id,
+      });
+
+      // Link prescriptions to patients via PatientOngoingPrescription
+      await PatientOngoingPrescription.create({
+        patientId: targetPatient.id,
+        prescriptionId: targetOngoingRx.id,
+      });
+      await PatientOngoingPrescription.create({
+        patientId: targetPatient.id,
+        prescriptionId: targetDiscontinuedRx.id,
+      });
+      await PatientOngoingPrescription.create({
+        patientId: otherPatient.id,
+        prescriptionId: otherOngoingRx.id,
+      });
+      await PatientOngoingPrescription.create({
+        patientId: otherPatient.id,
+        prescriptionId: otherDiscontinuedRx.id,
+      });
+
+      // Request as target patient
+      const targetAuth = await getPatientAuthToken(baseApp, targetEmail);
+      const response = await baseApp
+        .get('/api/portal/me/ongoing-prescriptions')
+        .set('Authorization', `Bearer ${targetAuth}`);
+
+      expect(response).toHaveSucceeded();
+      expect(Array.isArray(response.body?.data)).toBe(true);
+
+      // Should only include the target patient's ongoing prescription
+      const meds = response.body.data.map(p => p?.medication?.name);
+      expect(meds).toContain('Target Ongoing');
+      expect(meds).not.toContain('Target Discontinued');
+      expect(meds).not.toContain('Other Ongoing');
+      expect(meds).not.toContain('Other Discontinued');
+
+      // And the count should be exactly 1 for this patient
+      expect(response.body.data.length).toBe(1);
+    });
+
     it('Should handle prescription with null frequency gracefully', async () => {
       // Create another patient for this test
       const patientWithNullFrequency = await store.models.Patient.create(
