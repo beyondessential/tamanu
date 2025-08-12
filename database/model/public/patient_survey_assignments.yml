@@ -5,7 +5,7 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_survey_assignments
-        description: '{{ doc("table__patient_survey_assignments") }}'
+        description: "{{ doc('table__patient_survey_assignments') }}"
         config:
           tags: []
         columns:
@@ -57,5 +57,10 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_survey_assignments."
+            data_tests:
+              - not_null
+          - name: assigned_at
+            data_type: character(19)
+            description: "{{ doc('patient_survey_assignments__assigned_at') }}"
             data_tests:
               - not_null
