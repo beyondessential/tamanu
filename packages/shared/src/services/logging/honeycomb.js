@@ -1,5 +1,5 @@
 import Transport from 'winston-transport';
-import Libhoney from 'libhoney';
+import Libhoney from 'libhoney'; // TODO: This is apparently safe to remove but requires deletion of all honeycomb
 import config from 'config';
 import { serviceContext, serviceName } from './context';
 
