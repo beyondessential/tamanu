@@ -25,7 +25,6 @@
   },
   "devDependencies": {
     "@storybook/addon-actions": "^7.6.6",
-    "@storybook/addon-essentials": "^7.6.6",
     "@storybook/addon-links": "^7.6.6",
     "@storybook/addons": "^7.6.6",
     "@storybook/react-vite": "^7.6.6",
