@@ -44,7 +44,7 @@ patientRoute.post(
     const { models, body: patient } = req;
 
     const potentialDuplicates = await models.Patient.sequelize.query(
-      `SELECT 
+      `SELECT
         p.*,
         reference_data.name AS "villageName"
       FROM find_potential_patient_duplicates(:patient) p
@@ -517,13 +517,29 @@ patientRoute.get(
     const { PatientOngoingPrescription, Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', page, rowsPerPage } = query;
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQuery = {
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
           model: PatientOngoingPrescription,
           as: 'patientOngoingPrescription',
           where: { patientId },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
+          },
         },
       ],
     };
@@ -599,7 +615,14 @@ patientRoute.get(
       return;
     }
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const dischargeMedications = await Prescription.findAll({
+      where: medicationFilter,
       include: [
         ...Prescription.getListReferenceAssociations(),
         {
@@ -608,6 +631,15 @@ patientRoute.get(
           where: {
             isSelectedForDischarge: true,
             encounterId: lastInpatientEncounter.id,
+          },
+        },
+        {
+          model: req.models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: req.models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],

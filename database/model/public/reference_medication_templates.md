@@ -49,3 +49,7 @@ Additional notes or instructions for the medication template.
 {% docs reference_medication_templates__discharge_quantity %}
 The quantity of medication to be dispensed upon patient discharge.
 {% enddocs %}
+
+{% docs reference_medication_templates__is_ongoing %}
+A boolean indicating if the medication is ongoing
+{% enddocs %}
