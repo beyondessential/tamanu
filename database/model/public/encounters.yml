@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: encounters
-        description: '{{ doc("table__encounters") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__encounters') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_encounters_changed
+              - record_encounters_changelog
+              - set_encounters_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

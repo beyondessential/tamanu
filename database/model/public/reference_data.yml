@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_data
-        description: '{{ doc("table__reference_data") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__reference_data') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_reference_data_changed
+              - record_reference_data_changelog
+              - set_reference_data_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

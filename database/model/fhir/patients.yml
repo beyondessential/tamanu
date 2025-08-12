@@ -5,8 +5,12 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: patients
-        description: '{{ doc("fhir__table__patients") }}'
-        tags: []
+        description: "{{ doc('fhir__table__patients') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid
