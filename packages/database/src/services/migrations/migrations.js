@@ -30,6 +30,16 @@ export function createMigrationInterface(log, sequelize) {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
+        // Ensure session config functions are created, otherwise
+        // we cannot nor need adding context to changelogs.
+        const result = await sequelize.query(`
+          SELECT 1 FROM "SequelizeMeta" WHERE name LIKE '%1739969510355-sessionConfigFunctions%';
+        `);
+        const hasSessionConfigFunctions = result[0].length > 0;
+        if (!hasSessionConfigFunctions) {
+          return updown(...args);
+        }
+
         // Create migration context object
         const migrationContext = {
           direction: wrapContext.direction,
