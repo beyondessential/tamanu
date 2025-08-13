@@ -53,6 +53,9 @@ sources:
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_insurer_payments."

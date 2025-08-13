@@ -9,6 +9,7 @@ sources:
         config:
           tags: []
           meta:
+            masking: truncate
             triggers: []
         columns:
           - name: id

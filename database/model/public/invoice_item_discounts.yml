@@ -34,9 +34,15 @@ sources:
             description: "{{ doc('invoice_item_discounts__amount') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: money
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_item_discounts__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_item_discounts."

@@ -37,6 +37,9 @@ sources:
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_discounts__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: is_manual
             data_type: boolean
             description: "{{ doc('invoice_discounts__is_manual') }}"
@@ -55,6 +58,9 @@ sources:
             description: "{{ doc('invoice_discounts__applied_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_discounts."

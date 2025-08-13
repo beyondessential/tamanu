@@ -41,6 +41,9 @@ sources:
             data_tests:
               - unique
               - not_null
+            config:
+              meta:
+                masking: string
           - name: first_name
             data_type: character varying(255)
             description: "{{ doc('patients__first_name') }}"
