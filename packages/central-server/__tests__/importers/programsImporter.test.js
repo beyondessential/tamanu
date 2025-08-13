@@ -390,8 +390,8 @@ describe('Programs import', () => {
       expect(stats).toMatchObject({
         Program: { created: 1, updated: 0, errored: 0 },
         Survey: { created: 1, updated: 0, errored: 0 },
-        ProgramDataElement: { created: 16, updated: 0, errored: 0 },
-        SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+        ProgramDataElement: { created: 17, updated: 0, errored: 0 },
+        SurveyScreenComponent: { created: 17, updated: 0, errored: 0 },
       });
     });
 
@@ -1118,7 +1118,7 @@ describe('Programs import', () => {
       });
 
       // find an element with options
-      const programDataElement = await models.ProgramDataElement.findOne({
+      const programDataElements = await models.ProgramDataElement.findAll({
         where: {
           defaultOptions: {
             [Op.ne]: null,
@@ -1126,18 +1126,21 @@ describe('Programs import', () => {
         },
       });
 
-      if (!programDataElement)
-        throw new Error('No program data element with options found in vitals-valid.xlsx');
+      if (programDataElements.length === 0)
+        throw new Error('No program data elements with options found in vitals-valid.xlsx');
 
       const translations = await models.TranslatedString.findAll({
         where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
       });
       const stringIds = translations.map(translation => translation.stringId);
 
-      const expectedStringIds = normaliseOptions(programDataElement.defaultOptions).map(
-        option =>
-          getReferenceDataOptionStringId(programDataElement.id, 'programDataElement', option),
-      );
+      const expectedStringIds = programDataElements
+        .map(pde =>
+          normaliseOptions(pde.defaultOptions).map(option =>
+            getReferenceDataOptionStringId(pde.id, 'programDataElement', option),
+          ),
+        )
+        .flat();
 
       expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
