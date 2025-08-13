@@ -17,18 +17,18 @@ import {
 const locationAssignmentSchema = z.object({
   userId: z.string().uuid(),
   locationId: z.string(),
-  date: z.string().optional()
+  date: z.string()
     .refine((val) => !val || isValid(parseISO(val)), {
       message: 'Date must be a valid date string',
     }),
   startTime: z.string(),
   endTime: z.string(),
-  isRepeating: z.boolean(),
-  isNeverEnding: z.boolean(),
-  repeatEndDate: z.string().nullable(),
-  repeatFrequency: z.number().int().positive(),
-  repeatUnit: z.enum(REPEAT_FREQUENCY_VALUES),
-  occurrence: z.number().int().positive().nullable(),
+  isRepeating: z.boolean().optional().default(false),
+  isNeverEnding: z.boolean().optional().default(false),
+  repeatEndDate: z.string().nullable().optional(),
+  repeatFrequency: z.number().int().positive().optional(),
+  repeatUnit: z.enum(REPEAT_FREQUENCY_VALUES).optional(),
+  occurrence: z.number().int().positive().nullable().optional(),
 });
 
 const locationAssignmentsQuerySchema = z.object({
@@ -48,6 +48,20 @@ const locationAssignmentsQuerySchema = z.object({
     .transform((value) => value.toLowerCase() === 'true'),
 });
 
+const overlappingLeavesSchema = z.object({
+  userId: z.string().uuid(),
+  date: z.string()
+    .refine((val) => !val || isValid(parseISO(val)), {
+      message: 'Date must be a valid date string',
+    }),
+  isRepeating: z.boolean().optional().default(false),
+  isNeverEnding: z.boolean().optional().default(false),
+  repeatEndDate: z.string().nullable().optional(),
+  repeatFrequency: z.number().int().positive().optional(),
+  repeatUnit: z.enum(REPEAT_FREQUENCY_VALUES).optional(),
+  occurrence: z.number().int().positive().nullable().optional(),
+});
+
 locationAssignmentsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
@@ -56,8 +70,7 @@ locationAssignmentsRouter.get(
     const { store } = req;
     const { LocationAssignment, LocationAssignmentTemplate, User, Location } = store.models;
 
-    const { data: query, error } = await locationAssignmentsQuerySchema.safeParseAsync(req.query);
-    if (error) throw new ValidationError(error.errors.map((err) => err.message).join(', '));
+    const query = await locationAssignmentsQuerySchema.parseAsync(req.query);
 
     const { 
       after,
@@ -129,8 +142,7 @@ locationAssignmentsRouter.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'LocationSchedule');
 
-    const { data: body, error } = await locationAssignmentSchema.safeParseAsync(req.body);
-    if (error) throw new ValidationError(error.errors.map((err) => err.message).join(', '));
+    const body = await locationAssignmentSchema.parseAsync(req.body);
 
     const { user, store } = req;
     const { User, Location, LocationAssignment } = store.models;
@@ -256,6 +268,51 @@ locationAssignmentsRouter.delete(
 
     res.status(200).send({
       success: true,
+    });
+  }),
+);
+
+locationAssignmentsRouter.post(
+  '/overlapping-leaves',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'User');
+
+    const { store } = req;
+    const { UserLeave } = store.models;
+
+    const body = await overlappingLeavesSchema.parseAsync(req.body);
+
+    const assignmentDates = [body.date];
+    if (body.isRepeating) {
+      const repeatEndDate = calculateEndDate(body);
+      const futureAssignmentDates = generateFutureAssignmentDates(
+        body.date,
+        body.repeatFrequency,
+        body.repeatUnit,
+        repeatEndDate,
+      );
+
+      assignmentDates.push(...futureAssignmentDates);
+    }
+
+    const userLeaves = await UserLeave.findAll({
+      where: {
+        userId: body.userId,
+        removedAt: null,
+        endDate: { [Op.gte]: assignmentDates[0] },
+        startDate: { [Op.lte]: assignmentDates.at(-1) }
+      },
+      attributes: ['id', 'startDate', 'endDate', 'userId'],
+    });
+
+    const overlappingLeaves = userLeaves.filter((leave) => {
+      return assignmentDates.some((date) => 
+        leave.startDate <= date && date <= leave.endDate
+      );
+    });
+
+    res.send({
+      userLeaves: overlappingLeaves,
     });
   }),
 );

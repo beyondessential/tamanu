@@ -144,10 +144,8 @@ export class LocationAssignmentTemplate extends Model {
       where: {
         userId,
         removedAt: null,
-        [Op.and]: [
-          { endDate: { [Op.gte]: startDate } },
-          { startDate: { [Op.lte]: nextAssignmentDates.at(-1) } },
-        ]
+        endDate: { [Op.gte]: startDate },
+        startDate: { [Op.lte]: nextAssignmentDates.at(-1) }
       },
     });
 
