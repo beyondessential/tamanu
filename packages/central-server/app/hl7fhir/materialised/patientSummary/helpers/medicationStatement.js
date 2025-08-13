@@ -30,6 +30,7 @@ export const getMedicationStatements = async ({
             where: {
               encounterId: openEncounter.id,
             },
+            required: true,
           },
         ],
       })

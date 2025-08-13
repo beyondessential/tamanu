@@ -84,12 +84,13 @@ medications_info as (
         'discontinued', coalesce(prescription.discontinued, false),
         'discontinuedDate', prescription.discontinued_date,
         'discontinuingReason', prescription.discontinuing_reason,
-        'isSensitive', medication.is_sensitive
+        'isSensitive', coalesce(rd.is_sensitive, false)
       ) order by prescription.date desc
     ) "Medications"
   from encounter_prescriptions ep
   join prescriptions prescription on prescription.id = ep.prescription_id
   join reference_data medication on medication.id = prescription.medication_id
+  left join reference_drugs rd on rd.reference_data_id = medication.id
   where ep.encounter_id = $encounter_id
     and ep.deleted_at is null
     and prescription.deleted_at is null
