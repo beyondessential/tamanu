@@ -9,7 +9,7 @@ import {
 const TABLE = {
   tableName: 'changes',
   schema: 'logs',
-}
+};
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn(TABLE, 'migration_context', {
