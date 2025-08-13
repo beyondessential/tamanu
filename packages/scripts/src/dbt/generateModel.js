@@ -11,8 +11,11 @@ const KNOWN_TABLE_MASKING_KINDS = ['truncate'];
 const KNOWN_COLUMN_MASKING_KINDS = [
   'date',
   'datetime',
+  'default',
   'email',
   'empty',
+  'float',
+  'integer',
   'money',
   'name',
   'nil',
@@ -22,8 +25,6 @@ const KNOWN_COLUMN_MASKING_KINDS = [
   'text',
   'url',
   'zero',
-  'float',
-  'integer',
 ];
 
 /**
