@@ -164,7 +164,12 @@ export class Prescription extends Model {
     return `
       LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
       LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
-      WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
+      LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
+      WHERE (
+        (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+        OR 
+        (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+      )
       AND prescriptions.updated_at_sync_tick > :since
     `;
   }
