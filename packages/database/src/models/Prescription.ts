@@ -162,7 +162,7 @@ export class Prescription extends Model {
       return null;
     }
     return `
-      LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
+      LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
       LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
       WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
       AND prescriptions.updated_at_sync_tick > :since
