@@ -107,7 +107,9 @@ export async function upgrade({
     const beforeMigrations = onlyMigrations(step.before);
     if (
       beforeMigrations.length > 0 &&
-      beforeMigrations.every((need) => doneMigrations.some((mig) => mig.testFileName(need)))
+      beforeMigrations.every(need =>
+        doneMigrations.some(mig => mig.testFileName(migrationFile(need))),
+      )
     ) {
       logger.debug('Step has no before:Migration that has not already run, skipping');
       continue;
@@ -118,7 +120,9 @@ export async function upgrade({
     const afterMigrations = onlyMigrations(step.after);
     if (
       afterMigrations.length > 0 &&
-      afterMigrations.every((need) => doneMigrations.some((mig) => mig.testFileName(need)))
+      afterMigrations.every(need =>
+        doneMigrations.some(mig => mig.testFileName(migrationFile(need))),
+      )
     ) {
       logger.debug('Step has no after:Migration that had not already run, skipping');
       continue;
