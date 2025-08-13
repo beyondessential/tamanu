@@ -1,6 +1,10 @@
 import { DataTypes, QueryInterface } from 'sequelize';
-import { AUDIT_USERID_KEY, FACT_DEVICE_ID, FACT_CURRENT_VERSION } from '@tamanu/constants';
-import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants/database';
+import {
+  AUDIT_USERID_KEY,
+  FACT_DEVICE_ID,
+  FACT_CURRENT_VERSION,
+  AUDIT_MIGRATION_CONTEXT_KEY,
+} from '@tamanu/constants';
 
 const TABLE = {
   tableName: 'changes',
