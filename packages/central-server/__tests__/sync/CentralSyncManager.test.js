@@ -2875,11 +2875,6 @@ describe('CentralSyncManager', () => {
       sensitiveFacility = await models.Facility.create(
         fake(models.Facility, { isSensitive: true }),
       );
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient.id,
-        facilityId: sensitiveFacility.id,
-      });
       const sensitiveDepartment = await models.Department.create(
         fake(models.Department, { facilityId: sensitiveFacility.id }),
       );
@@ -2897,11 +2892,6 @@ describe('CentralSyncManager', () => {
       nonSensitiveFacility = await models.Facility.create(
         fake(models.Facility, { isSensitive: false }),
       );
-      await models.PatientFacility.create({
-        id: models.PatientFacility.generateId(),
-        patientId: patient.id,
-        facilityId: nonSensitiveFacility.id,
-      });
       const nonSensitiveDepartment = await models.Department.create(
         fake(models.Department, { facilityId: nonSensitiveFacility.id }),
       );
