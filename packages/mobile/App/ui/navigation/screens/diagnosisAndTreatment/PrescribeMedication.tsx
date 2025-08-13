@@ -150,7 +150,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigateToHistory();
   }, []);
 
-  const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
+  const canCreateSensitiveMedication = ability.can('list', 'SensitiveMedication');
   const medicationSuggester = new Suggester({
     model: ReferenceData,
     options: {

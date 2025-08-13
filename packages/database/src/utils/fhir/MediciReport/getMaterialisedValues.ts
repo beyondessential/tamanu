@@ -83,7 +83,8 @@ medications_info as (
         'name', medication.name,
         'discontinued', coalesce(prescription.discontinued, false),
         'discontinuedDate', prescription.discontinued_date,
-        'discontinuingReason', prescription.discontinuing_reason
+        'discontinuingReason', prescription.discontinuing_reason,
+        'isSensitive', medication.is_sensitive
       ) order by prescription.date desc
     ) "Medications"
   from encounter_prescriptions ep
