@@ -183,5 +183,5 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.dropTable('location_assignments');
-  await query.dropTable('location_assignment_templates');
+  await query.dropTable('location_assignment_templates', {});
 }
