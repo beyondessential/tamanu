@@ -311,7 +311,10 @@ async function generateColumnModel(schema, tableName, column, hasGenericDoc) {
     data_type: column.data_type,
     description: generateColumnModelDescription(schema, tableName, column.name, hasGenericDoc),
     data_tests: dataTests.length === 0 ? undefined : dataTests,
-    config: column.data_type === 'text' ? { meta: { masking: 'text' } } : undefined,
+    config:
+      schema.name !== 'fhir' && column.data_type === 'text'
+        ? { meta: { masking: 'text' } }
+        : undefined,
   };
 }
 
