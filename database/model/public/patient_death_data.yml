@@ -108,7 +108,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [1, 10]
+                  range: 1-10
           - name: within_day_of_birth
             data_type: boolean
             description: "{{ doc('patient_death_data__within_day_of_birth') }}"
@@ -119,7 +119,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [1, 50]
+                  range: 1-50
           - name: carrier_age
             data_type: integer
             description: "{{ doc('patient_death_data__carrier_age') }}"
@@ -127,7 +127,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [20, 50]
+                  range: 20-50
           - name: carrier_pregnancy_weeks
             data_type: integer
             description: "{{ doc('patient_death_data__carrier_pregnancy_weeks') }}"
@@ -135,7 +135,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 40]
+                  range: 0-40
           - name: carrier_existing_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__carrier_existing_condition_id') }}"
@@ -163,7 +163,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 40000]
+                  range: 0-40000
           - name: primary_cause_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__primary_cause_condition_id') }}"
@@ -179,7 +179,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 40000]
+                  range: 0-40000
           - name: antecedent_cause1_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause1_condition_id') }}"
@@ -195,7 +195,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 40000]
+                  range: 0-40000
           - name: antecedent_cause2_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause2_condition_id') }}"
@@ -236,7 +236,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 40000]
+                  range: 0-40000
           - name: antecedent_cause3_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }}"

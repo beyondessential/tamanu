@@ -50,7 +50,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [35.0, 42.0]
+                  range: 35-42
           - name: weight
             data_type: double precision
             description: "{{ doc('vitals__weight') }}"
@@ -58,7 +58,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [20.0, 120.0]
+                  range: 20-120
           - name: height
             data_type: double precision
             description: "{{ doc('vitals__height') }}"
@@ -66,7 +66,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [50.0, 220.0]
+                  range: 50-220
           - name: sbp
             data_type: double precision
             description: "{{ doc('vitals__sbp') }}"
@@ -74,7 +74,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [60.0, 150.0]
+                  range: 60-150
           - name: dbp
             data_type: double precision
             description: "{{ doc('vitals__dbp') }}"
@@ -82,7 +82,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [60.0, 150.0]
+                  range: 60-150
           - name: heart_rate
             data_type: double precision
             description: "{{ doc('vitals__heart_rate') }}"
@@ -90,7 +90,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [60.0, 200.0]
+                  range: 60-200
           - name: respiratory_rate
             data_type: double precision
             description: "{{ doc('vitals__respiratory_rate') }}"
@@ -98,7 +98,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [10.0, 100.0]
+                  range: 10-100
           - name: spo2
             data_type: double precision
             description: "{{ doc('vitals__spo2') }}"
@@ -106,7 +106,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [90.0, 100.0]
+                  range: 90-100
           - name: avpu
             data_type: user-defined
             description: "{{ doc('vitals__avpu') }}"
@@ -120,7 +120,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [3, 15]
+                  range: 3-15
           - name: hemoglobin
             data_type: double precision
             description: "{{ doc('vitals__hemoglobin') }}"
@@ -128,7 +128,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [10, 30]
+                  range: 10-30
           - name: fasting_blood_glucose
             data_type: double precision
             description: "{{ doc('vitals__fasting_blood_glucose') }}"
@@ -136,7 +136,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [4, 10]
+                  range: 4-10
           - name: urine_ph
             data_type: double precision
             description: "{{ doc('vitals__urine_ph') }}"
@@ -144,7 +144,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [3, 10]
+                  range: 3-10
           - name: urine_leukocytes
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_leukocytes') }}"
@@ -164,7 +164,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [0, 1]
+                  range: 0-1
           - name: urine_protein
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_protein') }}"
@@ -184,7 +184,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [1.001, 1.03]
+                  range: 1.001-1.03
           - name: urine_ketone
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_ketone') }}"
@@ -204,7 +204,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [0, 300]
+                  range: 0-300
           - name: date_recorded_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_recorded_legacy') }} in vitals."

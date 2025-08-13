@@ -46,7 +46,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [10000000, 99999999]
+                  range: 10000000-99999999
           - name: amount
             data_type: numeric
             description: "{{ doc('invoice_payments__amount') }}"

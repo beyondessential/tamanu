@@ -137,7 +137,7 @@ config:
   meta:
     masking:
       kind: integer
-      range: [0, 1000]
+      range: 0-10.5
 ```
 
 In the case of `money`, the value is generated as a float (for `numeric` columns) with two decimals.

@@ -45,7 +45,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [2, 10]
+                  range: 2-10
           - name: birth_length
             data_type: numeric
             description: "{{ doc('patient_birth_data__birth_length') }}"
@@ -53,7 +53,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [10, 100]
+                  range: 10-100
           - name: birth_delivery_type
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_delivery_type') }}"
@@ -74,7 +74,7 @@ sources:
               meta:
                 masking:
                   kind: float
-                  range: [30, 40]
+                  range: 30-40
           - name: apgar_score_one_minute
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_one_minute') }}"
@@ -82,7 +82,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 10]
+                  range: 0-10
           - name: apgar_score_five_minutes
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_five_minutes') }}"
@@ -90,7 +90,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 10]
+                  range: 0-10
           - name: apgar_score_ten_minutes
             data_type: integer
             description: "{{ doc('patient_birth_data__apgar_score_ten_minutes') }}"
@@ -98,7 +98,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [0, 10]
+                  range: 0-10
           - name: time_of_birth
             data_type: character(19)
             description: "{{ doc('patient_birth_data__time_of_birth') }}"

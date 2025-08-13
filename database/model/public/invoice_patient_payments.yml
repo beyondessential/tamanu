@@ -57,7 +57,7 @@ sources:
               meta:
                 masking:
                   kind: integer
-                  range: [10000000, 99999999]
+                  range: 10000000-99999999
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_patient_payments."
