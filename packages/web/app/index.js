@@ -9,6 +9,7 @@ import { API } from './api/singletons';
 import { registerYup } from './utils/errorMessages';
 import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
+import { Buffer as BufferPolyfill } from 'buffer';
 
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -37,6 +38,9 @@ function initPersistor(api, store) {
 }
 
 async function start() {
+  if (!globalThis.Buffer) {
+    globalThis.Buffer = BufferPolyfill;
+  }
   registerYup();
 
   if (BUGSNAG_API_KEY) {
