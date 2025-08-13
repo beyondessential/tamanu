@@ -104,8 +104,7 @@ sources:
             description: "{{ doc('patient_birth_data__time_of_birth') }}"
             config:
               meta:
-                masking:
-                  kind: datetime
+                masking: datetime
           - name: birth_type
             data_type: character varying(255)
             description: "{{ doc('patient_birth_data__birth_type') }}"
