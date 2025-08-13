@@ -99,7 +99,6 @@
   },
   "dependencies": {
     "@casl/ability": "^6.7.1",
-    "@honeycombio/opentelemetry-node": "^0.7.2",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.54.0",
     "@opentelemetry/resources": "^1.29.0",
