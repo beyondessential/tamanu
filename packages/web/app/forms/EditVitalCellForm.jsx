@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
+import { subject } from '@casl/ability';
 import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
@@ -120,13 +121,17 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
   const api = useApi();
   const queryClient = useQueryClient();
   const { encounter } = useEncounter();
-  const { facilityId } = useAuth();
+  const { ability, facilityId } = useAuth();
 
   const { getSetting } = useSettings();
   const isReasonMandatory = isVital
     ? getSetting(SETTING_KEYS.FEATURES_MANDATORY_VITAL_EDIT_REASON)
     : getSetting(SETTING_KEYS.FEATURES_MANDATORY_CHARTING_EDIT_REASON);
   const vitalEditReasons = getSetting(SETTING_KEYS.VITAL_EDIT_REASONS);
+  const permissionVerb = dataPoint.answerId ? 'write' : 'create';
+  const hasPermission = isVital
+    ? ability.can(permissionVerb, 'Vitals')
+    : ability.can(permissionVerb, subject('Charting', { id: dataPoint.component.surveyId }));
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);
@@ -192,13 +197,13 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
-              disabled={isDeleted}
+              disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
             />
           </Box>
           {showDeleteEntryButton && (
             <DeleteEntryButton
-              disabled={isDeleted}
+              disabled={isDeleted || !hasPermission}
               onClick={() => handleDeleteEntry(setFieldValue)}
               data-testid="deleteentrybutton-xq4v"
             />
@@ -216,6 +221,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
             name="reasonForChange"
             options={vitalEditReasons}
             style={{ gridColumn: '1 / 4' }}
+            disabled={!hasPermission}
             data-testid="field-fvqv"
           />
           <FormSeparatorLine data-testid="formseparatorline-fvhu" />
@@ -260,6 +266,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
                 data-testid="translatedtext-ghq4"
               />
             }
+            confirmDisabled={!hasPermission}
             data-testid="formsubmitcancelrow-bdsb"
           />
         </FormGrid>
