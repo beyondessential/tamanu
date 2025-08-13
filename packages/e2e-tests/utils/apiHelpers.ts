@@ -24,7 +24,13 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-export const createPatient = async (api: APIRequestContext, page: Page): Promise<Patient> => {
+export const createPatient = async (
+  api: APIRequestContext, 
+  page: Page, 
+  options: Partial<{
+    dateOfBirth: Date;
+  }> = {}
+): Promise<Patient> => {
   const patientUrl = constructFacilityUrl('/api/patient');
 
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
@@ -32,7 +38,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
 
   const patientData = {
     birthFacilityId: null,
-    dateOfBirth: faker.date.birthdate(),
+    dateOfBirth: options.dateOfBirth || faker.date.birthdate(),
     displayId: generateNHN(),
     facilityId,
     firstName: faker.person.firstName(),

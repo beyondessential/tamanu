@@ -36,6 +36,7 @@ export const DataFetchingTable = memo(
     overrideLocalisationForStorybook = false,
     hasPermission = true,
     defaultRowsPerPage = ROWS_PER_PAGE_OPTIONS[0],
+    'data-testid': dataTestId,
     ...props
   }) => {
     const [page, setPage] = useState(0);
@@ -293,7 +294,7 @@ export const DataFetchingTable = memo(
               data-testid="translatedtext-r2tx"
             />
           }
-          data-testid="table-6fs4"
+          data-testid={dataTestId}
         />
       );
     }
@@ -308,14 +309,14 @@ export const DataFetchingTable = memo(
               setShowNotification(false);
               setIsNotificationMuted(true);
             }}
-            data-testid="tablenotification-pij8"
+            data-testid={`${dataTestId}-notification`}
           />
         )}
         {enableAutoRefresh && (
           <TableRefreshButton
             lastUpdatedTime={lastUpdatedAt}
             refreshTable={manualRefresh}
-            data-testid="tablerefreshbutton-4u94"
+            data-testid={`${dataTestId}-refresh`}
           />
         )}
         <Table
@@ -342,7 +343,7 @@ export const DataFetchingTable = memo(
           lazyLoading={lazyLoading}
           ref={tableRef}
           {...props}
-          data-testid="table-4rt7"
+          data-testid={dataTestId}
         />
       </>
     );

@@ -20,9 +20,10 @@ export class PatientVaccinePane extends BasePatientPane {
   viewVaccineModal?: ViewVaccineModal;
   editVaccineModal?: EditVaccineModal;
   deleteVaccineModal?: DeleteVaccineModal;
-  readonly recordedVaccinesTableBody: Locator;
+  readonly recordedVaccinesTableWrapper: Locator;
+  readonly scheduledVaccinesTableWrapper: Locator;
   readonly vaccineNotGivenCheckbox: Locator;
-  readonly tableRowPrefix: string;
+  readonly vaccineTableRowPrefix: string;
   readonly dateFieldForSingleVaccine: Locator;
   readonly vaccineKebabMenuTestId: string;
   readonly editVaccineOption: Locator;
@@ -42,9 +43,10 @@ export class PatientVaccinePane extends BasePatientPane {
       name: 'Loading...',
     });
     this.recordedVaccinesTablePaginator = this.page.getByTestId('pagerecordcount-m8ne');
-    this.recordedVaccinesTableBody = this.page.getByTestId('styledtablebody-a0jz');
+    this.recordedVaccinesTableWrapper = this.page.getByTestId('immunisationstable-q9jd');
+    this.scheduledVaccinesTableWrapper = this.page.getByTestId('tablewrapper-rbs7');
     this.vaccineNotGivenCheckbox = this.page.getByTestId('notgivencheckbox-mz3p-controlcheck');
-    this.tableRowPrefix = `styledtablecell-2gyy-`;
+    this.vaccineTableRowPrefix = `styledtablecell-2gyy-`;
     this.dateFieldForSingleVaccine = this.page.getByTestId('styledtablecell-2gyy-0-date');
     this.vaccineKebabMenuTestId = 'openbutton-d1ec';
     this.editVaccineOption = this.page.getByTestId('item-8ybn-0');
@@ -80,9 +82,9 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error('Missing required vaccine fields');
     }
 
-    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
-    const vaccineKebabMenu = this.recordedVaccinesTableBody
-      .getByTestId(`${this.tableRowPrefix}${row}-action`)
+    const row = await this.findRowNumberForVaccine(this.recordedVaccinesTableWrapper, vaccineName, scheduleOption, this.vaccineTableRowPrefix, 'vaccineDisplayName', count);
+    const vaccineKebabMenu = this.recordedVaccinesTableWrapper
+      .getByTestId(`${this.vaccineTableRowPrefix}${row}-action`)
       .getByTestId(this.vaccineKebabMenuTestId);
     await vaccineKebabMenu.click();
   }
@@ -124,7 +126,9 @@ export class PatientVaccinePane extends BasePatientPane {
     const formattedDate = convertDateFormat(dateGiven);
 
     const correctVaccineFound = await this.searchSpecificTableRowForMatch(
+      'recordedVaccines',
       vaccineName,
+      this.vaccineTableRowPrefix,
       'vaccineDisplayName',
       count,
       vaccineName,
@@ -136,7 +140,9 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctScheduleOptionFound = await this.searchSpecificTableRowForMatch(
+      'recordedVaccines',
       scheduleOption,
+      this.vaccineTableRowPrefix,
       'schedule',
       count,
       vaccineName,
@@ -150,7 +156,9 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctDateFound = await this.searchSpecificTableRowForMatch(
+      'recordedVaccines',
       formattedDate,
+      this.vaccineTableRowPrefix,
       'date',
       count,
       vaccineName,
@@ -162,7 +170,9 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
+      'recordedVaccines',
       given ? givenBy || 'Unknown' : 'Not given',
+      this.vaccineTableRowPrefix,
       'givenBy',
       count,
       vaccineName,
@@ -174,7 +184,9 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
+      'recordedVaccines',
       'facility-1',
+      this.vaccineTableRowPrefix,
       'displayLocation',
       count,
       vaccineName,
@@ -185,9 +197,17 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
+  async assertScheduledVaccinesTable(vaccine: string, schedule: string) {
+    const rowsToSearch = 20;
+
+    const scheduledVaccine = await this.searchSpecificTableRowForMatch('scheduledVaccines', vaccine, this.vaccineTableRowPrefix, 'vaccine', rowsToSearch, vaccine, schedule);
+    console.log(scheduledVaccine);
+  }
+
   /**
    * Searches the recorded vaccine table and asserts the values for each vaccine are correct
    * @param valueToMatch - The value to match in the table, e.g. asserting the correct date is displayed
+   * @param locatorPrefix - The prefix of the locator to use to find the value in the table
    * @param locatorSuffix - The suffix of the locator to use to find the value in the table
    * @param count - The number of times to run the search
    * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
@@ -195,16 +215,32 @@ export class PatientVaccinePane extends BasePatientPane {
    * @returns True if the value is found in the table, false otherwise
    */
   async searchSpecificTableRowForMatch(
+    table: 'recordedVaccines' | 'scheduledVaccines',
     valueToMatch: string,
+    locatorPrefix: string,
     locatorSuffix: string,
     count: number,
     vaccine: string,
     scheduleOption: string,
   ) {
-    const row = await this.findRowNumberForVaccine(vaccine, scheduleOption, count);
+    let tableLocator: Locator;
+    let tableFirstRowPrefix: string;
+
+    if (table === 'recordedVaccines') {
+      tableLocator = this.recordedVaccinesTableWrapper;
+      tableFirstRowPrefix = 'vaccineDisplayName';
+    } else if (table === 'scheduledVaccines') {
+      tableLocator = this.scheduledVaccinesTableWrapper;
+      tableFirstRowPrefix = 'vaccine';
+    }
+    else {
+      throw new Error('Invalid table type');
+    }
+
+    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, locatorPrefix, tableFirstRowPrefix, count);
     //Search the specific row in the table for the value to match
-    const locator = this.recordedVaccinesTableBody.getByTestId(
-      `${this.tableRowPrefix}${row}-${locatorSuffix}`,
+    const locator = tableLocator.getByTestId(
+      `${locatorPrefix}${row}-${locatorSuffix}`,
     );
     const text = await locator.innerText();
     if (text.includes(valueToMatch)) {
@@ -217,22 +253,24 @@ export class PatientVaccinePane extends BasePatientPane {
    * Uses the unique combination of a vaccine name and schedule option to find the unique row in the table to run assertions against
    * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
    * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param locatorPrefix - The prefix of the locator to use to find the value in the table
+   * @param locatorSuffix - The suffix of the locator to use to find the value in the table
    * @param count - The number of times to run the search
    * @returns The row number of the unique vaccine name / schedule combo
    */
-  async findRowNumberForVaccine(vaccine: string, scheduleOption: string, count: number) {
+  async findRowNumberForVaccine(table: Locator, vaccine: string, scheduleOption: string, locatorPrefix: string, locatorSuffix: string, count: number) {
     let row: number | undefined;
     const timesToRun = count > 1 ? count : 1;
 
     //Find the row that contains the unique vaccine name / schedule combo and save the row number
     for (let i = 0; i < timesToRun; i++) {
-      const locator = this.recordedVaccinesTableBody.getByTestId(
-        `${this.tableRowPrefix}${i}-vaccineDisplayName`,
+      const locator = table.getByTestId(
+        `${locatorPrefix}${i}-${locatorSuffix}`,
       );
       const text = await locator.innerText();
       if (
         text.includes(vaccine) &&
-        (await this.rowScheduleOptionMatchesVaccine(scheduleOption, i))
+        (await this.rowScheduleOptionMatchesVaccine(scheduleOption, table, locatorPrefix, i))
       ) {
         row = i;
         break;
@@ -249,12 +287,13 @@ export class PatientVaccinePane extends BasePatientPane {
   /**
    * Checks if the schedule option for a specific row in the recorded vaccines table matches the schedule option given for a specific vaccine
    * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param locatorPrefix - The prefix of the locator to use to find the value in the table
    * @param row - The row number to search for, e.g. 0
    * @returns True if the schedule option matches, false otherwise
    */
-  async rowScheduleOptionMatchesVaccine(scheduleOption: string, row: number) {
-    const locator = this.recordedVaccinesTableBody.getByTestId(
-      `${this.tableRowPrefix}${row}-schedule`,
+  async rowScheduleOptionMatchesVaccine(scheduleOption: string, table: Locator, locatorPrefix: string, row: number) {
+    const locator = table.getByTestId(
+      `${locatorPrefix}${row}-schedule`,
     );
 
     const text = await locator.innerText();
@@ -275,9 +314,9 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error('Missing required vaccine fields');
     }
 
-    const row = await this.findRowNumberForVaccine(vaccineName, scheduleOption, count);
-    const viewButton = this.recordedVaccinesTableBody
-      .getByTestId(`${this.tableRowPrefix}${row}-action`)
+    const row = await this.findRowNumberForVaccine(this.recordedVaccinesTableWrapper, vaccineName, scheduleOption, this.vaccineTableRowPrefix, 'vaccineDisplayName', count);
+    const viewButton = this.recordedVaccinesTableWrapper
+      .getByTestId(`${this.vaccineTableRowPrefix}${row}-action`)
       .getByRole('button', { name: 'View' });
     const viewVaccineModal = await this.openViewVaccineModal(viewButton);
 
@@ -353,8 +392,8 @@ export class PatientVaccinePane extends BasePatientPane {
     //Iterate through the table and assert each row is in the correct order
     for (let i = 0; i < sortedVaccineNames.length; i++) {
       const sortedVaccineName = sortedVaccineNames[i];
-      const row = this.recordedVaccinesTableBody.getByTestId(
-        `${this.tableRowPrefix}${i}-vaccineDisplayName`,
+      const row = this.recordedVaccinesTableWrapper.getByTestId(
+        `${this.vaccineTableRowPrefix}${i}-vaccineDisplayName`,
       );
       await expect(row, `Vaccine ${sortedVaccineName} is not in the correct order`).toContainText(
         sortedVaccineName,

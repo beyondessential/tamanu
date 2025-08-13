@@ -592,6 +592,7 @@ class TableComponent extends React.Component {
       containerStyle,
       isBodyScrollable,
       headStyle,
+      'data-testid': dataTestId,
     } = this.props;
 
     return (
@@ -605,7 +606,7 @@ class TableComponent extends React.Component {
             ? noDataBackgroundColor
             : Colors.outline
         }
-        data-testid="styledtablecontainer-3ttp"
+        data-testid={dataTestId}
       >
         {TableHeader && TableHeader}
         <StyledTable
@@ -681,6 +682,7 @@ TableComponent.propTypes = {
   isBodyScrollable: PropTypes.bool,
   getRowTooltip: PropTypes.func,
   ExportButton: PropTypes.func,
+  'data-testid': PropTypes.string,
 };
 
 TableComponent.defaultProps = {
@@ -736,7 +738,6 @@ export const Table = React.forwardRef(
         exportName={getTranslation('general.table.action.export', exportName)}
         tableRef={ref}
         {...props}
-        data-testid="tablecomponent-9jgd"
       />
     );
   },

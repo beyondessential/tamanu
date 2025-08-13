@@ -6,6 +6,7 @@ import {
   editVaccine,
   assertEditedVaccine,
 } from '@utils/vaccineTestHelpers';
+import { createPatient } from '@utils/apiHelpers';
 
 test.describe('Vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -593,5 +594,21 @@ test.describe('Vaccines', () => {
     //Clicks the date column header to sort the table in ascending order by date
     await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
+  });
+
+  test('Vaccines scheduled based on weeks_from_birth_due display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date();
+    const patient = await createPatient(api, page, {
+      dateOfBirth: currentDate,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth');
   });
 });
