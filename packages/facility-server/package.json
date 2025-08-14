@@ -68,7 +68,6 @@
     "express-async-handler": "^1.2.0",
     "express-session": "^1.18.1",
     "express-validator": "^6.5.0",
-    "follow": "^1.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.5",
