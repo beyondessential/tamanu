@@ -2,7 +2,7 @@ import { FACT_CURRENT_SYNC_TICK, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
-import { pauseAudit } from 'utils/audit/pauseAudit';
+import { pauseAudit } from '../utils/audit/pauseAudit';
 
 interface tableOid {
   oid: number;
