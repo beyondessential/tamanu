@@ -1,15 +1,16 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, PATIENT_USER_STATUSES } from '@tamanu/constants';
 import type { InitOptions, Models } from '../types/model';
 import { Model } from './Model';
 
 export class PatientUser extends Model {
   declare id: string;
-  declare email: string;
+  declare email?: string;
   declare patientId: string;
   declare role: string;
   declare visibilityStatus: string;
+  declare status: string;
 
   forResponse() {
     return Object.assign({}, this.dataValues);
@@ -40,7 +41,7 @@ export class PatientUser extends Model {
         id: primaryKey,
         email: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
           unique: true,
         },
         role: {
@@ -59,6 +60,11 @@ export class PatientUser extends Model {
         visibilityStatus: {
           type: DataTypes.STRING,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        status: {
+          type: DataTypes.STRING,
+          defaultValue: PATIENT_USER_STATUSES.PENDING,
+          allowNull: false,
         },
       },
       {

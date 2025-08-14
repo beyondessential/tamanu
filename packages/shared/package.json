@@ -93,6 +93,11 @@
       "import": "./dist/esm/schemas/patientPortal/responses/*.js",
       "types": "./dist/esm/schemas/patientPortal/responses/*.d.ts"
     },
+    "./schemas/facility/responses/*": {
+      "require": "./dist/cjs/schemas/facility/responses/*.js",
+      "import": "./dist/esm/schemas/facility/responses/*.js",
+      "types": "./dist/esm/schemas/facility/responses/*.d.ts"
+    },
     "./*": {
       "require": "./dist/cjs/*/index.js",
       "import": "./dist/esm/*/index.js"
