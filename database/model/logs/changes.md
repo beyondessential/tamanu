@@ -66,7 +66,7 @@ This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
 {% docs logs__changes__record_created_at %}
-The `created_at` metadata from record the changelog was recoredd against
+The `created_at` metadata from record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_updated_at %}
