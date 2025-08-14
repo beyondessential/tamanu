@@ -7,6 +7,7 @@ import {
   Cloud as CloudIcon,
   Group as GroupIcon,
   Language as LanguageIcon,
+  LocationOn as LocationOnIcon,
   Person as PersonIcon,
   Settings as SettingsIcon,
   Translate as TranslateIcon,
@@ -75,6 +76,19 @@ export const CENTRAL_MENU_ITEMS = [
     ),
     path: '/admin/users',
     icon: <PersonIcon color="secondary" data-testid="peopleicon-users" />,
+  },
+  {
+    key: 'locationAssignments',
+    label: (
+      <TranslatedText
+        stringId="adminSidebar.locationAssignments"
+        fallback="Location assignments"
+        data-testid="translatedtext-locationassignments"
+      />
+    ),
+    path: '/admin/locationAssignments',
+    ability: { action: 'listOrRead', subject: 'LocationSchedule' },
+    icon: <LocationOnIcon color="secondary" data-testid="locationonicon-locationassignments" />,
   },
   {
     key: 'patientMerge',
