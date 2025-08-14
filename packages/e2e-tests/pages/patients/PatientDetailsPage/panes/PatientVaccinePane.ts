@@ -219,25 +219,22 @@ export class PatientVaccinePane extends BasePatientPane {
   ) {
     let tableLocator: Locator;
     let tableFirstColumnPrefix: string;
-    let tableRowPrefix: string;
 
     if (table === 'recordedVaccines') {
       tableLocator = this.recordedVaccinesTableWrapper;
       tableFirstColumnPrefix = 'vaccineDisplayName';
-      tableRowPrefix = this.vaccineTableRowPrefix;
     } else if (table === 'scheduledVaccines') {
       tableLocator = this.scheduledVaccinesTableWrapper;
       tableFirstColumnPrefix = 'vaccine';
-      tableRowPrefix = this.vaccineTableRowPrefix;
     }
     else {
       throw new Error('Invalid table type');
     }
 
-    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, tableRowPrefix, tableFirstColumnPrefix, count);
+    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, this.vaccineTableRowPrefix, tableFirstColumnPrefix, count);
     //Search the specific row in the table for the value to match
     const locator = tableLocator.getByTestId(
-      `${tableRowPrefix}${row}-${locatorSuffix}`,
+      `${this.vaccineTableRowPrefix}${row}-${locatorSuffix}`,
     );
     const text = await locator.innerText();
     if (text.includes(valueToMatch)) {
