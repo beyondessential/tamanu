@@ -88,3 +88,8 @@ it is expected that all data trivially round-trips via JSON.
 {% docs logs__changes__reason %}
 A string representing the reason for the change.
 {% enddocs %}
+
+{% docs logs__changes__migration_context %}
+Stores a JSON string (as type TEXT) with migration context information
+if the changelog was created from a migration.
+{% enddocs %}
