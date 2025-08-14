@@ -17,8 +17,6 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
     },
   });
 
-  console.log('Patient data:', patientData);
-
   const apiPatientUrl = constructFacilityUrl(`/api/patient`);
 
   const response = await fetch(apiPatientUrl, {
@@ -61,7 +59,7 @@ export async function getCurrentUser(token: string) {
 }
 
 export async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
-  const response = await allPatientsPage.page.evaluate((key) => {
+  const response = await allPatientsPage.page.evaluate(key => {
     return localStorage.getItem(key);
   }, item);
 
