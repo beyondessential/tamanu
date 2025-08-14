@@ -1,11 +1,11 @@
 import React from 'react';
-import { AccordionSection } from '../AccordionSection';
+import { AccordionSection } from '../../components/AccordionSection';
 import { Typography } from '@mui/material';
 import { User } from 'lucide-react';
 
 import { usePatientQuery } from '@api/queries/usePatientQuery';
-import { LabelValueList } from '../LabelValueList';
-import { StyledCircularProgress } from '../StyledCircularProgress';
+import { LabelValueList } from '../../components/LabelValueList';
+import { StyledCircularProgress } from '../../components/StyledCircularProgress';
 import { formatDate, formatSex, formatDisplayId, formatName, formatVillage } from '@utils/format';
 
 export const PatientDetailsSection = () => {

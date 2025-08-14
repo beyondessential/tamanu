@@ -2,10 +2,10 @@ import React from 'react';
 import { ListItemText, Typography } from '@mui/material';
 import { Stethoscope } from 'lucide-react';
 
-import { AccordionSection } from '../AccordionSection';
+import { AccordionSection } from '../../components/AccordionSection';
 import { useOngoingConditionsQuery } from '@api/queries/useOngoingConditionsQuery';
-import { StyledList, StyledListItem } from '../StyledList';
-import { StyledCircularProgress } from '../StyledCircularProgress';
+import { StyledList, StyledListItem } from '../../components/StyledList';
+import { StyledCircularProgress } from '../../components/StyledCircularProgress';
 
 export const OngoingConditionsSection = () => {
   const { data: conditions, isLoading } = useOngoingConditionsQuery();

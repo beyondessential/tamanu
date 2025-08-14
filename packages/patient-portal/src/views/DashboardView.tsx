@@ -5,13 +5,13 @@ import { usePatientQuery } from '@api/queries/usePatientQuery';
 import { StyledCircularProgress } from '../components/StyledCircularProgress';
 
 // Section imports
-import { OutstandingFormsSection } from '../components/sections/Forms/OutstandingFormsSection';
-import { UpcomingAppointmentsSection } from '../components/sections/Appointments/UpcomingAppointmentsSection';
-import { PatientDetailsSection } from '../components/sections/PatientDetailsSection';
-import { OngoingConditionsSection } from '../components/sections/OngoingConditionsSection';
-import { AllergiesSection } from '../components/sections/AllergiesSection';
-import { MedicationsSection } from '../components/sections/MedicationSection';
-import { VaccinationsSection } from '../components/sections/Vaccinations/VaccinationsSection';
+import { OutstandingFormsSection } from '../features/dashboard/OutstandingForms/OutstandingFormsSection';
+import { UpcomingAppointmentsSection } from '../features/dashboard/Appointments/UpcomingAppointmentsSection';
+import { PatientDetailsSection } from '../features/dashboard/PatientDetailsSection';
+import { OngoingConditionsSection } from '../features/dashboard/OngoingConditionsSection';
+import { AllergiesSection } from '../features/dashboard/AllergiesSection';
+import { MedicationsSection } from '../features/dashboard/MedicationSection';
+import { VaccinationsSection } from '../features/dashboard/Vaccinations/VaccinationsSection';
 
 export const DashboardView = () => {
   const { data: patient, isLoading } = usePatientQuery();

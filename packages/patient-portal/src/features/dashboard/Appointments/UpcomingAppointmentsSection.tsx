@@ -3,7 +3,7 @@ import { Stack, Typography, Card, CardContent, CardHeader } from '@mui/material'
 import { Calendar } from 'lucide-react';
 
 import { TAMANU_COLORS } from '@tamanu/shared/ui/theme/colors';
-import { StyledCircularProgress } from '../../StyledCircularProgress';
+import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { AppointmentCard } from './AppointmentCard';
 import { useUpcomingAppointmentsQuery } from '@api/queries/useUpcomingAppointmentsQuery';
 

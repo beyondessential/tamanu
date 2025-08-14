@@ -2,8 +2,8 @@ import React from 'react';
 import { Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { CircleCheck, Clock } from 'lucide-react';
 
-import { StyledCircularProgress } from '../../StyledCircularProgress';
-import { FormCard } from './FormCard';
+import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
+import { OutstandingFormCard } from './OutstandingFormCard';
 import { useOutstandingFormsQuery } from '@api/queries/useOutstandingFormsQuery';
 import { Colors } from '@tamanu/shared/ui/theme/colors';
 
@@ -41,7 +41,7 @@ export const OutstandingFormsSection = () => {
         ) : forms && forms.length > 0 ? (
           <Stack spacing={2}>
             {forms.map(form => (
-              <FormCard
+              <OutstandingFormCard
                 key={form.id}
                 form={form}
                 onClick={() => {

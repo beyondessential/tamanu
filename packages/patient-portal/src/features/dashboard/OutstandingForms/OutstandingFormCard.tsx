@@ -4,12 +4,12 @@ import { ChevronRight } from 'lucide-react';
 
 import type { PatientSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
 
-interface FormCardProps {
+interface OutstandingFormCardProps {
   form: PatientSurveyAssignment;
   onClick?: () => void;
 }
 
-export const FormCard: React.FC<FormCardProps> = ({ form, onClick }) => {
+export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form, onClick }) => {
   return (
     <Card variant="outlined">
       <CardActionArea onClick={onClick} disabled={!onClick}>

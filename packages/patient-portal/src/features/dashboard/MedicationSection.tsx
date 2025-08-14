@@ -1,11 +1,11 @@
 import React from 'react';
-import { AccordionSection } from '../AccordionSection';
+import { AccordionSection } from '../../components/AccordionSection';
 import { Box, styled, Typography, Card, CardContent } from '@mui/material';
 import { Pill } from 'lucide-react';
 
 import { useMedicationsQuery } from '@api/queries/useMedicationsQuery';
-import { LabelValueList } from '../LabelValueList';
-import { StyledCircularProgress } from '../StyledCircularProgress';
+import { LabelValueList } from '../../components/LabelValueList';
+import { StyledCircularProgress } from '../../components/StyledCircularProgress';
 import {
   formatDate,
   formatDose,

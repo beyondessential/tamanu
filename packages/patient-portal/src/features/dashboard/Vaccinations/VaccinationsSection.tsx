@@ -2,8 +2,8 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { Syringe } from 'lucide-react';
 
-import { AccordionSection } from '../../AccordionSection';
-import { StyledCircularProgress } from '../../StyledCircularProgress';
+import { AccordionSection } from '../../../components/AccordionSection';
+import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { useAdministeredVaccinesQuery } from '@api/queries/useAdministeredVaccinesQuery';
 import { useUpcomingVaccinesQuery } from '@api/queries/useUpcomingVaccinesQuery';
 import { RecordedVaccineCard } from './RecordedVaccineCard';

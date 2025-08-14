@@ -2,10 +2,10 @@ import React from 'react';
 import { ListItemText, Typography } from '@mui/material';
 import { Ban } from 'lucide-react';
 
-import { AccordionSection } from '../AccordionSection';
+import { AccordionSection } from '../../components/AccordionSection';
 import { useAllergiesQuery } from '@api/queries/useAllergiesQuery';
-import { StyledList, StyledListItem } from '../StyledList';
-import { StyledCircularProgress } from '../StyledCircularProgress';
+import { StyledList, StyledListItem } from '../../components/StyledList';
+import { StyledCircularProgress } from '../../components/StyledCircularProgress';
 
 export const AllergiesSection = () => {
   const { data: allergies, isLoading } = useAllergiesQuery();
