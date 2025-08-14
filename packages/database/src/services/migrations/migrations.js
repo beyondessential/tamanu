@@ -4,6 +4,7 @@ import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog } from '../../utils/audit';
 import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
+import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -30,19 +31,11 @@ export function createMigrationInterface(log, sequelize) {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
-        // Ensure session config functions are created, otherwise
-        // we cannot nor need adding context to changelogs.
-        const [result] = await sequelize.query(`
-          SELECT COUNT(*) as count
-          FROM pg_proc p
-          JOIN pg_namespace n ON p.pronamespace = n.oid
-          WHERE n.nspname = 'public'
-          AND p.proname IN ('get_session_config', 'set_session_config');
-        `);
-
-        const count = parseInt(result[0].count, 10);
-        const hasSessionConfigFunctions = count === 2;
-        if (!hasSessionConfigFunctions) {
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
+          sequelize,
+          wrapContext.migrationName,
+        );
+        if (!isMigrationContextAvailable) {
           return updown(...args);
         }
 
