@@ -32,3 +32,5 @@ export const LOCATION_ASSIGNMENT_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive',
 };
+
+export const MAX_OVERLAP_CHECK_MONTHS = 120;

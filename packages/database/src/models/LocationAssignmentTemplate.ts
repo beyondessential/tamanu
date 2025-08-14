@@ -1,7 +1,7 @@
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import { generateFutureAssignmentDates } from '@tamanu/utils/appointmentScheduling';
+import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
 import {
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
@@ -10,6 +10,8 @@ import {
   LOCATION_ASSIGNMENT_STATUS,
 } from '@tamanu/constants';
 import type { ReadSettings } from '@tamanu/settings/reader';
+import { toDateString } from '@tamanu/utils/dateTime';
+import { addMonths } from 'date-fns';
 
 export class LocationAssignmentTemplate extends Model {
   declare id: string;
@@ -102,10 +104,6 @@ export class LocationAssignmentTemplate extends Model {
   async generateRepeatingLocationAssignments(
     settings: ReadSettings
   ) {
-    const maxGenerationMonths = await settings.get(
-      'locationAssignments.maxViewableMonthsAhead' as any,
-    ) as number;
-
     const { models } = this.sequelize;
     const { UserLeave, LocationAssignment } = models;
     if (!this.sequelize.isInsideTransaction()) {
@@ -124,37 +122,44 @@ export class LocationAssignmentTemplate extends Model {
     const {
       repeatFrequency,
       repeatUnit,
-      repeatEndDate,
       userId,
       locationId,
       startTime,
       endTime,
     } = this;
 
-    if (latestAssignment && latestAssignment.date === repeatEndDate) {
-      return;
+    let endDate = this.repeatEndDate;
+    if (!endDate) {
+      const maxGenerationMonths = await settings.get(
+        'locationAssignments.maxViewableMonthsAhead' as any,
+      ) as number ?? 12;
+
+      endDate = toDateString(addMonths(new Date(), maxGenerationMonths)) ?? undefined;
+
+      if (!endDate) {
+        throw new Error('End date is invalid!');
+      }
     }
 
     const startDate = latestAssignment?.date || this.date;
-    const nextAssignmentDates = generateFutureAssignmentDates(
-      startDate, repeatFrequency, repeatUnit, repeatEndDate, maxGenerationMonths
+    const nextAssignmentDates = generateFrequencyDates(
+      startDate, endDate, repeatFrequency, repeatUnit
     ).filter(date => date !== null);
+
+    if (latestAssignment) {
+      nextAssignmentDates.shift();
+    }
+
+    if (!nextAssignmentDates.length) return;
 
     const userLeaves = await UserLeave.findAll({
       where: {
         userId,
         removedAt: null,
-        endDate: { [Op.gte]: startDate },
+        endDate: { [Op.gte]: nextAssignmentDates[0] },
         startDate: { [Op.lte]: nextAssignmentDates.at(-1) }
       },
     });
-
-     // if there is no assignment, add the first date
-    if (!latestAssignment) {
-      nextAssignmentDates.push(this.date);
-    }
-
-    if (!nextAssignmentDates.length) return;
 
     const checkUserLeaveStatus = (date: string) => {
       return userLeaves.some(leave => 
