@@ -1064,7 +1064,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         nonSensitiveFacility.id,
         'encounters',
       );
-      expect(updatedEncounterIds).toContain(encounter.id);
+      expect(updatedEncounterIds).not.toContain(encounter.id);
     });
 
     it('will keep historical non-sensitive data synced to other facilities when a facility changes to sensitive, but stop syncing new changes', async () => {
