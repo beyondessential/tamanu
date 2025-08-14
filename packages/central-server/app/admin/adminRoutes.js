@@ -71,7 +71,7 @@ adminRoutes.use('/template', templateRoutes);
 adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/users', usersRouter);
 adminRoutes.use('/location-assignments', locationAssignmentsRouter);
-adminRoutes.use('/location', locationRouter);
+adminRoutes.use('/locations', locationRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(

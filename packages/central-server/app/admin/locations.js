@@ -3,20 +3,25 @@ import asyncHandler from 'express-async-handler';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 
-export const locationRouter = express.Router();
+export const locationsRouter = express.Router();
 
-locationRouter.get(
-  '/$',
+locationsRouter.get(
+  '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Location');
+    
     const {
-      models: { LocationGroup },
-      query: { bookableOnly = false, locationGroupIds },
+      models: { LocationGroup, Facility },
+      query: { bookableOnly = false, locationGroupIds, facilityId },
     } = req;
+
+    const whereClause = {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      ...(facilityId && { facilityId }),
+    };
+
     const locations = await req.models.Location.findAll({
-      where: {
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
+      where: whereClause,
       include: [
         {
           required: true,
@@ -28,12 +33,19 @@ locationRouter.get(
             ...(locationGroupIds ? { id: { [Op.in]: locationGroupIds } } : null),
           },
         },
+        {
+          model: Facility,
+          as: 'facility',
+          attributes: ['id', 'name'],
+        },
       ],
       order: [
+        ['facility', 'name', 'ASC'],
         ['locationGroup', 'name', 'ASC'],
         ['name', 'ASC'],
       ],
     });
+    
     res.send(locations);
   }),
 );
