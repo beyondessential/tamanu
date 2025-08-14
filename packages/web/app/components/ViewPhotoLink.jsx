@@ -60,8 +60,8 @@ const Footer = ({ hasError, onDelete, onClose }) => {
         {showDeleteButton && (
           <OutlinedButton onClick={onDelete} data-testid="outlinedbutton-y5xo">
             <TranslatedText
-              stringId="general.action.delete"
-              fallback="Delete"
+              stringId="photo.action.deleteImage"
+              fallback="Delete image"
               data-testid="translatedtext-ka8c"
             />
           </OutlinedButton>
@@ -123,7 +123,9 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
     }
   }, [api, imageId, getTranslation]);
   const isChartView = !!chartTitle;
-  const title = isChartView ? `${chartTitle} | View image` : 'Image';
+  const viewImageText = getTranslation('program.modal.view.title.viewImage', 'View image');
+  const imageText = getTranslation('program.modal.view.title.image', 'Image');
+  const title = isChartView ? `${chartTitle} | ${viewImageText}` : imageText;
   const canDelete = ability.can('delete', subject('Charting', { id: surveyId }));
 
   return (
