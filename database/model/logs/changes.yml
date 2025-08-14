@@ -85,6 +85,9 @@ sources:
             description: "{{ doc('logs__changes__record_data') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('logs__generic__updated_at_sync_tick') }} in changes."

@@ -33,6 +33,9 @@ sources:
             description: "{{ doc('patient_field_values__value') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: string
           - name: definition_id
             data_type: character varying(255)
             description: "{{ doc('patient_field_values__definition_id') }}"

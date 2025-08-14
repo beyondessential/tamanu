@@ -23,6 +23,9 @@ sources:
             description: "{{ doc('refresh_tokens__refresh_id') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: string
           - name: device_id
             data_type: text
             description: "{{ doc('refresh_tokens__device_id') }}"

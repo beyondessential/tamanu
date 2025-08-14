@@ -39,6 +39,9 @@ sources:
             description: "{{ doc('death_revert_logs__revert_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: death_data_id
             data_type: character varying(255)
             description: "{{ doc('death_revert_logs__death_data_id') }}"

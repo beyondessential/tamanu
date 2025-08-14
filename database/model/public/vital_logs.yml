@@ -39,12 +39,21 @@ sources:
             description: "{{ doc('generic__date') }} in vital_logs."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: previous_value
             data_type: text
             description: "{{ doc('vital_logs__previous_value') }}"
+            config:
+              meta:
+                masking: string
           - name: new_value
             data_type: text
             description: "{{ doc('vital_logs__new_value') }}"
+            config:
+              meta:
+                masking: string
           - name: reason_for_change
             data_type: text
             description: "{{ doc('vital_logs__reason_for_change') }}"

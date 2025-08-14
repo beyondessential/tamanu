@@ -48,6 +48,9 @@ sources:
             description: "{{ doc('notifications__metadata') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: empty
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in notifications."
