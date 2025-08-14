@@ -129,9 +129,10 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
     : getSetting(SETTING_KEYS.FEATURES_MANDATORY_CHARTING_EDIT_REASON);
   const vitalEditReasons = getSetting(SETTING_KEYS.VITAL_EDIT_REASONS);
   const permissionVerb = dataPoint.answerId ? 'write' : 'create';
-  const hasPermission = isVital
-    ? ability.can(permissionVerb, 'Vitals')
-    : ability.can(permissionVerb, subject('Charting', { id: dataPoint.component.surveyId }));
+  const permissionSubject = isVital
+    ? 'Vitals'
+    : subject('Charting', { id: dataPoint.component.surveyId });
+  const hasPermission = ability.can(permissionVerb, permissionSubject);
 
   const initialValue = dataPoint.value;
   const showDeleteEntryButton = !['', undefined].includes(initialValue);
