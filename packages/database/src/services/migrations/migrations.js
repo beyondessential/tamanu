@@ -33,9 +33,15 @@ export function createMigrationInterface(log, sequelize) {
         // Ensure session config functions are created, otherwise
         // we cannot nor need adding context to changelogs.
         const result = await sequelize.query(`
-          SELECT 1 FROM "SequelizeMeta" WHERE name LIKE '%1739969510355-sessionConfigFunctions%';
+          SELECT COUNT(*) as count
+          FROM pg_proc p
+          JOIN pg_namespace n ON p.pronamespace = n.oid
+          WHERE n.nspname = 'public'
+          AND p.proname IN ('get_session_config', 'set_session_config');
         `);
-        const hasSessionConfigFunctions = result[0].length > 0;
+
+        const count = parseInt(result[0].count, 10);
+        const hasSessionConfigFunctions = count === 2;
         if (!hasSessionConfigFunctions) {
           return updown(...args);
         }
