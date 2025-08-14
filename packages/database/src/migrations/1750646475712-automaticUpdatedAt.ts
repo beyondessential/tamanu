@@ -7,11 +7,14 @@ export async function up(query: QueryInterface): Promise<void> {
      LANGUAGE plpgsql
     AS $function$
     BEGIN
-        IF (
-            NEW IS DISTINCT FROM OLD AND
-            NEW.updated_at IS NOT DISTINCT FROM OLD.updated_at
-        ) THEN
-            NEW.updated_at := current_timestamp;
+        IF (to_jsonb(NEW) ? 'updated_at') THEN
+            IF (
+                (to_jsonb(NEW) - 'updated_at') IS DISTINCT FROM (to_jsonb(OLD) - 'updated_at')
+                AND
+                (to_jsonb(NEW)->'updated_at') IS NOT DISTINCT FROM (to_jsonb(OLD)->'updated_at')
+            ) THEN
+                NEW.updated_at := current_timestamp;
+            END IF;
         END IF;
         RETURN NEW;
     END;
