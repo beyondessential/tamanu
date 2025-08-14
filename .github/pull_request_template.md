@@ -10,12 +10,6 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 
 - [ ] **Run E2E Tests** <!-- #e2e -->
 
-### Synthetic Test Environment
-
-- [ ] **Synthetic Test Environment** <!-- #synthetic-test -->
-
-**Target URL:** _Add the target URL for synthetic testing (e.g., https://your-test-environment.example.com)_
-
 ### Remember to...
 
 - ...write or update tests
