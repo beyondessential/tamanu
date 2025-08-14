@@ -7,7 +7,6 @@
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
     "test": "npm run build && tape 'tests/**/*.test.*js'",
-    "download-translations": "npm run build && node dist/downloadTranslations.js ../web/resources/strings",
     "test-determinism": "npm run build && node dist/testDeterminism.js"
   },
   "dependencies": {
