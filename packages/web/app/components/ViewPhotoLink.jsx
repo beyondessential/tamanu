@@ -60,7 +60,7 @@ const Footer = ({ hasError, onDelete, onClose }) => {
         {showDeleteButton && (
           <OutlinedButton onClick={onDelete} data-testid="outlinedbutton-y5xo">
             <TranslatedText
-              stringId="photo.modal.delete.confirmText"
+              stringId="photo.action.deleteImage"
               fallback="Delete image"
               data-testid="translatedtext-ka8c"
             />
