@@ -18,6 +18,7 @@ export class ChangeLog extends Model {
   declare recordUpdatedAt: Date;
   declare recordDeletedAt: Date | null;
   declare recordData: string;
+  declare deviceId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -38,7 +39,6 @@ export class ChangeLog extends Model {
         loggedAt: {
           type: DataTypes.DATE,
           allowNull: false,
-          defaultValue: Sequelize.fn('adjusted_timestamp'),
         },
         updatedByUserId: {
           type: DataTypes.TEXT,
@@ -62,6 +62,14 @@ export class ChangeLog extends Model {
         },
         recordData: {
           type: DataTypes.JSONB,
+          allowNull: false,
+        },
+        deviceId: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        version: {
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
