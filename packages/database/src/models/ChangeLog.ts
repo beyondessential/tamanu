@@ -19,6 +19,7 @@ export class ChangeLog extends Model {
   declare recordDeletedAt: Date | null;
   declare recordData: string;
   declare deviceId: string;
+  declare version: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
