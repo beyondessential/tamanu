@@ -99,27 +99,26 @@ describe('insertChangelogRecords', () => {
     const results = await models.ChangeLog.findAll({
       order: [['recordId', 'ASC']],
     });
-    console.log(results)
     expect(results).toHaveLength(3); // Should have 3 records (existing + 2 new)
 
     // Should ignore the change to the existing record as changelog records are immutable
     expect(results[0].recordData).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records include device/version metadata
     expect(results[1]).toMatchObject(
-      expect.objectContaining({
+{
         recordId: '2',
         tableName: 'patients',
         deviceId: 'test-device-id-2',
         version: '1.0.2',
-      }),
+},
     );
     expect(results[2]).toMatchObject(
-      expect.objectContaining({
+    {
         recordId: '3',
         tableName: 'encounters',
         deviceId: 'test-device-id-3',
         version: '1.0.3',
-      }),
+      },
     );
   });
 });
