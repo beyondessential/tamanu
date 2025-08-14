@@ -43,6 +43,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "@bugsnag/js": "^8.0.0",
     "@bugsnag/plugin-react": "^8.0.0",
     "@emotion/core": "^10.0.9",
@@ -123,7 +124,6 @@
     "typeface-roboto": "^0.0.54",
     "vite": "^5.0.12",
     "vite-plugin-json5": "^1.1.0",
-    "vite-plugin-node-polyfills": "^0.19.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yup": "^0.32.9"
   }
