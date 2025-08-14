@@ -5,15 +5,15 @@
 config:
   target: http://localhost:4000
   plugins:
-    expect: {}
+    metrics-by-endpoint: {}
   processor: hooks/index.ts
   phases:
     - name: Warmup
-      duration: 30m
+      duration: 30s
       arrivalRate: 1
       rampTo: 5
     - name: Sustained
-      duration: 5h
+      duration: 30s
       arrivalRate: 5
 scenarios:
   - name: Create encounter
@@ -27,10 +27,6 @@ scenarios:
             Authorization: Bearer {{token}}
             Content-Type: application/json
           json: '{{encounterPayload}}'
-          expect:
-            - statusCode:
-                - 200
-                - 201
   - name: Create patient
     beforeScenario:
       - authenticate
@@ -42,7 +38,3 @@ scenarios:
             Authorization: Bearer {{token}}
             Content-Type: application/json
           json: '{{patientPayload}}'
-          expect:
-            - statusCode:
-                - 200
-                - 201

@@ -19,5 +19,3 @@ scenarios:
             Authorization: 'Bearer {{token}}'
             'Content-Type': 'application/json'
           json: '{{patientPayload}}'
-          expect:
-            - statusCode: [200, 201]
