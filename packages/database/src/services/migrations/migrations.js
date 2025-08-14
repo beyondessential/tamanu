@@ -32,7 +32,7 @@ export function createMigrationInterface(log, sequelize) {
       wrap: (updown) => (...args) => sequelize.transaction(async () => {
         // Ensure session config functions are created, otherwise
         // we cannot nor need adding context to changelogs.
-        const result = await sequelize.query(`
+        const [result] = await sequelize.query(`
           SELECT COUNT(*) as count
           FROM pg_proc p
           JOIN pg_namespace n ON p.pronamespace = n.oid
