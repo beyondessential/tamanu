@@ -72,19 +72,19 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
           ORDER BY ${table}.id
           LIMIT :limit
           ON CONFLICT (record_id, record_type)
-            DO UPDATE SET
-              data = EXCLUDED.data,
-              updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
-              is_lab_request = EXCLUDED.is_lab_request,
-              patient_id = EXCLUDED.patient_id,
-              encounter_id = EXCLUDED.encounter_id,
-              facility_id = CASE 
-                WHEN EXCLUDED.facility_id IS NOT NULL THEN EXCLUDED.facility_id
-                ELSE sync_lookup.facility_id
-              END,
-              updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
-              is_deleted = EXCLUDED.is_deleted,
-              pushed_by_device_id = EXCLUDED.pushed_by_device_id
+          DO UPDATE SET
+            data = EXCLUDED.data,
+            updated_at_sync_tick = EXCLUDED.updated_at_sync_tick,
+            is_lab_request = EXCLUDED.is_lab_request,
+            patient_id = EXCLUDED.patient_id,
+            encounter_id = EXCLUDED.encounter_id,
+            facility_id = CASE 
+              WHEN EXCLUDED.facility_id IS NOT NULL THEN EXCLUDED.facility_id
+              ELSE sync_lookup.facility_id
+            END,
+            updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
+            is_deleted = EXCLUDED.is_deleted,
+            pushed_by_device_id = EXCLUDED.pushed_by_device_id
           RETURNING record_id
         )
         SELECT MAX(record_id) as "maxId",
