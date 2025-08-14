@@ -72,6 +72,7 @@ export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
+export * from './PatientSurveyAssignment';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
