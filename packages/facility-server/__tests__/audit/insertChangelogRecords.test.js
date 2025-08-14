@@ -104,21 +104,17 @@ describe('insertChangelogRecords', () => {
     // Should ignore the change to the existing record as changelog records are immutable
     expect(results[0].recordData).toEqual({ first_name: 'Patient 1' });
     // Check the inserted records include device/version metadata
-    expect(results[1]).toMatchObject(
-{
-        recordId: '2',
-        tableName: 'patients',
-        deviceId: 'test-device-id-2',
-        version: '1.0.2',
-},
-    );
-    expect(results[2]).toMatchObject(
-    {
-        recordId: '3',
-        tableName: 'encounters',
-        deviceId: 'test-device-id-3',
-        version: '1.0.3',
-      },
-    );
+    expect(results[1]).toMatchObject({
+      recordId: '2',
+      tableName: 'patients',
+      deviceId: 'test-device-id-2',
+      version: '1.0.2',
+    });
+    expect(results[2]).toMatchObject({
+      recordId: '3',
+      tableName: 'encounters',
+      deviceId: 'test-device-id-3',
+      version: '1.0.3',
+    });
   });
 });
