@@ -8,6 +8,7 @@ import { ChartForm } from '../forms/ChartForm';
 import { ChartInstanceInfoSection } from './Charting/ChartInstanceInfoSection';
 import { COMPLEX_CHART_FORM_MODES } from './Charting/constants';
 import { Colors } from '../constants';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
   margin-bottom: 20px;
@@ -31,6 +32,7 @@ export const ComplexChartModal = ({
   selectedChartSurveyName,
   coreComplexDataElements,
 }) => {
+  const isChartInstance = complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE;
   return (
     <FormModal title={title} open={open} onClose={onClose} data-testid="formmodal-mbvq">
       {complexChartFormMode === COMPLEX_CHART_FORM_MODES.RECORD_CHART_ENTRY ? (
@@ -50,6 +52,13 @@ export const ComplexChartModal = ({
         onSubmit={onSubmit}
         patient={patient}
         chartSurveyId={chartSurveyId}
+        confirmText={isChartInstance ? (
+          <TranslatedText
+            stringId="general.action.submit"
+            fallback="Submit"
+            data-testid="translatedtext-miac"
+          />
+        ) : undefined}
         data-testid="chartform-iquz"
       />
     </FormModal>
