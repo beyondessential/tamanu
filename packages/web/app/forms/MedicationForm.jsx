@@ -788,6 +788,8 @@ export const MedicationForm = ({
                 }
                 component={CheckField}
                 onChange={(_, value) => {
+                  console.log('doseAmount',values?.doseAmount);
+                  
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
                     setFieldError('doseAmount', null);
