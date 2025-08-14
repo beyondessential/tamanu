@@ -201,12 +201,12 @@ export class PatientVaccinePane extends BasePatientPane {
 
   /**
    * Searches the recorded vaccine table and asserts the values for each vaccine are correct
+   * @param table - The table to search, e.g. "recordedVaccines" or "scheduledVaccines"
    * @param valueToMatch - The value to match in the table, e.g. asserting the correct date is displayed
-   * @param locatorPrefix - The prefix of the locator to use to find the value in the table
    * @param locatorSuffix - The suffix of the locator to use to find the value in the table
    * @param count - The number of times to run the search
-   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
-   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
+   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent" (only used for scheduled vaccines)
+   * @param scheduleOption - The schedule option to search for, e.g. "10 weeks" (only used for scheduled vaccines)
    * @returns True if the value is found in the table, false otherwise
    */
   async searchSpecificTableRowForMatch(
@@ -245,6 +245,7 @@ export class PatientVaccinePane extends BasePatientPane {
 
   /**
    * Uses the unique combination of a vaccine name and schedule option to find the unique row in the table to run assertions against
+   * @param table - The locator of the table to search, e.g. "recordedVaccines" or "scheduledVaccines"
    * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
    * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
    * @param locatorPrefix - The prefix of the locator to use to find the value in the table
@@ -264,7 +265,7 @@ export class PatientVaccinePane extends BasePatientPane {
       const text = await locator.innerText();
       if (
         text.includes(vaccine) &&
-        (await this.rowScheduleOptionMatchesVaccine(scheduleOption, table, locatorPrefix, i))
+        (await this.rowScheduleOptionMatchesVaccine(table, scheduleOption, locatorPrefix, i))
       ) {
         row = i;
         break;
@@ -280,12 +281,13 @@ export class PatientVaccinePane extends BasePatientPane {
 
   /**
    * Checks if the schedule option for a specific row in the recorded vaccines table matches the schedule option given for a specific vaccine
+   * @param table - The locator of the table to search, e.g. "recordedVaccines" or "scheduledVaccines"
    * @param scheduleOption - The schedule option to search for, e.g. "10 weeks"
    * @param locatorPrefix - The prefix of the locator to use to find the value in the table
    * @param row - The row number to search for, e.g. 0
    * @returns True if the schedule option matches, false otherwise
    */
-  async rowScheduleOptionMatchesVaccine(scheduleOption: string, table: Locator, locatorPrefix: string, row: number) {
+  async rowScheduleOptionMatchesVaccine(table: Locator, scheduleOption: string, locatorPrefix: string, row: number) {
     const locator = table.getByTestId(
       `${locatorPrefix}${row}-schedule`,
     );
