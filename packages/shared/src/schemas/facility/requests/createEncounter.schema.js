@@ -16,7 +16,7 @@ export const createEncounterSchema = z.object({
   endDate: datetimeCustomValidation.optional(),
   reasonForEncounter: stringWithMaxLength.optional(),
   deviceId: stringWithMaxLength.optional(),
-  plannedLocationStartTime: datetimeCustomValidation,
+  plannedLocationStartTime: datetimeCustomValidation.optional(),
   plannedLocationId: foreignKey.optional(),
   patientBillingTypeId: foreignKey.optional(),
   referralSourceId: foreignKey.optional(),
