@@ -162,7 +162,7 @@ jobs:
           gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
             --ref "${{ inputs.pr_ref }}" \
             --field attempt="$NEXT_ATTEMPT" \
-            --field max_attempts="${{ inputs.max_attempts }}"
+            --field max_attempts="${{ inputs.max_attempts }}" \
             --field target_url="${{ inputs.target_url }}" \
             --field pr_number="${{ inputs.pr_number }}" \
             --field pr_ref="${{ inputs.pr_ref }}" \
