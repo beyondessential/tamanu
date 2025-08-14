@@ -128,7 +128,6 @@ export class PatientVaccinePane extends BasePatientPane {
     const correctVaccineFound = await this.searchSpecificTableRowForMatch(
       'recordedVaccines',
       vaccineName,
-      this.vaccineTableRowPrefix,
       'vaccineDisplayName',
       count,
       vaccineName,
@@ -142,7 +141,6 @@ export class PatientVaccinePane extends BasePatientPane {
     const correctScheduleOptionFound = await this.searchSpecificTableRowForMatch(
       'recordedVaccines',
       scheduleOption,
-      this.vaccineTableRowPrefix,
       'schedule',
       count,
       vaccineName,
@@ -158,7 +156,6 @@ export class PatientVaccinePane extends BasePatientPane {
     const correctDateFound = await this.searchSpecificTableRowForMatch(
       'recordedVaccines',
       formattedDate,
-      this.vaccineTableRowPrefix,
       'date',
       count,
       vaccineName,
@@ -172,7 +169,6 @@ export class PatientVaccinePane extends BasePatientPane {
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
       'recordedVaccines',
       given ? givenBy || 'Unknown' : 'Not given',
-      this.vaccineTableRowPrefix,
       'givenBy',
       count,
       vaccineName,
@@ -186,7 +182,6 @@ export class PatientVaccinePane extends BasePatientPane {
     const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
       'recordedVaccines',
       'facility-1',
-      this.vaccineTableRowPrefix,
       'displayLocation',
       count,
       vaccineName,
@@ -200,7 +195,7 @@ export class PatientVaccinePane extends BasePatientPane {
   async assertScheduledVaccinesTable(vaccine: string, schedule: string) {
     const rowsToSearch = 20;
 
-    const scheduledVaccine = await this.searchSpecificTableRowForMatch('scheduledVaccines', vaccine, this.vaccineTableRowPrefix, 'vaccine', rowsToSearch, vaccine, schedule);
+    const scheduledVaccine = await this.searchSpecificTableRowForMatch('scheduledVaccines', vaccine, 'vaccine', rowsToSearch, vaccine, schedule);
     console.log(scheduledVaccine);
   }
 
@@ -217,30 +212,32 @@ export class PatientVaccinePane extends BasePatientPane {
   async searchSpecificTableRowForMatch(
     table: 'recordedVaccines' | 'scheduledVaccines',
     valueToMatch: string,
-    locatorPrefix: string,
     locatorSuffix: string,
     count: number,
     vaccine: string,
     scheduleOption: string,
   ) {
     let tableLocator: Locator;
-    let tableFirstRowPrefix: string;
+    let tableFirstColumnPrefix: string;
+    let tableRowPrefix: string;
 
     if (table === 'recordedVaccines') {
       tableLocator = this.recordedVaccinesTableWrapper;
-      tableFirstRowPrefix = 'vaccineDisplayName';
+      tableFirstColumnPrefix = 'vaccineDisplayName';
+      tableRowPrefix = this.vaccineTableRowPrefix;
     } else if (table === 'scheduledVaccines') {
       tableLocator = this.scheduledVaccinesTableWrapper;
-      tableFirstRowPrefix = 'vaccine';
+      tableFirstColumnPrefix = 'vaccine';
+      tableRowPrefix = this.vaccineTableRowPrefix;
     }
     else {
       throw new Error('Invalid table type');
     }
 
-    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, locatorPrefix, tableFirstRowPrefix, count);
+    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, tableRowPrefix, tableFirstColumnPrefix, count);
     //Search the specific row in the table for the value to match
     const locator = tableLocator.getByTestId(
-      `${locatorPrefix}${row}-${locatorSuffix}`,
+      `${tableRowPrefix}${row}-${locatorSuffix}`,
     );
     const text = await locator.innerText();
     if (text.includes(valueToMatch)) {
