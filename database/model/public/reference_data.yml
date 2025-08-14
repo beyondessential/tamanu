@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_reference_data_changed
               - record_reference_data_changelog
+              - set_reference_data_updated_at
               - set_reference_data_updated_at_sync_tick
         columns:
           - name: id

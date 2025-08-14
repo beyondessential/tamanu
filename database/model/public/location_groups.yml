@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_location_groups_changed
               - record_location_groups_changelog
+              - set_location_groups_updated_at
               - set_location_groups_updated_at_sync_tick
         columns:
           - name: id

@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_appointments_changed
               - record_appointments_changelog
+              - set_appointments_updated_at
               - set_appointments_updated_at_sync_tick
         columns:
           - name: id

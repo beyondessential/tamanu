@@ -11,6 +11,7 @@ sources:
           meta:
             triggers:
               - notify_changes_changed
+              - set_changes_updated_at
               - set_changes_updated_at_sync_tick
         columns:
           - name: id

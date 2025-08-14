@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_encounter_pause_prescription_histories_changed
               - record_encounter_pause_prescription_histories_changelog
+              - set_encounter_pause_prescription_histories_updated_at
               - set_encounter_pause_prescription_histories_updated_at_sync_tick
         columns:
           - name: id

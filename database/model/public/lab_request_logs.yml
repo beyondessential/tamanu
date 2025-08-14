@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_lab_request_logs_changed
               - record_lab_request_logs_changelog
+              - set_lab_request_logs_updated_at
               - set_lab_request_logs_updated_at_sync_tick
         columns:
           - name: id

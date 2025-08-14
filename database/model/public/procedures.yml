@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_procedures_changed
               - record_procedures_changelog
+              - set_procedures_updated_at
               - set_procedures_updated_at_sync_tick
         columns:
           - name: id

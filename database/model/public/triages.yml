@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_triages_changed
               - record_triages_changelog
+              - set_triages_updated_at
               - set_triages_updated_at_sync_tick
         columns:
           - name: id

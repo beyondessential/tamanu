@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_patients_changed
               - record_patients_changelog
+              - set_patients_updated_at
               - set_patients_updated_at_sync_tick
         columns:
           - name: id

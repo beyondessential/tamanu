@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_encounter_diets_changed
               - record_encounter_diets_changelog
+              - set_encounter_diets_updated_at
               - set_encounter_diets_updated_at_sync_tick
         columns:
           - name: id

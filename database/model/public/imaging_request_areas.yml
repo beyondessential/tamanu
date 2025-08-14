@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_imaging_request_areas_changed
               - record_imaging_request_areas_changelog
+              - set_imaging_request_areas_updated_at
               - set_imaging_request_areas_updated_at_sync_tick
         columns:
           - name: id

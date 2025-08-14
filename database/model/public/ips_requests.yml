@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_ips_requests_changed
               - record_ips_requests_changelog
+              - set_ips_requests_updated_at
               - set_ips_requests_updated_at_sync_tick
         columns:
           - name: id

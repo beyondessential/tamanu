@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_migrations_changed
               - record_migrations_changelog
+              - set_migrations_updated_at
               - set_migrations_updated_at_sync_tick
         columns:
           - name: id

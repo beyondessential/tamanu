@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_invoice_item_discounts_changed
               - record_invoice_item_discounts_changelog
+              - set_invoice_item_discounts_updated_at
               - set_invoice_item_discounts_updated_at_sync_tick
         columns:
           - name: id

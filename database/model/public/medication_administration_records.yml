@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_medication_administration_records_changed
               - record_medication_administration_records_changelog
+              - set_medication_administration_records_updated_at
               - set_medication_administration_records_updated_at_sync_tick
         columns:
           - name: id

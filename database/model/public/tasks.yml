@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_tasks_changed
               - record_tasks_changelog
+              - set_tasks_updated_at
               - set_tasks_updated_at_sync_tick
         columns:
           - name: id

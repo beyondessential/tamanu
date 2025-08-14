@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_reference_drugs_changed
               - record_reference_drugs_changelog
+              - set_reference_drugs_updated_at
               - set_reference_drugs_updated_at_sync_tick
         columns:
           - name: id

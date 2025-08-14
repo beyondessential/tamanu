@@ -14,6 +14,7 @@ sources:
             triggers:
               - notify_vitals_changed
               - record_vitals_changelog
+              - set_vitals_updated_at
               - set_vitals_updated_at_sync_tick
         columns:
           - name: id

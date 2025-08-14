@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_encounters_changed
               - record_encounters_changelog
+              - set_encounters_updated_at
               - set_encounters_updated_at_sync_tick
         columns:
           - name: id

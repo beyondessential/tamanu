@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_imaging_area_external_codes_changed
               - record_imaging_area_external_codes_changelog
+              - set_imaging_area_external_codes_updated_at
               - set_imaging_area_external_codes_updated_at_sync_tick
         columns:
           - name: id

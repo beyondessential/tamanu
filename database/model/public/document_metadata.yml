@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_document_metadata_changed
               - record_document_metadata_changelog
+              - set_document_metadata_updated_at
               - set_document_metadata_updated_at_sync_tick
         columns:
           - name: id

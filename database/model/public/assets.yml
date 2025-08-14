@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_assets_changed
               - record_assets_changelog
+              - set_assets_updated_at
               - set_assets_updated_at_sync_tick
         columns:
           - name: id
