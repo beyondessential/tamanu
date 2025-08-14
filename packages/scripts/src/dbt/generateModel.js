@@ -277,7 +277,7 @@ async function generateDataTests(column) {
 }
 
 /**
- * @param {object} schema
+ * @param {{ name: string; path: string }} schema
  * @param {string} kind
  * @returns {string} The prefix to use for doc keys.
  */
@@ -332,7 +332,7 @@ function generateColumnDoc(column) {
 }
 
 /**
- * @param {string} schemaName
+ * @param {{ name: string; path: string }} schema
  * @param {{ name: string; oid: number; columns: object[]; triggers: string[] }} table
  * @param {string[]} genericColNames
  * @returns A table object, directly serialisable as dbt model.
@@ -352,7 +352,7 @@ async function generateTableModel(schema, table, genericColNames) {
             config: {
               tags: [],
               meta: {
-                masking: schema === 'fhir' ? 'truncate' : undefined,
+                masking: schema.name === 'fhir' ? 'truncate' : undefined,
                 triggers: table.triggers,
               },
             },
@@ -488,7 +488,7 @@ async function handleRemovedTable(schema, table) {
 /**
  * Generates the given table's source model and its document if missing. Then it writes as files.
  *
- * @param {object} schema
+ * @param {{ name: string; path: string }} schema
  * @param {object} table
  * @param {string[]} genericColNames
  */
