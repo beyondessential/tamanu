@@ -15,7 +15,7 @@
     "commander": "^9.0.0",
     "config": "^3.3.9",
     "inflection": "^1.13.4",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.21",
     "pg": "^8.5.1",
     "pgsql-ast-parser": "^11.1.0",
     "rimraf": "^6.0.1",
