@@ -50,13 +50,6 @@
     "color": true,
     "timeless": false,
   },
-  "honeycomb": {
-    "apiKey": "",
-    "sampleRate": 100, // 100 = 1/100 = 1% of traces get sent to honeycomb
-    // in contrast, logs are always sent
-    "enabled": true,
-    "level": "info"
-  },
   errors: {
     // enable to send errors to a bug tracking service
     enabled: false,
