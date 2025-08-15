@@ -49,7 +49,6 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
     ) WITH (
       autovacuum_enabled = off
     );
-    CREATE INDEX ${indexNamePrefix}_direction_index ON ${tableName}(direction);
     CREATE INDEX ${indexNamePrefix}_dir_id_idx ON ${tableName}(direction, id) INCLUDE (record_type);
     CREATE INDEX ${indexNamePrefix}_dir_rec_id_idx ON ${tableName}(direction, record_type, id);
   `);
