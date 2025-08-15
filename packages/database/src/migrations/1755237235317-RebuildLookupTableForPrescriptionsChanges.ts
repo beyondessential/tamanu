@@ -22,6 +22,6 @@ export async function up(query: QueryInterface): Promise<void> {
   `);
 }
 
-export async function down(query: QueryInterface): Promise<void> {
-  // write your down migration here
+export async function down(): Promise<void> {
+  // No reverse migration
 }
