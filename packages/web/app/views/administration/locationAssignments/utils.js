@@ -1,5 +1,7 @@
 import { formatISO } from 'date-fns';
 
+import { THIS_WEEK_ID } from './LocationAssignmentsCalendarHeader';
+
 export const partitionAssignmentsByLocation = (assignments) => {
   const result = {};
   for (const assignment of assignments) {
@@ -22,3 +24,18 @@ export const partitionAssignmentsByDate = (assignments) => {
 
 export const generateIdFromCell = ({ locationId, date }) =>
   `location-assignments-cell-${locationId}-${formatISO(date, { representation: 'date' })}`;
+
+export const scrollToThisWeek = (scrollIntoViewOptions) =>
+  document
+    .getElementById(THIS_WEEK_ID)
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
+
+export const scrollToBeginning = (scrollToOptions) => {
+  const calendarElement = document.getElementById('location-assignments-calendar');
+  return calendarElement?.scroll({ left: 0, ...scrollToOptions });
+};
+
+export const scrollToCell = (cell, scrollIntoViewOptions) =>
+  document
+    .getElementById(generateIdFromCell(cell))
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });

@@ -1,6 +1,5 @@
 import {
   eachDayOfInterval,
-  endOfDay,
   endOfMonth,
   endOfWeek,
   startOfMonth,
@@ -9,9 +8,6 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
-
-import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
@@ -19,7 +15,6 @@ import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignm
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
-import { partitionAssignmentsByLocation } from './utils';
 
 const getDisplayableDates = (date) => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -80,40 +75,19 @@ const emptyStateMessage = (
 
 export const LocationAssignmentsCalendar = ({
   locationsQuery,
-  openAssignmentForm,
+  id,
   ...props
 }) => {
   const { monthOf, setMonthOf } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
-  const {
-    filters: { userId },
-  } = useLocationAssignmentsContext();
-  // When filtering only by location, don't hide locations that contain no assignments
-  const areNonLocationFiltersActive = userId?.length > 0;
-  const { data: locations } = locationsQuery;
+  const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
 
-  const { data: assignmentsData } = useLocationAssignmentsQuery(
-    {
-      after: toDateTimeString(displayedDates[0]),
-      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
-      all: true,
-      ...(userId?.length > 0 && { userId: userId[0] }),
-    },
-    { keepPreviousData: true },
-  );
-  const assignments = assignmentsData?.data ?? [];
-  const assignmentsByLocation = partitionAssignmentsByLocation(assignments);
-  console.log('assignmentsByLocation', assignmentsByLocation);
-  const filteredLocations = areNonLocationFiltersActive
-    ? locations?.filter((location) => assignmentsByLocation[location.id])
-    : locations;
-  console.log('filteredLocations', filteredLocations);
   return (
     <>
       <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
-        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
+        <CarouselGrid.Root id={id} $dayCount={displayedDates.length} data-testid="root-nqxn">
           <LocationAssignmentsCalendarHeader
             monthOf={monthOf}
             setMonthOf={setMonthOf}
@@ -121,16 +95,14 @@ export const LocationAssignmentsCalendar = ({
             data-testid="locationassignmentscalendarheader-yzb4"
           />
           <LocationAssignmentsCalendarBody
-            assignmentsByLocation={assignmentsByLocation}
             displayedDates={displayedDates}
-            filteredLocations={filteredLocations}
-            locationsQuery={locationsQuery}
-            openAssignmentForm={openAssignmentForm}
+            locations={locations}
+            isLocationsLoading={isLocationsLoading}
             data-testid="locationassignmentscalendarbody-4f9q"
           />
         </CarouselGrid.Root>
       </Carousel>
-      {filteredLocations?.length === 0 && emptyStateMessage}
+      {locations?.length === 0 && emptyStateMessage}
     </>
   );
 };

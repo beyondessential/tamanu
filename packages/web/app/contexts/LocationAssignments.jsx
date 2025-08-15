@@ -5,33 +5,11 @@ import {
   scrollToBeginning,
   scrollToCell,
   scrollToThisWeek,
-} from '../views/scheduling/locationBookings/utils';
-import { useUserPreferencesQuery } from '../api/queries';
-import { useUrlSearchParams } from '../utils/useUrlSearchParams';
+} from '../views/administration/locationAssignments/utils';
 
 const LocationAssignmentsContext = createContext(null);
 
-export const LOCATION_ASSIGNMENTS_EMPTY_FILTER_STATE = {
-  locationGroupIds: [],
-  userId: [],
-};
-
 export const LocationAssignmentsContextProvider = ({ children }) => {
-  const queryParams = useUrlSearchParams();
-  const userId = queryParams.get('userId');
-  const { data: userPreferences } = useUserPreferencesQuery();
-  const [filters, setFilters] = useState(LOCATION_ASSIGNMENTS_EMPTY_FILTER_STATE);
-
-  useEffect(() => {
-    if (!userPreferences?.locationAssignmentFilters) return;
-    setFilters(userPreferences?.locationAssignmentFilters);
-  }, [userPreferences]);
-
-  useEffect(() => {
-    if (!userId) return;
-    setFilters((filters) => ({ ...filters, userId: [userId] }));
-  }, [userId]);
-
   const [selectedCell, setSelectedCell] = useState({
     locationId: null,
     date: null,
@@ -52,8 +30,8 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
     [monthOf],
   );
 
-  const updateSelectedCell = (newCellData) => {
-    setSelectedCell((prevCell) => {
+  const updateSelectedCell = newCellData => {
+    setSelectedCell(prevCell => {
       const updatedCell = { ...prevCell, ...newCellData };
 
       const { date, locationId } = updatedCell;
@@ -72,8 +50,6 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
   return (
     <LocationAssignmentsContext.Provider
       value={{
-        filters,
-        setFilters,
         selectedCell,
         updateSelectedCell,
         monthOf,
