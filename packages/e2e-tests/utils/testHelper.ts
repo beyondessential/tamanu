@@ -1,5 +1,7 @@
-import { Locator } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { subYears, addYears, format } from 'date-fns';
+
+const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
