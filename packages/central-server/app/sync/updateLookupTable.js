@@ -113,7 +113,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
 };
 
 export const updateLookupTable = withConfig(
-  async (outgoingModels, since, config, syncLookupTick, debugObject) => {
+  async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
         (m) =>
@@ -132,16 +132,22 @@ export const updateLookupTable = withConfig(
     const sessionConfig = {};
 
     let changesCount = 0;
+    const modelsToRebuild = await models.LocalSystemFact.getLookupModelsToRebuild();
 
     for (const model of Object.values(outgoingModels)) {
       try {
+        const shouldFullyRebuild = modelsToRebuild.includes(model.tableName);
         const modelChangesCount = await updateLookupTableForModel(
           model,
           config,
-          since,
+          shouldFullyRebuild ? 0 : since,
           sessionConfig,
           syncLookupTick,
         );
+
+        if (shouldFullyRebuild) {
+          await models.LocalSystemFact.markLookupModelRebuilt(model.tableName);
+        }
 
         changesCount += modelChangesCount || 0;
       } catch (e) {
