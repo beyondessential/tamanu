@@ -1,6 +1,7 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
+import { addWeeks, startOfWeek, format } from 'date-fns';
 
 /**
  * Adds a vaccine to the patient's vaccine record and asserts the vaccine was added successfully
@@ -162,4 +163,32 @@ export async function assertEditedVaccine(
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.closeModalButton.click();
+}
+
+//TODO: eventually remove these console logs if it works on mornings as well as afternoon
+//TODO: the console logs are currently commented out unless needed for debugging
+export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
+  //TODO: delete these console logs
+ // console.log('date', date);
+  const dueDate = addWeeks(date, weeksToAdd);
+ // console.log('dueDate', dueDate);
+
+  // Extract just the date components to avoid timezone issues
+  const year = dueDate.getUTCFullYear();
+  const month = dueDate.getUTCMonth();
+  const day = dueDate.getUTCDate();
+  
+  // Create a local date object for startOfWeek
+  const localDate = new Date(year, month, day);
+  const weekStart = startOfWeek(localDate, { weekStartsOn: 1 });
+//  console.log('weekStart', weekStart);
+  
+  // Convert result back to UTC
+  const utcWeekStart = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+ // console.log('utcWeekStart', utcWeekStart);
+
+  const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
+  console.log('formattedUtcWeekStart', formattedUtcWeekStart);
+  
+  return formattedUtcWeekStart;
 }

@@ -5,10 +5,12 @@ import {
   triggerDateError,
   editVaccine,
   assertEditedVaccine,
+  expectedDueDateWeek,
 } from '@utils/vaccineTestHelpers';
 import { createPatient } from '@utils/apiHelpers';
+import { scrollTableToBottom } from '@utils/tableHelper';
 
-test.describe('Vaccines', () => {
+test.describe('Recorded vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.navigateToVaccineTab();
@@ -596,12 +598,18 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
   });
 
-  test('Vaccines scheduled based on weeks_from_birth_due display', async ({
+
+});
+
+//TODO: test recording vaccines from here
+//TODO: is it worth moving the patient generation / navigation to a beforeEach?
+test.describe('Scheduled vaccines', () => {
+  test('Vaccines scheduled at birth display', async ({
     page,
     api,
     patientDetailsPage,
   }) => {
-    const currentDate = new Date();
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
     });
@@ -609,6 +617,43 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
 
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth');
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth', await expectedDueDateWeek(currentDate, 1), 'Due');
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Hep B', 'Birth', await expectedDueDateWeek(currentDate, 1), 'Due');
   });
+
+  test('Vaccines scheduled weeks from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const status = 'Scheduled';
+    const patient = await createPatient(api, page, {
+      dateOfBirth: currentDate,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    //Load all records in the table by scrolling through table and triggering lazy loading
+    await scrollTableToBottom(patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!, patientDetailsPage.page);
+
+    //6 weeks from birth
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', await expectedDueDateWeek(currentDate, 6), status);
+    //10 weeks from birth
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Pentavalent', '10 weeks', await expectedDueDateWeek(currentDate, 10), status);
+    //14 weeks from birth
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '14 weeks', await expectedDueDateWeek(currentDate, 14), status);
+  });
+
+  test('Vaccines scheduled months from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    //TODO: add test
+  });
+
+  //TODO: add test case for years? doesnt seem to display in table by default
+
 });

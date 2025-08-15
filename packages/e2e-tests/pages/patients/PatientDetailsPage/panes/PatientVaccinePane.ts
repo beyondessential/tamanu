@@ -31,7 +31,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly closeModalButton: Locator;
   readonly vaccineColumnHeader: Locator;
   readonly dateColumnHeader: Locator;
-
+  readonly scheduledVaccinesTableBody: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -54,6 +54,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.closeModalButton = this.page.getByTestId('iconbutton-eull');
     this.vaccineColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-vaccineDisplayName');
     this.dateColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-date');
+    this.scheduledVaccinesTableBody = this.page.getByTestId('tablewrapper-rbs7').getByTestId('styledtablebody-a0jz');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
@@ -117,6 +118,7 @@ export class PatientVaccinePane extends BasePatientPane {
    */
   async assertRecordedVaccineTable(vaccine: Partial<Vaccine>) {
     const { vaccineName, scheduleOption, dateGiven, count, given, givenBy } = vaccine;
+    const recordedVaccinesTable = 'recordedVaccines';
 
     if (!vaccineName || !dateGiven || count === undefined || !scheduleOption) {
       throw new Error('Missing required vaccine fields');
@@ -126,7 +128,7 @@ export class PatientVaccinePane extends BasePatientPane {
     const formattedDate = convertDateFormat(dateGiven);
 
     const correctVaccineFound = await this.searchSpecificTableRowForMatch(
-      'recordedVaccines',
+      recordedVaccinesTable,
       vaccineName,
       'vaccineDisplayName',
       count,
@@ -139,7 +141,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctScheduleOptionFound = await this.searchSpecificTableRowForMatch(
-      'recordedVaccines',
+      recordedVaccinesTable,
       scheduleOption,
       'schedule',
       count,
@@ -154,7 +156,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctDateFound = await this.searchSpecificTableRowForMatch(
-      'recordedVaccines',
+      recordedVaccinesTable,
       formattedDate,
       'date',
       count,
@@ -167,7 +169,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
-      'recordedVaccines',
+      recordedVaccinesTable,
       given ? givenBy || 'Unknown' : 'Not given',
       'givenBy',
       count,
@@ -180,7 +182,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
-      'recordedVaccines',
+      recordedVaccinesTable,
       'facility-1',
       'displayLocation',
       count,
@@ -192,11 +194,34 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
-  async assertScheduledVaccinesTable(vaccine: string, schedule: string) {
+  async assertScheduledVaccinesTable(vaccine: string, schedule: string, expectedDueDate: string, status: string) {
     const rowsToSearch = 20;
+    const scheduledVaccinesTable = 'scheduledVaccines';
+    const expectedDueDateFormatted = `Week of ${expectedDueDate}`;
 
-    const scheduledVaccine = await this.searchSpecificTableRowForMatch('scheduledVaccines', vaccine, 'vaccine', rowsToSearch, vaccine, schedule);
-    console.log(scheduledVaccine);
+    // Define the assertions to check in the scheduled vaccines table
+    const assertions = [
+      { value: vaccine, locatorSuffix: 'vaccine', errorPrefix: `Vaccine "${vaccine}"` },
+      { value: schedule, locatorSuffix: 'schedule', errorPrefix: `Schedule option "${schedule}"` },
+      { value: expectedDueDateFormatted, locatorSuffix: 'dueDate', errorPrefix: `Due date "${expectedDueDate}"` },
+      { value: status, locatorSuffix: 'status', errorPrefix: `Status "${status}"` },
+    ];
+
+    // Check each assertion
+    for (const assertion of assertions) {
+      const found = await this.searchSpecificTableRowForMatch(
+        scheduledVaccinesTable, 
+        assertion.value, 
+        assertion.locatorSuffix, 
+        rowsToSearch, 
+        vaccine, 
+        schedule
+      );
+      
+      if (!found) {
+        throw new Error(`${assertion.errorPrefix} not found in the scheduled vaccines table for the specified vaccine`);
+      }
+    }
   }
 
   /**
