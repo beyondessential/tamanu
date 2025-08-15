@@ -28,6 +28,7 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 
+import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -39,6 +40,7 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import { validate } from '../../utils/validate';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -48,7 +50,8 @@ encounter.post(
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
-    const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
+    const validatedBody = validate(createEncounterSchema, body);
+    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);

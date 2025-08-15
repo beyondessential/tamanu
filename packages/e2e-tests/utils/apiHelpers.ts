@@ -1,10 +1,9 @@
-import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
-import { generateNHN } from './generateNewPatient';
+import { fakeCreatePatientRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createPatient';
 import { testData } from './testData';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
@@ -30,22 +29,19 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
   const user = await getUser(api);
 
-  const patientData = {
-    birthFacilityId: null,
-    dateOfBirth: faker.date.birthdate(),
-    displayId: generateNHN(),
-    facilityId,
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-    patientRegistryType: 'new_patient',
-    registeredById: user.id,
-    sex: faker.person.sex(),
-    villageId:testData.villageID,
-    culturalName: faker.person.middleName()
-  };
+  const requestBody = fakeCreatePatientRequestBody({
+    required: {
+      facilityId,
+      registeredById: user.id,
+    },
+    overrides: {
+      villageId: testData.villageID,
+      patientRegistryType: 'new_patient',
+    },
+  });
 
   const response = await api.post(patientUrl, {
-    data: patientData,
+    data: requestBody,
   });
 
   return response.json();
@@ -62,7 +58,7 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     locationId: string;
     patientBillingTypeId: string;
     startDate: string;
-  }> = {}
+  }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
@@ -85,7 +81,9 @@ export const createHospitalAdmissionEncounterViaAPI = async (
   if (!response.ok()) {
     const errorText = await response.text();
     console.error('Failed to create hospital admission encounter:', response.status(), errorText);
-    throw new Error(`Failed to create hospital admission encounter: ${response.status()} ${errorText}`);
+    throw new Error(
+      `Failed to create hospital admission encounter: ${response.status()} ${errorText}`,
+    );
   }
 
   return response.json();
@@ -104,7 +102,7 @@ export const createTriageEncounterViaApi = async (
     startDate: string;
     triageTime: string;
     vitals: any;
-  }> = {}
+  }> = {},
 ) => {
   const triageUrl = constructFacilityUrl('/api/triage');
   const user = await getUser(api);
@@ -145,7 +143,7 @@ export const createClinicEncounterViaApi = async (
     examinerId: string;
     locationId: string;
     startDate: string;
-  }> = {}
+  }> = {},
 ) => {
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
@@ -173,13 +171,17 @@ export const createClinicEncounterViaApi = async (
   return response.json();
 };
 
-export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Page, patientId: string) => {
+export const recordPatientDeathViaApi = async (
+  api: APIRequestContext,
+  page: Page,
+  patientId: string,
+) => {
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
   const user = await getUser(api);
 
   // Verify patient exists first
   const verifyPatientUrl = constructFacilityUrl(`/api/patient/${patientId}`);
-  
+
   const verifyResponse = await api.get(verifyPatientUrl);
 
   if (!verifyResponse.ok()) {
@@ -187,16 +189,15 @@ export const recordPatientDeathViaApi = async (api: APIRequestContext, page: Pag
   }
 
   const apiDeathUrl = constructFacilityUrl(`/api/patient/${patientId}/death`);
-  
+
   const deathData = {
     clinicianId: user.id,
     facilityId,
     timeOfDeath: new Date().toISOString(),
     manner: 'Disease',
     outsideHealthFacility: false,
-    isPartialWorkflow: true
+    isPartialWorkflow: true,
   };
-
 
   const response = await api.post(apiDeathUrl, {
     data: deathData,

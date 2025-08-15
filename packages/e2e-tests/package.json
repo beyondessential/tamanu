@@ -2,12 +2,15 @@
   "name": "@tamanu/e2e-tests",
   "version": "2.39.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "show-report": "playwright show-report"
+  },
+  "dependencies": {
+    "@tamanu/constants": "*",
+    "@tamanu/fake-data": "*"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0",

@@ -1,0 +1,14 @@
+config:
+  target: 'http://localhost:4000'
+  plugins:
+    metrics-by-endpoint: {}
+  processor: '../hooks/index.ts'
+  phases:
+    - name: 'Warmup'
+      duration: 30s
+      arrivalRate: 1
+      rampTo: 5
+    - name: 'Sustained'
+      ## GitHub Actions has a 6h limit
+      duration: 30s
+      arrivalRate: 5

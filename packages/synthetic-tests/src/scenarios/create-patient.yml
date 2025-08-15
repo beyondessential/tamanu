@@ -1,0 +1,21 @@
+config:
+  # target: http://localhost:4000
+  processor: '../hooks/index.ts'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+    - duration: 300
+      arrivalRate: 50
+
+scenarios:
+  - name: Create patient
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generatePatientPayload
+      - post:
+          url: '/api/patient'
+          headers:
+            Authorization: 'Bearer {{token}}'
+            'Content-Type': 'application/json'
+          json: '{{patientPayload}}'

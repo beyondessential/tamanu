@@ -29,6 +29,14 @@
       "require": "./dist/cjs/services/logging/*.js",
       "import": "./dist/esm/services/logging/*.js"
     },
+    "./schemas/types": {
+      "require": "./dist/cjs/schemas/types.js",
+      "import": "./dist/esm/schemas/types.js"
+    },
+    "./schemas/facility/requests/*": {
+      "require": "./dist/cjs/schemas/facility/requests/*.js",
+      "import": "./dist/esm/schemas/facility/requests/*.js"
+    },
     "./sync/*": {
       "require": "./dist/cjs/sync/*.js",
       "import": "./dist/esm/sync/*.js"
@@ -70,8 +78,8 @@
       "import": "./dist/esm/audit/*.js"
     },
     "./*": {
-      "require": "./dist/cjs/*/index.js",
-      "import": "./dist/esm/*/index.js"
+      "import": "./dist/esm/*/index.js",
+      "require": "./dist/cjs/*/index.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -124,6 +132,7 @@
     "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
-    "shortid": "^2.2.14"
+    "shortid": "^2.2.14",
+    "zod": "^4.0.17"
   }
 }
