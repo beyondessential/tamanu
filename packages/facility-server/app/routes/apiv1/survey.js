@@ -1,8 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
 import { NotFoundError } from '@tamanu/shared/errors';
 import {
@@ -10,6 +10,7 @@ import {
   permissionCheckingRouter,
   getResourceList,
 } from '@tamanu/shared/utils/crudHelpers';
+import { subject } from '@casl/ability';
 
 export const survey = express.Router();
 
@@ -38,15 +39,48 @@ survey.get(
 survey.get(
   '/charts',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Survey');
-
+    req.flagPermissionChecked();
     const {
       models: { Survey },
     } = req;
 
-    const chartSurveys = await Survey.getChartSurveys();
+    const chartSurveys = await Survey.findAll({
+      where: {
+        [Op.or]: [
+          // Get all current simple and complex charts
+          {
+            surveyType: {
+              [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            },
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
+          // Get all historical simple and complex charts with answers
+          {
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal(
+                `EXISTS (SELECT 1 FROM survey_responses WHERE survey_responses.survey_id = "Survey".id AND survey_responses.deleted_at IS NULL)`,
+              ),
+            ],
+          },
+          // Get all complex core charts regardless of visibility status
+          {
+            surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          },
+        ],
+      },
+      order: [['name', 'ASC']],
+    });
+    const permittedChartSurveys = chartSurveys.filter((survey) =>
+      req.ability.can('list', subject('Charting', { id: survey.id })),
+    );
 
-    res.send(chartSurveys);
+    res.send(permittedChartSurveys);
   }),
 );
 
