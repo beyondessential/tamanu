@@ -100,13 +100,9 @@ export class LocalSystemFact extends Model {
   static async markLookupModelRebuilt(modelName: string) {
     await this.sequelize.query(
       `
-      UPDATE local_system_facts
-      SET value =
-      CASE
-        WHEN value IS NULL THEN NULL
-      ELSE array_to_string(array_remove(string_to_array(value, ','), :modelName), ',')
-      END
-      WHERE key = :key
+        UPDATE local_system_facts
+	      SET value = array_to_string(array_remove(string_to_array(value, ','), :modelName), ',')
+	      WHERE key = :key
     `,
       {
         replacements: {

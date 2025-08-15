@@ -9,8 +9,8 @@ export async function up(query: QueryInterface): Promise<void> {
       VALUES ('${FACT_LOOKUP_MODELS_TO_REBUILD}', model_name)
       ON CONFLICT (key) DO UPDATE SET value = 
         CASE 
-        WHEN local_system_facts.value IS NULL THEN
-          -- If the value is null, set it to the model name
+        WHEN local_system_facts.value IS NULL OR local_system_facts.value = '' THEN
+	          -- If the value is null or empty, set it to the model name
           model_name
         WHEN model_name = ANY(string_to_array(local_system_facts.value, ',')) THEN
           -- If the model name is already in the array, do nothing
