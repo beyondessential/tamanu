@@ -105,6 +105,16 @@ export const globalSettings = {
         },
       },
     },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        maxViewableMonthsAhead: {
+          description: 'The maximum number of months to generate location assignments for',
+          type: yup.number().min(1),
+          defaultValue: 12,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {

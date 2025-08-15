@@ -274,6 +274,12 @@
       "schedule": "0 1 * * *",
       "generateOffsetDays": 7,
     },
+    "generateRepeatingLocationAssignments": {
+      // every day at 1 AM
+      "schedule": "0 1 * * *",
+      "batchSize": 50,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "sendStatusToMetaServer": {
       "enabled": true,
       // every minute

@@ -231,7 +231,8 @@ usersRouter.post(
       where: {
         userId,
         removedAt: null,
-        [Op.and]: [{ endDate: { [Op.gte]: startDate } }, { startDate: { [Op.lte]: endDate } }],
+        endDate: { [Op.gte]: startDate },
+        startDate: { [Op.lte]: endDate },
       },
     });
 
