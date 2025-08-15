@@ -150,7 +150,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     navigateToHistory();
   }, []);
 
-  const canListSensitiveMedication = ability.can('list', 'SensitiveMedication');
+  const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = new Suggester({
     model: ReferenceData,
     options: {
@@ -167,7 +167,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     }),
     filter: (data: any) => {
       const isSensitive = data.referenceDrug_isSensitive;
-      return !isSensitive || canListSensitiveMedication;
+      return !isSensitive || canCreateSensitiveMedication;
     }
   });
 
