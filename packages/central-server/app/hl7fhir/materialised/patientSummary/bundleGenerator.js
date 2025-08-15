@@ -16,7 +16,7 @@ import {
 
 import { getBundleEntryFromResource, getPatientDisplayName } from './utils';
 
-export const generateIPSBundle = async (fhirPatientId, user, models) => {
+export const generateIPSBundle = async (fhirPatientId, user, models, ability = null) => {
   const dataDictionariesIps = config.hl7.dataDictionaries.ips;
   const integrationsIps = config.integrations.ips;
 
@@ -46,6 +46,7 @@ export const generateIPSBundle = async (fhirPatientId, user, models) => {
       patient,
       models,
       dataDictionariesIps,
+      ability,
     }),
     getAllergyIntolerances({
       patient,

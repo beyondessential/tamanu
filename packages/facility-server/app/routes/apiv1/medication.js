@@ -45,6 +45,9 @@ medication.get(
     const object = await Prescription.findByPk(params.id, {
       include: Prescription.getFullReferenceAssociations(),
     });
+
+    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
+
     if (!object) throw new NotFoundError();
 
     if (object) {
