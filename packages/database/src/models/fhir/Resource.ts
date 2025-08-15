@@ -90,6 +90,9 @@ export class FhirResource extends Model {
   // list of Tamanu models that are used to materialise this resource
   static upstreams: (typeof Model)[] = [];
 
+  // list of FHIR resources that are referenced by this resource
+  static referencedResources: (typeof Model)[] = [];
+
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
 

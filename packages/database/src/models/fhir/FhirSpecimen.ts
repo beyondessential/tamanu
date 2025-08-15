@@ -28,6 +28,10 @@ export class FhirSpecimen extends FhirResource {
 
     this.UpstreamModels = [models.LabRequest];
     this.upstreams = [models.LabRequest];
+    this.referencedResources = [
+      models.FhirPractitioner,
+      // FhirServiceRequest is also referenced by Specimen, but not flagging here to avoid a circular dependency
+    ];
   }
 
   static CAN_DO = new Set([
