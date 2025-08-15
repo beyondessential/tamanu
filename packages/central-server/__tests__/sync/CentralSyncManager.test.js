@@ -2,7 +2,11 @@ import crypto from 'crypto';
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, sub } from 'date-fns';
 
-import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
+  FACT_LOOKUP_MODELS_TO_REBUILD,
+} from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
@@ -169,6 +173,7 @@ describe('CentralSyncManager', () => {
     });
     await models.Setting.set('audit.changes.enabled', false);
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
+    await models.LocalSystemFact.set(FACT_LOOKUP_MODELS_TO_REBUILD, null);
     await models.SyncLookup.truncate({ force: true });
     await models.DebugLog.truncate({ force: true });
   });
@@ -2625,6 +2630,73 @@ describe('CentralSyncManager', () => {
       });
       // only expect 3 records as it should not include the 3 records inserted from another sync session
       expect(lookupData).toHaveLength(3);
+    });
+
+    it('fully rebuilds models that have been flagged for rebuild', async () => {
+      const patient1 = await models.Patient.create(fake(models.Patient));
+      const centralSyncManager = initializeCentralSyncManager({
+        sync: {
+          lookupTable: {
+            enabled: true,
+          },
+          maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        },
+      });
+
+      await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, patient1.updatedAtSyncTick + 1); // Set this to skip initial build
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
+
+      expect(lookupData).toHaveLength(0);
+
+      await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
+
+      expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual(['patients']);
+
+      await centralSyncManager.updateLookupTable();
+
+      const lookupData2 = await models.SyncLookup.findAll({
+        where: {
+          recordId: {
+            [Op.not]: SYSTEM_USER_UUID,
+          },
+        },
+      });
+
+      expect(lookupData2).toHaveLength(1);
+      expect(lookupData2[0]).toEqual(
+        expect.objectContaining({
+          recordId: patient1.id,
+          recordType: 'patients',
+          data: expect.objectContaining({
+            id: patient1.id,
+            displayId: patient1.displayId,
+            firstName: patient1.firstName,
+            middleName: patient1.middleName,
+            lastName: patient1.lastName,
+            culturalName: patient1.culturalName,
+            dateOfBirth: patient1.dateOfBirth,
+            dateOfDeath: null,
+            sex: patient1.sex,
+            email: patient1.email,
+            visibilityStatus: patient1.visibilityStatus,
+            villageId: null,
+            mergedIntoId: null,
+          }),
+          isLabRequest: false,
+          isDeleted: false,
+        }),
+      );
+
+      expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
     });
 
     it('records info about updating sync_lookup in debug log', async () => {
