@@ -30,7 +30,7 @@ export const getMarkedForSyncPatientsTableName = (sessionId: string, isFullSync:
 export const createSnapshotTable = async (sequelize: Sequelize, sessionId: string) => {
   const tableName = getSnapshotTableName(sessionId);
   await sequelize.query(`
-    CREATE TABLE ${tableName} (
+    CREATE UNLOGGED TABLE ${tableName} (
       id BIGSERIAL PRIMARY KEY,
       direction character varying(255) NOT NULL,
       record_type character varying(255) NOT NULL,
@@ -49,6 +49,14 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
       .replaceAll('.', '_')
       .replaceAll('"', '')
       .replaceAll('-', '')}_direction_index ON ${tableName}(direction);
+    CREATE INDEX ${tableName
+      .replaceAll('.', '_')
+      .replaceAll('"', '')
+      .replaceAll('-', '')}_direction_id_idx ON ${tableName}(direction, id);
+    CREATE INDEX ${tableName
+      .replaceAll('.', '_')
+      .replaceAll('"', '')
+      .replaceAll('-', '')}_direction_record_type_id_idx ON ${tableName}(direction, record_type, id);
   `);
 };
 
