@@ -3,6 +3,8 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog } from '../../utils/audit';
+import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
+import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -21,14 +23,39 @@ export function createMigrationInterface(log, sequelize) {
     throw new Error('Could not find migrations');
   }
 
+  // Closure context to store migration name and direction
+  const wrapContext = {};
+
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap:
-        (updown) =>
-        (...args) =>
-          sequelize.transaction(async () => updown(...args)),
+      wrap: (updown) => (...args) => sequelize.transaction(async () => {
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
+          sequelize,
+          wrapContext.migrationName,
+        );
+        if (!isMigrationContextAvailable) {
+          return updown(...args);
+        }
+
+        // Create migration context object
+        const migrationContext = {
+          direction: wrapContext.direction,
+          migrationName: wrapContext.migrationName,
+          serverType: global?.serverInfo?.serverType || 'unknown',
+        };
+
+        // Set the migration context as a transaction variable
+        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+
+        try {
+          const result = await updown(...args);
+          return result;
+        } finally {
+          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+        }
+      }),
 
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
@@ -51,8 +78,16 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', (name) => {
+    wrapContext.direction = 'up';
+    wrapContext.migrationName = name;
+    log.info(`Applying migration: ${name}`);
+  });
+  umzug.on('reverting', (name) => {
+    wrapContext.direction = 'down';
+    wrapContext.migrationName = name;
+    log.info(`Reverting migration: ${name}`);
+  });
 
   return umzug;
 }
