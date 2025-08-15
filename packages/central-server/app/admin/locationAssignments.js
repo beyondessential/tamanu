@@ -5,7 +5,7 @@ import { Op, where, fn, literal } from 'sequelize';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { addMonths, isValid, parseISO, isBefore, getISODay } from 'date-fns';
 import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 
 export const locationAssignmentsRouter = express.Router();
 
@@ -122,17 +122,17 @@ locationAssignmentsRouter.post(
 
     const body = await locationAssignmentSchema.parseAsync(req.body);
 
-    const { user, store } = req;
-    const { User, Location, LocationAssignment } = store.models;
+    const { store } = req;
+    const { User, Location } = store.models;
 
     const clinician = await User.findByPk(body.userId);
     if (!clinician) {
-      throw new InvalidOperationError(`User not found`);
+      throw new NotFoundError(`User not found`);
     }
 
     const location = await Location.findByPk(body.locationId);
     if (!location) {
-      throw new InvalidOperationError(`Location not found`);
+      throw new NotFoundError(`Location not found`);
     }
 
     if (isBefore(parseISO(body.endTime), parseISO(body.startTime))) {
@@ -162,15 +162,7 @@ locationAssignmentsRouter.post(
     if (body.isRepeating) {
       await createRepeatingLocationAssignment(req, body);
     } else {
-      await LocationAssignment.create({
-        userId: body.userId,
-        locationId: body.locationId,
-        date: body.date,
-        startTime: body.startTime,
-        endTime: body.endTime,
-        createdBy: user.id,
-        updatedBy: user.id,
-      });
+      await createSingleLocationAssignment(req, body);
     }
 
     res.status(201).send({ success: true });
@@ -196,6 +188,10 @@ locationAssignmentsRouter.delete(
     const assignment = await LocationAssignment.findByPk(id);
     if (!assignment || assignment.status !== LOCATION_ASSIGNMENT_STATUS.ACTIVE) {
       throw new InvalidOperationError('Location assignment not found');
+    }
+
+    if (query.deleteFuture && !assignment.templateId) {
+      throw new InvalidOperationError('Cannot delete future assignments for non-repeating assignments');
     }
 
     await db.transaction(async () => {
@@ -348,6 +344,36 @@ async function createRepeatingLocationAssignment(req, body) {
     });
 
     await template.generateRepeatingLocationAssignments(settings);
+  });
+}
+
+async function createSingleLocationAssignment(req, body) {
+  const { user, store } = req;
+  const { LocationAssignment, UserLeave } = store.models;
+  const { userId, locationId, date, startTime, endTime } = body;
+
+  const userLeave = await UserLeave.findOne({
+    where: {
+      userId,
+      removedAt: null,
+      startDate: { [Op.lte]: date },
+      endDate: { [Op.gte]: date },
+    },
+    attributes: ['id'],
+  });
+
+  if (userLeave) {
+    throw new InvalidOperationError(`User is on leave on ${date}`);
+  }
+
+  await LocationAssignment.create({
+    userId,
+    locationId,
+    date,
+    startTime,
+    endTime,
+    createdBy: user.id,
+    updatedBy: user.id,
   });
 }
 
