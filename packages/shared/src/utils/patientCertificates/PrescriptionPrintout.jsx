@@ -47,7 +47,7 @@ const columns = (getTranslation, getEnumTranslation) => [
   },
   {
     key: 'route',
-    title: getTranslation('pdf.table.column.route', 'Route'),
+    title: getTranslation('pdf.table.column.route', 'Route of administration'),
     accessor: ({ route }) => getEnumTranslation(DRUG_ROUTE_LABELS, route),
   },
   {
