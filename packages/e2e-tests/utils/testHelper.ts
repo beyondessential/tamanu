@@ -55,7 +55,7 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
   }
   return items;
 }
-=======
+
 /**
  * Utility function for sorting alphabetically
  * @param order - The order to sort by, e.g. "asc" or "desc"
