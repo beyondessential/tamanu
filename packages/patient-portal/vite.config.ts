@@ -20,6 +20,7 @@ export default async () =>
     plugins: [react()],
     resolve: {
       alias: {
+        '@api': path.resolve(__dirname, 'src/api'),
         '@utils': path.resolve(__dirname, 'src/utils'),
         '@auth': path.resolve(__dirname, 'src/auth'),
         '@routes': path.resolve(__dirname, 'src/routes'),
@@ -29,7 +30,7 @@ export default async () =>
       host: 'localhost',
       proxy: {
         '/api': {
-          target: process.env.TAMANU_VITE_TARGET ?? 'https://facility-1.main.cd.tamanu.app',
+          target: process.env.TAMANU_VITE_TARGET ?? 'http://localhost:3000',
           changeOrigin: true,
         },
       },

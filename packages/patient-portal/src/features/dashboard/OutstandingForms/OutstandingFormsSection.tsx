@@ -1,0 +1,58 @@
+import React from 'react';
+import { Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
+import { CircleCheck, Clock } from 'lucide-react';
+
+import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
+import { OutstandingFormCard } from './OutstandingFormCard';
+import { useOutstandingFormsQuery } from '@api/queries/useOutstandingFormsQuery';
+import { Colors } from '@tamanu/shared/ui/theme/colors';
+
+export const OutstandingFormsSection = () => {
+  const { data: forms, isLoading } = useOutstandingFormsQuery();
+
+  const formCount = forms?.length || 0;
+  const hasOutstandingForms = formCount > 0;
+
+  // Dynamic header text
+  const headerText = hasOutstandingForms
+    ? `You have ${formCount} outstanding ${formCount === 1 ? 'form' : 'forms'} to complete below`
+    : 'You have no outstanding forms';
+
+  return (
+    <Card variant="outlined">
+      <CardHeader
+        avatar={
+          hasOutstandingForms ? (
+            <Clock size={24} color="#f44336" />
+          ) : (
+            <CircleCheck size={24} color={Colors.green} />
+          )
+        }
+        title={
+          <Typography variant="h4" fontWeight="normal">
+            {headerText}
+          </Typography>
+        }
+      />
+
+      <CardContent>
+        {isLoading ? (
+          <StyledCircularProgress size={24} />
+        ) : forms && forms.length > 0 ? (
+          <Stack spacing={2}>
+            {forms.map(form => (
+              <OutstandingFormCard
+                key={form.id}
+                form={form}
+                onClick={() => {
+                  // TODO: Open form modal when implemented
+                  console.log('Opening form:', form.survey.name);
+                }}
+              />
+            ))}
+          </Stack>
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+};
