@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
@@ -52,16 +51,6 @@ const Carousel = styled.div`
   }
 `;
 
-const emptyStateMessage = (
-  <EmptyState data-testid="emptystate-1ili">
-    <TranslatedText
-      stringId="locationAssignment.calendar.noMatchingAssignments"
-      fallback="No assignments to display. Please try adjusting the search filters."
-      data-testid="translatedtext-yptm"
-    />
-  </EmptyState>
-);
-
 export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
   const { monthOf, setMonthOf } = useLocationAssignmentsContext();
 
@@ -91,7 +80,6 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
           />
         </CarouselGrid.Root>
       </Carousel>
-      {locations?.length === 0 && emptyStateMessage}
     </>
   );
 };
