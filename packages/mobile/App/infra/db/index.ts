@@ -120,7 +120,7 @@ class DatabaseHelper {
         console.error(error);
       }
     }
-    await this.setDefaultPragma();
+    // await this.setDefaultPragma();
   }
 
   async setDefaultPragma(): Promise<void> {

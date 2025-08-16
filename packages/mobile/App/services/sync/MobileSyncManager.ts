@@ -385,7 +385,7 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    await Database.setUnsafePragma();
+    // await Database.setUnsafePragma();
     await Database.client.transaction(async transactionEntityManager => {
       try {
         const incomingModels = getTransactingModelsForDirection(
