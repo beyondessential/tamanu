@@ -24,9 +24,6 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
         (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)({ behavior: 'instant' });
       }
     },
-    // If selected cell changes within a given month, autoscroll is handled imperatively by
-    // `updateSelectedCell`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [monthOf],
   );
 
@@ -40,7 +37,6 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
           scrollToCell(updatedCell);
         } else {
           setMonthOf(date);
-          // Rely on useEffect to autoscroll to correct place after browser repaint
         }
 
       return updatedCell;

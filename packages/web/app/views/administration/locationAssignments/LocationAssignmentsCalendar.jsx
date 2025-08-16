@@ -1,10 +1,3 @@
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  endOfWeek,
-  startOfMonth,
-  startOfWeek,
-} from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -15,12 +8,8 @@ import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignm
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
-
-const getDisplayableDates = (date) => {
-  const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
-  const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
-  return eachDayOfInterval({ start, end });
-};
+import { LOCATION_ASSIGNMENTS_CALENDAR_ID } from '../../../constants/locationAssignments';
+import { getDisplayableDates } from './utils';
 
 const EmptyState = styled.div`
   --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -73,11 +62,7 @@ const emptyStateMessage = (
   </EmptyState>
 );
 
-export const LocationAssignmentsCalendar = ({
-  locationsQuery,
-  id,
-  ...props
-}) => {
+export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
   const { monthOf, setMonthOf } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
@@ -87,7 +72,11 @@ export const LocationAssignmentsCalendar = ({
   return (
     <>
       <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
-        <CarouselGrid.Root id={id} $dayCount={displayedDates.length} data-testid="root-nqxn">
+        <CarouselGrid.Root
+          id={LOCATION_ASSIGNMENTS_CALENDAR_ID}
+          $dayCount={displayedDates.length}
+          data-testid="root-nqxn"
+        >
           <LocationAssignmentsCalendarHeader
             monthOf={monthOf}
             setMonthOf={setMonthOf}

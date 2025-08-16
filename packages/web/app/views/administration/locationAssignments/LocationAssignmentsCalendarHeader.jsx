@@ -10,9 +10,7 @@ import { Button, MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { scrollToThisWeek } from './utils';
-
-export const THIS_WEEK_ID = 'location-assignments-calendar__this-week';
-export const FIRST_DISPLAYED_DAY_ID = 'location-assignments-calendar__beginning';
+import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locationAssignments';
 
 const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
   display: grid;

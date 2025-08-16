@@ -8,8 +8,6 @@ import { Button, PageContainer, TopBar, TranslatedText } from '../../components'
 import { Colors } from '../../constants';
 import { LocationAssignmentsCalendar } from './locationAssignments/LocationAssignmentsCalendar';
 
-export const LOCATION_ASSIGNMENTS_CALENDAR_ID = 'location-assignments-calendar';
-
 const PlusIcon = styled(AddRounded)`
   && {
     margin-inline-end: 0.1875rem;
@@ -86,7 +84,6 @@ export const LocationAssignmentsAdminView = () => {
         </EmptyStateLabel>
       ) : (
         <LocationAssignmentsCalendar
-          id={LOCATION_ASSIGNMENTS_CALENDAR_ID}
           locationsQuery={locationsQuery}
           data-testid="locationassignmentscalendar-s3yu"
         />
