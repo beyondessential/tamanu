@@ -29,7 +29,14 @@ const mobileSyncSettings: MobileSyncSettings = {
   maxRecordsPerInsertBatch: 500,
   maxBatchesToKeepInMemory: 10,
   maxRecordsPerSnapshotBatch: 500,
-  useUnsafeSchemaForInitialSync: false,
+  useUnsafeSchemaForInitialSync: true,
+  dynamicLimiter: {
+    initialLimit: 10000,
+    minLimit: 1000,
+    maxLimit: 40000,
+    maxLimitChangePerPage: 0.3,
+    optimalTimePerPage: 500,
+  },
 };
 
 const generateExistingRecord = (id, data = {}) => ({
