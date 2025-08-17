@@ -3374,6 +3374,8 @@ describe('CentralSyncManager', () => {
         let nonSensitivePrescription;
         let sensitiveEncounterPrescription;
         let nonSensitiveEncounterPrescription;
+        let sensitiveMedicationAdministrationRecord;
+        let nonSensitiveMedicationAdministrationRecord;
 
         beforeEach(async () => {
           sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
@@ -3390,6 +3392,20 @@ describe('CentralSyncManager', () => {
               prescriptionId: nonSensitivePrescription.id,
             }),
           );
+
+          sensitiveMedicationAdministrationRecord =
+            await models.MedicationAdministrationRecord.create(
+              fake(models.MedicationAdministrationRecord, {
+                prescriptionId: sensitivePrescription.id,
+              }),
+            );
+
+          nonSensitiveMedicationAdministrationRecord =
+            await models.MedicationAdministrationRecord.create(
+              fake(models.MedicationAdministrationRecord, {
+                prescriptionId: nonSensitivePrescription.id,
+              }),
+            );
         });
 
         it("won't sync sensitive prescriptions", async () => {
@@ -3445,6 +3461,39 @@ describe('CentralSyncManager', () => {
             model: models.EncounterPausePrescriptionHistory,
             sensitiveId: sensitiveEncounterPausePrescriptionHistory.id,
             nonSensitiveId: nonSensitiveEncounterPausePrescriptionHistory.id,
+          });
+        });
+
+        it("won't sync sensitive medication administration records", async () => {
+          await checkSensitiveRecordFiltering({
+            model: models.MedicationAdministrationRecord,
+            sensitiveId: sensitiveMedicationAdministrationRecord.id,
+            nonSensitiveId: nonSensitiveMedicationAdministrationRecord.id,
+          });
+        });
+
+        it("won't sync sensitive medication administration record doses", async () => {
+          const sensitiveMedicationAdministrationRecordDose =
+            await models.MedicationAdministrationRecordDose.create(
+              fake(models.MedicationAdministrationRecordDose, {
+                marId: sensitiveMedicationAdministrationRecord.id,
+                recordedByUserId: practitioner.id,
+                givenByUserId: practitioner.id,
+              }),
+            );
+          const nonSensitiveMedicationAdministrationRecordDose =
+            await models.MedicationAdministrationRecordDose.create(
+              fake(models.MedicationAdministrationRecordDose, {
+                marId: nonSensitiveMedicationAdministrationRecord.id,
+                recordedByUserId: practitioner.id,
+                givenByUserId: practitioner.id,
+              }),
+            );
+
+          await checkSensitiveRecordFiltering({
+            model: models.MedicationAdministrationRecordDose,
+            sensitiveId: sensitiveMedicationAdministrationRecordDose.id,
+            nonSensitiveId: nonSensitiveMedicationAdministrationRecordDose.id,
           });
         });
       });
