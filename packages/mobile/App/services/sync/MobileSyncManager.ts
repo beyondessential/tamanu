@@ -386,7 +386,8 @@ export class MobileSyncManager {
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
     
-    if (this.syncSettings.useUnsafeSchemaForInitialSync) {
+    const { useUnsafeSchemaForInitialSync = true } = this.syncSettings;
+    if (useUnsafeSchemaForInitialSync) {
       await Database.setUnsafePragma();
     }
     
