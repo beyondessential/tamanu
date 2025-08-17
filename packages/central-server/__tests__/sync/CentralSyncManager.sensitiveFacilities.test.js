@@ -664,12 +664,16 @@ describe('CentralSyncManager Sensitive Facilities', () => {
           await models.MedicationAdministrationRecordDose.create(
             fake(models.MedicationAdministrationRecordDose, {
               marId: sensitiveMedicationAdministrationRecord.id,
+              recordedByUserId: practitioner.id,
+              givenByUserId: practitioner.id,
             }),
           );
         const nonSensitiveMedicationAdministrationRecordDose =
           await models.MedicationAdministrationRecordDose.create(
             fake(models.MedicationAdministrationRecordDose, {
               marId: nonSensitiveMedicationAdministrationRecord.id,
+              recordedByUserId: practitioner.id,
+              givenByUserId: practitioner.id,
             }),
           );
 
