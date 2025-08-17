@@ -544,7 +544,6 @@ export class MedicationAdministrationRecord extends Model {
       return null;
     }
     return `
-      LEFT JOIN medication_administration_records ON medication_administration_record_doses.mar_id = medication_administration_records.id
       LEFT JOIN encounter_prescriptions ON medication_administration_records.prescription_id = encounter_prescriptions.prescription_id
       LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
       LEFT JOIN patient_ongoing_prescriptions ON medication_administration_records.prescription_id = patient_ongoing_prescriptions.prescription_id
@@ -553,7 +552,7 @@ export class MedicationAdministrationRecord extends Model {
         OR 
         (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
       )
-      AND medication_administration_record_doses.updated_at_sync_tick > :since
+      AND medication_administration_records.updated_at_sync_tick > :since
     `;
   }
 
@@ -563,7 +562,6 @@ export class MedicationAdministrationRecord extends Model {
         patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
       }),
       joins: `
-        LEFT JOIN medication_administration_records ON medication_administration_record_doses.mar_id = medication_administration_records.id
         LEFT JOIN encounter_prescriptions ON medication_administration_records.prescription_id = encounter_prescriptions.prescription_id
         LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
         LEFT JOIN patient_ongoing_prescriptions ON medication_administration_records.prescription_id = patient_ongoing_prescriptions.prescription_id
