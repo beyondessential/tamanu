@@ -78,10 +78,7 @@ const updateLookupTableForModel = async (model, config, since, sessionConfig, sy
             is_lab_request = EXCLUDED.is_lab_request,
             patient_id = EXCLUDED.patient_id,
             encounter_id = EXCLUDED.encounter_id,
-            facility_id = CASE 
-              WHEN EXCLUDED.facility_id IS NOT NULL THEN EXCLUDED.facility_id
-              ELSE sync_lookup.facility_id
-            END,
+            facility_id = COALESCE(EXCLUDED.facility_id, sync_lookup.facility_id),
             updated_at_by_field_sum = EXCLUDED.updated_at_by_field_sum,
             is_deleted = EXCLUDED.is_deleted,
             pushed_by_device_id = EXCLUDED.pushed_by_device_id
