@@ -520,11 +520,15 @@ createSuggester(
   'Location',
   // Allow filtering by parent location group
   ({ endpoint, modelName, query }) => {
-    const baseWhere = filterByFacilityWhereBuilder({ endpoint, modelName, query });
+    const hasValidFacilityId = query.facilityId && query.facilityId.trim() !== '';
+    const baseWhere = hasValidFacilityId 
+      ? filterByFacilityWhereBuilder({ endpoint, modelName, query })
+      : DEFAULT_WHERE_BUILDER({ endpoint, modelName });
 
     const { ...filters } = query;
     delete filters.q;
     delete filters.filterByFacility;
+    if (!hasValidFacilityId) delete filters.facilityId;
 
     if (!query.parentId) {
       return { ...baseWhere, ...filters };
@@ -567,14 +571,28 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ endpoint, model
 );
 
 // Location groups filtered by isBookable. Used in location bookings view
-createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => ({
-  ...filterByFacilityWhereBuilder({
-    endpoint,
-    modelName,
-    query: { ...query, filterByFacility: true },
-  }),
-  isBookable: true,
-}));
+// Shows all bookable location groups when facilityId is empty
+createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+  const hasValidFacilityId = query.facilityId && query.facilityId.trim() !== '';
+  
+  if (hasValidFacilityId) {
+    return {
+      ...filterByFacilityWhereBuilder({
+        endpoint,
+        modelName,
+        query: { ...query, filterByFacility: true },
+      }),
+      isBookable: true,
+    };
+  }
+  
+  // Show all bookable location groups when facilityId is empty
+  return {
+    ...baseWhere,
+    isBookable: true,
+  };
+});
 
 createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
   name: { [Op.iLike]: search },

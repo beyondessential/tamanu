@@ -15,7 +15,7 @@ import {
 } from '@tamanu/constants';
 
 const locationAssignmentSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(),
   locationId: z.string(),
   date: z.string()
     .refine((val) => !val || isValid(parseISO(val)), {

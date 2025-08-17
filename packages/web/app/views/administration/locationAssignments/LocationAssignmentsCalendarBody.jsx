@@ -1,38 +1,133 @@
-import { isEqual } from 'date-fns';
+import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
 import React from 'react';
+import styled from 'styled-components';
+
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
 import { TranslatedReferenceData } from '../../../components';
+import { Colors } from '../../../constants';
+
+const AssignmentTile = styled.div`
+  background: ${Colors.primary};
+  color: ${Colors.white};
+  padding: 0.25rem;
+  margin: 0.125rem;
+  border-radius: 0.125rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &:hover {
+    background: ${Colors.primaryDark};
+  }
+`;
+
+const AssignmentTimeRange = styled.div`
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+`;
+
+const AssignmentUser = styled.div`
+  opacity: 0.9;
+`;
+
+export const LocationAssignmentTile = ({ assignment, onClick }) => {
+  const { user, startTime, endTime } = assignment;
+  
+  return (
+    <AssignmentTile
+      className="assignment-tile"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(assignment);
+      }}
+      data-testid="assignment-tile"
+    >
+      <AssignmentTimeRange data-testid="assignment-time">
+        {startTime} - {endTime}
+      </AssignmentTimeRange>
+      <AssignmentUser data-testid="assignment-user">
+        {user?.displayName || 'Unknown User'}
+      </AssignmentUser>
+    </AssignmentTile>
+  );
+};
 
 export const AssignmentsCell = ({
   date,
-  location: { id: locationId },
+  location: { id: locationId, locationGroup },
+  assignments,
+  openAssignmentDrawer,
 }) => {
   const { selectedCell, updateSelectedCell } = useLocationAssignmentsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
+  const handleCellClick = (e) => {
+    if (e.target.closest('.assignment-tile')) return; // Don't open drawer if clicking on assignment
+    updateSelectedCell({ date, locationId });
+    openAssignmentDrawer({
+      locationId,
+      locationGroupId: locationGroup.id,
+      date: toDateString(date),
+    });
+  };
+
+  const handleAssignmentClick = (assignment) => {
+    updateSelectedCell({ date, locationId });
+    openAssignmentDrawer({
+      ...assignment,
+      locationId,
+      locationGroupId: locationGroup.id,
+      date: toDateString(date),
+    });
+  };
+
   return (
     <CarouselGrid.Cell
       id={generateIdFromCell({ locationId, date })}
-      onClick={() => {
-        updateSelectedCell({ date, locationId });
-      }}
+      onClick={handleCellClick}
       $selected={isSelected}
       $clickable
       data-testid="cell-dp5l"
     >
+      {assignments?.map((assignment) => (
+        <LocationAssignmentTile
+          key={assignment.id}
+          assignment={assignment}
+          onClick={handleAssignmentClick}
+          data-testid={`assignment-tile-${assignment.id}`}
+        />
+      ))}
     </CarouselGrid.Cell>
   );
+};
+
+const partitionAssignmentsByDate = (assignments) => {
+  const assignmentsByDate = {};
+  assignments?.forEach((assignment) => {
+    const dateKey = assignment.date;
+    if (!assignmentsByDate[dateKey]) {
+      assignmentsByDate[dateKey] = [];
+    }
+    assignmentsByDate[dateKey].push(assignment);
+  });
+  return assignmentsByDate;
 };
 
 export const AssignmentsRow = ({
   dates,
   location,
+  assignments,
+  openAssignmentDrawer,
 }) => {
   const { locationGroup } = location;
+  const assignmentsByDate = partitionAssignmentsByDate(assignments);
 
   return (
     <CarouselGrid.Row data-testid="row-m8yc">
@@ -55,6 +150,8 @@ export const AssignmentsRow = ({
           date={d}
           key={d.valueOf()}
           location={location}
+          assignments={assignmentsByDate[formatISO(d, { representation: 'date' })]}
+          openAssignmentDrawer={openAssignmentDrawer}
           data-testid={`assignmentscell-5t8x-${d.valueOf()}`}
         />
       ))}
@@ -62,21 +159,39 @@ export const AssignmentsRow = ({
   );
 };
 
+const partitionAssignmentsByLocation = (assignments) => {
+  const assignmentsByLocation = {};
+  assignments?.forEach((assignment) => {
+    const locationId = assignment.locationId;
+    if (!assignmentsByLocation[locationId]) {
+      assignmentsByLocation[locationId] = [];
+    }
+    assignmentsByLocation[locationId].push(assignment);
+  });
+  return assignmentsByLocation;
+};
+
 export const LocationAssignmentsCalendarBody = ({
   displayedDates,
   locations,
   isLocationsLoading,
+  assignments,
+  openAssignmentDrawer,
 }) => {
   if (isLocationsLoading)
     return <SkeletonRows colCount={displayedDates.length} data-testid="skeletonrows-munx" />;
 
   if (locations?.length === 0) return null;
 
+  const assignmentsByLocation = partitionAssignmentsByLocation(assignments);
+
   return locations?.map((location) => (
     <AssignmentsRow
       dates={displayedDates}
       key={location.code}
       location={location}
+      assignments={assignmentsByLocation[location.id] ?? []}
+      openAssignmentDrawer={openAssignmentDrawer}
       data-testid={`assignmentsrow-t3ka-${location.code}`}
     />
   ));

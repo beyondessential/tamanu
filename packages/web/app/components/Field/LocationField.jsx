@@ -53,9 +53,14 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
+      baseQueryParameters: { 
+        ...(facilityId && facilityId.trim() !== '' && { filterByFacility: true, facilityId }), 
+        ...(groupId && { locationGroupId: groupId })
+      },
     });
-    const locationGroupSuggester = useSuggester(locationGroupSuggesterType);
+    const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
+      baseQueryParameters: (facilityId && facilityId.trim() !== '') ? { facilityId } : {},
+    });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
 

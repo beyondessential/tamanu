@@ -41,8 +41,8 @@ export const useBookingSlots = (date) => {
 
   const isPending = bookingSlotSettings === undefined;
 
-  // “Pointless” destructure so we can use primitives as `useMemo` dependencies
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
+  // "Pointless" destructure so we can use primitives as `useMemo` dependencies
+  const { startTime, endTime, slotDuration } = bookingSlotSettings || {};
   const slots = useMemo(
     () => {
       if (!date) return null;
