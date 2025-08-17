@@ -15,7 +15,7 @@ import {
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
 
-import { useLocationBookingsQuery } from '../../../../api/queries';
+import { useLocationBookingsQuery, useLocationAssignmentsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -78,6 +78,8 @@ export const TimeSlotPicker = ({
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   name,
+  /** Type of time slot picker: 'bookings' or 'assignments' */
+  type = 'bookings',
   ...props
 }) => {
   const [dayStart, dayEnd] = useMemo(() => {
@@ -125,16 +127,34 @@ export const TimeSlotPicker = ({
         all: true,
         locationId: values.locationId,
       },
-      { enabled: !!date && !!values.locationId },
+      { enabled: !!date && !!values.locationId && type === 'bookings' },
+    );
+
+  const { data: existingAssignments, isFetching: isFetchingExistingAssignments } =
+    useLocationAssignmentsQuery(
+      {
+        after: toDateTimeString(dayStart),
+        before: toDateTimeString(dayEnd),
+        locationId: values.locationId,
+        all: true,
+      },
+      { enabled: !!date && !!values.locationId && type === 'assignments' },
     );
 
   const updateInterval = useCallback(
     (newInterval) => {
       const { start, end } = newInterval;
-      if (start !== undefined) void setFieldValue('startTime', toDateTimeString(start));
-      if (end !== undefined) void setFieldValue('endTime', toDateTimeString(end));
+      if (type === 'assignments') {
+        // For assignments, we store Date objects directly
+        if (start !== undefined) void setFieldValue('startTime', start);
+        if (end !== undefined) void setFieldValue('endTime', end);
+      } else {
+        // For bookings, we convert to datetime strings
+        if (start !== undefined) void setFieldValue('startTime', toDateTimeString(start));
+        if (end !== undefined) void setFieldValue('endTime', toDateTimeString(end));
+      }
     },
-    [setFieldValue],
+    [setFieldValue, type],
   );
 
   /**
@@ -245,13 +265,27 @@ export const TimeSlotPicker = ({
     }
   };
 
-  const bookedIntervals = useMemo(
-    () =>
-      existingBookings?.data
-        .map(appointmentToInterval)
-        .filter((interval) => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
-    [existingBookings?.data, initialInterval],
-  );
+  // Helper function to convert assignment to interval (similar to appointmentToInterval)
+  const assignmentToInterval = useCallback(({ startTime, endTime }) => {
+    if (!startTime || !endTime) return null;
+    return {
+      start: parseISO(startTime),
+      end: parseISO(endTime),
+    };
+  }, []);
+
+  const bookedIntervals = useMemo(() => {
+    if (type === 'bookings') {
+      return existingBookings?.data
+        ?.map(appointmentToInterval)
+        .filter((interval) => !isEqual(interval, initialInterval)) ?? []; // Ignore the booking currently being modified
+    } else if (type === 'assignments') {
+      return existingAssignments?.data
+        ?.map(assignmentToInterval)
+        .filter((interval) => interval && !isEqual(interval, initialInterval)) ?? []; // Ignore the assignment currently being modified
+    }
+    return [];
+  }, [existingBookings?.data, existingAssignments?.data, initialInterval, type, assignmentToInterval]);
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
@@ -266,8 +300,8 @@ export const TimeSlotPicker = ({
         switch (variant) {
           case TIME_SLOT_PICKER_VARIANTS.RANGE:
             return {
-              start: minValidDate([parseISO(values.startTime), timeSlot.start]),
-              end: maxValidDate([parseISO(values.endTime), timeSlot.end]),
+              start: minValidDate([type === 'assignments' ? values.startTime : parseISO(values.startTime), timeSlot.start]),
+              end: maxValidDate([type === 'assignments' ? values.endTime : parseISO(values.endTime), timeSlot.end]),
             };
           case TIME_SLOT_PICKER_VARIANTS.START:
             return {
@@ -287,7 +321,7 @@ export const TimeSlotPicker = ({
         areIntervalsOverlapping(targetSelection, interval),
       );
     },
-    [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
+    [bookedIntervals, dayEnd, dayStart, type, values.endTime, values.startTime, variant],
   );
 
   /**
@@ -309,8 +343,8 @@ export const TimeSlotPicker = ({
     const startTime = values.startTime;
     const endTime = values.endTime;
 
-    const start = parseISO(startTime);
-    const end = parseISO(endTime);
+    const start = type === 'assignments' ? startTime : parseISO(startTime);
+    const end = type === 'assignments' ? endTime : parseISO(endTime);
 
     if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE) {
       if (!startTime) {
@@ -332,7 +366,7 @@ export const TimeSlotPicker = ({
        * an overnight booking. Preserve the first time slot from that selection.
        */
       if (!endTime) {
-        const start = parseISO(startTime);
+        const start = type === 'assignments' ? startTime : parseISO(startTime);
         const slot = slotContaining(start);
 
         updateInterval(slot); // Retriggers this useEffect hook, but will fall to the next branch
@@ -389,6 +423,7 @@ export const TimeSlotPicker = ({
     hasNoLegalSelection,
     slotContaining,
     timeSlots,
+    type,
     updateInterval,
     values.endTime,
     values.startTime,
@@ -418,7 +453,7 @@ export const TimeSlotPicker = ({
         {...props}
         data-testid="togglegroup-fxn9"
       >
-        {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
+        {!date || (type === 'bookings' ? isFetchingExistingBookings : isFetchingExistingAssignments) || isTimeSlotsPending ? (
           <PlaceholderTimeSlotToggles data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
           timeSlots?.map((timeSlot) => {
@@ -437,8 +472,8 @@ export const TimeSlotPicker = ({
                 }
 
                 setHoverRange({
-                  start: min([timeSlot.start, parseISO(values.startTime)]),
-                  end: max([timeSlot.end, parseISO(values.endTime)]),
+                  start: min([timeSlot.start, type === 'assignments' ? values.startTime : parseISO(values.startTime)]),
+                  end: max([timeSlot.end, type === 'assignments' ? values.endTime : parseISO(values.endTime)]),
                 });
                 return;
               }
@@ -463,7 +498,7 @@ export const TimeSlotPicker = ({
             return (
               <TimeSlotToggle
                 booked={isBooked}
-                conflictTooltipTitle={CONFLICT_TOOLTIP_TITLE[variant]}
+                conflictTooltipTitle={type === 'assignments' ? 'Assignment time conflicts with existing assignment' : CONFLICT_TOOLTIP_TITLE[variant]}
                 disabled={disabled}
                 inHoverRange={hoverRange ? isIntervalWithinInterval(timeSlot, hoverRange) : false}
                 key={id}
@@ -494,6 +529,7 @@ TimeSlotPicker.propTypes = {
   label: PropTypes.elementType,
   required: PropTypes.bool,
   variant: PropTypes.oneOf(Object.values(TIME_SLOT_PICKER_VARIANTS)),
+  type: PropTypes.oneOf(['bookings', 'assignments']),
 };
 
 TimeSlotPicker.defaultProps = {
@@ -503,4 +539,5 @@ TimeSlotPicker.defaultProps = {
   label: undefined,
   required: false,
   variant: TIME_SLOT_PICKER_VARIANTS.RANGE,
+  type: 'bookings',
 };

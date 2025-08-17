@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import { useLocationAssignmentMutation } from '../../../api/mutations';
@@ -22,11 +22,12 @@ import {
   Field,
   Form,
   LocalisedLocationField,
-  SelectField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
+import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 
 const formStyles = {
   zIndex: 1000,
@@ -131,8 +132,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const [resolveFn, setResolveFn] = useState(null);
   const [selectedDate, setSelectedDate] = useState(initialValues.date);
 
-  // Get facility booking settings for time slots
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
   const { slots: timeSlots } = useBookingSlots(selectedDate ? new Date(selectedDate) : null);
 
   const handleShowWarningModal = async () =>
@@ -171,8 +170,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         userId,
         locationId,
         date,
-        startTime,
-        endTime,
+        startTime: toDateTimeString(startTime),
+        endTime: toDateTimeString(endTime),
       },
       {
         onSuccess: () => {
@@ -190,34 +189,10 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     locationGroupId: yup.string().required(requiredMessage),
     locationId: yup.string().required(requiredMessage),
     date: yup.string().required(requiredMessage),
-    startTime: yup.string().required(requiredMessage),
-    endTime: yup.string().required(requiredMessage),
+    startTime: yup.date().nullable().required(requiredMessage),
+    endTime: yup.date().nullable().required(requiredMessage),
   });
 
-  // Generate time slot options based on facility settings
-  const getTimeSlotOptions = () => {
-    if (!timeSlots || !bookingSlotSettings) {
-      // Default time slots if no settings
-      const defaultSlots = [];
-      for (let hour = 8; hour <= 17; hour++) {
-        for (let minute = 0; minute < 60; minute += 30) {
-          const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-          defaultSlots.push({ value: time, label: time });
-        }
-      }
-      return defaultSlots;
-    }
-
-    return timeSlots.map((slot) => {
-      const startTime = slot.start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      return {
-        value: startTime,
-        label: startTime,
-      };
-    });
-  };
-
-  const timeSlotOptions = getTimeSlotOptions();
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
     const warnAndResetForm = async () => {
@@ -314,8 +289,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
               />
             }
             component={DateField}
-            type="date"
             required
+            saveDateAsString
             onChange={(e) => {
               const newDate = e.target.value;
               setSelectedDate(newDate);
@@ -324,43 +299,20 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             }}
             data-testid="field-date"
           />
-          <Field
-            name="startTime"
+          <TimeSlotPicker
+            date={selectedDate}
+            disabled={!values.locationId || !selectedDate}
             label={
               <TranslatedText
-                stringId="locationAssignment.form.startTime.label"
-                fallback="Start time"
-                data-testid="translatedtext-start-time"
+                stringId="locationAssignment.form.assignmentTime.label"
+                fallback="Assignment time"
+                data-testid="translatedtext-assignment-time"
               />
             }
-            component={SelectField}
-            options={timeSlotOptions}
             required
-            onChange={(e) => {
-              const selectedStartTime = e.target.value;
-              setFieldValue('startTime', selectedStartTime);
-              
-              // Auto-calculate end time based on slot duration or default to 1 hour later
-              const startIndex = timeSlotOptions.findIndex(slot => slot.value === selectedStartTime);
-              if (startIndex >= 0 && startIndex < timeSlotOptions.length - 1) {
-                setFieldValue('endTime', timeSlotOptions[startIndex + 1].value);
-              }
-            }}
-            data-testid="field-start-time"
-          />
-          <Field
-            name="endTime"
-            label={
-              <TranslatedText
-                stringId="locationAssignment.form.endTime.label"
-                fallback="End time"
-                data-testid="translatedtext-end-time"
-              />
-            }
-            component={SelectField}
-            options={timeSlotOptions}
-            required
-            data-testid="field-end-time"
+            type="assignments"
+            variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
+            data-testid="timeslotpicker-assignment"
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>
