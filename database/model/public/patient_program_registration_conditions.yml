@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_patient_program_registration_conditions_changed
+              - record_patient_program_registration_conditions_changelog
+              - set_patient_program_registration_conditions_updated_at_sync_tic
         columns:
           - name: id
             data_type: character varying(255)

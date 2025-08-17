@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_invoice_payments_changed
+              - record_invoice_payments_changelog
+              - set_invoice_payments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

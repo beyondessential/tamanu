@@ -9,6 +9,11 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_vital_logs_changed
+              - record_vital_logs_changelog
+              - set_vital_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
