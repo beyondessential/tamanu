@@ -385,7 +385,11 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    // await Database.setUnsafePragma();
+    
+    if (this.syncSettings.useUnsafeSchemaForInitialSync) {
+      await Database.setUnsafePragma();
+    }
+    
     await Database.client.transaction(async transactionEntityManager => {
       try {
         const incomingModels = getTransactingModelsForDirection(
@@ -403,6 +407,11 @@ export class MobileSyncManager {
       } catch (err) {
         console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
         throw err;
+      } finally {
+        // Restore default pragma settings after initial sync
+        if (this.syncSettings.useUnsafeSchemaForInitialSync) {
+          await Database.setDefaultPragma();
+        }
       }
     });
   }

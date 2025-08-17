@@ -61,6 +61,11 @@ export const centralSettings = {
       description: 'Settings related to mobile sync',
       highRisk: true,
       properties: {
+        useUnsafeSchemaForInitialSync: {
+          description: 'Use unsafe schema for initial sync',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
         maxBatchesToKeepInMemory: {
           description:
             'The number of batches to keep in memory during saveChanges, currently equal to n * pullIncomingChanges.maxRecordsPerSnapshotBatch',
