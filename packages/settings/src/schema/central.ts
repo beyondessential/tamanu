@@ -56,10 +56,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },
@@ -95,6 +92,26 @@ export const centralSettings = {
                 'If a report takes longer than this, then temporarily suspend subsequent report generation',
               type: durationStringSchema('ifRunAtLeast'),
               defaultValue: '5m',
+            },
+          },
+        },
+      },
+    },
+    integrations: {
+      description: 'Integrations with other services',
+      properties: {
+        dhis2: {
+          description: 'DHIS2 settings',
+          properties: {
+            enabled: {
+              description: 'Whether DHIS2 integration is enabled',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            reportIds: {
+              description: 'The IDs of the reports to send to DHIS2',
+              type: yup.array(yup.string()),
+              defaultValue: [],
             },
           },
         },
