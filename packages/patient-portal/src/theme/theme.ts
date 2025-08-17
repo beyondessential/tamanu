@@ -1,16 +1,49 @@
 import { createTheme, Theme } from '@mui/material/styles';
-// @ts-ignore - Using JS package without types for now
-import { themeConfig } from '@tamanu/shared/ui/theme';
+import { TAMANU_COLORS as Colors } from '@tamanu/shared/ui/colors';
+
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
     secondary: true;
   }
 }
-// Override the typography for patient portal with clean Roboto fonts and proper sizes
+
+// Patient portal theme configuration with clean Roboto fonts and proper sizes
 const patientPortalThemeConfig = {
-  ...themeConfig,
+  palette: {
+    primary: {
+      main: Colors.primary,
+      dark: Colors.primaryDark,
+    },
+    secondary: {
+      main: Colors.secondary,
+      dark: '#905a00',
+    },
+    error: {
+      main: Colors.alert,
+    },
+    success: {
+      main: Colors.safe,
+    },
+    text: {
+      primary: Colors.darkestText,
+      secondary: Colors.darkText,
+      tertiary: Colors.midText,
+    },
+    background: {
+      default: Colors.background,
+      paper: Colors.white,
+      header: '#EAF2FF', // taken from colors.scss::$main-light-blue-color
+      light: '#F4F6F8', // taken from colors.scss::$main-light-gray-color
+      main: '#eff2f5', // taken from colors.scss::$main-bg-color
+    },
+    spacing: {
+      unit: 8,
+    },
+  },
+  themeName: 'Tamanu',
   typography: {
-    ...themeConfig.typography,
+    useNextVariants: true,
+    fontSize: 15,
     fontFamily: 'Roboto',
     h1: {
       fontFamily: 'Roboto',
@@ -48,11 +81,28 @@ const patientPortalThemeConfig = {
     },
   },
   shape: {
-    ...themeConfig.shape,
     borderRadius: 5,
   },
+  overrides: {
+    MuiCard: {
+      root: {
+        borderColor: Colors.outline,
+      },
+    },
+    MuiOutlinedInput: {
+      notchedOutline: {
+        borderColor: Colors.outline,
+      },
+    },
+  },
   components: {
-    ...themeConfig.components,
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: {
+          borderColor: Colors.outline,
+        },
+      },
+    },
     MuiCard: {
       defaultProps: {
         elevation: 0,
