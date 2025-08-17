@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import { all as allMath, create } from 'mathjs';
 
 // set up math context
@@ -56,7 +57,7 @@ export function runCalculations(components, values) {
           calculatedValues[c.dataElement.id] = null;
           continue;
         }
-        
+
         let value = math.evaluate(c.calculation, inputValues);
 
         if (Number.isNaN(value)) {
@@ -76,3 +77,15 @@ export function runCalculations(components, values) {
 
   return calculatedValues;
 }
+
+export const getStringOfCalculatedValue = value => {
+  if (isNil(value)) {
+    return '';
+  }
+
+  if (!(typeof value === 'number')) {
+    throw new Error(`Unexpected calculated value is not a number: ${value}`);
+  }
+
+  return value.toFixed(1);
+};

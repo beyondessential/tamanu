@@ -5,6 +5,7 @@ import { intervalToDuration, parseISO } from 'date-fns';
 import { camelCase, isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
+import { getStringOfCalculatedValue } from '@tamanu/shared/utils/calculations';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -42,7 +43,7 @@ import { SurveyAnswerField } from '../components/Field/SurveyAnswerField';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { DateDisplay } from '../components';
 
-const isNullOrUndefined = (value) => isNull(value) || isUndefined(value);
+const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -57,15 +58,21 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: (props) => <DateField {...props} saveDateAsString />,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: (props) => <DateTimeField {...props} saveDateAsString />,
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: (props) => (
-    <DateField {...props} saveDateAsString />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: props => <DateTimeField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ({ field, ...props }) => (
+    <ReadOnlyTextField
+      {...props}
+      field={{
+        ...field,
+        value: getStringOfCalculatedValue(field?.value),
+      }}
+    />
+  ),
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: SurveyAnswerField,
@@ -76,13 +83,13 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: props => (
     <DateTimeField {...props} saveDateAsString />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: (props) => (
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: (props) => (
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: props => (
     <BaseSelectField {...props} clearValue="" />
   ),
 };
@@ -113,10 +120,10 @@ export function mapOptionsToValues(options) {
   if (!options) return null;
   if (typeof options === 'object') {
     // sometimes this is a map of value => value
-    return Object.values(options).map((x) => ({ label: x, value: x }));
+    return Object.values(options).map(x => ({ label: x, value: x }));
   }
   if (!Array.isArray(options)) return null;
-  return options.map((x) => ({ label: x, value: x }));
+  return options.map(x => ({ label: x, value: x }));
 }
 
 /**
@@ -137,7 +144,7 @@ export function checkVisibility(component, values, allComponents) {
 
   try {
     const valuesByCode = Object.entries(values).reduce((acc, [key, val]) => {
-      const matchingComponent = allComponents.find((x) => x.dataElement.id === key);
+      const matchingComponent = allComponents.find(x => x.dataElement.id === key);
       if (matchingComponent) {
         acc[matchingComponent.dataElement.code] = val;
       }
@@ -164,8 +171,8 @@ function fallbackParseVisibilityCriteria({ visibilityCriteria, dataElement }, va
   }
   if (!visibilityCriteria) return true;
 
-  const [code, requiredValue] = visibilityCriteria.split(':').map((x) => x.trim());
-  const referencedComponent = components.find((c) => c.dataElement.code === code);
+  const [code, requiredValue] = visibilityCriteria.split(':').map(x => x.trim());
+  const referencedComponent = components.find(c => c.dataElement.code === code);
   if (!referencedComponent) return true;
 
   const key = referencedComponent.dataElement.id;
@@ -208,7 +215,7 @@ export function getConfigObject(componentId, config) {
   }
 }
 
-export const getPatientDataDbLocation = (columnName) => {
+export const getPatientDataDbLocation = columnName => {
   const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[columnName] ?? [null, null];
   return {
     modelName,
@@ -258,7 +265,7 @@ function transformPatientData(patient, additionalData, patientProgramRegistratio
         default: {
           // Check for custom patient fields
           const { fieldValues } = patient;
-          const fieldValue = fieldValues.find((x) => x.definitionId === column);
+          const fieldValue = fieldValues.find(x => x.definitionId === column);
           if (fieldValue) return fieldValue.value;
 
           return undefined;
