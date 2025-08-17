@@ -146,7 +146,12 @@ const getColumns = (
         if (!lastOrderedAt) {
           return (
             <NoWrapCell color={'inherit'} fontStyle={'normal'}>
-              &nbsp;
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                casing="lower"
+                data-testid="translatedtext-nc3a"
+              />
             </NoWrapCell>
           );
         }

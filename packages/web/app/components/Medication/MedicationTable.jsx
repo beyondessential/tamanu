@@ -275,7 +275,12 @@ const getMedicationColumns = (
               color={isPausing ? Colors.softText : 'inherit'}
               fontStyle={isPausing ? 'italic' : 'normal'}
             >
-              &nbsp;
+              <TranslatedText
+                stringId="general.fallback.notApplicable"
+                fallback="N/A"
+                casing="lower"
+                data-testid="translatedtext-nc3a"
+              />
             </NoWrapCell>
           );
         }
