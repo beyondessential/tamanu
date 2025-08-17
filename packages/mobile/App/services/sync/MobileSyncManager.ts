@@ -409,8 +409,9 @@ export class MobileSyncManager {
         console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
         throw err;
       } finally {
+        
         // Restore default pragma settings after initial sync
-        if (this.syncSettings.useUnsafeSchemaForInitialSync) {
+        if (useUnsafeSchemaForInitialSync) {
           await Database.setDefaultPragma();
         }
       }

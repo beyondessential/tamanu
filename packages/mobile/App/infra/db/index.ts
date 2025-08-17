@@ -144,12 +144,12 @@ class DatabaseHelper {
       await this.client.query(`PRAGMA journal_mode = OFF;`); 
       // Disables fsync() - SQLite doesn't wait for OS to confirm disk writes
       await this.client.query(`PRAGMA synchronous = 0;`); 
-      // Sets page cache to 50K pages (~50MB with default 1KB pages) - reduced from 1M to prevent OOM
-      await this.client.query(`PRAGMA cache_size = 50000;`); 
+      // Sets page cache to 1M pages (~1GB with default 1KB pages)
+      await this.client.query(`PRAGMA cache_size = 1000000;`); 
       // Locks database exclusively - prevents other processes from accessing
       await this.client.query(`PRAGMA locking_mode = EXCLUSIVE;`); 
-      // Stores temporary tables on disk instead of RAM to reduce memory pressure
-      await this.client.query(`PRAGMA temp_store = FILE;`); 
+      // Stores temporary tables, indices, and views in RAM instead of disk
+      await this.client.query(`PRAGMA temp_store = MEMORY;`); 
       console.log('Applied unsafe pragma settings');
     } catch (e) {
       console.error('Error applying unsafe pragma settings:', e);
