@@ -63,7 +63,7 @@ export const centralSettings = {
       properties: {
         useUnsafeSchemaForInitialSync: {
           description:
-            'Use unsafe schema for initial sync, turn off if large initial syncs over 2mil records',
+            'Use unsafe schema for initial sync which is faster but should be turned off if large initial syncs over 3 million records',
           type: yup.boolean(),
           defaultValue: true,
         },
