@@ -265,6 +265,7 @@ const getMedicationColumns = (
       title: (
         <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
       ),
+      sortable: false,
       accessor: ({ lastOrderedAt, encounterPrescription, discontinued }) => {
         const pauseData = encounterPrescription?.pausePrescriptions?.[0];
         const isPausing = !!pauseData && !discontinued;
