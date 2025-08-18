@@ -27,6 +27,52 @@ const StyledTable = styled(Table)`
       }
     }
   }
+  .MuiTableCell-head {
+    background-color: ${Colors.white};
+    padding-top: 12px;
+    padding-bottom: 12px;
+    span,
+    div {
+      font-weight: 400;
+    }
+    span:not(.required-indicator),
+    div {
+      color: ${Colors.midText};
+    }
+    padding-left: 10px;
+    padding-right: 10px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableCell-body {
+    padding: ${props => (props.$noData ? '10px' : '4px 10px')};
+    height: 44px;
+    &:last-child {
+      padding-right: 10px;
+    }
+    &:first-child {
+      padding-left: 10px;
+    }
+  }
+  .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
+    &:hover {
+      background-color: ${Colors.veryLightBlue};
+    }
+  }
+  .MuiTableBody-root {
+    .MuiTableRow-root {
+      &:last-child {
+        td {
+          border-bottom: none;
+        }
+      }
+    }
+  }
 `;
 
 const NoWrapCell = styled(Box)`
