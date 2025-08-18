@@ -256,7 +256,7 @@ patientPortal.post(
     // If the patient has not yet registered for the portal, we need to register them and send the unregistered form email.
     // Otherwise, we just send the registered form email.
     if (!patientUser) {
-      await registerPatient({ patientId, models });
+      await registerPatient({ patientId, models, patientEmail });
       await sendUnregisteredFormEmail({
         patient,
         patientEmail: patientEmail ?? patientUser.email,
