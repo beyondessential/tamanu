@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import { chunk, omit, omitBy } from 'lodash';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PATIENT_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -35,7 +35,6 @@ export const simpleUpdateModels = [
   'PatientContact',
   'IPSRequest',
   'Notification',
-  'PatientUser',
   'PatientSurveyAssignment',
 ];
 
@@ -55,6 +54,7 @@ export const specificUpdateModels = [
   'Note',
   'PatientFacility',
   'PatientFieldValue',
+  'PatientUser',
 ];
 
 // These columns should be omitted as we never want
@@ -98,7 +98,7 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = (field) => field.references?.model === 'patients';
+const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
@@ -255,13 +255,16 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
       });
 
       // Move conditions to the new patient program registration
-      await models.PatientProgramRegistrationCondition.update({
-        patientProgramRegistrationId: newRegistration.id,
-      }, {
-        where: {
-          patientProgramRegistrationId: unwantedRegistration.id,
+      await models.PatientProgramRegistrationCondition.update(
+        {
+          patientProgramRegistrationId: newRegistration.id,
         },
-      });
+        {
+          where: {
+            patientProgramRegistrationId: unwantedRegistration.id,
+          },
+        },
+      );
     }
 
     // Always destroy the unwanted registration
@@ -317,6 +320,51 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   return records;
 }
 
+export async function mergePatientUser(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPatientUser = await models.PatientUser.findOne({
+    where: { patientId: unwantedPatientId },
+  });
+  if (!existingUnwantedPatientUser) return null;
+
+  const existingKeepPatientUser = await models.PatientUser.findOne({
+    where: { patientId: keepPatientId },
+  });
+
+  // If the keep patient doesn't have a portal account, transfer the unwanted patient's account
+  if (!existingKeepPatientUser) {
+    return existingUnwantedPatientUser.update({
+      patientId: keepPatientId,
+    });
+  }
+
+  // If both patients have portal accounts, we need to decide which one to keep
+  // Priority logic:
+  // 1. Keep the account with the most recent activity (if status indicates activity)
+  // 2. Keep the account that's currently active/enabled
+  // 3. Keep the account from the keep patient as fallback
+
+  const shouldKeepUnwantedAccount =
+    // If keep account is inactive but unwanted account is active
+    (existingKeepPatientUser.status !== PATIENT_USER_STATUSES.REGISTERED &&
+      existingUnwantedPatientUser.status === PATIENT_USER_STATUSES.REGISTERED) ||
+    // If both have same status, prefer the one with more recent updates
+    (existingKeepPatientUser.status === existingUnwantedPatientUser.status &&
+      new Date(existingUnwantedPatientUser.updatedAt) >
+        new Date(existingKeepPatientUser.updatedAt));
+
+  if (shouldKeepUnwantedAccount) {
+    // Delete the keep patient's account and transfer the unwanted patient's account
+    await existingKeepPatientUser.destroy();
+    return existingUnwantedPatientUser.update({
+      patientId: keepPatientId,
+    });
+  } else {
+    // Keep the existing account and delete the unwanted one
+    await existingUnwantedPatientUser.destroy();
+    return existingKeepPatientUser;
+  }
+}
+
 export async function reconcilePatientFacilities(models, keepPatientId, unwantedPatientId) {
   // This is a special case that helps with syncing the now-merged patient to any facilities
   // that track it
@@ -338,9 +386,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
     patientId: keepPatientId,
     facilityId,
   }));
@@ -491,6 +539,12 @@ export async function mergePatient(
     );
     if (patientProgramRegistrationUpdates.length > 0) {
       updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
+    }
+
+    // Merge PatientUser records - ensure only one portal account per patient
+    const updatedPatientUser = await mergePatientUser(models, keepPatientId, unwantedPatientId);
+    if (updatedPatientUser) {
+      updates.PatientUser = 1;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
