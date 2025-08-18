@@ -2,7 +2,7 @@ sql: |
   SELECT
     'No sync sessions created in the last 30 minutes' AS alert_message,
     COUNT(*) AS sessions_in_window,
-    MAX(created_at) AS last_session_created
+    (SELECT MAX(created_at) FROM sync_sessions) AS last_session_created
   FROM sync_sessions
   WHERE created_at > now() - interval '30 minutes'
   HAVING COUNT(*) = 0
