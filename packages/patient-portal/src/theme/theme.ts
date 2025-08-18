@@ -1,5 +1,5 @@
 import { createTheme, Theme } from '@mui/material/styles';
-import { TAMANU_COLORS as Colors } from '@tamanu/shared/ui/colors';
+import { TAMANU_COLORS as Colors } from '@tamanu/ui-components/colors';
 
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {

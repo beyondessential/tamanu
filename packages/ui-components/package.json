@@ -1,0 +1,25 @@
+{
+  "name": "@tamanu/ui-components",
+  "version": "0.1.0",
+  "description": "Tamanu UI components and shared UI primitives",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": "./src/index.js",
+    "./colors": "./src/colors.js",
+    "./card": "./src/card.jsx",
+    "./*": "./src/*.js"
+  },
+  "scripts": {
+    "build": "echo 'no build required'",
+    "clean": "rimraf dist",
+    "clean:deps": "rimraf node_modules"
+  },
+  "homepage": "https://github.com/beyondessential/tamanu.git#readme",
+  "repository": "git@github.com:beyondessential/tamanu.git",
+  "author": "Beyond Essential Systems Pty. Ltd.",
+  "license": "GPL-3.0-or-later"
+}

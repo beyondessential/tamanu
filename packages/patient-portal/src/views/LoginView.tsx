@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, Container, Paper, TextField, Button } from '@mui/material';
-
+import { AccordionSection } from '@tamanu/ui-components';
 import { useAuth } from '@auth/useAuth';
+import { User } from 'lucide-react';
 
 export const LoginView = () => {
   const { login } = useAuth();
@@ -20,6 +21,9 @@ export const LoginView = () => {
 
   return (
     <Container maxWidth="md">
+      <AccordionSection header="Patient Details" icon={<User />}>
+        test
+      </AccordionSection>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h4" component="h1" gutterBottom>

@@ -70,7 +70,8 @@
       "packages/upgrade",
       "packages/utils",
       "packages/web",
-      "packages/patient-portal"
+      "packages/patient-portal",
+      "packages/ui-components"
     ]
   },
   "devDependencies": {

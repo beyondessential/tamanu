@@ -66,14 +66,6 @@
       "require": "./dist/cjs/utils/*.js",
       "import": "./dist/esm/utils/*.js"
     },
-    "./ui/*": {
-      "require": "./dist/cjs/ui/*.js",
-      "import": "./dist/esm/ui/*.js"
-    },
-    "./ui/theme": {
-      "require": "./dist/cjs/ui/theme/index.js",
-      "import": "./dist/esm/ui/theme/index.js"
-    },
     "./audit/*": {
       "require": "./dist/cjs/audit/*.js",
       "import": "./dist/esm/audit/*.js"

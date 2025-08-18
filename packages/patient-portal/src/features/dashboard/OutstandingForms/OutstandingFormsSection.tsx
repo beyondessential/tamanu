@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { CircleCheck, Clock } from 'lucide-react';
-import { TAMANU_COLORS } from '@tamanu/shared/ui/colors';
+import { TAMANU_COLORS } from '@tamanu/ui-components/colors';
 
 import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { OutstandingFormCard } from './OutstandingFormCard';
