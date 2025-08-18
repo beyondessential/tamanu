@@ -272,6 +272,67 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       expect(prescription.medication).toHaveProperty('name', 'Ongoing Medication');
     });
 
+    it('Should return prescriptions when discontinued is null', async () => {
+      const testPatient = await store.models.Patient.create(
+        fake(store.models.Patient, {
+          displayId: 'TEST005',
+          firstName: 'NullDiscontinued',
+          lastName: 'Patient',
+          sex: 'male',
+        }),
+      );
+
+      await store.models.PatientUser.create({
+        email: 'nulldiscontinued@test.com',
+        patientId: testPatient.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const testMedication = await store.models.ReferenceData.create(
+        fake(store.models.ReferenceData, {
+          type: 'drug',
+          name: 'Ibuprofen',
+          code: 'IBU001',
+        }),
+      );
+
+      // Create prescription with discontinued: null
+      const testPrescription = await store.models.Prescription.create({
+        medicationId: testMedication.id,
+        doseAmount: 250,
+        units: 'mg',
+        frequency: 'three times daily',
+        route: 'oral',
+        date: new Date().toISOString(),
+        startDate: new Date().toISOString(),
+        isOngoing: true,
+        discontinued: null,
+        prescriberId: testPrescriber.id,
+      });
+
+      await store.models.PatientOngoingPrescription.create({
+        patientId: testPatient.id,
+        prescriptionId: testPrescription.id,
+      });
+
+      const authToken = await getPatientAuthToken(baseApp, 'nulldiscontinued@test.com');
+
+      const response = await baseApp
+        .get('/api/portal/me/ongoing-prescriptions')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(1);
+
+      const prescription = response.body.data[0];
+      expect(prescription).toHaveProperty('medication');
+      expect(prescription.medication).toHaveProperty('name', 'Ibuprofen');
+      expect(prescription).not.toHaveProperty('discontinued');
+    });
+
     it('Should only return ongoing prescriptions for the target patient (comprehensive filtering)', async () => {
       const { Patient, PatientUser, Prescription, PatientOngoingPrescription, ReferenceData } =
         store.models;
