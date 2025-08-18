@@ -336,11 +336,7 @@ export async function mergePatientUser(models, keepPatientId, unwantedPatientId)
       patientId: keepPatientId,
     });
   }
-
-  // If both patients have portal accounts
-  // 1. Keep the account with the most recent activity
-  // 2. Keep the account that's currently registered
-  // 3. Keep the account from the keep patient as fallback
+  
   const shouldKeepUnwantedAccount =
     // If keep account is inactive but unwanted account is registered
     (existingKeepPatientUser.status !== PATIENT_USER_STATUSES.REGISTERED &&
