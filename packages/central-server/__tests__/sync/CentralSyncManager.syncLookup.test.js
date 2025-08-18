@@ -106,6 +106,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistration,
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
+      PatientSurveyAssignment,
       Permission,
       ReportDefinitionVersion,
       Setting,
@@ -366,6 +367,13 @@ describe('Sync Lookup data', () => {
         surveyId: survey.id,
         option: '{"foo":"bar"}',
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+      }),
+    );
+    await PatientSurveyAssignment.create(
+      fake(PatientSurveyAssignment, {
+        patientId: patient.id,
+        surveyId: survey.id,
+        assignedById: examiner.id,
       }),
     );
     const surveyResponse = await SurveyResponse.create(
