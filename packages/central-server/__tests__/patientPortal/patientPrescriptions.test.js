@@ -273,7 +273,6 @@ describe('Patient Portal Prescriptions Endpoints', () => {
     });
 
     it('Should return prescriptions when discontinued is null', async () => {
-      // Create a patient with a prescription that has discontinued: null
       const patientWithNullDiscontinued = await store.models.Patient.create(
         fake(store.models.Patient, {
           displayId: 'TEST005',
@@ -290,7 +289,6 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      // Create medication reference data
       const nullDiscontinuedMedication = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
           type: 'drug',
@@ -313,7 +311,6 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         prescriberId: testPrescriber.id,
       });
 
-      // Link prescription to patient
       await store.models.PatientOngoingPrescription.create({
         patientId: patientWithNullDiscontinued.id,
         prescriptionId: nullDiscontinuedPrescription.id,
