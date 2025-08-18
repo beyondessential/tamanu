@@ -13,7 +13,7 @@ export async function initDeviceId({ context, serverType }) {
     throw new Error('Server type is required to initialize device ID');
   }
 
-  const { LocalSystemFact } = context.models;
+  const { LocalSystemFact } = context.store?.models || context.models;
   let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
     deviceId = config.deviceId ?? `${serverType}-${shortid()}`;
