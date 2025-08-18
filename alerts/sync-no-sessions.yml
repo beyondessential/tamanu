@@ -1,10 +1,11 @@
 sql: |
-  SELECT
-    COUNT(*) AS sessions_in_window,
-    (SELECT MAX(created_at) FROM sync_sessions) AS last_session_created
-  FROM sync_sessions
-  WHERE created_at > now() - interval '30 minutes'
-  HAVING COUNT(*) = 0
+  SELECT facility_id, last_successful_sync FROM (
+    SELECT parameters->'facilityIds'->>0 as facility_id, max(completed_at) as last_successful_sync
+    FROM sync_sessions
+    WHERE errors IS NULL
+    GROUP BY parameters->'facilityIds'->>0
+  ) AS last_successful_facility_syncs
+  WHERE last_successful_sync < now() - interval '1 hour'
 
 send:
   - target: external
