@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-
-import { useSendPatientPortalRegistrationEmail } from '../../../api/mutations/useSendPatientPortalRegistrationEmailMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
 import { FormSubmitCancelRow } from '../../ButtonRow';
+import { useRegisterPatientPortal } from '../../../api/mutations';
 
-export const SendToPatientModal = React.memo(({ open, onClose, patient }) => {
-  const { mutate: sendPatientPortalRegistrationEmail } = useSendPatientPortalRegistrationEmail({
+export const SendToPatientModal = ({ patient }) => {
+  const [open, setOpen] = useState(true);
+
+  const onClose = () => setOpen(false);
+
+  const { mutate: registerPatientPortal } = useRegisterPatientPortal({
     onSuccess: () => {
       toast.success(
         <TranslatedText
@@ -22,7 +25,7 @@ export const SendToPatientModal = React.memo(({ open, onClose, patient }) => {
   });
 
   const handleSubmit = async ({ email }) => {
-    sendPatientPortalRegistrationEmail({ patientId: patient.id, email });
+    registerPatientPortal({ patientId: patient.id, email });
   };
 
   return (
@@ -52,4 +55,4 @@ export const SendToPatientModal = React.memo(({ open, onClose, patient }) => {
       />
     </FormModal>
   );
-});
+};

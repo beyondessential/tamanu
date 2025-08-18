@@ -14,7 +14,7 @@ import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
-import { PatientPortalRegistrationModal } from './PatientPortalRegistrationModal';
+import { SendToPatientModal } from './SendToPatientModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
 import { MultilabelIdIcon } from '../icons/MultilabelIdIcon';
 import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon';
@@ -146,13 +146,13 @@ const PRINT_OPTIONS = {
     caption: (
       <TranslatedText
         stringId="patientDetails.resources.patientPortalRegistration.caption"
-        fallback="Set up patient portal using the QR code"
+        fallback="Set up patient portal access"
         data-testid="translatedtext-nvj2"
       />
     ),
-    // TODO: Rename to QR code icon
+    // TODO: Change icon
     icon: InternationalPatientSummaryIcon,
-    component: PatientPortalRegistrationModal,
+    component: SendToPatientModal,
   },
 };
 
