@@ -3,14 +3,14 @@ import { SexCell } from '../../views/patients/columns';
 import { LocationCell } from '../LocationCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedSex, TranslatedText } from '.';
 import { ClinicalStatusCell } from '../../views/programRegistry/ClinicalStatusDisplay';
-import { getReferenceDataStringId } from './TranslatedReferenceData';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 /**
  * Given a valid React element, returns true if and only if that element is a wrapper around
  * {@link TranslatedText}. In other words, it is an element whose root might be a `<TranslatedText>`
  * element.
  */
-export const isTranslatedText = (element) => {
+export const isTranslatedText = element => {
   if (!isValidElement(element)) return false;
 
   return [
