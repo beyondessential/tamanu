@@ -330,11 +330,18 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
       >
         <AlreadyOrderedContent>
           <AlreadyOrderedPrimaryText>
-            <TranslatedText
-              stringId="pharmacyOrder.orderConfirmation.message"
-              fallback="The below medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
-              replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
-            />
+            {medicationAlreadyOrderedConfirmationTimeout === 1 ? (
+              <TranslatedText
+                stringId="pharmacyOrder.orderConfirmation.message.singleHour"
+                fallback="The below medications have already been ordered within the past hour"
+              />
+            ) : (
+              <TranslatedText
+                stringId="pharmacyOrder.orderConfirmation.message.multipleHours"
+                fallback="The below medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
+                replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
+              />
+            )}
           </AlreadyOrderedPrimaryText>
           <AlreadyOrderedSecondaryText>
             <TranslatedText
