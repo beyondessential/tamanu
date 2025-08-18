@@ -8,15 +8,15 @@ import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
  * @param {DeviceType} serverType - The type of server (facility or central)
  * @returns {Promise<void>}
  */
-export async function initDeviceId({ context, serverType }) {
-  if (!serverType) {
-    throw new Error('Server type is required to initialize device ID');
+export async function initDeviceId({ context, deviceType }) {
+  if (!deviceType) {
+    throw new Error('Device type is required to initialize device ID');
   }
 
   const { LocalSystemFact } = context.store?.models || context.models;
   let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
-    deviceId = config.deviceId ?? `${serverType}-${shortid()}`;
+    deviceId = config.deviceId ?? `${deviceType}-${shortid()}`;
     await LocalSystemFact.set(FACT_DEVICE_ID, deviceId);
   } else if (config.deviceId && deviceId !== config.deviceId) {
     throw new Error(
