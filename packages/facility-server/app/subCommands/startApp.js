@@ -6,7 +6,7 @@ import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 
 import { checkConfig } from '../checkConfig';
-import { initDeviceId } from '../sync/initDeviceId';
+import { initDeviceId } from '@tamanu/shared/utils';
 import { initTimesync } from '../services/initTimesync';
 import { performDatabaseIntegrityChecks } from '../database';
 import { FacilitySyncConnection, CentralServerConnection, FacilitySyncManager } from '../sync';
@@ -25,7 +25,7 @@ const APP_TYPES = {
 };
 
 const startApp =
-  (appType) =>
+  appType =>
   async ({ skipMigrationCheck }) => {
     log.info(`Starting facility ${appType} server version ${version}`, {
       serverFacilityIds: selectFacilityIds(config),
@@ -43,7 +43,7 @@ const startApp =
       await context.sequelize.assertUpToDate({ skipMigrationCheck });
     }
 
-    await initDeviceId(context);
+    await initDeviceId({ context, serverType: 'facility' });
     await checkConfig(context);
     await performDatabaseIntegrityChecks(context);
 

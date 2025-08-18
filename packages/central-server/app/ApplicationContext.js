@@ -11,7 +11,7 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
-import { initDeviceId } from './sync/initDeviceId';
+import { initDeviceId } from '@tamanu/shared/utils';
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -69,7 +69,7 @@ export class ApplicationContext {
     this.settings = new ReadSettings(this.store.models);
 
     // Initialize device ID for all app types
-    await initDeviceId(this);
+    await initDeviceId({ context: this, serverType: 'central' });
 
     // no need to set up services, integrations, etc. for migrations
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {

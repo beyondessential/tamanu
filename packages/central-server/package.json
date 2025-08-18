@@ -98,7 +98,6 @@
     "node-telegram-bot-api": "^0.65.1",
     "pg": "^8.5.1",
     "pkijs": "^2.2.1",
-    "shortid": "^2.2.13",
     "prompts": "^2.0.0",
     "qrcode": "^1.5.0",
     "react": "16.8.5",
