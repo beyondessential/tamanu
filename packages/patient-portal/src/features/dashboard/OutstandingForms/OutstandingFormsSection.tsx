@@ -1,11 +1,11 @@
 import React from 'react';
 import { Stack, Typography, Card, CardContent, CardHeader } from '@mui/material';
 import { CircleCheck, Clock } from 'lucide-react';
+import { TAMANU_COLORS } from '@tamanu/shared/ui/colors';
 
 import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { OutstandingFormCard } from './OutstandingFormCard';
 import { useOutstandingFormsQuery } from '@api/queries/useOutstandingFormsQuery';
-import { Colors } from '@tamanu/shared/ui/theme/colors';
 
 export const OutstandingFormsSection = () => {
   const { data: forms, isLoading } = useOutstandingFormsQuery();
@@ -25,7 +25,7 @@ export const OutstandingFormsSection = () => {
           hasOutstandingForms ? (
             <Clock size={24} color="#f44336" />
           ) : (
-            <CircleCheck size={24} color={Colors.green} />
+            <CircleCheck size={24} color={TAMANU_COLORS.green} />
           )
         }
         title={
