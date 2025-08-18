@@ -83,18 +83,6 @@ const patientPortalThemeConfig = {
   shape: {
     borderRadius: 5,
   },
-  overrides: {
-    MuiCard: {
-      root: {
-        borderColor: Colors.outline,
-      },
-    },
-    MuiOutlinedInput: {
-      notchedOutline: {
-        borderColor: Colors.outline,
-      },
-    },
-  },
   components: {
     MuiOutlinedInput: {
       styleOverrides: {

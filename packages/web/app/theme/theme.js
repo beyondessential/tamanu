@@ -54,11 +54,14 @@ const themeConfig = {
   },
   // Required as we are now using the latest version of MUI, which has a different structure for component override
   components: {
+    MuiCard: {
+      root: {
+        borderColor: Colors.outline,
+      },
+    },
     MuiOutlinedInput: {
-      styleOverrides: {
-        notchedOutline: {
-          borderColor: Colors.outline,
-        },
+      notchedOutline: {
+        borderColor: Colors.outline,
       },
     },
   },
