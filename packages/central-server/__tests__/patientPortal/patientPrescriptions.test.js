@@ -273,7 +273,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
     });
 
     it('Should return prescriptions when discontinued is null', async () => {
-      const testPatient = await store.models.Patient.create(
+      // Create a patient with a prescription that has discontinued: null
+      const patientWithNullDiscontinued = await store.models.Patient.create(
         fake(store.models.Patient, {
           displayId: 'TEST005',
           firstName: 'NullDiscontinued',
@@ -284,22 +285,23 @@ describe('Patient Portal Prescriptions Endpoints', () => {
 
       await store.models.PatientUser.create({
         email: 'nulldiscontinued@test.com',
-        patientId: testPatient.id,
+        patientId: patientWithNullDiscontinued.id,
         role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const testMedication = await store.models.ReferenceData.create(
+      // Create medication reference data
+      const nullDiscontinuedMedication = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
           type: 'drug',
-          name: 'Ibuprofen',
-          code: 'IBU001',
+          name: 'Null Discontinued Medication',
+          code: 'NULL001',
         }),
       );
 
       // Create prescription with discontinued: null
-      const testPrescription = await store.models.Prescription.create({
-        medicationId: testMedication.id,
+      const nullDiscontinuedPrescription = await store.models.Prescription.create({
+        medicationId: nullDiscontinuedMedication.id,
         doseAmount: 250,
         units: 'mg',
         frequency: 'three times daily',
@@ -307,29 +309,30 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         date: new Date().toISOString(),
         startDate: new Date().toISOString(),
         isOngoing: true,
-        discontinued: null,
+        discontinued: null, 
         prescriberId: testPrescriber.id,
       });
 
+      // Link prescription to patient
       await store.models.PatientOngoingPrescription.create({
-        patientId: testPatient.id,
-        prescriptionId: testPrescription.id,
+        patientId: patientWithNullDiscontinued.id,
+        prescriptionId: nullDiscontinuedPrescription.id,
       });
 
-      const authToken = await getPatientAuthToken(baseApp, 'nulldiscontinued@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, 'nulldiscontinued@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-prescriptions')
-        .set('Authorization', `Bearer ${authToken}`);
+        .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('data');
       expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1);
+      expect(response.body.data.length).toBe(1); // Should return the prescription with null discontinued
 
       const prescription = response.body.data[0];
       expect(prescription).toHaveProperty('medication');
-      expect(prescription.medication).toHaveProperty('name', 'Ibuprofen');
+      expect(prescription.medication).toHaveProperty('name', 'Null Discontinued Medication');
       expect(prescription).not.toHaveProperty('discontinued');
     });
 
@@ -480,7 +483,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       // Create another patient for this test
       const patientWithNullFrequency = await store.models.Patient.create(
         fake(store.models.Patient, {
-          displayId: 'TEST005',
+          displayId: 'TEST006',
           firstName: 'Charlie',
           lastName: 'Wilson',
           sex: 'male',
@@ -545,7 +548,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       // Create a new patient without prescriptions
       const newPatient = await store.models.Patient.create(
         fake(store.models.Patient, {
-          displayId: 'TEST006',
+          displayId: 'TEST007',
           firstName: 'Diana',
           lastName: 'Miller',
           sex: 'female',
