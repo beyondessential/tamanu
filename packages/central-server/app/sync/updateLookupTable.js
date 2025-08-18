@@ -140,7 +140,7 @@ export const updateLookupTable = withConfig(
         const modelChangesCount = await updateLookupTableForModel(
           model,
           config,
-          shouldFullyRebuild ? 0 : since,
+          shouldFullyRebuild ? -1 : since,
           sessionConfig,
           syncLookupTick,
         );
