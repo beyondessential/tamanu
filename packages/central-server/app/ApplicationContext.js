@@ -68,7 +68,6 @@ export class ApplicationContext {
 
     this.settings = new ReadSettings(this.store.models);
 
-    // Initialize device ID for all app types
     await initDeviceId({ context: this, serverType: 'central' });
 
     // no need to set up services, integrations, etc. for migrations
