@@ -55,6 +55,27 @@ describe('Appointments', () => {
     expect(result.body.clinicianId).toEqual(userApp.user.dataValues.id);
   });
 
+  it('should create PatientFacility record when outpatient appointment is created', async () => {
+    // Create an appointment with a locationGroupId to ensure we can determine the facility
+    const locationGroup = await models.LocationGroup.findOne({ where: { facilityId } });
+    const result = await userApp.post('/api/appointments').send({
+      patientId: patient.id,
+      startTime: add(new Date(), { days: 2 }),
+      clinicianId: userApp.user.dataValues.id,
+      appointmentTypeId: 'appointmentType-standard',
+      locationGroupId: locationGroup.id,
+    });
+    expect(result).toHaveSucceeded();
+
+    // Verify that a PatientFacility record was created
+    const patientFacility = await models.PatientFacility.findOne({
+      where: { patientId: patient.id, facilityId },
+    });
+    expect(patientFacility).not.toBeNull();
+    expect(patientFacility.patientId).toEqual(patient.id);
+    expect(patientFacility.facilityId).toEqual(facilityId);
+  });
+
   it('should list appointments', async () => {
     const result = await userApp.get('/api/appointments');
     expect(result).toHaveSucceeded();
@@ -80,7 +101,7 @@ describe('Appointments', () => {
       patientId: patient.id,
     });
 
-    const searchPatientNameOrId = (query) =>
+    const searchPatientNameOrId = query =>
       userApp.get(`/api/appointments?patientNameOrId=${query}`);
 
     // Valid searches
@@ -206,6 +227,20 @@ describe('Appointments', () => {
       await models.Appointment.truncate();
     });
 
+    it('should create PatientFacility record when location booking is created', async () => {
+      // Create a location booking
+      const result = await makeBooking('2024-10-03 12:00:00', '2024-10-03 12:30:00');
+      expect(result).toHaveSucceeded();
+
+      // Verify that a PatientFacility record was created
+      const patientFacility = await models.PatientFacility.findOne({
+        where: { patientId, facilityId },
+      });
+      expect(patientFacility).not.toBeNull();
+      expect(patientFacility.patientId).toEqual(patientId);
+      expect(patientFacility.facilityId).toEqual(facilityId);
+    });
+
     describe('booked time conflict checking', () => {
       it('should reject if the same time', async () => {
         const result = await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
@@ -298,7 +333,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
       if (!expected) return appointmentsInSchedule;
-      expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual(expected);
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
     };
 
     it('should generate repeating weekly appointments on Wednesday', async () => {
@@ -320,6 +355,33 @@ describe('Appointments', () => {
         '2024-11-27 12:00:00',
         '2024-12-04 12:00:00',
       ]);
+    });
+
+    it('should create PatientFacility record when appointment with schedule is created', async () => {
+      const appointmentSchedule = {
+        untilDate: '2024-12-04',
+        interval: 1,
+        frequency: REPEAT_FREQUENCY.WEEKLY,
+        daysOfWeek: ['WE'],
+      };
+
+      const result = await userApp.post('/api/appointments').send({
+        schedule: appointmentSchedule,
+        patientId: patient.id,
+        clinicianId: userApp.user.dataValues.id,
+        appointmentTypeId: 'appointmentType-standard',
+        startTime: '2024-10-02 12:00:00',
+        facilityId,
+      });
+      expect(result).toHaveSucceeded();
+
+      // Verify that a PatientFacility record was created
+      const patientFacility = await models.PatientFacility.findOne({
+        where: { patientId: patient.id, facilityId },
+      });
+      expect(patientFacility).not.toBeNull();
+      expect(patientFacility.patientId).toEqual(patient.id);
+      expect(patientFacility.facilityId).toEqual(facilityId);
     });
 
     it('should generate repeating weekly appointments on Friday to occurrence count', async () => {
@@ -462,7 +524,7 @@ describe('Appointments', () => {
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
           '2024-10-30 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -489,7 +551,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be updated
-      expect(appointmentsInSchedule.map((a) => a.appointmentTypeId)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.appointmentTypeId)).toEqual([
         'appointmentType-standard',
         'appointmentType-standard',
         'appointmentType-specialist',
@@ -515,7 +577,7 @@ describe('Appointments', () => {
 
       // All appointments should be updated
       expect(
-        appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        appointmentsInSchedule.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -553,13 +615,13 @@ describe('Appointments', () => {
       });
 
       expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
-      expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(updatedExistingScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
       ]);
       expect(
         updatedExistingScheduleAppointments.every(
-          (a) => a.appointmentTypeId === 'appointmentType-standard',
+          a => a.appointmentTypeId === 'appointmentType-standard',
         ),
       ).toBeTruthy();
 
@@ -568,14 +630,14 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
 
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
         '2024-11-06 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -627,12 +689,12 @@ describe('Appointments', () => {
         where: { scheduleId: result.body.schedule.id },
         order: [['startTime', 'ASC']],
       });
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
   });
@@ -653,7 +715,7 @@ describe('Appointments', () => {
           '2024-10-09 12:00:00',
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -678,7 +740,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,
@@ -708,7 +770,7 @@ describe('Appointments', () => {
       });
 
       // 3rd appointment should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,
