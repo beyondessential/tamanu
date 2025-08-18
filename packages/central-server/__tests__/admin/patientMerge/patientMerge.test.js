@@ -922,7 +922,6 @@ describe('Patient merge', () => {
       const [keep, merge] = await makeTwoPatients(models);
       await mergePatient(models, keep.id, merge.id);
 
-      // Create PatientUser records after the merge to simulate records that need remerging
       const keepPatientUser = await PatientUser.create({
         email: 'keep@test.com',
         patientId: keep.id,
