@@ -18,7 +18,7 @@ describe('initDeviceId', () => {
 
   it('should generate a deviceId if one does not exist', async () => {
     await LocalSystemFact.set(FACT_DEVICE_ID, null);
-    await initDeviceId(ctx);
+    await initDeviceId({ context: ctx, serverType: 'facility' });
     const newDeviceId = await models.LocalSystemFact.get(FACT_DEVICE_ID);
     expect(ctx.deviceId).toBe('facility-test-device-id');
     expect(newDeviceId).toBe('facility-test-device-id');
@@ -26,7 +26,7 @@ describe('initDeviceId', () => {
   it('should use existing deviceId if one already exists', async () => {
     const testDeviceId = 'test-device-id-existing';
     await LocalSystemFact.set(FACT_DEVICE_ID, testDeviceId);
-    await initDeviceId(ctx);
+    await initDeviceId({ context: ctx, serverType: 'facility' });
     const deviceId = await models.LocalSystemFact.get(FACT_DEVICE_ID);
     expect(ctx.deviceId).toBe(testDeviceId);
     expect(deviceId).toBe(testDeviceId);
