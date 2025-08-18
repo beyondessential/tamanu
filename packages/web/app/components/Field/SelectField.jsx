@@ -182,9 +182,8 @@ export const SelectInput = ({
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
-
     const valueText = extractTranslationFromComponent(selectedOptionLabel, getTranslation);
-    
+
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField

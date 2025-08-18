@@ -5,9 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: surveys
-        description: '{{ doc("table__surveys") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__surveys') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_surveys_changed
+              - record_surveys_changelog
+              - set_surveys_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

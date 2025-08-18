@@ -8,8 +8,11 @@ export interface ReconnectWithPasswordParameters {
   password: string;
 }
 
-export enum CentralConnectionStatus {
-  Disconnected = 'disconnected',
-  Connected = 'connected',
-  Error = 'error'
-}
+export const CentralConnectionStatus = {
+  Disconnected: 'disconnected',
+  Connected: 'connected',
+  Error: 'error',
+} as const;
+
+export type CentralConnectionStatus =
+  (typeof CentralConnectionStatus)[keyof typeof CentralConnectionStatus];

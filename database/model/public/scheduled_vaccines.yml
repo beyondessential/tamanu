@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: scheduled_vaccines
-        description: '{{ doc("table__scheduled_vaccines") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__scheduled_vaccines') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_scheduled_vaccines_changed
+              - record_scheduled_vaccines_changelog
+              - set_scheduled_vaccines_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

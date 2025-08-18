@@ -204,7 +204,7 @@ describe('Patient merge', () => {
   });
 
   describe('PatientAdditionalData', () => {
-    it('Should delete both PADs and generate a new one', async () => {
+    it('Should update keep patient PAD with merged info and delete merge patient PAD', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientPad = await PatientAdditionalData.create({
@@ -232,9 +232,10 @@ describe('Patient merge', () => {
         paranoid: false,
       });
 
-      expect(newMergePatientPad).toEqual(null);
-      expect(newKeepPatientPad.createdAt).not.toBe(oldKeepPatientPadCreatedAt);
-      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
+      expect(newMergePatientPad).toBeTruthy();
+      expect(newMergePatientPad.deletedAt).toBeTruthy();
+      expect(newKeepPatientPad.createdAt).toEqual(oldKeepPatientPadCreatedAt);
+      expect(newKeepPatientPad.deletedAt).toBeNull();
     });
 
     it('Should merge patient additional data cleanly', async () => {
@@ -345,7 +346,7 @@ describe('Patient merge', () => {
   });
 
   describe('PatientBirthData', () => {
-    it('deletes both PatientBirthData records and generate a new one', async () => {
+    it('Should update keep patient birth data with merged info and delete merge patient birth data', async () => {
       const { PatientBirthData } = models;
       const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientBirthData = await PatientBirthData.create({
@@ -368,14 +369,15 @@ describe('Patient merge', () => {
         where: { patientId: keep.id },
         paranoid: false,
       });
-      const newMergePatientPa = await PatientBirthData.findOne({
+      const newMergePatientBirthData = await PatientBirthData.findOne({
         where: { patientId: merge.id },
         paranoid: false,
       });
 
-      expect(newMergePatientPa).toEqual(null);
-      expect(newKeepPatientBirthData.createdAt).not.toBe(oldKeepPatientBirthDataCreatedAt);
-      expect(newKeepPatientBirthData).toHaveProperty('deletedAt', null);
+      expect(newMergePatientBirthData).toBeTruthy();
+      expect(newMergePatientBirthData.deletedAt).toBeTruthy();
+      expect(newKeepPatientBirthData.createdAt).toEqual(oldKeepPatientBirthDataCreatedAt);
+      expect(newKeepPatientBirthData.deletedAt).toBeNull();
     });
 
     it('merges Patient Birth Data cleanly', async () => {

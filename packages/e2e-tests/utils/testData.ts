@@ -1,4 +1,4 @@
 export const testData = {
   village: "Dama",
-  VillageID:"village-Dama"
+  villageID:"village-Dama"
 };

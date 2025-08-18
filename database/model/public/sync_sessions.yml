@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_sessions
-        description: '{{ doc("table__sync_sessions") }}'
-        tags:
-          - system
+        description: "{{ doc('table__sync_sessions') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: uuid

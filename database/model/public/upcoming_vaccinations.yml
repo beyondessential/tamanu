@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: upcoming_vaccinations
-        description: '{{ doc("table__upcoming_vaccinations") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__upcoming_vaccinations') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers: []
         columns:
           - name: patient_id
             data_type: character varying(255)

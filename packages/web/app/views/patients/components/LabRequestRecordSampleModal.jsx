@@ -20,7 +20,7 @@ import { useSettings } from '../../../contexts/Settings';
 const validationSchema = yup.object().shape({
   sampleTime: yup
     .date()
-    .required()
+    .required(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .translatedLabel(
       <TranslatedText
         stringId="lab.modal.recordSample.sampleTime.label"
@@ -31,16 +31,16 @@ const validationSchema = yup.object().shape({
   labSampleSiteId: yup.string(),
   specimenTypeId: yup.string().when('mandateSpecimenType', {
     is: true,
-    then: (schema) =>
+    then: schema =>
       schema
-        .required()
         .translatedLabel(
           <TranslatedText
             stringId="lab.modal.recordSample.specimenType.label"
             fallback="Specimen type"
             data-testid="translatedtext-nd1u"
           />,
-        ),
+        )
+        .required(),
   }),
 });
 
@@ -181,7 +181,7 @@ export const LabRequestRecordSampleModal = React.memo(
     const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
     const sampleNotCollected = labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED;
-    const updateSample = async (formValues) => {
+    const updateSample = async formValues => {
       await updateLabReq({
         ...formValues,
         // If lab request sample is marked as not collected in initial form - mark it as reception pending on submission
@@ -212,7 +212,7 @@ export const LabRequestRecordSampleModal = React.memo(
             collectedById: labRequest.collectedById,
             mandateSpecimenType,
           }}
-          render={(props) => (
+          render={props => (
             <LabRequestRecordSampleForm
               {...props}
               onClose={onClose}

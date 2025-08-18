@@ -5,8 +5,12 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: organizations
-        description: '{{ doc("fhir__table__organizations") }}'
-        tags: []
+        description: "{{ doc('fhir__table__organizations') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid

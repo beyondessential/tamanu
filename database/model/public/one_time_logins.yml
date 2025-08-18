@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: one_time_logins
-        description: '{{ doc("table__one_time_logins") }}'
-        tags:
-          - system
+        description: "{{ doc('table__one_time_logins') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)
