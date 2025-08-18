@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-
+import { ButtonBase, Typography } from '@material-ui/core';
 import { Modal } from '../../Modal';
-import { Button, OutlinedButton } from '../../Button';
+import { OutlinedButton } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
@@ -14,7 +14,7 @@ import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
-import { PatientPortalRegistrationModal } from './PatientPortalRegistrationModal';
+import { SendToPatientModal } from './SendToPatientModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
 import { MultilabelIdIcon } from '../icons/MultilabelIdIcon';
 import { TestCertificateCovid19Icon } from '../icons/TestCertificateCovid19Icon';
@@ -22,6 +22,7 @@ import { ClearanceCertificateCovid19Icon } from '../icons/ClearanceCertificateCo
 import { BirthNotificationIcon } from '../icons/BirthNotificationIcon';
 import { InternationalPatientSummaryIcon } from '../icons/InternationalPatientSummaryIcon';
 import { useSettings } from '../../../contexts/Settings';
+import { PatientPortalIcon } from '../icons/PatientPortalIcon';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -146,13 +147,12 @@ const PRINT_OPTIONS = {
     caption: (
       <TranslatedText
         stringId="patientDetails.resources.patientPortalRegistration.caption"
-        fallback="Set up patient portal using the QR code"
+        fallback="Set up patient portal access"
         data-testid="translatedtext-nvj2"
       />
     ),
-    // TODO: Rename to QR code icon
-    icon: InternationalPatientSummaryIcon,
-    component: PatientPortalRegistrationModal,
+    icon: PatientPortalIcon,
+    component: SendToPatientModal,
   },
 };
 
@@ -273,80 +273,55 @@ const StyledPrintOptionsRow = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
   button:first-child {
     margin-right: 30px;
   }
 `;
 
-const PrintOptionButton = styled(Button)`
+const StyledHeading = styled(Typography)`
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 21px;
+  color: ${Colors.darkestText};
+`;
+
+const StyledSubHeading = styled(Typography)`
+  font-size: 14px;
+  line-height: 18px;
+  color: ${Colors.midText};
+`;
+
+const PrintOptionButton = styled(ButtonBase)`
+  display: flex;
+  justify-content: flex-start;
+  padding: 20px 25px;
+  height: 100px;
+  width: 435px;
+  margin: 14px 0;
+  align-items: center;
+  text-align: left;
   background: ${Colors.white};
   border: 2px solid ${Colors.outline};
   border-radius: 5px;
   color: ${Colors.primary};
 
-  &:hover {
-    background: ${Colors.veryLightBlue};
+  svg {
+    width: 45px;
+    margin-right: 15px;
   }
 
-  justify-content: center;
-  text-align: -webkit-center;
-
-  height: 100px;
-  width: 435px;
-  margin: 14px 0px;
-  .MuiButton-label {
-    .Container {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: flex-start;
-      width: 435px;
-      .Icon {
-        width: 20%;
-        height: 43px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-      }
-      .Title {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        align-self: baseline;
-        margin-top: 5px;
-        width: 80%;
-        .Heading {
-          font-size: 16px;
-          font-weight: 500;
-          line-height: 21px;
-          letter-spacing: 0px;
-          text-align: left;
-          color: ${Colors.darkestText};
-        }
-        .SubHeading {
-          font-size: 14px;
-          font-weight: 400;
-          line-height: 18px;
-          letter-spacing: 0px;
-          text-align: left;
-          color: ${Colors.midText};
-        }
-      }
-    }
+  &:hover {
+    background: ${Colors.veryLightBlue};
   }
 `;
 
 const PrintOption = ({ label, caption, icon: Icon, onPress }) => (
-  <PrintOptionButton color="default" onClick={onPress} data-testid="printoptionbutton-mdni">
-    <div className="Container">
-      <div className="Icon">
-        <Icon data-testid="icon-z3qm" />
-      </div>
-      <div className="Title">
-        <div className="Heading">{label}</div>
-        <div className="SubHeading">{caption}</div>
-      </div>
+  <PrintOptionButton onClick={onPress} data-testid="printoptionbutton-mdni">
+    <Icon />
+    <div>
+      <StyledHeading component="div">{label}</StyledHeading>
+      <StyledSubHeading component="div">{caption}</StyledSubHeading>
     </div>
   </PrintOptionButton>
 );

@@ -44,30 +44,33 @@ const getSurveyOrThrow = async ({ models, surveyId }) => {
   return survey;
 };
 
-const constructRegistrationLink = () => {
-  // TODO - construct the registration link for the patient portal
-  return `http://localhost:5173/`;
-};
-
 const constructLoginLink = () => {
-  // TODO - construct the login link for the patient portal
-  return `http://localhost:5173/`;
+  // TODO - construct link for the patient portal
+  return 'http://localhost:5173/login';
 };
 
-const registerPatient = async ({ patient, models }) => {
-  // eslint-disable-next-line no-unused-vars
-  const [patientUser] = await models.PatientUser.findOrCreate({
-    where: { patientId: patient.id },
+const constructRegistrationLink = () => {
+  // TODO - construct link for the patient portal
+  return 'http://localhost:5173/register';
+};
+
+const registerPatient = async ({ patientId, patientEmail, models }) => {
+  const [patientUser, created] = await models.PatientUser.findOrCreate({
+    where: { patientId },
+    defaults: { email: patientEmail },
   });
 
-  // TODO - Check if an **unexpired** token exists for patient user - if so, return it, else create a new one
+  if (!created && patientEmail && patientUser.email !== patientEmail) {
+    // A PatientUser already exists. If a new email is provided, update it.
+    // Note that email has a unique constraint, so this may fail if the email is taken by another user.
+    patientUser.email = patientEmail;
+    await patientUser.save();
+  }
 
-  return constructRegistrationLink();
+  return [patientUser, created];
 };
 
 const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
-  await getPatientUserOrThrow({ models, patientId: patient.id });
-
   const facility = await models.Facility.findByPk(facilityId);
 
   // TODO - fetch the **unexpired** token for the patient user, throw if none exists
@@ -75,6 +78,7 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
   const patientPortalRegistrationTemplate = await settings[facilityId].get(
     'templates.patientPortalRegistrationEmail',
   );
+
   const subject = replaceInTemplate(patientPortalRegistrationTemplate.subject, {
     facilityName: facility.name,
   });
@@ -205,26 +209,9 @@ patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortal');
-
-    const { models } = req;
+    const { models, settings, body } = req;
     const { id: patientId } = req.params;
-
-    const patient = await getPatientOrThrow({ models, patientId });
-
-    const registrationLink = await registerPatient({ patient, models });
-
-    res.send({ registrationLink });
-  }),
-);
-
-patientPortal.post(
-  '/:id/portal/send-registration-email',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'PatientPortal');
-
-    const { models, settings } = req;
-    const { id: patientId } = req.params;
-    const { email: patientEmail, facilityId } = req.body;
+    const { email: patientEmail, facilityId } = body;
 
     if (!patientEmail) {
       throw new ValidationError('Email is required');
@@ -232,9 +219,11 @@ patientPortal.post(
 
     const patient = await getPatientOrThrow({ models, patientId });
 
+    const [newPatient] = await registerPatient({ patientEmail, patientId, models });
+
     await sendRegistrationEmail({ patient, patientEmail, models, settings, facilityId });
 
-    res.send({ message: 'Registration email successfully sent' });
+    res.send(newPatient);
   }),
 );
 
@@ -267,7 +256,7 @@ patientPortal.post(
     // If the patient has not yet registered for the portal, we need to register them and send the unregistered form email.
     // Otherwise, we just send the registered form email.
     if (!patientUser) {
-      await registerPatient({ patient, models });
+      await registerPatient({ patientId, models, patientEmail });
       await sendUnregisteredFormEmail({
         patient,
         patientEmail: patientEmail ?? patientUser.email,

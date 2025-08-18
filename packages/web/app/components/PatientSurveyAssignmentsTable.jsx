@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import styled from 'styled-components';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MenuButton } from './MenuButton';
@@ -8,11 +8,32 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { DeletePatientSurveyAssignmentModal } from '../views/patients/components/DeletePatientSurveyAssignmentModal';
+import { Colors } from '../constants';
+import { Heading4 } from './Typography';
 
 const getDateRequested = ({ assignedAt }) => <DateDisplay date={assignedAt} />;
 const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
 const getProgram = ({ survey }) => survey?.program?.name || '';
 const getForm = ({ survey }) => survey?.name || '';
+
+const Container = styled.div`
+  padding: 0.9rem 1.2rem 0.8rem;
+  border-bottom: 1px solid ${Colors.outline};
+  h4 {
+    margin: 0;
+  }
+`;
+
+const TableHeader = () => (
+  <Container>
+    <Heading4>
+      <TranslatedText
+        stringId="vaccine.table.schedule.label"
+        fallback="Outstanding patient program forms"
+      />
+    </Heading4>
+  </Container>
+);
 
 export const PatientSurveyAssignmentsTable = ({ patient }) => {
   const { ability } = useAuth();
@@ -86,6 +107,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
   return (
     <>
       <DataFetchingTable
+        TableHeader={<TableHeader />}
         endpoint={`patient/${patient.id}/portal/forms`}
         columns={columns}
         initialSort={{
