@@ -20,7 +20,7 @@ const getResults = ({ resultText }) => (
   <SurveyResultBadge resultText={resultText} data-testid="surveyresultbadge-jz0m" />
 );
 
-export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
+export const DataFetchingProgramsTable = ({ endpoint, patient, TableHeader }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
@@ -156,6 +156,7 @@ export const DataFetchingProgramsTable = ({ endpoint, patient }) => {
         data-testid="surveyresponsesprintmodal-ima2"
       />
       <DataFetchingTable
+        TableHeader={TableHeader}
         endpoint={endpoint}
         columns={columns}
         initialSort={{
