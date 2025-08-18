@@ -31,7 +31,7 @@ export const OuterLabelFieldWrapper = React.memo(
       {label && (
         <OuterLabel className="label-field" size={size}>
           {label}
-          {required && <OuterLabelRequired>*</OuterLabelRequired>}
+          {required && <OuterLabelRequired className="required-indicator">*</OuterLabelRequired>}
         </OuterLabel>
       )}
       {infoTooltip && (

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 
 import { AutocompleteInput, TextField } from '../Field';
 import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';
@@ -25,6 +25,12 @@ const StyledModal = styled(BaseModal)`
   }
 `;
 
+const SubmitButtonsWrapper = styled.div`
+  border-top: 1px solid ${Colors.outline};
+  padding-top: 10px;
+  margin-top: 20px;
+`;
+
 const PharmacyIcon = styled.img`
   width: 40%;
   height: 40%;
@@ -35,10 +41,6 @@ const OrderingClinicianWrapper = styled.div`
   width: 25%;
   margin-bottom: 20px;
   margin-top: 20px;
-`;
-
-const HorizontalDivider = styled(Divider)`
-  margin: 30px 0;
 `;
 
 const CommentsWrapper = styled.div`
@@ -53,11 +55,19 @@ const DialogPrimaryText = styled.div`
   text-align: center;
 `;
 
+const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
+  text-align: left;
+`;
+
 const DialogSecondaryText = styled.div`
   font-size: 14px;
   text-align: center;
   color: ${Colors.textSecondary};
   line-height: 1.4;
+`;
+
+const AlreadyOrderedSecondaryText = styled(DialogSecondaryText)`
+  text-align: left;
 `;
 
 const DialogContent = styled.div`
@@ -69,13 +79,19 @@ const DialogContent = styled.div`
   text-align: center;
 `;
 
+const AlreadyOrderedContent = styled(DialogContent)`
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 20px 0px;
+`;
+
 const AlreadyOrderedMedicationsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-left: 80px;
-  padding-right: 80px;
+  padding-bottom: 10px;
 `;
 
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
@@ -283,17 +299,19 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           </DialogSecondaryText>
         </DialogContent>
 
-        <ConfirmCancelRow
-          confirmText={
-            <TranslatedText
-              stringId="general.action.close"
-              fallback="Close"
-              data-testid="translatedtext-close"
-            />
-          }
-          onConfirm={handleClose}
-          data-testid="confirmcancelrow-success"
-        />
+        <SubmitButtonsWrapper>
+          <ConfirmCancelRow
+            confirmText={
+              <TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid="translatedtext-close"
+              />
+            }
+            onConfirm={handleClose}
+            data-testid="confirmcancelrow-success"
+          />
+        </SubmitButtonsWrapper>
       </StyledModal>
     );
   }
@@ -310,6 +328,22 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         open={open}
         onClose={handleClose}
       >
+        <AlreadyOrderedContent>
+          <AlreadyOrderedPrimaryText>
+            <TranslatedText
+              stringId="pharmacyOrder.orderConfirmation.message"
+              fallback="The below medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
+              replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
+            />
+          </AlreadyOrderedPrimaryText>
+          <AlreadyOrderedSecondaryText>
+            <TranslatedText
+              stringId="pharmacyOrder.orderConfirmation.secondaryMessage"
+              fallback="Please confirm that you would like to proceed with including these items in your order. Please click 'Back' if you would like to amend your order."
+            />
+          </AlreadyOrderedSecondaryText>
+        </AlreadyOrderedContent>
+
         <AlreadyOrderedMedicationsWrapper>
           <PharmacyOrderMedicationTable
             data={getAlreadyOrderedPrescriptions()}
@@ -322,27 +356,14 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           />
         </AlreadyOrderedMedicationsWrapper>
 
-        <DialogContent>
-          <DialogPrimaryText>
-            <TranslatedText
-              stringId="pharmacyOrder.orderConfirmation.message"
-              fallback="The above medications have already been ordered within the past :medicationAlreadyOrderedConfirmationTimeout hours"
-              replacements={{ medicationAlreadyOrderedConfirmationTimeout }}
-            />
-          </DialogPrimaryText>
-          <DialogSecondaryText>
-            <TranslatedText
-              stringId="pharmacyOrder.orderConfirmation.secondaryMessage"
-              fallback="Please confirm that you would like to proceed with including these items in your order. Please click 'Back' if you would like to amend your order."
-            />
-          </DialogSecondaryText>
-        </DialogContent>
-        <ConfirmCancelBackRow
-          onBack={() => setShowAlreadyOrderedConfirmation(false)}
-          onCancel={handleClose}
-          onConfirm={handleSendOrder}
-          data-testid="confirmcancelrow-7g3j"
-        />
+        <SubmitButtonsWrapper>
+          <ConfirmCancelBackRow
+            onBack={() => setShowAlreadyOrderedConfirmation(false)}
+            onCancel={handleClose}
+            onConfirm={handleSendOrder}
+            data-testid="confirmcancelrow-7g3j"
+          />
+        </SubmitButtonsWrapper>
       </StyledModal>
     );
   }
@@ -414,21 +435,21 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         />
       </CommentsWrapper>
 
-      <HorizontalDivider color={Colors.outline} />
-
-      <ConfirmCancelRow
-        confirmText={
-          <TranslatedText
-            stringId="pharmacyOrder.action.send"
-            fallback="Send"
-            data-testid="translatedtext-ojsa"
-          />
-        }
-        confirmDisabled={!isFormValid}
-        onConfirm={handleClickSend}
-        onCancel={handleClose}
-        data-testid="confirmcancelrow-9lo1"
-      />
+      <SubmitButtonsWrapper>
+        <ConfirmCancelRow
+          confirmText={
+            <TranslatedText
+              stringId="pharmacyOrder.action.send"
+              fallback="Send"
+              data-testid="translatedtext-ojsa"
+            />
+          }
+          confirmDisabled={!isFormValid}
+          onConfirm={handleClickSend}
+          onCancel={handleClose}
+          data-testid="confirmcancelrow-9lo1"
+        />
+      </SubmitButtonsWrapper>
     </StyledModal>
   );
 });
