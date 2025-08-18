@@ -9,7 +9,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PATIENT_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 import { makeTwoPatients } from './makeTwoPatients';
@@ -914,6 +914,49 @@ describe('Patient merge', () => {
         },
       });
       expect(removedFacility).toBeFalsy();
+    });
+
+    it('Should remerge PatientUser records', async () => {
+      const { PatientUser } = models;
+
+      const [keep, merge] = await makeTwoPatients(models);
+      await mergePatient(models, keep.id, merge.id);
+
+      // Create PatientUser records after the merge to simulate records that need remerging
+      const keepPatientUser = await PatientUser.create({
+        email: 'keep@test.com',
+        patientId: keep.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PATIENT_USER_STATUSES.PENDING,
+      });
+
+      const mergePatientUser = await PatientUser.create({
+        email: 'merge@test.com',
+        patientId: merge.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PATIENT_USER_STATUSES.REGISTERED,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        PatientUser: 1,
+      });
+
+      // The more active account (merge) should be kept and transferred to the keep patient
+      await mergePatientUser.reload();
+      expect(mergePatientUser.patientId).toEqual(keep.id);
+      expect(mergePatientUser.status).toEqual(PATIENT_USER_STATUSES.REGISTERED);
+
+      // The less active account should be deleted
+      const deletedPatientUser = await PatientUser.findByPk(keepPatientUser.id);
+      expect(deletedPatientUser).toBeFalsy();
+
+      const remainingPatientUsers = await PatientUser.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(remainingPatientUsers).toHaveLength(1);
     });
   });
 });
