@@ -14,11 +14,14 @@ locationRouter.get(
       query: { bookableOnly = false, locationGroupIds },
     } = req;
     const { facilityId } = req.query;
+
+    const filter = {
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      ...(facilityId ? { facilityId } : {}),
+    };
+
     const locations = await req.models.Location.findAll({
-      where: {
-        facilityId,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      },
+      where: filter,
       include: [
         {
           required: true,

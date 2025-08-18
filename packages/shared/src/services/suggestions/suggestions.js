@@ -571,7 +571,7 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
   ...filterByFacilityWhereBuilder({
     endpoint,
     modelName,
-    query: { ...query, filterByFacility: true },
+    query: { ...query, filterByFacility: !!query.facilityId },
   }),
   isBookable: true,
 }));
