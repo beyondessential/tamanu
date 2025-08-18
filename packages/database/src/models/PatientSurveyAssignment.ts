@@ -3,6 +3,8 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, PATIENT_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { Model } from './Model';
+import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
+import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
 
 export class PatientSurveyAssignment extends Model {
   declare id: string;
@@ -92,11 +94,9 @@ export class PatientSurveyAssignment extends Model {
     });
   }
 
-  static buildPatientSyncFilter() {
-    return null;
+  static buildSyncLookupQueryDetails() {
+    return buildPatientLinkedLookupFilter(this);
   }
 
-  static buildSyncLookupQueryDetails() {
-    return null;
-  }
+  static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 }

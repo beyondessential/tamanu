@@ -13,6 +13,7 @@ import {
   mergePatientDeathData,
   mergePatientFieldValues,
   mergePatientProgramRegistrations,
+  mergePatientUser,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -262,6 +263,24 @@ export class PatientMergeMaintainer extends ScheduledTask {
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     return noteRecords;
+  }
+
+  async specificUpdate_PatientUser() {
+    const { PatientUser } = this.models;
+    const patientUserMerges = await this.findPendingMergePatients(PatientUser);
+
+    const records = [];
+    for (const { keepPatientId, mergedPatientId } of patientUserMerges) {
+      const mergedPatientUser = await mergePatientUser(
+        this.models,
+        keepPatientId,
+        mergedPatientId,
+      );
+      if (mergedPatientUser) {
+        records.push(mergedPatientUser);
+      }
+    }
+    return records;
   }
 
   async run() {
