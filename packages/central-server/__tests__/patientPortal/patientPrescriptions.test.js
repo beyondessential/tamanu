@@ -272,6 +272,67 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       expect(prescription.medication).toHaveProperty('name', 'Ongoing Medication');
     });
 
+    it('Should return prescriptions when discontinued is null', async () => {
+      const patientWithNullDiscontinued = await store.models.Patient.create(
+        fake(store.models.Patient, {
+          displayId: 'TEST005',
+          firstName: 'NullDiscontinued',
+          lastName: 'Patient',
+          sex: 'male',
+        }),
+      );
+
+      await store.models.PatientUser.create({
+        email: 'nulldiscontinued@test.com',
+        patientId: patientWithNullDiscontinued.id,
+        role: 'patient',
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      });
+
+      const nullDiscontinuedMedication = await store.models.ReferenceData.create(
+        fake(store.models.ReferenceData, {
+          type: 'drug',
+          name: 'Null Discontinued Medication',
+          code: 'NULL001',
+        }),
+      );
+
+      // Create prescription with discontinued: null
+      const nullDiscontinuedPrescription = await store.models.Prescription.create({
+        medicationId: nullDiscontinuedMedication.id,
+        doseAmount: 250,
+        units: 'mg',
+        frequency: 'three times daily',
+        route: 'oral',
+        date: new Date().toISOString(),
+        startDate: new Date().toISOString(),
+        isOngoing: true,
+        discontinued: null, 
+        prescriberId: testPrescriber.id,
+      });
+
+      await store.models.PatientOngoingPrescription.create({
+        patientId: patientWithNullDiscontinued.id,
+        prescriptionId: nullDiscontinuedPrescription.id,
+      });
+
+      const newAuthToken = await getPatientAuthToken(baseApp, 'nulldiscontinued@test.com');
+
+      const response = await baseApp
+        .get('/api/portal/me/ongoing-prescriptions')
+        .set('Authorization', `Bearer ${newAuthToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('data');
+      expect(Array.isArray(response.body.data)).toBe(true);
+      expect(response.body.data.length).toBe(1); // Should return the prescription with null discontinued
+
+      const prescription = response.body.data[0];
+      expect(prescription).toHaveProperty('medication');
+      expect(prescription.medication).toHaveProperty('name', 'Null Discontinued Medication');
+      expect(prescription).not.toHaveProperty('discontinued');
+    });
+
     it('Should only return ongoing prescriptions for the target patient (comprehensive filtering)', async () => {
       const { Patient, PatientUser, Prescription, PatientOngoingPrescription, ReferenceData } =
         store.models;
@@ -419,7 +480,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       // Create another patient for this test
       const patientWithNullFrequency = await store.models.Patient.create(
         fake(store.models.Patient, {
-          displayId: 'TEST005',
+          displayId: 'TEST006',
           firstName: 'Charlie',
           lastName: 'Wilson',
           sex: 'male',
@@ -484,7 +545,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       // Create a new patient without prescriptions
       const newPatient = await store.models.Patient.create(
         fake(store.models.Patient, {
-          displayId: 'TEST006',
+          displayId: 'TEST007',
           firstName: 'Diana',
           lastName: 'Miller',
           sex: 'female',
