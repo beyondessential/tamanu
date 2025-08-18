@@ -76,7 +76,7 @@ export const centralSettings = {
         maxRecordsPerInsertBatch: {
           description: 'The number of records to insert in a single batch',
           type: yup.number().positive().integer(),
-          defaultValue: 1000,
+          defaultValue: 2000,
         },
         maxRecordsPerSnapshotBatch: {
           description: 'The number of records to store within a single row in the snapshot table',

@@ -2,7 +2,7 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/limits';
+import { SQLITE_MAX_PARAMETERS, getEffectiveInsertBatchSize } from '../../../infra/db/limits';
 import { executePreparedInsert } from './executePreparedInsert';
 
 function strippedIsDeleted(row) {
@@ -26,12 +26,16 @@ export const executeInserts = async (
 
   for (const row of rows) {
     const { id } = row;
-    if (!idsAdded.has(id)) {
+    if (!idsAdded.has(id)) { 
       deduplicated.push({ ...strippedIsDeleted(row), id });
       idsAdded.add(id);
     }
   }
-  for (const batchOfRows of chunk(deduplicated, insertBatchSize)) {
+  // dynamically cap batch size so total SQL parameters stay under the SQLite limit
+  const perRowParameterCount = deduplicated.length > 0 ? Object.keys(deduplicated[0]).length : 0;
+  const effectiveBatchSize = getEffectiveInsertBatchSize(insertBatchSize, perRowParameterCount);
+
+  for (const batchOfRows of chunk(deduplicated, effectiveBatchSize)) {
     try {
       await executePreparedInsert(repository, batchOfRows);
     } catch (e) {
