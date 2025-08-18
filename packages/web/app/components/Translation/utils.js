@@ -4,6 +4,7 @@ import { LocationCell } from '../LocationCell';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedSex, TranslatedText } from '.';
 import { ClinicalStatusCell } from '../../views/programRegistry/ClinicalStatusDisplay';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 
 /**
  * Given a valid React element, returns true if and only if that element is a wrapper around
@@ -41,6 +42,11 @@ export const extractTranslationFromComponent = (element, getTranslation) => {
       return getTranslation(props.stringId, props.fallback);
     case TranslatedReferenceData:
       return getTranslation(getReferenceDataStringId(props.value, props.category), props.fallback);
+    case TranslatedEnum:
+      return getTranslation(
+        `${getEnumPrefix(props.enumValues)}.${toCamelCase(props.value)}`,
+        props.enumValues[props.value],
+      );
     default:
       return '';
   }
