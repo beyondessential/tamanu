@@ -1,6 +1,5 @@
 sql: |
   SELECT
-    'No sync sessions created in the last 30 minutes' AS alert_message,
     COUNT(*) AS sessions_in_window,
     (SELECT MAX(created_at) FROM sync_sessions) AS last_session_created
   FROM sync_sessions
