@@ -55,9 +55,19 @@ const constructRegistrationLink = () => {
 };
 
 const registerPatient = async ({ patientId, patientEmail, models }) => {
-  return models.PatientUser.findOrCreate({
-    where: { patientId, email: patientEmail },
+  const [patientUser, created] = await models.PatientUser.findOrCreate({
+    where: { patientId },
+    defaults: { email: patientEmail },
   });
+
+  if (!created && patientEmail && patientUser.email !== patientEmail) {
+    // A PatientUser already exists. If a new email is provided, update it.
+    // Note that email has a unique constraint, so this may fail if the email is taken by another user.
+    patientUser.email = patientEmail;
+    await patientUser.save();
+  }
+
+  return [patientUser, created];
 };
 
 const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
