@@ -1,10 +1,13 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { CssBaseline } from '@material-ui/core';
+import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
+import { ThemeProvider } from 'styled-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@fontsource/roboto';
-
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/600.css';
 import './fonts.css';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme/theme';
@@ -25,12 +28,18 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ApiContext.Provider value={new TamanuApi(__VERSION__)}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <AuthProvider>
-            <RoutingApp />
-          </AuthProvider>
-        </ThemeProvider>
+        <StylesProvider injectFirst>
+          <MuiLatestThemeProvider theme={theme}>
+            <MuiThemeProvider theme={theme}>
+              <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <AuthProvider>
+                  <RoutingApp />
+                </AuthProvider>
+              </ThemeProvider>
+            </MuiThemeProvider>
+          </MuiLatestThemeProvider>
+        </StylesProvider>
       </ApiContext.Provider>
     </QueryClientProvider>
   </StrictMode>,

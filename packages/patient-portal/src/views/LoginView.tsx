@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Box, Typography, Container, Paper, TextField, Button } from '@mui/material';
-import { AccordionSection } from '@tamanu/ui-components';
+import { Box, Typography, Container, Paper, TextField } from '@mui/material';
+import { Button } from '@tamanu/ui-components';
 import { useAuth } from '@auth/useAuth';
-import { User } from 'lucide-react';
 
 export const LoginView = () => {
   const { login } = useAuth();
@@ -21,9 +20,6 @@ export const LoginView = () => {
 
   return (
     <Container maxWidth="md">
-      <AccordionSection header="Patient Details" icon={<User />}>
-        test
-      </AccordionSection>
       <Box sx={{ mt: 4, mb: 4 }}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -41,7 +37,7 @@ export const LoginView = () => {
               autoComplete="email"
               autoFocus
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Button type="submit" fullWidth variant="contained">
               Login
             </Button>
           </Box>

@@ -1,22 +1,24 @@
 {
   "name": "@tamanu/ui-components",
   "version": "0.1.0",
-  "description": "Tamanu UI components and shared UI primitives",
+  "description": "Tamanu UI components",
   "private": true,
   "type": "module",
   "main": "src/index.js",
   "module": "src/index.js",
-  "types": "src/index.d.ts",
   "exports": {
     ".": "./src/index.js",
-    "./colors": "./src/colors.js",
-    "./card": "./src/card.jsx",
-    "./*": "./src/*.js"
+    "./colors": "./src/colors.js"
   },
   "scripts": {
-    "build": "echo 'no build required'",
-    "clean": "rimraf dist",
-    "clean:deps": "rimraf node_modules"
+    "build": "echo 'no build required'"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "styled-components": "^5.3.3",
+    "@material-ui/core": "^4.12.4",
+    "@mui/material": "^6.1.1"
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
