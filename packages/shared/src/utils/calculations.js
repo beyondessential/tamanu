@@ -84,7 +84,9 @@ export const getStringOfCalculatedValue = value => {
   }
 
   if (!(typeof value === 'number')) {
-    throw new Error(`Unexpected calculated value is not a number: ${value}`);
+    throw new Error(
+      `The result of a calculation must be a number, but got: ${value} (${typeof value})`,
+    );
   }
 
   return value.toFixed(1);
