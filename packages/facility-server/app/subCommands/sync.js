@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 import { log } from '@tamanu/shared/services/logging';
 import { initDeviceId } from '@tamanu/shared/utils';
+import { DEVICE_TYPES } from '@tamanu/constants';
 import { CentralServerConnection, FacilitySyncManager } from '../sync';
 import { ApplicationContext } from '../ApplicationContext';
 
@@ -13,7 +14,7 @@ async function sync({ delay: delaySecondsStr }) {
   }
   const context = await new ApplicationContext().init({ appType: 'cmd:sync' });
 
-  await initDeviceId({ context, serverType: 'facility' });
+  await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
 
   context.centralServer = new CentralServerConnection(context);
   context.centralServer.connect(); // preemptively connect central server to speed up sync

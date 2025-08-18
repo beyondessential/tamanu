@@ -12,6 +12,7 @@ import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
 import { initDeviceId } from '@tamanu/shared/utils';
+import { DEVICE_TYPES } from '@tamanu/constants';
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -68,7 +69,7 @@ export class ApplicationContext {
 
     this.settings = new ReadSettings(this.store.models);
 
-    await initDeviceId({ context: this, serverType: 'central' });
+    await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
     // no need to set up services, integrations, etc. for migrations
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {

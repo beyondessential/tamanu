@@ -5,7 +5,7 @@ import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 /**
  * Initialize device ID for a server instance
  * @param {Object} context - The application context
- * @param {string} serverType - The type of server (facility or central)
+ * @param {DeviceType} serverType - The type of server (facility or central)
  * @returns {Promise<void>}
  */
 export async function initDeviceId({ context, serverType }) {

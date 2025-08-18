@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { log } from '@tamanu/shared/services/logging';
 import { performTimeZoneChecks } from '@tamanu/shared/utils/timeZoneCheck';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { checkConfig } from '../checkConfig';
 import { initDeviceId } from '@tamanu/shared/utils';
@@ -32,7 +33,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
-  await initDeviceId({ context, serverType: 'facility' });
+  await initDeviceId({ context, serverType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
