@@ -34,7 +34,7 @@ export const createSnapshotTable = async (sequelize: Sequelize, sessionId: strin
     .replaceAll('"', '')
     .replaceAll('-', '');     
   await sequelize.query(`
-    CREATE UNLOGGED TABLE ${tableName} (
+    CREATE TABLE ${tableName} (
       id BIGSERIAL PRIMARY KEY,
       direction character varying(255) NOT NULL,
       record_type character varying(255) NOT NULL,
