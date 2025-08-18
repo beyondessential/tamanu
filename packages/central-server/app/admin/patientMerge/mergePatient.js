@@ -337,14 +337,12 @@ export async function mergePatientUser(models, keepPatientId, unwantedPatientId)
     });
   }
 
-  // If both patients have portal accounts, we need to decide which one to keep
-  // Priority logic:
-  // 1. Keep the account with the most recent activity (if status indicates activity)
-  // 2. Keep the account that's currently active/enabled
+  // If both patients have portal accounts
+  // 1. Keep the account with the most recent activity
+  // 2. Keep the account that's currently registered
   // 3. Keep the account from the keep patient as fallback
-
   const shouldKeepUnwantedAccount =
-    // If keep account is inactive but unwanted account is active
+    // If keep account is inactive but unwanted account is registered
     (existingKeepPatientUser.status !== PATIENT_USER_STATUSES.REGISTERED &&
       existingUnwantedPatientUser.status === PATIENT_USER_STATUSES.REGISTERED) ||
     // If both have same status, prefer the one with more recent updates
