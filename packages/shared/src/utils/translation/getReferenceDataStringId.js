@@ -1,5 +1,4 @@
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
-import { isNil } from 'lodash';
 
 /**
  * Replace any spaces and dots with underscores (dots are the delimiter in translation ids)
@@ -16,9 +15,6 @@ const formatOptionForStringId = str => `${str}`.replace(/[\s.]/g, '_');
  */
 export const getReferenceDataOptionStringId = (value, category, option) => {
   const baseStringId = `${getReferenceDataStringId(value, category)}.option`;
-  if (isNil(option)) {
-    throw new Error(`Cannot get translation string id for null option: ${baseStringId}`);
-  }
   return `${baseStringId}.${formatOptionForStringId(option)}`;
 };
 
