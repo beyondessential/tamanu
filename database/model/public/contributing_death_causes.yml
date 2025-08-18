@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_contributing_death_causes_changed
               - record_contributing_death_causes_changelog
+              - set_contributing_death_causes_updated_at
               - set_contributing_death_causes_updated_at_sync_tick
         columns:
           - name: id

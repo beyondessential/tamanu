@@ -15,6 +15,7 @@ sources:
               - fhir_refresh
               - notify_note_pages_changed
               - record_note_pages_changelog
+              - set_note_pages_updated_at
               - set_note_pages_updated_at_sync_tick
         columns:
           - name: id

@@ -15,6 +15,7 @@ sources:
             triggers:
               - notify_patient_death_data_changed
               - record_patient_death_data_changelog
+              - set_patient_death_data_updated_at
               - set_patient_death_data_updated_at_sync_tick
         columns:
           - name: id

@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_pharmacy_orders_changed
               - record_pharmacy_orders_changelog
+              - set_pharmacy_orders_updated_at
               - set_pharmacy_orders_updated_at_sync_tick
         columns:
           - name: id

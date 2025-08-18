@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_notes_legacy_changed
               - record_notes_legacy_changelog
+              - set_notes_legacy_updated_at
               - set_notes_legacy_updated_at_sync_tick
         columns:
           - name: id

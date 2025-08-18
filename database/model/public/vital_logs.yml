@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_vital_logs_changed
               - record_vital_logs_changelog
+              - set_vital_logs_updated_at
               - set_vital_logs_updated_at_sync_tick
         columns:
           - name: id

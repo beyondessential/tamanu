@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_notifications_changed
               - record_notifications_changelog
+              - set_notifications_updated_at
               - set_notifications_updated_at_sync_tick
         columns:
           - name: id

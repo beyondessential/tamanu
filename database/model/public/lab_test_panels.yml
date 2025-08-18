@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_lab_test_panels_changed
               - record_lab_test_panels_changelog
+              - set_lab_test_panels_updated_at
               - set_lab_test_panels_updated_at_sync_tick
         columns:
           - name: id

@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_encounter_diagnoses_changed
               - record_encounter_diagnoses_changelog
+              - set_encounter_diagnoses_updated_at
               - set_encounter_diagnoses_updated_at_sync_tick
         columns:
           - name: id

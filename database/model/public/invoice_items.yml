@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_invoice_items_changed
               - record_invoice_items_changelog
+              - set_invoice_items_updated_at
               - set_invoice_items_updated_at_sync_tick
         columns:
           - name: id

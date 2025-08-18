@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_imaging_results_changed
               - record_imaging_results_changelog
+              - set_imaging_results_updated_at
               - set_imaging_results_updated_at_sync_tick
         columns:
           - name: id

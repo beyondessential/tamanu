@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_attachments_changed
               - record_attachments_changelog
+              - set_attachments_updated_at
               - set_attachments_updated_at_sync_tick
         columns:
           - name: id

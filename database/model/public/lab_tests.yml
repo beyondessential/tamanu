@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_lab_tests_changed
               - record_lab_tests_changelog
+              - set_lab_tests_updated_at
               - set_lab_tests_updated_at_sync_tick
         columns:
           - name: id
