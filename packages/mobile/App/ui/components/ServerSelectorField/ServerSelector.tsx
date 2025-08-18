@@ -22,17 +22,17 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   // return [{ label: 'Local', value: 'http://192.168.0.1:3000' }];
 
   // allows overriding the central server list or meta server in builds
-  const { metaServer: metaServerOverride, centralServers: centralServerOverrides } = overrides;
-  if (centralServerOverrides) {
-    return centralServerOverrides;
-  }
+  const { metaServer: metaServerOverride, centralServers: _centralServerOverrides } = overrides;
+  // if (centralServerOverrides) {
+  //   return centralServerOverrides;
+  // }
 
   const defaultMetaServer = 'https://meta.tamanu.app';
   const metaServer = metaServerOverride || defaultMetaServer;
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
-  const options = servers.map(s => ({
+  const options = servers.map((s) => ({
     label: s.name,
     value: s.host,
   }));
@@ -54,7 +54,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   const { language, languageOptions, setLanguageOptions, setLanguage, host, setHost } =
     useTranslation();
 
-  const updateHost = value => {
+  const updateHost = (value) => {
     onChange(value);
     setHost(value);
     if (!value) {
