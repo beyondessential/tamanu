@@ -1,7 +1,7 @@
-import { Colors, MUI_SPACING_UNIT } from '@tamanu/shared/ui/theme';
+import { TAMANU_COLORS as Colors } from '@tamanu/shared/ui/colors';
+import { createGlobalStyle } from 'styled-components';
 
-// Should only be colours that are defined as constants in Figma
-// (with the exception of searchTintColor)
+const MUI_SPACING_UNIT = 8;
 
 export { Colors, MUI_SPACING_UNIT };
 
@@ -38,3 +38,9 @@ export const denseTableStyle = {
     }
   `,
 };
+
+export const GlobalStyles = createGlobalStyle`
+  .pointer-events-none {
+    pointer-events: none;
+  }
+`;

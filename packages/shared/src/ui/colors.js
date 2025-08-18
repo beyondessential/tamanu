@@ -1,4 +1,3 @@
-// Semantic color system for Tamanu applications
 export const TAMANU_COLORS = {
   primary: '#326699',
   primary30: '#C2D2E1',
@@ -28,6 +27,3 @@ export const TAMANU_COLORS = {
   searchTintColor: '#d2dae3',
   hoverGrey: '#f3f5f7',
 };
-
-// Legacy export for backward compatibility
-export const Colors = TAMANU_COLORS;
