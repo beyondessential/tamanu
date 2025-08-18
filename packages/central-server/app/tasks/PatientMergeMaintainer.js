@@ -266,7 +266,6 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   async specificUpdate_PatientUser() {
-    // PatientUser records need to be reconciled to ensure only one portal account per patient
     const { PatientUser } = this.models;
     const patientUserMerges = await this.findPendingMergePatients(PatientUser);
 
