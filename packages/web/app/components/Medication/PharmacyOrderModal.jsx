@@ -9,7 +9,8 @@ import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
-import { pharmacyIcon } from '../../constants/images';
+
+import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 
 import { TranslatedText } from '../Translation';
 import { BaseModal } from '../BaseModal';
@@ -31,7 +32,7 @@ const SubmitButtonsWrapper = styled.div`
   margin-top: 20px;
 `;
 
-const PharmacyIcon = styled.img`
+const PharmacyIcon = styled(BasePharmacyIcon)`
   width: 40%;
   height: 40%;
   margin-bottom: 30px;
@@ -284,7 +285,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         onClose={handleClose}
       >
         <DialogContent>
-          <PharmacyIcon src={pharmacyIcon} alt="Pharmacy" />
+          <PharmacyIcon alt="Pharmacy" />
           <DialogPrimaryText>
             <TranslatedText
               stringId="pharmacyOrder.success.message"
