@@ -1,9 +1,9 @@
+jest.mock('shortid', () => () => 'test-device-id');
+
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 import { LocalSystemFact } from '@tamanu/database';
 import { initDeviceId } from '@tamanu/shared/utils';
 import { createTestContext } from '../utilities';
-
-jest.mock('shortid', () => () => 'test-device-id');
 
 describe('initDeviceId', () => {
   let ctx;
