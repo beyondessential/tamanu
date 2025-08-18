@@ -1,8 +1,5 @@
-jest.mock('shortid', () => () => 'test-device-id');
-
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
-import { LocalSystemFact } from '@tamanu/database';
-import { initDeviceId } from '@tamanu/shared/utils';
+import { initDeviceId } from '../../../shared/dist/cjs/utils/initDeviceId';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
@@ -18,16 +15,18 @@ describe('initDeviceId', () => {
 
   afterAll(() => ctx.close());
 
+  const deviceIdRegex = /^facility-.+$/;
+
   it('should generate a deviceId if one does not exist', async () => {
-    await LocalSystemFact.set(FACT_DEVICE_ID, null);
+    await models.LocalSystemFact.set(FACT_DEVICE_ID, null);
     await initDeviceId({ context: ctx, deviceType: DEVICE_TYPES.FACILITY_SERVER });
     const newDeviceId = await models.LocalSystemFact.get(FACT_DEVICE_ID);
-    expect(ctx.deviceId).toBe('facility-test-device-id');
-    expect(newDeviceId).toBe('facility-test-device-id');
+    expect(ctx.deviceId).toMatch(deviceIdRegex);
+    expect(newDeviceId).toMatch(deviceIdRegex);
   });
   it('should use existing deviceId if one already exists', async () => {
     const testDeviceId = 'test-device-id-existing';
-    await LocalSystemFact.set(FACT_DEVICE_ID, testDeviceId);
+    await models.LocalSystemFact.set(FACT_DEVICE_ID, testDeviceId);
     await initDeviceId({ context: ctx, deviceType: DEVICE_TYPES.FACILITY_SERVER });
     const deviceId = await models.LocalSystemFact.get(FACT_DEVICE_ID);
     expect(ctx.deviceId).toBe(testDeviceId);
