@@ -30,13 +30,17 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse: JoinConfig
 }
 
 export function buildEncounterLinkedSyncFilter(
-  tablesToTraverse: JoinConfig[], // e.g. [ 'survey_response_answers', 'survey_responses', 'encounters'] to traverse up from survey_response_answers
+  tablesToTraverse: JoinConfig[],
   markedForSyncPatientsTable: string,
 ) {
   const joins = buildEncounterLinkedSyncFilterJoins(tablesToTraverse);
+  const firstTable = isString(tablesToTraverse[0])
+    ? tablesToTraverse[0]
+    : tablesToTraverse[0]?.model.tableName;
+
   return `
     ${joins}
     WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
-    AND ${tablesToTraverse[0]}.updated_at_sync_tick > :since
+    AND ${firstTable}.updated_at_sync_tick > :since
   `;
 }

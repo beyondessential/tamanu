@@ -94,10 +94,11 @@
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
     "patch-package": "^8.0.0",
-    "pm2": "^4.5.0",
+    "pm2": "^5.4.2",
     "re-resizable": "^6.11.2"
   },
   "overrides": {
+    "axios": "^1.8.2",
     "react": "18.2.0",
     "react-native-svg": "^12.1.0",
     "react-redux": "8.0.2",

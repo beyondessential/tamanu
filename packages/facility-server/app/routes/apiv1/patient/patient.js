@@ -554,9 +554,9 @@ patientRoute.get(
         orderBy === 'route'
           ? [
               literal(
-                `CASE "route" ${Object.entries(DRUG_ROUTE_LABELS)
-                  .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
-                  .join(' ')} ELSE "route" END`,
+                `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                  .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
+                  .join(' ')} ELSE "Prescription"."route" END`,
               ),
               order.toUpperCase(),
             ]

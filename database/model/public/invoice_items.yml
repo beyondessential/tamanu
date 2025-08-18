@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_invoice_items_changed
               - record_invoice_items_changelog
+              - set_invoice_items_updated_at
               - set_invoice_items_updated_at_sync_tick
         columns:
           - name: id
@@ -34,6 +35,9 @@ sources:
             description: "{{ doc('invoice_items__order_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: product_id
             data_type: character varying(255)
             description: "{{ doc('invoice_items__product_id') }}"
@@ -46,6 +50,11 @@ sources:
             description: "{{ doc('invoice_items__quantity') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-10
           - name: product_name
             data_type: character varying(255)
             description: "{{ doc('invoice_items__product_name') }}"
@@ -86,6 +95,9 @@ sources:
           - name: note
             data_type: character varying(255)
             description: "{{ doc('invoice_items__note') }}"
+            config:
+              meta:
+                masking: text
           - name: product_discountable
             data_type: boolean
             description: "{{ doc('invoice_items__product_discountable') }}"
