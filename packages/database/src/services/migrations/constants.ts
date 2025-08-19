@@ -13,6 +13,7 @@ export const NON_SYNCING_TABLES = [
   'public.refresh_tokens',
   'public.signers',
   'public.sync_device_ticks',
+  'public.sync_devices',
   'public.sync_lookup_ticks',
   'public.sync_lookup',
   'public.sync_queued_devices',
