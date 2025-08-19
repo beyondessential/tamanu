@@ -1,5 +1,5 @@
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
-import { initDeviceId } from '../../../shared/dist/cjs/utils/initDeviceId';
+import { initDeviceId } from '@tamanu/shared/utils';
 import { DEVICE_TYPES } from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
