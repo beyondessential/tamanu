@@ -97,6 +97,11 @@ export class LocalSystemFact extends Model {
     return value.split(',').map((model) => model.trim());
   }
 
+  static async isLookupRebuildingModel(modelName: string) {
+    const modelsToRebuild = await this.getLookupModelsToRebuild();
+    return modelsToRebuild.includes(modelName);
+  }
+
   static async markLookupModelRebuilt(modelName: string) {
     await this.sequelize.query(
       `

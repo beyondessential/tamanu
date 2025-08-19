@@ -138,6 +138,7 @@ describe('CentralSyncManager', () => {
           await resolveUpdateLookupTableWaitingPromise();
           return mockedModelUpdateLookupTableQueryPromise;
         },
+        models,
       },
       buildSyncFilter: () => null,
       buildSyncLookupQueryDetails: () => null,
@@ -2643,7 +2644,10 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, patient1.updatedAtSyncTick + 1); // Set this to skip initial build
+      await models.LocalSystemFact.set(
+        FACT_LOOKUP_UP_TO_TICK,
+        parseInt(patient1.updatedAtSyncTick, 10) + 1,
+      ); // Set this to skip initial build
 
       await centralSyncManager.updateLookupTable();
 
@@ -2656,6 +2660,8 @@ describe('CentralSyncManager', () => {
       });
 
       expect(lookupData).toHaveLength(0);
+
+      const patient2 = await models.Patient.create(fake(models.Patient));
 
       await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
 
@@ -2671,11 +2677,14 @@ describe('CentralSyncManager', () => {
         },
       });
 
-      expect(lookupData2).toHaveLength(1);
-      expect(lookupData2[0]).toEqual(
+      expect(lookupData2).toHaveLength(2);
+      const patient1Lookup = lookupData2.find((d) => d.recordId === patient1.id);
+      const patient2Lookup = lookupData2.find((d) => d.recordId === patient2.id);
+      expect(patient1Lookup).toEqual(
         expect.objectContaining({
           recordId: patient1.id,
           recordType: 'patients',
+          updatedAtSyncTick: patient1.updatedAtSyncTick, // Preserve the historic sync tick to avoid syncing historic data
           data: expect.objectContaining({
             id: patient1.id,
             displayId: patient1.displayId,
@@ -2694,6 +2703,17 @@ describe('CentralSyncManager', () => {
           isLabRequest: false,
           isDeleted: false,
         }),
+      );
+      expect(patient2Lookup).toEqual(
+        expect.objectContaining({
+          recordId: patient2.id,
+          recordType: 'patients',
+        }),
+      );
+
+      // Bumping the lookup table tick works in the same build
+      expect(parseInt(patient2Lookup.updatedAtSyncTick, 10)).toBeGreaterThan(
+        parseInt(patient2.updatedAtSyncTick, 10),
       );
 
       expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
