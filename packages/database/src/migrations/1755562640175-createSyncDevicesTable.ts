@@ -26,6 +26,11 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    last_seen_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.fn('now'),
+    },
     registered_by_user_id: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -5,6 +5,7 @@ import type { InitOptions, Models } from '../types/model';
 
 export class SyncDevice extends Model {
   declare id: string;
+  declare lastSeenAt: Date;
   declare deviceId: string;
   declare registeredById: string;
 
@@ -17,6 +18,11 @@ export class SyncDevice extends Model {
           allowNull: false,
           primaryKey: true,
           defaultValue: Sequelize.fn('gen_random_uuid'),
+        },
+        lastSeenAt: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: Sequelize.fn('now'),
         },
         deviceId: {
           type: DataTypes.TEXT,
@@ -34,6 +40,12 @@ export class SyncDevice extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'registeredById',
       as: 'registeredBy',
+    });
+  }
+
+  async markSeen() {
+    await this.update({
+      lastSeenAt: Sequelize.fn('now'),
     });
   }
 }
