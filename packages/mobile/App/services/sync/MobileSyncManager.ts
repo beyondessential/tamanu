@@ -385,7 +385,6 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    progressCallback(0);
     
     const { useUnsafeSchemaForInitialSync = true } = this.syncSettings;
     if (useUnsafeSchemaForInitialSync) {
@@ -431,7 +430,6 @@ export class MobileSyncManager {
       pullTotal += Number(incrementalPulled);
       this.updateProgress(recordTotal, pullTotal, `Pulling changes (${pullTotal}/${recordTotal})`);
     };
-    pullProgressCallback(0);
     await createSnapshotTable();
     await pullRecordsInBatches(
       {
@@ -447,7 +445,6 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    saveProgressCallback(0);
     await Database.client.transaction(async transactionEntityManager => {
       try {
         const incomingModels = getTransactingModelsForDirection(
