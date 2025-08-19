@@ -85,7 +85,7 @@ appointments.post(
       settings,
     } = req;
     const { Appointment, PatientFacility } = models;
-    const result = await db.transaction(async () => {
+    const result = await db.transaction(async transaction => {
       const appointment = scheduleData
         ? (
             await Appointment.createWithSchedule({
@@ -94,11 +94,11 @@ appointments.post(
               scheduleData,
             })
           ).firstAppointment
-        : await Appointment.create(appointmentData);
+        : await Appointment.create(appointmentData, { transaction });
 
       await PatientFacility.findOrCreate({
         where: { patientId: appointment.patientId, facilityId },
-        transaction: db,
+        transaction,
       });
 
       const { email } = appointmentData;
