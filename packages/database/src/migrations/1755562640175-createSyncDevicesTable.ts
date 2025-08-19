@@ -1,9 +1,9 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('sync_devices', {
+  await query.createTable('devices', {
     id: {
-      type: DataTypes.UUID,
+      type: DataTypes.TEXT,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.fn('gen_random_uuid'),
@@ -22,10 +22,6 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATE,
       allowNull: true,
     },
-    device_id: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
     last_seen_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -39,14 +35,13 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
-  });
-
-  await query.addIndex('sync_devices', {
-    fields: ['device_id'],
-    unique: true,
+    name: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
   });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropTable('sync_devices');
+  await query.dropTable('devices');
 }

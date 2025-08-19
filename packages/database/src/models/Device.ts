@@ -3,18 +3,18 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class SyncDevice extends Model {
+export class Device extends Model {
   declare id: string;
   declare lastSeenAt: Date;
-  declare deviceId: string;
   declare registeredById: string;
+  declare name?: string;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: {
-          type: DataTypes.UUID,
+          type: DataTypes.TEXT,
           allowNull: false,
           primaryKey: true,
           defaultValue: Sequelize.fn('gen_random_uuid'),
@@ -24,9 +24,8 @@ export class SyncDevice extends Model {
           allowNull: false,
           defaultValue: Sequelize.fn('now'),
         },
-        deviceId: {
+        name: {
           type: DataTypes.TEXT,
-          allowNull: false,
         },
       },
       {
