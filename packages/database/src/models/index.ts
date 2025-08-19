@@ -129,6 +129,7 @@ export * from './Note';
 
 export * from './SyncSession';
 export * from './SyncQueuedDevice';
+export * from './SyncDevice';
 
 export * from './fhir';
 
