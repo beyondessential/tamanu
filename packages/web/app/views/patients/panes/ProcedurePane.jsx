@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
@@ -7,16 +6,13 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
   const onCreateNewProcedure = () => {
-    // generate an id for the procedure upfront so that one is available if a procedure survey is submitted
-    // before the procedure is submitted
-    setEditedProcedure({
-      id: uuidv4(),
-    });
+    setEditedProcedure({});
   };
 
   return (
@@ -24,6 +20,7 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
       <ProcedureModal
         key={editedProcedure} /* Ensures that the modal is reset on close */
         editedProcedure={editedProcedure}
+        setEditedProcedure={setEditedProcedure}
         encounterId={encounter.id}
         onClose={() => setEditedProcedure(null)}
         onSaved={async () => {

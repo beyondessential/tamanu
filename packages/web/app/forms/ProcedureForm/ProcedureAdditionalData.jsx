@@ -66,15 +66,16 @@ export const ProcedureAdditionalData = ({
   patient,
   procedureId,
   procedureTypeId,
-  updateRefreshCount,
   selectedSurveyId,
   setSelectedSurveyId,
+  onSuccess,
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
-  const surveys = useProcedureSurveys(procedureTypeId);
   const [startTime] = useState(getCurrentDateTimeString());
+
+  const surveys = useProcedureSurveys(procedureTypeId);
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
   const { data: survey } = useSurveyQuery(selectedSurveyId);
 
@@ -91,8 +92,8 @@ export const ProcedureAdditionalData = ({
       });
     },
     onError: error => notifyError(error.message),
-    onSuccess: () => {
-      updateRefreshCount();
+    onSuccess: data => {
+      onSuccess(data.procedureId);
       setSelectedSurveyId(null);
     },
   });

@@ -65,7 +65,7 @@ describe('Procedures', () => {
       encounterId: encounter.id,
     });
 
-    const result = await app.post(`/api/procedure/${record.id}`).send({
+    const result = await app.put(`/api/procedure/${record.id}`).send({
       note: 'after',
     });
     expect(result).toHaveSucceeded();
@@ -81,7 +81,7 @@ describe('Procedures', () => {
     });
     expect(record.endTime).toBeFalsy();
 
-    const result = await app.post(`/api/procedure/${record.id}`).send({
+    const result = await app.put(`/api/procedure/${record.id}`).send({
       endTime: new Date(),
     });
     expect(result).toHaveSucceeded();
@@ -152,7 +152,7 @@ describe('Procedures', () => {
       ]);
 
       // Update to replace with different assistant clinicians
-      const result = await app.post(`/api/procedure/${procedure.id}`).send({
+      const result = await app.put(`/api/procedure/${procedure.id}`).send({
         assistantClinicianIds: [user2.id, user3.id], // Keep user2, remove user1, add user3
       });
       expect(result).toHaveSucceeded();
@@ -182,7 +182,7 @@ describe('Procedures', () => {
       ]);
 
       // Update with empty array to remove all
-      const result = await app.post(`/api/procedure/${procedure.id}`).send({
+      const result = await app.put(`/api/procedure/${procedure.id}`).send({
         assistantClinicianIds: [],
       });
       expect(result).toHaveSucceeded();
@@ -209,7 +209,7 @@ describe('Procedures', () => {
       });
 
       // Update without providing assistantClinicianIds
-      const result = await app.post(`/api/procedure/${procedure.id}`).send({
+      const result = await app.put(`/api/procedure/${procedure.id}`).send({
         note: 'updated note',
       });
       expect(result).toHaveSucceeded();

@@ -75,12 +75,20 @@ const getEndDateTime = ({ date, startTime, endTime }) => {
 
 const useProcedureProgramResponsesQuery = (patientId, procedureId, refreshCount) => {
   const api = useApi();
-  return useQuery(['patient', patientId, 'programResponses', procedureId, refreshCount], () =>
-    api.get(`patient/${patientId}/programResponses`, { procedureId }),
+  return useQuery(
+    ['patient', patientId, 'programResponses', procedureId, refreshCount],
+    () => api.get(`patient/${patientId}/programResponses`, { procedureId }),
+    { enabled: Boolean(procedureId) },
   );
 };
 
-export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
+export const ProcedureModal = ({
+  onClose,
+  onSaved,
+  encounterId,
+  editedProcedure,
+  setEditedProcedure,
+}) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const { patientId } = useParams();
@@ -108,7 +116,12 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
       encounterId,
     };
 
-    await api.post(`procedure/${updatedData.id}`, updatedData);
+    if (updatedData.id) {
+      await api.put(`procedure/${updatedData.id}`, updatedData);
+    } else {
+      await api.post('procedure', updatedData);
+    }
+
     onSaved();
   };
 
@@ -122,7 +135,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           await onSubmit(data);
         }
       }}
-      render={({ submitForm, values, dirty }) => {
+      render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
           if (selectedSurveyId) {
             // selectedSurveyId is defined when a program form is in progress
@@ -143,7 +156,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                   stringId="procedure.modal.title"
                   fallback=":action procedure"
                   replacements={{
-                    action: editedProcedure?.id ? (
+                    action: procedureId ? (
                       <TranslatedText
                         stringId="general.action.update"
                         fallback="Update"
@@ -160,7 +173,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                   data-testid="translatedtext-om64"
                 />
               }
-              open={!!editedProcedure}
+              open={Boolean(editedProcedure)}
               onClose={handleCancel}
               data-testid="formmodal-otam"
             >
@@ -178,9 +191,16 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
                 procedureId={procedureId}
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}
+                procedureFormValues={values}
                 updateRefreshCount={updateRefreshCount}
                 selectedSurveyId={selectedSurveyId}
                 setSelectedSurveyId={setSelectedSurveyId}
+                setEditedProcedure={setEditedProcedure}
+                onSuccess={id => {
+                  setEditedProcedure({ ...values, id });
+                  setFieldValue('id', id);
+                  updateRefreshCount();
+                }}
               />
               {programResponses?.data?.length > 0 && (
                 <>
@@ -256,7 +276,7 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
           editedProcedure?.assistantClinicians?.map(clinician => clinician.id) || [],
         ...editedProcedure,
       }}
-      formType={editedProcedure ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+      formType={procedureId ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
       validationSchema={yup.object().shape({
         procedureTypeId: foreignKey().translatedLabel(
           <TranslatedText stringId="procedure.procedureType.label" fallback="Procedure" />,

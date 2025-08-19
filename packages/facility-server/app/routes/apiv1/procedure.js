@@ -35,29 +35,31 @@ procedure.post('/surveyResponse', async (req, res) => {
 
   const responseRecord = await req.db.transaction(async () => {
     const newSurveyResponse = await createSurveyResponse(req, res);
+    let procedure;
 
-    const date = getCurrentDateTimeString();
-    const procedure = await models.Procedure.findOrCreate({
-      where: { id: procedureId },
-      defaults: {
+    if (procedureId) {
+      procedure = await models.Procedure.findByPk(procedureId);
+    } else {
+      procedure = await models.Procedure.create({
         completed: false,
-        date,
-      },
-    });
+        date: getCurrentDateTimeString(),
+      });
+    }
 
-    await models.ProcedureSurveyResponse.create({
+    return models.ProcedureSurveyResponse.create({
       surveyResponseId: newSurveyResponse.id,
-      procedureId: procedure[0].id,
+      procedureId: procedure.id,
     });
-
-    return newSurveyResponse;
   });
 
   res.send(responseRecord);
 });
 
-const createNewProcedure = async (requestBody, models) => {
-  const { assistantClinicianIds, ...procedureData } = requestBody;
+procedure.post('/', async (req, res) => {
+  const { models, body } = req;
+  req.checkPermission('create', 'Procedure');
+
+  const { assistantClinicianIds, ...procedureData } = body;
 
   const procedure = await models.Procedure.create(procedureData);
 
@@ -70,18 +72,23 @@ const createNewProcedure = async (requestBody, models) => {
     await models.ProcedureAssistantClinician.bulkCreate(assistantClinicians);
   }
 
-  return procedure;
-};
+  res.send(procedure);
+});
 
-const updateProcedure = async (procedure, requestBody, models) => {
+procedure.put('/:id', async (req, res) => {
+  const { models, params, body } = req;
+  req.checkPermission('create', 'Procedure');
+
+  const procedure = await models.Procedure.findByPk(params.id);
+
   if (procedure.deletedAt) {
     throw new InvalidOperationError(`Cannot update deleted object, you need to restore it first`);
   }
-  if (Object.prototype.hasOwnProperty.call(requestBody, 'deletedAt')) {
+  if (Object.prototype.hasOwnProperty.call(body, 'deletedAt')) {
     throw new InvalidOperationError('Cannot update deletedAt field');
   }
 
-  const { assistantClinicianIds, ...updateData } = requestBody;
+  const { assistantClinicianIds, ...updateData } = body;
 
   const updatedProcedure = await procedure.update(updateData);
 
@@ -116,18 +123,5 @@ const updateProcedure = async (procedure, requestBody, models) => {
     }
   }
 
-  return updatedProcedure;
-};
-
-procedure.post('/:id?', async (req, res) => {
-  const { models, params } = req;
-  req.checkPermission('create', 'Procedure');
-
-  let procedure = await models.Procedure.findByPk(params.id);
-  if (procedure) {
-    procedure = await updateProcedure(procedure, req.body, models);
-  } else {
-    procedure = await createNewProcedure(req.body, models);
-  }
-  res.send(procedure);
+  res.send(updatedProcedure);
 });
