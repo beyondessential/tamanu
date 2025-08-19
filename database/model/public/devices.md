@@ -17,3 +17,8 @@ Which user registered this device.
 
 This is used for quota calculations.
 {% enddocs %}
+
+{% docs devices__name %}
+Optional descriptive name, to make it easier to map device IDs to real devices
+in debugging and troubleshooting situations.
+{% enddocs %}

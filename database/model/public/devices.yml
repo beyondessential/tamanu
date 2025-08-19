@@ -47,3 +47,9 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
+          - name: name
+            data_type: text
+            description: "{{ doc('devices__name') }}"
+            config:
+              meta:
+                masking: text
