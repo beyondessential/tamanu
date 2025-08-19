@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { log } from '@tamanu/shared/services/logging/log';
 
 /**
@@ -11,25 +13,9 @@ export const validate = (schema, body) => {
   const validationResult = schema.safeParse(body);
   if (!validationResult.success) {
     // We just want to log errors at the moment
-    const formattedIssues =
-      validationResult.error.issues?.map(issue => ({
-        path: issue.path?.join('.') || 'root',
-        message: issue.message,
-        code: issue.code,
-        received: issue.received,
-      })) || [];
+    const prettyError = z.prettifyError(validationResult.error);
 
-    log.error('Validation failed', {
-      errorCount: validationResult.error.issues?.length || 0,
-      issues: JSON.stringify(formattedIssues, null, 2),
-      requestBody: JSON.stringify(body, null, 2),
-    });
-
-    const issuesSummary = formattedIssues
-      .map(issue => `${issue.path}: ${issue.message} (received: ${JSON.stringify(issue.received)})`)
-      .join('; ');
-
-    log.error(`Validation errors summary: ${issuesSummary}`);
+    log.error(`Validation failed: ${prettyError}`);
   }
   return validationResult.success ? validationResult.data : body;
 };

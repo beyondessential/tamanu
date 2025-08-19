@@ -1,9 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
 import { constructFacilityUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
-import { fakeCreatePatientRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createPatient';
+import { generateNHN } from './generateNewPatient';
 import { testData } from './testData';
 
 export const createApiContext = async ({ page }: { page: Page }) => {
@@ -29,19 +30,22 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
   const user = await getUser(api);
 
-  const requestBody = fakeCreatePatientRequestBody({
-    required: {
-      facilityId,
-      registeredById: user.id,
-    },
-    overrides: {
-      villageId: testData.villageID,
-      patientRegistryType: 'new_patient',
-    },
-  });
+  const patientData = {
+    birthFacilityId: null,
+    dateOfBirth: faker.date.birthdate(),
+    displayId: generateNHN(),
+    facilityId,
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+    patientRegistryType: 'new_patient',
+    registeredById: user.id,
+    sex: faker.person.sex(),
+    villageId: testData.villageID,
+    culturalName: faker.person.middleName(),
+  };
 
   const response = await api.post(patientUrl, {
-    data: requestBody,
+    data: patientData,
   });
 
   return response.json();
