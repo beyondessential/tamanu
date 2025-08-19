@@ -24,6 +24,9 @@ sources:
           - name: until_date
             data_type: character(10)
             description: "{{ doc('appointment_schedules__until_date') }}"
+            config:
+              meta:
+                masking: date
           - name: interval
             data_type: integer
             description: "{{ doc('appointment_schedules__interval') }}"
@@ -69,6 +72,12 @@ sources:
           - name: generated_until_date
             data_type: character(10)
             description: "{{ doc('appointment_schedules__generated_until_date') }}"
+            config:
+              meta:
+                masking: date
           - name: cancelled_at_date
             data_type: character(10)
             description: "{{ doc('appointment_schedules__cancelled_at_date') }}"
+            config:
+              meta:
+                masking: date

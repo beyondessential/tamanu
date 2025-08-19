@@ -24,14 +24,25 @@ sources:
           - name: status
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__status') }}"
+            data_tests:
+              - accepted_values:
+                  values:
+                    - GIVEN
+                    - NOT_GIVEN
           - name: due_at
             data_type: character(19)
             description: "{{ doc('medication_administration_records__due_at') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: recorded_at
             data_type: character(19)
             description: "{{ doc('medication_administration_records__recorded_at') }}"
+            config:
+              meta:
+                masking: date
           - name: recorded_by_user_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__recorded_by_user_id') }}"
@@ -46,6 +57,9 @@ sources:
           - name: changing_status_reason
             data_type: text
             description: "{{ doc('medication_administration_records__changing_status_reason') }}"
+            config:
+              meta:
+                masking: text
           - name: reason_not_given_id
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__reason_not_given_id') }}"
@@ -73,9 +87,15 @@ sources:
           - name: error_notes
             data_type: text
             description: "{{ doc('medication_administration_records__error_notes') }}"
+            config:
+              meta:
+                masking: text
           - name: changing_not_given_info_reason
             data_type: character varying(255)
             description: "{{ doc('medication_administration_records__changing_not_given_info_reason') }}"
+            config:
+              meta:
+                masking: text
           - name: is_edited
             data_type: boolean
             description: "{{ doc('medication_administration_records__is_edited') }}"

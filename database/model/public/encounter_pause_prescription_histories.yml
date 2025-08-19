@@ -36,12 +36,18 @@ sources:
             description: "{{ doc('encounter_pause_prescription_histories__action_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: action_user_id
             data_type: character varying(255)
             description: "{{ doc('encounter_pause_prescription_histories__action_user_id') }}"
           - name: notes
             data_type: text
             description: "{{ doc('encounter_pause_prescription_histories__notes') }}"
+            config:
+              meta:
+                masking: text
           - name: pause_duration
             data_type: numeric
             description: "{{ doc('encounter_pause_prescription_histories__pause_duration') }}"

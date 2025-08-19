@@ -32,6 +32,9 @@ sources:
             description: "{{ doc('generic__date') }} in invoices."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: status
             data_type: character varying(255)
             description: "{{ doc('invoices__status') }}"
