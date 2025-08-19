@@ -8,7 +8,7 @@ export function patientSummaryHandler() {
     const { id: patientId } = req.params;
     const { models } = req.store;
 
-    const { patient, bundle } = await generateIPSBundle(patientId, req.user, models, req.ability);
+    const { patient, bundle } = await generateIPSBundle(patientId, req.user, models);
 
     res.header('Last-Modified', formatRFC7231(patient.updatedAt));
     res.send(bundle);

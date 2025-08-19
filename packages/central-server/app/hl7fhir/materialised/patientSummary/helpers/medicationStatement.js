@@ -4,12 +4,7 @@ import { FHIR_RESOURCE_TYPES } from '@tamanu/constants';
 import { formatFhirDate } from '@tamanu/shared/utils/fhir';
 import { getEntryResourceSubject } from '../utils';
 
-export const getMedicationStatements = async ({
-  ability,
-  patient,
-  models,
-  dataDictionariesIps,
-}) => {
+export const getMedicationStatements = async ({ patient, models, dataDictionariesIps }) => {
   const openEncounter = await models.Encounter.findOne({
     where: {
       patientId: patient.id,
@@ -19,11 +14,22 @@ export const getMedicationStatements = async ({
 
   const encounterMedications = openEncounter
     ? await models.Prescription.findAll({
-        where: {
-          encounterId: openEncounter.id,
-        },
         include: [
-          ...models.Prescription.getListReferenceAssociations(),
+          {
+            model: models.ReferenceData,
+            as: 'medication',
+            include: [
+              {
+                model: models.ReferenceDrug,
+                as: 'referenceDrug',
+                where: {
+                  isSensitive: false,
+                },
+                required: true,
+              },
+            ],
+            required: true,
+          },
           {
             model: models.EncounterPrescription,
             as: 'encounterPrescription',
@@ -35,8 +41,6 @@ export const getMedicationStatements = async ({
         ],
       })
     : [];
-
-  const canListSensitiveMedication = ability ? ability.can('list', 'SensitiveMedication') : false;
 
   const medicationStatementsHeader = {
     resourceType: FHIR_RESOURCE_TYPES.MEDICATION_STATEMENT,
@@ -67,80 +71,75 @@ export const getMedicationStatements = async ({
     ];
   }
 
-  return encounterMedications
-    .filter(
-      encounterMedication =>
-        !encounterMedication.medication.isSensitive || canListSensitiveMedication,
-    )
-    .map(encounterMedication => ({
-      id: uuidv4(),
-      ...medicationStatementsHeader,
-      medicationCodeableConcept: {
-        coding: [
+  return encounterMedications.map(encounterMedication => ({
+    id: uuidv4(),
+    ...medicationStatementsHeader,
+    medicationCodeableConcept: {
+      coding: [
+        {
+          system: dataDictionariesIps.medicationEncoding,
+          code: encounterMedication.medication.code,
+          display: encounterMedication.medication.name,
+        },
+      ],
+    },
+    text: {
+      status: 'generated',
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.medication.name}. Please review the data for more detail.</div>`,
+    },
+    effectivePeriod: {
+      start: formatFhirDate(encounterMedication.date),
+    },
+    dosage: [
+      {
+        timing: {
+          repeat: {
+            when: ['MORN'],
+          },
+        },
+        doseAndRate: [
           {
-            system: dataDictionariesIps.medicationEncoding,
-            code: encounterMedication.medication.code,
-            display: encounterMedication.medication.name,
+            doseQuantity: { value: encounterMedication.qtyMorning },
+          },
+        ],
+        route: { text: encounterMedication.route },
+      },
+      {
+        timing: {
+          repeat: {
+            when: ['CD'],
+          },
+        },
+        doseAndRate: [
+          {
+            doseQuantity: { value: encounterMedication.qtyLunch },
           },
         ],
       },
-      text: {
-        status: 'generated',
-        div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.medication.name}. Please review the data for more detail.</div>`,
+      {
+        timing: {
+          repeat: {
+            when: ['EVE'],
+          },
+        },
+        doseAndRate: [
+          {
+            doseQuantity: { value: encounterMedication.qtyEvening },
+          },
+        ],
       },
-      effectivePeriod: {
-        start: formatFhirDate(encounterMedication.date),
+      {
+        timing: {
+          repeat: {
+            when: ['NIGHT'],
+          },
+        },
+        doseAndRate: [
+          {
+            doseQuantity: { value: encounterMedication.qtyNight },
+          },
+        ],
       },
-      dosage: [
-        {
-          timing: {
-            repeat: {
-              when: ['MORN'],
-            },
-          },
-          doseAndRate: [
-            {
-              doseQuantity: { value: encounterMedication.qtyMorning },
-            },
-          ],
-          route: { text: encounterMedication.route },
-        },
-        {
-          timing: {
-            repeat: {
-              when: ['CD'],
-            },
-          },
-          doseAndRate: [
-            {
-              doseQuantity: { value: encounterMedication.qtyLunch },
-            },
-          ],
-        },
-        {
-          timing: {
-            repeat: {
-              when: ['EVE'],
-            },
-          },
-          doseAndRate: [
-            {
-              doseQuantity: { value: encounterMedication.qtyEvening },
-            },
-          ],
-        },
-        {
-          timing: {
-            repeat: {
-              when: ['NIGHT'],
-            },
-          },
-          doseAndRate: [
-            {
-              doseQuantity: { value: encounterMedication.qtyNight },
-            },
-          ],
-        },
-      ],
-    }));
+    ],
+  }));
 };
