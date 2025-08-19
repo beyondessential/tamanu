@@ -10,24 +10,25 @@ sql: |
 send:
   - target: external
     id: default
-    subject: '[Tamanu Alert] No sync sessions created in the last hour ({{ hostname }})'
+    subject: '[Tamanu Alert] Facilities with no successful syncs in the last hour ({{ hostname }})'
     template: |
       - Server: {{ hostname }}
       - Alert: {{ filename }}
 
       **Report this immediately to support.**
 
-      No sync sessions have been created in the last hour.
+      One or more facilities have not had a successful sync in the last hour.
 
       This could indicate:
       - Sync service is down or not running
       - Network connectivity issues
       - Database connection problems
-      - All facilities are offline
+      - Specific facilities are offline
+      - Sync sessions are failing with errors
 
-      **Facilities with no recent sync sessions:**
+      **Facilities with no recent successful syncs:**
       {% for row in rows %}
-      - Facility ID: {{ row.facility_id }} - Last sync: {{ row.last_successful_sync if row.last_successful_sync else 'Unknown' }}
+      - Facility ID: {{ row.facility_id }} - Last successful sync: {{ row.last_successful_sync if row.last_successful_sync else 'Unknown' }}
       {% endfor %}
 
       **Immediate action required:**
@@ -35,3 +36,4 @@ send:
       2. Verify database connectivity
       3. Check facility network status
       4. Review system logs for errors
+      5. Check if sync sessions are failing (look for sessions with errors)
