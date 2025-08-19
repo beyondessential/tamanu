@@ -1,9 +1,12 @@
 sql: |
   SELECT facility_id, last_successful_sync FROM (
-    SELECT parameters->'facilityIds'->>0 as facility_id, max(completed_at) as last_successful_sync
-    FROM sync_sessions
-    WHERE errors IS NULL
-    GROUP BY parameters->'facilityIds'->>0
+    SELECT facility_id, max(completed_at) as last_successful_sync
+    FROM (
+      SELECT jsonb_array_elements_text(parameters->'facilityIds') as facility_id, completed_at
+      FROM sync_sessions
+      WHERE errors IS NULL
+    ) AS successful_syncs
+    GROUP BY facility_id
   ) AS last_successful_facility_syncs
   WHERE last_successful_sync < now() - interval '1 hour'
 
