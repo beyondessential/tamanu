@@ -27,7 +27,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: Sequelize.fn('now'),
     },
-    registered_by_user_id: {
+    registered_by_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {

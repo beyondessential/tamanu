@@ -12,7 +12,7 @@ This check is not performed when `features.deviceRegistrationQuota` is disabled.
 When this device last logged in.
 {% enddocs %}
 
-{% docs devices__registered_by_user_id %}
+{% docs devices__registered_by_id %}
 Which user registered this device.
 
 This is used for quota calculations.
