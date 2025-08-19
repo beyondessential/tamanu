@@ -43,6 +43,14 @@ export class SyncDevice extends Model {
     });
   }
 
+  static async getCountByUserId(userId: string) {
+    return this.count({
+      where: {
+        registeredById: userId,
+      },
+    });
+  }
+
   async markSeen() {
     await this.update({
       lastSeenAt: Sequelize.fn('now'),
