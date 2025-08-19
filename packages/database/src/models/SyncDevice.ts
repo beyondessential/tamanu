@@ -6,7 +6,7 @@ import type { InitOptions, Models } from '../types/model';
 export class SyncDevice extends Model {
   declare id: string;
   declare deviceId: string;
-  declare authorisedById: string;
+  declare registeredById: string;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -32,8 +32,8 @@ export class SyncDevice extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.User, {
-      foreignKey: 'authorisedById',
-      as: 'authorisedBy',
+      foreignKey: 'registeredById',
+      as: 'registeredBy',
     });
   }
 }

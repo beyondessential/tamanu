@@ -26,7 +26,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    authorised_by_user_id: {
+    registered_by_user_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
