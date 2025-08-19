@@ -25,7 +25,7 @@ export async function ensureDeviceRegistration({ Device }, settings, user, devic
   //    quota is reached on the first one, the second should not be able to.
   await Device.sequelize.transaction(
     {
-      isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
+      isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
     },
     async () => {
       if (!deviceId) {
