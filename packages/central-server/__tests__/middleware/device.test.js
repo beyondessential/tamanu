@@ -76,6 +76,8 @@ describe('Device auth', () => {
   });
 
   it('should succeed if there is enough quota', async () => {
+    await user.update({ deviceRegistrationQuota: 1 });
+
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,

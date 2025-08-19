@@ -4,12 +4,14 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { subMinutes } from 'date-fns';
 
 import { createTestContext } from '../utilities';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 describe('SyncQueuedDevice', () => {
   let ctx;
   let models;
   let baseApp;
   let app;
+  let token;
 
   const closeActiveSyncSessions = async () => {
     await models.SyncSession.update(
@@ -21,12 +23,16 @@ describe('SyncQueuedDevice', () => {
   };
 
   const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
-    const result = await app.post('/api/sync').send({
-      deviceId: `queue-${device}`,
-      facilityIds: [`facility${device}`],
-      lastSyncedTick,
-      urgent,
-    });
+    const result = await app
+      .post('/api/sync')
+      .set('Authorization', `Bearer ${token}`)
+      .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+      .send({
+        deviceId: `queue-${device}`,
+        facilityIds: [`facility${device}`],
+        lastSyncedTick,
+        urgent,
+      });
     expect(result).toHaveSucceeded();
     return result;
   };
@@ -38,10 +44,22 @@ describe('SyncQueuedDevice', () => {
     app = await baseApp.asRole('admin');
 
     await Promise.all(
-      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map((id) =>
+      ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map(id =>
         models.Facility.create(fake(models.Facility, { id, name: id })),
       ),
     );
+
+    const user = await models.User.create(fake(models.User, { password: 'password' }));
+    const device = await models.Device.create({ registeredById: user.id });
+    const response = await baseApp
+      .post('/api/login')
+      .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+      .send({
+        email: user.email,
+        password: 'password',
+        deviceId: device.id,
+      });
+    token = response.body.token;
 
     const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
     CentralSyncManager.overrideConfig({
