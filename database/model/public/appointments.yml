@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_appointments_changed
               - record_appointments_changelog
+              - set_appointments_updated_at
               - set_appointments_updated_at_sync_tick
         columns:
           - name: id
@@ -33,9 +34,15 @@ sources:
           - name: start_time
             data_type: character(19)
             description: "{{ doc('appointments__start_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: end_time
             data_type: character(19)
             description: "{{ doc('appointments__end_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('appointments__patient_id') }}"
@@ -62,6 +69,9 @@ sources:
             description: "{{ doc('appointments__type_legacy') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: status
             data_type: character varying(255)
             description: "{{ doc('appointments__status') }}"
@@ -78,9 +88,15 @@ sources:
           - name: start_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('appointments__start_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: end_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('appointments__end_time_legacy') }}"
+            config:
+              meta:
+                masking: datetime
           - name: location_group_id
             data_type: character varying(255)
             description: "{{ doc('appointments__location_group_id') }}"

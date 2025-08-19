@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_encounter_history_changed
               - record_encounter_history_changelog
+              - set_encounter_history_updated_at
               - set_encounter_history_updated_at_sync_tick
         columns:
           - name: id
@@ -40,6 +41,9 @@ sources:
             description: "{{ doc('generic__date') }} in encounter_history."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('encounter_history__encounter_id') }}"
