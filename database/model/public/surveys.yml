@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_surveys_changed
               - record_surveys_changelog
+              - set_surveys_updated_at
               - set_surveys_updated_at_sync_tick
         columns:
           - name: id

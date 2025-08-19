@@ -15,6 +15,7 @@ sources:
               - fhir_refresh
               - notify_note_items_changed
               - record_note_items_changelog
+              - set_note_items_updated_at
               - set_note_items_updated_at_sync_tick
         columns:
           - name: id
@@ -70,14 +71,23 @@ sources:
             description: "{{ doc('note_items__content') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: date
             data_type: character(19)
             description: "{{ doc('generic__date') }} in note_items."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in note_items."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in note_items."
