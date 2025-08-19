@@ -33,7 +33,7 @@ export async function startTasks({ skipMigrationCheck, taskClasses, syncManager 
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
   }
 
-  await initDeviceId({ context, serverType: DEVICE_TYPES.FACILITY_SERVER });
+  await initDeviceId({ context, deviceType: DEVICE_TYPES.FACILITY_SERVER });
   await checkConfig(context);
   await performDatabaseIntegrityChecks(context);
 
