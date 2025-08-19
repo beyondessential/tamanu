@@ -1,8 +1,12 @@
 import { Sequelize } from 'sequelize';
-import { DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR, SETTING_KEYS } from '@tamanu/constants';
+import {
+  DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
+  SERVER_TYPES,
+  SETTING_KEYS,
+} from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 
-export async function ensureDeviceRegistration({ Device }, settings, user, deviceId) {
+export async function ensureDeviceRegistration({ Device }, settings, user, deviceId, tamanuClient) {
   const deviceRegistrationQuotaEnabled = await settings.get(
     SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED,
   );
@@ -24,6 +28,14 @@ export async function ensureDeviceRegistration({ Device }, settings, user, devic
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
     },
     async () => {
+      if (!deviceId) {
+        if (Object.values(SERVER_TYPES).includes(tamanuClient)) {
+          throw new BadAuthenticationError('Device ID is required');
+        } else {
+          return;
+        }
+      }
+
       const syncDevice = await Device.findOne({
         where: {
           id: deviceId,
