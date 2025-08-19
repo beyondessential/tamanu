@@ -43,6 +43,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.addIndex('sync_devices', {
     fields: ['device_id'],
+    unique: true,
   });
 }
 
