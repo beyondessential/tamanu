@@ -10,14 +10,14 @@ sql: |
 send:
   - target: external
     id: default
-    subject: '[Tamanu Alert] No sync sessions created in the last 30 minutes ({{ hostname }})'
+    subject: '[Tamanu Alert] No sync sessions created in the last hour ({{ hostname }})'
     template: |
       - Server: {{ hostname }}
       - Alert: {{ filename }}
 
       **Report this immediately to support.**
 
-      No sync sessions have been created in the last 30 minutes.
+      No sync sessions have been created in the last hour.
 
       This could indicate:
       - Sync service is down or not running
@@ -25,7 +25,10 @@ send:
       - Database connection problems
       - All facilities are offline
 
-      Last sync session was created at: {{ rows[0].last_session_created if rows[0].last_session_created else 'Unknown' }}
+      **Facilities with no recent sync sessions:**
+      {% for row in rows %}
+      - Facility ID: {{ row.facility_id }} - Last sync: {{ row.last_successful_sync if row.last_successful_sync else 'Unknown' }}
+      {% endfor %}
 
       **Immediate action required:**
       1. Check if sync service is running
