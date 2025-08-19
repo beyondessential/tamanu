@@ -1,4 +1,4 @@
-import { TAMANU_COLORS as Colors } from '@tamanu/shared/ui/colors';
+import { TAMANU_COLORS as Colors } from '@tamanu/ui-components';
 import { createGlobalStyle } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;

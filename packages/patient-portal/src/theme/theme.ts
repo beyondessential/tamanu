@@ -1,5 +1,5 @@
 import { createTheme, Theme } from '@mui/material/styles';
-import { TAMANU_COLORS as Colors } from '@tamanu/shared/ui/colors';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 declare module '@mui/material/Paper' {
   interface PaperPropsVariantOverrides {
@@ -11,27 +11,27 @@ declare module '@mui/material/Paper' {
 const patientPortalThemeConfig = {
   palette: {
     primary: {
-      main: Colors.primary,
-      dark: Colors.primaryDark,
+      main: TAMANU_COLORS.primary,
+      dark: TAMANU_COLORS.primaryDark,
     },
     secondary: {
-      main: Colors.secondary,
+      main: TAMANU_COLORS.secondary,
       dark: '#905a00',
     },
     error: {
-      main: Colors.alert,
+      main: TAMANU_COLORS.alert,
     },
     success: {
-      main: Colors.safe,
+      main: TAMANU_COLORS.safe,
     },
     text: {
-      primary: Colors.darkestText,
-      secondary: Colors.darkText,
-      tertiary: Colors.midText,
+      primary: TAMANU_COLORS.darkestText,
+      secondary: TAMANU_COLORS.darkText,
+      tertiary: TAMANU_COLORS.midText,
     },
     background: {
-      default: Colors.background,
-      paper: Colors.white,
+      default: TAMANU_COLORS.background,
+      paper: TAMANU_COLORS.white,
       header: '#EAF2FF', // taken from colors.scss::$main-light-blue-color
       light: '#F4F6F8', // taken from colors.scss::$main-light-gray-color
       main: '#eff2f5', // taken from colors.scss::$main-bg-color
@@ -87,7 +87,7 @@ const patientPortalThemeConfig = {
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: {
-          borderColor: Colors.outline,
+          borderColor: TAMANU_COLORS.outline,
         },
       },
     },

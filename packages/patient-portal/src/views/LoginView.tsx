@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Typography, Container, Paper, TextField, Button } from '@mui/material';
-
+import { Box, Typography, Container, Paper, TextField } from '@mui/material';
+import { Button } from '@tamanu/ui-components';
 import { useAuth } from '@auth/useAuth';
 
 export const LoginView = () => {
@@ -37,7 +37,7 @@ export const LoginView = () => {
               autoComplete="email"
               autoFocus
             />
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Button type="submit" fullWidth variant="contained">
               Login
             </Button>
           </Box>
