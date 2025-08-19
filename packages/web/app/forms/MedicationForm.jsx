@@ -668,7 +668,7 @@ export const MedicationForm = ({
         initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        render={({ submitForm, setValues, values, dirty }) => (
+        render={({ submitForm, setValues, values, dirty, setFieldError }) => (
           <StyledFormGrid>
             {!isEditing ? (
               <>
@@ -790,6 +790,7 @@ export const MedicationForm = ({
                 onChange={(_, value) => {
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
+                    setFieldError('doseAmount', null);
                   }
                 }}
               />

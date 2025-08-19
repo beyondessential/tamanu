@@ -108,7 +108,7 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-          "MediciReport": false,
+          "MediciReport": true,
           "Specimen": true,
           "Organization": true
         }

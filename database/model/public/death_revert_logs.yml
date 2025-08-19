@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_death_revert_logs_changed
+              - record_death_revert_logs_changelog
+              - set_death_revert_logs_updated_at
+              - set_death_revert_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -34,6 +40,9 @@ sources:
             description: "{{ doc('death_revert_logs__revert_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: death_data_id
             data_type: character varying(255)
             description: "{{ doc('death_revert_logs__death_data_id') }}"
