@@ -279,20 +279,19 @@ describe('Procedures', () => {
 
       expect(result).toHaveSucceeded();
 
-      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
-      expect(surveyResponse).toBeTruthy();
-
-      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
-        where: { surveyResponseId: surveyResponse.id },
-      });
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findByPk(result.body.id);
       expect(procedureSurveyResponse).toBeTruthy();
       expect(procedureSurveyResponse.procedureId).toBe(existingProcedure.id);
+
+      const surveyResponse = await models.SurveyResponse.findByPk(
+        procedureSurveyResponse.surveyResponseId,
+      );
+      expect(surveyResponse).toBeTruthy();
     });
 
     it('should create new Procedure when procedureId does not exist', async () => {
       const { patient, encounter, facility, survey, department, location } =
         await createDummyData();
-      const newProcedureId = 'new-procedure-id';
 
       const result = await app.post('/api/procedure/surveyResponse').send({
         patientId: patient.id,
@@ -301,24 +300,22 @@ describe('Procedures', () => {
         facilityId: facility.id,
         locationId: location.id,
         departmentId: department.id,
-        procedureId: newProcedureId,
         answers: {},
       });
 
       expect(result).toHaveSucceeded();
 
-      const surveyResponse = await models.SurveyResponse.findByPk(result.body.id);
-      expect(surveyResponse).toBeTruthy();
+      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findByPk(result.body.id);
+      expect(procedureSurveyResponse).toBeTruthy();
 
-      const procedure = await models.Procedure.findByPk(newProcedureId);
+      const procedure = await models.Procedure.findByPk(procedureSurveyResponse.procedureId);
       expect(procedure).toBeTruthy();
       expect(procedure.completed).toBe(false);
 
-      const procedureSurveyResponse = await models.ProcedureSurveyResponse.findOne({
-        where: { surveyResponseId: surveyResponse.id },
-      });
-      expect(procedureSurveyResponse).toBeTruthy();
-      expect(procedureSurveyResponse.procedureId).toBe(newProcedureId);
+      const surveyResponse = await models.SurveyResponse.findByPk(
+        procedureSurveyResponse.surveyResponseId,
+      );
+      expect(surveyResponse).toBeTruthy();
     });
   });
 });

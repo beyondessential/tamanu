@@ -1,5 +1,5 @@
 import express from 'express';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 import { findRouteObject } from '@tamanu/shared/utils/crudHelpers';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createSurveyResponse } from './surveyResponse';
@@ -39,6 +39,10 @@ procedure.post('/surveyResponse', async (req, res) => {
 
     if (procedureId) {
       procedure = await models.Procedure.findByPk(procedureId);
+
+      if (!procedure) {
+        throw new NotFoundError('Procedure not found.');
+      }
     } else {
       procedure = await models.Procedure.create({
         completed: false,
