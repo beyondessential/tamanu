@@ -26,7 +26,7 @@ export async function ensureDeviceRegistration({ Device }, settings, user, devic
     async () => {
       const syncDevice = await Device.findOne({
         where: {
-          deviceId,
+          id: deviceId,
         },
       });
 
@@ -41,7 +41,7 @@ export async function ensureDeviceRegistration({ Device }, settings, user, devic
       }
 
       await Device.create({
-        deviceId,
+        id: deviceId,
         registeredById: user.id,
       });
     },
