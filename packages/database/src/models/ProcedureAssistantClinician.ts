@@ -1,6 +1,11 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+  buildEncounterLinkedSyncFilter,
+} from '../sync';
 
 export class ProcedureAssistantClinician extends Model {
   declare procedureId: string;
@@ -26,11 +31,20 @@ export class ProcedureAssistantClinician extends Model {
     });
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
+    if (patientCount === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter(
+      [this.tableName, 'procedures', 'encounters'],
+      markedForSyncPatientsTable,
+    );
   }
 
   static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+    return {
+      select: buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, ['procedures', 'encounters']),
+    };
   }
 }
