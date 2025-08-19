@@ -375,6 +375,8 @@ appointments.post(
         // Create PatientFacility record to mark patient for sync on this facility
         // Location booking always has a locationId
         const location = await Location.findByPk(locationId, { transaction });
+        if (!location) throw new NotFoundError('Location not found');
+
         await PatientFacility.findOrCreate({
           where: { patientId, facilityId: location.facilityId },
           transaction,
