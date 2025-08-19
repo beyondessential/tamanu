@@ -5,7 +5,7 @@ export const useLocationAssignmentsQuery = (params, options = {}) => {
   const api = useApi();
   
   return useQuery(
-    ['locationAssignments', params],
+    ['locationAssignments'],
     () => api.get('admin/location-assignments', { params }),
     {
       ...options,

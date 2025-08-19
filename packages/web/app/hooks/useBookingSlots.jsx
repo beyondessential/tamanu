@@ -37,8 +37,13 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  */
 export const useBookingSlots = (date) => {
   const { getSetting } = useSettings();
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
-
+  // const bookingSlotSettings = getSetting('appointments.bookingSlots');
+  // console.log('bookingSlotSettings', bookingSlotSettings);
+  const bookingSlotSettings = {
+    "startTime": "09:00",
+    "endTime": "17:00",
+    "slotDuration": "30min"
+}
   const isPending = bookingSlotSettings === undefined;
 
   // "Pointless" destructure so we can use primitives as `useMemo` dependencies

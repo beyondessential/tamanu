@@ -21,6 +21,7 @@ export const useSettings = () => {
 
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState({});
+  console.log('settings', settings);
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false);
   const reduxSettings = useSelector((state) => state.auth.settings);
 

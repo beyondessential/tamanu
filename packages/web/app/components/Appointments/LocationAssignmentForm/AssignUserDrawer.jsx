@@ -267,6 +267,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             enableLocationStatus={false}
             name="locationId"
             component={LocalisedLocationField}
+            disabled={isEdit}
             required
             onChange={(e) => {
               updateSelectedCell({ locationId: e.target.value });
