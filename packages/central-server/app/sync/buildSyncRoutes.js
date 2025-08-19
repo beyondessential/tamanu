@@ -28,7 +28,8 @@ export const buildSyncRoutes = ctx => {
         throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
       }
 
-      if (deviceId !== bodyDeviceId) {
+      // eventually we want to phase out sending the deviceId in the request body
+      if (bodyDeviceId && deviceId !== bodyDeviceId) {
         throw new ForbiddenError('Device ID mismatch');
       }
 

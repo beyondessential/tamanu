@@ -10,8 +10,7 @@ describe('SyncQueuedDevice', () => {
   let ctx;
   let models;
   let baseApp;
-  let app;
-  let token;
+  let user;
 
   const closeActiveSyncSessions = async () => {
     await models.SyncSession.update(
@@ -23,9 +22,18 @@ describe('SyncQueuedDevice', () => {
   };
 
   const requestSync = async (device, lastSyncedTick = 0, urgent = false) => {
-    const result = await app
+    const response = await baseApp
+      .post('/api/login')
+      .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
+      .send({
+        email: user.email,
+        password: 'password',
+        deviceId: `queue-${device}`,
+      });
+
+    const result = await baseApp
       .post('/api/sync')
-      .set('Authorization', `Bearer ${token}`)
+      .set('Authorization', `Bearer ${response.body.token}`)
       .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
       .send({
         deviceId: `queue-${device}`,
@@ -41,7 +49,7 @@ describe('SyncQueuedDevice', () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
-    app = await baseApp.asRole('admin');
+    user = await models.User.create(fake(models.User, { password: 'password', role: 'admin' }));
 
     await Promise.all(
       ['facilityA', 'facilityB', 'facilityC', 'facilityD', 'facilityE'].map(id =>
@@ -49,17 +57,11 @@ describe('SyncQueuedDevice', () => {
       ),
     );
 
-    const user = await models.User.create(fake(models.User, { password: 'password' }));
-    const device = await models.Device.create({ registeredById: user.id });
-    const response = await baseApp
-      .post('/api/login')
-      .set('X-Tamanu-Client', SERVER_TYPES.MOBILE)
-      .send({
-        email: user.email,
-        password: 'password',
-        deviceId: device.id,
-      });
-    token = response.body.token;
+    await Promise.all(
+      ['A', 'B', 'C', 'D', 'E'].map(id =>
+        models.Device.create(fake(models.Device, { id: `queue-${id}`, registeredById: user.id })),
+      ),
+    );
 
     const { CentralSyncManager } = require('../../dist/sync/CentralSyncManager');
     CentralSyncManager.overrideConfig({
