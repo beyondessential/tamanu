@@ -13,6 +13,7 @@ sources:
             triggers:
               - notify_report_requests_changed
               - record_report_requests_changelog
+              - set_report_requests_updated_at
               - set_report_requests_updated_at_sync_tick
         columns:
           - name: id
@@ -42,6 +43,9 @@ sources:
             description: "{{ doc('report_requests__recipients') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: email
           - name: parameters
             data_type: text
             description: "{{ doc('report_requests__parameters') }}"
@@ -70,6 +74,9 @@ sources:
           - name: process_started_time
             data_type: timestamp with time zone
             description: "{{ doc('report_requests__process_started_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('report_requests__facility_id') }}"

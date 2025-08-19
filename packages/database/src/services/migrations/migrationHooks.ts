@@ -150,7 +150,20 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       })
       .then(rows => (rows?.[0] as any)?.count > 0);
 
-  // add trigger: before insert or update, set updated_at (overriding any that is passed in)
+  // add trigger: before update, update updated_at when the data in the row changed
+  if (await functionExists('set_updated_at')) {
+    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at')) {
+      log.info(`Adding updated_at trigger to ${schema}.${table}`);
+      await sequelize.query(`
+      CREATE TRIGGER set_${table}_updated_at
+      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION public.set_updated_at();
+    `);
+    }
+  }
+
+  // add trigger: before insert or update, set updated_at_sync_tick (overriding any that is passed in)
   if (await functionExists('set_updated_at_sync_tick')) {
     for (const { schema, table } of await tablesWithoutTrigger(
       sequelize,
