@@ -633,6 +633,14 @@ export async function procedureTypeLoader(item, { models, pushError }) {
         `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
       );
     }
+
+    // Check if any of the existing surveys have survey_type !== 'programs'
+    const nonProgramSurveys = existingSurveys.filter(survey => survey.surveyType !== 'programs');
+    if (nonProgramSurveys.length > 0) {
+      pushError(
+        `Survey${nonProgramSurveys.length > 1 ? 's' : ''} "${nonProgramSurveys.map(s => s.id).join(', ')}" for procedure type "${id}" must have survey_type of 'programs'.`,
+      );
+    }
   }
 
   const existingProcedureType = await models.ReferenceData.findByPk(id, {
