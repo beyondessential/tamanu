@@ -19,12 +19,21 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        body: { facilityIds, deviceId, isMobile },
+        deviceId,
+        body: { facilityIds, deviceId: bodyDeviceId, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
+      if (!deviceId) {
+        throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
+      }
+
+      if (deviceId !== bodyDeviceId) {
+        throw new ForbiddenError('Device ID mismatch');
+      }
+
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!await userInstance.canSync(facilityIds, req)) {
+      if (!(await userInstance.canSync(facilityIds, req))) {
         throw new ForbiddenError('User cannot sync');
       }
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
@@ -96,7 +105,7 @@ export const buildSyncRoutes = ctx => {
         userId: user.id,
         deviceId,
         facilityIds,
-        isMobile
+        isMobile,
       });
       res.json({ sessionId, tick });
     }),
@@ -127,14 +136,8 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
-      const { params, body } = req;
-      const {
-        since: sinceString,
-        facilityIds,
-        tablesToInclude,
-        tablesForFullResync,
-        deviceId,
-      } = body;
+      const { params, body, deviceId } = req;
+      const { since: sinceString, facilityIds, tablesToInclude, tablesForFullResync } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
