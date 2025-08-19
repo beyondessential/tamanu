@@ -15,6 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
+import { ensureDeviceRegistration } from './ensureDeviceRegistration';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -98,6 +99,9 @@ export const login = ({ secret, refreshSecret }) =>
     if (!(await bcrypt.compare(password, hashedPassword))) {
       throw new BadAuthenticationError('Invalid credentials');
     }
+
+    // Manages necessary checks for device authorization (check or create accordingly)
+    await ensureDeviceRegistration(models, settings, user, deviceId);
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
