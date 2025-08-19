@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR, SETTING_KEYS } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 
-export async function ensureDeviceRegistration({ SyncDevice }, settings, user, deviceId) {
+export async function ensureDeviceRegistration({ Device }, settings, user, deviceId) {
   const deviceRegistrationQuotaEnabled = await settings.get(
     SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED,
   );
@@ -19,12 +19,12 @@ export async function ensureDeviceRegistration({ SyncDevice }, settings, user, d
   //
   // 2. If two unknown devices try to register at the same time, and the
   //    quota is reached on the first one, the second should not be able to.
-  await SyncDevice.sequelize.transaction(
+  await Device.sequelize.transaction(
     {
       isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.REPEATABLE_READ,
     },
     async () => {
-      const syncDevice = await SyncDevice.findOne({
+      const syncDevice = await Device.findOne({
         where: {
           deviceId,
         },
@@ -35,12 +35,12 @@ export async function ensureDeviceRegistration({ SyncDevice }, settings, user, d
         return;
       }
 
-      const currentCount = await SyncDevice.getCountByUserId(user.id);
+      const currentCount = await Device.getCountByUserId(user.id);
       if (currentCount + 1 > user.deviceRegistrationQuota) {
         throw new BadAuthenticationError(DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR);
       }
 
-      await SyncDevice.create({
+      await Device.create({
         deviceId,
         registeredById: user.id,
       });
