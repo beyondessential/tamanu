@@ -653,11 +653,15 @@ export async function procedureTypeLoader(item, { models, pushError }) {
       .filter(surveyId => !surveyIdList.includes(surveyId));
 
     if (idsToBeDeleted.length > 0) {
-      await models.ProcedureTypeSurvey.destroy({
-        where: {
-          procedureTypeId: id,
-          surveyId: { [Op.in]: idsToBeDeleted },
-        },
+      idsToBeDeleted.forEach(surveyId => {
+        rows.push({
+          model: 'ProcedureTypeSurvey',
+          values: {
+            procedureTypeId: id,
+            surveyId: surveyId,
+            deletedAt: new Date(),
+          },
+        });
       });
     }
   }
