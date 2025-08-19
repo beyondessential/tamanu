@@ -64,11 +64,6 @@ export const executeUpdates = async (
   rows: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
-  if (!rows.length) {
-    progressCallback?.(0);
-    return;
-  }
-
   const allColumns = Object.keys(rows[0]);
   const updatableColumns = allColumns.filter(c => c !== 'id');
   const effectiveBatchSize = getEffectiveUpdateBatchSize(rows.length, updatableColumns.length);
@@ -125,7 +120,7 @@ export const executeDeletes = async (
 export const executeRestores = async (
   repository: Repository<any>,
   recordsForRestore: DataToPersist[],
-  progressCallback?: (processedCount: number) => void,
+  progressCallback: (processedCount: number) => void,
 ): Promise<void> => {
   const rowIds = recordsForRestore.map(({ id }) => id);
   await Promise.all(

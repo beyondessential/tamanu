@@ -24,28 +24,25 @@ export const executePreparedInsert = async (repository: Repository<any>, rows: D
   await repository.query(query, values);
 };
 
+/**
+ * Prepare a raw update query and execute it with the values
+ */
 export const executePreparedUpdate = async (repository: Repository<any>, rows: DataToPersist[]) => {
   if (!rows.length) return;
 
   const tableName = getTableName(repository);
   const columns = getColumns(rows);
+  const updatableColumns = columns.filter(col => col !== 'id');
 
-  // Build SET fragments like: col = CASE id WHEN ? THEN ? ... ELSE col END
-  const setFragments = columns.map(col => {
+  const setFragments = updatableColumns.map(col => {
     const cases = rows.map(() => 'WHEN ? THEN ?').join(' ');
-    return `${quote(col)} = CASE ${quote('id    ')} ${cases} ELSE ${quote(col)} END`;
+    return `${quote(col)} = CASE ${quote('id')} ${cases} ELSE ${quote(col)} END`;
   });
 
   const whereInPlaceholders = rows.map(() => '?').join(', ');
   const query = `UPDATE ${tableName} SET ${setFragments.join(', ')} WHERE ${quote('id')} IN (${whereInPlaceholders})`;
 
-  const params: any[] = [];
-  for (const col of columns) {
-    for (const row of rows) {
-      params.push(row.id, row[col]);
-    }
-  }
-  params.push(...rows.map(r => r.id));
+  const values = rows.flatMap(row => [row.id, ...updatableColumns.map(col => row[col])]);
 
-  await repository.query(query, params);
+  await repository.query(query, values);
 };
