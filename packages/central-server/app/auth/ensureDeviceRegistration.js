@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SETTING_KEYS } from '@tamanu/constants';
+import { DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR, SETTING_KEYS } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 export async function ensureDeviceRegistration(models, settings, user, deviceId) {
@@ -35,7 +35,7 @@ export async function ensureDeviceRegistration(models, settings, user, deviceId)
       // Number of devices already registered by this user
       const currentCount = await models.SyncDevice.getCountByUserId(user.id);
       if (currentCount + 1 > user.deviceRegistrationQuota) {
-        throw new BadAuthenticationError('Device registration quota exceeded');
+        throw new BadAuthenticationError(DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR);
       }
 
       await models.SyncDevice.create({
