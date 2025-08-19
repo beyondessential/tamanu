@@ -2,8 +2,8 @@ import { cloneDeep, chunk } from 'lodash';
 import { In, Repository } from 'typeorm';
 
 import { DataToPersist } from '../types';
-import { SQLITE_MAX_PARAMETERS, getEffectiveInsertBatchSize } from '../../../infra/db/limits';
-import { executePreparedInsert } from './executePreparedInsert';
+import { SQLITE_MAX_PARAMETERS, getEffectiveInsertBatchSize, getEffectiveUpdateBatchSize } from '../../../infra/db/limits';
+import { executePreparedInsert, executePreparedUpdate } from './executePreparedQuery';
 
 function strippedIsDeleted(row) {
   const newRow = cloneDeep(row);
@@ -64,22 +64,32 @@ export const executeUpdates = async (
   rows: DataToPersist[],
   progressCallback?: (processedCount: number) => void,
 ): Promise<void> => {
-  try {
-    await Promise.all(rows.map(async row => repository.update({ id: row.id }, row)));
-  } catch (e) {
-    // try records individually, some may succeed and we want to capture the
-    // specific one with the error
-    await Promise.all(
-      rows.map(async row => {
-        try {
-          await repository.save(row);
-        } catch (error) {
-          throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
-        }
-      }),
-    );
+  if (!rows.length) {
+    progressCallback?.(0);
+    return;
   }
-  progressCallback?.(rows.length);
+
+  const allColumns = Object.keys(rows[0]);
+  const updatableColumns = allColumns.filter(c => c !== 'id');
+  const effectiveBatchSize = getEffectiveUpdateBatchSize(rows.length, updatableColumns.length);
+
+  for (const batchOfRows of chunk(rows, effectiveBatchSize)) {
+    try {
+      await executePreparedUpdate(repository, batchOfRows);
+    } catch (e) {
+      // fallback per-row to capture specific failures
+      await Promise.all(
+        batchOfRows.map(async row => {
+          try {
+            await repository.update({ id: row.id }, row);
+          } catch (error) {
+            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
+          }
+        }),
+      );
+    }
+    progressCallback?.(batchOfRows.length);
+  }
 };
 
 export const executeDeletes = async (

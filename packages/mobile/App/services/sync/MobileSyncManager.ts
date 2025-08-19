@@ -472,15 +472,10 @@ export class MobileSyncManager {
 
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
 
-    const tablesForFullResync = await localSystemFactRepository.findOne({
-      where: { key: 'tablesForFullResync' },
-    });
+    // Delete tablesForFullResync now that pull has completed
+    await localSystemFactRepository.delete({ key: 'tablesForFullResync' });
 
-    if (tablesForFullResync) {
-      await localSystemFactRepository.delete(tablesForFullResync);
-    }
-
-    // update the last successful sync in the same save transaction,
+    // Update the last successful sync in the same save transaction,
     // if updating the cursor fails, we want to roll back the rest of the saves
     // so that we don't end up detecting them as needing a sync up
     // to the central server when we attempt to resync from the same old cursor
