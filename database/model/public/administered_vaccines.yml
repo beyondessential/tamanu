@@ -38,6 +38,9 @@ sources:
           - name: batch
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__batch') }}"
+            config:
+              meta:
+                masking: text
           - name: status
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__status') }}"
@@ -58,9 +61,15 @@ sources:
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: date
             data_type: character(19)
             description: "{{ doc('generic__date') }} in administered_vaccines."
+            config:
+              meta:
+                masking: date
           - name: scheduled_vaccine_id
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__scheduled_vaccine_id') }}"
@@ -102,9 +111,15 @@ sources:
           - name: given_by
             data_type: text
             description: "{{ doc('administered_vaccines__given_by') }}"
+            config:
+              meta:
+                masking: name
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in administered_vaccines."
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in administered_vaccines."
@@ -136,3 +151,6 @@ sources:
           - name: consent_given_by
             data_type: text
             description: "{{ doc('administered_vaccines__consent_given_by') }}"
+            config:
+              meta:
+                masking: name
