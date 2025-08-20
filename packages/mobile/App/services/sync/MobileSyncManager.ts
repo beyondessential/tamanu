@@ -92,10 +92,6 @@ export class MobileSyncManager {
 
   urgentSyncInterval = null;
 
-  // Coalesce overlapping sync requests while a sync is in progress
-  pendingSync = false;
-  pendingUrgent = false;
-
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
   settings: SettingsService;
@@ -181,18 +177,13 @@ export class MobileSyncManager {
 
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
 
-    // Self-scheduling urgent sync loop that waits for the current run to finish
-    const loop = async () => {
-      try {
-        await this.waitForCurrentSyncToEnd();
-        await this.triggerSync({ urgent: true });
-      } finally {
-        // Schedule next run
-        this.urgentSyncInterval = setTimeout(loop, urgentSyncIntervalInSeconds * 1000);
-      }
-    };
-
-    this.urgentSyncInterval = setTimeout(loop, 0);
+    // Schedule regular urgent sync
+    this.urgentSyncInterval = setInterval(
+      () => this.triggerSync({ urgent: true }),
+      urgentSyncIntervalInSeconds * 1000,
+    );
+    // start the sync now
+    this.triggerSync({ urgent: true });
   }
 
   /**
@@ -201,9 +192,6 @@ export class MobileSyncManager {
    */
   async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
-      // Coalesce requests during ongoing sync
-      this.pendingSync = true;
-      if (urgent) this.pendingUrgent = true;
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
       );
@@ -224,18 +212,10 @@ export class MobileSyncManager {
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
         if (this.urgentSyncInterval) {
-          clearTimeout(this.urgentSyncInterval);
+          clearInterval(this.urgentSyncInterval);
           this.urgentSyncInterval = null;
         }
         console.log(`Sync took ${Date.now() - startTime} ms`);
-
-        // If any sync was requested while we were running, run one more immediately
-        if (this.pendingSync) {
-          const runUrgent = this.pendingUrgent;
-          this.pendingSync = false;
-          this.pendingUrgent = false;
-          setTimeout(() => this.triggerSync({ urgent: runUrgent }), 0);
-        }
       }
     }
   }
