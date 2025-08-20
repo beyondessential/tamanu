@@ -80,7 +80,6 @@ export const saveChangesFromMemory = async (
   syncSettings: MobileSyncSettings,
   progressCallback: (recordsProcessed: number) => void,
 ): Promise<void> => {
-  const timeBefore = Date.now();
   const modelChanges = prepareChangesForModels(records, sortedModels);
   for (const { model, records } of modelChanges) {
     if (model.name === 'User') {
@@ -94,8 +93,6 @@ export const saveChangesFromMemory = async (
       );
     }
   }
-  const timeAfter = Date.now();
-  console.log(`saveChangesFromMemory took ${timeAfter - timeBefore}ms`);
 };
 
 export const saveChangesFromSnapshot = async (
