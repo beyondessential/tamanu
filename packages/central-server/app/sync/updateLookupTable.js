@@ -19,7 +19,7 @@ const updateLookupTableForModel = async (
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins, where } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
+  const { select, joins, where } = (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
