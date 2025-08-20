@@ -22,7 +22,7 @@ describe('Patient Portal Appointments Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PatientUser, ReferenceData, Facility, LocationGroup, User } = store.models;
+    const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User } = store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(
@@ -70,11 +70,10 @@ describe('Patient Portal Appointments Endpoints', () => {
       }),
     );
 
-    // Create a test patient user
-    await PatientUser.create({
+    // Create a test portal user
+    await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
 
@@ -137,10 +136,9 @@ describe('Patient Portal Appointments Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'jane@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -193,10 +191,9 @@ describe('Patient Portal Appointments Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'bob@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -268,10 +265,9 @@ describe('Patient Portal Appointments Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'alice@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -325,10 +321,9 @@ describe('Patient Portal Appointments Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'charlie@test.com',
         patientId: patientWithNullNotes.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -383,10 +378,9 @@ describe('Patient Portal Appointments Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'diana@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
