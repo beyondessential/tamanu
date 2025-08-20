@@ -49,11 +49,12 @@ type SyncOptions = {
 
 export type MobileSyncSettings = {
   maxBatchesToKeepInMemory: number;
-  maxRecordsPerInsertBatch: number;
   maxRecordsPerSnapshotBatch: number;
+  maxRecordsPerInsertBatch: number;
+  maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};
+};  
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
 
@@ -181,7 +182,6 @@ export class MobileSyncManager {
       () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
-
     // start the sync now
     await this.triggerSync({ urgent: true });
   }
@@ -262,7 +262,6 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    
     console.log('MobileSyncManager.runSync(): Sync started');
 
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
@@ -340,7 +339,6 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -370,7 +368,7 @@ export class MobileSyncManager {
       pullUntil,
       syncSettings: this.syncSettings,
       centralServer: this.centralServer,
-    }
+    };
     if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
@@ -385,9 +383,14 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    await Database.setUnsafePragma();
-    await Database.client.transaction(async transactionEntityManager => {
-      try {
+
+    const { useUnsafeSchemaForInitialSync = true } = this.syncSettings;
+    if (useUnsafeSchemaForInitialSync) {
+      await Database.setUnsafePragma();
+    }
+
+    try {
+      await Database.client.transaction(async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -400,11 +403,15 @@ export class MobileSyncManager {
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await this.postPull(transactionEntityManager, pullUntil);
-      } catch (err) {
-        console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
-        throw err;
+      });
+    } catch (err) {
+      console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
+      throw err;
+    } finally {
+      if (useUnsafeSchemaForInitialSync) {
+        await Database.setDefaultPragma();
       }
-    });
+    }
   }
 
   async pullIncrementalSync(pullParams: PullParams): Promise<void> {
@@ -461,15 +468,10 @@ export class MobileSyncManager {
 
     const localSystemFactRepository = entityManager.getRepository('LocalSystemFact');
 
-    const tablesForFullResync = await localSystemFactRepository.findOne({
-      where: { key: 'tablesForFullResync' },
-    });
+    // Delete tablesForFullResync now that pull has completed
+    await localSystemFactRepository.delete({ key: 'tablesForFullResync' });
 
-    if (tablesForFullResync) {
-      await localSystemFactRepository.delete(tablesForFullResync);
-    }
-
-    // update the last successful sync in the same save transaction,
+    // Update the last successful sync in the same save transaction,
     // if updating the cursor fails, we want to roll back the rest of the saves
     // so that we don't end up detecting them as needing a sync up
     // to the central server when we attempt to resync from the same old cursor

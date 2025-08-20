@@ -21,7 +21,7 @@ export const pullRecordsInBatches = async (
   };
 
   const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
-  let limit = calculatePageLimit(syncSettings?.dynamicLimiter);
+  let limit = calculatePageLimit(dynamicLimiterSettings);
   let totalPulled = 0;
   let current = await fetchPage(limit);
 
@@ -34,7 +34,6 @@ export const pullRecordsInBatches = async (
 
     // Prefetch next page in background
     const nextPromise = fetchPage(limit, nextFromId)
-
 
     // Process current page while next is downloading
     const recordsToSave = current.records.map(r => ({

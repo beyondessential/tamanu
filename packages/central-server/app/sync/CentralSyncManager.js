@@ -18,6 +18,7 @@ import {
   getModelsForPush,
   getSyncTicksOfPendingEdits,
   insertSnapshotRecords,
+  vacuumAnalyzeSnapshotTable,
   removeEchoedChanges,
   saveIncomingChanges,
   updateSnapshotRecords,
@@ -522,6 +523,9 @@ export class CentralSyncManager {
         // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
       });
+      // after snapshotting inserts are done and the transaction is closed, run VACUUM (ANALYZE)
+      // to mark pages all-visible and refresh stats so pulls use index-only scans
+      await vacuumAnalyzeSnapshotTable(this.store.sequelize, sessionId);
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
