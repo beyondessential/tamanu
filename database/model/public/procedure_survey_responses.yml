@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__procedure_survey_responses') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_procedure_survey_responses_changed
+              - record_procedure_survey_responses_changelog
+              - set_procedure_survey_responses_updated_at
+              - set_procedure_survey_responses_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
