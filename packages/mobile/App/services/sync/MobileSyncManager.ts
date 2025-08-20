@@ -182,7 +182,6 @@ export class MobileSyncManager {
       () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
-    
     // start the sync now
     await this.triggerSync({ urgent: true });
   }
@@ -263,7 +262,6 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-
     console.log('MobileSyncManager.runSync(): Sync started');
 
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
@@ -341,7 +339,6 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
