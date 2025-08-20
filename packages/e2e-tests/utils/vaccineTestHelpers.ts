@@ -1,7 +1,7 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
-import { addWeeks, startOfWeek, format } from 'date-fns';
+import { addWeeks, startOfWeek, format, addMonths } from 'date-fns';
 
 /**
  * Adds a vaccine to the patient's vaccine record and asserts the vaccine was added successfully
@@ -167,11 +167,20 @@ export async function assertEditedVaccine(
 
 //TODO: eventually remove these console logs if it works on mornings as well as afternoon
 //TODO: the console logs are currently commented out unless needed for debugging
-export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
+export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', unitsToAdd: number) {
   //TODO: delete these console logs
  // console.log('date', date);
-  const dueDate = addWeeks(date, weeksToAdd);
- // console.log('dueDate', dueDate);
+ let dueDate: Date;
+
+ if (unit === 'weeks') {
+  dueDate = addWeeks(date, unitsToAdd);
+ } else if (unit === 'months') {
+  dueDate = addMonths(date, unitsToAdd);
+ }
+ else {
+  throw new Error('Invalid unit');
+ }
+  console.log('dueDate', dueDate);
 
   // Extract just the date components to avoid timezone issues
   const year = dueDate.getUTCFullYear();

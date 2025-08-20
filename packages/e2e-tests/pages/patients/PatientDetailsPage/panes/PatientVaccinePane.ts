@@ -32,6 +32,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly vaccineColumnHeader: Locator;
   readonly dateColumnHeader: Locator;
   readonly scheduledVaccinesTableBody: Locator;
+  readonly finalScheduledVaccine: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -55,6 +56,7 @@ export class PatientVaccinePane extends BasePatientPane {
     this.vaccineColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-vaccineDisplayName');
     this.dateColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-date');
     this.scheduledVaccinesTableBody = this.page.getByTestId('tablewrapper-rbs7').getByTestId('styledtablebody-a0jz');
+    this.finalScheduledVaccine = this.page.getByTestId('styledtablecell-2gyy-18-vaccine');
   }
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {

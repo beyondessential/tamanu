@@ -8,7 +8,7 @@ import {
   expectedDueDateWeek,
 } from '@utils/vaccineTestHelpers';
 import { createPatient } from '@utils/apiHelpers';
-import { scrollTableToBottom } from '@utils/tableHelper';
+import { scrollTableToElement } from '@utils/tableHelper';
 
 test.describe('Recorded vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -610,6 +610,10 @@ test.describe('Scheduled vaccines', () => {
     patientDetailsPage,
   }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const birthDueDate = await expectedDueDateWeek(currentDate, 'weeks', 1);
+    const status = 'Due';
+    const schedule = 'Birth';
+    
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
     });
@@ -617,8 +621,8 @@ test.describe('Scheduled vaccines', () => {
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
 
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth', await expectedDueDateWeek(currentDate, 1), 'Due');
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Hep B', 'Birth', await expectedDueDateWeek(currentDate, 1), 'Due');
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', schedule, birthDueDate, status);
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Hep B', schedule, birthDueDate, status);
   });
 
   test('Vaccines scheduled weeks from birth display', async ({
@@ -628,6 +632,12 @@ test.describe('Scheduled vaccines', () => {
   }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const status = 'Scheduled';
+    
+    // Pre-calculate expected due dates
+    const sixWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 6);
+    const tenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 10);
+    const fourteenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 14);
+    
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
     });
@@ -635,15 +645,18 @@ test.describe('Scheduled vaccines', () => {
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
 
-    //Load all records in the table by scrolling through table and triggering lazy loading
-    await scrollTableToBottom(patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!, patientDetailsPage.page);
+    const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
+    const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
 
+    //Load all records in the table by scrolling through table and triggering lazy loading
+    await scrollTableToElement(tableToScroll, rowToScrollTo);
+   
     //6 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', await expectedDueDateWeek(currentDate, 6), status);
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', sixWeekDueDate, status);
     //10 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Pentavalent', '10 weeks', await expectedDueDateWeek(currentDate, 10), status);
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Pentavalent', '10 weeks', tenWeekDueDate, status);
     //14 weeks from birth
-    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '14 weeks', await expectedDueDateWeek(currentDate, 14), status);
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '14 weeks', fourteenWeekDueDate, status);
   });
 
   test('Vaccines scheduled months from birth display', async ({
@@ -651,7 +664,28 @@ test.describe('Scheduled vaccines', () => {
     api,
     patientDetailsPage,
   }) => {
-    //TODO: add test
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const status = 'Scheduled';
+    
+    // Pre-calculate expected due dates
+    const nineMonthDueDate = await expectedDueDateWeek(currentDate, 'months', 9);
+    
+    const patient = await createPatient(api, page, {
+      dateOfBirth: currentDate,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
+    const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
+
+    //Load all records in the table by scrolling through table and triggering lazy loading
+    await scrollTableToElement(tableToScroll, rowToScrollTo);
+
+    //9 months from birth
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('MMR', '9 months', nineMonthDueDate, status);
+
   });
 
   //TODO: add test case for years? doesnt seem to display in table by default
