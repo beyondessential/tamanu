@@ -40,7 +40,7 @@ describe('Patient Portal Allergies Endpoints', () => {
       }),
     );
 
-    // Create a test patient user
+    // Create a test portal user
     await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,

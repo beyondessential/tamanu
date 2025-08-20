@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import config from 'config';
 import { chunk, omit, omitBy } from 'lodash';
-import { PATIENT_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
 import { InvalidParameterError } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -54,7 +54,7 @@ export const specificUpdateModels = [
   'Note',
   'PatientFacility',
   'PatientFieldValue',
-  'PatientUser',
+  'PortalUser',
 ];
 
 // These columns should be omitted as we never want
@@ -320,42 +320,42 @@ export async function mergePatientFieldValues(models, keepPatientId, unwantedPat
   return records;
 }
 
-export async function mergePatientUser(models, keepPatientId, unwantedPatientId) {
-  const existingUnwantedPatientUser = await models.PatientUser.findOne({
+export async function mergePortalUser(models, keepPatientId, unwantedPatientId) {
+  const existingUnwantedPortalUser = await models.PortalUser.findOne({
     where: { patientId: unwantedPatientId },
   });
-  if (!existingUnwantedPatientUser) return null;
+  if (!existingUnwantedPortalUser) return null;
 
-  const existingKeepPatientUser = await models.PatientUser.findOne({
+  const existingKeepPortalUser = await models.PortalUser.findOne({
     where: { patientId: keepPatientId },
   });
 
   // If the keep patient doesn't have a portal account, transfer the unwanted patient's account
-  if (!existingKeepPatientUser) {
-    return existingUnwantedPatientUser.update({
+  if (!existingKeepPortalUser) {
+    return existingUnwantedPortalUser.update({
       patientId: keepPatientId,
     });
   }
   
   const shouldKeepUnwantedAccount =
     // If keep account is inactive but unwanted account is registered
-    (existingKeepPatientUser.status !== PATIENT_USER_STATUSES.REGISTERED &&
-      existingUnwantedPatientUser.status === PATIENT_USER_STATUSES.REGISTERED) ||
+    (existingKeepPortalUser.status !== PORTAL_USER_STATUSES.REGISTERED &&
+      existingUnwantedPortalUser.status === PORTAL_USER_STATUSES.REGISTERED) ||
     // If both have same status, prefer the one with more recent updates
-    (existingKeepPatientUser.status === existingUnwantedPatientUser.status &&
-      new Date(existingUnwantedPatientUser.updatedAt) >
-        new Date(existingKeepPatientUser.updatedAt));
+    (existingKeepPortalUser.status === existingUnwantedPortalUser.status &&
+      new Date(existingUnwantedPortalUser.updatedAt) >
+        new Date(existingKeepPortalUser.updatedAt));
 
   if (shouldKeepUnwantedAccount) {
     // Delete the keep patient's account and transfer the unwanted patient's account
-    await existingKeepPatientUser.destroy();
-    return existingUnwantedPatientUser.update({
+    await existingKeepPortalUser.destroy();
+    return existingUnwantedPortalUser.update({
       patientId: keepPatientId,
     });
   } else {
     // Keep the existing account and delete the unwanted one
-    await existingUnwantedPatientUser.destroy();
-    return existingKeepPatientUser;
+    await existingUnwantedPortalUser.destroy();
+    return existingKeepPortalUser;
   }
 }
 
@@ -535,11 +535,11 @@ export async function mergePatient(
       updates.PatientProgramRegistration = patientProgramRegistrationUpdates.length;
     }
 
-    // Merge PatientUser records - ensure only one portal account per patient
-    const updatedPatientUser = await mergePatientUser(models, keepPatientId, unwantedPatientId);
-    if (updatedPatientUser) {
-      updates.PatientUser = 1;
-    }
+    // Merge PortalUser records - ensure only one portal account per patient
+    const updatedPortalUser = await mergePortalUser(models, keepPatientId, unwantedPatientId);
+    if (updatedPortalUser) {
+      updates.PortalUser = 1;
+    } 
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
     // so need to be handled slightly differently.
