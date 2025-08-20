@@ -63,7 +63,7 @@ export class Prescription extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
         startDate: dateTimeType('startDate', {
-          allowNull: false,
+          allowNull: false, 
           defaultValue: getCurrentDateTimeString,
         }),
         endDate: dateTimeType('endDate'),
