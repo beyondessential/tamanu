@@ -27,8 +27,8 @@ function formatDate(date) {
 }
 
 const reportQuery = `
-SELECT
-  last_updated,
+SELECT 
+  last_updated::timestamptz at time zone 'UTC' as last_updated,
   patient_id,
   first_name,
   last_name,
@@ -156,9 +156,9 @@ routes.get(
       return {
         ...encounter,
         weight: parseFloat(encounter.weight),
-        encounterStartDate: new Date(encounter.encounterStartDate).toISOString(),
-        encounterEndDate: new Date(encounter.encounterEndDate).toISOString(),
-        dischargeDate: new Date(encounter.dischargeDate).toISOString(),
+        encounterStartDate: formatDate(new Date(encounter.encounterStartDate)),
+        encounterEndDate: formatDate(new Date(encounter.encounterEndDate)),
+        dischargeDate: formatDate(new Date(encounter.dischargeDate)),
         sex: upperFirst(encounter.sex),
         departments: encounter.departments?.map(department => ({
           ...department,
