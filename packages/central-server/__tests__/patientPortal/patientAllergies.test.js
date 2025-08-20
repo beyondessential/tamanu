@@ -18,7 +18,7 @@ describe('Patient Portal Allergies Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PatientUser, ReferenceData } = store.models;
+    const { Patient, PortalUser, ReferenceData } = store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(
@@ -41,10 +41,9 @@ describe('Patient Portal Allergies Endpoints', () => {
     );
 
     // Create a test patient user
-    await PatientUser.create({
+    await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
 
@@ -116,10 +115,9 @@ describe('Patient Portal Allergies Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'bob@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -172,10 +170,9 @@ describe('Patient Portal Allergies Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'alice@test.com',
         patientId: patientWithNullNote.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -237,10 +234,9 @@ describe('Patient Portal Allergies Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'charlie@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 

@@ -950,10 +950,10 @@ describe('Patient merge', () => {
       const deletedPortalUser = await PortalUser.findByPk(keepPortalUser.id);
       expect(deletedPortalUser).toBeFalsy();
 
-      const remainingPatientUsers = await PortalUser.findAll({
+      const remainingPortalUsers = await PortalUser.findAll({
         where: { patientId: keep.id },
       });
-      expect(remainingPatientUsers).toHaveLength(1);
+      expect(remainingPortalUsers).toHaveLength(1);
     });
   });
 });
