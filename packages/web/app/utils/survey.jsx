@@ -313,6 +313,7 @@ export const getAnswersFromData = async (data, survey) => {
         answers[key] = { size, data: base64Data };
       } catch (e) {
         toast.error(e.message);
+        throw e;
       }
     } else if (currentDataElementType !== 'PatientIssue') {
       answers[key] = val;
