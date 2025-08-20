@@ -33,8 +33,7 @@ test_facility_offline_central_start() {
             "name": "central",
             "verbose": true,
             "username": "tamanu",
-            "password": "tamanu",
-            "migrateOnStartup": true
+            "password": "tamanu"
         }
     }
 EOF
