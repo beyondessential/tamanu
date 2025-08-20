@@ -1,48 +1,128 @@
 import { Repository } from 'typeorm';
+import { chunk } from 'lodash';
 import { DataToPersist } from '../types';
+import { getEffectiveBatchSize } from '../../../infra/db/limits';
 
-const getTableName = (repository: Repository<any>): string => repository.metadata.tableName;
-const getColumns = (rows: DataToPersist[]): string[] => Object.keys(rows[0]);
+const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>
+  Array.from(
+    { length: rowCount },
+    () => `(${Array.from({ length: columnsCount }, () => '?').join(', ')})`,
+  ).join(', ');
+
 const quote = (identifier: string): string => `"${identifier}"`;
+
+const dedupe = (rows: DataToPersist[]): DataToPersist[] => {
+  const deduplicatedRows = [];
+  const idsAdded = new Set();
+  for (const row of rows) {
+    const { id } = row;
+    if (!idsAdded.has(id)) {
+      deduplicatedRows.push(row);
+      idsAdded.add(id);
+    }
+  }
+  return deduplicatedRows;
+};
 
 /**
  * Much faster than typeorm bulk insert or save
  * Prepare a raw query and execute it with the values
  */
-export const executePreparedInsert = async (repository: Repository<any>, rows: DataToPersist[]) => {
+export const executePreparedInsert = async (
+  repository: Repository<any>,
+  rows: DataToPersist[],
+  maxRecordsPerBatch: number,
+  progressCallback: (processedCount: number) => void,
+) => {
   if (!rows.length) return;
 
-  const tableName = getTableName(repository);
-  const columns = getColumns(rows);
+  // Can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
+  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
+  // because it has a lab request attached
+  const deduplicatedRows = dedupe(rows);
+
+  const { tableName } = repository.metadata;
+
+  const columns = Object.keys(deduplicatedRows[0]);
   const columnNames = columns.map(quote).join(', ');
-  const placeholders = columns.map(() => '?').join(', ');
-  const valuesPlaceholders = rows.map(() => `(${placeholders})`).join(', ');
 
-  const query = `INSERT INTO ${tableName} (${columnNames}) VALUES ${valuesPlaceholders}`;
-  const values = rows.flatMap(row => columns.map(col => row[col]));
+  const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
 
-  await repository.query(query, values);
+  for (const chunkRows of chunk(deduplicatedRows, chunkSize)) {
+    const query = `
+    INSERT INTO ${tableName} (${columnNames}) 
+    VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
+  `;
+    const parameters = chunkRows.flatMap(row => columns.map(col => row[col]));
+    try {
+      await repository.query(query, parameters);
+    } catch (e: any) {
+      await Promise.all(
+        chunkRows.map(async row => {
+          try {
+            await repository.insert(row);
+          } catch (error: any) {
+            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
+          }
+        }),
+      );
+    }
+    progressCallback(chunkRows.length);
+  }
 };
 
 /**
  * Prepare a raw update query and execute it with the values
  */
-export const executePreparedUpdate = async (repository: Repository<any>, rows: DataToPersist[]) => {
+export const executePreparedUpdate = async (
+  repository: Repository<any>,
+  rows: DataToPersist[],
+  maxRecordsPerBatch: number,
+  progressCallback: (processedCount: number) => void,
+) => {
   if (!rows.length) return;
 
-  const tableName = getTableName(repository);
-  const columns = getColumns(rows);
+  const { tableName } = repository.metadata;
+
+  const columns = Object.keys(rows[0]);
   const updatableColumns = columns.filter(col => col !== 'id');
+  const updateColumnsQuoted = updatableColumns.map(quote);
+  const cteColumns = [quote('id'), ...updateColumnsQuoted];
 
-  const setFragments = updatableColumns.map(col => {
-    const cases = rows.map(() => 'WHEN ? THEN ?').join(' ');
-    return `${quote(col)} = CASE ${quote('id')} ${cases} ELSE ${quote(col)} END`;
-  });
+  const setFragments = updateColumnsQuoted
+    .map(col => `${col} = (SELECT ${col} FROM updates WHERE updates.id = ${tableName}.id)`)
+    .join(', ');
 
-  const whereInPlaceholders = rows.map(() => '?').join(', ');
-  const query = `UPDATE ${tableName} SET ${setFragments.join(', ')} WHERE ${quote('id')} IN (${whereInPlaceholders})`;
+  // Per row we bind one id plus one parameter per updatable column
+  const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, cteColumns.length);
 
-  const values = rows.flatMap(row => [row.id, ...updatableColumns.map(col => row[col])]);
+  for (const chunkRows of chunk(rows, chunkSize)) {
+    const query = `
+    WITH updates (${cteColumns.join(', ')}) AS (VALUES ${getValuePlaceholdersForRows(chunkRows.length, cteColumns.length)})
+    UPDATE ${tableName} SET ${setFragments} WHERE id IN (SELECT id FROM updates)
+  `;
 
-  await repository.query(query, values);
+    const parameters: any[] = [];
+    for (const row of chunkRows) {
+      parameters.push(row.id);
+      for (const col of updatableColumns) {
+        parameters.push(row[col]);
+      }
+    }
+
+    try {
+      await repository.query(query, parameters);
+    } catch (e: any) {
+      await Promise.all(
+        chunkRows.map(async row => {
+          try {
+            await repository.update({ id: row.id }, row);
+          } catch (error: any) {
+            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
+          }
+        }),
+      );
+    }
+    progressCallback(chunkRows.length);
+  }
 };

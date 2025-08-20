@@ -78,6 +78,11 @@ export const centralSettings = {
           type: yup.number().positive().integer(),
           defaultValue: 2000,
         },
+        maxRecordsPerUpdateBatch: {
+          description: 'The number of records to update in a single batch',
+          type: yup.number().positive().integer(),
+          defaultValue: 2000,
+        },
         maxRecordsPerSnapshotBatch: {
           description: 'The number of records to store within a single row in the snapshot table',
           type: yup.number().positive().integer(),

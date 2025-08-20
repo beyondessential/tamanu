@@ -28,6 +28,8 @@ export type PersistResult = {
 };
 
 export type DataToPersist = {
+  id: string;
+  deletedAt: string | null;
   [key: string]: unknown;
 };
 

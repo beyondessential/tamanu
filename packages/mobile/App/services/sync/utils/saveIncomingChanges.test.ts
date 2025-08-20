@@ -1,18 +1,13 @@
 import { saveChangesForModel } from './saveIncomingChanges';
-import * as saveChangeModules from './executeCrud';
+import * as preparedQueryModules from './executePreparedQuery';
 import { MobileSyncSettings } from '../MobileSyncManager';
 
-jest.mock('./executeCrud');
-jest.mock('./buildFromSyncRecord', () => {
-  return {
-    buildFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
-      return records.map(record => record.data);
-    }),
-    buildForRawInsertFromSyncRecords: jest.fn().mockImplementation((_model, records) => {
-      return records.map(record => ({ ...record.data, isDeleted: record.isDeleted }));
-    }),
-  };
-});
+jest.mock('./executePreparedQuery');
+jest.mock('./buildFromSyncRecord', () => ({
+  buildFromSyncRecord: jest.fn().mockImplementation((_model, records) =>
+    records.map(record => ({ ...record.data, deletedAt: record.isDeleted ? 'now' : null })),
+  ),
+}));
 // Mock dependencies like `model.find`
 
 const repository = {
@@ -27,6 +22,7 @@ const progressCallback = jest.fn();
 
 const mobileSyncSettings: MobileSyncSettings = {
   maxRecordsPerInsertBatch: 500,
+  maxRecordsPerUpdateBatch: 500,
   maxBatchesToKeepInMemory: 10,
   maxRecordsPerSnapshotBatch: 500,
   useUnsafeSchemaForInitialSync: true,
@@ -75,18 +71,20 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
-      expect(saveChangeModules.executeInserts).toBeCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
-        [
-          { ...newRecord, isDeleted }, // isDeleted flag for soft deleting record after creation
-        ],
+        [expect.objectContaining({ ...newRecord, deletedAt: null })],
         500,
         progressCallback,
       );
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
+        repository,
+        [],
+        500,
+        progressCallback,
+      );
     });
 
     it('should create new records even if they are soft undeleted', async () => {
@@ -109,21 +107,20 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(1);
-      expect(saveChangeModules.executeInserts).toBeCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
-        [
-          {
-            ...newRecord,
-            isDeleted,
-          }, // isDeleted flag for soft deleting record after creation
-        ],
+        [expect.objectContaining({ ...newRecord, deletedAt: 'now' })],
         500,
         progressCallback,
       );
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(0);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
+        repository,
+        [],
+        500,
+        progressCallback,
+      );
     });
   });
 
@@ -151,11 +148,20 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeUpdates).toBeCalledWith(repository, [newRecord], progressCallback);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
+        repository,
+        [],
+        500,
+        progressCallback,
+      );
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
+        repository,
+        [expect.objectContaining({ ...newRecord, deletedAt: null })],
+        500,
+        progressCallback,
+      );
     });
 
     it('should not update soft deleted records', async () => {
@@ -184,10 +190,14 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
+        repository,
+        [],
+        500,
+        progressCallback,
+      );
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
     });
   });
 
@@ -212,11 +222,20 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledWith(repository, [newRecord], progressCallback);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(0);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
+        repository,
+        [],
+        500,
+        progressCallback,
+      );
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
+        repository,
+        [expect.objectContaining({ ...newRecord, deletedAt: 'now' })],
+        500,
+        progressCallback,
+      );
     });
   });
 
@@ -243,13 +262,18 @@ describe('saveChangesForModel', () => {
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
-      expect(saveChangeModules.executeInserts).toBeCalledTimes(0);
-      expect(saveChangeModules.executeUpdates).toBeCalledTimes(1);
-      expect(saveChangeModules.executeDeletes).toBeCalledTimes(0);
-      expect(saveChangeModules.executeRestores).toBeCalledTimes(1);
-      expect(saveChangeModules.executeRestores).toBeCalledWith(
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedInsert).toBeCalledWith(
         repository,
-        [newRecord],
+        [],
+        500,
+        progressCallback,
+      );
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledTimes(1);
+      expect(preparedQueryModules.executePreparedUpdate).toBeCalledWith(
+        repository,
+        [expect.objectContaining({ ...newRecord, deletedAt: null })],
+        500,
         progressCallback,
       );
     });

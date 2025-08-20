@@ -49,11 +49,12 @@ type SyncOptions = {
 
 export type MobileSyncSettings = {
   maxBatchesToKeepInMemory: number;
-  maxRecordsPerInsertBatch: number;
   maxRecordsPerSnapshotBatch: number;
+  maxRecordsPerInsertBatch: number;
+  maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};
+};  
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
 
@@ -90,6 +91,10 @@ export class MobileSyncManager {
   emitter = mitt();
 
   urgentSyncInterval = null;
+
+  // Coalesce overlapping sync requests while a sync is in progress
+  pendingSync = false;
+  pendingUrgent = false;
 
   models: typeof MODELS_MAP;
   centralServer: CentralServerConnection;
@@ -176,14 +181,18 @@ export class MobileSyncManager {
 
     const urgentSyncIntervalInSeconds = parseInt(urgentSyncIntervalInSecondsStr, 10);
 
-    // Schedule regular urgent sync
-    this.urgentSyncInterval = setInterval(
-      () => this.triggerSync({ urgent: true }),
-      urgentSyncIntervalInSeconds * 1000,
-    );
+    // Self-scheduling urgent sync loop that waits for the current run to finish
+    const loop = async () => {
+      try {
+        await this.waitForCurrentSyncToEnd();
+        await this.triggerSync({ urgent: true });
+      } finally {
+        // Schedule next run
+        this.urgentSyncInterval = setTimeout(loop, urgentSyncIntervalInSeconds * 1000);
+      }
+    };
 
-    // start the sync now
-    await this.triggerSync({ urgent: true });
+    this.urgentSyncInterval = setTimeout(loop, 0);
   }
 
   /**
@@ -192,6 +201,9 @@ export class MobileSyncManager {
    */
   async triggerSync({ urgent }: SyncOptions = { urgent: false }): Promise<void> {
     if (this.isSyncing) {
+      // Coalesce requests during ongoing sync
+      this.pendingSync = true;
+      if (urgent) this.pendingUrgent = true;
       console.warn(
         'MobileSyncManager.triggerSync(): Tried to start syncing while sync in progress',
       );
@@ -212,10 +224,18 @@ export class MobileSyncManager {
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
         this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
         if (this.urgentSyncInterval) {
-          clearInterval(this.urgentSyncInterval);
+          clearTimeout(this.urgentSyncInterval);
           this.urgentSyncInterval = null;
         }
         console.log(`Sync took ${Date.now() - startTime} ms`);
+
+        // If any sync was requested while we were running, run one more immediately
+        if (this.pendingSync) {
+          const runUrgent = this.pendingUrgent;
+          this.pendingSync = false;
+          this.pendingUrgent = false;
+          setTimeout(() => this.triggerSync({ urgent: runUrgent }), 0);
+        }
       }
     }
   }
@@ -262,7 +282,7 @@ export class MobileSyncManager {
     this.isQueuing = false;
 
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
-    
+
     console.log('MobileSyncManager.runSync(): Sync started');
 
     await this.pushOutgoingChanges(sessionId, newSyncClockTime);
@@ -340,7 +360,7 @@ export class MobileSyncManager {
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
-    
+
     // This is the start of stage 2 which is calling pull/initiates.
     // At this stage, we don't really know how long it will take.
     // So only showing a message to indicate this this is still in progress
@@ -370,7 +390,7 @@ export class MobileSyncManager {
       pullUntil,
       syncSettings: this.syncSettings,
       centralServer: this.centralServer,
-    }
+    };
     if (this.isInitialSync) {
       await this.pullInitialSync(pullParams);
     } else {
@@ -385,14 +405,14 @@ export class MobileSyncManager {
       totalSaved += Number(incrementalSaved);
       this.updateProgress(recordTotal, totalSaved, `Saving changes (${totalSaved}/${recordTotal})`);
     };
-    
+
     const { useUnsafeSchemaForInitialSync = true } = this.syncSettings;
     if (useUnsafeSchemaForInitialSync) {
       await Database.setUnsafePragma();
     }
-    
-    await Database.client.transaction(async transactionEntityManager => {
-      try {
+
+    try {
+      await Database.client.transaction(async transactionEntityManager => {
         const incomingModels = getTransactingModelsForDirection(
           this.models,
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
@@ -405,17 +425,15 @@ export class MobileSyncManager {
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
         await this.postPull(transactionEntityManager, pullUntil);
-      } catch (err) {
-        console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
-        throw err;
-      } finally {
-        
-        // Restore default pragma settings after initial sync
-        if (useUnsafeSchemaForInitialSync) {
-          await Database.setDefaultPragma();
-        }
+      });
+    } catch (err) {
+      console.error('MobileSyncManager.pullInitialSync(): Error pulling initial sync', err);
+      throw err;
+    } finally {
+      if (useUnsafeSchemaForInitialSync) {
+        await Database.setDefaultPragma();
       }
-    });
+    }
   }
 
   async pullIncrementalSync(pullParams: PullParams): Promise<void> {
@@ -484,7 +502,6 @@ export class MobileSyncManager {
     });
 
     if (lastSuccessfulPull) {
-
       lastSuccessfulPull.value = pullUntil.toString();
       await localSystemFactRepository.save(lastSuccessfulPull);
     } else {

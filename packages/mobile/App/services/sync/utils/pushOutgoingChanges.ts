@@ -17,10 +17,10 @@ export const pushOutgoingChanges = async (
   outgoingModels: Partial<typeof MODELS_MAP>,
   sessionId: string,
   changes: SyncRecord[],
-  syncSettings: MobileSyncSettings = {},
+  syncSettings: MobileSyncSettings,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<void> => {
-  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings;
+  const { dynamicLimiter: dynamicLimiterSettings } = syncSettings || {};
   let startOfPage = 0;
   let limit = calculatePageLimit(dynamicLimiterSettings);
   let pushedRecordsCount = 0;
