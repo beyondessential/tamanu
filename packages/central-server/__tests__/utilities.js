@@ -2,7 +2,7 @@ import config from 'config';
 import supertest from 'supertest';
 
 import { COMMUNICATION_STATUSES, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
-import { createMockReportingSchemaAndRoles, seedSettings, seedFacilities } from '@tamanu/database/demoData';
+import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/database/demoData';
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
@@ -19,7 +19,6 @@ class MockApplicationContext {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     
-    await seedFacilities(this.store.models);
     await seedSettings(this.store.models);
 
     if (config.db.reportSchemas?.enabled) {
