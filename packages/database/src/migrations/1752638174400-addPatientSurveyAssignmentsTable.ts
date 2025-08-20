@@ -48,10 +48,6 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,
     },
-    completed_at: {
-      type: DataTypes.DATETIMESTRING,
-      allowNull: true,
-    },
     assigned_by_id: {
       type: DataTypes.TEXT,
       allowNull: false,

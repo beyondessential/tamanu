@@ -1,8 +1,8 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
-import { VISIBILITY_STATUSES, PATIENT_USER_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('patient_users', {
+  await query.createTable('portal_users', {
     id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -31,11 +31,6 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
     },
-    role: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: 'patient',
-    },
     email: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -47,7 +42,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     status: {
       type: DataTypes.TEXT,
-      defaultValue: PATIENT_USER_STATUSES.PENDING,
+      defaultValue: PORTAL_USER_STATUSES.PENDING,
       allowNull: false,
     },
   });
