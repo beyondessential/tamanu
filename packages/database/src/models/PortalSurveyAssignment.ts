@@ -1,12 +1,12 @@
 import { DataTypes } from 'sequelize';
 
-import { SYNC_DIRECTIONS, PATIENT_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
 import { buildPatientLinkedLookupFilter } from '../sync/buildPatientLinkedLookupFilter';
 
-export class PatientSurveyAssignment extends Model {
+export class PortalSurveyAssignment extends Model {
   declare id: string;
   declare patientId: string;
   declare surveyId: string;
@@ -42,7 +42,7 @@ export class PatientSurveyAssignment extends Model {
         status: {
           type: DataTypes.STRING,
           allowNull: false,
-          defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+          defaultValue: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
         },
         assignedAt: dateTimeType('assignedAt', { allowNull: false }),
         assignedById: {

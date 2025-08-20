@@ -2,10 +2,10 @@ import React from 'react';
 import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
 
-import type { PatientSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/patientSurveyAssignment.schema';
+import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 interface OutstandingFormCardProps {
-  form: PatientSurveyAssignment;
+  form: PortalSurveyAssignment;
   onClick?: () => void;
 }
 

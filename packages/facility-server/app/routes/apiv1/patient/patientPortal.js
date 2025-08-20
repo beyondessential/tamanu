@@ -9,9 +9,9 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   PATIENT_COMMUNICATION_CHANNELS,
   COMMUNICATION_STATUSES,
-  PATIENT_SURVEY_ASSIGNMENTS_STATUSES,
+  PORTAL_SURVEY_ASSIGNMENTS_STATUSES,
 } from '@tamanu/constants';
-import { PatientSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/patientSurveyAssignments.schema';
+import { PortalSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/portalSurveyAssignments.schema';
 import { SendPortalFormRequestSchema } from '@tamanu/shared/schemas/facility/requests/sendPortalForm.schema';
 
 export const patientPortal = express.Router();
@@ -274,14 +274,14 @@ patientPortal.post(
       });
     }
 
-    const patientSurveyAssignment = await models.PatientSurveyAssignment.create({
+    const portalSurveyAssignment = await models.PortalSurveyAssignment.create({
       patientId: patient.id,
       surveyId: survey.id,
       assignedById: user.id,
       assignedAt: assignedAt,
     });
 
-    res.send({ patientSurveyAssignment });
+    res.send({ portalSurveyAssignment });
   }),
 );
 
@@ -301,7 +301,7 @@ patientPortal.get(
       rowsPerPage = 25,
       order = 'ASC',
       orderBy = 'assignedAt',
-      status = PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      status = PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       all = false,
       ...filterParams
     } = params;
@@ -333,7 +333,7 @@ patientPortal.get(
       ],
     };
 
-    const count = await models.PatientSurveyAssignment.count({
+      const count = await models.PortalSurveyAssignment.count({
       where: baseQueryOptions.where,
     });
 
@@ -346,7 +346,7 @@ patientPortal.get(
       return;
     }
 
-    const patientSurveyAssignments = await models.PatientSurveyAssignment.findAll({
+    const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
       ...baseQueryOptions,
       order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
       limit: all ? undefined : rowsPerPage,
@@ -355,8 +355,8 @@ patientPortal.get(
 
     res.send({
       count,
-      data: patientSurveyAssignments.map(assignment =>
-        PatientSurveyAssignmentsSchema.parse(assignment.forResponse()),
+      data: portalSurveyAssignments.map(assignment =>
+        PortalSurveyAssignmentsSchema.parse(assignment.forResponse()),
       ),
     });
   }),
@@ -371,9 +371,9 @@ patientPortal.delete(
     const { id: patientId, assignmentId } = req.params;
 
     const patient = await getPatientOrThrow({ models, patientId });
-    await models.PatientSurveyAssignment.destroy({
+    await models.PortalSurveyAssignment.destroy({
       where: { id: assignmentId, patientId: patient.id },
-    });
+    }); 
 
     res.send({ message: 'Patient survey assignments deleted' });
   }),

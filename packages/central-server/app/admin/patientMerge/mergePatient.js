@@ -35,7 +35,7 @@ export const simpleUpdateModels = [
   'PatientContact',
   'IPSRequest',
   'Notification',
-  'PatientSurveyAssignment',
+  'PortalSurveyAssignment',
 ];
 
 // These ones need a little more attention.
