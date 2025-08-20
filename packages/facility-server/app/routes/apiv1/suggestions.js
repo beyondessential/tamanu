@@ -29,10 +29,10 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
   ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
-const getDataType = (endpoint) => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
+const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
 // and the id of the record so we need to construct it for the translation attribute
-const getTranslationPrefix = (endpoint) =>
+const getTranslationPrefix = endpoint =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
 // Helper function to generate the translation subquery
@@ -68,7 +68,7 @@ function createSuggesterRoute(
     includeBuilder,
     orderBuilder,
     shouldSkipDefaultOrder,
-    queryOptions
+    queryOptions,
   },
 ) {
   suggestions.get(
@@ -302,7 +302,7 @@ createSuggester(
     type: { [Op.in]: types },
   }),
   {
-    includeBuilder: (req) => {
+    includeBuilder: req => {
       const {
         models: { ReferenceData, TaskTemplate },
         query: { relationType },
@@ -336,7 +336,7 @@ createSuggester(
         },
       ];
     },
-    orderBuilder: (req) => {
+    orderBuilder: req => {
       const { query } = req;
       const types = query.types;
       if (!types?.length) return;
@@ -354,13 +354,13 @@ createSuggester(
         `),
       ];
     },
-    extraReplacementsBuilder: (query) =>
+    extraReplacementsBuilder: query =>
       query.types.reduce((acc, value, index) => {
         acc[`type${index}`] = value;
         return acc;
       }, {}),
-    mapper: (item) => item,
-    creatingBodyBuilder: (req) =>
+    mapper: item => item,
+    creatingBodyBuilder: req =>
       referenceDataBodyBuilder({ type: req.body.type, name: req.body.name }),
     afterCreated: afterCreatedReferenceData,
     shouldSkipDefaultOrder: () => true,
@@ -368,18 +368,44 @@ createSuggester(
   true,
 );
 
-REFERENCE_TYPE_VALUES.forEach((typeName) => {
+REFERENCE_TYPE_VALUES.forEach(typeName => {
   createSuggester(
     typeName,
     'ReferenceData',
-    ({ endpoint, modelName }) => ({
-      ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-      type: typeName,
-    }),
+    ({ endpoint, modelName, req }) => {
+      const baseWhere = {
+        ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+        type: typeName,
+      };
+
+      const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
+
+      if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
+        baseWhere.id = {
+          [Op.notIn]: Sequelize.literal(`
+            (SELECT DISTINCT(rdr.reference_data_parent_id)
+            FROM reference_data_relations rdr
+            INNER JOIN reference_medication_templates rmt
+              ON rdr.reference_data_id = rmt.reference_data_id
+            INNER JOIN reference_drugs rd
+              ON rd.reference_data_id = rmt.medication_id
+            WHERE rdr.type = '${REFERENCE_DATA_RELATION_TYPES.MEDICATION}'
+              AND rd.is_sensitive = true
+              AND rdr.deleted_at IS NULL)
+          `),
+        };
+      }
+
+      if (typeName === REFERENCE_TYPES.DRUG && !canCreateSensitiveMedication) {
+        baseWhere['$referenceDrug.is_sensitive$'] = false;
+      }
+
+      return baseWhere;
+    },
     {
-      includeBuilder: (req) => {
+      includeBuilder: req => {
         const {
-          models: { ReferenceData, ReferenceMedicationTemplate },
+          models: { ReferenceData, ReferenceMedicationTemplate, ReferenceDrug },
           query: { parentId, relationType = DEFAULT_HIERARCHY_TYPE },
         } = req;
 
@@ -396,7 +422,10 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
               },
             },
           },
-          typeName === REFERENCE_TYPES.DRUG && 'referenceDrug',
+          typeName === REFERENCE_TYPES.DRUG && {
+            model: ReferenceDrug,
+            as: 'referenceDrug',
+          },
           typeName === REFERENCE_TYPES.MEDICATION_SET && {
             model: ReferenceData,
             as: 'children',
@@ -423,11 +452,10 @@ REFERENCE_TYPE_VALUES.forEach((typeName) => {
         return result.length > 0 ? result : null;
       },
       queryOptions: typeName === REFERENCE_TYPES.MEDICATION_SET ? { subQuery: false } : {},
-      creatingBodyBuilder: (req) =>
-        referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
+      creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
-      mapper: (item) => item,
-      shouldSkipDefaultOrder: (req) =>
+      mapper: item => item,
+      shouldSkipDefaultOrder: req =>
         req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
     true,
@@ -497,7 +525,7 @@ createSuggester(
     };
   },
   {
-    mapper: async (location) => {
+    mapper: async location => {
       const availability = await location.getAvailability();
       const { name, code, id, maxOccupancy, facilityId } = location;
 
@@ -553,11 +581,11 @@ createSuggester(
     '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
   }),
   {
-    mapper: (product) => {
+    mapper: product => {
       product.addVirtualFields();
       return product;
     },
-    includeBuilder: (req) => {
+    includeBuilder: req => {
       return [
         {
           model: req.models.ReferenceData,
@@ -605,9 +633,9 @@ createSuggester(
     ],
   }),
   {
-    mapper: (patient) => patient,
+    mapper: patient => patient,
     searchColumn: 'first_name',
-    orderBuilder: (req) => {
+    orderBuilder: req => {
       const searchQuery = (req.query.q || '').trim().toLowerCase();
       const escapedQuery = req.db.escape(searchQuery);
       const escapedPartialMatch = req.db.escape(`${searchQuery}%`);
@@ -711,7 +739,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: (query) => ({
+    extraReplacementsBuilder: query => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -754,7 +782,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: (query) => ({
+    extraReplacementsBuilder: query => ({
       lab_request_status: query?.status || 'published',
       patient_id: query.patientId,
     }),
@@ -799,7 +827,7 @@ createSuggester(
     };
   },
   {
-    extraReplacementsBuilder: (query) => ({
+    extraReplacementsBuilder: query => ({
       patient_id: query.patientId,
     }),
   },
@@ -852,7 +880,7 @@ createNameSuggester(
     };
   },
   {
-    extraReplacementsBuilder: (query) => ({
+    extraReplacementsBuilder: query => ({
       patient_id: query.patientId,
     }),
   },
@@ -875,20 +903,20 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
   };
 });
 
-const routerEndpoints = suggestions.stack.map((layer) => {
+const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
   return root;
 });
 const rootElements = [...new Set(routerEndpoints)];
-SUGGESTER_ENDPOINTS.forEach((endpoint) => {
+SUGGESTER_ENDPOINTS.forEach(endpoint => {
   if (!rootElements.includes(endpoint)) {
     throw new Error(
       `Suggester endpoint exists in shared constant but not included in router: ${endpoint}`,
     );
   }
 });
-rootElements.forEach((endpoint) => {
+rootElements.forEach(endpoint => {
   if (!SUGGESTER_ENDPOINTS.includes(endpoint)) {
     throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
   }

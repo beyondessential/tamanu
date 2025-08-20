@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import json5Plugin from 'vite-plugin-json5';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 /** @see https://vitejs.dev/config */
 export default async () => {
@@ -22,19 +21,14 @@ export default async () => {
     assetsInclude: ['/sb-preview/runtime.js'],
     optimizeDeps: {
       exclude: ['chunk-SVRLYAES'],
+      include: ['buffer'],
     },
     esbuild: {
       loader: 'jsx',
     },
     plugins: [
       react(),
-      json5Plugin(),
-      nodePolyfills({
-        include: ['./node_modules/**/*.js', '../../node_modules/**/*.js'],
-        globals: {
-          Buffer: true,
-        },
-      }),
+      json5Plugin()
     ],
 
     define: {

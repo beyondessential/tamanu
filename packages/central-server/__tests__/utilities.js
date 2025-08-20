@@ -6,6 +6,8 @@ import { createMockReportingSchemaAndRoles, seedSettings } from '@tamanu/databas
 import { ReadSettings } from '@tamanu/settings';
 import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
 import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
@@ -115,3 +117,37 @@ export async function withDateUnsafelyFaked(fakeDate, fn) {
   }
 }
 /* eslint-enable no-constructor-return,require-atomic-updates */
+
+export const waitForSession = async (centralSyncManager, sessionId) => {
+  let ready = false;
+  while (!ready) {
+    ready = await centralSyncManager.checkSessionReady(sessionId);
+    await sleepAsync(100);
+  }
+};
+
+export const waitForPushCompleted = async (centralSyncManager, sessionId) => {
+  let complete = false;
+  while (!complete) {
+    complete = await centralSyncManager.checkPushComplete(sessionId);
+    await sleepAsync(100);
+  }
+};
+
+const DEFAULT_CONFIG = {
+  sync: {
+    lookupTable: {
+      enabled: false,
+    },
+    maxRecordsPerSnapshotChunk: 1000000000,
+  },
+};
+
+export const initializeCentralSyncManagerWithContext = (ctx, config) => {
+  // Have to load test function within test scope so that we can mock dependencies per test case
+  const { CentralSyncManager: TestCentralSyncManager } = require('../dist/sync/CentralSyncManager');
+
+  TestCentralSyncManager.overrideConfig(config || DEFAULT_CONFIG);
+
+  return new TestCentralSyncManager(ctx);
+};

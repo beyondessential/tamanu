@@ -14,6 +14,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
   SURVEY_TYPES,
+  DASHBOARD_ONLY_TASK_TYPES
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -27,6 +28,7 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 
+import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
@@ -38,6 +40,7 @@ import {
   deleteSurveyResponse,
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
+import { validate } from '../../utils/validate';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -47,7 +50,8 @@ encounter.post(
   asyncHandler(async (req, res) => {
     const { models, body, user } = req;
     req.checkPermission('create', 'Encounter');
-    const encounterObject = await models.Encounter.create({ ...body, actorId: user.id });
+    const validatedBody = validate(createEncounterSchema, body);
+    const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     if (body.dietIds) {
       const dietIds = JSON.parse(body.dietIds);
@@ -84,10 +88,10 @@ encounter.put(
         }
         systemNote = `Patient discharged by ${discharger.displayName}.`;
 
-        const medications = req.body.medications || {};
-        for (const [medicationId, medicationValues] of Object.entries(medications)) {
-          const { quantity, repeats } = medicationValues;
-          const medication = await models.Prescription.findByPk(medicationId, {
+        const prescriptions = req.body.medications || {};
+        for (const [prescriptionId, prescriptionValues] of Object.entries(prescriptions)) {
+          const { quantity, repeats } = prescriptionValues;
+          const prescription = await models.Prescription.findByPk(prescriptionId, {
             include: [
               {
                 model: models.EncounterPrescription,
@@ -104,18 +108,25 @@ encounter.put(
             ],
           });
 
-          if (!medication || medication.discontinued) continue;
+          if (!prescription || prescription.discontinued) continue;
 
-          await medication.update({ quantity, repeats });
+          await prescription.update({ quantity, repeats });
           await models.EncounterPrescription.update(
             { isSelectedForDischarge: true },
-            { where: { encounterId: id, prescriptionId: medication.id } },
+            { where: { encounterId: id, prescriptionId: prescription.id } },
           );
-          // If the medication is ongoing, we need to add it to the patient's ongoing medications
-          if (medication.isOngoing && medication.encounterPrescription?.encounterId === id) {
+          // If the medication is ongoing and not already in the patient's ongoing medications, we need to add it to the patient's ongoing medications
+          if (prescription.isOngoing && prescription.encounterPrescription?.encounterId === id) {
+            const existingPatientOngoingPrescription =
+              await models.PatientOngoingPrescription.findPatientOngoingPrescriptionWithSameDetails(
+                encounterObject.patientId,
+                prescription,
+              );
+
+            if (existingPatientOngoingPrescription) continue;
             await models.PatientOngoingPrescription.create({
               patientId: encounterObject.patientId,
-              prescriptionId: medication.id,
+              prescriptionId: prescription.id,
             });
           }
         }
@@ -266,7 +277,14 @@ encounterRelations.get(
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
+    const medicationFilter = {};
+    const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+    if (!canListSensitiveMedication) {
+      medicationFilter['$medication.referenceDrug.is_sensitive$'] = false;
+    }
+
     const baseQueryOptions = {
+      where: medicationFilter,
       order: [
         [
           literal('CASE WHEN "discontinued" IS NULL OR "discontinued" = false THEN 1 ELSE 0 END'),
@@ -295,6 +313,15 @@ encounterRelations.get(
           attributes: ['id', 'encounterId', 'isSelectedForDischarge'],
           where: {
             encounterId: params.id,
+          },
+        },
+        {
+          model: models.ReferenceData,
+          as: 'medication',
+          include: {
+            model: models.ReferenceDrug,
+            as: 'referenceDrug',
+            attributes: ['referenceDataId', 'isSensitive'],
           },
         },
       ],
@@ -831,6 +858,9 @@ encounterRelations.get(
         status: { [Op.in]: statuses },
         dueTime: {
           [Op.lte]: toCountryDateTimeString(add(new Date(), { hours: upcomingTasksTimeFrame })),
+        },
+        taskType: {
+          [Op.notIn]: DASHBOARD_ONLY_TASK_TYPES,
         },
         ...(assignedTo && {
           [Op.and]: literal(`
