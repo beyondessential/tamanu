@@ -13,15 +13,15 @@ describe('Patient Portal Auth', () => {
   let store;
   let close;
   let testPatient;
-  let testPatientUser;
-  let deactivatedPatientUser;
+  let testPortalUser;
+  let deactivatedPortalUser;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PatientUser } = store.models;
+    const { Patient, PortalUser } = store.models;
 
     // Create a test patient
     testPatient = await Patient.create(
@@ -33,17 +33,17 @@ describe('Patient Portal Auth', () => {
       }),
     );
 
-    // Create a test patient user
-    testPatientUser = await PatientUser.create({
+    // Create a test portal user
+    testPortalUser = await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
 
-    // Create a deactivated patient user for testing
+    // Create a deactivated portal user for testing
     const deactivatedPatient = await Patient.create(
       fake(Patient, {
+        portalUserId: testPortalUser.id,
         displayId: 'TEST002',
         firstName: 'Jane',
         lastName: 'Smith',
@@ -51,10 +51,9 @@ describe('Patient Portal Auth', () => {
       }),
     );
 
-    deactivatedPatientUser = await PatientUser.create({
+    deactivatedPortalUser = await PortalUser.create({
       email: 'deactivated@test.com',
       patientId: deactivatedPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
     });
   });
@@ -75,7 +74,7 @@ describe('Patient Portal Auth', () => {
       expect(contents).toEqual({
         aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
         iss: config.canonicalHostName,
-        patientUserId: expect.any(String),
+        portalUserId: expect.any(String),
         jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
@@ -101,9 +100,9 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('Should reject a deactivated patient user', async () => {
+    it('Should reject a deactivated portal user', async () => {
       const response = await baseApp.post('/api/portal/login').send({
-        email: deactivatedPatientUser.email,
+        email: deactivatedPortalUser.email,
       });
       expect(response).toHaveRequestError();
     });
@@ -161,7 +160,7 @@ describe('Patient Portal Auth', () => {
         {
           aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
           iss: config.canonicalHostName,
-          patientUserId: testPatientUser.id,
+          portalUserId: testPortalUser.id,
           jti: 'expired-token',
         },
         config.auth.secret,
