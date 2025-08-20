@@ -130,9 +130,21 @@ locationAssignmentsRouter.get(
       order: [['date', 'ASC'], ['startTime', 'ASC']],
     });
 
+    // Transform the data to combine date and time into full datetime strings
+    const transformedRows = rows.map(row => {
+      const assignment = row.toJSON();
+      const { date, startTime, endTime } = assignment;
+      
+      // Combine date with time to create full datetime strings
+      assignment.startTime = `${date} ${startTime}`;
+      assignment.endTime = `${date} ${endTime}`;
+      
+      return assignment;
+    });
+
     res.send({
       count,
-      data: rows
+      data: transformedRows
     });
   }),
 );
@@ -458,8 +470,8 @@ async function checkAssignmentOverlap(req, body, locationAssignmentId = null, te
     return {
       id: assignment.id,
       date: assignment.date,
-      startTime: assignment.startTime,
-      endTime: assignment.endTime,
+      startTime: `${assignment.date} ${assignment.startTime}`,
+      endTime: `${assignment.date} ${assignment.endTime}`,
       locationId: assignment.locationId,
       user: template.user,
       templateId: template.id,
@@ -471,8 +483,8 @@ async function checkAssignmentOverlap(req, body, locationAssignmentId = null, te
     overlaps.push({
       id: assignment.id,
       date: assignment.date,
-      startTime: assignment.startTime,
-      endTime: assignment.endTime,
+      startTime: `${assignment.date} ${assignment.startTime}`,
+      endTime: `${assignment.date} ${assignment.endTime}`,
       locationId: assignment.locationId,
       user: assignment.user,
       templateId: null,

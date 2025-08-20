@@ -186,7 +186,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
   const validationSchema = yup.object({
     userId: yup.string().required(requiredMessage),
-    locationGroupId: yup.string().required(requiredMessage),
     locationId: yup.string().required(requiredMessage),
     date: yup.string().required(requiredMessage),
     startTime: yup.date().nullable().required(requiredMessage),
@@ -195,6 +194,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
+    console.log('values', values);
     const warnAndResetForm = async () => {
       const requiresWarning = dirty && isEdit;
       const confirmed = !requiresWarning || (await handleShowWarningModal());
@@ -269,15 +269,14 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             disabled={isEdit}
             required
-            onChange={(e) => {
-              updateSelectedCell({ locationId: e.target.value });
-              resetFields(['startTime', 'endTime']);
-            }}
-            error={errors.locationId}
+            // onChange={(e) => {
+            //   updateSelectedCell({ locationId: e.target.value });
+            //   resetFields(['startTime', 'endTime']);
+            // }}
             locationGroupSuggesterType="bookableLocationGroup"
-            onLocationGroupChange={(locationGroupId) => {
-              setFieldValue('locationGroupId', locationGroupId);
-            }}
+            // onLocationGroupChange={(locationGroupId) => {
+            //   setFieldValue('locationGroupId', locationGroupId);
+            // }}
             data-testid="field-lmrx"
           />
           <Field
@@ -292,17 +291,17 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
             saveDateAsString
-            onChange={(e) => {
-              const newDate = e.target.value;
-              setSelectedDate(newDate);
-              setFieldValue('date', newDate);
-              resetFields(['startTime', 'endTime']);
-            }}
+            // onChange={(e) => {
+            //   const newDate = e.target.value;
+            //   setSelectedDate(newDate);
+            //   setFieldValue('date', newDate);
+            //   resetFields(['startTime', 'endTime']);
+            // }}
             data-testid="field-date"
           />
           <TimeSlotPicker
-            date={selectedDate}
-            disabled={!values.locationId || !selectedDate}
+            date={values.date}
+            disabled={!values.locationId || !values.date}
             label={
               <TranslatedText
                 stringId="locationAssignment.form.assignmentTime.label"
@@ -332,7 +331,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         suppressErrorDialog
         validationSchema={validationSchema}
         style={formStyles}
-        validateOnChange
         data-testid="form-rwgy"
       />
       <WarningModal
