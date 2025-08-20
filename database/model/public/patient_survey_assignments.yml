@@ -43,9 +43,6 @@ sources:
             description: "{{ doc('patient_survey_assignments__status') }}"
             data_tests:
               - not_null
-          - name: completed_at
-            data_type: character(19)
-            description: "{{ doc('patient_survey_assignments__completed_at') }}"
           - name: assigned_by_id
             data_type: text
             description: "{{ doc('patient_survey_assignments__assigned_by_id') }}"

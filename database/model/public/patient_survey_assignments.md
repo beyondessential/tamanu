@@ -25,12 +25,6 @@ One of:
 - `expired` - Survey assignment has expired and can no longer be completed in the portal
 {% enddocs %}
 
-{% docs patient_survey_assignments__completed_at %}
-Timestamp when the survey was completed by the patient through the patient portal.
-
-This field is only populated when the status is `completed`.
-{% enddocs %}
-
 {% docs patient_survey_assignments__assigned_by_id %}
 Reference to the [user](#!/source/source.tamanu.tamanu.users) who assigned the survey to the patient.
 {% enddocs %}

@@ -8,7 +8,6 @@ export const PatientSurveyAssignmentSchema = z.object({
   survey: SurveySchema,
   status: z.enum(PATIENT_SURVEY_ASSIGNMENTS_STATUSES),
   assignedBy: UserSchema,
-  completedAt: z.string().nullish(),
 });
 
 export type PatientSurveyAssignment = z.infer<typeof PatientSurveyAssignmentSchema>;
