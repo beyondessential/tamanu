@@ -85,6 +85,7 @@ export const PERMISSION_NOUNS = [
   'Triage',
   'User',
   'Vitals',
+  'SensitiveMedication',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [

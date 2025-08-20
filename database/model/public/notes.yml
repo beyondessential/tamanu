@@ -9,6 +9,13 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_notes_changed
+              - record_notes_changelog
+              - set_notes_updated_at
+              - set_notes_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -75,9 +82,15 @@ sources:
             description: "{{ doc('generic__date') }} in notes."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in notes."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in notes."
@@ -105,6 +118,9 @@ sources:
             description: "{{ doc('notes__content') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: revised_by_id
             data_type: uuid
             description: "{{ doc('notes__revised_by_id') }}"

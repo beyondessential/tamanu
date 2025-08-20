@@ -9,6 +9,13 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_encounter_diagnoses_changed
+              - record_encounter_diagnoses_changelog
+              - set_encounter_diagnoses_updated_at
+              - set_encounter_diagnoses_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -48,6 +55,9 @@ sources:
             description: "{{ doc('generic__date') }} in encounter_diagnoses."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__encounter_id') }}"
@@ -66,6 +76,9 @@ sources:
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in encounter_diagnoses."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in encounter_diagnoses."

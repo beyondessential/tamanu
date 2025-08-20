@@ -8,6 +8,9 @@ sources:
         description: "{{ doc('fhir__table__non_fhir_medici_report') }}"
         config:
           tags: []
+          meta:
+            masking: truncate
+            triggers: []
         columns:
           - name: id
             data_type: uuid

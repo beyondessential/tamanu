@@ -1,0 +1,40 @@
+# ⚠️ Auto-generated file
+# Do not edit directly. Regenerate with:
+#   npm run merge-scenarios
+#
+config:
+  target: http://localhost:4000
+  plugins:
+    metrics-by-endpoint: {}
+  processor: hooks/index.ts
+  phases:
+    - name: Warmup
+      duration: 30s
+      arrivalRate: 1
+      rampTo: 5
+    - name: Sustained
+      duration: 30s
+      arrivalRate: 5
+scenarios:
+  - name: Create encounter
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generateEncounterPayload
+      - post:
+          url: /api/encounter
+          headers:
+            Authorization: Bearer {{token}}
+            Content-Type: application/json
+          json: '{{encounterPayload}}'
+  - name: Create patient
+    beforeScenario:
+      - authenticate
+    flow:
+      - function: generatePatientPayload
+      - post:
+          url: /api/patient
+          headers:
+            Authorization: Bearer {{token}}
+            Content-Type: application/json
+          json: '{{patientPayload}}'

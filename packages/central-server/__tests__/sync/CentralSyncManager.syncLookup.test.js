@@ -163,6 +163,8 @@ describe('Sync Lookup data', () => {
       Notification,
       EncounterPausePrescription,
       EncounterPausePrescriptionHistory,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -309,6 +311,21 @@ describe('Sync Lookup data', () => {
       fake(PatientOngoingPrescription, {
         patientId: patient.id,
         prescriptionId: prescription.id,
+      }),
+    );
+
+    const mar = await MedicationAdministrationRecord.create(
+      fake(models.MedicationAdministrationRecord, {
+        prescriptionId: prescription.id,
+        recordedByUserId: examiner.id,
+      }),
+    );
+
+    await MedicationAdministrationRecordDose.create(
+      fake(models.MedicationAdministrationRecordDose, {
+        marId: mar.id,
+        givenByUserId: examiner.id,
+        recordedByUserId: examiner.id,
       }),
     );
 

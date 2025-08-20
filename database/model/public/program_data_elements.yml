@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_program_data_elements_changed
+              - record_program_data_elements_changelog
+              - set_program_data_elements_updated_at
+              - set_program_data_elements_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
