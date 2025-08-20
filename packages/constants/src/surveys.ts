@@ -200,7 +200,7 @@ export const RESULT_COLORS = {
   purple: '#971a1a',
 };
 
-export const PATIENT_SURVEY_ASSIGNMENTS_STATUSES = {
+export const PORTAL_SURVEY_ASSIGNMENTS_STATUSES = {
   OUTSTANDING: 'outstanding',
   COMPLETED: 'completed',
   CANCELLED: 'cancelled',

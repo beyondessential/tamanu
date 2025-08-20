@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { PATIENT_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 export const getOutstandingForms = asyncHandler(async (req, res) => {
@@ -11,7 +11,7 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
   const outstandingForms = await models.PortalSurveyAssignment.findAll({
     where: {
       patientId: patient.id,
-      status: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
     },
     attributes: getAttributesFromSchema(PortalSurveyAssignmentSchema),
     include: [

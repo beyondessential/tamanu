@@ -375,6 +375,6 @@ patientPortal.delete(
       where: { id: assignmentId, patientId: patient.id },
     }); 
 
-    res.send({ message: 'Patient survey assignments deleted' });
+    res.send({ message: 'Portal survey assignments deleted' });
   }),
 );
