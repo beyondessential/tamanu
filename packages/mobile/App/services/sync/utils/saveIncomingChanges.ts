@@ -28,7 +28,6 @@ export const saveChangesForModel = async (
   const idsForUpdate = new Set<string>();
 
   for (const recordIdChunk of chunk(recordIds, SQLITE_MAX_PARAMETERS)) {
-    // Add all records that already exist in the db to the list to be updated
     const batchOfExisting = await repository.find({
       where: { id: In(recordIdChunk) },
       select: ['id', 'deletedAt'],
@@ -39,13 +38,24 @@ export const saveChangesForModel = async (
     }
   }
 
+  // Separate records into updates and inserts
   const [recordsForUpdate, recordsForCreate] = partition(
     buildFromSyncRecord(model, allChanges),
     c => idsForUpdate.has(c.id),
   );
 
-  await executePreparedInsert(repository, recordsForCreate, maxRecordsPerInsertBatch, progressCallback);
-  await executePreparedUpdate(repository, recordsForUpdate, maxRecordsPerUpdateBatch, progressCallback);
+  await executePreparedInsert(
+    repository,
+    recordsForCreate,
+    maxRecordsPerInsertBatch,
+    progressCallback,
+  );
+  await executePreparedUpdate(
+    repository,
+    recordsForUpdate,
+    maxRecordsPerUpdateBatch,
+    progressCallback,
+  );
 };
 
 const prepareChangesForModels = (
