@@ -27,7 +27,7 @@ function formatDate(date) {
 }
 
 const reportQuery = `
-SELECT 
+SELECT
   last_updated,
   patient_id,
   first_name,
@@ -99,6 +99,7 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
+
     const {
       'period.start': fromDate,
       'period.end': toDate,
@@ -187,6 +188,10 @@ routes.get(
         hoursOfVentilation: 0,
         leaveDays: 0,
         lastUpdated: formatDate(encounter.lastUpdated),
+        medications: encounter.medications
+          ?.filter(medication => !medication.isSensitive)
+          // eslint-disable-next-line no-unused-vars
+          ?.map(({ isSensitive, ...medication }) => medication),
       };
     });
 
