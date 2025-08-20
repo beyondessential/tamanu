@@ -571,28 +571,14 @@ createNameSuggester('facilityLocationGroup', 'LocationGroup', ({ endpoint, model
 );
 
 // Location groups filtered by isBookable. Used in location bookings view
-// Shows all bookable location groups when facilityId is empty
-createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => {
-  const baseWhere = DEFAULT_WHERE_BUILDER({ endpoint, modelName });
-  const hasValidFacilityId = query.facilityId && query.facilityId.trim() !== '';
-  
-  if (hasValidFacilityId) {
-    return {
-      ...filterByFacilityWhereBuilder({
-        endpoint,
-        modelName,
-        query: { ...query, filterByFacility: true },
-      }),
-      isBookable: true,
-    };
-  }
-  
-  // Show all bookable location groups when facilityId is empty
-  return {
-    ...baseWhere,
-    isBookable: true,
-  };
-});
+createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, modelName, query }) => ({
+  ...filterByFacilityWhereBuilder({
+    endpoint,
+    modelName,
+    query: { ...query, filterByFacility: !!query.facilityId },
+  }),
+  isBookable: true,
+}));
 
 createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
   name: { [Op.iLike]: search },
