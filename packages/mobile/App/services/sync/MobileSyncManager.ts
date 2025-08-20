@@ -182,8 +182,9 @@ export class MobileSyncManager {
       () => this.triggerSync({ urgent: true }),
       urgentSyncIntervalInSeconds * 1000,
     );
+    
     // start the sync now
-    this.triggerSync({ urgent: true });
+    await this.triggerSync({ urgent: true });
   }
 
   /**
