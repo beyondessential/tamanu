@@ -9,6 +9,8 @@ sources:
         config:
           tags:
             - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: text

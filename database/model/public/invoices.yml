@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_invoices_changed
+              - record_invoices_changelog
+              - set_invoices_updated_at
+              - set_invoices_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -26,6 +32,9 @@ sources:
             description: "{{ doc('generic__date') }} in invoices."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: status
             data_type: character varying(255)
             description: "{{ doc('invoices__status') }}"

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_invoice_payments_changed
+              - record_invoice_payments_changelog
+              - set_invoice_payments_updated_at
+              - set_invoice_payments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -29,16 +35,27 @@ sources:
             description: "{{ doc('generic__date') }} in invoice_payments."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: receipt_number
             data_type: character varying(255)
             description: "{{ doc('invoice_payments__receipt_number') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 10000000-99999999
           - name: amount
             data_type: numeric
             description: "{{ doc('invoice_payments__amount') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: money
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_payments."

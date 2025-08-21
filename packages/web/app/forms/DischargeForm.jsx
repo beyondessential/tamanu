@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -48,6 +49,7 @@ import { MedicationDiscontinueModal } from '../components/Medication/MedicationD
 import { usePatientOngoingPrescriptionsQuery } from '../api/queries/usePatientOngoingPrescriptionsQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../api/queries/useEncounterMedicationQuery';
+import { createPrescriptionHash } from '../utils/medications';
 
 const Divider = styled(BaseDivider)`
   margin: 30px -${MODAL_PADDING_LEFT_AND_RIGHT}px;
@@ -189,7 +191,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
     discharge: {
       dischargerId: dischargeDraft?.dischargerId,
       dispositionId: dischargeDraft?.dispositionId,
-      note: dischargeNotes.map(n => n.content).join('\n\n'),
+      note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
     medications: medicationInitialValues,
     // Used in creation of associated notes
@@ -296,6 +298,7 @@ const MEDICATION_COLUMNS = (
   getEnumTranslation,
   handleDiscontinueMedication,
   canUpdateMedication,
+  canWriteSensitiveMedication,
 ) => [
   {
     key: 'medication',
@@ -324,12 +327,15 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-8e5k"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.quantity`}
         component={NumberFieldWithoutLabel}
         data-testid="field-ksmf"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -343,14 +349,17 @@ const MEDICATION_COLUMNS = (
         data-testid="translatedtext-opjr"
       />
     ),
-    accessor: ({ id }) => (
+    accessor: ({ id, medication }) => (
       <Field
         name={`medications.${id}.repeats`}
         isClearable={false}
         component={TranslatedSelectField}
         enumValues={REPEATS_LABELS}
         data-testid="field-ium3"
-        disabled={!canUpdateMedication}
+        disabled={
+          !canUpdateMedication ||
+          (medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication)
+        }
       />
     ),
     width: '120px',
@@ -366,12 +375,15 @@ const MEDICATION_COLUMNS = (
         {
           key: 'Discontinued',
           title: '',
-          accessor: medication => (
-            <DiscontinuedAccessor
-              medication={medication}
-              handleDiscontinueMedication={handleDiscontinueMedication}
-            />
-          ),
+          accessor: medication =>
+            medication?.medication?.referenceDrug?.isSensitive && !canWriteSensitiveMedication ? (
+              <div />
+            ) : (
+              <DiscontinuedAccessor
+                medication={medication}
+                handleDiscontinueMedication={handleDiscontinueMedication}
+              />
+            ),
           width: '75px',
         },
       ]
@@ -658,10 +670,12 @@ export const DischargeForm = ({
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
+  const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
 
-  const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [dischargeNotes, setDischargeNotes] = useState(null);
   const [showWarningScreen, setShowWarningScreen] = useState(false);
   const [discontinuedMedication, setDiscontinuedMedication] = useState(null);
+  const [enableReinitialize, setEnableReinitialize] = useState(true);
   const api = useApi();
   const { getLocalisedSchema } = useLocalisedSchema();
   const dischargeNoteMandatory = getSetting('features.discharge.dischargeNoteMandatory');
@@ -673,11 +687,16 @@ export const DischargeForm = ({
   const { data: encounterMedications } = useEncounterMedicationQuery(encounter.id);
   const { data: ongoingPrescriptions } = usePatientOngoingPrescriptionsQuery(encounter.patientId);
 
-  const activeMedications =
-    encounterMedications?.data?.filter(medication => !medication.discontinued) || [];
-  const onGoingMedications = ongoingPrescriptions?.data?.filter(p => !p.discontinued) || [];
+  const activeMedications = (encounterMedications?.data || []).filter(
+    medication => !medication.discontinued,
+  );
+
+  const activeMedicationHashes = new Set(activeMedications.map(createPrescriptionHash));
+  const ongoingMedications = (ongoingPrescriptions?.data || [])
+    .filter(p => !p.discontinued)
+    .filter(p => !activeMedicationHashes.has(createPrescriptionHash(p)));
   const medicationInitialValues = getMedicationsInitialValues(
-    [...activeMedications, ...onGoingMedications],
+    [...activeMedications, ...ongoingMedications],
     encounter,
   );
   const handleSubmit = useCallback(
@@ -717,6 +736,20 @@ export const DischargeForm = ({
       />,
     );
   }, [showWarningScreen, onTitleChange]);
+
+  useEffect(() => {
+    const hasEncounterMeds = Boolean(encounterMedications);
+    const hasOngoingMeds = Boolean(ongoingPrescriptions);
+    const hasNotes = Boolean(dischargeNotes);
+    if (enableReinitialize && hasEncounterMeds && hasOngoingMeds && hasNotes) {
+      setEnableReinitialize(false);
+    }
+  }, [
+    Boolean(encounterMedications),
+    Boolean(ongoingPrescriptions),
+    Boolean(dischargeNotes),
+    enableReinitialize,
+  ]);
 
   const handleDiscontinueMedication = medication => {
     setDiscontinuedMedication(medication);
@@ -797,7 +830,7 @@ export const DischargeForm = ({
             ),
         })}
         formProps={{
-          enableReinitialize: true,
+          enableReinitialize,
           showInlineErrorsOnly: true,
           validateOnChange: true,
         }}
@@ -871,6 +904,7 @@ export const DischargeForm = ({
                     getEnumTranslation,
                     handleDiscontinueMedication,
                     canUpdateMedication,
+                    canWriteSensitiveMedication,
                   )}
                   data={activeMedications}
                   data-testid="tableformfields-i8q7"
@@ -885,7 +919,7 @@ export const DischargeForm = ({
                   fallback="Other ongoing medication"
                 />
               </MedicationHeader>
-              <TableContainer $isEmpty={onGoingMedications.length === 0}>
+              <TableContainer $isEmpty={ongoingMedications.length === 0}>
                 <TableFormFields
                   columns={MEDICATION_COLUMNS(
                     getTranslation,
@@ -893,7 +927,7 @@ export const DischargeForm = ({
                     handleDiscontinueMedication,
                     canUpdateMedication,
                   )}
-                  data={onGoingMedications}
+                  data={ongoingMedications}
                   data-testid="tableformfields-i8q7"
                 />
               </TableContainer>

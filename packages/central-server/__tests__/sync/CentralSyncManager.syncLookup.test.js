@@ -162,6 +162,8 @@ describe('Sync Lookup data', () => {
       Notification,
       EncounterPausePrescription,
       EncounterPausePrescriptionHistory,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -308,6 +310,21 @@ describe('Sync Lookup data', () => {
       fake(PatientOngoingPrescription, {
         patientId: patient.id,
         prescriptionId: prescription.id,
+      }),
+    );
+
+    const mar = await MedicationAdministrationRecord.create(
+      fake(models.MedicationAdministrationRecord, {
+        prescriptionId: prescription.id,
+        recordedByUserId: examiner.id,
+      }),
+    );
+
+    await MedicationAdministrationRecordDose.create(
+      fake(models.MedicationAdministrationRecordDose, {
+        marId: mar.id,
+        givenByUserId: examiner.id,
+        recordedByUserId: examiner.id,
       }),
     );
 
@@ -729,18 +746,17 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      // except for appointments and appointment_schedules, patient linked models should not spit out facilityId;
-      const expectedFacility = ['appointments', 'appointment_schedules'].includes(model.tableName)
-        ? facility.id
-        : null;
+      const isFacilityIdRequired = ['appointments', 'appointment_schedules'].includes(
+        model.tableName,
+      );
 
       expect(syncLookupRecord.dataValues).toEqual(
         expect.objectContaining({
           recordId: expect.anything(),
           recordType: model.tableName,
           patientId: expect.anything(),
-          facilityId: expectedFacility,
           isDeleted: false,
+          ...(isFacilityIdRequired ? { facilityId: facility.id } : {}),
         }),
       );
     }

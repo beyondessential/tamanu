@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.38.0",
+  "version": "2.40.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -28,8 +28,8 @@
     "facility-test": "npm run build-shared && npm run --workspace @tamanu/facility-server test",
     "facility-start-dev": "npm run build-shared && npm run watch-shared-and @tamanu/facility-server start-dev",
     "facility-test-watch": "npm run watch-shared-and @tamanu/facility-server test-watch",
-    "facility-migrate": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch migrate",
-    "facility-migrate-down": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch migrate down",
+    "facility-migrate": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch upgrade",
+    "facility-migrate-down": "npm run build-shared && npm run --workspace @tamanu/facility-server start-watch just-migrate down",
     "mobile-run-android": "npm run build-shared && npm run --workspace @tamanu/mobile android",
     "shared-test": "npm run build-shared && npm run --workspace @tamanu/shared test",
     "central-test": "npm run build-shared && npm run --workspace @tamanu/central-server test",
@@ -37,14 +37,15 @@
     "central-start-dev": "npm run build-shared && npm run watch-shared-and @tamanu/central-server start-dev",
     "central-test-watch": "npm run watch-shared-and @tamanu/central-server test-watch",
     "central-start": "npm run central-start-dev",
-    "central-migrate": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch migrate",
-    "central-migrate-down": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch migrate down",
+    "central-migrate": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch upgrade",
+    "central-migrate-down": "npm run build-shared && npm run --workspace @tamanu/central-server start-watch just-migrate down",
     "build-report": "npm run build-shared && npm run --workspace @tamanu/central-server build && npm run --workspace @tamanu/central-server start report",
     "dbt-generate-model": "node packages/scripts/src/dbt/generateModel.js",
     "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
     "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
-    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
+    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
+    "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -68,7 +69,8 @@
       "packages/shared",
       "packages/upgrade",
       "packages/utils",
-      "packages/web"
+      "packages/web",
+      "packages/synthetic-tests"
     ]
   },
   "devDependencies": {
@@ -92,10 +94,11 @@
     "config": "^3.3.9",
     "jsbarcode": "^3.11.6",
     "patch-package": "^8.0.0",
-    "pm2": "^4.5.0",
+    "pm2": "^5.4.2",
     "re-resizable": "^6.11.2"
   },
   "overrides": {
+    "axios": "^1.8.2",
     "react": "18.2.0",
     "react-native-svg": "^12.1.0",
     "react-redux": "8.0.2",
