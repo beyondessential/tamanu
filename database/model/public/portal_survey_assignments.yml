@@ -8,7 +8,13 @@ sources:
         description: "{{ doc('table__portal_survey_assignments') }}"
         config:
           tags: []
-        columns:  
+          meta:
+            triggers:
+              - notify_portal_survey_assignments_changed
+              - record_portal_survey_assignments_changelog
+              - set_portal_survey_assignments_updated_at
+              - set_portal_survey_assignments_updated_at_sync_tick
+        columns:
           - name: id
             data_type: text
             description: "{{ doc('generic__id') }} in portal_survey_assignments."
