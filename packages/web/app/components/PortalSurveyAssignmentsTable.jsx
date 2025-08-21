@@ -7,7 +7,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
-import { DeletePatientSurveyAssignmentModal } from '../views/patients/components/DeletePatientSurveyAssignmentModal';
+import { DeletePortalSurveyAssignmentModal } from '../views/patients/components/DeletePortalSurveyAssignmentModal';
 import { Colors } from '../constants';
 import { Heading4 } from './Typography';
 
@@ -16,7 +16,7 @@ const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
 const getProgram = ({ survey }) => survey?.program?.name || '';
 const getForm = ({ survey }) => survey?.name || '';
 
-const Container = styled.div`
+const Container = styled.div`  
   padding: 0.9rem 1.2rem 0.8rem;
   border-bottom: 1px solid ${Colors.outline};
   h4 {
@@ -35,7 +35,7 @@ const TableHeader = () => (
   </Container>
 );
 
-export const PatientSurveyAssignmentsTable = ({ patient }) => {
+export const PortalSurveyAssignmentsTable = ({ patient }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -45,7 +45,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setDeleteModalOpen(true),
-      permissionCheck: () => ability?.can('delete', 'PatientSurveyAssignment'),
+      permissionCheck: () => ability?.can('delete', 'PortalSurveyAssignment'),
       wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => (permissionCheck ? permissionCheck() : true));
@@ -55,17 +55,17 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
       key: 'assignedAt',
       title: (
         <TranslatedText
-          stringId="patientSurveyAssignment.table.column.dateRequested"
+          stringId="portalSurveyAssignment.table.column.dateRequested"
           fallback="Date requested"
         />
-      ),
+      ),  
       accessor: getDateRequested,
     },
     {
       key: 'assignedBy',
       title: (
         <TranslatedText
-          stringId="patientSurveyAssignment.table.column.requestedBy"
+          stringId="portalSurveyAssignment.table.column.requestedBy"
           fallback="Requested by"
         />
       ),
@@ -75,7 +75,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
       key: 'program',
       title: (
         <TranslatedText
-          stringId="patientSurveyAssignment.table.column.program"
+          stringId="portalSurveyAssignment.table.column.program"
           fallback="Program"
         />
       ),
@@ -84,7 +84,7 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
     {
       key: 'form',
       title: (
-        <TranslatedText stringId="patientSurveyAssignment.table.column.form" fallback="Form" />
+        <TranslatedText stringId="portalSurveyAssignment.table.column.form" fallback="Form" />
       ),
       accessor: getForm,
     },
@@ -116,16 +116,16 @@ export const PatientSurveyAssignmentsTable = ({ patient }) => {
         }}
         noDataMessage={
           <TranslatedText
-            stringId="patientSurveyAssignment.table.noData"
+            stringId="portalSurveyAssignment.table.noData"
             fallback="No survey assignments found"
           />
         }
         elevated={false}
         refreshCount={refreshCount}
       />
-      <DeletePatientSurveyAssignmentModal
+      <DeletePortalSurveyAssignmentModal
         open={deleteModalOpen}
-        patientSurveyAssignmentToDelete={selectedAssignment}
+        portalSurveyAssignmentToDelete={selectedAssignment}
         patient={patient}
         onClose={() => {
           setDeleteModalOpen(false);

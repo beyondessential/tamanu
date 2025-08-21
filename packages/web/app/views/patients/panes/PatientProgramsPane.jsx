@@ -12,7 +12,7 @@ import {
 } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { PatientSurveyAssignmentsTable } from '../../../components/PatientSurveyAssignmentsTable';
+import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
 import { Colors } from '../../../constants/index.js';
 
 const TableWrapper = styled.div`
@@ -64,7 +64,7 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
           data-testid="datafetchingprogramstable-uytn"
         />
       </TableWrapper>
-      <PatientSurveyAssignmentsTable patient={patient} />
+      <PortalSurveyAssignmentsTable patient={patient} />
     </ContentPane>
   );
 });

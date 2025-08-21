@@ -16,9 +16,9 @@ export const patientPortalLogin = ({ secret }) => {
 
     const { email } = body;
 
-    const patientUser = await models.PatientUser.getForAuthByEmail(email);
+    const portalUser = await models.PortalUser.getForAuthByEmail(email);
 
-    if (!patientUser) {
+    if (!portalUser) {
       throw new BadAuthenticationError('Invalid email or password');
     }
 
@@ -27,7 +27,7 @@ export const patientPortalLogin = ({ secret }) => {
 
     const accessTokenJwtId = getRandomU32();
 
-    const token = await buildToken({ patientUserId: patientUser.id }, secret, {
+    const token = await buildToken({ portalUserId: portalUser.id }, secret, {
       expiresIn: tokenDuration,
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: canonicalHostName,

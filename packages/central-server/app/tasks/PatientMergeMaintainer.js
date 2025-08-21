@@ -13,7 +13,7 @@ import {
   mergePatientDeathData,
   mergePatientFieldValues,
   mergePatientProgramRegistrations,
-  mergePatientUser,
+  mergePortalUser,
   refreshMultiChildRecordsForSync,
   reconcilePatientFacilities,
   simpleUpdateModels,
@@ -265,19 +265,19 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return noteRecords;
   }
 
-  async specificUpdate_PatientUser() {
-    const { PatientUser } = this.models;
-    const patientUserMerges = await this.findPendingMergePatients(PatientUser);
+  async specificUpdate_PortalUser() {
+    const { PortalUser } = this.models;
+    const portalUserMerges = await this.findPendingMergePatients(PortalUser);
 
     const records = [];
-    for (const { keepPatientId, mergedPatientId } of patientUserMerges) {
-      const mergedPatientUser = await mergePatientUser(
+    for (const { keepPatientId, mergedPatientId } of portalUserMerges) {
+      const mergedPortalUser = await mergePortalUser(
         this.models,
         keepPatientId,
         mergedPatientId,
       );
-      if (mergedPatientUser) {
-        records.push(mergedPatientUser);
+      if (mergedPortalUser) {
+        records.push(mergedPortalUser);
       }
     }
     return records;

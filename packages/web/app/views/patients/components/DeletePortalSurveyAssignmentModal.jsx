@@ -9,16 +9,16 @@ const SubText = styled.div`
   padding: 30px;
 `;
 
-export const DeletePatientSurveyAssignmentModal = ({
+export const DeletePortalSurveyAssignmentModal = ({
   open,
   onClose,
-  patientSurveyAssignmentToDelete,
+  portalSurveyAssignmentToDelete,
   patient,
 }) => {
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`patient/${patient.id}/portal/forms/${patientSurveyAssignmentToDelete.id}`);
+    await api.delete(`patient/${patient.id}/portal/forms/${portalSurveyAssignmentToDelete.id}`);
     onClose();
   };
 
@@ -32,13 +32,13 @@ export const DeletePatientSurveyAssignmentModal = ({
         />
       }
       subText={
-        <SubText data-testid="subtext-patient-survey-assignment-delete">
+        <SubText data-testid="subtext--survey-assignment-delete">
           <TranslatedText
             stringId="patientSurveyAssignment.modal.delete.confirmation"
             fallback="Are you sure you would like to delete"
             data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation"
           />{' '}
-          <strong>{patientSurveyAssignmentToDelete?.survey?.name}</strong>?
+          <strong>{portalSurveyAssignmentToDelete?.survey?.name}</strong>?
           <br />
           <TranslatedText
             stringId="general.warning.irreversible"

@@ -1,14 +1,13 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, PATIENT_USER_STATUSES } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import type { InitOptions, Models } from '../types/model';
 import { Model } from './Model';
 
-export class PatientUser extends Model {
+export class PortalUser extends Model { 
   declare id: string;
   declare email?: string;
   declare patientId: string;
-  declare role: string;
   declare visibilityStatus: string;
   declare status: string;
 
@@ -44,11 +43,6 @@ export class PatientUser extends Model {
           allowNull: true,
           unique: true,
         },
-        role: {
-          type: DataTypes.STRING,
-          defaultValue: 'patient',
-          allowNull: false,
-        },
         patientId: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -63,7 +57,7 @@ export class PatientUser extends Model {
         },
         status: {
           type: DataTypes.STRING,
-          defaultValue: PATIENT_USER_STATUSES.PENDING,
+          defaultValue: PORTAL_USER_STATUSES.PENDING,
           allowNull: false,
         },
       },

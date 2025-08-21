@@ -1,3 +1,3 @@
-export const findPatientUserById = async (models, patientUserId) => {
-  return await models.PatientUser.findByPk(patientUserId);
+export const findPortalUserById = async (models, portalUserId) => {
+  return await models.PortalUser.findByPk(portalUserId);
 };
