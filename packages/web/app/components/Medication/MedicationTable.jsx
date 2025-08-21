@@ -204,6 +204,11 @@ const getMedicationColumns = (
     },
     {
       key: 'date',
+      tooltip: (
+        <Box width="60px" fontWeight={400}>
+          <TranslatedText stringId="medication.table.date.tooltip" fallback="Prescription date" />
+        </Box>
+      ),
       title: <TranslatedText stringId="general.date.label" fallback="Date" />,
       accessor: ({ date, endDate, isOngoing, discontinued, encounterPrescription }) => {
         const pauseData = encounterPrescription?.pausePrescriptions?.[0];
@@ -262,6 +267,14 @@ const getMedicationColumns = (
   if (isPharmacyOrdersEnabled) {
     columns.push({
       key: 'lastOrderedAt',
+      tooltip: (
+        <Box width="60px" fontWeight={400}>
+          <TranslatedText
+            stringId="medication.table.lastOrdered.tooltip"
+            fallback="Date item was last ordered from pharmacy"
+          />
+        </Box>
+      ),
       title: (
         <TranslatedText stringId="medication.table.column.lastOrdered" fallback="Last ordered" />
       ),
