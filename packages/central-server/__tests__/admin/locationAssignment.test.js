@@ -1,8 +1,8 @@
-import { REPEAT_FREQUENCY, LOCATION_ASSIGNMENT_STATUS } from '@tamanu/constants';
+import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { addDays, addWeeks, addMonths, getISODay, parseISO, differenceInDays } from 'date-fns';
+import { addDays, addWeeks, addMonths, getISODay, parseISO } from 'date-fns';
 import { generateFrequencyDates, getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,7 +14,6 @@ describe('Location Assignment API', () => {
   let adminApp;
   let testUser;
   let testLocation;
-  let maxViewableMonthsAhead;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -34,8 +33,6 @@ describe('Location Assignment API', () => {
       ...fake(models.User),
       id: uuidv4(),
     });
-
-    maxViewableMonthsAhead = await ctx.settings.get('locationAssignments.maxViewableMonthsAhead');
   });
 
   afterEach(async () => {
@@ -78,7 +75,6 @@ describe('Location Assignment API', () => {
       expect(createdAssignment.date).toEqual(startDate);
       expect(createdAssignment.startTime).toEqual('09:00:00');
       expect(createdAssignment.endTime).toEqual('10:00:00');
-      expect(createdAssignment.status).toEqual(LOCATION_ASSIGNMENT_STATUS.ACTIVE);
       expect(createdAssignment.templateId).toBeNull();
     });
   
@@ -193,52 +189,6 @@ describe('Location Assignment API', () => {
       });
     });
   
-    it('Should create never ending repeating assignment', async () => {
-      const { LocationAssignment, LocationAssignmentTemplate } = models;
-      const startDate = toDateString(new Date());
-  
-      const result = await adminApp.post('/api/admin/location-assignments').send({
-        userId: testUser.id,
-        locationId: testLocation.id,
-        date: startDate,
-        startTime: '12:00:00',
-        endTime: '13:00:00',
-        isRepeating: true,
-        repeatFrequency: 2,
-        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
-      });
-  
-      expect(result).toHaveSucceeded();
-  
-      const createdTemplate = await LocationAssignmentTemplate.findOne({
-        where: {
-          userId: testUser.id,
-          locationId: testLocation.id,
-          date: startDate,
-          repeatFrequency: 2,
-          repeatUnit: REPEAT_FREQUENCY.WEEKLY,
-        },
-      });
-  
-      expect(createdTemplate).toBeTruthy();
-      expect(createdTemplate.repeatFrequency).toEqual(2);
-      expect(createdTemplate.repeatUnit).toEqual(REPEAT_FREQUENCY.WEEKLY);
-      expect(createdTemplate.repeatEndDate).toBeNull();
-  
-      const generatedAssignments = await LocationAssignment.findAll({
-        where: {
-          templateId: createdTemplate.id,
-        },
-        order: [['date', 'ASC']],
-      });
-  
-      expect(generatedAssignments.length).toBeGreaterThan(0);
-      const lastAssignmentDate = generatedAssignments[generatedAssignments.length - 1].date;
-      const endGenerationDate = addMonths(parseISO(startDate), maxViewableMonthsAhead);
-      const daysDifference = differenceInDays(parseISO(lastAssignmentDate), endGenerationDate);
-      expect(daysDifference).toBeLessThanOrEqual(14);
-    });
-  
     it('Should reject when assign to non-existent user', async () => {
       const tomorrow = toDateString(addDays(new Date(), 1));
       const nonExistentUserId = uuidv4();
@@ -300,7 +250,6 @@ describe('Location Assignment API', () => {
       result.body.data.forEach(assignment => {
         expect(assignment.date >= after).toBe(true);
         expect(assignment.date <= before).toBe(true);
-        expect(assignment.status).toEqual(LOCATION_ASSIGNMENT_STATUS.ACTIVE);
       });
   
       //Verify included relationships
@@ -349,11 +298,12 @@ describe('Location Assignment API', () => {
 
   describe('Check overlap with existing assignments', () => {
     it('Should reject when new assignments overlap with existing assignments', async () => {
+      const today = toDateString(new Date());
       // Create an existing single assignment
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        date: toDateString(new Date()),
+        date: today,
         startTime: '10:00:00',
         endTime: '13:00:00',
       });
@@ -362,11 +312,11 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        date: toDateString(new Date()),
+        date: today,
         startTime: '13:00:00',
         endTime: '15:00:00',
         isRepeating: true,
-        repeatFrequency: 1,
+        repeatFrequency: 2,
         repeatUnit: REPEAT_FREQUENCY.WEEKLY,
         repeatEndDate: toDateString(addWeeks(new Date(), 10)),
       });
@@ -375,7 +325,7 @@ describe('Location Assignment API', () => {
       const assignmentResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        date: toDateString(new Date()),
+        date: today,
         startTime: '12:00:00',
         endTime: '14:00:00',
       });
@@ -388,11 +338,11 @@ describe('Location Assignment API', () => {
       const templateResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        date: toDateString(new Date()),
+        date: toDateString(addWeeks(new Date(), -1)),
         startTime: '12:00:00',
         endTime: '14:00:00',
         isRepeating: true,
-        repeatFrequency: 2,
+        repeatFrequency: 1,
         repeatUnit: REPEAT_FREQUENCY.WEEKLY,
         repeatEndDate: toDateString(addWeeks(new Date(), 10)),
       });
@@ -487,6 +437,7 @@ describe('Location Assignment API', () => {
         isRepeating: true,
         repeatFrequency: 1,
         repeatUnit: REPEAT_FREQUENCY.MONTHLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
       });
     
       // Test: Overlapping monthly assignment
@@ -499,6 +450,7 @@ describe('Location Assignment API', () => {
         isRepeating: true,
         repeatFrequency: 2,
         repeatUnit: REPEAT_FREQUENCY.MONTHLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
       });
       expect(result).toHaveRequestError(400);
     });
@@ -677,9 +629,8 @@ describe('Location Assignment API', () => {
       });
       expect(updateResult).toHaveSucceeded();
 
-
       const updatedAssignment = await LocationAssignment.findByPk(createdAssignment.id);
-      expect(updatedAssignment.status).toEqual(LOCATION_ASSIGNMENT_STATUS.INACTIVE);
+      expect(updatedAssignment).toBeNull();
 
       const newAssignment = await LocationAssignment.findOne({
         where: {
@@ -691,7 +642,6 @@ describe('Location Assignment API', () => {
           templateId: null,
         },
       });
-
       expect(newAssignment).toBeTruthy();
     });
 
@@ -914,6 +864,7 @@ describe('Location Assignment API', () => {
         isRepeating: true,
         repeatFrequency: 1,
         repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
       });
 
       const assignments = await LocationAssignment.findAll({
@@ -935,6 +886,7 @@ describe('Location Assignment API', () => {
         isRepeating: true,
         repeatFrequency: 1,
         repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
       });
       // Overlap with assignments in the same template
       expect(updateResult).toHaveRequestError(400);
@@ -977,6 +929,7 @@ describe('Location Assignment API', () => {
         isRepeating: true,
         repeatFrequency: 2,
         repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
       });
       expect(updateResult2).toHaveRequestError(400);
       expect(updateResult2.body.error.type).toEqual('overlap_assignment_error');
@@ -1049,8 +1002,7 @@ describe('Location Assignment API', () => {
       expect(deleteResult).toHaveSucceeded();
 
       const updatedAssignment = await LocationAssignment.findByPk(assignmentToDelete.id);
-      expect(updatedAssignment).toBeTruthy();
-      expect(updatedAssignment.status).toEqual(LOCATION_ASSIGNMENT_STATUS.INACTIVE);
+      expect(updatedAssignment).toBeNull();
     });
 
     it('Should delete selected and future assignments', async () => {
