@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { EncounterPrescription } from './EncounterPrescription';
@@ -87,9 +87,12 @@ export class Prescription extends Model {
           afterCreate: async (prescription: Prescription) => {
             if (prescription.durationValue && prescription.durationUnit) {
               const { add } = await import('date-fns');
-              prescription.endDate = add(new Date(prescription.startDate), {
-                [prescription.durationUnit]: prescription.durationValue,
-              }).toISOString();
+              prescription.endDate =
+                toDateTimeString(
+                  add(new Date(prescription.startDate), {
+                    [prescription.durationUnit]: prescription.durationValue,
+                  }),
+                ) ?? undefined;
             }
             await prescription.save();
           },
