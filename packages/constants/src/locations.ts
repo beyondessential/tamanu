@@ -27,10 +27,3 @@ export const LOCATION_AVAILABILITY_TAG_CONFIG = {
     background: '#F4F4F4',
   },
 };
-
-export const LOCATION_ASSIGNMENT_STATUS = {
-  ACTIVE: 'active',
-  INACTIVE: 'inactive',
-};
-
-export const MAX_OVERLAP_CHECK_MONTHS = 120;
