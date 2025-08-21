@@ -53,7 +53,7 @@ describe('OneTimeTokenService', () => {
     await models.PortalOneTimeToken.destroy({ where: {}, force: true });
   });
 
-  describe('createForPortalUser', () => {
+  describe('createLoginToken', () => {
     it('should create a one-time token for a portal user', async () => {
       const result = await oneTimeTokenService.createLoginToken(testPortalUser.id);
 
@@ -110,6 +110,85 @@ describe('OneTimeTokenService', () => {
 
       // Number of tokens should not change (old one should be replaced)
       expect(finalCount).toEqual(initialCount);
+    });
+  });
+
+  describe('createRegisterToken', () => {
+    it('should create a register token for a portal user', async () => {
+      const result = await oneTimeTokenService.createRegisterToken(testPortalUser.id);
+
+      // Verify token was created with expected properties
+      expect(result).toHaveProperty('token');
+      expect(result).toHaveProperty('expiresAt');
+
+      // Verify token format (32 hex characters from randomBytes(16))
+      expect(result.token).toMatch(/^[0-9a-f]{32}$/);
+
+      // Verify token exists in database with hashed value
+      const tokenRecord = await models.PortalOneTimeToken.findOne({
+        where: { portalUserId: testPortalUser.id, type: 'register' },
+      });
+
+      expect(tokenRecord).not.toBeNull();
+      // The database should store the hashed token, not the plain token
+      expect(tokenRecord.token).toEqual(hashToken(result.token));
+      expect(tokenRecord.expiresAt).toEqual(result.expiresAt);
+    });
+
+    it('should create a register token that expires in the configured time', async () => {
+      const customExpiryMinutes = 20;
+      const customService = new PortalOneTimeTokenService(models, {
+        expiryMinutes: customExpiryMinutes,
+      });
+
+      const now = new Date();
+      const result = await customService.createRegisterToken(testPortalUser.id);
+
+      // Verify expiry time is correct (to closest minute to avoid false negatvies)
+      const expectedExpiry = addMinutes(now, customExpiryMinutes);
+
+      const expiry = parseISO(result.expiresAt);
+      expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
+    });
+
+    it('should overwrite existing register tokens for the same user', async () => {
+      // Create first token
+      await oneTimeTokenService.createRegisterToken(testPortalUser.id);
+
+      // Count tokens
+      const initialCount = await models.PortalOneTimeToken.count({
+        where: { portalUserId: testPortalUser.id, type: 'register' },
+      });
+
+      // Create second token
+      await oneTimeTokenService.createRegisterToken(testPortalUser.id);
+
+      // Count tokens again
+      const finalCount = await models.PortalOneTimeToken.count({
+        where: { portalUserId: testPortalUser.id, type: 'register' },
+      });
+
+      // Number of tokens should not change (old one should be replaced)
+      expect(finalCount).toEqual(initialCount);
+    });
+
+    it('should be able to verify and consume a register token', async () => {
+      // Create a register token
+      const { token } = await oneTimeTokenService.createRegisterToken(testPortalUser.id);
+
+      // Verify and consume the token
+      const result = await oneTimeTokenService.verifyAndConsume({
+        token,
+        type: 'register',
+      });
+
+      expect(result).toEqual({ ok: true });
+
+      // Verify token no longer exists
+      const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
+        where: { portalUserId: testPortalUser.id, type: 'register' },
+      });
+      expect(tokenAfterConsume).toBeNull();
     });
   });
 
