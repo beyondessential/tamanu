@@ -3,9 +3,8 @@ import shortid from 'shortid';
 import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 
 /**
- * Initialize device ID for a server instance
- * @param {Object} context - The application context
- * @param {DeviceType} serverType - The type of server (facility or central)
+ * @param {Object} context
+ * @param {'central' | 'facility' | 'mobile'} deviceType
  * @returns {Promise<void>}
  */
 export async function initDeviceId({ context, deviceType }) {
