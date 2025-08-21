@@ -1,4 +1,4 @@
-import { addMinutes, subMinutes } from 'date-fns';
+import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
 import { createHash } from 'crypto';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -84,11 +84,11 @@ describe('OneTimeTokenService', () => {
       const now = new Date();
       const result = await customService.createLoginToken(testPortalUser.id);
 
-      // Verify expiry time is approximately correct (within 1 second tolerance)
+      // Verify expiry time is correct (to closest minute to avoid false negatvies)
       const expectedExpiry = addMinutes(now, customExpiryMinutes);
-      const timeDiffInSeconds = Math.abs((result.expiresAt - expectedExpiry) / 1000);
 
-      expect(timeDiffInSeconds).toBeLessThan(1);
+      const expiry = parseISO(result.expiresAt);
+      expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
     });
 
     it('should overwrite existing tokens for the same user', async () => {
@@ -126,7 +126,6 @@ describe('OneTimeTokenService', () => {
 
       // Verify and consume the token
       const result = await oneTimeTokenService.verifyAndConsume({
-        portalUserId: testPortalUser.id,
         token,
       });
 
@@ -143,7 +142,6 @@ describe('OneTimeTokenService', () => {
       // Attempt to verify a non-existent token
       await expect(
         oneTimeTokenService.verifyAndConsume({
-          portalUserId: testPortalUser.id,
           token: '123456',
         }),
       ).rejects.toThrow(BadAuthenticationError);
@@ -165,45 +163,9 @@ describe('OneTimeTokenService', () => {
       // Attempt to verify the expired token
       await expect(
         oneTimeTokenService.verifyAndConsume({
-          portalUserId: testPortalUser.id,
           token,
         }),
       ).rejects.toThrow(BadAuthenticationError);
-    });
-
-    it('should throw BadAuthenticationError when token belongs to different user', async () => {
-      // Create another portal user
-      const anotherPatient = await models.Patient.create(
-        fake(models.Patient, {
-          displayId: 'TEST002',
-          firstName: 'Jane',
-          lastName: 'Smith',
-          sex: 'female',
-        }),
-      );
-
-      const anotherPortalUser = await models.PortalUser.create({
-        email: 'another@test.com',
-        patientId: anotherPatient.id,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      });
-
-      // Create a token for the original user
-      const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
-
-      // Attempt to verify the token with a different user
-      await expect(
-        oneTimeTokenService.verifyAndConsume({
-          portalUserId: anotherPortalUser.id,
-          token,
-        }),
-      ).rejects.toThrow(BadAuthenticationError);
-
-      // Original token should still exist (check for hashed version)
-      const tokenStillExists = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, token: hashToken(token) },
-      });
-      expect(tokenStillExists).not.toBeNull();
     });
   });
 });

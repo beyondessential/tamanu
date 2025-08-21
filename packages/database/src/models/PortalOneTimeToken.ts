@@ -1,4 +1,5 @@
 import { DataTypes } from 'sequelize';
+import { isBefore, parseISO } from 'date-fns';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
@@ -7,7 +8,7 @@ export class PortalOneTimeToken extends Model {
   declare id: string;
   declare type: string;
   declare token: string;
-  declare expiresAt: Date;
+  declare expiresAt: string;
   declare portalUserId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -25,7 +26,7 @@ export class PortalOneTimeToken extends Model {
   }
 
   isExpired() {
-    return this.expiresAt < new Date();
+    return isBefore(parseISO(this.expiresAt), new Date());
   }
 
   static initRelations(models: Models) {

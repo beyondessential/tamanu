@@ -64,11 +64,11 @@ export class PortalOneTimeTokenService {
     };
   }
 
-  async verifyAndConsume({ portalUserId, token, type = 'login' }) {
+  async verifyAndConsume({ token, type = 'login' }) {
     const { PortalOneTimeToken } = this.models;
     const hashedToken = hashToken(token);
     const record = await PortalOneTimeToken.findOne({
-      where: { portalUserId, type, token: hashedToken },
+      where: { type, token: hashedToken },
     });
 
     if (!record) {
