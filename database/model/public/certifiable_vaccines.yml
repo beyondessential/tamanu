@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: certifiable_vaccines
-        description: '{{ doc("table__certifiable_vaccines") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__certifiable_vaccines') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_certifiable_vaccines_changed
+              - record_certifiable_vaccines_changelog
+              - set_certifiable_vaccines_updated_at
+              - set_certifiable_vaccines_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

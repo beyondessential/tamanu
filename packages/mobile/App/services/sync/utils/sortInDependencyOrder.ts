@@ -72,7 +72,8 @@ export const sortInDependencyOrder = async (
   while (Object.keys(stillToSort).length > 0) {
     Object.values(stillToSort).forEach((model) => {
       const modelName = model.name;
-      const dependsOn = dependencyMap[modelName] || [];
+      // filter out self to avoid circular dependencies
+      const dependsOn = dependencyMap[modelName]?.filter(d => d !== modelName) || [];
       const dependenciesStillToSort = dependsOn.filter((d) => !!stillToSort[d]);
 
       if (dependenciesStillToSort.length === 0) {

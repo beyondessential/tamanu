@@ -1,11 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
 import {
   MultiselectField,
   Field,
   TranslatedReferenceData,
-  getReferenceDataStringId,
 } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useTranslation } from '../../contexts/Translation';

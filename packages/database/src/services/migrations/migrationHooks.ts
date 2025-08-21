@@ -4,11 +4,16 @@ import config from 'config';
 import { QueryTypes, type Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
+import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
-const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
-  sequelize
+export const tablesWithoutColumn = (
+  sequelize: Sequelize,
+  column: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
     SELECT
@@ -22,10 +27,9 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
       AND pg_attribute.attname = $column
     WHERE pg_namespace.nspname IN ('public', 'logs')
       AND pg_class.relkind = 'r'
-      AND pg_attribute.attname IS NULL
-      AND (pg_namespace.nspname || '.' || pg_class.relname) NOT IN ($excludes);
+      AND pg_attribute.attname IS NULL;
   `,
-      { type: QueryTypes.SELECT, bind: { column, excludes: NON_SYNCING_TABLES } },
+      { type: QueryTypes.SELECT, bind: { column } },
     )
     .then(rows =>
       rows
@@ -33,24 +37,25 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
-
-const tablesWithoutTrigger = (
+};
+export const tablesWithoutTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
       SELECT
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      LEFT JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      LEFT JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
@@ -67,24 +72,26 @@ const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
+};
 
-const tablesWithTrigger = (
+export const tablesWithTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  const allExcludes = [...GLOBAL_EXCLUDE_TABLES, ...excludes];
+  return sequelize
     .query(
       `
       SELECT
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
@@ -100,8 +107,9 @@ const tablesWithTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
     );
+};
 
 export async function runPreMigration(log: Logger, sequelize: Sequelize) {
   // remove sync tick trigger before migrations
@@ -148,7 +156,20 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       })
       .then(rows => (rows?.[0] as any)?.count > 0);
 
-  // add trigger: before insert or update, set updated_at (overriding any that is passed in)
+  // add trigger: before update, update updated_at when the data in the row changed
+  if (await functionExists('set_updated_at')) {
+    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at')) {
+      log.info(`Adding updated_at trigger to ${schema}.${table}`);
+      await sequelize.query(`
+      CREATE TRIGGER set_${table}_updated_at
+      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION public.set_updated_at();
+    `);
+    }
+  }
+
+  // add trigger: before insert or update, set updated_at_sync_tick (overriding any that is passed in)
   if (await functionExists('set_updated_at_sync_tick')) {
     for (const { schema, table } of await tablesWithoutTrigger(
       sequelize,

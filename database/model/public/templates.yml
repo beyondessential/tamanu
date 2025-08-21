@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: templates
-        description: '{{ doc("table__templates") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__templates') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_templates_changed
+              - record_templates_changelog
+              - set_templates_updated_at
+              - set_templates_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

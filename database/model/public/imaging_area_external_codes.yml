@@ -5,9 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_area_external_codes
-        description: '{{ doc("table__imaging_area_external_codes") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__imaging_area_external_codes') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_imaging_area_external_codes_changed
+              - record_imaging_area_external_codes_changelog
+              - set_imaging_area_external_codes_updated_at
+              - set_imaging_area_external_codes_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

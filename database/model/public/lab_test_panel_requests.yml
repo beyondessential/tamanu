@@ -5,9 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_test_panel_requests
-        description: '{{ doc("table__lab_test_panel_requests") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__lab_test_panel_requests') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_lab_test_panel_requests_changed
+              - record_lab_test_panel_requests_changelog
+              - set_lab_test_panel_requests_updated_at
+              - set_lab_test_panel_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

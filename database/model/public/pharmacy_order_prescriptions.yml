@@ -1,0 +1,59 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: pharmacy_order_prescriptions
+        description: "{{ doc('table__pharmacy_order_prescriptions') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_pharmacy_order_prescriptions_changed
+              - record_pharmacy_order_prescriptions_changelog
+              - set_pharmacy_order_prescriptions_updated_at
+              - set_pharmacy_order_prescriptions_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in pharmacy_order_prescriptions."
+            data_tests:
+              - unique
+              - not_null
+          - name: pharmacy_order_id
+            data_type: uuid
+            description: "{{ doc('pharmacy_order_prescriptions__pharmacy_order_id') }}"
+            data_tests:
+              - not_null
+          - name: prescription_id
+            data_type: text
+            description: "{{ doc('pharmacy_order_prescriptions__prescription_id') }}"
+            data_tests:
+              - not_null
+          - name: quantity
+            data_type: integer
+            description: "{{ doc('pharmacy_order_prescriptions__quantity') }}"
+            data_tests:
+              - not_null
+          - name: repeats
+            data_type: integer
+            description: "{{ doc('pharmacy_order_prescriptions__repeats') }}"
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in pharmacy_order_prescriptions."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in pharmacy_order_prescriptions."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in pharmacy_order_prescriptions."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in pharmacy_order_prescriptions."
+            data_tests:
+              - not_null

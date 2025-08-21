@@ -29,19 +29,17 @@ const styles = StyleSheet.create({
 
   labelText: {
     fontSize: 8,
-    fontWeight: 400,
-    fontFamily: 'Helvetica-Bold',
+    fontWeight: 700,
   },
 
   valueText: {
     fontSize: 8,
     fontWeight: 400,
-    fontFamily: 'Helvetica',
   },
 });
 
 const LabelText = ({ children, ...props }) => (
-  <Text style={styles.labelText} {...props}>
+  <Text bold style={styles.labelText} {...props}>
     {children}
   </Text>
 );

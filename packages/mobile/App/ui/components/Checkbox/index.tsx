@@ -19,6 +19,8 @@ interface CheckboxProps extends BaseInputProps {
   error?: string;
   required?: boolean;
   label?: string;
+  fieldFontSize?: string | number;
+  fieldColor?: string;
 }
 
 export const Checkbox = ({
@@ -31,6 +33,8 @@ export const Checkbox = ({
   background,
   color,
   label,
+  fieldFontSize,
+  fieldColor,
 }: CheckboxProps): JSX.Element => {
   const ChangeCallback = useCallback(() => onChange(!value, id), [onChange, value, id]);
 
@@ -77,8 +81,8 @@ export const Checkbox = ({
           <StyledText
             marginLeft={10}
             onPress={ChangeCallback}
-            fontSize={screenPercentageToDP('1.70', Orientation.Height)}
-            color={theme.colors.TEXT_MID}
+            fontSize={fieldFontSize || screenPercentageToDP('1.70', Orientation.Height)}
+            color={fieldColor || theme.colors.TEXT_MID}
           >
             {`${text?.props?.fallback || text}${required && !label ? '*' : ''}`}
           </StyledText>

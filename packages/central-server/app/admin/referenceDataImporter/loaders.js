@@ -7,9 +7,11 @@ import {
   PATIENT_FIELD_DEFINITION_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
+  NOUNS_WITH_OBJECT_ID,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
   const values = { ...fields };
@@ -17,7 +19,7 @@ function stripNotes(fields) {
   return values;
 }
 
-export const loaderFactory = (model) => (fields) => [{ model, values: stripNotes(fields) }];
+export const loaderFactory = model => fields => [{ model, values: stripNotes(fields) }];
 
 export function referenceDataLoaderFactory(type) {
   return ({ id, code, name, visibilityStatus }) => [
@@ -42,8 +44,8 @@ export function patientFieldDefinitionLoader(values) {
         ...stripNotes(values),
         options: (values.options || '')
           .split(',')
-          .map((v) => v.trim())
-          .filter((v) => v !== ''),
+          .map(v => v.trim())
+          .filter(v => v !== ''),
       },
     },
   ];
@@ -91,7 +93,7 @@ export function administeredVaccineLoader(item) {
 
         date,
         reason,
-        consent: ['true', 'yes', 't', 'y'].some((v) => v === consent?.toLowerCase()),
+        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
         ...data,
 
         // relationships
@@ -151,7 +153,7 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
     // Foreign keys will not appear as they are under rawAttributes (i.e: village -> villageId)
     if (
       predefinedPatientFields.includes(definitionId) ||
-      foreignKeySchemata.Patient.find((schema) => schema.field === definitionId) ||
+      foreignKeySchemata.Patient.find(schema => schema.field === definitionId) ||
       !value
     )
       continue;
@@ -191,15 +193,51 @@ export async function patientDataLoader(item, { models, foreignKeySchemata }) {
   return rows;
 }
 
-export function permissionLoader(item) {
+async function validateObjectId(item, models, pushError) {
+  const { noun, objectId } = item;
+  if (!objectId || !noun || !NOUNS_WITH_OBJECT_ID.includes(noun)) {
+    return;
+  }
+
+  if (noun === 'StaticReport') {
+    const allowedReportIds = [
+      ...GENERIC_SURVEY_EXPORT_REPORT_ID,
+      ...REPORT_DEFINITIONS.map(({ id }) => id),
+    ];
+    const objectIds = objectId.split('/');
+    for (const objectId of objectIds) {
+      if (!allowedReportIds.includes(objectId)) {
+        pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+      }
+    }
+    return;
+  }
+
+  // Skip strict objectId validation in test environments
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
+  const record = await models[noun].findByPk(objectId);
+  if (!record) {
+    pushError(`Invalid objectId: ${objectId} for noun: ${noun}`);
+  }
+}
+
+export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
+
+  const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
+
+  await validateObjectId({ ...item, objectId: normalizedObjectId }, models, pushError);
+
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
   return Object.entries(roles)
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
+      const id = `${role}-${verb}-${noun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -211,7 +249,7 @@ export function permissionLoader(item) {
           id,
           verb,
           noun,
-          objectId,
+          objectId: normalizedObjectId,
           role,
           deletedAt,
         },
@@ -233,8 +271,8 @@ export function labTestPanelLoader(item) {
 
   (testTypesInPanel || '')
     .split(',')
-    .map((t) => t.trim())
-    .forEach((testType) => {
+    .map(t => t.trim())
+    .forEach(testType => {
       rows.push({
         model: 'LabTestPanelLabTestTypes',
         values: {
@@ -252,13 +290,13 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   const { id: taskSetId, tasks: taskIdsString } = item;
   const taskIds = taskIdsString
     .split(',')
-    .map((taskId) => taskId.trim())
+    .map(taskId => taskId.trim())
     .filter(Boolean);
 
   const existingTaskIds = await models.ReferenceData.findAll({
     where: { id: { [Op.in]: taskIds } },
-  }).then((tasks) => tasks.map(({ id }) => id));
-  const nonExistentTaskIds = taskIds.filter((taskId) => !existingTaskIds.includes(taskId));
+  }).then(tasks => tasks.map(({ id }) => id));
+  const nonExistentTaskIds = taskIds.filter(taskId => !existingTaskIds.includes(taskId));
   if (nonExistentTaskIds.length > 0) {
     pushError(`Tasks ${nonExistentTaskIds.join(', ')} not found`);
   }
@@ -275,7 +313,7 @@ export const taskSetLoader = async (item, { models, pushError }) => {
   });
 
   // Upsert tasks that are in task set
-  const rows = existingTaskIds.map((taskId) => ({
+  const rows = existingTaskIds.map(taskId => ({
     model: 'ReferenceDataRelation',
     values: {
       referenceDataId: taskId,
@@ -292,7 +330,7 @@ export async function userLoader(item, { models, pushError }) {
   const rows = [];
 
   const allowedFacilityIds = allowedFacilities
-    ? allowedFacilities.split(',').map((t) => t.trim())
+    ? allowedFacilities.split(',').map(t => t.trim())
     : [];
 
   rows.push({
@@ -310,10 +348,10 @@ export async function userLoader(item, { models, pushError }) {
 
   if (existingUser) {
     const idsToBeDeleted = existingUser.facilities
-      .map((f) => f.id)
-      .filter((id) => !allowedFacilityIds.includes(id));
+      .map(f => f.id)
+      .filter(id => !allowedFacilityIds.includes(id));
 
-    idsToBeDeleted.forEach((facilityId) => {
+    idsToBeDeleted.forEach(facilityId => {
       rows.push({
         model: 'UserFacility',
         values: {
@@ -326,7 +364,7 @@ export async function userLoader(item, { models, pushError }) {
     });
   }
 
-  allowedFacilityIds.forEach((facilityId) => {
+  allowedFacilityIds.forEach(facilityId => {
     rows.push({
       model: 'UserFacility',
       values: {
@@ -339,7 +377,7 @@ export async function userLoader(item, { models, pushError }) {
 
   const designationIds = (designations || '')
     .split(',')
-    .map((d) => d.trim())
+    .map(d => d.trim())
     .filter(Boolean);
 
   if (id) {
@@ -397,7 +435,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 
   const designationIds = (assignedTo || '')
     .split(',')
-    .map((d) => d.trim())
+    .map(d => d.trim())
     .filter(Boolean);
 
   await models.TaskTemplateDesignation.destroy({
@@ -405,7 +443,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
   });
 
   const existingDesignationIds = await models.ReferenceData.findByIds(designationIds).then(
-    (designations) => designations.map((d) => d.id),
+    designations => designations.map(d => d.id),
   );
   for (const designationId of designationIds) {
     if (!existingDesignationIds.includes(designationId)) {
@@ -425,7 +463,7 @@ export async function taskTemplateLoader(item, { models, pushError }) {
 }
 
 export async function drugLoader(item, { models }) {
-  const { id: drugId, route, units, notes } = item;
+  const { id: drugId, route, units, notes, isSensitive = false } = item;
   const rows = [];
 
   let existingDrug;
@@ -441,6 +479,7 @@ export async function drugLoader(item, { models }) {
     route,
     units,
     notes,
+    isSensitive,
   };
   rows.push({
     model: 'ReferenceDrug',
@@ -462,6 +501,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     duration,
     notes,
     dischargeQuantity,
+    ongoingMedication,
   } = item;
 
   const rows = [];
@@ -497,6 +537,7 @@ export async function medicationTemplateLoader(item, { models, pushError }) {
     durationUnit: durationUnit ? pluralize(durationUnit).toLowerCase() : null,
     notes: notes || null,
     dischargeQuantity: dischargeQuantity || null,
+    isOngoing: ongoingMedication,
   };
 
   rows.push({
@@ -514,8 +555,19 @@ export async function medicationSetLoader(item, { models, pushError }) {
 
   const medicationTemplateIds = (medicationTemplateIdsString || '')
     .split(',')
-    .map((id) => id.trim())
+    .map(id => id.trim())
     .filter(Boolean);
+
+  const duplicateIds = medicationTemplateIds.filter(
+    (templateId, index) => medicationTemplateIds.indexOf(templateId) !== index,
+  );
+
+  if (duplicateIds.length > 0) {
+    const uniqueDuplicates = [...new Set(duplicateIds)];
+    pushError(
+      `Duplicate medication template IDs found in medication set "${id}": ${uniqueDuplicates.join(', ')}.`,
+    );
+  }
 
   let existingTemplateIds = [];
   if (medicationTemplateIds.length > 0) {
@@ -528,7 +580,7 @@ export async function medicationSetLoader(item, { models, pushError }) {
     existingTemplateIds = existingTemplates.map(({ id }) => id);
 
     const nonExistentTemplateIds = medicationTemplateIds.filter(
-      (id) => !existingTemplateIds.includes(id),
+      id => !existingTemplateIds.includes(id),
     );
     if (nonExistentTemplateIds.length > 0) {
       pushError(

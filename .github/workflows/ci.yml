@@ -17,7 +17,6 @@ env:
   NODE_MODULES_PATHS: |
     node_modules
     packages/*/node_modules
-    !packages/mobile/node_modules
 
 jobs:
   node_modules_cache:
@@ -32,11 +31,14 @@ jobs:
           node-version-file: '.nvmrc'
           cache: npm
       - uses: actions/cache/restore@v3
+        id: cache
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
-      - uses: actions/cache/save@v3
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
@@ -47,17 +49,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { package: "@tamanu/facility-server", shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/facility-server", shard: 4/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 1/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 2/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 3/4, postgres: 14 }
-          - { package: "@tamanu/central-server",  shard: 4/4, postgres: 14 }
+          - { package: "@tamanu/facility-server", shard: 1/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 2/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 3/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 4/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 5/6, postgres: 16 }
+          - { package: "@tamanu/facility-server", shard: 6/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 1/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 2/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 3/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 4/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 5/6, postgres: 16 }
+          - { package: "@tamanu/central-server",  shard: 6/6, postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 12 }
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
+          - { package: "@tamanu/database",                    postgres: 17 }
           - { package: "@tamanu/shared",                                   }
           - { package: "@tamanu/utils",                                    }
           - { package: "@tamanu/web-frontend" }
@@ -78,7 +85,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
       - run: npm run --workspace ${{ matrix.package }} build
 
@@ -113,7 +120,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build
 
   lint:
@@ -132,7 +139,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
+      - run: npm i
 
       - name: Lint errors
         run: npm run lint-all -- --quiet
@@ -159,7 +166,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
       - run: npm run --workspace @tamanu/web-frontend test-storybook
 
@@ -193,7 +200,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm ci
+      - run: npm i
       - run: npm run build-shared
 
       - name: Install and start postgres ${{ matrix.postgres }}
@@ -204,6 +211,7 @@ jobs:
       - run: scripts/apply_and_revert_server_migrations.sh ${{ matrix.server }}
 
   test-mobile:
+    needs: node_modules_cache
     name: Test mobile
     runs-on: ubuntu-latest
     steps:
@@ -216,14 +224,10 @@ jobs:
           cache: npm
       - uses: actions/cache/restore@v3
         with:
-          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
-          path: mobile/node_modules
-      - run: npm ci
-        working-directory: packages/mobile
-      - uses: actions/cache/save@v3
-        with:
-          key: ${{ runner.os }}-npmmobile-${{ hashFiles('mobile/package-lock.json') }}
-          path: mobile/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+
+      - run: npm i
 
       - run: npm run test
         working-directory: packages/mobile
@@ -244,7 +248,7 @@ jobs:
         with:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
-      - run: npm ci
+      - run: npm i
 
       - name: Install and start postgres
         run: |
@@ -262,6 +266,7 @@ jobs:
         run: .github/scripts/test-facility-offline.sh facility-start-again
 
   test-package-lock:
+    needs: node_modules_cache
     name: Check package-lock.json is up to date
     runs-on: ubuntu-latest
     steps:
@@ -272,7 +277,11 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: npm
-      - run: npm ci
+      - uses: actions/cache/restore@v3
+        with:
+          key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
+          path: ${{ env.NODE_MODULES_PATHS }}
+      - run: npm i
       - run: git diff --exit-code
 
   dbt-model:
@@ -294,7 +303,7 @@ jobs:
 
       - name: Install and start postgres
         run: |
-          source .github/scripts/install-postgres-ubuntu.sh 16
+          source .github/scripts/install-postgres-ubuntu.sh 17
 
           createuser --superuser tamanu
           psql -c "ALTER USER tamanu PASSWORD 'tamanu';" postgres
@@ -303,19 +312,16 @@ jobs:
 
       - name: Build
         run: |
-          npm install
+          npm i
           npm run build-shared
           npm run --workspace @tamanu/central-server build
-          npm run --workspace @tamanu/facility-server build
       - name: Configure Tamanu
         run: |
           echo '{"db":{"host":"localhost","name":"central","username":"tamanu","password":"tamanu"}}' > packages/central-server/config/local.json5
-          echo '{"db":{"host":"localhost","name":"facility","username":"tamanu","password":"tamanu"}}' > packages/facility-server/config/local.json5
 
       - name: Run Migrations
         run: |
-          npm run --workspace @tamanu/central-server start migrate up
-          npm run --workspace @tamanu/facility-server start migrate up
+          npm run --workspace @tamanu/central-server start upgrade
 
       - name: Check model is up to date
         run: |
@@ -349,7 +355,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
 
-      - run: npm install
+      - run: npm i
       - run: npm run dbt-check-todos
 
   typos:

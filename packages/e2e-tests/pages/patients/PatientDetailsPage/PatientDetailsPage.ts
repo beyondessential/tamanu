@@ -4,13 +4,17 @@ import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
+import { format } from 'date-fns';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
+  readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
+  readonly ongoingConditionNameWrapper: Locator;
   readonly ongoingConditionDateRecordedField: Locator;
   readonly ongoingConditionClinicianField: Locator;
   readonly savedOnGoingConditionName: Locator;
@@ -18,7 +22,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionDate: Locator;
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
-  readonly onGoingConditionForm: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -58,10 +61,15 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
+  readonly labsTab: Locator;
+  readonly encountersList: Locator;
+  readonly departmentLabel: Locator;
+  labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -90,7 +98,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
+    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -194,6 +202,9 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
       .first();
+    this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
+    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -202,6 +213,19 @@ export class PatientDetailsPage extends BasePatientPage {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
     return this.patientVaccinePane;
+  }
+
+ 
+
+    async navigateToLabsTab(): Promise<LabRequestPane> {
+    // Navigate to the top encounter
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.labsTab.click();
+    if (!this.labRequestPane) {
+      this.labRequestPane = new LabRequestPane(this.page);
+    }
+    return this.labRequestPane;
   }
 
   async goToPatient(patient: Patient) {
@@ -336,9 +360,11 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async getCurrentBrowserDateISOFormat() {
-    const currentDate = new Date();
-    return currentDate.toISOString().split('T')[0];
+  /**
+   * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+   */
+  getCurrentBrowserDateISOFormat() {
+    return format(new Date(), 'yyyy-MM-dd');
   }
 
   // Helper methods for handling multiple buttons with the same test ID
@@ -353,8 +379,8 @@ export class PatientDetailsPage extends BasePatientPage {
   getOngoingConditionEditSubmitButton() {
     return this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
-      .first();
+      .getByTestId('formgrid-lqds')
+      .getByRole('button', { name: 'Save' });
   }
 
   getAllergyEditSubmitButton() {

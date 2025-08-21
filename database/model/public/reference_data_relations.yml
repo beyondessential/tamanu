@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: reference_data_relations
-        description: '{{ doc("table__reference_data_relations") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__reference_data_relations') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_reference_data_relations_changed
+              - record_reference_data_relations_changelog
+              - set_reference_data_relations_updated_at
+              - set_reference_data_relations_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

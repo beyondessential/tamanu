@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: lab_request_attachments
-        description: '{{ doc("table__lab_request_attachments") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__lab_request_attachments') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_lab_request_attachments_changed
+              - record_lab_request_attachments_changelog
+              - set_lab_request_attachments_updated_at
+              - set_lab_request_attachments_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -47,6 +54,9 @@ sources:
           - name: title
             data_type: character varying(255)
             description: "{{ doc('lab_request_attachments__title') }}"
+            config:
+              meta:
+                masking: text
           - name: replaced_by_id
             data_type: character varying(255)
             description: "{{ doc('lab_request_attachments__replaced_by_id') }}"

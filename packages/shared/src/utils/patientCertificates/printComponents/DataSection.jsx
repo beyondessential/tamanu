@@ -6,10 +6,9 @@ import { Text } from '../../pdf/Text';
 
 const styles = StyleSheet.create({
   title: {
-    fontFamily: 'Helvetica-Bold',
     marginBottom: 3,
     fontSize: 11,
-    fontWeight: 500,
+    fontWeight: 700,
   },
 });
 
@@ -22,7 +21,9 @@ export const DataSection = ({
 }) => {
   return (
     <View {...props}>
-      <Text style={styles.title}>{title}</Text>
+      <Text bold style={styles.title}>
+        {title}
+      </Text>
       {!hideTopRule && <HorizontalRule />}
       <Row>{children}</Row>
       {!hideBottomRule && <HorizontalRule />}

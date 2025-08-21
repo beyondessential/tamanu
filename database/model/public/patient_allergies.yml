@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_allergies
-        description: '{{ doc("table__patient_allergies") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_allergies') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_allergies_changed
+              - record_patient_allergies_changelog
+              - set_patient_allergies_updated_at
+              - set_patient_allergies_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -31,11 +38,17 @@ sources:
           - name: note
             data_type: character varying(255)
             description: "{{ doc('patient_allergies__note') }}"
+            config:
+              meta:
+                masking: text
           - name: recorded_date
             data_type: character(19)
             description: "{{ doc('patient_allergies__recorded_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('patient_allergies__patient_id') }}"
@@ -48,6 +61,9 @@ sources:
           - name: recorded_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_allergies__recorded_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_allergies."

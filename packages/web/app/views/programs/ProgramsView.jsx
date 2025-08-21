@@ -24,6 +24,7 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useApi } from '../../api';
 import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedReferenceData } from '../../components';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -90,7 +91,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
       setSurveys(
         data
           .filter((s) => s.surveyType === SURVEY_TYPES.PROGRAMS)
-          .map((x) => ({ value: x.id, label: x.name })),
+          .map((x) => ({
+            value: x.id,
+            label: (
+              <TranslatedReferenceData
+                category="survey"
+                value={x.id}
+                fallback={x.name}
+              />
+            ),
+          })),
       );
     },
     [api, selectedProgramId, clearProgram, setProgramRegistryIdByProgramId],
@@ -102,7 +112,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
       facilityId,
     });
     dispatch(reloadPatient(patient.id));
@@ -157,7 +167,16 @@ const SurveyFlow = ({ patient, currentUser }) => {
         <FormGrid columns={1} data-testid="formgrid-m7yd">
           <SelectInput
             name="program"
-            options={programs.map((p) => ({ value: p.id, label: p.name }))}
+            options={programs.map((p) => ({
+              value: p.id,
+              label: (
+                <TranslatedReferenceData
+                  category="program"
+                  value={p.id}
+                  fallback={p.name}
+                />
+              ),
+            }))}
             value={selectedProgramId}
             onChange={selectProgram}
             label={

@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_products
-        description: '{{ doc("table__invoice_products") }}'
-        tags:
-          - reference
+        description: "{{ doc('table__invoice_products') }}"
+        config:
+          tags:
+            - reference
+          meta:
+            triggers:
+              - notify_invoice_products_changed
+              - record_invoice_products_changelog
+              - set_invoice_products_updated_at
+              - set_invoice_products_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

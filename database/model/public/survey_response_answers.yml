@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: survey_response_answers
-        description: '{{ doc("table__survey_response_answers") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__survey_response_answers') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_survey_response_answers_changed
+              - record_survey_response_answers_changelog
+              - set_survey_response_answers_updated_at
+              - set_survey_response_answers_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,6 +41,9 @@ sources:
           - name: body
             data_type: text
             description: "{{ doc('survey_response_answers__body') }}"
+            config:
+              meta:
+                masking: text
           - name: response_id
             data_type: character varying(255)
             description: "{{ doc('survey_response_answers__response_id') }}"
@@ -51,6 +61,9 @@ sources:
           - name: body_legacy
             data_type: text
             description: "{{ doc('survey_response_answers__body_legacy') }}"
+            config:
+              meta:
+                masking: text
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in survey_response_answers."

@@ -197,6 +197,7 @@ programRegistry.get(
               ROW_NUMBER() OVER (PARTITION BY patient_id, program_registry_id ORDER BY date DESC, id DESC) AS row_num
             FROM patient_program_registrations
             WHERE program_registry_id = :programRegistryId
+            AND deleted_at IS NULL
           ) n
           WHERE n.row_num = 1
         ),
