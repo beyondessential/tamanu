@@ -94,3 +94,6 @@ sources:
             description: "{{ doc('logs__generic__updated_at_sync_tick') }} in changes."
             data_tests:
               - not_null
+          - name: reason
+            data_type: text
+            description: "{{ doc('logs__changes__reason') }}"
