@@ -19,7 +19,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PatientUser, ReferenceData, User } = store.models;
+    const { Patient, PortalUser, ReferenceData, User } = store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(
@@ -50,11 +50,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       }),
     );
 
-    // Create a test patient user
-    await PatientUser.create({
+    // Create a test portal user
+    await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
 
@@ -127,10 +126,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'bob@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -193,10 +191,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'alice@test.com',
         patientId: patientWithDiscontinuedPrescriptions.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -282,10 +279,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'nulldiscontinued@test.com',
         patientId: patientWithNullDiscontinued.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -334,7 +330,7 @@ describe('Patient Portal Prescriptions Endpoints', () => {
     });
 
     it('Should only return ongoing prescriptions for the target patient (comprehensive filtering)', async () => {
-      const { Patient, PatientUser, Prescription, PatientOngoingPrescription, ReferenceData } =
+      const { Patient, PortalUser, Prescription, PatientOngoingPrescription, ReferenceData } =
         store.models;
 
       // Create target patient
@@ -347,10 +343,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
       );
 
       const targetEmail = 'target.filter@test.com';
-      await PatientUser.create({
+      await PortalUser.create({
         email: targetEmail,
         patientId: targetPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -363,10 +358,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await PatientUser.create({
+      await PortalUser.create({
         email: 'other.filter@test.com',
         patientId: otherPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -487,10 +481,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'charlie@test.com',
         patientId: patientWithNullFrequency.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -552,10 +545,9 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'diana@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 

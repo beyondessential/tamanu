@@ -6,7 +6,7 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { verifyToken } from '../../auth/utils';
-import { findPatientUserById } from './utils';
+import { findPortalUserById } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 
 export const patientPortalMiddleware = ({ secret }) =>
@@ -41,32 +41,31 @@ export const patientPortalMiddleware = ({ secret }) =>
       return;
     }
 
-    const { patientUserId } = contents;
+    const { portalUserId } = contents;
 
-    const patientUser = await findPatientUserById(store.models, patientUserId);
-    if (!patientUser) {
+    const portalUser = await findPortalUserById(store.models, portalUserId);
+    if (!portalUser) {
       throw new BadAuthenticationError(
-        `Patient user specified in token (${patientUserId}) does not exist`,
+        `Portal user specified in token (${portalUserId}) does not exist`,
       );
     }
 
-    const patient = await patientUser.getPatient();
+    const patient = await portalUser.getPatient();
 
     if (!patient) {
       throw new BadAuthenticationError(
-        `Patient user specified in token (${patientUserId}) does not have a patient`,
+        `Portal user specified in token (${portalUserId}) does not have a patient`,
       );
     }
 
     /* eslint-disable require-atomic-updates */
-    req.patientUser = patientUser;
+    req.portalUser = portalUser;
     req.patient = patient;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
     const spanAttributes = {
       'app.patient.id': patient.id,
-      'app.patient.role': patientUser.role,
     };
 
     // eslint-disable-next-line no-unused-expressions

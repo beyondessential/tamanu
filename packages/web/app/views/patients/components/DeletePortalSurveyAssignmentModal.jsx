@@ -9,16 +9,16 @@ const SubText = styled.div`
   padding: 30px;
 `;
 
-export const DeletePatientSurveyAssignmentModal = ({
+export const DeletePortalSurveyAssignmentModal = ({
   open,
   onClose,
-  patientSurveyAssignmentToDelete,
+  portalSurveyAssignmentToDelete,
   patient,
 }) => {
   const api = useApi();
 
   const onSubmit = async () => {
-    await api.delete(`patient/${patient.id}/portal/forms/${patientSurveyAssignmentToDelete.id}`);
+    await api.delete(`patient/${patient.id}/portal/forms/${portalSurveyAssignmentToDelete.id}`);
     onClose();
   };
 
@@ -26,13 +26,13 @@ export const DeletePatientSurveyAssignmentModal = ({
     <ConfirmModal
       title={
         <TranslatedText
-          stringId="patientSurveyAssignment.modal.delete.title"
+          stringId="portalSurveyAssignment.modal.delete.title"
           fallback="Delete survey assignment"
-          data-testid="translatedtext-patient-survey-assignment-modal-delete-title"
+          data-testid="translatedtext-portal-survey-assignment-modal-delete-title"
         />
       }
       subText={
-        <SubText data-testid="subtext-patient-survey-assignment-delete">
+        <SubText data-testid="subtext-portal-survey-assignment-delete">
           <TranslatedText
             stringId="general.warning.irreversible"
             fallback="This action is irreversible."
@@ -41,22 +41,22 @@ export const DeletePatientSurveyAssignmentModal = ({
           <br />
           <br />
           <TranslatedText
-            stringId="patientSurveyAssignment.modal.delete.confirmation.prefix"
+            stringId="portalSurveyAssignment.modal.delete.confirmation.prefix"
             fallback="Are you sure you would like to delete the"
-            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation-prefix"
+            data-testid="translatedtext-portal-survey-assignment-modal-delete-confirmation-prefix"
           />{' '}
-          <strong>{patientSurveyAssignmentToDelete?.survey?.name}</strong>{' '}
+          <strong>{portalSurveyAssignmentToDelete?.survey?.name}</strong>{' '}
           <TranslatedText
-            stringId="patientSurveyAssignment.modal.delete.confirmation.suffix"
+            stringId="portalSurveyAssignment.modal.delete.confirmation.suffix"
             fallback="survey assignment?"
-            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation-suffix"
+            data-testid="translatedtext-portal-survey-assignment-modal-delete-confirmation-suffix"
           />
         </SubText>
       }
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
-      data-testid="confirmmodal-patient-survey-assignment-delete"
+      data-testid="confirmmodal-portal-survey-assignment-delete"
     />
   );
 };

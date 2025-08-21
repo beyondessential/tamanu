@@ -1,8 +1,8 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
-import { PATIENT_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 
 export async function up(query: QueryInterface): Promise<void> {
-  await query.createTable('patient_survey_assignments', {
+  await query.createTable('portal_survey_assignments', {
     id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -42,15 +42,11 @@ export async function up(query: QueryInterface): Promise<void> {
     status: {
       type: DataTypes.TEXT,
       allowNull: false,
-      defaultValue: PATIENT_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      defaultValue: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
     },
     assigned_at: {
       type: DataTypes.DATETIMESTRING,
       allowNull: false,
-    },
-    completed_at: {
-      type: DataTypes.DATETIMESTRING,
-      allowNull: true,
     },
     assigned_by_id: {
       type: DataTypes.TEXT,
@@ -70,11 +66,11 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex('patient_survey_assignments', ['patient_id', 'survey_id'], {
+  await query.addIndex('portal_survey_assignments', ['patient_id', 'survey_id'], {
     name: 'idx_patient_id_status',
   });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.dropTable('patient_survey_assignments');
+  await query.dropTable('portal_survey_assignments');
 }

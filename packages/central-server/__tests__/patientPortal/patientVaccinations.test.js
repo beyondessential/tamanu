@@ -25,7 +25,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
     store = ctx.store;
     const {
       Patient,
-      PatientUser,
+      PortalUser,
       ReferenceData,
       Facility,
       LocationGroup,
@@ -100,11 +100,10 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       }),
     );
 
-    // Create a test patient user
-    await PatientUser.create({
+    // Create a test portal user
+    await PortalUser.create({
       email: TEST_PATIENT_EMAIL,
       patientId: testPatient.id,
-      role: 'patient',
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
 
@@ -166,10 +165,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'bob@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -214,10 +212,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'alice@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -314,10 +311,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'charlie@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -362,7 +358,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         locationId: testLocation.id,
         departmentId: testDepartment.id,
         recorderId: testExaminer.id,
-      });
+      }); 
 
       const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
 
@@ -393,10 +389,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'diana@test.com',
         patientId: patientWithoutLocation.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
@@ -472,10 +467,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      await store.models.PatientUser.create({
+      await store.models.PortalUser.create({
         email: 'eve@test.com',
         patientId: newPatient.id,
-        role: 'patient',
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
