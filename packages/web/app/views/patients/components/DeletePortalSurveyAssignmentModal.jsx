@@ -26,17 +26,17 @@ export const DeletePortalSurveyAssignmentModal = ({
     <ConfirmModal
       title={
         <TranslatedText
-          stringId="patientSurveyAssignment.modal.delete.title"
+          stringId="portalSurveyAssignment.modal.delete.title"
           fallback="Delete outstanding form"
-          data-testid="translatedtext-patient-survey-assignment-modal-delete-title"
+          data-testid="translatedtext-portal-survey-assignment-modal-delete-title"
         />
       }
       subText={
         <SubText data-testid="subtext--survey-assignment-delete">
           <TranslatedText
-            stringId="patientSurveyAssignment.modal.delete.confirmation"
+            stringId="portalSurveyAssignment.modal.delete.confirmation"
             fallback="Are you sure you would like to delete"
-            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation"
+            data-testid="translatedtext-portal-survey-assignment-modal-delete-confirmation"
           />{' '}
           <strong>{portalSurveyAssignmentToDelete?.survey?.name}</strong>?
           <br />
@@ -50,7 +50,7 @@ export const DeletePortalSurveyAssignmentModal = ({
       open={open}
       onCancel={onClose}
       onConfirm={onSubmit}
-      data-testid="confirmmodal-patient-survey-assignment-delete"
+      data-testid="confirmmodal-portal-survey-assignment-delete"
     />
   );
 };
