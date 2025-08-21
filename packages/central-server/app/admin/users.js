@@ -16,6 +16,7 @@ import { isBefore, startOfDay } from 'date-fns';
 export const usersRouter = express.Router();
 
 const createUserFilters = (filterParams, models) => {
+  const includeDeactivated = filterParams.includeDeactivated !== 'false';
   const filters = [
     // Text search filters
     filterParams.displayName && {
@@ -42,8 +43,8 @@ const createUserFilters = (filterParams, models) => {
         )`),
       },
     },
-    // Exclude deactivated users filter
-    filterParams.excludeDeactivated === true && {
+    // Include deactivated users filter
+    !includeDeactivated && {
       visibilityStatus: 'current',
     },
   ];
