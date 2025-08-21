@@ -132,14 +132,14 @@ export class Patient extends Model {
       as: 'contacts',
     });
 
-    this.hasOne(models.PatientUser, {
+    this.hasOne(models.PortalUser, {
       foreignKey: 'patientId',
-      as: 'patientUser',
+      as: 'portalUser',
     });
   }
 
   static getFullReferenceAssociations() {
-    return ['markedForSyncFacilities', 'fieldValues', 'patientUser'];
+    return ['markedForSyncFacilities', 'fieldValues', 'portalUser'];
   }
 
   async getAdministeredVaccines(

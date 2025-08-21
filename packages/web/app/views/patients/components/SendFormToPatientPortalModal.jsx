@@ -138,7 +138,7 @@ export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
   const { patientId } = useParams();
   const { data: patient } = usePatientDataQuery(patientId);
   const isAssignedToSurvey = useIsAssignedToSurvey(patientId, formId);
-  const isRegistered = Boolean(patient?.patientUser);
+  const isRegistered = Boolean(patient?.portalUser);
 
   const { mutate: sendPatientPortalForm } = useSendPatientPortalForm(patientId, {
     onSuccess: () => {
