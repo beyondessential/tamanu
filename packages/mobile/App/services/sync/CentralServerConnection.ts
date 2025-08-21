@@ -1,5 +1,6 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import { DEVICE_SCOPE } from '@tamanu/constants';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -295,7 +296,7 @@ export class CentralServerConnection {
       const data = await this.post(
         'login',
         {},
-        { email, password, deviceId: this.deviceId },
+        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPE.SYNC_CLIENT] },
         { backoff: { maxAttempts: 1 } },
       );
 

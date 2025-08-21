@@ -11,7 +11,7 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
 } from '@tamanu/shared/errors';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { DEVICE_SCOPE, SERVER_TYPES } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -98,6 +98,7 @@ export class CentralServerConnection extends TamanuApi {
       return await this.login(email, password, {
         backoff,
         timeout,
+        scopes: [DEVICE_SCOPE.SYNC_CLIENT],
       }).then(loginData => {
         return (this.#loginData = loginData);
       });
