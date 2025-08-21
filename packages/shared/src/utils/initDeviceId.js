@@ -4,7 +4,7 @@ import { FACT_DEVICE_ID } from '@tamanu/constants/facts';
 
 /**
  * @param {Object} context
- * @param {'central' | 'facility' | 'mobile'} deviceType
+ * @param {'central' | 'facility'} deviceType
  * @returns {Promise<void>}
  */
 export async function initDeviceId({ context, deviceType }) {
