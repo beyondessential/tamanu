@@ -180,7 +180,7 @@ export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', 
  else {
   throw new Error('Invalid unit');
  }
-  console.log('dueDate', dueDate);
+ // console.log('dueDate', dueDate);
 
   // Extract just the date components to avoid timezone issues
   const year = dueDate.getUTCFullYear();

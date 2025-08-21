@@ -9,6 +9,7 @@ import {
 } from '@utils/vaccineTestHelpers';
 import { createPatient } from '@utils/apiHelpers';
 import { scrollTableToElement } from '@utils/tableHelper';
+import { subYears } from 'date-fns';
 
 test.describe('Recorded vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -603,6 +604,9 @@ test.describe('Recorded vaccines', () => {
 
 //TODO: test recording vaccines from here
 //TODO: is it worth moving the patient generation / navigation to a beforeEach?
+//TODO: test weeks from last vaccination due
+//TODO: test different schedules e.g missed etc
+//TODO: check other todos in other files
 test.describe('Scheduled vaccines', () => {
   test('Vaccines scheduled at birth display', async ({
     page,
@@ -632,8 +636,7 @@ test.describe('Scheduled vaccines', () => {
   }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const status = 'Scheduled';
-    
-    // Pre-calculate expected due dates
+
     const sixWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 6);
     const tenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 10);
     const fourteenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 14);
@@ -645,10 +648,9 @@ test.describe('Scheduled vaccines', () => {
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
 
+    //Load all records in the table by scrolling through table and triggering lazy loading
     const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
     const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
-
-    //Load all records in the table by scrolling through table and triggering lazy loading
     await scrollTableToElement(tableToScroll, rowToScrollTo);
    
     //6 weeks from birth
@@ -667,9 +669,9 @@ test.describe('Scheduled vaccines', () => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const status = 'Scheduled';
     
-    // Pre-calculate expected due dates
     const nineMonthDueDate = await expectedDueDateWeek(currentDate, 'months', 9);
-    
+    const fifteenMonthDueDate = await expectedDueDateWeek(currentDate, 'months', 15);
+
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
     });
@@ -677,17 +679,64 @@ test.describe('Scheduled vaccines', () => {
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
 
+    //Load all records in the table by scrolling through table and triggering lazy loading
     const tableToScroll = patientDetailsPage.patientVaccinePane?.scheduledVaccinesTableBody!;
     const rowToScrollTo = patientDetailsPage.patientVaccinePane?.finalScheduledVaccine!;
-
-    //Load all records in the table by scrolling through table and triggering lazy loading
     await scrollTableToElement(tableToScroll, rowToScrollTo);
 
     //9 months from birth
     await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('MMR', '9 months', nineMonthDueDate, status);
-
+    //15 months from birth
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('DTP Booster', '15 months', fifteenMonthDueDate, status);
   });
 
-  //TODO: add test case for years? doesnt seem to display in table by default
+  test('Vaccines scheduled years from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const birthDateTenYearsAgo = subYears(currentDate, 10);
+
+    //521 weeks is used here because this is how the due date is calculated in the database
+    const tenYearDueDate = await expectedDueDateWeek(birthDateTenYearsAgo, 'weeks', 521);
+
+    const patient = await createPatient(api, page, {
+      dateOfBirth: birthDateTenYearsAgo,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+    
+    //Assert that a vaccine is scheduled for a patient born 10 years ago
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('Td Booster', '10 years', tenYearDueDate, 'Due');
+  });
+
+  test('Vaccines scheduled weeks from last vaccination display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const doseTwoDueDate = await expectedDueDateWeek(currentDate, 'weeks', 8);
+    const birthDateTenYearsAgo = subYears(currentDate, 10);
+
+    //Create patient with birthdate <15 years ago because 15 years old is the threshold for scheduled vaccines
+    const patient = await createPatient(api, page, {
+      dateOfBirth: birthDateTenYearsAgo,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    //Give first dose of vaccine to trigger scheduled vaccine for second dose to appear
+    await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 1, {
+      specificVaccine: 'COVID-19 AZ',
+    });
+
+    //Assert that the second dose is scheduled
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('COVID-19 AZ', 'Dose 2', doseTwoDueDate, 'Scheduled');
+  });
+
 
 });
