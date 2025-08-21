@@ -1,18 +1,15 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
-import { Op, where, fn, literal } from 'sequelize';
-import { toDateString } from '@tamanu/utils/dateTime';
-import { addMonths, isValid, parseISO, isBefore, getISODay } from 'date-fns';
+import { Sequelize, Op } from 'sequelize';
+import { isValid, parseISO, isBefore, differenceInMonths, addMonths, isAfter } from 'date-fns';
 import { generateFrequencyDates, getNextFrequencyDate } from '@tamanu/utils/appointmentScheduling';
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-
+import { toDateString } from '@tamanu/utils/dateTime';
 export const locationAssignmentsRouter = express.Router();
 
 import {
   REPEAT_FREQUENCY_VALUES,
-  LOCATION_ASSIGNMENT_STATUS,
-  MAX_OVERLAP_CHECK_MONTHS
 } from '@tamanu/constants';
 
 const dateStringValidator = z.string()
@@ -42,7 +39,6 @@ const locationAssignmentsQuerySchema = z.object({
   all: z.string().optional().default('false')
     .transform((value) => value.toLowerCase() === 'true'),
 });
-
 const updateLocationAssignmentSchema = z.object({
   locationId: z.string(),
   date: z.string(),
@@ -109,7 +105,6 @@ locationAssignmentsRouter.get(
     ];
 
     const filters = {
-      status: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
       date: {
         ...(after && { [Op.gte]: after }),
         ...(before && { [Op.lte]: before }),
@@ -157,7 +152,22 @@ locationAssignmentsRouter.post(
       throw new InvalidOperationError('Start time must be before end time');
     }
 
-    const overlapAssignments = await checkOverlappingAssignment(models, body);
+    const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
+    const maxAssignmentDate = addMonths(new Date(), maxFutureMonths);    
+    
+    if (body.isRepeating && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
+      throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
+    }
+
+    if (body.isRepeating && isAfter(parseISO(body.date), maxAssignmentDate)) {
+      throw new InvalidOperationError(`Date should not be greater than ${toDateString(maxAssignmentDate)}`);
+    }
+
+    if (body.isRepeating && !body.repeatEndDate) {
+      throw new InvalidOperationError('End date is required for repeating assignments');
+    }
+
+    const overlapAssignments = await findOverlappingAssignments(models, body);
     
     if (overlapAssignments?.length > 0) {
       res.status(400).send({
@@ -192,7 +202,7 @@ locationAssignmentsRouter.put(
     const { LocationAssignment, Location } = models;
 
     const assignment = await LocationAssignment.findByPk(id);
-    if (!assignment || assignment.status !== LOCATION_ASSIGNMENT_STATUS.ACTIVE ) {
+    if (!assignment) {
       throw new InvalidOperationError('Location assignment not found');
     }
 
@@ -205,6 +215,19 @@ locationAssignmentsRouter.put(
     const endTime = body.endTime || assignment.endTime;
     if (startTime >= endTime) {
       throw new InvalidOperationError('Start time must be before end time');
+    }
+
+    const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
+    if (body.isRepeating && differenceInMonths(parseISO(body.repeatEndDate), new Date()) > maxFutureMonths) {
+      throw new InvalidOperationError(`End date should be within ${maxFutureMonths} months from today`);
+    }
+
+    if (body.isRepeating && differenceInMonths(parseISO(body.date), new Date()) > maxFutureMonths) {
+      throw new InvalidOperationError(`Date should be within ${maxFutureMonths} months from today`);
+    }
+
+    if (body.isRepeating && !body.repeatEndDate) {
+      throw new InvalidOperationError('End date is required for repeating assignments');
     }
 
     if (body.updateFuture && !assignment.templateId) {
@@ -249,7 +272,7 @@ locationAssignmentsRouter.delete(
     const query = await deleteLocationAssignmentSchema.parseAsync(req.query);
 
     const assignment = await LocationAssignment.findByPk(id);
-    if (!assignment || assignment.status !== LOCATION_ASSIGNMENT_STATUS.ACTIVE) {
+    if (!assignment) {
       throw new InvalidOperationError('Location assignment not found');
     }
 
@@ -257,30 +280,13 @@ locationAssignmentsRouter.delete(
       throw new InvalidOperationError('Cannot delete future assignments for non-repeating assignments');
     }
 
-    await db.transaction(async () => {
-      const templateId = assignment.templateId;
-      // Not a repeating assignment
-      if (!templateId) {
-        return await LocationAssignment.destroy({
-          where: { id },
-        });
-      }
-
-      if (!query.deleteFuture) {
-        // Update the assignment to inactive to prevent it from being scheduled again
-        return await LocationAssignment.update({
-          status: LOCATION_ASSIGNMENT_STATUS.INACTIVE,
-          deactivationReason: 'manually_deleted',
-          updatedBy: user.id,
-        },{
-          where: { 
-            id,
-          },
-        });
-      }
-
-      await deleteSelectedAndFutureAssignments(models, templateId, assignment.date, user);
-    });
+    if (query.deleteFuture) {
+      await db.transaction(async () => {
+        await deleteSelectedAndFutureAssignments(models, assignment.templateId, assignment.date, user);
+      });
+    } else {
+      await assignment.destroy();
+    }
 
     res.status(200).send({
       success: true,
@@ -300,16 +306,11 @@ locationAssignmentsRouter.post(
 
     let assignmentDates = [body.date];
     if (body.isRepeating) {
-      const maxGenerationMonths = await req.settings.get(
-        'locationAssignments.maxViewableMonthsAhead'
-      );
-
-      assignmentDates = generateFutureAssignmentDates(
+      assignmentDates = generateFrequencyDates(
         body.date,
         body.repeatEndDate,
         body.repeatFrequency,
         body.repeatUnit,
-        maxGenerationMonths,
       );
     }
 
@@ -335,22 +336,6 @@ locationAssignmentsRouter.post(
   }),
 );
 
-async function checkOverlappingAssignment(models, body, options = {}) {
-  const [overlapAssignments, overlappingTemplates] = await Promise.all([
-    checkOverlappingWithSingleAssignments(
-      models, 
-      body,
-      options,
-    ),
-    checkOverlappingWithTemplates(
-      models,
-      body,
-    )
-  ]);
-
-  return [...overlappingTemplates, ...overlapAssignments];
-}
-
 /**
  * Create a repeating location assignment with template and generate initial assignment
  */
@@ -361,7 +346,6 @@ async function createRepeatingLocationAssignment(req, body) {
     },
     db,
     user,
-    settings
   } = req;
 
   const { 
@@ -389,7 +373,7 @@ async function createRepeatingLocationAssignment(req, body) {
       updatedBy: user.id,
     });
 
-    await template.generateRepeatingLocationAssignments(settings);
+    await template.generateRepeatingLocationAssignments();
   });
 }
 
@@ -425,7 +409,7 @@ async function createSingleLocationAssignment(req, body) {
 
 async function updateNonRepeatingAssignment(req, body, assignment) {
   const { store: { models }, user } = req;
-  const overlapAssignments = await checkOverlappingAssignment(models, {
+  const overlapAssignments = await findOverlappingAssignments(models, {
     locationId: body.locationId,
     date: body.date,
     startTime: body.startTime,
@@ -459,13 +443,9 @@ async function updateSingleRepeatingAssignment(req, body, assignment) {
   
   try {
     await db.transaction(async () => {
-      await assignment.update({
-        status: LOCATION_ASSIGNMENT_STATUS.INACTIVE,
-        deactivationReason: 'manually_updated',
-        updatedBy: user.id,
-      });
+      await assignment.destroy();
 
-      overlapAssignments = await checkOverlappingAssignment(models, {
+      overlapAssignments = await findOverlappingAssignments(models, {
         locationId: body.locationId,
         date: body.date,
         startTime: body.startTime,
@@ -500,7 +480,7 @@ async function updateSingleRepeatingAssignment(req, body, assignment) {
 }
 
 async function updateFutureAssignments(req, body, assignment) {
-  const { user, store: { models }, db, settings } = req;
+  const { user, store: { models }, db } = req;
   const { LocationAssignment, LocationAssignmentTemplate } = models;
   let overlapAssignments = [];
 
@@ -533,7 +513,7 @@ async function updateFutureAssignments(req, body, assignment) {
       if (isRescheduled(body, template, assignment.date)) {
         await deleteSelectedAndFutureAssignments(models, template.id, assignment.date, user);
         
-        overlapAssignments = await checkOverlappingAssignment(models, body);
+        overlapAssignments = await findOverlappingAssignments(models, body);
 
         if (overlapAssignments?.length > 0) {
           throw new InvalidOperationError('Location assignment overlaps with existing assignments');
@@ -553,56 +533,53 @@ async function updateFutureAssignments(req, body, assignment) {
           updatedBy: user.id,
         });
         
-        await newTemplate.generateRepeatingLocationAssignments(settings);
+        await newTemplate.generateRepeatingLocationAssignments();
       } 
-      // If only the end date is changed
-      else if (body.repeatEndDate != template.repeatEndDate) {
-        const newEndDate = body.repeatEndDate;
-        const oldEndDate = template.repeatEndDate;
-
-        // Delete future assignments if the new end date is before the current end date
-        if (newEndDate && (newEndDate < oldEndDate || !oldEndDate)) {
-          await LocationAssignment.destroy({
-            where: {
-              templateId: template.id,
-              date: { [Op.gt]: newEndDate },
-            },
-          });
-        }
-
-        // If new end date is greater than the current end date, check overlap for future assignments
-        if (!newEndDate || newEndDate > oldEndDate) {
-          const latestAssignment = await LocationAssignment.findOne({
-            where: {
-              templateId: template.id,
-            },
-            order: [['date', 'DESC']],
-          });
-          const nextAssignmentDate = getNextFrequencyDate(latestAssignment.date, template.repeatFrequency, template.repeatUnit);
-
-          overlapAssignments = await checkOverlappingAssignment(models, {
-            locationId: body.locationId,
-            date: nextAssignmentDate,
-            startTime: body.startTime,
-            endTime: body.endTime,
-            isRepeating: true,
-            repeatFrequency: template.repeatFrequency,
-            repeatUnit: template.repeatUnit,
-            repeatEndDate: newEndDate,
-          });
-          
-          if (overlapAssignments?.length > 0) {
-            throw new InvalidOperationError('Location assignment overlaps with existing assignments');
-          }
-
-          template.repeatEndDate = newEndDate;
-          await template.generateRepeatingLocationAssignments(settings);
-        }
+      // If only the end date is changed and new end date is before current end date, delete future assignments
+      else if (body.repeatEndDate < template.repeatEndDate) { 
+        await LocationAssignment.destroy({
+          where: {
+            templateId: template.id,
+            date: { [Op.gt]: body.repeatEndDate },
+          },
+        });
 
         await template.update({
-          repeatEndDate: newEndDate,
+          repeatEndDate: body.repeatEndDate,
           updatedBy: user.id,
         });
+      }
+      // If the end date is changed and new end date is greater than current end date, check overlap for future assignments
+      else if (body.repeatEndDate > template.repeatEndDate) {
+        const latestAssignment = await LocationAssignment.findOne({
+          where: {
+            templateId: template.id,
+          },
+          order: [['date', 'DESC']],
+        });
+        const nextAssignmentDate = getNextFrequencyDate(latestAssignment.date, template.repeatFrequency, template.repeatUnit);
+
+        overlapAssignments = await findOverlappingAssignments(models, {
+          locationId: body.locationId,
+          date: nextAssignmentDate,
+          startTime: body.startTime,
+          endTime: body.endTime,
+          isRepeating: true,
+          repeatFrequency: template.repeatFrequency,
+          repeatUnit: template.repeatUnit,
+          repeatEndDate: body.repeatEndDate,
+        });
+        
+        if (overlapAssignments?.length > 0) {
+          throw new InvalidOperationError('Location assignment overlaps with existing assignments');
+        }
+        
+        await template.update({
+          repeatEndDate: body.repeatEndDate,
+          updatedBy: user.id,
+        });
+
+        await template.generateRepeatingLocationAssignments();
       }
     });
 
@@ -630,15 +607,14 @@ async function deleteSelectedAndFutureAssignments(models, templateId, assignment
   });
 
   // Get the latest non-deleted assignment
-  const latestActiveAssignment = await LocationAssignment.findOne({
+  const latestAssignment = await LocationAssignment.findOne({
     where: {
       templateId,
-      status: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
     },
     order: [['date', 'DESC']],
   });
 
-  if (!latestActiveAssignment) {
+  if (!latestAssignment) {
     return await LocationAssignmentTemplate.destroy({
       where: {
         id: templateId,
@@ -646,9 +622,9 @@ async function deleteSelectedAndFutureAssignments(models, templateId, assignment
     });
   }
 
-  // Update the repeat end date to the latest active assignment date
+  // Update the repeat end date to the latest assignment date
   await LocationAssignmentTemplate.update({
-    repeatEndDate: latestActiveAssignment.date,
+    repeatEndDate: latestAssignment.date,
     updatedBy: user.id,
   }, { 
     where: { 
@@ -669,7 +645,7 @@ function isRescheduled(body, template, currentAssignmentDate) {
 /**
  * Check if the new assignment overlaps with existing generated assignments.
  */
-async function checkOverlappingWithSingleAssignments(models, body, options = {}) {
+async function findOverlappingAssignments(models, body, options = {}) {
   const { LocationAssignment, User } = models;
   const { locationId, date, startTime, endTime, isRepeating, repeatFrequency, repeatUnit, repeatEndDate } = body;
 
@@ -677,32 +653,34 @@ async function checkOverlappingWithSingleAssignments(models, body, options = {})
     [Op.eq]: date,
   };
   if (isRepeating) {
-    const assignmentDates = generateFutureAssignmentDates(
+    const assignmentDates = generateFrequencyDates(
       date,
       repeatEndDate,
       repeatFrequency,
       repeatUnit,
-      MAX_OVERLAP_CHECK_MONTHS,
     );
 
     dateFilter = {
       [Op.in]: assignmentDates,
     }
   }
+  const assignmentFilter = {
+    locationId,
+    startTime: { [Op.lt]: endTime },
+    endTime: { [Op.gt]: startTime },
+    date: dateFilter,
+    ...(options.excludeAssignmentId && { id: { [Op.ne]: options.excludeAssignmentId } }),
+  }
 
-  const overlappingAssignments = await LocationAssignment.findAll({
+  const overlappingNonRepeatingAssignments = await LocationAssignment.findAll({
     include: [{
       model: User,
       as: 'user',
       attributes: ['id', 'displayName', 'email'],
     }],
     where: {
-      locationId,
-      startTime: { [Op.lt]: endTime },
-      endTime: { [Op.gt]: startTime },
-      date: dateFilter,
+      ...assignmentFilter,
       templateId: null,
-      ...(options.excludeAssignmentId && { id: { [Op.ne]: options.excludeAssignmentId } }),
     },
     attributes: [
       'id',
@@ -714,119 +692,27 @@ async function checkOverlappingWithSingleAssignments(models, body, options = {})
     limit: 10,
   });
 
-  return overlappingAssignments.map((assignment) => ({
-    id: assignment.id,
-    date: assignment.date,
-    startTime: assignment.startTime,
-    endTime: assignment.endTime,
-    locationId: assignment.locationId,
-    user: assignment.user,
-    templateId: null,
-    isRepeating: false,
-  }));
-}
-
-/**
- * Checks if a new assignment overlaps with templates that extend beyond current generation window.
- */
-async function checkOverlappingWithTemplates(models, body) {
-  const { LocationAssignmentTemplate, LocationAssignment, User } = models;
-
-  const startDate = body.date;
-  const endDate = body.isRepeating 
-    ? body.repeatEndDate
-    : body.date;
-  
-  const targetDayOfWeek = getISODay(parseISO(body.date));
-  const toCheckTemplates = await LocationAssignmentTemplate.findAll({
+  const overlappingRepeatingAssignments = await LocationAssignment.findAll({
     include: [{
       model: User,
       as: 'user',
       attributes: ['id', 'displayName', 'email'],
     }],
     where: {
-      [Op.and]: [
-        { locationId: body.locationId },
-        {
-          [Op.or]: [
-            { repeatEndDate: null },
-            { repeatEndDate: { [Op.gte]: startDate } },
-          ],
-        },
-        endDate && { date: { [Op.lte]: endDate } },
-        { startTime: { [Op.lt]: body.endTime } },
-        { endTime: { [Op.gt]: body.startTime } },
-        // Query templates with the same day of week
-        where(
-          fn('EXTRACT', literal('ISODOW FROM "date"::date')),
-          targetDayOfWeek
-        )
-      ]
+      ...assignmentFilter,
+      templateId: { [Op.ne]: null },
     },
+    attributes: ['templateId', [Sequelize.fn('MIN', Sequelize.col('date')), 'date'], 'startTime', 'endTime', 'locationId'],
+    group: ['templateId', 'startTime', 'endTime', 'locationId', 'user.id', 'user.display_name', 'user.email'],
   });
 
-  let newAssignmentDates = [body.date];
-  if (body.isRepeating) {
-    newAssignmentDates = generateFutureAssignmentDates(
-      body.date,
-      body.repeatEndDate,
-      body.repeatFrequency,
-      body.repeatUnit,
-      MAX_OVERLAP_CHECK_MONTHS,
-    );
-  }
-
-  const newAssignmentDateSet = new Set(newAssignmentDates);
-  const overlappingTemplates = [];
-  for (const template of toCheckTemplates) {
-    let generateUntil = endDate || template.repeatEndDate;
-    if (endDate && template.repeatEndDate) {
-      generateUntil = endDate < template.repeatEndDate ? endDate : template.repeatEndDate;
-    }
-
-    const assignmentDates = generateFutureAssignmentDates(
-      template.date,
-      generateUntil,
-      template.repeatFrequency,
-      template.repeatUnit,
-      MAX_OVERLAP_CHECK_MONTHS,
-    );
-
-    const inactiveAssignments = await LocationAssignment.findAll({
-      where: {
-        templateId: template.id,
-        status: LOCATION_ASSIGNMENT_STATUS.INACTIVE,
-      },
-      attributes: ['date'],
-    });
-    const inactiveAssignmentDateSet = new Set(inactiveAssignments.map((assignment) => assignment.date));
-
-    // Get the first overlapping date
-    const overlappingDate = assignmentDates.find((date) => {
-      return newAssignmentDateSet.has(date) && !inactiveAssignmentDateSet.has(date);
-    });
-
-    if (overlappingDate) {
-      overlappingTemplates.push({
-        id: null,
-        date: overlappingDate,
-        startTime: template.startTime,
-        endTime: template.endTime,
-        locationId: template.locationId,
-        user: template.user,
-        templateId: template.id,
-        isRepeating: true,
-      });
-    }
-  }
-  
-  return overlappingTemplates;
-}
-
-function generateFutureAssignmentDates(startDate, endDate, repeatFrequency, repeatUnit, maxGenerationMonths) {
-  if (!endDate) {
-    endDate = toDateString(addMonths(new Date(), maxGenerationMonths));
-  }
-
-  return generateFrequencyDates(startDate, endDate, repeatFrequency, repeatUnit);
+  return [...overlappingRepeatingAssignments, ...overlappingNonRepeatingAssignments].map((assignment) => ({
+    date: assignment.date,
+    startTime: assignment.startTime,
+    endTime: assignment.endTime,
+    locationId: assignment.locationId,
+    user: assignment.user,
+    templateId: assignment.templateId,
+    isRepeating: !!assignment.templateId,
+  }));
 }

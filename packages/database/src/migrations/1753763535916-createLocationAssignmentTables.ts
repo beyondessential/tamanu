@@ -1,6 +1,4 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
-import { LOCATION_ASSIGNMENT_STATUS } from '@tamanu/constants';
-
 
 export async function up(query: QueryInterface): Promise<void> {
   // Create location_assignment_templates table
@@ -42,7 +40,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     repeat_end_date: {
       type: DataTypes.DATESTRING,
-      allowNull: true,
+      allowNull: false,
     },
     repeat_frequency: {
       type: DataTypes.SMALLINT,
@@ -134,15 +132,6 @@ export async function up(query: QueryInterface): Promise<void> {
         key: 'id',
       },
       onDelete: 'CASCADE',
-    },
-    status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      defaultValue: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
-    },
-    deactivation_reason: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
     created_at: {
       type: DataTypes.DATE,

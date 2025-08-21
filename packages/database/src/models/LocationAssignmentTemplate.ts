@@ -7,11 +7,7 @@ import {
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
-  LOCATION_ASSIGNMENT_STATUS,
 } from '@tamanu/constants';
-import type { ReadSettings } from '@tamanu/settings/reader';
-import { toDateString } from '@tamanu/utils/dateTime';
-import { addMonths } from 'date-fns';
 
 export class LocationAssignmentTemplate extends Model {
   declare id: string;
@@ -20,7 +16,7 @@ export class LocationAssignmentTemplate extends Model {
   declare date: string;
   declare startTime: string;
   declare endTime: string;
-  declare repeatEndDate?: string;
+  declare repeatEndDate: string;
   declare repeatFrequency: number;
   declare repeatUnit: keyof typeof REPEAT_FREQUENCY;
   declare createdBy: string;
@@ -44,7 +40,7 @@ export class LocationAssignmentTemplate extends Model {
         },
         repeatEndDate: {
           type: DataTypes.DATESTRING,
-          allowNull: true,
+          allowNull: false,
         },
         repeatFrequency: {
           type: DataTypes.SMALLINT,
@@ -101,9 +97,7 @@ export class LocationAssignmentTemplate extends Model {
   /**
    * Generate repeating location assignments
    */
-  async generateRepeatingLocationAssignments(
-    settings: ReadSettings
-  ) {
+  async generateRepeatingLocationAssignments() {
     const { models } = this.sequelize;
     const { UserLeave, LocationAssignment } = models;
     if (!this.sequelize.isInsideTransaction()) {
@@ -126,24 +120,12 @@ export class LocationAssignmentTemplate extends Model {
       locationId,
       startTime,
       endTime,
+      repeatEndDate,
     } = this;
-
-    let endDate = this.repeatEndDate;
-    if (!endDate) {
-      const maxGenerationMonths = await settings.get(
-        'locationAssignments.maxViewableMonthsAhead' as any,
-      ) as number ?? 12;
-
-      endDate = toDateString(addMonths(new Date(), maxGenerationMonths)) ?? undefined;
-
-      if (!endDate) {
-        throw new Error('End date is invalid!');
-      }
-    }
 
     const startDate = latestAssignment?.date || this.date;
     const nextAssignmentDates = generateFrequencyDates(
-      startDate, endDate, repeatFrequency, repeatUnit
+      startDate, repeatEndDate, repeatFrequency, repeatUnit
     ).filter(date => date !== null);
 
     if (latestAssignment) {
@@ -167,22 +149,24 @@ export class LocationAssignmentTemplate extends Model {
       );
     };
 
-    const newAssignments = nextAssignmentDates.map((date: string) => {
+    const newAssignments = [];
+    for (const date of nextAssignmentDates) {
       const isOnLeave = checkUserLeaveStatus(date);
+      if (isOnLeave) {
+        continue;
+      }
 
-      return {
+      newAssignments.push({
         userId,
         locationId,
         date,
         startTime,
         endTime,
-        status: isOnLeave ? LOCATION_ASSIGNMENT_STATUS.INACTIVE : LOCATION_ASSIGNMENT_STATUS.ACTIVE,
-        deactivationReason: isOnLeave ? 'user_on_leave' : undefined,
         templateId: this.id,
         createdBy: SYSTEM_USER_UUID,
         updatedBy: SYSTEM_USER_UUID,
-      }
-    });
+      });
+    }
 
     await models.LocationAssignment.bulkCreate(newAssignments);
   }
