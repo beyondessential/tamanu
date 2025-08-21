@@ -21,3 +21,4 @@ export {
   useProgramRegistryConditionsQuery,
 } from './usePatientProgramRegistryConditionsQuery';
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
+export * from './usePatientPortalSurveyAssignments';
