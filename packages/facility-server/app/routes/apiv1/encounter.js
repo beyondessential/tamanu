@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, literal } from 'sequelize';
+import { subject } from '@casl/ability';
 import { NotFoundError, InvalidParameterError, InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import config from 'config';
@@ -14,7 +15,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   TASK_STATUSES,
   SURVEY_TYPES,
-  DASHBOARD_ONLY_TASK_TYPES
+  DASHBOARD_ONLY_TASK_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -598,7 +599,7 @@ async function getAnswersWithHistory(req) {
   const dateDataElement = isVitals
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
-  const historyTable = 'vital_logs'; // TODO: Create new model/table and use it here if its not vitals query
+
   // The LIMIT and OFFSET occur in an unusual place in this query
   // So we can't run it through the generic runPaginatedQuery function
   const countResult = await db.query(
@@ -630,6 +631,45 @@ async function getAnswersWithHistory(req) {
   }
 
   const { page = 0, rowsPerPage = 10 } = query;
+  const vitalsHistorySelect = `
+    SELECT
+      vl.answer_id,
+      ARRAY_AGG((
+        JSONB_BUILD_OBJECT(
+          'newValue', vl.new_value,
+          'reasonForChange', vl.reason_for_change,
+          'date', vl.date,
+          'userDisplayName', u.display_name
+        )
+      )) logs
+    FROM survey_response_answers sra
+      INNER JOIN survey_responses sr ON sr.id = sra.response_id
+      LEFT JOIN vital_logs vl ON vl.answer_id = sra.id
+      LEFT JOIN users u ON u.id = vl.recorded_by_id
+    WHERE sr.encounter_id = :encounterId
+      AND sr.deleted_at IS NULL
+    GROUP BY vl.answer_id
+  `;
+  const chartHistorySelect = `
+    SELECT
+      lc.record_id as answer_id,
+      ARRAY_AGG((
+        JSONB_BUILD_OBJECT(
+          'newValue', lc.record_data->>'body',
+          'reasonForChange', lc.reason,
+          'date', TO_CHAR(lc.logged_at, 'YYYY-MM-DD HH24:MI:SS'),
+          'userDisplayName', u.display_name
+        )
+      )) logs
+    FROM survey_response_answers sra
+      INNER JOIN survey_responses sr ON sr.id = sra.response_id
+      LEFT JOIN logs.changes lc ON lc.record_id = sra.id
+      LEFT JOIN users u ON u.id = lc.updated_by_user_id
+    WHERE sr.encounter_id = :encounterId
+      AND sr.deleted_at IS NULL
+      AND lc.table_name = 'survey_response_answers'
+    GROUP BY lc.record_id
+  `;
 
   const result = await db.query(
     `
@@ -648,23 +688,7 @@ async function getAnswersWithHistory(req) {
         ORDER BY body ${order} LIMIT :limit OFFSET :offset
       ),
       history AS (
-        SELECT
-          history_table.answer_id,
-          ARRAY_AGG((
-            JSONB_BUILD_OBJECT(
-              'newValue', history_table.new_value,
-              'reasonForChange', history_table.reason_for_change,
-              'date', history_table.date,
-              'userDisplayName', u.display_name
-            )
-          )) logs
-        FROM survey_response_answers sra
-          INNER JOIN survey_responses sr ON sr.id = sra.response_id
-          LEFT JOIN ${historyTable} history_table ON history_table.answer_id = sra.id
-          LEFT JOIN users u ON u.id = history_table.recorded_by_id
-        WHERE sr.encounter_id = :encounterId
-          AND sr.deleted_at IS NULL
-        GROUP BY history_table.answer_id
+        ${isVitals ? vitalsHistorySelect : chartHistorySelect}
       )
 
       SELECT
@@ -742,7 +766,9 @@ async function getGraphData(req, dateDataElementId) {
     .sort((a, b) => {
       return a.recordedDate > b.recordedDate ? 1 : -1;
     });
-  return data;
+  // Survey ID will be the same for all answers because the
+  // data element ID is unique to the survey
+  return { data, surveyId: dateAnswers[0]?.surveyResponse.surveyId };
 }
 
 encounterRelations.get(
@@ -762,7 +788,7 @@ encounterRelations.get(
   '/:id/graphData/vitals/:dataElementId',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Vitals');
-    const data = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
+    const { data } = await getGraphData(req, VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
     res.send({
       count: data.length,
@@ -774,10 +800,9 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/initialChart$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Survey');
     const { models, params } = req;
     const { id: encounterId } = params;
-    const chartSurvey = await models.SurveyResponse.findOne({
+    const chartSurvey = await models.SurveyResponse.findAll({
       attributes: ['survey.*'],
       where: { encounterId },
       include: [
@@ -786,15 +811,21 @@ encounterRelations.get(
           required: true,
           model: models.Survey,
           as: 'survey',
-          where: { surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART] },
+          where: {
+            surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+          },
         },
       ],
       order: [['survey', 'name', 'ASC']],
       group: [['survey.id']],
     });
+    req.flagPermissionChecked();
+    const allowedSurvey = chartSurvey.find((response) =>
+      req.ability.can('list', subject('Charting', { id: response.survey.id })),
+    );
 
     res.send({
-      data: chartSurvey,
+      data: allowedSurvey,
     });
   }),
 );
@@ -802,8 +833,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/graphData/charts/:dataElementId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Charting');
-    const data = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    const { data, surveyId } = await getGraphData(req, CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
 
     res.send({
       count: data.length,
@@ -815,7 +846,8 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/charts/:surveyId',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'SurveyResponse');
+    const { surveyId } = req.params;
+    req.checkPermission('read', subject('Charting', { id: surveyId }));
     const { count, data } = await getAnswersWithHistory(req);
 
     res.send({
@@ -898,9 +930,8 @@ encounterRelations.get(
   '/:id/charts/:chartSurveyId/chartInstances',
   asyncHandler(async (req, res) => {
     const { db, params } = req;
-    req.checkPermission('list', 'Charting');
-
     const { id: encounterId, chartSurveyId } = params;
+    req.checkPermission('list', subject('Charting', { id: chartSurveyId }));
 
     const results = await db.query(
       `
@@ -955,9 +986,10 @@ encounterRelations.delete(
   '/:id/chartInstances/:chartInstanceResponseId',
   asyncHandler(async (req, res) => {
     const { db, params, models } = req;
-    req.checkPermission('delete', 'Charting');
-
     const { chartInstanceResponseId } = params;
+
+    const surveyResponse = await models.SurveyResponse.findByPk(chartInstanceResponseId);
+    req.checkPermission('delete', subject('Charting', { id: surveyResponse?.surveyId }));
 
     // all answers will also be soft deleted automatically
     await db.transaction(async () => {
