@@ -8,11 +8,11 @@ function randomSixDigitCode() {
 
 // Todo - discuss whether should this be utility functions, a class or just part of the model?
 export const createForPortalUser = (models, portalUserId, expiryMinutes = 10) => {
-  const { OneTimeToken } = models;
+  const { PortalOneTimeToken } = models;
   const token = randomSixDigitCode();
   const expiresAt = addMinutes(new Date(), expiryMinutes);
 
-  return OneTimeToken.create({ portalUserId, token, expiresAt }).then(record => ({
+  return PortalOneTimeToken.create({ portalUserId, token, expiresAt }).then(record => ({
     token: record.token,
     expiresAt: record.expiresAt,
   }));

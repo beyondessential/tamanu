@@ -18,7 +18,7 @@ export class PortalOneTimeToken extends Model {
           allowNull: false,
         }),
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL },
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 
