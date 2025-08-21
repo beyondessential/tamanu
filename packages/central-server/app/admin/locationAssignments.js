@@ -126,21 +126,9 @@ locationAssignmentsRouter.get(
       order: [['date', 'ASC'], ['startTime', 'ASC']],
     });
 
-    // Transform the data to combine date and time into full datetime strings
-    const transformedRows = rows.map(row => {
-      const assignment = row.toJSON();
-      const { date, startTime, endTime } = assignment;
-      
-      // Combine date with time to create full datetime strings
-      assignment.startTime = `${date} ${startTime}`;
-      assignment.endTime = `${date} ${endTime}`;
-      
-      return assignment;
-    });
-
     res.send({
       count,
-      data: transformedRows
+      data: rows,
     });
   }),
 );

@@ -35,7 +35,7 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  * Returns the bookable time slots for the provided date, or `null` if the date is invalid. If the
  * booking slot settings are still pending, returns `undefined`.
  */
-export const useBookingSlots = (date) => {
+export const useBookingSlots = (date, type = 'bookings') => {
   const { getSetting } = useSettings();
   // const bookingSlotSettings = getSetting('appointments.bookingSlots');
   // console.log('bookingSlotSettings', bookingSlotSettings);

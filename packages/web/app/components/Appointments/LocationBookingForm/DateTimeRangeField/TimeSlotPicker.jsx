@@ -79,6 +79,7 @@ export const TimeSlotPicker = ({
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   name,
+  type = 'bookings',
   ...props
 }) => {
   const [dayStart, dayEnd] = useMemo(() => {
@@ -98,7 +99,7 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart);
+  } = useBookingSlots(dayStart, type);
   
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
@@ -118,26 +119,32 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  // const { data: existingBookings1, isFetching: isFetchingExistingBookings1 } =
-  //   useLocationBookingsQuery(
-  //     {
-  //       after: toDateTimeString(dayStart),
-  //       before: toDateTimeString(dayEnd),
-  //       all: true,
-  //       locationId: values.locationId,
-  //     },
-  //     { enabled: !!date && !!values.locationId },
-  //   );
-  // console.log('existingBookings1', existingBookings1);
-
-  const { data: existingBookings, isFetching: isFetchingExistingBookings } =
-    useLocationAssignmentsQuery(
+  const locationBookingsQuery =
+    useLocationBookingsQuery(
       {
         after: toDateTimeString(dayStart),
         before: toDateTimeString(dayEnd),
+        all: true,
+        locationId: values.locationId,
+      },
+      { enabled: !!date && !!values.locationId && type === 'bookings' },
+    );
+
+  const locationAssignmentsQuery =
+    useLocationAssignmentsQuery(
+      {
+        after: date,
+        before: date,
+        all: true,
+        locationId: values.locationId,
+      },
+      { 
+        enabled: !!date && !!values.locationId && type === 'assignments',
       },
     );
-    
+  const existingBookings = type === 'bookings' ? locationBookingsQuery.data : locationAssignmentsQuery.data;
+  const isFetchingExistingBookings = type === 'bookings' ? locationBookingsQuery.isFetching : locationAssignmentsQuery.isFetching;
+
   const updateInterval = useCallback(
     (newInterval) => {
       const { start, end } = newInterval;

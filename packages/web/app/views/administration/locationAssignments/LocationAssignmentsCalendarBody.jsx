@@ -1,8 +1,8 @@
-import { formatISO, isEqual, isSameDay, parseISO } from 'date-fns';
+import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateString } from '@tamanu/utils/dateTime';
+import { toDateString, formatTime } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
@@ -12,19 +12,20 @@ import { TranslatedReferenceData } from '../../../components';
 import { Colors } from '../../../constants';
 
 const AssignmentTile = styled.div`
-  background: ${Colors.primary};
-  color: ${Colors.white};
+  background: ${Colors.white};
+  color: ${Colors.darkestText};
   padding: 0.25rem;
   margin: 0.125rem;
-  border-radius: 0.125rem;
-  font-size: 0.75rem;
+  border-radius: 5px;
+  font-size: 11px;
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  border: 1px solid ${Colors.primary};
 
   &:hover {
-    background: ${Colors.primaryDark};
+    background: ${Colors.veryLightBlue};
   }
 `;
 
@@ -50,7 +51,7 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
       data-testid="assignment-tile"
     >
       <AssignmentTimeRange data-testid="assignment-time">
-        {startTime} - {endTime}
+        {formatTime(startTime)} - {formatTime(endTime)}
       </AssignmentTimeRange>
       <AssignmentUser data-testid="assignment-user">
         {user?.displayName || 'Unknown User'}
