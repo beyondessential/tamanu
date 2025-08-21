@@ -7,7 +7,6 @@ import { patientPortalMiddleware } from './patientPortalMiddleware';
 export const authModule = express.Router();
 
 authModule.post('/login', patientPortalLogin({ secret: DEFAULT_JWT_SECRET }));
-
-// TODO: Add refresh etc.
+authModule.post('/send-code', sendOneTimeToken());
 
 authModule.use(patientPortalMiddleware({ secret: DEFAULT_JWT_SECRET }));
