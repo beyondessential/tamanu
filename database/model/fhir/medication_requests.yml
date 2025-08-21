@@ -8,6 +8,9 @@ sources:
         description: "{{ doc('fhir__table__medication_requests') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid
