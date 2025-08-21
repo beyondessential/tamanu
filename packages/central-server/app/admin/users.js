@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   ResourceConflictError,
   NotFoundError,
@@ -46,6 +46,10 @@ const createUserFilters = (filterParams, models) => {
     // Include deactivated users filter
     !includeDeactivated && {
       visibilityStatus: 'current',
+    },
+    // Exclude system user
+    {
+      id: { [Op.ne]: SYSTEM_USER_UUID },
     },
   ];
 
