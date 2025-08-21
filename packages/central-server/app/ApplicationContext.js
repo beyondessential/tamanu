@@ -69,12 +69,12 @@ export class ApplicationContext {
 
     this.settings = new ReadSettings(this.store.models);
 
-    await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
-
     // no need to set up services, integrations, etc. for migrations
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
       return this;
     }
+
+    await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
     this.emailService = new EmailService();
 
