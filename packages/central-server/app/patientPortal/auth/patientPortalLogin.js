@@ -3,7 +3,7 @@ import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { buildToken, getRandomU32 } from '../../auth/utils';
-import { OneTimeTokenService } from './OneTimeTokenService';
+import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 
 const getOneTimeTokenEmail = ({ email, token }) => {
   return {
@@ -29,8 +29,8 @@ export const sendOneTimeToken = () =>
     }
 
     // Create one-time token using the service
-    const oneTimeTokenService = new OneTimeTokenService(models);
-    const token = await oneTimeTokenService.createForPortalUser(portalUser.id);
+    const oneTimeTokenService = new PortalOneTimeTokenService(models);
+    const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
 
     // Send email with the 6-digit code
     const oneTimeTokenEmail = getOneTimeTokenEmail({ email, token });
@@ -60,7 +60,7 @@ export const patientPortalLogin = ({ secret }) =>
       throw new BadAuthenticationError('Invalid email or password');
     }
 
-    const oneTimeTokenService = new OneTimeTokenService(models);
+    const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({
       portalUserId: portalUser.id,
       token: code,

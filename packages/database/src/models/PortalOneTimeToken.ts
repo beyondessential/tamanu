@@ -5,6 +5,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class PortalOneTimeToken extends Model {
   declare id: string;
+  declare type: string;
   declare token: string;
   declare expiresAt: Date;
   declare portalUserId: string;
@@ -13,7 +14,8 @@ export class PortalOneTimeToken extends Model {
     super.init(
       {
         id: primaryKey,
-        token: { type: DataTypes.STRING, allowNull: false },
+        type: { type: DataTypes.ENUM('login', 'register'), allowNull: false },
+        token: { type: DataTypes.STRING, allowNull: false, defaultValue: 'login' },
         expiresAt: dateTimeType('expiresAt', {
           allowNull: false,
         }),

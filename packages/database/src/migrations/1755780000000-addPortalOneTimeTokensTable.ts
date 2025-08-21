@@ -5,7 +5,7 @@ const TABLE_NAME = 'portal_one_time_tokens';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE_NAME, {
     id: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
       allowNull: false,
       primaryKey: true,
@@ -25,7 +25,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     portal_user_id: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       references: {
         model: 'portal_users',
         key: 'id',
@@ -33,8 +33,13 @@ export async function up(query: QueryInterface): Promise<void> {
       onDelete: 'CASCADE',
       allowNull: false,
     },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'login',
+    },
     token: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     expires_at: {
