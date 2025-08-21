@@ -13,8 +13,7 @@ import {
 } from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { usePatientPortalSurveyAssignments } from '../../../api/queries';
-import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
+import { usePatientPortalSurveyAssignments, usePatientDataQuery } from '../../../api/queries';
 
 const RegisterAndSendFormModal = ({ onSubmit, open, onClose }) => (
   <Modal
@@ -50,7 +49,7 @@ const RegisterAndSendFormModal = ({ onSubmit, open, onClose }) => (
 
 const ModalBody = styled.div`
   padding-top: 16px;
-  padding-bottom: 16px;
+  padding-bottom: 24px;
 `;
 
 const SendFormModal = ({ open, onClose, onSubmit }) => (
@@ -66,11 +65,22 @@ const SendFormModal = ({ open, onClose, onSubmit }) => (
   >
     <ModalBody>
       <BodyText>
-        This form will be sent to the patient&apos;s portal. Ensure the patient has portal access so
-        they can complete the form once received.
+        <TranslatedText
+          stringId="program.modal.sendToPatientPortal.description"
+          fallback="This form will be sent to the patient's portal. Ensure the patient has portal access so they can complete the form once received."
+        />
       </BodyText>
     </ModalBody>
-    <ModalActionRow onCancel={onClose} onConfirm={onSubmit} confirmText="Send to patient portal" />
+    <ModalActionRow
+      onCancel={onClose}
+      onConfirm={onSubmit}
+      confirmText={
+        <TranslatedText
+          stringId="program.action.sendToPatientPortal"
+          fallback="Send to patient portal"
+        />
+      }
+    />
   </Modal>
 );
 
@@ -80,23 +90,38 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
     onClose={onClose}
     title={
       <TranslatedText
-        stringId="program.action.sendToPatientPortal"
+        stringId="program.modal.existingFormRequestPending.title"
         fallback="Existing form request pending"
       />
     }
   >
     <ModalBody>
       <BodyText>
-        This form has already been sent to the patient portal and a response is pending. Are you
-        sure you would like to send it again?{' '}
+        <strong>
+          <TranslatedText
+            stringId="program.modal.existingFormRequestPending.warning"
+            fallback="This form has already been sent to the patient portal and a response is pending. Are you sure you would like to send it again?"
+          />
+        </strong>
       </BodyText>
       <br />
       <BodyText>
-        If so, please ensure the patient has portal access so they can complete the form once
-        received.
+        <TranslatedText
+          stringId="program.modal.sendToPatientPortal.description"
+          fallback="If so, please ensure the patient has portal access so they can complete the form once received."
+        />
       </BodyText>
     </ModalBody>
-    <ModalActionRow onCancel={onClose} onConfirm={onSubmit} confirmText="Send to patient portal" />
+    <ModalActionRow
+      onCancel={onClose}
+      onConfirm={onSubmit}
+      confirmText={
+        <TranslatedText
+          stringId="program.action.sendToPatientPortal"
+          fallback="Send to patient portal"
+        />
+      }
+    />
   </Modal>
 );
 

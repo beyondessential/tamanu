@@ -27,29 +27,23 @@ export const DeletePatientSurveyAssignmentModal = ({
       title={
         <TranslatedText
           stringId="patientSurveyAssignment.modal.delete.title"
-          fallback="Delete survey assignment"
+          fallback="Delete outstanding form"
           data-testid="translatedtext-patient-survey-assignment-modal-delete-title"
         />
       }
       subText={
         <SubText data-testid="subtext-patient-survey-assignment-delete">
           <TranslatedText
+            stringId="patientSurveyAssignment.modal.delete.confirmation"
+            fallback="Are you sure you would like to delete"
+            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation"
+          />{' '}
+          <strong>{patientSurveyAssignmentToDelete?.survey?.name}</strong>?
+          <br />
+          <TranslatedText
             stringId="general.warning.irreversible"
             fallback="This action is irreversible."
             data-testid="translatedtext-warning-irreversible"
-          />
-          <br />
-          <br />
-          <TranslatedText
-            stringId="patientSurveyAssignment.modal.delete.confirmation.prefix"
-            fallback="Are you sure you would like to delete the"
-            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation-prefix"
-          />{' '}
-          <strong>{patientSurveyAssignmentToDelete?.survey?.name}</strong>{' '}
-          <TranslatedText
-            stringId="patientSurveyAssignment.modal.delete.confirmation.suffix"
-            fallback="survey assignment?"
-            data-testid="translatedtext-patient-survey-assignment-modal-delete-confirmation-suffix"
           />
         </SubText>
       }
