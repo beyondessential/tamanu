@@ -177,14 +177,11 @@ export class Prescription extends Model {
     return {
       select: await buildSyncLookupSelect(this, {
         patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
-        facilityId: `CASE WHEN ${this.tableName}.is_ongoing THEN NULL ELSE locations.facility_id END`, // Sync ongoing prescriptions to all facilities
       }),
       joins: `
         LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
         LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
         LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
-        LEFT JOIN locations ON encounters.location_id = locations.id
-        LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
     };
   }
