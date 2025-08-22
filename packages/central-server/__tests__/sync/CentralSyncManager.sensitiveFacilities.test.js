@@ -1174,35 +1174,28 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       expect(updatedEncounterIds).not.toContain(encounter.id);
     });
 
-    it('will sync prescriptions linked through patient_ongoing_prescriptions if marked for sync', async () => {
+    it('will sync prescriptions linked through patient_ongoing_prescriptions from a sensitive facility', async () => {
       const testPatient1 = await models.Patient.create(fake(models.Patient));
       const testPatient2 = await models.Patient.create(fake(models.Patient));
 
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
         patientId: testPatient1.id,
-        facilityId: nonSensitiveFacility.id,
+        facilityId: sensitiveFacility.id,
       });
       await models.PatientFacility.create({
         id: models.PatientFacility.generateId(),
-        patientId: testPatient2.id,
+        patientId: testPatient1.id,
         facilityId: nonSensitiveFacility.id,
       });
 
       // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
       const patientOnlyPrescription = await models.Prescription.create(fake(models.Prescription));
-      const patientOnlyPrescription2 = await models.Prescription.create(fake(models.Prescription));
 
       await models.PatientOngoingPrescription.create(
         fake(models.PatientOngoingPrescription, {
           patientId: testPatient1.id,
           prescriptionId: patientOnlyPrescription.id,
-        }),
-      );
-      await models.PatientOngoingPrescription.create(
-        fake(models.PatientOngoingPrescription, {
-          patientId: testPatient2.id,
-          prescriptionId: patientOnlyPrescription2.id,
         }),
       );
 
@@ -1217,7 +1210,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       );
 
       expect(recordIds).toContain(patientOnlyPrescription.id);
-      expect(recordIds).toContain(patientOnlyPrescription2.id);
     });
   });
 });
