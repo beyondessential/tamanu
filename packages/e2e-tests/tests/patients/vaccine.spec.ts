@@ -9,7 +9,7 @@ import {
 } from '@utils/vaccineTestHelpers';
 import { createPatient } from '@utils/apiHelpers';
 import { scrollTableToElement } from '@utils/tableHelper';
-import { subYears } from 'date-fns';
+import { subYears, subWeeks } from 'date-fns';
 
 test.describe('Recorded vaccines', () => {
   test.beforeEach(async ({ newPatient, patientDetailsPage }) => {
@@ -603,8 +603,6 @@ test.describe('Recorded vaccines', () => {
 });
 
 //TODO: test recording vaccines from here
-//TODO: is it worth moving the patient generation / navigation to a beforeEach?
-//TODO: test weeks from last vaccination due
 //TODO: test different schedules e.g missed etc
 //TODO: check other todos in other files
 test.describe('Scheduled vaccines', () => {
@@ -736,6 +734,59 @@ test.describe('Scheduled vaccines', () => {
 
     //Assert that the second dose is scheduled
     await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('COVID-19 AZ', 'Dose 2', doseTwoDueDate, 'Scheduled');
+  });
+
+  //Note that the "missed" status is not displayed in this table as per comments on NASS-1113
+  test('Different scheduled statuses display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
+    
+    const due = {
+      status: 'Due',
+      dueDate: await expectedDueDateWeek(currentDate, 'weeks', 1),
+    };
+    const scheduled = {
+      status: 'Scheduled',
+      dueDate: await expectedDueDateWeek(currentDate, 'weeks', 6),
+    };
+    const overdue = {
+      status: 'Overdue',
+      dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 1),
+    };
+    const upcoming = {
+      status: 'Upcoming',
+      dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 6),
+    };
+
+    const patientBornToday = await createPatient(api, page, {
+      dateOfBirth: currentDate,
+    });
+
+    const patientBornThreeWeeksAgo = await createPatient(api, page, {
+      dateOfBirth: birthDateThreeWeeksAgo,
+    });
+
+    await patientDetailsPage.goToPatient(patientBornToday);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    //Assert statusDue
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth', due.dueDate, due.status);
+
+    //Assert statusScheduled
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', scheduled.dueDate, scheduled.status);
+    
+    await patientDetailsPage.goToPatient(patientBornThreeWeeksAgo);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    //Assert statusOverdue
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('BCG', 'Birth', overdue.dueDate, overdue.status);
+    
+    //Assert statusUpcoming
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', upcoming.dueDate, upcoming.status);
   });
 
 
