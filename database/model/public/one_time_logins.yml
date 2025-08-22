@@ -24,8 +24,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: token
             data_type: character varying(255)
             description: "{{ doc('one_time_logins__token') }}"
