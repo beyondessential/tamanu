@@ -179,7 +179,8 @@ export const UserLeaveSection = ({ user }) => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        render={({ submitForm, dirty, values }) => {
+        render={({ submitForm, values, resetForm }) => {
+          const { startDate, endDate } = values;
           return (
             <DateFieldsContainer>
               <Field
@@ -205,8 +206,11 @@ export const UserLeaveSection = ({ user }) => {
                 required
               />
               <StyledButton
-                onClick={submitForm}
-                disabled={!dirty || isCreatingLeave}
+                onClick={(e) => {
+                  submitForm(e);
+                  resetForm();
+                }}
+                disabled={!startDate || !endDate || isCreatingLeave}
                 isSubmitting={isCreatingLeave}
               >
                 <TranslatedText stringId="admin.users.leave.schedule" fallback="Schedule leave" />
@@ -229,7 +233,6 @@ export const UserLeaveSection = ({ user }) => {
           <LeaveListContainer>
             {leaves
               .filter(leave => !leave.removedAt)
-              .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
               .map(leave => (
                 <LeaveItem key={leave.id}>
                   <LeaveDates>
