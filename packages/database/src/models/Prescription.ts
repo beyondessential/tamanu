@@ -117,7 +117,6 @@ export class Prescription extends Model {
       foreignKey: 'prescriberId',
       as: 'prescriber',
     });
-
     this.belongsTo(models.User, {
       foreignKey: 'discontinuingClinicianId',
       as: 'discontinuingClinician',
