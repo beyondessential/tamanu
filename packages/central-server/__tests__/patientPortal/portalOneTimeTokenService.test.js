@@ -182,7 +182,7 @@ describe('OneTimeTokenService', () => {
         type: 'register',
       });
 
-      expect(result).toEqual({ ok: true });
+      expect(result.id).toEqual(testPortalUser.id);
 
       // Verify token no longer exists
       const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
@@ -208,7 +208,7 @@ describe('OneTimeTokenService', () => {
         token,
       });
 
-      expect(result).toEqual({ ok: true });
+      expect(result.id).toEqual(testPortalUser.id);
 
       // Verify token no longer exists
       const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
