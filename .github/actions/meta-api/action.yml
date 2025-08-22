@@ -28,4 +28,4 @@ runs:
         EOF
 
         set -x
-        curl -v "${{ inputs.url }}${{ inputs.api }}" -E meta.crt --key meta.key ${{ inputs.arg }}
+        curl --fail-with-body -v "${{ inputs.url }}${{ inputs.api }}" -E meta.crt --key meta.key ${{ inputs.arg }}
