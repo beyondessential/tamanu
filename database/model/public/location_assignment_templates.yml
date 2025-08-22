@@ -43,6 +43,8 @@ sources:
           - name: repeat_end_date
             data_type: character(10)
             description: "{{ doc('location_assignment_templates__repeat_end_date') }}"
+            data_tests:
+              - not_null
           - name: repeat_frequency
             data_type: smallint
             description: "{{ doc('location_assignment_templates__repeat_frequency') }}"
