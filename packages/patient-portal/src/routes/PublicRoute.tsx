@@ -1,8 +1,48 @@
 import React from 'react';
+import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
-
+import { CircularProgress, Paper, Container } from '@mui/material';
 import { useAuth } from '@auth/useAuth';
-import { CircularProgress } from '@mui/material';
+
+const PageContainer = styled(Container)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+`;
+
+const Card = styled(Paper)`
+  margin: 100px auto;
+  display: block;
+  padding: 30px;
+  min-width: 300px;
+  width: 500px;
+  max-width: 100%;
+  text-align: center;
+  box-shadow: none;
+
+  h1 {
+    margin-bottom: 16px;
+  }
+
+  p {
+    margin-bottom: 30px;
+  }
+
+  button {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+`;
+
+import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
+
+const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
+  <PageContainer maxWidth="md">
+    <img src={tamanuLogoBlue} alt="Tamanu Logo" />
+    <Card variant="outlined">{children}</Card>
+  </PageContainer>
+);
 
 export const PublicRoute = () => {
   const { user, loading } = useAuth();
@@ -15,5 +55,9 @@ export const PublicRoute = () => {
     return <Navigate to="/" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <PublicPageLayout>
+      <Outlet />
+    </PublicPageLayout>
+  );
 };

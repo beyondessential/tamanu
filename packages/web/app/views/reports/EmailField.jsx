@@ -3,15 +3,15 @@ import * as Yup from 'yup';
 import { Field, TextField } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const parseEmails = (commaSeparatedEmails) =>
+export const parseEmails = commaSeparatedEmails =>
   commaSeparatedEmails
     .split(/[;,]/)
-    .map((email) => email.trim())
-    .filter((email) => email);
+    .map(email => email.trim())
+    .filter(email => email);
 
 const emailSchema = Yup.string().email();
 
-const validateCommaSeparatedEmails = async (emails) => {
+const validateCommaSeparatedEmails = async emails => {
   if (!emails) {
     return (
       <TranslatedText
