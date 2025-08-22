@@ -39,6 +39,7 @@ export const LocationInput = React.memo(
     autofill = true,
     isMulti = false,
     'data-testid': dataTestId,
+    showAllLocations = false,
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -110,7 +111,7 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      value && location?.facilityId ? facilityId === location.facilityId : true;
+      (value && location?.facilityId ? facilityId === location.facilityId : true) || showAllLocations;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;
 
@@ -126,7 +127,7 @@ export const LocationInput = React.memo(
           onChange={handleChangeCategory}
           suggester={locationGroupSuggester}
           value={groupId}
-          disabled={locationGroupSelectIsDisabled && disabled}
+          disabled={locationGroupSelectIsDisabled || disabled}
           // do not autofill if there is a pre-filled value
           autofill={!value && autofill}
           size={size}
@@ -136,7 +137,7 @@ export const LocationInput = React.memo(
         />
         <LocationAutocompleteInput
           label={label}
-          disabled={locationSelectIsDisabled && disabled}
+          disabled={locationSelectIsDisabled || disabled}
           name={name}
           suggester={suggester}
           helperText={helperText}

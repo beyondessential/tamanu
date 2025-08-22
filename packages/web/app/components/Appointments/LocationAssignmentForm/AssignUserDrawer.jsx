@@ -1,28 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import { useLocationAssignmentMutation } from '../../../api/mutations';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { FORM_TYPES } from '../../../constants';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { useTranslation } from '../../../contexts/Translation';
-import { useSettings } from '../../../contexts/Settings';
-import { useBookingSlots } from '../../../hooks/useBookingSlots';
-import { notifyError, notifySuccess } from '../../../utils';
+import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
-import {
-  AutocompleteField,
-  DateField,
-  DynamicSelectField,
-  Field,
-  Form,
-  LocalisedLocationField,
-} from '../../Field';
+import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -39,7 +29,7 @@ const formStyles = {
 };
 
 const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = (confirmed) => {
+  const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
@@ -85,30 +75,8 @@ const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
   );
 };
 
-const SuccessMessage = ({ isEdit = false }) =>
-  isEdit ? (
-    <TranslatedText
-      stringId="locationAssignment.notification.assignmentSuccessfullyModified"
-      fallback="Assignment successfully modified"
-      data-testid="translatedtext-z8jo"
-    />
-  ) : (
-    <TranslatedText
-      stringId="locationAssignment.notification.assignmentSuccessfullyCreated"
-      fallback="Assignment successfully created"
-      data-testid="translatedtext-icwl"
-    />
-  );
-
-const ErrorMessage = ({ isEdit = false, error }) => {
-  return isEdit ? (
-    <TranslatedText
-      stringId="locationAssignment.notification.edit.error"
-      fallback="Failed to edit assignment with error: :error"
-      replacements={{ error: error.message }}
-      data-testid="translatedtext-85ei"
-    />
-  ) : (
+const ErrorMessage = ({ error }) => {
+  return (
     <TranslatedText
       stringId="locationAssignment.notification.create.error"
       fallback="Failed to create assignment with error: :error"
@@ -121,7 +89,6 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
-  const { getSetting } = useSettings();
   const isEdit = !!initialValues.id;
 
   const userSuggester = useSuggester('practitioner', {
@@ -130,40 +97,30 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(initialValues.date);
-
-  const { slots: timeSlots } = useBookingSlots(selectedDate ? new Date(selectedDate) : null);
 
   const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setResolveFn(() => resolve);
       setShowWarningModal(true);
     });
 
-  const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation(
-    {
-      onError: (error) => {
-        if (error.response?.data?.error?.type === 'overlap_assignment_error') {
-          notifyError(
-            <TranslatedText
-              stringId="locationAssignment.notification.assignmentTimeConflict"
-              fallback="Assignment failed. Time slot conflicts with existing assignment"
-              data-testid="translatedtext-xfb0"
-            />,
-          );
-        } else {
-          notifyError(
-            <ErrorMessage isEdit={isEdit} error={error} data-testid="errormessage-3jmy" />,
-          );
-        }
-      },
+  const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation({
+    onError: error => {
+      if (error.response?.data?.error?.type === 'overlap_assignment_error') {
+        notifyError(
+          <TranslatedText
+            stringId="locationAssignment.notification.assignmentTimeConflict"
+            fallback="Assignment failed. Time slot conflicts with existing assignment"
+            data-testid="translatedtext-xfb0"
+          />,
+        );
+      } else {
+        notifyError(<ErrorMessage error={error} data-testid="errormessage-3jmy" />);
+      }
     },
-  );
+  });
 
-  const handleSubmit = async (
-    { userId, locationGroupId, locationId, date, startTime, endTime },
-    { resetForm },
-  ) => {
+  const handleSubmit = async ({ userId, locationId, date, startTime, endTime }, { resetForm }) => {
     mutateAssignment(
       {
         id: initialValues.id,
@@ -188,13 +145,17 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     userId: yup.string().required(requiredMessage),
     locationId: yup.string().required(requiredMessage),
     date: yup.string().required(requiredMessage),
-    startTime: yup.date().nullable().required(requiredMessage),
-    endTime: yup.date().nullable().required(requiredMessage),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
   });
 
-
-  const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {
-    console.log('values', values);
+  const renderForm = ({ values, resetForm, dirty }) => {
     const warnAndResetForm = async () => {
       const requiresWarning = dirty && isEdit;
       const confirmed = !requiresWarning || (await handleShowWarningModal());
@@ -202,10 +163,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       onClose();
       resetForm();
       updateSelectedCell({ locationId: null, date: null });
-    };
-
-    const resetFields = (fields) => {
-      for (const field of fields) void setFieldValue(field, null);
     };
 
     return (
@@ -269,15 +226,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             disabled={isEdit}
             required
-            // onChange={(e) => {
-            //   updateSelectedCell({ locationId: e.target.value });
-            //   resetFields(['startTime', 'endTime']);
-            // }}
             locationGroupSuggesterType="bookableLocationGroup"
-            // onLocationGroupChange={(locationGroupId) => {
-            //   setFieldValue('locationGroupId', locationGroupId);
-            // }}
             data-testid="field-lmrx"
+            showAllLocations
           />
           <Field
             name="date"
@@ -291,12 +242,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
             saveDateAsString
-            // onChange={(e) => {
-            //   const newDate = e.target.value;
-            //   setSelectedDate(newDate);
-            //   setFieldValue('date', newDate);
-            //   resetFields(['startTime', 'endTime']);
-            // }}
             data-testid="field-date"
           />
           <TimeSlotPicker
