@@ -98,9 +98,9 @@ export class InvoiceItem extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
       }),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'invoices', 'encounters']),
