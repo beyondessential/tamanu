@@ -1210,5 +1210,58 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
       expect(recordIds).toContain(prescription.id);
     });
+
+    it.only('will sync prescriptions linked through patient_ongoing_prescriptions and encounters from a sensitive facility', async () => {
+      const testPatient = await models.Patient.create(fake(models.Patient));
+      const sensitiveLocation = await models.Location.create(
+        fake(models.Location, { facilityId: sensitiveFacility.id }),
+      );
+      const sensitiveDepartment = await models.Department.create(
+        fake(models.Department, { facilityId: sensitiveFacility.id }),
+      );
+
+      // Patient linked to both facilities
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: testPatient.id,
+        facilityId: sensitiveFacility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: testPatient.id,
+        facilityId: nonSensitiveFacility.id,
+      });
+
+      // Create encounter while facility is sensitive
+      const encounter = await models.Encounter.create({
+        ...fake(models.Encounter),
+        patientId: testPatient.id,
+        locationId: sensitiveLocation.id,
+        departmentId: sensitiveDepartment.id,
+        examinerId: practitioner.id,
+        endDate: null,
+      });
+
+      // Create prescription that is linked through encounter
+      const prescription = await models.Prescription.create(fake(models.Prescription));
+      await models.EncounterPrescription.create(
+        fake(models.EncounterPrescription, {
+          encounterId: encounter.id,
+          prescriptionId: prescription.id,
+        }),
+      );
+
+      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      // Check that both prescriptions are in the lookup table
+      const recordIds = await getOutgoingIdsForRecordType(
+        centralSyncManager,
+        nonSensitiveFacility.id,
+        models.Prescription.tableName,
+      );
+
+      expect(recordIds).toContain(prescription.id);
+    });
   });
 });
