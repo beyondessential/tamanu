@@ -65,7 +65,7 @@ export class PortalOneTimeTokenService {
   }
 
   async verifyAndConsume({ token, type = 'login' }) {
-    const { PortalOneTimeToken } = this.models;
+    const { PortalOneTimeToken, PortalUser } = this.models;
     const hashedToken = hashToken(token);
     const record = await PortalOneTimeToken.findOne({
       where: { type, token: hashedToken },
@@ -75,11 +75,17 @@ export class PortalOneTimeTokenService {
       throw new BadAuthenticationError('Invalid verification code');
     }
 
+    const portalUser = await PortalUser.findOne({ id: record.portalUserId });
+
+    if (!portalUser) {
+      throw new BadAuthenticationError('Invalid email or password');
+    }
+
     if (record.isExpired()) {
       throw new BadAuthenticationError('Verification code has expired');
     }
 
     await record.destroy({ force: true });
-    return { ok: true };
+    return portalUser;
   }
 }

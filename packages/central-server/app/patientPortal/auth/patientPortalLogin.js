@@ -52,17 +52,10 @@ export const patientPortalLogin = ({ secret }) =>
     const { store, body } = req;
     const { canonicalHostName } = config;
     const { models } = store;
-    const { email, loginToken } = body;
-
-    const portalUser = await models.PortalUser.getForAuthByEmail(email);
-
-    if (!portalUser) {
-      throw new BadAuthenticationError('Invalid email or password');
-    }
+    const { loginToken } = body;
 
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
-    await oneTimeTokenService.verifyAndConsume({
-      portalUserId: portalUser.id,
+    const portalUser = await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
     });
 
@@ -75,7 +68,7 @@ export const patientPortalLogin = ({ secret }) =>
       expiresIn: tokenDuration,
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: canonicalHostName,
-      jwtid: accessTokenJwtId,
+      jwtid: accessTokenJwtId.toString(),
     });
 
     return res.status(200).json({ token });
