@@ -39,6 +39,8 @@ export const SurveyAnswerResult = ({
       return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return <ViewPhotoLink imageId={answer} data-testid="viewphotolink-w78m" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return <ViewPhotoLink imageId={answer} data-testid="viewsignaturelink-w78m" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:

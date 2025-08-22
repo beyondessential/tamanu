@@ -32,6 +32,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   SURVEY_RESULT: 'SurveyResult',
   SURVEY_LINK: 'SurveyLink',
   PHOTO: 'Photo',
+  SIGNATURE: 'Signature',
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
   PATIENT_ISSUE: 'PatientIssue',
