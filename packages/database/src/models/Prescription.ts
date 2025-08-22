@@ -3,7 +3,7 @@ import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import { buildSyncLookupSelect } from 'sync';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Prescription extends Model {
   declare id: string;
