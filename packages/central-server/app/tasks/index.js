@@ -28,7 +28,6 @@ import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
-import { GenerateRepeatingLocationAssignments } from './GenerateRepeatingLocationAssignments';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -53,9 +52,8 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingTasks,
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
-    MedicationDiscontinuer,
+    MedicationDiscontinuer, 
     SendStatusToMetaServer,
-    GenerateRepeatingLocationAssignments,
   ];
 
   if (config.integrations.fijiVrs.enabled) {

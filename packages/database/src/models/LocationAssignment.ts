@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, LOCATION_ASSIGNMENT_STATUS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -10,8 +10,6 @@ export class LocationAssignment extends Model {
   declare date: string;
   declare startTime: string;
   declare endTime: string;
-  declare status: keyof typeof LOCATION_ASSIGNMENT_STATUS;
-  declare deactivationReason?: string;
   declare templateId?: string;
   declare createdBy: string;
   declare updatedBy?: string;
@@ -31,15 +29,6 @@ export class LocationAssignment extends Model {
         endTime: {
           type: DataTypes.TIME,
           allowNull: false,
-        },
-        status: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: LOCATION_ASSIGNMENT_STATUS.ACTIVE,
-        },
-        deactivationReason: {
-          type: DataTypes.STRING,
-          allowNull: true,
         },
       },
       {

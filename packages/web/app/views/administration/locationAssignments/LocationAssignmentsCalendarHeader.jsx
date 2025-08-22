@@ -1,50 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
 import { useLocation } from 'react-router-dom';
-import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
+import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
 import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
 
-import { Button, MonthPicker } from '../../../components';
+import { MonthPicker } from '../../../components';
 import { Colors } from '../../../constants';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
-import { scrollToThisWeek } from './utils';
 import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locationAssignments';
 
-const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
-  display: grid;
-  gap: 0.25rem;
-  grid-template-columns: minmax(min-content, 1fr) max-content;
-  align-items: center;
+const StyledHeaderRow = styled(CarouselGrid.HeaderRow)`
+  block-size: 30px;
+  
+  & > * {
+    border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
+  }
 `;
 
-const GoToThisWeekButton = styled(Button).attrs({ variant: 'text' })`
-  font-size: 0.75rem;
-  font-weight: 400;
-  min-inline-size: 4rem; // Prevent hover effect from affecting layout
-  padding: 0.25rem;
-
-  &:hover {
-    background-color: initial;
-    font-weight: 500;
-  }
-
-  &,
-  &:hover {
-    text-decoration-line: underline;
-    text-decoration-thickness: from-font;
-  }
-
-  .MuiButton-label {
-    display: contents;
-  }
+const StyledFirstHeaderCell = styled(CarouselGrid.FirstHeaderCell)`
+  display: flex;
+  align-items: center;
 `;
 
 const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
   color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
-  font-size: 1rem;
+  font-size: 11px;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
 
@@ -84,9 +67,11 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
 };
 
 const StyledMonthPicker = styled(MonthPicker)`
+  width: 100%;
+  
   .MuiInputBase-root,
   .MuiInputBase-input {
-    font-size: inherit;
+    font-size: 11px;
   }
 
   body:has(&) > .MuiPickersPopper-root {
@@ -96,7 +81,6 @@ const StyledMonthPicker = styled(MonthPicker)`
 
 export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
   const isFirstDisplayedDate = (date) => isSameDay(date, displayedDates[0]);
-  const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
   const location = useLocation();
   useEffect(() => {
@@ -107,28 +91,14 @@ export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, display
     }
   }, [location.search, setMonthOf]);
 
-  const goToThisWeek = () => {
-    if (isThisMonth(monthOf)) {
-      scrollToThisWeek();
-      setMonthPickerRefreshKey(Date.now()); // We need to trigger a refresh of picker state here to repopulate date
-    } else {
-      setMonthOf(startOfToday());
-      // In this case, useEffect in LocationAssignments context handles auto-scroll
-    }
-  };
-
   return (
-    <CarouselGrid.HeaderRow data-testid="headerrow-afra">
+    <StyledHeaderRow data-testid="headerrow-afra">
       <StyledFirstHeaderCell data-testid="styledfirstheadercell-6j8e">
         <StyledMonthPicker
-          key={monthPickerRefreshKey}
           value={monthOf}
           onChange={setMonthOf}
           data-testid="styledmonthpicker-4uml"
         />
-        <GoToThisWeekButton onClick={goToThisWeek} data-testid="gotothisweekbutton-034z">
-          This week
-        </GoToThisWeekButton>
       </StyledFirstHeaderCell>
       {displayedDates.map((d) => {
         const id = isStartOfThisWeek(d)
@@ -146,6 +116,6 @@ export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, display
           />
         );
       })}
-    </CarouselGrid.HeaderRow>
+    </StyledHeaderRow>
   );
 };

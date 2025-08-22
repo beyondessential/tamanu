@@ -1,7 +1,6 @@
 import { formatISO, isEqual } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
-
 import { toDateString, formatTime } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
@@ -59,6 +58,18 @@ export const LocationAssignmentTile = ({ assignment, onClick }) => {
     </AssignmentTile>
   );
 };
+const LocationHeader = styled.div`
+  font-size: 11px;
+`;
+
+const LocationGroupName = styled.span`
+
+  color: ${Colors.darkestText};
+`;
+
+const LocationName = styled.span`
+  color: ${Colors.midText};
+`;
 
 export const AssignmentsCell = ({
   date,
@@ -133,18 +144,25 @@ export const AssignmentsRow = ({
   return (
     <CarouselGrid.Row data-testid="row-m8yc">
       <CarouselGrid.RowHeaderCell data-testid="rowheadercell-qiko">
-        <TranslatedReferenceData
-          category="locationGroup"
-          value={locationGroup.id}
-          fallback={locationGroup.name}
-          data-testid="translatedreferencedata-7cuw"
-        />{' '}
-        <TranslatedReferenceData
-          category="location"
-          value={location.id}
-          fallback={location.name}
-          data-testid="translatedreferencedata-1gpj"
-        />
+        <LocationHeader>
+          <LocationGroupName>
+            <TranslatedReferenceData
+              category="locationGroup"
+              value={locationGroup.id}
+              fallback={locationGroup.name}
+              data-testid="translatedreferencedata-7cuw"
+            />
+          </LocationGroupName>
+          <LocationName>
+            <span> | </span>
+            <TranslatedReferenceData
+              category="location"
+              value={location.id}
+              fallback={location.name}
+              data-testid="translatedreferencedata-1gpj"
+            />
+          </LocationName>
+        </LocationHeader>
       </CarouselGrid.RowHeaderCell>
       {dates.map((d) => (
         <AssignmentsCell
