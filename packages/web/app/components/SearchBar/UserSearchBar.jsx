@@ -31,7 +31,7 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
-      initialValues={{ ...searchParameters, includeDeactivated: true }}
+      initialValues={{ includeDeactivated: true, ...searchParameters }}
       hiddenFields={
         <>
           <Field
