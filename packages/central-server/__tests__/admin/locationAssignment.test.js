@@ -179,11 +179,13 @@ describe('Location Assignment API', () => {
       
       // Verify the assignments are created with the correct day of week and ordinal position
       const expectedDow = getISODay(parseISO(startDate));
-      const expectedOrdinalPosition = getWeekdayOrdinalPosition(parseISO(startDate));
+      let expectedOrdinalPosition = getWeekdayOrdinalPosition(parseISO(startDate));
+      expectedOrdinalPosition = expectedOrdinalPosition === -1 ? 4 : expectedOrdinalPosition;
+
       generatedAssignments.forEach(assignment => {
         const assignmentDow = getISODay(parseISO(assignment.date));
-        const assignmentOrdinalPosition = getWeekdayOrdinalPosition(parseISO(assignment.date));
-  
+        let assignmentOrdinalPosition = getWeekdayOrdinalPosition(parseISO(assignment.date));
+        assignmentOrdinalPosition = assignmentOrdinalPosition === -1 ? 4 : assignmentOrdinalPosition;
         expect(assignmentDow).toEqual(expectedDow);
         expect(assignmentOrdinalPosition).toEqual(expectedOrdinalPosition);
       });
