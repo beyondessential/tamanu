@@ -28,6 +28,7 @@ export async function addVaccineAndAssert(
     isFollowUpVaccine = false,
     specificScheduleOption = undefined,
     specificDate = undefined,
+    recordScheduledVaccine = false,
   }: {
     specificVaccine?: string | null;
     fillOptionalFields?: boolean;
@@ -35,9 +36,17 @@ export async function addVaccineAndAssert(
     isFollowUpVaccine?: boolean;
     specificScheduleOption?: string;
     specificDate?: string;
+    recordScheduledVaccine?: boolean;
   } = {},
 ) {
+ if (recordScheduledVaccine) {
+  if (!specificVaccine || !specificScheduleOption) {
+    throw new Error('Vaccine and schedule are required when recordScheduledVaccine is true');
+  }
+  await patientDetailsPage.patientVaccinePane?.recordScheduledVaccine(specificVaccine, specificScheduleOption);
+ } else {
   await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+ }
 
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
