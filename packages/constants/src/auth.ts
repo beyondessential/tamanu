@@ -9,7 +9,9 @@ export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 
 export const DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR = 'Device registration quota exceeded';
 
-export const DEVICE_SCOPE = {
+export const DEVICE_SCOPES = {
   SYNC_CLIENT: 'sync_client',
 } as const;
-export type DEVICE_SCOPE = (typeof DEVICE_SCOPE)[keyof typeof DEVICE_SCOPE];
+export type DeviceScope = (typeof DEVICE_SCOPES)[keyof typeof DEVICE_SCOPES];
+
+export const DEVICE_SCOPES_SUBJECT_TO_QUOTA: DeviceScope[] = [DEVICE_SCOPES.SYNC_CLIENT] as const;

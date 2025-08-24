@@ -68,7 +68,7 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, facilityIds, deviceId } = body;
+    const { email, password, facilityIds, deviceId, scopes = [] } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
     const getSettingsForFrontEnd = async () => {
@@ -101,7 +101,7 @@ export const login = ({ secret, refreshSecret }) =>
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
-    await ensureDeviceRegistration(models, settings, user, deviceId);
+    await ensureDeviceRegistration({ models, settings, user, deviceId, scopes });
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
