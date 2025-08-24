@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import * as yup from 'yup';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -6,11 +6,9 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useSuggester } from '../../../api';
 import { useLocationAssignmentMutation } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
-import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';
-import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
@@ -29,53 +27,6 @@ const formStyles = {
   insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
 };
 
-const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = confirmed => {
-    setShowWarningModal(false);
-    resolveFn(confirmed);
-  };
-  return (
-    <ConfirmModal
-      title={
-        <TranslatedText
-          stringId="locationAssignment.cancelWarningModal.title"
-          fallback="Cancel assignment modification"
-          data-testid="translatedtext-wlb9"
-        />
-      }
-      subText={
-        <TranslatedText
-          stringId="locationAssignment.cancelWarningModal.subtext"
-          fallback="Are you sure you would like to cancel modifying the assignment?"
-          data-testid="translatedtext-u1o4"
-        />
-      }
-      open={open}
-      onConfirm={() => {
-        handleClose(true);
-      }}
-      cancelButtonText={
-        <TranslatedText
-          stringId="locationAssignment.cancelWarningModal.cancelButton"
-          fallback="Back to editing"
-          data-testid="translatedtext-loz1"
-        />
-      }
-      confirmButtonText={
-        <TranslatedText
-          stringId="locationAssignment.cancelWarningModal.cancelModification"
-          fallback="Cancel modification"
-          data-testid="translatedtext-jg0h"
-        />
-      }
-      onCancel={() => {
-        handleClose(false);
-      }}
-      data-testid="confirmmodal-jx4v"
-    />
-  );
-};
-
 const ErrorMessage = ({ error }) => {
   return (
     <TranslatedText
@@ -89,21 +40,10 @@ const ErrorMessage = ({ error }) => {
 
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
-  const { updateSelectedCell } = useLocationAssignmentsContext();
-  const isEdit = !!initialValues.id;
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
   });
-
-  const [warningModalOpen, setShowWarningModal] = useState(false);
-  const [resolveFn, setResolveFn] = useState(null);
-
-  const handleShowWarningModal = async () =>
-    new Promise(resolve => {
-      setResolveFn(() => resolve);
-      setShowWarningModal(true);
-    });
 
   const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation({
     onError: error => {
@@ -156,49 +96,24 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       .required(requiredMessage),
   });
 
-  const renderForm = ({ values, resetForm, dirty }) => {
-    const warnAndResetForm = async () => {
-      const requiresWarning = dirty && isEdit;
-      const confirmed = !requiresWarning || (await handleShowWarningModal());
-      if (!confirmed) return;
-      onClose();
-      resetForm();
-      updateSelectedCell({ locationId: null, date: null });
-    };
-
+  const renderForm = ({ values }) => {
     return (
       <Drawer
         open={open}
-        onClose={warnAndResetForm}
+        onClose={onClose}
         title={
-          isEdit ? (
-            <TranslatedText
-              stringId="locationAssignment.form.edit.heading"
-              fallback="Modify assignment"
-              data-testid="translatedtext-gykj"
-            />
-          ) : (
-            <TranslatedText
-              stringId="locationAssignment.form.new.heading"
-              fallback="Assign user"
-              data-testid="translatedtext-nugq"
-            />
-          )
+          <TranslatedText
+            stringId="locationAssignment.form.new.heading"
+            fallback="Assign user"
+            data-testid="translatedtext-nugq"
+          />
         }
         description={
-          isEdit ? (
-            <TranslatedText
-              stringId="locationAssignment.form.edit.description"
-              fallback="Modify the selected assignment below."
-              data-testid="translatedtext-o9mp"
-            />
-          ) : (
-            <TranslatedText
-              stringId="locationAssignment.form.new.description"
-              fallback="Create a new assignment by completing the below details and selecting 'Confirm'."
-              data-testid="translatedtext-p4qw"
-            />
-          )
+          <TranslatedText
+            stringId="locationAssignment.form.new.description"
+            fallback="Assign a user to a location using the form below."
+            data-testid="translatedtext-p4qw"
+          />
         }
         data-testid="drawer-au2a"
       >
@@ -225,7 +140,6 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             enableLocationStatus={false}
             name="locationId"
             component={LocalisedLocationField}
-            disabled={isEdit}
             required
             locationGroupSuggesterType="bookableLocationGroup"
             data-testid="field-lmrx"
@@ -250,8 +164,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             disabled={!values.locationId || !values.date}
             label={
               <TranslatedText
-                stringId="locationAssignment.form.assignmentTime.label"
-                fallback="Assignment time"
+                stringId="locationAssignment.form.allocatedTime.label"
+                fallback="Allocated time"
                 data-testid="translatedtext-assignment-time"
               />
             }
@@ -260,7 +174,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
+          <FormSubmitCancelRow onCancel={onClose} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>
       </Drawer>
     );
@@ -271,19 +185,13 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       <Form
         enableReinitialize
         initialValues={initialValues}
-        formType={isEdit ? FORM_TYPES.EDIT_FORM : FORM_TYPES.CREATE_FORM}
+        formType={FORM_TYPES.CREATE_FORM}
         onSubmit={handleSubmit}
         render={renderForm}
         suppressErrorDialog
         validationSchema={validationSchema}
         style={formStyles}
         data-testid="form-rwgy"
-      />
-      <WarningModal
-        open={warningModalOpen}
-        setShowWarningModal={setShowWarningModal}
-        resolveFn={resolveFn}
-        data-testid="warningmodal-v53z"
       />
     </>
   );

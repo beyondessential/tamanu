@@ -520,15 +520,11 @@ createSuggester(
   'Location',
   // Allow filtering by parent location group
   ({ endpoint, modelName, query }) => {
-    const hasValidFacilityId = query.facilityId && query.facilityId.trim() !== '';
-    const baseWhere = hasValidFacilityId 
-      ? filterByFacilityWhereBuilder({ endpoint, modelName, query })
-      : DEFAULT_WHERE_BUILDER({ endpoint, modelName });
+    const baseWhere = filterByFacilityWhereBuilder({ endpoint, modelName, query });
 
     const { ...filters } = query;
     delete filters.q;
     delete filters.filterByFacility;
-    if (!hasValidFacilityId) delete filters.facilityId;
 
     if (!query.parentId) {
       return { ...baseWhere, ...filters };
