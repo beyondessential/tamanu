@@ -20,6 +20,7 @@ export class ChangeLog extends Model {
   declare recordData: string;
   declare deviceId: string;
   declare version: string;
+  declare reason: string | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -72,6 +73,10 @@ export class ChangeLog extends Model {
         version: {
           type: DataTypes.TEXT,
           allowNull: false,
+        },
+        reason: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
       },
 
