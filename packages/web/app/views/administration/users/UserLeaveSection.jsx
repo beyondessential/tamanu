@@ -206,8 +206,8 @@ export const UserLeaveSection = ({ user }) => {
                 required
               />
               <StyledButton
-                onClick={(e) => {
-                  submitForm(e);
+                onClick={async e => {
+                  await submitForm(e);
                   resetForm();
                 }}
                 disabled={!startDate || !endDate || isCreatingLeave}
