@@ -111,8 +111,11 @@ export class CentralSyncManager {
       // If the session creation fails, we need to release the lock otherwise it will hold up
       // an open connection until the application restarts
       await unmarkSessionAsProcessing();
-      error.message = `Failed to create sync session, server may be overloaded with sync requests: ${error.message}`;
-      throw error;
+      const wrappedError = new Error(
+        `Failed to create sync session, server may be overloaded with sync requests: ${error.message}`,
+      );
+      wrappedError.stack = error.stack; // Preserve the original stack trace
+      throw wrappedError;
     }
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
