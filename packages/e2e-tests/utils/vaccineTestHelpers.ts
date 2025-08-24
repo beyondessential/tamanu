@@ -192,9 +192,9 @@ export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', 
  // console.log('dueDate', dueDate);
 
   // Extract just the date components to avoid timezone issues
-  const year = dueDate.getUTCFullYear();
-  const month = dueDate.getUTCMonth();
-  const day = dueDate.getUTCDate();
+  const year = dueDate.getFullYear();
+  const month = dueDate.getMonth();
+  const day = dueDate.getDate();
   
   // Create a local date object for startOfWeek
   const localDate = new Date(year, month, day);
