@@ -27,7 +27,7 @@
     "@tamanu/api-client": "*",
     "@tamanu/shared": "*",
     "@tamanu/ui-components": "*",
-    "@tanstack/react-query": "^4.0.10",
+    "@tanstack/react-query": "^5.84.1",
     "lucide-react": "^0.536.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
