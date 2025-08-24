@@ -1,3 +1,4 @@
+
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
@@ -15,7 +16,7 @@ import {
   toDateTimeString,
 } from '@tamanu/utils/dateTime';
 
-import { useLocationBookingsQuery } from '../../../../api/queries';
+import { useLocationAssignmentsQuery, useLocationBookingsQuery } from '../../../../api/queries';
 import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
@@ -78,6 +79,7 @@ export const TimeSlotPicker = ({
   required,
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   name,
+  type = 'bookings',
   ...props
 }) => {
   const [dayStart, dayEnd] = useMemo(() => {
@@ -97,8 +99,8 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart);
-
+  } = useBookingSlots(dayStart, type);
+  
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
@@ -117,7 +119,7 @@ export const TimeSlotPicker = ({
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const { data: existingBookings, isFetching: isFetchingExistingBookings } =
+  const locationBookingsQuery =
     useLocationBookingsQuery(
       {
         after: toDateTimeString(dayStart),
@@ -125,8 +127,23 @@ export const TimeSlotPicker = ({
         all: true,
         locationId: values.locationId,
       },
-      { enabled: !!date && !!values.locationId },
+      { enabled: !!date && !!values.locationId && type === 'bookings' },
     );
+
+  const locationAssignmentsQuery =
+    useLocationAssignmentsQuery(
+      {
+        after: date,
+        before: date,
+        all: true,
+        locationId: values.locationId,
+      },
+      { 
+        enabled: !!date && !!values.locationId && type === 'assignments',
+      },
+    );
+  const existingBookings = type === 'bookings' ? locationBookingsQuery.data : locationAssignmentsQuery.data;
+  const isFetchingExistingBookings = type === 'bookings' ? locationBookingsQuery.isFetching : locationAssignmentsQuery.isFetching;
 
   const updateInterval = useCallback(
     (newInterval) => {
@@ -419,7 +436,7 @@ export const TimeSlotPicker = ({
         data-testid="togglegroup-fxn9"
       >
         {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
-          <PlaceholderTimeSlotToggles data-testid="placeholdertimeslottoggles-l1fr" />
+          <PlaceholderTimeSlotToggles type={type} data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
           timeSlots?.map((timeSlot) => {
             const isBooked = bookedIntervals.some((bookedInterval) =>

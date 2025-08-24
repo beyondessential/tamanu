@@ -1,6 +1,10 @@
+import { endOfDay } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
+import { toDateTimeString } from '@tamanu/utils/dateTime';
+
+import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
@@ -51,12 +55,22 @@ const Carousel = styled.div`
   }
 `;
 
-export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
+export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDrawer, ...props }) => {
   const { monthOf, setMonthOf } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
   const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
+
+  const { data: assignmentsData } = useLocationAssignmentsQuery(
+    {
+      after: toDateTimeString(displayedDates[0]),
+      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
+      all: true,
+    },
+    { keepPreviousData: true },
+  );
+  const assignments = assignmentsData?.data ?? [];
 
   return (
     <>
@@ -76,6 +90,8 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
             displayedDates={displayedDates}
             locations={locations}
             isLocationsLoading={isLocationsLoading}
+            assignments={assignments}
+            openAssignmentDrawer={openAssignmentDrawer}
             data-testid="locationassignmentscalendarbody-4f9q"
           />
         </CarouselGrid.Root>
