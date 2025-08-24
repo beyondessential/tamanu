@@ -48,22 +48,25 @@ sources:
             description: "{{ doc('appointments__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('appointments__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('appointments__location_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'locations')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
           - name: type_legacy
             data_type: character varying(255)
             description: "{{ doc('appointments__type_legacy') }}"
@@ -78,13 +81,14 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Confirmed
-                    - Arrived
-                    - Assessed
-                    - Seen
-                    - No-show
-                    - Cancelled
+                  arguments:
+                    values:
+                      - Confirmed
+                      - Arrived
+                      - Assessed
+                      - Seen
+                      - No-show
+                      - Cancelled
           - name: start_time_legacy
             data_type: timestamp with time zone
             description: "{{ doc('appointments__start_time_legacy') }}"
@@ -102,8 +106,9 @@ sources:
             description: "{{ doc('appointments__location_group_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'location_groups')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'location_groups')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in appointments."
@@ -114,17 +119,19 @@ sources:
             description: "{{ doc('appointments__booking_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'bookingType'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'bookingType'
           - name: appointment_type_id
             data_type: character varying(255)
             description: "{{ doc('appointments__appointment_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'appointmentType'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'appointmentType'
           - name: is_high_priority
             data_type: boolean
             description: "{{ doc('appointments__is_high_priority') }}"

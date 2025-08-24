@@ -29,28 +29,31 @@ sources:
               - unique
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoice_payments')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoice_payments')
+                    field: id
           - name: insurer_id
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__insurer_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'insurer'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'insurer'
           - name: status
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - unpaid
-                    - paid
-                    - partial
-                    - rejected
+                  arguments:
+                    values:
+                      - unpaid
+                      - paid
+                      - partial
+                      - rejected
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_insurer_payments__reason') }}"
