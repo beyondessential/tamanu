@@ -7,7 +7,6 @@ import { useAdminLocationsQuery } from '../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
 import { AssignUserDrawer } from '../../components/Appointments/LocationAssignmentForm/AssignUserDrawer';
 import { Colors } from '../../constants';
-import { useLocationAssignmentsContext } from '../../contexts/LocationAssignments';
 import { LocationAssignmentsCalendar } from './locationAssignments/LocationAssignmentsCalendar';
 
 const PlusIcon = styled(AddRounded)`
@@ -54,7 +53,6 @@ const EmptyStateLabel = styled(Typography).attrs({
 `;
 
 export const LocationAssignmentsAdminView = () => {
-  const { selectedCell } = useLocationAssignmentsContext();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerInitialValues, setDrawerInitialValues] = useState({});
   

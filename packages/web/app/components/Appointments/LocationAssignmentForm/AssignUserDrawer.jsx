@@ -16,6 +16,7 @@ import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } fro
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
+import { BOOKING_SLOT_TYPES } from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 
@@ -255,7 +256,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
               />
             }
             required
-            type="assignments"
+            type={BOOKING_SLOT_TYPES.ASSIGNMENTS}
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />

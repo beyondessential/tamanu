@@ -436,7 +436,7 @@ export const TimeSlotPicker = ({
         data-testid="togglegroup-fxn9"
       >
         {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
-          <PlaceholderTimeSlotToggles data-testid="placeholdertimeslottoggles-l1fr" />
+          <PlaceholderTimeSlotToggles type={type} data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
           timeSlots?.map((timeSlot) => {
             const isBooked = bookedIntervals.some((bookedInterval) =>

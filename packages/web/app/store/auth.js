@@ -44,7 +44,6 @@ export const login =
 const handleLoginSuccess = async (dispatch, loginInfo) => {
   const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
     loginInfo;
-  console.log('loginInfo', loginInfo);
   
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));

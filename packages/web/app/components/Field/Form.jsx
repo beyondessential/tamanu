@@ -141,7 +141,6 @@ export class Form extends React.PureComponent {
       // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
       // @see https://github.com/jaredpalmer/formik/issues/1209
       const formErrors = await validateForm(values);
-      console.log('formErrors', formErrors);
       delete formErrors.isCanceled;
 
       const validFormErrors = componentsToValidate
@@ -151,7 +150,6 @@ export class Form extends React.PureComponent {
         : formErrors;
 
       if (Object.keys(validFormErrors).length > 0) {
-        console.log('validFormErrors', validFormErrors);
         this.setErrors(validFormErrors);
         // Set submitting false before throwing the error so that the form is reset
         // for future form submissions

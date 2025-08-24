@@ -8,4 +8,4 @@ export * from './useNotificationsMutation';
 export { useUserPreferencesMutation } from './useUserPreferencesMutation';
 export { useUpdateProgramRegistryMutation } from './useUpdateProgramRegistryMutation';
 export * from './useUserMutation';
-export { useLocationAssignmentMutation, useDeleteLocationAssignmentMutation } from './useLocationAssignmentMutation';
+export { useLocationAssignmentMutation } from './useLocationAssignmentMutation';
