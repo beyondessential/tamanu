@@ -43,7 +43,6 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
   // Respond with the 6-digit code
   return res.status(200).json({
     message: 'One-time token sent successfully',
-    token,
   });
 });
 

@@ -1,5 +1,6 @@
 import { addMinutes } from 'date-fns';
 import { randomInt, randomBytes, createHash } from 'crypto';
+import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 function randomSixDigitCode() {
@@ -29,11 +30,14 @@ export class PortalOneTimeTokenService {
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing login tokens for this user
-    await PortalOneTimeToken.destroy({ where: { portalUserId, type: 'login' }, force: true });
+    await PortalOneTimeToken.destroy({
+      where: { portalUserId, type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN },
+      force: true,
+    });
 
     const record = await PortalOneTimeToken.create({
       portalUserId,
-      type: 'login',
+      type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
       token: hashedToken,
       expiresAt,
     });
@@ -50,11 +54,14 @@ export class PortalOneTimeTokenService {
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing register tokens for this user
-    await PortalOneTimeToken.destroy({ where: { portalUserId, type: 'register' }, force: true });
+    await PortalOneTimeToken.destroy({
+      where: { portalUserId, type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER },
+      force: true,
+    });
 
     const record = await PortalOneTimeToken.create({
       portalUserId,
-      type: 'register',
+      type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
       token: hashedToken,
       expiresAt,
     });
@@ -64,21 +71,17 @@ export class PortalOneTimeTokenService {
     };
   }
 
-  async verifyAndConsume({ token, type = 'login' }) {
+  async verifyAndConsume({ token, type = PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN }) {
     const { PortalOneTimeToken, PortalUser } = this.models;
     const hashedToken = hashToken(token);
     const record = await PortalOneTimeToken.findOne({
       where: { type, token: hashedToken },
     });
 
-    if (!record) {
-      throw new BadAuthenticationError('Invalid verification code');
-    }
-
     const portalUser = await PortalUser.findOne({ id: record.portalUserId });
 
-    if (!portalUser) {
-      throw new BadAuthenticationError('Invalid email or password');
+    if (!portalUser || !record) {
+      throw new BadAuthenticationError('Invalid verification code');
     }
 
     if (record.isExpired()) {
