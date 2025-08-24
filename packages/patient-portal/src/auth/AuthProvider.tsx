@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthContext } from './AuthContext';
 import { useApi } from '../api/useApi';
 
@@ -6,6 +6,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const api = useApi();
   const [user, setUser] = useState<any | null>(null); // Using any for now
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    api
+      .get('me', {}, { waitForAuth: false })
+      .then(response => {
+        setUser(response.data);
+        setLoading(false);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = async (email: string) => {
     if (!api) throw new Error('API not available');

@@ -2,6 +2,8 @@
 import { TamanuApi as BaseTamanuApi } from '@tamanu/api-client';
 import { getDeviceId } from '@utils/getDeviceId';
 
+const TOKEN = 'patientPortalApiToken';
+
 export class TamanuApi extends BaseTamanuApi {
   constructor(appVersion: string) {
     const url = new URL(window.location.href);
@@ -14,11 +16,20 @@ export class TamanuApi extends BaseTamanuApi {
       deviceId: getDeviceId(),
       logger: console,
     });
+
+    this.restoreSession();
+  }
+
+  setToken(token: string) {
+    if (token) {
+      localStorage.setItem(TOKEN, token);
+    }
+    return super.setToken(token);
   }
 
   // Override login for patient portal authentication flow
-  async login(email: string, config = {}) {
-    const response = await this.post('login', { email } as any, {
+  async login(loginToken: string, config = {}) {
+    const response = await this.post('login', { loginToken } as any, {
       ...config,
       returnResponse: true,
       useAuthToken: false,
@@ -33,5 +44,13 @@ export class TamanuApi extends BaseTamanuApi {
     const user = userResponse.data; // Extract the actual patient data
 
     return { token, user };
+  }
+
+  restoreSession() {
+    const token = localStorage.getItem(TOKEN);
+
+    if (token) {
+      this.setToken(token);
+    }
   }
 }
