@@ -1,7 +1,7 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import { Op } from 'sequelize';
@@ -36,15 +36,11 @@ export class PatientOngoingPrescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this, {
+      select: buildSyncLookupSelect(this, {
         patientId: 'patient_ongoing_prescriptions.patient_id',
         facilityId: `
           CASE
-            WHEN encounter_prescriptions.id IS NOT NULL THEN
-              CASE
-                WHEN facilities.is_sensitive = TRUE THEN facilities.id
-                ELSE NULL
-              END
+            WHEN facilities.is_sensitive = TRUE THEN facilities.id
             ELSE NULL
           END
         `,
