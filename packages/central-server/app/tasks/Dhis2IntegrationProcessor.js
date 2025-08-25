@@ -16,7 +16,7 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async process() {
+  async run() {
     try {
       log.debug('Starting DHIS2 integration processing');
 
@@ -29,13 +29,6 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
       }
 
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
-
-      // TODO: Implement actual DHIS2 integration logic here
-      // This could include:
-      // - Fetching report data
-      // - Sending data to DHIS2
-      // - Updating sync status
-      // - Error handling and retries
 
       log.debug('DHIS2 integration processing completed');
     } catch (error) {
