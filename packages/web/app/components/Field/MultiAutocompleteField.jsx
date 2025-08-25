@@ -37,13 +37,14 @@ const StyledSelect = styled(Select)`
     }
   }
   .react-select__value-container--is-multi {
-    padding: 4px 0 4px 13px;
+    padding: 6px 0 6px 13px;
     &.react-select__value-container--has-value {
       padding-left: 4px;
     }
   }
   .react-select__placeholder {
     color: ${Colors.softText};
+    line-height: 1;
     ${(p) => p.size === 'small' && 'font-size: 11px;'}
   }
 
