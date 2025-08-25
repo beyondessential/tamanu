@@ -161,10 +161,7 @@ export const practitioner = [
   { verb: 'create', noun: 'PatientVaccine' },
   { verb: 'write', noun: 'PatientVaccine' },
 
-  { verb: 'list', noun: 'Facility' },
-  { verb: 'read', noun: 'Facility' },
-  { verb: 'create', noun: 'Facility' },
-  { verb: 'write', noun: 'Facility' },
+
 
   { verb: 'list', noun: 'Department' },
   { verb: 'read', noun: 'Department' },
