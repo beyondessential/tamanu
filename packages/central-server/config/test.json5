@@ -2,6 +2,9 @@
 {
   "db": {
     "name": "tamanu-central-test",
+    "pool": {
+      "acquire": 5000,
+    },
     "reportSchemas": {
       "enabled": false,
       "connections": {
