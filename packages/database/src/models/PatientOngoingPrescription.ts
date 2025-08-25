@@ -5,6 +5,7 @@ import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import { Op } from 'sequelize';
+import { ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class PatientOngoingPrescription extends Model {
   declare id: string;
@@ -38,12 +39,7 @@ export class PatientOngoingPrescription extends Model {
     return {
       select: buildSyncLookupSelect(this, {
         patientId: 'patient_ongoing_prescriptions.patient_id',
-        facilityId: `
-          CASE
-            WHEN facilities.is_sensitive = TRUE THEN facilities.id
-            ELSE NULL
-          END
-        `,
+        facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
       }),
       joins: `
         LEFT JOIN encounter_prescriptions ON patient_ongoing_prescriptions.prescription_id = encounter_prescriptions.prescription_id

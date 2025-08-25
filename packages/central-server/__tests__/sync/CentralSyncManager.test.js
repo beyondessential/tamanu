@@ -3995,26 +3995,91 @@ describe('CentralSyncManager', () => {
           facilityId: nonSensitiveFacility.id,
         });
 
-        // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
-        const prescription = await models.Prescription.create(fake(models.Prescription));
-        await models.PatientOngoingPrescription.create(
-          fake(models.PatientOngoingPrescription, {
+        const sensitiveEncounter = await models.Encounter.create(
+          fake(models.Encounter, {
             patientId: testPatient.id,
-            prescriptionId: prescription.id,
+            locationId: (
+              await models.Location.create(
+                fake(models.Location, {
+                  facilityId: sensitiveFacility.id,
+                }),
+              )
+            ).id,
+            departmentId: (
+              await models.Department.create(
+                fake(models.Department, {
+                  facilityId: sensitiveFacility.id,
+                }),
+              )
+            ).id,
+            examinerId: practitioner.id,
+            endDate: null,
           }),
         );
+
+        // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
+        const sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
+        const nonSensitivePrescription = await models.Prescription.create(
+          fake(models.Prescription),
+        );
+
+        const sensitiveEncounterPrescription = await models.EncounterPrescription.create(
+          fake(models.EncounterPrescription, {
+            encounterId: sensitiveEncounter.id,
+            prescriptionId: sensitivePrescription.id,
+          }),
+        );
+
+        const nonSensitiveEncounterPrescription = await models.EncounterPrescription.create(
+          fake(models.EncounterPrescription, {
+            encounterId: nonSensitiveEncounter.id,
+            prescriptionId: nonSensitivePrescription.id,
+          }),
+        );
+
+        const sensitivePatientOngoingPrescription = await models.PatientOngoingPrescription.create(
+          fake(models.PatientOngoingPrescription, {
+            patientId: testPatient.id,
+            prescriptionId: sensitivePrescription.id,
+          }),
+        );
+
+        const nonSensitivePatientOngoingPrescription =
+          await models.PatientOngoingPrescription.create(
+            fake(models.PatientOngoingPrescription, {
+              patientId: testPatient.id,
+              prescriptionId: nonSensitivePrescription.id,
+            }),
+          );
 
         const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
         await centralSyncManager.updateLookupTable();
 
         // Check that both prescriptions are in the lookup table
-        const recordIds = await getOutgoingIdsForRecordType(
+        const prescriptionIds = await getOutgoingIdsForRecordType(
           centralSyncManager,
           nonSensitiveFacility.id,
           models.Prescription.tableName,
         );
 
-        expect(recordIds).toContain(prescription.id);
+        const encounterPrescriptionIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          models.EncounterPrescription.tableName,
+        );
+
+        const patientOngoingPrescriptionIds = await getOutgoingIdsForRecordType(
+          centralSyncManager,
+          nonSensitiveFacility.id,
+          models.PatientOngoingPrescription.tableName,
+        );
+
+        expect(prescriptionIds).not.toContain(sensitivePrescription.id);
+        expect(prescriptionIds).toContain(nonSensitivePrescription.id);
+        expect(encounterPrescriptionIds).not.toContain(sensitiveEncounterPrescription.id);
+        expect(encounterPrescriptionIds).toContain(nonSensitiveEncounterPrescription.id);
+        expect(patientOngoingPrescriptionIds).not.toContain(sensitivePatientOngoingPrescription.id);
+        expect(patientOngoingPrescriptionIds).toContain(nonSensitivePatientOngoingPrescription.id);
       });
     });
   });
