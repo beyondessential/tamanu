@@ -29,6 +29,7 @@ describe('SyncQueuedDevice', () => {
         email: user.email,
         password: 'password',
         deviceId: `queue-${device}`,
+        scopes: ['sync-client'],
       });
 
     const result = await baseApp
