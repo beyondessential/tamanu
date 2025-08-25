@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { Raw } from 'typeorm';
 
 import { MODELS_MAP } from '~/models/modelsMap';
 import { IUser, SyncConnectionParameters } from '~/types';
@@ -77,7 +78,8 @@ export class AuthService {
     const { User } = this.models;
     const user = await User.findOne({
       where: {
-        email,
+        // Email addresses are case insensitive so compare them as such
+        email: Raw(alias => `LOWER(${alias}) = LOWER(:email)`, { email }),
         visibilityStatus: VisibilityStatus.Current,
       },
     });
