@@ -574,6 +574,7 @@ encounterRelations.get(
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
+        AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses)
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId, surveyType, surveyIds: permittedSurveyIds },
@@ -820,7 +821,7 @@ encounterRelations.get(
       group: [['survey.id']],
     });
     req.flagPermissionChecked();
-    const allowedSurvey = chartSurvey.find((response) =>
+    const allowedSurvey = chartSurvey.find(response =>
       req.ability.can('list', subject('Charting', { id: response.survey.id })),
     );
 
