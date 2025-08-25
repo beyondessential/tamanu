@@ -1,5 +1,6 @@
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { DEVICE_SCOPES } from '@tamanu/constants';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
@@ -47,41 +48,57 @@ describe('Device auth', () => {
 
   afterEach(async () => close());
 
-  it('should error if there is no quota', async () => {
+  it('should error if there is no quota for a new sync scoped device', async () => {
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     expect(response).not.toHaveSucceeded();
   });
 
-  it('should error if there is not enough quota', async () => {
+  it('should not error if there is no quota but we are not scoping', async () => {
+    const response = await baseApp.post('/api/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    expect(response).toHaveSucceeded();
+  });
+
+  it('should error if there is not enough quota for a new sync scoped device', async () => {
     await user.update({ deviceRegistrationQuota: 2 });
     await store.models.Device.create({
       registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
     await store.models.Device.create({
       registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     expect(response).not.toHaveSucceeded();
   });
 
-  it('should succeed if there is enough quota', async () => {
+  it('should succeed if there is enough quota for a new sync scoped device', async () => {
     await user.update({ deviceRegistrationQuota: 1 });
 
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     expect(response).toHaveSucceeded();
@@ -92,28 +109,49 @@ describe('Device auth', () => {
     await store.models.Device.create({
       id: TEST_DEVICE_ID,
       registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     const response = await baseApp.post('/api/login').send({
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     expect(response).toHaveSucceeded();
     expect(response.body).toHaveProperty('token');
   });
 
+  it('should error if the device is already registered and has less scopes than requested', async () => {
+    await store.models.Device.create({
+      id: TEST_DEVICE_ID,
+      registeredById: user.id,
+      scopes: [],
+    });
+
+    const response = await baseApp.post('/api/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    expect(response).not.toHaveSucceeded();
+  });
+
   it('should succeed if the device is already registered by another user', async () => {
     await store.models.Device.create({
       id: TEST_DEVICE_ID,
       registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     const response = await baseApp.post('/api/login').send({
       email: TEST_ROLE_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
     });
 
     expect(response).toHaveSucceeded();
