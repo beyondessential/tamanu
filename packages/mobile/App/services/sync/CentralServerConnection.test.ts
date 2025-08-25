@@ -149,7 +149,7 @@ describe('CentralServerConnection', () => {
           email: mockEmail,
           password: mockPassword,
           deviceId: 'mobile-test-device-id',
-          scopes: ['sync-client'],
+          scopes: ['sync_client'],
         },
         {
           backoff: {
