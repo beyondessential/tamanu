@@ -49,7 +49,7 @@ export class SyncQueuedDevice extends Model {
   }
 
   static async getNextReadyDevice() {
-    return this.findOne({
+    return await this.findOne({
       where: this.getReadyDevicesWhereClause(),
       order: [
         ['urgent', 'DESC'], // trues first
@@ -95,6 +95,6 @@ export class SyncQueuedDevice extends Model {
 
     // now check the queue and return the top device - if it's us, the handler will
     // start a sync (otherwise it'll get used in a "waiting behind device X" response
-    return this.getNextReadyDevice();
+    return await this.getNextReadyDevice();
   }
 }
