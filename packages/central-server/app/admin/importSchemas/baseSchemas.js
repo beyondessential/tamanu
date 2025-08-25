@@ -19,6 +19,8 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_UNITS,
   PERMISSION_NOUNS,
+  LOCATION_BOOKABLE_VIEW_VALUES,
+  LOCATION_BOOKABLE_VIEW
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -134,7 +136,7 @@ export const LocationGroup = Base.shape({
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
-  isBookable: yup.boolean().default(false),
+  isBookable: yup.string().default(LOCATION_BOOKABLE_VIEW.NO).oneOf(LOCATION_BOOKABLE_VIEW_VALUES),
 });
 
 export const Permission = yup.object().shape({

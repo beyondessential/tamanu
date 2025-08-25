@@ -19,6 +19,9 @@ export class LocationGroup extends BaseModel implements ILocationGroup {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
+  @Column({ default: 'no' })
+  isBookable: string;
+
   @ManyToOne(() => Facility)
   facility: IFacility;
 
