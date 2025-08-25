@@ -207,7 +207,7 @@
       "schedule": "0 1 * * *"
     },
     "dhis2IntegrationProcessor": {
-      "0 2 * * *"
+      "schedule": "0 2 * * *"
     },
     "automaticLabTestResultPublisher": {
       "enabled": false,
