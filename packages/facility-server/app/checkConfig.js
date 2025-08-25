@@ -1,7 +1,6 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { REPORT_STATUSES } from '@tamanu/constants/reports';
 
 export async function checkConfig({ settings, models }) {
   const ensureSurveyDefaultExists = async (modelName, code) => {
@@ -21,7 +20,7 @@ export async function checkConfig({ settings, models }) {
 
   const { reportIds } = await settings.central.get('integrations.dhis2');
   const databaseReportIds = await models.ReportDefinition.findAll({
-    where: { id: reportIds, status: REPORT_STATUSES.PUBLISHED },
+    where: { id: reportIds },
   });
   if (databaseReportIds.length < reportIds.length) {
     const missing = reportIds.filter(id => !databaseReportIds.some(r => r.id === id));

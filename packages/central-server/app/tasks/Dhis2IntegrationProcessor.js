@@ -2,6 +2,8 @@ import config from 'config';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
+import { REPORT_STATUSES } from '@tamanu/constants';
+import { getLatestVersion } from '../subCommands/importReport/utils';
 
 export class Dhis2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -29,6 +31,17 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
       }
 
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
+
+      for (const reportId of reportIds) {
+        const report = await this.context.store.models.ReportDefinition.findOne({
+          where: { id: reportId },
+        });
+
+        const reportVersion = getLatestVersion(report.versions, REPORT_STATUSES.PUBLISHED);
+
+        const reportData = await reportVersion.dataGenerator(this.context, {});
+        log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
+      }
 
       log.debug('DHIS2 integration processing completed');
     } catch (error) {
