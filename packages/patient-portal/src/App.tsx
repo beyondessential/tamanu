@@ -4,7 +4,7 @@ import { LoginView, RegistrationView, DashboardView, RequestLoginTokenView } fro
 import { PublicRoute } from './routes/PublicRoute';
 import { PrivateRoute } from './routes/PrivateRoute';
 
-export const RoutingApp = () => {
+export const App = () => {
   return (
     <Router>
       <Routes>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Typography, TextField } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
-import { useAuth } from '@auth/useAuth';
+import { useLogin } from '../api/mutations';
 
 export const LoginView = () => {
-  const { login } = useAuth();
+  const { mutate: login } = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

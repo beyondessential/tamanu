@@ -46,6 +46,11 @@ export class TamanuApi extends BaseTamanuApi {
     return { token, user };
   }
 
+  async logout() {
+    this.setToken('');
+    localStorage.removeItem(TOKEN);
+  }
+
   restoreSession() {
     const token = localStorage.getItem(TOKEN);
 

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router';
-import { useAuth } from '@auth/useAuth';
+import { Navigate, Outlet, useOutletContext } from 'react-router';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from '../components/PageHeader';
+import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 
 const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -16,19 +16,26 @@ const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const PrivateRoute = () => {
-  const { user, loading } = useAuth();
+  const currentUserQuery = useCurrentUserQuery();
 
-  if (loading) {
+  if (currentUserQuery.isPending) {
     return <CircularProgress />;
   }
 
-  if (!user) {
+  if (currentUserQuery.isError || !currentUserQuery.data) {
     return <Navigate to="/login" replace />;
   }
 
   return (
     <PrivatePageLayout>
-      <Outlet />
+      <Outlet context={currentUserQuery.data} />
     </PrivatePageLayout>
   );
 };
+
+// Using any for now instead of importing JS types
+type ContextType = { any: any | null };
+
+export function useCurrentUser() {
+  return useOutletContext<ContextType>();
+}

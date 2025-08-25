@@ -2,7 +2,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
 import { CircularProgress, Paper, Container } from '@mui/material';
-import { useAuth } from '@auth/useAuth';
+import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 
 const PageContainer = styled(Container)`
   display: flex;
@@ -45,9 +45,9 @@ const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const PublicRoute = () => {
-  const { user, loading } = useAuth();
+  const { data: user, isPending } = useCurrentUserQuery();
 
-  if (loading) {
+  if (isPending) {
     return <CircularProgress />;
   }
 
