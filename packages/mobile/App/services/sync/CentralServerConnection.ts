@@ -14,7 +14,7 @@ import {
 import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '~/constants';
+import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPE_SYNC_CLIENT } from '~/constants';
 
 const API_PREFIX = 'api';
 
@@ -295,7 +295,7 @@ export class CentralServerConnection {
       const data = await this.post(
         'login',
         {},
-        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPES.SYNC_CLIENT] },
+        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPE_SYNC_CLIENT] },
         { backoff: { maxAttempts: 1 } },
       );
 
