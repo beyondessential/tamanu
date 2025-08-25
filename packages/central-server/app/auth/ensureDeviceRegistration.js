@@ -17,13 +17,6 @@ export async function ensureDeviceRegistration({
   deviceId,
   scopes,
 }) {
-  const deviceRegistrationQuotaEnabled = await settings.get(
-    SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED,
-  );
-  if (!deviceRegistrationQuotaEnabled) {
-    return;
-  }
-
   // There's two race conditions we seek to avoid with this transaction:
   //
   // 1. If the device logs in to the server twice simultaneously, we want
@@ -61,7 +54,11 @@ export async function ensureDeviceRegistration({
         scopes,
       });
 
-      if (device.requiresQuota()) {
+      const deviceRegistrationQuotaEnabled = await settings.get(
+        SETTING_KEYS.FEATURES_DEVICE_REGISTRATION_QUOTA_ENABLED,
+      );
+
+      if (deviceRegistrationQuotaEnabled && device.requiresQuota()) {
         const currentCount = await Device.getQuotaByUserId(user.id);
         if (currentCount + 1 > user.deviceRegistrationQuota) {
           throw new BadAuthenticationError(DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR);
