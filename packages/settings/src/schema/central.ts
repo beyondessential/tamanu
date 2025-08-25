@@ -113,11 +113,6 @@ export const centralSettings = {
               type: yup.array(yup.string().min(1)),
               defaultValue: [],
             },
-            schedule: {
-              description: 'Schedule for DHIS2 integration processing (cron format)',
-              type: yup.string(),
-              defaultValue: '0 2 * * *', // Every day at 2 AM
-            },
           },
         },
       },

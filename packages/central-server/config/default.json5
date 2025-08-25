@@ -206,6 +206,9 @@
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
     },
+    "dhis2IntegrationProcessor": {
+      "0 2 * * *"
+    },
     "automaticLabTestResultPublisher": {
       "enabled": false,
       "schedule": "*/15 * * * *",
