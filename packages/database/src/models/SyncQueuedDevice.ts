@@ -58,24 +58,25 @@ export class SyncQueuedDevice extends Model {
     });
   }
 
-  static async checkSyncRequest({
-    facilityIds,
-    deviceId,
-    urgent,
-    lastSyncedTick,
-  }: {
-    facilityIds: string[];
-    deviceId: string;
-    urgent: boolean;
-    lastSyncedTick: number;
-  }) {
+  static async checkSyncRequest(
+    id: string,
+    {
+      facilityIds,
+      urgent,
+      lastSyncedTick,
+    }: {
+      facilityIds: string[];
+      urgent: boolean;
+      lastSyncedTick: number;
+    },
+  ) {
     // first, update our own entry in the sync queue
-    const queueRecord = await this.findByPk(deviceId);
+    const queueRecord = await this.findByPk(id);
 
     if (!queueRecord) {
       // new entry in sync queue
       await this.create({
-        id: deviceId,
+        id,
         facilityIds: JSON.stringify(facilityIds),
         lastSeenTime: getCurrentDateTimeString(),
         urgent,

@@ -80,11 +80,10 @@ export const buildSyncRoutes = ctx => {
       }
 
       // now update our position in the queue and check if we're at the front of it
-      const queueRecord = await SyncQueuedDevice.checkSyncRequest({
+      const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
         lastSyncedTick: 0,
         urgent: false,
         facilityIds,
-        deviceId: device.id,
       });
       log.info('Queue position', queueRecord.get({ plain: true }));
 
