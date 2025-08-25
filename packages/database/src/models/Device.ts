@@ -71,7 +71,7 @@ export class Device extends Model {
       where: {
         registeredById: userId,
         [Op.or]: DEVICE_SCOPES_SUBJECT_TO_QUOTA.map(scope =>
-          Sequelize.literal(`jsonb_array_contains(scopes, '${scope}')`),
+          Sequelize.literal(`scopes ? '${scope}'`),
         ),
       },
     });
