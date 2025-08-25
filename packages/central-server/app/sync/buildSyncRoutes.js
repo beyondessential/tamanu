@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError, InvalidParameterError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
@@ -39,6 +39,10 @@ export const buildSyncRoutes = ctx => {
         body: { facilityIds, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
+
+      if (!facilityIds || facilityIds.length === 0) {
+        throw new InvalidParameterError('No facilities provided');
+      }
 
       const userInstance = await store.models.User.findByPk(user.id);
       if (!(await userInstance.canSync(facilityIds, req))) {
