@@ -145,7 +145,12 @@ describe('CentralServerConnection', () => {
       expect(postSpy).toBeCalledWith(
         'login',
         {},
-        { email: mockEmail, password: mockPassword, deviceId: 'mobile-test-device-id' },
+        {
+          email: mockEmail,
+          password: mockPassword,
+          deviceId: 'mobile-test-device-id',
+          scopes: ['sync-client'],
+        },
         {
           backoff: {
             maxAttempts: 1,
