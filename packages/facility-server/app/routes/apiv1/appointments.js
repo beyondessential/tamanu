@@ -10,6 +10,7 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
   MODIFY_REPEATING_APPOINTMENT_MODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
 import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
@@ -269,6 +270,7 @@ appointments.get(
         orderBy = 'startTime',
         patientNameOrId,
         includeCancelled = false,
+        view,
         ...queries
       },
     } = req;
@@ -292,6 +294,12 @@ appointments.get(
       `),
       ],
     };
+    
+    const bookableWhereClause = [LOCATION_BOOKABLE_VIEW.DAILY, LOCATION_BOOKABLE_VIEW.WEEKLY].includes(view) ? {
+      '$location.locationGroup.is_bookable$': {
+        [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, view]
+      }
+    } : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
@@ -326,6 +334,7 @@ appointments.get(
           cancelledStatusWhereClause,
           isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
+          bookableWhereClause,
           ...filters,
         ],
       },
