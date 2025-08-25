@@ -1,11 +1,13 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
+import { LocationAssignmentsContextProvider } from '../contexts/LocationAssignments';
 import { ReportAdminRoutes } from './ReportAdminRoutes';
 import { FhirAdminRoutes } from './FhirAdminRoutes';
 import {
   AssetUploaderView,
   InsurerPaymentsAdminView,
+  LocationAssignmentsAdminView,
   PatientMergeView,
   PermissionsAdminView,
   ProgramsAdminView,
@@ -22,6 +24,11 @@ export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>
     <Route path={`${match.path}/assets`} component={AssetUploaderView} />
     <Route path={`${match.path}/fhir`} component={FhirAdminRoutes} />
+    <Route path={`${match.path}/locationAssignments`}>
+      <LocationAssignmentsContextProvider>
+        <LocationAssignmentsAdminView />
+      </LocationAssignmentsContextProvider>
+    </Route>
     <Route path={`${match.path}/patientMerge`} component={PatientMergeView} />
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
