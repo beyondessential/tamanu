@@ -26,6 +26,7 @@ export const DataFetchingProgramsTable = ({
   fetchOptions = {},
   tableOptions = {},
   className,
+  onDelete = null,
 }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -190,6 +191,9 @@ export const DataFetchingProgramsTable = ({
         onClose={() => {
           setDeleteModalOpen(false);
           updateRefreshCount();
+          if (onDelete) {
+            onDelete();
+          }
           if (tableOptions.updateRefreshCount) {
             tableOptions.updateRefreshCount();
           }

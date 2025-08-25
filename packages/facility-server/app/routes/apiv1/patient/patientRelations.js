@@ -330,7 +330,7 @@ patientRelations.get(
           AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : 'AND surveys.id IN (:surveyIds)'}
           ${programId ? 'AND programs.id = :programId' : ''}
-          ${procedureId ? 'AND procedure_survey_responses.procedure_id = :procedureId' : 'AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses WHERE deleted_at IS NULL)'}
+          ${procedureId ? 'AND procedure_survey_responses.procedure_id = :procedureId' : 'AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses)'}
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { patientId, surveyId, surveyIds: permittedSurveyIds, programId, procedureId, surveyType },

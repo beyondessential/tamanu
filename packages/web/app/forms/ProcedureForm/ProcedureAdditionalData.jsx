@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import MuiDivider from '@material-ui/core/Divider';
-import { SelectInput, TranslatedReferenceData, TranslatedText } from '../../components';
+import { SelectInput, TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
@@ -40,12 +40,6 @@ const SurveyBox = styled.div`
   margin: 20px 0;
   border-radius: 3px;
   border: 1px solid ${Colors.outline};
-`;
-
-const SurveyHeading = styled(Typography)`
-  font-weight: 500;
-  font-size: 16px;
-  margin-bottom: 10px;
 `;
 
 const Divider = styled(MuiDivider)`
@@ -141,9 +135,6 @@ export const ProcedureAdditionalData = ({
         />
         {survey && (
           <SurveyBox>
-            <SurveyHeading variant="h6" data-testid="surveypaneheading-b5sc">
-              <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
-            </SurveyHeading>
             <SurveyViewForm
               onSubmit={submitSurveyResponse}
               survey={survey}

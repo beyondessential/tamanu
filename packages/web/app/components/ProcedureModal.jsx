@@ -6,6 +6,7 @@ import MuiDivider from '@material-ui/core/Divider';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -200,6 +201,12 @@ export const ProcedureModal = ({
                   setEditedProcedure({ ...values, id });
                   setFieldValue('id', id);
                   updateRefreshCount();
+                  toast.success(
+                    <TranslatedText
+                      stringId="procedure.form.updated.message"
+                      fallback="Procedure updated"
+                    />,
+                  );
                 }}
               />
               {programResponses?.data?.length > 0 && (
@@ -207,6 +214,14 @@ export const ProcedureModal = ({
                   <ProgramsTable
                     endpoint={`patient/${patientId}/programResponses`}
                     patient={patient}
+                    onDelete={() => {
+                      toast.success(
+                        <TranslatedText
+                          stringId="procedure.form.updated.message"
+                          fallback="Procedure updated"
+                        />,
+                      );
+                    }}
                     fetchOptions={{ procedureId }}
                     tableOptions={{
                       disablePagination: true,
