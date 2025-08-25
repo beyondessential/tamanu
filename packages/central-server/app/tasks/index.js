@@ -53,6 +53,7 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
     MedicationDiscontinuer,
+    Dhis2IntegrationProcessor,
     SendStatusToMetaServer,
   ];
 
@@ -65,7 +66,7 @@ export async function startScheduledTasks(context) {
 
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map((TaskClass) => {
+    ...taskClasses.map(TaskClass => {
       try {
         log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
         return new TaskClass(context);
@@ -75,9 +76,9 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter((x) => x);
-  tasks.forEach((t) => t.beginPolling());
-  return () => tasks.forEach((t) => t.cancelPolling());
+  ].filter(x => x);
+  tasks.forEach(t => t.beginPolling());
+  return () => tasks.forEach(t => t.cancelPolling());
 }
 
 async function getReportSchedulers(context) {
