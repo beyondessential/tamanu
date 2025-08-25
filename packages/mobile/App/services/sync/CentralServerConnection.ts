@@ -1,6 +1,5 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import { DEVICE_SCOPES } from '@tamanu/constants';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -15,7 +14,7 @@ import {
 import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
+import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '~/constants';
 
 const API_PREFIX = 'api';
 
