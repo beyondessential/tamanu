@@ -19,11 +19,11 @@ export async function checkConfig({ settings, models }) {
     ]);
   }
 
-  const { enabled, reportIds } = await settings.central.get('integrations.dhis2');
+  const { reportIds } = await settings.central.get('integrations.dhis2');
   const databaseReportIds = await models.ReportDefinition.findAll({
     where: { id: reportIds, status: REPORT_STATUSES.PUBLISHED },
   });
-  if (enabled && databaseReportIds.length < reportIds.length) {
+  if (databaseReportIds.length < reportIds.length) {
     const missing = reportIds.filter(id => !databaseReportIds.some(r => r.id === id));
     log.error(`Reports ${missing} could not be found or is not published`);
   }
