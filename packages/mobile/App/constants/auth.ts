@@ -1,5 +1,2 @@
 export const SYSTEM_USER_UUID = '00000000-0000-0000-0000-000000000000';
 export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
-
-// This is defined in @tamanu/constants/auth.ts
-export const DEVICE_SCOPE_SYNC_CLIENT = 'sync-client';

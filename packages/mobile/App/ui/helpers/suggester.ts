@@ -1,6 +1,6 @@
 import { Brackets, FindManyOptions, ObjectLiteral } from 'typeorm';
 
-import { ENGLISH_LANGUAGE_CODE } from '~/constants';
+import { ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { BaseModel } from '~/models/BaseModel';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
