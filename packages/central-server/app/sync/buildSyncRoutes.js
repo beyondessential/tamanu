@@ -85,6 +85,7 @@ export const buildSyncRoutes = ctx => {
         urgent: false,
         facilityIds,
       });
+      log.warn(`DEBUG device=${device.id} queueRecord=${queueRecord.id}`);
       log.info('Queue position', queueRecord.get({ plain: true }));
 
       // if we're not at the front of the queue, we're waiting
