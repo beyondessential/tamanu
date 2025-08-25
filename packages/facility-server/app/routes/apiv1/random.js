@@ -35,9 +35,16 @@ random.get(
 
     req.checkPermission('read', modelName);
 
-    const { models, db } = req;
+    const { models, db, facilityId } = req;
+
+    let where = {};
+
+    if (facilityId && models[modelName].rawAttributes.facilityId) {
+      where.facilityId = facilityId;
+    }
 
     const record = await models[modelName].findOne({
+      where,
       order: [db.literal('RANDOM()')],
     });
 
