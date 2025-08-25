@@ -23,6 +23,8 @@ random.get(
   '/:entity',
   asyncHandler(async (req, res) => {
     if (process.env.NODE_ENV !== 'test') {
+      // Avoids missing permission check error
+      req.flagPermissionChecked();
       return res.status(404).send();
     }
 
