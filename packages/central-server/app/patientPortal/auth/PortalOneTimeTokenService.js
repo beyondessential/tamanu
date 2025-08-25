@@ -78,8 +78,11 @@ export class PortalOneTimeTokenService {
       where: { type, token: hashedToken },
     });
 
-    const portalUser = await PortalUser.findOne({ id: record.portalUserId });
+    if (!record) {
+      throw new BadAuthenticationError('Invalid verification code');
+    }
 
+    const portalUser = await PortalUser.findByPk(record.portalUserId);
     if (!portalUser || !record) {
       throw new BadAuthenticationError('Invalid verification code');
     }
