@@ -4,7 +4,7 @@ import { SYNC_DIRECTIONS, VISIBILITY_STATUSES, PORTAL_USER_STATUSES } from '@tam
 import type { InitOptions, Models } from '../types/model';
 import { Model } from './Model';
 
-export class PortalUser extends Model { 
+export class PortalUser extends Model {
   declare id: string;
   declare email?: string;
   declare patientId: string;
@@ -73,6 +73,11 @@ export class PortalUser extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
+    });
+
+    this.hasMany(models.PortalOneTimeToken, {
+      foreignKey: 'portalUserId',
+      as: 'oneTimeTokens',
     });
   }
 
