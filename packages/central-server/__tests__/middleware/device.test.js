@@ -64,7 +64,7 @@ describe('Device auth', () => {
       email: TEST_EMAIL,
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      scopes: [],
     });
 
     expect(response).toHaveSucceeded();
@@ -86,6 +86,26 @@ describe('Device auth', () => {
       password: TEST_PASSWORD,
       deviceId: TEST_DEVICE_ID,
       scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    expect(response).not.toHaveSucceeded();
+  });
+
+  it('should not error if there is not enough quota for a new sync scoped device but we are not scoping', async () => {
+    await user.update({ deviceRegistrationQuota: 2 });
+    await store.models.Device.create({
+      registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+    await store.models.Device.create({
+      registeredById: user.id,
+      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+    });
+
+    const response = await baseApp.post('/api/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+      deviceId: TEST_DEVICE_ID,
     });
 
     expect(response).not.toHaveSucceeded();
