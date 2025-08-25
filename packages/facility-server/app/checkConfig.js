@@ -11,7 +11,7 @@ export async function checkConfig({ settings, models }) {
   };
 
   const { enabled, reportIds } = await settings.central.get('integrations.dhis2');
-  const found = await models.Report.findAll({ where: { id: reportIds } });
+  const found = await models.ReportDefinition.findAll({ where: { id: reportIds } });
   if (enabled && found.length !== reportIds.length) {
     const missing = reportIds.filter(id => !found.some(r => r.id === id));
     log.error(`Reports ${missing} could not be found`);
