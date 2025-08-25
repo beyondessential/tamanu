@@ -12,6 +12,21 @@ import { CentralSyncManager } from './CentralSyncManager';
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
+  syncRoutes.use(({ device, body: { deviceId } }, _res, next) => {
+    if (!device) {
+      throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
+    }
+    device.ensureHasScope(DEVICE_SCOPES.SYNC_CLIENT);
+
+    if (deviceId) {
+      log.warn('Providing deviceId in the request body is deprecated');
+      if (device.id !== deviceId) {
+        throw new ForbiddenError('Device ID mismatch');
+      }
+    }
+
+    next();
+  });
 
   // create new sync session or join/update the queue for one
   syncRoutes.post(
@@ -21,20 +36,9 @@ export const buildSyncRoutes = ctx => {
         store,
         user,
         device,
-        body: { facilityIds, deviceId, isMobile },
+        body: { facilityIds, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
-
-      if (!device) {
-        throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
-      }
-      if (!device.scopes.includes(DEVICE_SCOPES.SYNC_CLIENT)) {
-        throw new ForbiddenError('Device does not have the required scopes');
-      }
-      if (deviceId && device.id !== deviceId) {
-        // eventually we want to phase out sending the deviceId in the request body
-        throw new ForbiddenError('Device ID mismatch');
-      }
 
       const userInstance = await store.models.User.findByPk(user.id);
       if (!(await userInstance.canSync(facilityIds, req))) {
@@ -140,7 +144,7 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/pull/initiate',
     asyncHandler(async (req, res) => {
-      const { params, body, deviceId } = req;
+      const { params, body, device } = req;
       const { since: sinceString, facilityIds, tablesToInclude, tablesForFullResync } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
@@ -151,7 +155,7 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         tablesToInclude,
         tablesForFullResync,
-        deviceId,
+        deviceId: device.id,
       });
       res.json({});
     }),
@@ -212,10 +216,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push/complete',
     asyncHandler(async (req, res) => {
-      const { params, body } = req;
+      const { params, body, device } = req;
       const { sessionId } = params;
-      const { tablesToInclude, deviceId } = body;
-      await syncManager.completePush(sessionId, deviceId, tablesToInclude);
+      const { tablesToInclude } = body;
+      await syncManager.completePush(sessionId, device.id, tablesToInclude);
       res.json({});
     }),
   );

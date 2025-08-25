@@ -86,4 +86,10 @@ export class Device extends Model {
   requiresQuota(): boolean {
     return this.scopes.some(scope => DEVICE_SCOPES_SUBJECT_TO_QUOTA.includes(scope));
   }
+
+  ensureHasScope(scope: DeviceScope) {
+    if (!this.scopes.includes(scope)) {
+      throw new Error('Device must have the required scope.');
+    }
+  }
 }
