@@ -45,8 +45,9 @@ sources:
             description: "{{ doc('patient_vrs_data__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: is_deleted_by_remote
             data_type: boolean
             description: "{{ doc('patient_vrs_data__is_deleted_by_remote') }}"

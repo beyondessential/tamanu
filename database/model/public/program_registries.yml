@@ -52,9 +52,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - village
-                    - facility
+                  arguments:
+                    values:
+                      - village
+                      - facility
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in program_registries."
