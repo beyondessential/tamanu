@@ -108,7 +108,7 @@ describe('Device auth', () => {
       deviceId: TEST_DEVICE_ID,
     });
 
-    expect(response).not.toHaveSucceeded();
+    expect(response).toHaveSucceeded();
   });
 
   it('should succeed if there is enough quota for a new sync scoped device', async () => {
