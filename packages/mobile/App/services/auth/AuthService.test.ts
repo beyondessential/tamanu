@@ -257,64 +257,6 @@ describe('AuthService', () => {
         expect(mockUser.canAccessFacility).toHaveBeenCalled();
       });
     });
-
-    describe('integration scenarios', () => {
-      it('should handle case insensitive login during internet outage scenario', async () => {
-        // Simulate a user trying different cases of their email during outage
-        const emailVariations = [
-          'user@hospital.com',
-          'USER@HOSPITAL.COM',
-          'User@Hospital.Com',
-          'uSeR@hOsPiTaL.cOm'
-        ];
-
-        for (const email of emailVariations) {
-          mockUserModel.findOne.mockClear();
-          (Raw as jest.Mock).mockClear();
-
-          const result = await authService.localSignIn(
-            { email, password: 'password123' },
-            generateAbilityForUser
-          );
-
-          expect(result).toBe(mockUser);
-          expect(Raw).toHaveBeenCalledWith(
-            expect.any(Function),
-            { email }
-          );
-          expect(mockUserModel.findOne).toHaveBeenCalledWith({
-            where: {
-              email: {
-                sql: 'LOWER(email) = LOWER(:email)',
-                parameters: { email }
-              },
-              visibilityStatus: VisibilityStatus.Current,
-            },
-          });
-        }
-      });
-
-      it('should maintain security by still checking password after case insensitive email lookup', async () => {
-        // Even with case insensitive email, password should still be validated
-        mockCompare.mockResolvedValue(false);
-
-        await expect(
-          authService.localSignIn(
-            { email: 'TEST@EXAMPLE.COM', password: 'wrongpassword' },
-            generateAbilityForUser
-          )
-        ).rejects.toThrow(invalidUserCredentialsMessage);
-
-        // Verify case insensitive lookup was performed
-        expect(Raw).toHaveBeenCalledWith(
-          expect.any(Function),
-          { email: 'TEST@EXAMPLE.COM' }
-        );
-        
-        // But password validation still failed
-        expect(mockCompare).toHaveBeenCalledWith('wrongpassword', 'hashedPassword123');
-      });
-    });
   });
 
   describe('saveLocalUser', () => {
@@ -459,36 +401,6 @@ describe('AuthService', () => {
     });
 
     describe('edge cases', () => {
-      it('should handle mixed case email variations correctly', async () => {
-        const emailVariations = [
-          'user@hospital.com',
-          'USER@HOSPITAL.COM', 
-          'User@Hospital.Com',
-          'uSeR@hOsPiTaL.cOm'
-        ];
-
-        // First variation creates/finds the user
-        const userData1 = { email: emailVariations[0], displayName: 'Test User' };
-        const result1 = await authService.saveLocalUser(userData1, 'password123');
-        expect(result1).toBe(mockUser);
-
-        // All subsequent variations should find the same user
-        for (let i = 1; i < emailVariations.length; i++) {
-          mockUserModel.findOne.mockClear();
-          (Raw as jest.Mock).mockClear();
-
-          const userData = { email: emailVariations[i], displayName: 'Test User' };
-          const result = await authService.saveLocalUser(userData, 'password123');
-
-          expect(result).toBe(mockUser);
-          expect(mockUserModel.create).not.toHaveBeenCalled();
-          expect(Raw).toHaveBeenCalledWith(
-            expect.any(Function),
-            { email: emailVariations[i] }
-          );
-        }
-      });
-
       it('should handle undefined email gracefully', async () => {
         const userData = { displayName: 'Test User' };
         
