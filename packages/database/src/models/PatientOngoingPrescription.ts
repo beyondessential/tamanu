@@ -1,11 +1,10 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildPatientSyncFilterViaPatientId } from '../sync/buildPatientSyncFilterViaPatientId';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
 import type { Prescription } from './Prescription';
 import { Op } from 'sequelize';
-import { ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class PatientOngoingPrescription extends Model {
   declare id: string;
@@ -37,13 +36,13 @@ export class PatientOngoingPrescription extends Model {
 
   static buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'patient_ongoing_prescriptions.patient_id',
-        facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
+      select: buildEncounterLinkedLookupSelect(this, {
+        patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
       }),
       joins: `
         LEFT JOIN encounter_prescriptions ON patient_ongoing_prescriptions.prescription_id = encounter_prescriptions.prescription_id
         LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+        LEFT JOIN patient_ongoing_prescriptions ON patient_ongoing_prescriptions.prescription_id = patient_ongoing_prescriptions.prescription_id
         LEFT JOIN locations ON encounters.location_id = locations.id
         LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
