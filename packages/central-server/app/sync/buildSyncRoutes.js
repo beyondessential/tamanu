@@ -36,7 +36,7 @@ export const buildSyncRoutes = ctx => {
         store,
         user,
         device,
-        body: { facilityIds, isMobile },
+        body: { lastSyncedTick, urgent, facilityIds, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
@@ -81,8 +81,8 @@ export const buildSyncRoutes = ctx => {
 
       // now update our position in the queue and check if we're at the front of it
       const queueRecord = await SyncQueuedDevice.checkSyncRequest(device.id, {
-        lastSyncedTick: 0,
-        urgent: false,
+        lastSyncedTick,
+        urgent,
         facilityIds,
       });
       log.warn(`DEBUG device=${device.id} queueRecord=${queueRecord.id}`);
