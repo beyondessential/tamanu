@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
 import { ForbiddenError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
+import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { CentralSyncManager } from './CentralSyncManager';
 
@@ -19,17 +20,19 @@ export const buildSyncRoutes = ctx => {
       const {
         store,
         user,
-        deviceId,
-        body: { facilityIds, deviceId: bodyDeviceId, isMobile },
+        device,
+        body: { facilityIds, deviceId, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
-      if (!deviceId) {
+      if (!device) {
         throw new ForbiddenError('Sync requires an authenticated device ID (ie provided at login)');
       }
-
-      // eventually we want to phase out sending the deviceId in the request body
-      if (bodyDeviceId && deviceId !== bodyDeviceId) {
+      if (!device.scopes.includes(DEVICE_SCOPES.SYNC_CLIENT)) {
+        throw new ForbiddenError('Device does not have the required scopes');
+      }
+      if (deviceId && device.id !== deviceId) {
+        // eventually we want to phase out sending the deviceId in the request body
         throw new ForbiddenError('Device ID mismatch');
       }
 
@@ -46,7 +49,7 @@ export const buildSyncRoutes = ctx => {
         where: {
           completedAt: { [Op.is]: null },
           parameters: {
-            deviceId,
+            deviceId: device.id,
           },
         },
       });
@@ -77,7 +80,7 @@ export const buildSyncRoutes = ctx => {
       log.info('Queue position', queueRecord.get({ plain: true }));
 
       // if we're not at the front of the queue, we're waiting
-      if (queueRecord.id !== req.body.deviceId) {
+      if (queueRecord.id !== device.id) {
         res.send({
           status: 'waitingInQueue',
           behind: queueRecord,
@@ -104,7 +107,7 @@ export const buildSyncRoutes = ctx => {
 
       const { sessionId, tick } = await syncManager.startSession({
         userId: user.id,
-        deviceId,
+        deviceId: device.id,
         facilityIds,
         isMobile,
       });

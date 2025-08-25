@@ -45,12 +45,7 @@ export async function ensureDeviceRegistration({
         }
       }
 
-      const syncDevice = await Device.findOne({
-        where: {
-          id: deviceId,
-        },
-      });
-
+      const syncDevice = await Device.findByPk(deviceId);
       if (syncDevice) {
         if (difference(scopes, syncDevice.scopes).length > 0) {
           throw new BadAuthenticationError('Requested more scopes than the device has');
