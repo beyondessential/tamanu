@@ -22,7 +22,7 @@ export default async () =>
       alias: {
         '@api': path.resolve(__dirname, 'src/api'),
         '@utils': path.resolve(__dirname, 'src/utils'),
-        '@auth': path.resolve(__dirname, 'src/auth'),
+        '@components': path.resolve(__dirname, 'src/components'),
         '@routes': path.resolve(__dirname, 'src/routes'),
       },
     },

@@ -47,9 +47,21 @@ const patientPortalThemeConfig = {
     fontFamily: 'Roboto',
     h1: {
       fontFamily: 'Roboto',
-      fontSize: '1.5rem', // 24px
+      fontSize: '2rem', // 32px
       fontWeight: 500,
       lineHeight: 1.2,
+    },
+    h2: {
+      fontFamily: 'Roboto',
+      fontSize: '1.5rem', // 24px
+      fontWeight: 600,
+      lineHeight: 1.5,
+    },
+    h3: {
+      fontFamily: 'Roboto',
+      fontSize: '1.125rem', // 18px
+      fontWeight: 600,
+      lineHeight: 1.5,
     },
     h4: {
       fontFamily: 'Roboto',
