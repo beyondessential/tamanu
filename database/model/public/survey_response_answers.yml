@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_survey_response_answers_changed
+              - record_survey_response_answers_changelog
+              - set_survey_response_answers_updated_at
+              - set_survey_response_answers_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -35,23 +41,31 @@ sources:
           - name: body
             data_type: text
             description: "{{ doc('survey_response_answers__body') }}"
+            config:
+              meta:
+                masking: text
           - name: response_id
             data_type: character varying(255)
             description: "{{ doc('survey_response_answers__response_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'survey_responses')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'survey_responses')
+                    field: id
           - name: data_element_id
             data_type: character varying(255)
             description: "{{ doc('survey_response_answers__data_element_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_data_elements')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_data_elements')
+                    field: id
           - name: body_legacy
             data_type: text
             description: "{{ doc('survey_response_answers__body_legacy') }}"
+            config:
+              meta:
+                masking: text
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in survey_response_answers."

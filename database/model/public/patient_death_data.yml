@@ -6,11 +6,16 @@ sources:
     tables:
       - name: patient_death_data
         description: "{{ doc('table__patient_death_data') }}"
-        __generator:
-          js_class: PatientDeathData
         config:
           tags:
             - clinical
+          meta:
+            js_class: PatientDeathData
+            triggers:
+              - notify_patient_death_data_changed
+              - record_patient_death_data_changelog
+              - set_patient_death_data_updated_at
+              - set_patient_death_data_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -24,49 +29,71 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__clinician_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: manner
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__manner') }}"
+            config:
+              meta:
+                masking: text
           - name: recent_surgery
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__recent_surgery') }}"
+            config:
+              meta:
+                masking: text
           - name: last_surgery_date
             data_type: character(10)
             description: "{{ doc('patient_death_data__last_surgery_date') }}"
+            config:
+              meta:
+                masking: date
           - name: last_surgery_reason_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__last_surgery_reason_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: external_cause_date
             data_type: character(10)
             description: "{{ doc('patient_death_data__external_cause_date') }}"
+            config:
+              meta:
+                masking: date
           - name: external_cause_location
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__external_cause_location') }}"
+            config:
+              meta:
+                masking: place
           - name: external_cause_notes
             data_type: text
             description: "{{ doc('patient_death_data__external_cause_notes') }}"
+            config:
+              meta:
+                masking: text
           - name: was_pregnant
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__was_pregnant') }}"
@@ -82,26 +109,47 @@ sources:
           - name: birth_weight
             data_type: integer
             description: "{{ doc('patient_death_data__birth_weight') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 1-10
           - name: within_day_of_birth
             data_type: boolean
             description: "{{ doc('patient_death_data__within_day_of_birth') }}"
           - name: hours_survived_since_birth
             data_type: integer
             description: "{{ doc('patient_death_data__hours_survived_since_birth') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 1-50
           - name: carrier_age
             data_type: integer
             description: "{{ doc('patient_death_data__carrier_age') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 20-50
           - name: carrier_pregnancy_weeks
             data_type: integer
             description: "{{ doc('patient_death_data__carrier_pregnancy_weeks') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-40
           - name: carrier_existing_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__carrier_existing_condition_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in patient_death_data."
@@ -117,42 +165,66 @@ sources:
           - name: primary_cause_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__primary_cause_time_after_onset') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-40000
           - name: primary_cause_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__primary_cause_condition_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: antecedent_cause1_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__antecedent_cause1_time_after_onset') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-40000
           - name: antecedent_cause1_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause1_condition_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: antecedent_cause2_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__antecedent_cause2_time_after_onset') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-40000
           - name: antecedent_cause2_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause2_condition_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: external_cause_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_death_data__external_cause_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: last_surgery_date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('patient_death_data__last_surgery_date_legacy') }}"
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_death_data."
@@ -169,11 +241,17 @@ sources:
           - name: antecedent_cause3_time_after_onset
             data_type: integer
             description: "{{ doc('patient_death_data__antecedent_cause3_time_after_onset') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 0-40000
           - name: antecedent_cause3_condition_id
             data_type: character varying(255)
             description: "{{ doc('patient_death_data__antecedent_cause3_condition_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
