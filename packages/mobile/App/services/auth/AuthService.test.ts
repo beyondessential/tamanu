@@ -316,4 +316,191 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('saveLocalUser', () => {
+    let mockHash;
+    let mockUserCreate;
+
+    beforeEach(() => {
+      const { hash } = require('./bcrypt');
+      mockHash = hash;
+      mockHash.mockResolvedValue('hashedPassword123');
+
+      mockUserCreate = {
+        save: jest.fn().mockResolvedValue({
+          id: 'new-user-id',
+          email: 'newuser@example.com',
+          save: jest.fn(),
+        }),
+      };
+
+      mockUserModel.create = jest.fn().mockReturnValue(mockUserCreate);
+      mockUser.save = jest.fn().mockResolvedValue(mockUser);
+    });
+
+    describe('case insensitive email lookup', () => {
+      it('should use case insensitive lookup to find existing user', async () => {
+        const userData = { email: 'TEST@EXAMPLE.COM', displayName: 'Test User' };
+        
+        await authService.saveLocalUser(userData, 'password123');
+
+        // Verify Raw function was called with correct parameters for case insensitive lookup
+        expect(Raw).toHaveBeenCalledWith(
+          expect.any(Function),
+          { email: 'TEST@EXAMPLE.COM' }
+        );
+
+        // Verify findOne was called with Raw query
+        expect(mockUserModel.findOne).toHaveBeenCalledWith({
+          where: {
+            email: {
+              sql: 'LOWER(email) = LOWER(:email)',
+              parameters: { email: 'TEST@EXAMPLE.COM' }
+            },
+          },
+        });
+      });
+
+      it('should find existing user regardless of email case', async () => {
+        // User exists in database with lowercase email
+        mockUser.email = 'test@example.com';
+        
+        // Try to save with uppercase email
+        const userData = { email: 'TEST@EXAMPLE.COM', displayName: 'Test User' };
+        
+        const result = await authService.saveLocalUser(userData, 'password123');
+
+        expect(result).toBe(mockUser);
+        expect(mockUserModel.create).not.toHaveBeenCalled();
+        expect(Raw).toHaveBeenCalledWith(
+          expect.any(Function),
+          { email: 'TEST@EXAMPLE.COM' }
+        );
+      });
+
+      it('should prevent duplicate user creation when email case differs', async () => {
+        // Simulate user signed in online with User@example.com 
+        // and later tries to sign in with user@example.com
+        const onlineUserData = { email: 'User@Example.Com', displayName: 'Test User' };
+        const offlineUserData = { email: 'user@example.com', displayName: 'Test User' };
+
+        // First save (online signin)
+        const firstResult = await authService.saveLocalUser(onlineUserData, 'password123');
+        expect(firstResult).toBe(mockUser);
+
+        // Clear mocks for second call
+        mockUserModel.findOne.mockClear();
+        (Raw as jest.Mock).mockClear();
+
+        // Second save (offline signin with different case)
+        const secondResult = await authService.saveLocalUser(offlineUserData, 'password123');
+        
+        // Should find the same user due to case insensitive lookup
+        expect(secondResult).toBe(mockUser);
+        expect(mockUserModel.create).not.toHaveBeenCalled();
+        expect(Raw).toHaveBeenCalledWith(
+          expect.any(Function),
+          { email: 'user@example.com' }
+        );
+      });
+
+      it('should create new user when no existing user found (case insensitive)', async () => {
+        mockUserModel.findOne.mockResolvedValue(null);
+        const newUser = { id: 'new-user-id', email: 'newuser@example.com', save: jest.fn() };
+        mockUserCreate.save.mockResolvedValue(newUser);
+
+        const userData = { email: 'NewUser@Example.Com', displayName: 'New User' };
+        
+        const result = await authService.saveLocalUser(userData, 'password123');
+
+        expect(result).toBe(newUser);
+        expect(mockUserModel.create).toHaveBeenCalledWith(userData);
+        expect(Raw).toHaveBeenCalledWith(
+          expect.any(Function),
+          { email: 'NewUser@Example.Com' }
+        );
+      });
+    });
+
+    describe('password hashing integration', () => {
+      it('should hash and save password asynchronously for existing user', async () => {
+        const userData = { email: 'test@example.com', displayName: 'Test User' };
+        
+        const result = await authService.saveLocalUser(userData, 'password123');
+
+        expect(result).toBe(mockUser);
+        
+        // Wait for async password hashing to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockHash).toHaveBeenCalledWith('password123');
+        expect(mockUser.save).toHaveBeenCalled();
+        expect(mockUser.localPassword).toBe('hashedPassword123');
+      });
+
+      it('should hash and save password asynchronously for new user', async () => {
+        mockUserModel.findOne.mockResolvedValue(null);
+        const newUser = { id: 'new-user-id', email: 'newuser@example.com', save: jest.fn() };
+        mockUserCreate.save.mockResolvedValue(newUser);
+
+        const userData = { email: 'newuser@example.com', displayName: 'New User' };
+        
+        const result = await authService.saveLocalUser(userData, 'password123');
+
+        expect(result).toBe(newUser);
+        
+        // Wait for async password hashing to complete
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        expect(mockHash).toHaveBeenCalledWith('password123');
+        expect(newUser.save).toHaveBeenCalled();
+        expect(newUser.localPassword).toBe('hashedPassword123');
+      });
+    });
+
+    describe('edge cases', () => {
+      it('should handle mixed case email variations correctly', async () => {
+        const emailVariations = [
+          'user@hospital.com',
+          'USER@HOSPITAL.COM', 
+          'User@Hospital.Com',
+          'uSeR@hOsPiTaL.cOm'
+        ];
+
+        // First variation creates/finds the user
+        const userData1 = { email: emailVariations[0], displayName: 'Test User' };
+        const result1 = await authService.saveLocalUser(userData1, 'password123');
+        expect(result1).toBe(mockUser);
+
+        // All subsequent variations should find the same user
+        for (let i = 1; i < emailVariations.length; i++) {
+          mockUserModel.findOne.mockClear();
+          (Raw as jest.Mock).mockClear();
+
+          const userData = { email: emailVariations[i], displayName: 'Test User' };
+          const result = await authService.saveLocalUser(userData, 'password123');
+
+          expect(result).toBe(mockUser);
+          expect(mockUserModel.create).not.toHaveBeenCalled();
+          expect(Raw).toHaveBeenCalledWith(
+            expect.any(Function),
+            { email: emailVariations[i] }
+          );
+        }
+      });
+
+      it('should handle undefined email gracefully', async () => {
+        const userData = { displayName: 'Test User' };
+        
+        await expect(
+          authService.saveLocalUser(userData, 'password123')
+        ).rejects.toThrow();
+
+        expect(Raw).toHaveBeenCalledWith(
+          expect.any(Function),
+          { email: undefined }
+        );
+      });
+    });
+  });
 });

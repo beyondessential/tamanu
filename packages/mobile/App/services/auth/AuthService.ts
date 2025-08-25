@@ -44,7 +44,12 @@ export class AuthService {
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
     // save local password to repo for later use
-    let user = await this.models.User.findOne({ where: { email: userData.email } });
+    // Use case insensitive lookup to prevent duplicate users with different email cases
+    let user = await this.models.User.findOne({
+      where: {
+        email: Raw(alias => `LOWER(${alias}) = LOWER(:email)`, { email: userData.email }),
+      },
+    });
     if (!user) {
       const newUser = await this.models.User.create(userData).save();
       if (!user) user = newUser;
