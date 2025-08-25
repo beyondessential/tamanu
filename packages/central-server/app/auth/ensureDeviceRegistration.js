@@ -51,11 +51,11 @@ export async function ensureDeviceRegistration({
         },
       });
 
-      if (difference(scopes, syncDevice.scopes).length > 0) {
-        throw new BadAuthenticationError('Requested more scopes than the device has');
-      }
-
       if (syncDevice) {
+        if (difference(scopes, syncDevice.scopes).length > 0) {
+          throw new BadAuthenticationError('Requested more scopes than the device has');
+        }
+
         await syncDevice.markSeen();
         return;
       }
