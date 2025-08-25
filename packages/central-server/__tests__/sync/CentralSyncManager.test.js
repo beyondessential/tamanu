@@ -3807,7 +3807,7 @@ describe('CentralSyncManager', () => {
 
         it.only('will sync sensitive lab request notes to any facility with syncAllLabRequests enabled', async () => {
           await models.Setting.create({
-            facilityId: nonSensitiveFacility.id,
+            facilityId: sensitiveFacility.id,
             key: 'sync.syncAllLabRequests',
             value: true,
             scope: SETTINGS_SCOPES.FACILITY,
