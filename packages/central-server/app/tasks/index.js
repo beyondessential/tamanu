@@ -28,6 +28,7 @@ import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
+import { Dhis2IntegrationProcessor } from './Dhis2IntegrationProcessor';
 
 export { startFhirWorkerTasks } from './fhir';
 
