@@ -21,14 +21,13 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
       log.debug('Starting DHIS2 integration processing');
 
       // Get DHIS2 settings
-      const dhis2Settings = await this.context.settings.get('integrations.dhis2');
+      const { enabled, reportIds } = await this.context.settings.get('integrations.dhis2');
 
-      if (!dhis2Settings.enabled) {
+      if (!enabled) {
         log.debug('DHIS2 integration is disabled, skipping processing');
         return;
       }
 
-      const { reportIds } = dhis2Settings;
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
 
       // TODO: Implement actual DHIS2 integration logic here
