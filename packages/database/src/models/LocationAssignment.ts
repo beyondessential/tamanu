@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class LocationAssignment extends Model {
@@ -67,10 +68,21 @@ export class LocationAssignment extends Model {
   }
 
   static buildSyncFilter() {
-    return null; // syncs everywhere
+    return `
+      LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+      WHERE locations.facility_id IN (:facilityIds) 
+      AND ${this.tableName}.updated_at_sync_tick > :since
+    `;
   }
 
   static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+    return {
+      select: buildSyncLookupSelect(this, {
+        facilityId: 'locations.facility_id',
+      }),
+      joins: `
+        LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+      `,
+    };
   }
 }
