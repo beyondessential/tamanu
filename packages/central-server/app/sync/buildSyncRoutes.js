@@ -116,7 +116,7 @@ export const buildSyncRoutes = ctx => {
         facilityIds,
         isMobile,
       });
-      res.json({ sessionId, tick });
+      res.json({ status: 'goodToGo', sessionId, tick });
     }),
   );
 

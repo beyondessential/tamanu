@@ -95,11 +95,13 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 
     it('Should start a sync if the queue is empty', async () => {
       const result = await requestSync('A');
+      expect(result.body).toHaveProperty('status', 'goodToGo');
       expect(result.body).toHaveProperty('sessionId');
     });
 
     it('Should queue if a sync is running', async () => {
       const resultA = await requestSync('A');
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       const resultB = await requestSync('B');
@@ -114,6 +116,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 
     it('Should pick the oldest syncedTick device given uniform urgency', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       // get some sessions in the queue
@@ -128,11 +131,13 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('E', 10);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should prioritise urgent over lastSyncedTick', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       // get some sessions in the queue
@@ -147,11 +152,13 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       expect(waiting.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('C', 200); // previous urgent flag should stick
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should cancel a session if that device re-queues', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       await requestSync('B', 100);
@@ -164,11 +171,13 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
       expect(resultTerminate.body).toHaveProperty('status', 'waitingInQueue');
 
       const started = await requestSync('C', 200); // new front-of-queue should succeed
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
 
     it('Should exclude an old session from the queue', async () => {
       const resultA = await requestSync('A'); // start active sync
+      expect(resultA.body).toHaveProperty('status', 'goodToGo');
       expect(resultA.body).toHaveProperty('sessionId');
 
       await requestSync('B', 100);
@@ -189,6 +198,7 @@ import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
 
       // now our B device should be at the front of the queue
       const started = await requestSync('B', 200);
+      expect(started.body).toHaveProperty('status', 'goodToGo');
       expect(started.body).toHaveProperty('sessionId');
     });
   }),
