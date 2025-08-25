@@ -1,5 +1,6 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
 import { createHash } from 'crypto';
+import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
@@ -126,7 +127,7 @@ describe('OneTimeTokenService', () => {
 
       // Verify token exists in database with hashed value
       const tokenRecord = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, type: 'register' },
+        where: { portalUserId: testPortalUser.id, type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER },
       });
 
       expect(tokenRecord).not.toBeNull();
@@ -157,7 +158,7 @@ describe('OneTimeTokenService', () => {
 
       // Count tokens
       const initialCount = await models.PortalOneTimeToken.count({
-        where: { portalUserId: testPortalUser.id, type: 'register' },
+        where: { portalUserId: testPortalUser.id, type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER },
       });
 
       // Create second token
@@ -165,7 +166,7 @@ describe('OneTimeTokenService', () => {
 
       // Count tokens again
       const finalCount = await models.PortalOneTimeToken.count({
-        where: { portalUserId: testPortalUser.id, type: 'register' },
+        where: { portalUserId: testPortalUser.id, type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER },
       });
 
       // Number of tokens should not change (old one should be replaced)
@@ -179,14 +180,14 @@ describe('OneTimeTokenService', () => {
       // Verify and consume the token
       const result = await oneTimeTokenService.verifyAndConsume({
         token,
-        type: 'register',
+        type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
       });
 
       expect(result.id).toEqual(testPortalUser.id);
 
       // Verify token no longer exists
       const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, type: 'register' },
+        where: { portalUserId: testPortalUser.id, type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER },
       });
       expect(tokenAfterConsume).toBeNull();
     });
@@ -234,7 +235,7 @@ describe('OneTimeTokenService', () => {
       const token = '123456';
       await models.PortalOneTimeToken.create({
         portalUserId: testPortalUser.id,
-        type: 'login',
+        type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
         token: hashToken(token), // Store the hashed token
         expiresAt,
       });
