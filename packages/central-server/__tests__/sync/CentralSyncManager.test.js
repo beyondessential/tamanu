@@ -3785,7 +3785,7 @@ describe('CentralSyncManager', () => {
           });
         });
 
-        it('will sync sensitive lab requests to any facility with syncAllLabRequests enabled', async () => {
+        it.only('will sync sensitive lab requests to any facility with syncAllLabRequests enabled', async () => {
           await models.Setting.create({
             facilityId: nonSensitiveFacility.id,
             key: 'sync.syncAllLabRequests',
@@ -3798,11 +3798,44 @@ describe('CentralSyncManager', () => {
 
           const labRequestIds = await getOutgoingIdsForRecordType(
             centralSyncManager,
-            sensitiveFacility.id,
+            nonSensitiveFacility.id,
             models.LabRequest.tableName,
           );
           expect(labRequestIds).toContain(sensitiveLabRequest.id);
           expect(labRequestIds).toContain(nonSensitiveLabRequest.id);
+        });
+
+        it.only('will sync sensitive lab request notes to any facility with syncAllLabRequests enabled', async () => {
+          await models.Setting.create({
+            facilityId: nonSensitiveFacility.id,
+            key: 'sync.syncAllLabRequests',
+            value: true,
+            scope: SETTINGS_SCOPES.FACILITY,
+          });
+
+          const sensitiveLabRequestNote = await models.Note.create(
+            fake(models.Note, {
+              recordType: 'LabRequest',
+              recordId: sensitiveLabRequest.id,
+            }),
+          );
+          const nonSensitiveLabRequestNote = await models.Note.create(
+            fake(models.Note, {
+              recordType: 'LabRequest',
+              recordId: nonSensitiveLabRequest.id,
+            }),
+          );
+
+          const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+          await centralSyncManager.updateLookupTable();
+
+          const labRequestNoteIds = await getOutgoingIdsForRecordType(
+            centralSyncManager,
+            nonSensitiveFacility.id,
+            models.Note.tableName,
+          );
+          expect(labRequestNoteIds).toContain(sensitiveLabRequestNote.id);
+          expect(labRequestNoteIds).toContain(nonSensitiveLabRequestNote.id);
         });
       });
     });
