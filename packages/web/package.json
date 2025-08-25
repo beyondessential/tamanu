@@ -62,6 +62,7 @@
     "@tamanu/database": "*",
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
+    "@tamanu/ui-components": "*",
     "@tamanu/utils": "*",
     "@tanstack/react-query": "^4.0.10",
     "@tanstack/react-query-devtools": "^4.0.10",

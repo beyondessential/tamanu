@@ -9,7 +9,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 import { makeTwoPatients } from './makeTwoPatients';
@@ -914,6 +914,46 @@ describe('Patient merge', () => {
         },
       });
       expect(removedFacility).toBeFalsy();
+    });
+
+    it('Should remerge PortalUser records', async () => {
+      const { PortalUser } = models;
+
+      const [keep, merge] = await makeTwoPatients(models);
+      await mergePatient(models, keep.id, merge.id);
+
+      const keepPortalUser = await PortalUser.create({
+        email: 'keep@test.com',
+        patientId: keep.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.PENDING,
+      });
+
+      const mergePortalUser = await PortalUser.create({
+        email: 'merge@test.com',
+        patientId: merge.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.REGISTERED,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        PortalUser: 1,
+      });
+
+      // The more active account (merge) should be kept and transferred to the keep patient
+      await mergePortalUser.reload();
+      expect(mergePortalUser.patientId).toEqual(keep.id);
+      expect(mergePortalUser.status).toEqual(PORTAL_USER_STATUSES.REGISTERED);
+
+      // The less active account should be deleted
+      const deletedPortalUser = await PortalUser.findByPk(keepPortalUser.id);
+      expect(deletedPortalUser).toBeFalsy();
+
+      const remainingPortalUsers = await PortalUser.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(remainingPortalUsers).toHaveLength(1);
     });
   });
 });
