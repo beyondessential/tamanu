@@ -90,9 +90,9 @@ describe('SyncQueuedDevice', () => {
       expect(resultA.body).toHaveProperty('sessionId');
 
       // get some sessions in the queue
-      await requestSync('B', 100);
-      await requestSync('C', 200);
-      await requestSync('D', 300);
+      await requestSync('B', 300);
+      await requestSync('C', 100);
+      await requestSync('D', 200);
       await requestSync('E', 10);
 
       await closeActiveSyncSessions();
@@ -102,6 +102,17 @@ describe('SyncQueuedDevice', () => {
 
       const started = await requestSync('E', 10);
       expect(started.body).toHaveProperty('sessionId');
+      const queuedDevices = await models.SyncQueuedDevice.findAll({
+        where: models.SyncQueuedDevice.getReadyDevicesWhereClause(),
+        order: [
+          ['urgent', 'DESC'], // trues first
+          ['lastSyncedTick', 'ASC'], // oldest sync first
+        ],
+      });
+      expect(queuedDevices).toHaveLength(3);
+      expect(queuedDevices[1].id).toBe('queue-C');
+      expect(queuedDevices[2].id).toBe('queue-D');
+      expect(queuedDevices[3].id).toBe('queue-B');
     });
 
     it('Should prioritise urgent over lastSyncedTick', async () => {
