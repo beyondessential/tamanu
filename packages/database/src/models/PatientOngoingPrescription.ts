@@ -42,15 +42,6 @@ export class PatientOngoingPrescription extends Model {
         facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
       }),
       joins: `
-        LEFT JOIN (
-          SELECT DISTINCT prescription_id, 
-                 MAX(CASE WHEN f.is_sensitive = TRUE THEN f.id END) as sensitive_facility_id
-          FROM encounter_prescriptions ep
-          JOIN encounters e ON ep.encounter_id = e.id
-          JOIN locations l ON e.location_id = l.id
-          JOIN facilities f ON l.facility_id = f.id
-          GROUP BY prescription_id
-        ) facility_info ON facility_info.prescription_id = patient_ongoing_prescriptions.prescription_id
         LEFT JOIN encounter_prescriptions ON patient_ongoing_prescriptions.prescription_id = encounter_prescriptions.prescription_id
         LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
         LEFT JOIN locations ON encounters.location_id = locations.id
