@@ -3,12 +3,14 @@ import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
 import { isNull, isUndefined } from 'lodash';
+import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
 } from '@tamanu/constants';
+import { convertToBase64 } from '@tamanu/utils/encodings';
 
 import {
   DateField,
@@ -23,7 +25,8 @@ import {
   BaseSelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
-  UnsupportedPhotoField,
+  PhotoField,
+  ChartInstanceNameField,
 } from '../components/Field';
 import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
@@ -61,17 +64,19 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: (props) => (
-    <LimitedTextField {...props} limit={15} />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
     <DateTimeField {...props} saveDateAsString />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
 };
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
@@ -296,16 +301,26 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-export const getAnswersFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, val]) => {
-    if (
-      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
-    ) {
-      acc[key] = val;
+export const getAnswersFromData = async (data, survey) => {
+  const answers = {};
+  for (const [key, val] of Object.entries(data)) {
+    const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
+    const currentDataElementType = currentComponent?.dataElement?.type;
+    if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
+      try {
+        const size = val.size;
+        const base64Data = await convertToBase64(val);
+        answers[key] = { size, data: base64Data };
+      } catch (e) {
+        toast.error(e.message);
+        throw e;
+      }
+    } else if (currentDataElementType !== 'PatientIssue') {
+      answers[key] = val;
     }
-    return acc;
-  }, {});
+  }
+  return answers;
+};
 
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};

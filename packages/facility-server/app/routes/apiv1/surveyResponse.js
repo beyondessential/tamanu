@@ -1,6 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { subject } from '@casl/ability';
+
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
+import { SURVEY_TYPES } from '@tamanu/constants';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 
 export const surveyResponse = express.Router();
 
@@ -37,8 +41,8 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map(answer => {
-        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+      answers: answers.map((answer) => {
+        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
@@ -50,36 +54,92 @@ surveyResponse.get(
   }),
 );
 
-export const createSurveyResponse = async req => {
-  const {
-    models,
-    body: { facilityId, ...body },
-    settings,
-  } = req;
-  // Responses for the vitals survey will check against 'Vitals' create permissions
-  // All others witll check against 'SurveyResponse' create permissions
-  const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
-  req.checkPermission('create', noun);
-
-  const getDefaultId = async type =>
-    models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
-  const updatedBody = {
-    locationId: body.locationId || (await getDefaultId('location')),
-    departmentId: body.departmentId || (await getDefaultId('department')),
-    userId: req.user.id,
-    facilityId,
-    ...body,
-  };
-
-  return models.SurveyResponse.createWithAnswers(updatedBody);
-};
-
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const responseRecord = await req.db.transaction(async () => {
-      return createSurveyResponse(req, res);
+    const {
+      models,
+      body: { facilityId, ...body },
+      db,
+      settings,
+    } = req;
+    // Responses for the vitals survey will check against 'Vitals' create permissions
+    // All others will check against 'SurveyResponse' create permissions
+    const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
+    if (noun === 'Charting') {
+      req.checkPermission('create', subject('Charting', { id: body.surveyId }));
+    } else {
+      req.checkPermission('create', noun);
+    }
+
+    const getDefaultId = async (type) =>
+      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
+    const updatedBody = {
+      locationId: body.locationId || (await getDefaultId('location')),
+      departmentId: body.departmentId || (await getDefaultId('department')),
+      userId: req.user.id,
+      facilityId,
+      ...body,
+    };
+
+    const responseRecord = await db.transaction(async () => {
+      return models.SurveyResponse.createWithAnswers(updatedBody);
     });
+    res.send(responseRecord);
+  }),
+);
+
+surveyResponse.put(
+  '/complexChartInstance/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      models,
+      body,
+      params,
+      db,
+    } = req;
+
+    const responseRecord = await models.SurveyResponse.findByPk(params.id);
+    if (!responseRecord) {
+      throw new NotFoundError('Response record not found');
+    }
+
+    req.checkPermission('write', subject('Charting', { id: responseRecord.surveyId }));
+
+    const survey = await responseRecord.getSurvey();
+    if (survey.surveyType !== SURVEY_TYPES.COMPLEX_CHART_CORE) {
+      throw new InvalidOperationError('Cannot edit survey responses');
+    }
+
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(survey.id);
+    const responseAnswers = await models.SurveyResponseAnswer.findAll({
+      where: { responseId: params.id },
+    });
+
+    await db.transaction(async () => {
+      for (const [dataElementId, value] of Object.entries(body.answers)) {
+        if (!components.some((c) => c.dataElementId === dataElementId)) {
+          throw new InvalidOperationError('Some components are missing from the survey');
+        }
+
+        // Ignore null values
+        if (value === null) {
+          continue;
+        }
+
+        const existingAnswer = responseAnswers.find((a) => a.dataElementId === dataElementId);
+        if (existingAnswer) {
+          await existingAnswer.update({ body: value });
+        } else {
+          await models.SurveyResponseAnswer.create({
+            dataElementId,
+            body: value,
+            responseId: params.id,
+          });
+        }
+      }
+    });
+
     res.send(responseRecord);
   }),
 );
