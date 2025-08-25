@@ -70,8 +70,8 @@ export const buildSyncRoutes = ctx => {
         log.info('StaleSyncSessionCleaner.closedReconnectedSession', {
           sessionId: session.id,
           durationMs,
-          facilityIds: session.parameters.facilityIds,
-          deviceId: session.parameters.deviceId,
+          facilityIds,
+          deviceId: device.id,
         });
       }
 
@@ -79,7 +79,8 @@ export const buildSyncRoutes = ctx => {
       const queueRecord = await SyncQueuedDevice.checkSyncRequest({
         lastSyncedTick: 0,
         urgent: false,
-        ...req.body,
+        facilityIds,
+        deviceId: device.id,
       });
       log.info('Queue position', queueRecord.get({ plain: true }));
 

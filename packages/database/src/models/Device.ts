@@ -71,6 +71,7 @@ export class Device extends Model {
       where: {
         registeredById: userId,
         [Op.or]: DEVICE_SCOPES_SUBJECT_TO_QUOTA.map(scope =>
+          // the jsonb operator `?`: "Does the string exist as a top-level key within the JSON value?"
           Sequelize.literal(`scopes ? '${scope}'`),
         ),
       },
