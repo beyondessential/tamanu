@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
 import { LoginView, RegistrationView, DashboardView, RequestLoginTokenView } from './views';
-import { PublicRoute } from './routes/PublicRoute';
-import { PrivateRoute } from './routes/PrivateRoute';
+import { PublicRoute } from '@routes/PublicRoute';
+import { PrivateRoute } from '@routes/PrivateRoute';
 
 export const App = () => {
   return (

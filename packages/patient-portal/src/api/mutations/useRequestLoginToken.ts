@@ -3,7 +3,6 @@ import { useApi } from '../useApi';
 
 interface RequestLoginTokenResponse {
   message: string;
-  token: string;
 }
 
 export const useRequestLoginToken = (
@@ -11,12 +10,9 @@ export const useRequestLoginToken = (
 ) => {
   const api = useApi();
   return useMutation({
-    mutationFn: (email: string) =>
-      api.post('request-login-token', { email } as any, {
-        returnResponse: true,
-        useAuthToken: false,
-        waitForAuth: false,
-      }),
+    mutationFn: async (email: string): Promise<RequestLoginTokenResponse> => {
+      return await api.post('request-login-token', { email } as any);
+    },
     ...options,
   });
 };

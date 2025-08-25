@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, TextField } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
-import { useLogin } from '../api/mutations';
+import { useLogin } from '@api/mutations';
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -21,7 +21,7 @@ export const LoginView = () => {
       <Typography variant="h3" component="h1" gutterBottom>
         Account authentication
       </Typography>
-      <Typography>Enter your email below to log in</Typography>
+      <Typography>We’ve sent a 6-digit verification code to your email address</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
