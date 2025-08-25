@@ -22,3 +22,12 @@ This is used for quota calculations.
 Optional descriptive name, to make it easier to map device IDs to real devices
 in debugging and troubleshooting situations.
 {% enddocs %}
+
+{% docs devices__scopes %}
+Scopes the device is authorised to access.
+
+Scopes allow access to parts of the API that are closed to other devices
+otherwise. Some scopes are restricted by quota. Devices aren't allowed to
+request more scopes than they currently have, but may login without
+specifying the full scopes they have.
+{% enddocs %}

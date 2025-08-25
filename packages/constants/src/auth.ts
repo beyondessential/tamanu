@@ -9,6 +9,15 @@ export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 
 export const DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR = 'Device registration quota exceeded';
 
+// When adding more scopes here, you need to consider:
+// - this is an early feature and we don't have all the corner cases worked out
+// - currently devices that don't have a scope in database, and request it, get kicked out
+// - so if you add a scope here, and then add it to the client side, locally that might
+//   work fine, but then in production you might be accidentally creating something that
+//   kicks out every single already logged in device that now requests that scope
+//
+// So it's kinda on you to figure out the new behaviour and its edge cases, and eventually
+// we'll all work together to figure this thing out! 🤞
 export const DEVICE_SCOPES = {
   SYNC_CLIENT: 'sync_client',
 } as const;

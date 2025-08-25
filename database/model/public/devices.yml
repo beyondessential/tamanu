@@ -54,3 +54,8 @@ sources:
             config:
               meta:
                 masking: text
+          - name: scopes
+            data_type: jsonb
+            description: "{{ doc('devices__scopes') }}"
+            data_tests:
+              - not_null
