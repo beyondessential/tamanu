@@ -28,8 +28,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoices')
+                    field: id
           - name: order_date
             data_type: character(10)
             description: "{{ doc('invoice_items__order_date') }}"
@@ -43,8 +44,9 @@ sources:
             description: "{{ doc('invoice_items__product_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'invoice_products')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoice_products')
+                    field: id
           - name: quantity
             data_type: integer
             description: "{{ doc('invoice_items__quantity') }}"
@@ -71,8 +73,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: source_id
             data_type: uuid
             description: "{{ doc('invoice_items__source_id') }}"

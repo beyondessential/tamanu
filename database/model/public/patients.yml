@@ -87,10 +87,11 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - female
-                    - male
-                    - other
+                  arguments:
+                    values:
+                      - female
+                      - male
+                      - other
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patients__village_id') }}"

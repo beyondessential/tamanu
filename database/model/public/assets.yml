@@ -42,9 +42,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - image/png
-                    - image/svg
+                  arguments:
+                    values:
+                      - image/png
+                      - image/svg
           - name: data
             data_type: bytea
             description: "{{ doc('assets__data') }}"
