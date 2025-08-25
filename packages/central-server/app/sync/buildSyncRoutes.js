@@ -36,7 +36,7 @@ export const buildSyncRoutes = ctx => {
         store,
         user,
         device,
-        body: { lastSyncedTick, urgent, facilityIds, isMobile },
+        body: { lastSyncedTick = 0, urgent = false, facilityIds, isMobile },
         models: { SyncQueuedDevice, SyncSession },
       } = req;
 
