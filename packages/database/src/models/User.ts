@@ -30,6 +30,7 @@ export class User extends Model {
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
+  declare deviceRegistrationQuota: number;
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
@@ -119,6 +120,11 @@ export class User extends Model {
         },
         phoneNumber: {
           type: DataTypes.STRING,
+        },
+        deviceRegistrationQuota: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
