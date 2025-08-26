@@ -54,7 +54,7 @@ surveyResponse.get(
   }),
 );
 
-export async function createSurveyResponse(req, res) {
+export async function createSurveyResponse(req) {
   const {
     models,
     body: { facilityId, ...body },
@@ -86,7 +86,7 @@ surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
     const responseRecord = await req.db.transaction(async () => {
-      return await createSurveyResponse(req, res);
+      return await createSurveyResponse(req);
     });
     res.send(responseRecord);
   }),

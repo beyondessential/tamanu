@@ -34,7 +34,7 @@ procedure.post('/surveyResponse', async (req, res) => {
   req.checkPermission('create', 'Procedure');
 
   const responseRecord = await req.db.transaction(async () => {
-    const newSurveyResponse = await createSurveyResponse(req, res);
+    const newSurveyResponse = await createSurveyResponse(req);
     let procedure;
 
     if (procedureId) {

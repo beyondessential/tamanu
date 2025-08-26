@@ -81,7 +81,7 @@ export const ProcedureAdditionalData = ({
         patientId: patient.id,
         facilityId,
         endTime: getCurrentDateTimeString(),
-        answers: getAnswersFromData(body, survey),
+        answers: await getAnswersFromData(body, survey),
         procedureId,
       });
     },
