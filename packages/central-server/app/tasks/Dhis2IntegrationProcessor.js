@@ -33,14 +33,20 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
 
       for (const reportId of reportIds) {
-        const report = await this.context.store.models.ReportDefinition.findOne({
-          where: { id: reportId },
+        const report = await this.context.store.models.ReportDefinition.findByPk(reportId, {
+          include: [{ model: this.context.store.models.ReportDefinitionVersion, as: 'versions' }],
         });
+
+        // console.log('Report data: ', report.toJSON());
+
+        log.info('Processing report', { reportId, report });
 
         const reportVersion = getLatestVersion(report.versions, REPORT_STATUSES.PUBLISHED);
 
-        const reportData = await reportVersion.dataGenerator(this.context, {});
-        log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
+        console.log('Report version: ', reportVersion.toJSON());
+
+        // const reportData = await reportVersion.dataGenerator(this.context, {});
+        // log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
       }
 
       log.debug('DHIS2 integration processing completed');
