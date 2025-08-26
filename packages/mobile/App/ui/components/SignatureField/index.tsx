@@ -26,14 +26,14 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
 
-    onPanResponderGrant: (event) => {
+    onPanResponderGrant: event => {
       const { locationX, locationY } = event.nativeEvent;
       const newPath = `M${locationX.toFixed(2)},${locationY.toFixed(2)}`;
       pathRef.current = newPath;
       setCurrentPath(newPath);
     },
 
-    onPanResponderMove: (event) => {
+    onPanResponderMove: event => {
       const { locationX, locationY } = event.nativeEvent;
       const newPath = `${pathRef.current} L${locationX.toFixed(2)},${locationY.toFixed(2)}`;
       pathRef.current = newPath;
@@ -67,18 +67,19 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
 
       // Check if central server has space (similar to photo upload)
       const { canUploadAttachment } = await centralServer.get('health/canUploadAttachment', {});
-      
+
       if (!canUploadAttachment) {
         // Handle storage limit - could show error message
         return;
       }
 
       // Create attachment similar to photo upload
-      const { id } = await models.Attachment.createAndSaveOne({
+      const attachment = await models.Attachment.createAndSaveOne({
         data: base64Data,
         type: 'image/svg+xml',
         size: base64Data.length,
       });
+      const id = (attachment as any).id;
 
       onChange(id);
     } catch (error) {
@@ -95,7 +96,7 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
             width: SIGNATURE_WIDTH,
             height: SIGNATURE_HEIGHT,
             borderWidth: 2,
-            borderColor: theme.colors.BORDER_COLOR,
+            borderColor: theme.colors.BOX_OUTLINE,
             borderRadius: 3,
             backgroundColor: 'white',
             alignItems: 'center',
@@ -104,12 +105,10 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
         >
           <StyledText>Signature Captured</StyledText>
         </StyledView>
-        <StyledView style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}>
-          <Button
-            onPress={clearSignature}
-            buttonText="Clear"
-            variant="outlined"
-          />
+        <StyledView
+          style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}
+        >
+          <Button onPress={clearSignature} buttonText="Clear" outline={true} />
         </StyledView>
       </StyledView>
     );
@@ -122,7 +121,7 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
           width: SIGNATURE_WIDTH,
           height: SIGNATURE_HEIGHT,
           borderWidth: 2,
-          borderColor: theme.colors.BORDER_COLOR,
+          borderColor: theme.colors.BOX_OUTLINE,
           borderRadius: 3,
           backgroundColor: 'white',
         }}
@@ -156,15 +155,10 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
         <Button
           onPress={clearSignature}
           buttonText="Clear"
-          variant="outlined"
+          outline={true}
           disabled={!hasSignature}
         />
-        <Button
-          onPress={confirmSignature}
-          buttonText="Confirm"
-          variant="filled"
-          disabled={!hasSignature}
-        />
+        <Button onPress={confirmSignature} buttonText="Confirm" disabled={!hasSignature} />
       </StyledView>
     </StyledView>
   );
