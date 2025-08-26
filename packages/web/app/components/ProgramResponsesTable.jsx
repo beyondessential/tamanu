@@ -188,15 +188,10 @@ export const DataFetchingProgramsTable = ({
         open={deleteModalOpen}
         surveyResponseToDelete={selectedResponse}
         endpoint={endpoint}
+        onDelete={onDelete}
         onClose={() => {
           setDeleteModalOpen(false);
           updateRefreshCount();
-          if (onDelete) {
-            onDelete();
-          }
-          if (tableOptions.updateRefreshCount) {
-            tableOptions.updateRefreshCount();
-          }
         }}
         data-testid="deleteprogramresponsemodal-8539"
       />

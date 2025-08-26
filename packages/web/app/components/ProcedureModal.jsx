@@ -213,6 +213,7 @@ export const ProcedureModal = ({
                     endpoint={`patient/${patientId}/programResponses`}
                     patient={patient}
                     onDelete={() => {
+                      updateRefreshCount();
                       toast.success(
                         <TranslatedText
                           stringId="procedure.form.saved.message"
@@ -224,7 +225,6 @@ export const ProcedureModal = ({
                     tableOptions={{
                       disablePagination: true,
                       allowExport: false,
-                      updateRefreshCount,
                       refreshCount,
                     }}
                   />
