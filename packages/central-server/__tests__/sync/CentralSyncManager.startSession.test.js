@@ -1,5 +1,6 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
+import { fakeUser } from '@tamanu/fake-data/fake';
 
 import {
   createTestContext,
@@ -91,6 +92,36 @@ describe('CentralSyncManager.startSession', () => {
 
     expect(syncSession1).not.toBeUndefined();
     expect(syncSession2).not.toBeUndefined();
+  });
+
+  it('A large number of concurrent sessions will not consume the database connection pool', async () => {
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: false,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+        awaitPreparation: true,
+      },
+    });
+    const startSessionPromises = [];
+    for (let i = 0; i < 10; i++) {
+      startSessionPromises.push(centralSyncManager.startSession());
+    }
+
+    const sessionResults = await Promise.allSettled(startSessionPromises);
+
+    const failedSessions = sessionResults.filter(result => result.status === 'rejected');
+    expect(failedSessions.length).toBeGreaterThan(0); // Check to ensure the test is actually testing something
+
+    for (const failedSession of failedSessions) {
+      expect(failedSession.reason.message).toMatch(
+        /Failed to create sync session, server may be overloaded with sync requests/,
+      );
+    }
+
+    const newUser = await models.User.create(fakeUser());
+    expect(newUser).not.toBeUndefined(); // Checking we can still interact with the database
   });
 
   it('throws an error when checking a session is ready if it failed to start', async () => {
