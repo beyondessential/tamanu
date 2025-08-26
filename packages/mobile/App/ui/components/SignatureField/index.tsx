@@ -1,8 +1,8 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { View, PanResponder, Dimensions } from 'react-native';
+import { PanResponder, Dimensions } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Button } from '~/ui/components/Button';
-import { StyledView, StyledText } from '/styled/common';
+import { StyledView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { useBackend } from '~/ui/hooks';
