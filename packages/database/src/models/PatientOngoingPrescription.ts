@@ -42,7 +42,6 @@ export class PatientOngoingPrescription extends Model {
       joins: `
         LEFT JOIN encounter_prescriptions ON patient_ongoing_prescriptions.prescription_id = encounter_prescriptions.prescription_id
         LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
-        LEFT JOIN patient_ongoing_prescriptions ON patient_ongoing_prescriptions.prescription_id = patient_ongoing_prescriptions.prescription_id
         LEFT JOIN locations ON encounters.location_id = locations.id
         LEFT JOIN facilities ON locations.facility_id = facilities.id
       `,
