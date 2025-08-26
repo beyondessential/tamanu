@@ -161,7 +161,11 @@ export class LabRequestModalBase {
     return format(new Date(), "yyyy-MM-dd'T'HH:mm");
   }
 
-  // Generic method to select items by text and return their categories
+  /**
+   * Generic method to select items by text and return their categories
+   * @param itemNames - The names of the items to select
+   * @returns The categories of the selected items
+   */
   async selectItemsByText(itemNames: string[]) {
     const itemCategories: string[] = [];
     for (const itemName of itemNames) {
@@ -173,7 +177,11 @@ export class LabRequestModalBase {
     return itemCategories; 
   }
 
-  // Generic method to validate selected items and their categories in a table
+  /**
+   * Generic method to validate selected items and their categories in a table
+   * @param expectedItems - The names of the items to validate
+   * @param expectedCategories - The categories of the items to validate
+   */
   async validateSelectedItemsAndCategoriesInTable(
     expectedItems: string[], 
     expectedCategories: string[]
@@ -198,7 +206,10 @@ export class LabRequestModalBase {
     }
   }
 
-  // Sample details methods (shared across all modals)
+  /**
+   * Sample details methods (shared across all modals)
+   * @param itemName - The name of the item to validate
+   */
   async validateSelectedItemInSampleDetailsPage(itemName: string) {
     // Wait for the sample details page to load
     await this.dateTimeCollectedInputs.first().waitFor({ state: 'visible' });
@@ -208,7 +219,11 @@ export class LabRequestModalBase {
     await expect(itemInSampleDetails).toBeVisible();
   }
 
-  // Set date/time collected for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  /**
+   * Set date/time collected for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+   * @param dateTime - The date/time to set
+   * @param index - The index of the input to set
+   */
   async setDateTimeCollected(dateTime: string, index: number = 0) {
     const input = this.dateTimeCollectedInputs.locator('input').nth(index);
     await input.click();
@@ -216,7 +231,10 @@ export class LabRequestModalBase {
     await input.fill(dateTime);
   }
   
-  // Select first collected by option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  /**
+   * Select first collected by option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+   * @param index - The index of the input to select
+   */
   async selectFirstCollectedBy(index: number = 0) {
     const input = this.collectedByInputs.nth(index);
     await input.click();
@@ -225,29 +243,48 @@ export class LabRequestModalBase {
     return await firstOptionLocator.textContent();
   }
 
-  // Select first specimen type option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  /**
+   * Select first specimen type option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+   * @param index - The index of the input to select
+   */
   async selectFirstSpecimenType(index: number = 0) {
     const input = this.specimenTypeInputs.nth(index);
     await input.click();
     await this.specimenTypeSuggestionsList.locator('ul').locator('li').first().click();
   }
 
-  // Select first site option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+  /**
+   * Select first site option for a specific test/panel (index allows targeting multiple inputs when multiple tests are selected)
+   * @param index - The index of the input to select
+   */
   async selectFirstSite(index: number = 0) {
     const input = this.siteInputs.nth(index);
     await input.click();
     await this.siteSuggestionsList.first().click();
   }
 
+  /**
+   * Add notes to the request
+   * @param notes - The notes to add
+   */
   async addNotes(notes: string) {
     await this.notesTextarea.fill(notes);
   }
 
-  // Page 4: Request Finalised methods
+  /**
+   * Get the items from the request finalised table
+   * @param tableRowCount - The number of rows in the table
+   * @param columnName - The name of the column to get the items from
+   * @returns The items from the table
+   */
   async getRequestFinalisedTableItems(tableRowCount: number, columnName: string){
     return await getTableItems(this.page, tableRowCount, columnName);
   }
 
+  /**
+   * Search for an item and validate it
+   * @param itemName - The name of the item to search for
+   */
   async searchItemAndValidate(itemName: string) {
     await this.searchInput.fill(itemName);
     await this.listItems.first().waitFor({ state: 'visible' });

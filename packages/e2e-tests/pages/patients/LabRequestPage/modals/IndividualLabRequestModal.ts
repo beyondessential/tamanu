@@ -54,6 +54,10 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     this.categoryListItems = page.getByTestId('selectortable-dwrp').getByTestId('categorytext-jno3');
   }
 
+  /**
+   * Validate the selected categories in the sample details page
+   * @param expectedCategories - The categories to validate
+   */
   async validateSelectedCategoriesInSampleDetailsPage(expectedCategories: string[]) {
     // Wait for the sample details page to load
     await this.dateTimeCollectedInputs.first().waitFor({ state: 'visible' });
@@ -63,6 +67,10 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
+  /**
+   * Validate the selected tests in the table
+   * @param selectedTests - The tests to validate
+   */
   async validateSelectedTestsInTable(selectedTests: string[]) {
     // Validate that the selected tests are displayed in the table
     for (let i=0; i<selectedTests.length; i++) {
@@ -71,6 +79,15 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
+  /**
+   * Validate the request finalised page
+   * @param requestingClinician - The requesting clinician
+   * @param requestedDateTime - The requested date/time
+   * @param department - The department
+   * @param priority - The priority
+   * @param expectedCategories - The categories to validate
+   * @param expectedSampleDate - The sample date to validate
+   */
   async validateRequestFinalisedPage({
     requestingClinician,
     requestedDateTime,
@@ -87,7 +104,7 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
 
     // Validate finalised table categories
     const requestFinalisedCategoryItems = await this.getRequestFinalisedTableItems(expectedCategories.length, 'labTestCategory');
-    await expect(requestFinalisedCategoryItems).toEqual(expectedCategories);
+      expect(requestFinalisedCategoryItems).toEqual(expectedCategories);
     // Validate finalised table sample dates
     const requestFinalisedSampleDateItems = await this.getRequestFinalisedTableItems(expectedCategories.length, 'sampleDate');
     let formattedSampleDate: string;
@@ -100,16 +117,24 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
       formattedSampleDate = expectedSampleDate || 'Sample not collected';
     }
     for (let i = 0; i < expectedCategories.length; i++) {
-      await expect(requestFinalisedSampleDateItems[i]).toEqual(formattedSampleDate);
+      expect(requestFinalisedSampleDateItems[i]).toEqual(formattedSampleDate);
     }
   }
 
+  /**
+   * Select a category
+   * @param category - The category to select
+   */
   async selectCategory(category: string) {
     await this.categoryDropdown.click();
     await this.page.getByText(category).first().waitFor({ state: 'visible' });
     await this.page.getByText(category).first().click();
   }
 
+  /**
+   * Validate the tests category
+   * @param category - The category to validate
+   */
   async validateTestsCategory(category: string) {
     const categoryCount = await this.categoryListItems.count();
     for (let i = 0; i < categoryCount; i++) {

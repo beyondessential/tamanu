@@ -28,15 +28,26 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     this.panelsList = page.getByTestId('labeltext-6stl');
   }
 
-  // Abstract method implementations
+  /**
+   * Get the title of the modal
+   * @returns The title of the modal
+   */
   getModalTitle(): string {
     return 'Creating a new lab request';
   }
 
+  /**
+   * Get the description of the modal
+   * @returns The description of the modal
+   */
   getModalDescription(): string {
     return 'Please complete the details below and select the lab request type';
   }
 
+  /**
+   * Remove a selected panel from the table
+   * @param panelName - The name of the panel to remove
+   */
   async removeSelectedPanelFromTable(panelName: string) {
     // Find the remove button for the specific panel
     const removeButton = this.selectedPanelItems
@@ -45,6 +56,11 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     await removeButton.click();
   }
 
+  /**
+   * Validate the selected panels and categories in the sample details page
+   * @param expectedPanels - The names of the panels to validate
+   * @param expectedCategories - The categories of the panels to validate
+   */
   async validateSelectedPanelsAndCategoriesInSampleDetailsPage(expectedPanels: string[], expectedCategories: string[]) {
     // Wait for the sample details page to load
     await this.dateTimeCollectedInputs.first().waitFor({ state: 'visible' });
