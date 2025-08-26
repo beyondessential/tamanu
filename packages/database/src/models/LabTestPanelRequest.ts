@@ -1,6 +1,5 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
@@ -38,21 +37,41 @@ export class LabTestPanelRequest extends Model {
     });
   }
 
+  static getSyncFilterConditionExpression() {
+    return `
+      ${this.tableName}.updated_at_sync_tick > :since
+      OR EXISTS (
+        SELECT 1 FROM lab_requests lr
+        WHERE lr.lab_test_panel_request_id = ${this.tableName}.id
+        AND lr.updated_at_sync_tick > :since
+      )
+    `;
+  }
+
   static buildPatientSyncFilter(
     patientCount: number,
     markedForSyncPatientsTable: string,
     sessionConfig: SessionConfig,
   ) {
     if (sessionConfig.syncAllLabRequests) {
-      return ''; // include all lab panel requests
+      // Include when either the panel request itself changed or any linked lab_request changed
+      return `
+        WHERE (
+          ${this.getSyncFilterConditionExpression()}
+        )
+      `;
     }
     if (patientCount === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'encounters'],
-      markedForSyncPatientsTable,
-    );
+    // Patient-scoped: via encounters and include when either the panel request or linked lab_request changed
+    return `
+      INNER JOIN encounters ON ${this.tableName}.encounter_id = encounters.id
+      WHERE encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable})
+      AND (
+        ${this.getSyncFilterConditionExpression()}
+      )
+    `;
   }
 
   static buildSyncLookupQueryDetails() {
@@ -61,6 +80,7 @@ export class LabTestPanelRequest extends Model {
         isLabRequestValue: 'TRUE',
       }),
       joins: buildEncounterLinkedLookupJoins(this),
+      where: this.getSyncFilterConditionExpression(),
     };
   }
 }
