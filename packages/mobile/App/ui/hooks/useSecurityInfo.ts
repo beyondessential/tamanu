@@ -42,6 +42,7 @@ function checkIsStorageEncrypted(status: StorageEncryptionStatus): boolean {
 export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(false);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchSecurityInfo = async () => {
@@ -50,10 +51,11 @@ export const useSecurityInfo = () => {
       const isDeviceSecureValue = await checkIsDeviceSecure();
       setIsStorageEncrypted(isStorageEncryptedValue);
       setIsDeviceSecure(isDeviceSecureValue);
+      setIsLoading(false);
     };
 
     fetchSecurityInfo();
   }, []);
 
-  return { isStorageEncrypted, isDeviceSecure };
+  return { isStorageEncrypted, isDeviceSecure, isLoading };
 };
