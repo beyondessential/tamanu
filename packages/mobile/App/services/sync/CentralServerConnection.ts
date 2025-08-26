@@ -1,12 +1,17 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
+  DEVICE_SCOPES,
+} from '@tamanu/constants';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
+  invalidDeviceMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
@@ -25,7 +30,11 @@ const fetchAndParse = async (
 ): Promise<Record<string, unknown>> => {
   const response = await fetchWithTimeout(url, config);
   if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+    const { error } = await getResponseJsonSafely(response);
+    const loginErrorMessage = error?.message === DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR
+      ? invalidDeviceMessage
+      : invalidUserCredentialsMessage;
+    throw new AuthenticationError(isLogin ? loginErrorMessage : invalidTokenMessage);
   }
 
   if (response.status === 400) {
