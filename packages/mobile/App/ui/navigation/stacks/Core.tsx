@@ -13,6 +13,8 @@ import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacil
 import { MultiSelectModalScreen } from '~/ui/components/MultiSelectModal';
 import { SelectModalScreen } from '~/ui/components/SelectModal';
 import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal';
+import { SecurityScreen } from '~/ui/navigation/screens/signup/SecurityScreen';
+import { useSecurityInfo } from '~/ui/hooks/useSecurityInfo';
 
 const Stack = createStackNavigator();
 
@@ -29,6 +31,11 @@ function getSignInFlowRoute(): string {
 
 export const Core: FunctionComponent<any> = () => {
   const initialRouteName = getSignInFlowRoute();
+  const { isStorageEncrypted, isLoading } = useSecurityInfo();
+
+  if (isLoading || !isStorageEncrypted) {
+    return <SecurityScreen isLoading={isLoading} />;
+  }
 
   return (
     <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
