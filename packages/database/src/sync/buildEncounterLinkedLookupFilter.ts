@@ -2,9 +2,9 @@ import { buildEncounterLinkedSyncFilterJoins } from './buildEncounterLinkedSyncF
 import { buildSyncLookupSelect } from './buildSyncLookupSelect';
 import type { Model } from '../models/Model';
 
-export function buildEncounterLinkedLookupFilter(model: typeof Model) {
+export async function buildEncounterLinkedLookupFilter(model: typeof Model) {
   return {
-    select: buildSyncLookupSelect(model, {
+    select: await buildSyncLookupSelect(model, {
       patientId: 'encounters.patient_id',
     }),
     joins: buildEncounterLinkedSyncFilterJoins([model.tableName, 'encounters']),
