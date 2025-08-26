@@ -1,19 +1,15 @@
-import { getRandomPatient } from '../utils/getRandomPatient';
 import { fakeCreateEncounterRequestBody } from '@tamanu/fake-data/fake/fakeRequest/createEncounter';
-import { getRandomLocation } from '../utils/getRandomLocation';
-import { getRandomDepartment } from '../utils/getRandomDepartment';
 
 /**
  * Generates an encounter payload with a random patient, location, and department.
  * Stores the payload and selected patient in context.vars.
  */
 export async function generateEncounterPayload(context: any, _events: any): Promise<void> {
-  const { target, token, facilityId } = context.vars;
+  const { entityFetcher } = context.vars;
   // Get a random patient
-  const randomPatient = await getRandomPatient(target, token, facilityId);
-
-  const randomLocation = await getRandomLocation(target, token, facilityId);
-  const randomDepartment = await getRandomDepartment(target, token, facilityId);
+  const randomPatient = await entityFetcher.getRandom('patient');
+  const randomLocation = await entityFetcher.getRandom('location');
+  const randomDepartment = await entityFetcher.getRandom('department');
 
   // Create encounter payload using fake data
   const encounterPayload = fakeCreateEncounterRequestBody({

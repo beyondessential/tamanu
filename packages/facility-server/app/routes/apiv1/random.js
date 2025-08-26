@@ -10,6 +10,7 @@ const WHITELISTED_ENTITIES = {
   locationGroup: 'LocationGroup',
   program: 'Program',
   programRegistry: 'ProgramRegistry',
+  department: 'Department',
 };
 
 const getModelName = entity => {
