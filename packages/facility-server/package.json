@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/facility-server",
-  "version": "2.39.0",
+  "version": "2.40.0",
   "private": true,
   "description": "Facility server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -9,6 +9,11 @@
   "license": "GPL-3.0-or-later",
   "main": "dist/index.js",
   "bin": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./schemas/patient.schema": "./dist/routes/apiv1/patient/patient.schema.js",
+    "./schemas/encounter.schema": "./dist/routes/apiv1/encounter.schema.js"
+  },
   "scripts": {
     "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
     "build-watch": "npm run build -- --watch",
@@ -84,6 +89,6 @@
     "winston": "^3.2.1",
     "winston-transport": "^4.5.0",
     "yup": "^0.32.9",
-    "zod": "^3.23.8"
+    "zod": "^4.0.17"
   }
 }

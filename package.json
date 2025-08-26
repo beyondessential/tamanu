@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.39.0",
+  "version": "2.40.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -44,7 +44,8 @@
     "dbt-generate-docs": "node packages/scripts/src/dbt/generateDocs.js",
     "dbt-check-todos": "node packages/scripts/src/dbt/checkTodos.js",
     "e2e-test": "npm run --workspace @tamanu/e2e-tests test",
-    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report"
+    "e2e-show-report": "npm run --workspace @tamanu/e2e-tests show-report",
+    "synthetic-test": "npm run build-shared && npm run --workspace @tamanu/synthetic-tests test"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -68,7 +69,8 @@
       "packages/shared",
       "packages/upgrade",
       "packages/utils",
-      "packages/web"
+      "packages/web",
+      "packages/synthetic-tests"
     ]
   },
   "devDependencies": {
@@ -96,6 +98,7 @@
     "re-resizable": "^6.11.2"
   },
   "overrides": {
+    "axios": "^1.8.2",
     "react": "18.2.0",
     "react-native-svg": "^12.1.0",
     "react-redux": "8.0.2",
