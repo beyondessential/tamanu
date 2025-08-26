@@ -34,7 +34,8 @@ export const UnSavedChangesModal = ({ open, onCancel, onConfirm }) => (
       <p>
         <TranslatedText
           stringId="procedure.modal.unsavedChanges.content"
-          fallback="You have unsaved changes. Are you sure you want to cancel? Any unsaved changes will be lost."
+          fallback="You have unsaved changes for this procedure. Are you sure you want to cancel?
+          Any unsaved changes will be lost. Already submitted additional data will be retained unless otherwise deleted."
         />
       </p>
     }

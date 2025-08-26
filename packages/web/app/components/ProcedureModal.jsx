@@ -12,7 +12,7 @@ import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Form } from '../components/Field';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { ButtonRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { FORM_TYPES } from '../constants/index.js';
 import { useAuth } from '../contexts/Auth';
@@ -25,6 +25,7 @@ import {
   UnSavedProcedureProgramModal,
 } from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
+import { FormCancelButton, FormSubmitButton } from './Button';
 
 const Heading = styled(Typography)`
   margin-bottom: 10px;
@@ -192,19 +193,16 @@ export const ProcedureModal = ({
                 procedureId={procedureId}
                 patient={patient}
                 procedureTypeId={values?.procedureTypeId}
-                procedureFormValues={values}
-                updateRefreshCount={updateRefreshCount}
                 selectedSurveyId={selectedSurveyId}
                 setSelectedSurveyId={setSelectedSurveyId}
-                setEditedProcedure={setEditedProcedure}
                 onSuccess={id => {
                   setEditedProcedure({ ...values, id });
                   setFieldValue('id', id);
                   updateRefreshCount();
                   toast.success(
                     <TranslatedText
-                      stringId="procedure.form.updated.message"
-                      fallback="Procedure updated"
+                      stringId="procedure.form.saved.message"
+                      fallback="Procedure successfully saved"
                     />,
                   );
                 }}
@@ -217,8 +215,8 @@ export const ProcedureModal = ({
                     onDelete={() => {
                       toast.success(
                         <TranslatedText
-                          stringId="procedure.form.updated.message"
-                          fallback="Procedure updated"
+                          stringId="procedure.form.saved.message"
+                          fallback="Procedure successfully saved"
                         />,
                       );
                     }}
@@ -233,18 +231,24 @@ export const ProcedureModal = ({
                   <Divider />
                 </>
               )}
-              <FormSubmitCancelRow
-                onCancel={handleCancel}
-                onConfirm={submitForm}
-                confirmText={
-                  <TranslatedText
-                    stringId="general.action.submit"
-                    fallback="Save procedure"
-                    data-testid="translatedtext-162m"
-                  />
-                }
-                data-testid="formsubmitcancelrow-8gtl"
-              />
+              <ButtonRow>
+                <FormCancelButton onClick={handleCancel}>
+                  {dirty ? (
+                    <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                  ) : (
+                    <TranslatedText stringId="general.action.close" fallback="Close" />
+                  )}
+                </FormCancelButton>
+                {dirty ? (
+                  <FormSubmitButton onSubmit={submitForm}>
+                    <TranslatedText
+                      stringId="general.action.submit"
+                      fallback="Save procedure"
+                      data-testid="translatedtext-162m"
+                    />
+                  </FormSubmitButton>
+                ) : null}
+              </ButtonRow>
             </FormModal>
             <UnSavedProcedureProgramModal
               open={unsavedProgramFormOpen}

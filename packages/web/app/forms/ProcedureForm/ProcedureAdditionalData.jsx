@@ -93,7 +93,11 @@ export const ProcedureAdditionalData = ({
   });
 
   const onFormSelect = event => {
-    setSelectedSurveyId(event.target.value);
+    if (!event.target.value) {
+      setCancelFormModalOpen(true);
+    } else {
+      setSelectedSurveyId(event.target.value);
+    }
   };
 
   const onCancel = () => {
