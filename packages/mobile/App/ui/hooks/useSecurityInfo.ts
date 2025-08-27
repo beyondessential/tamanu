@@ -59,7 +59,7 @@ export const useSecurityInfo = () => {
     };
 
     fetchSecurityInfo();
-  }, [allowUnencryptedStorage]);
+  }, []);
 
   const isStorageSecure = allowUnencryptedStorage ? true : isStorageEncrypted;
   return { isSecurityCompliant: isStorageSecure && isDeviceSecure, isLoading };
