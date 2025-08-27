@@ -205,7 +205,13 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
-  //TODO: add JSDocs params
+  /**
+   * Asserts the values for a specific vaccine in the scheduled vaccines table are correct
+   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
+   * @param schedule - The schedule option to search for, e.g. "10 weeks"
+   * @param expectedDueDate - The expected due date of the vaccine, e.g. "2025-01-01"
+   * @param status - The status of the vaccine, e.g. "Due", "Scheduled", "Overdue", "Upcoming"
+   */
   async assertScheduledVaccinesTable(vaccine: string, schedule: string, expectedDueDate: string, status: string) {
     const rowsToSearch = 20;
     const scheduledVaccinesTable = 'scheduledVaccines';
@@ -236,7 +242,12 @@ export class PatientVaccinePane extends BasePatientPane {
     }
   }
 
-  //TODO: add JSDocs params
+  /**
+   * Records a scheduled vaccine
+   * @param vaccine - The vaccine name you want to record, e.g. "Pentavalent"
+   * @param schedule - The schedule option for the vaccine you want to record, e.g. "10 weeks"
+   * @returns The RecordVaccineModal instance
+   */
   async recordScheduledVaccine(vaccine: string, schedule: string) {
     const rowsToSearch = 20;
 
@@ -253,6 +264,12 @@ export class PatientVaccinePane extends BasePatientPane {
     return this.recordVaccineModal;
   }
 
+  /**
+   * Confirms that a scheduled vaccine no longer exists in the scheduled vaccines table
+   * @param vaccine - The vaccine name to search for, e.g. "Pentavalent"
+   * @param schedule - The schedule option to search for, e.g. "10 weeks"
+   * @returns True if the vaccine does not exist in the scheduled vaccines table, throws custom error if found
+   */
   async confirmScheduledVaccineDoesNotExist(vaccine: string, schedule: string) {
     const rowsToSearch = 20;
     const returnFalseIfNotFound = true;

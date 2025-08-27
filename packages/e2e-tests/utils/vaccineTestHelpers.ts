@@ -218,11 +218,14 @@ export async function assertEditedVaccine(
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.closeModalButton.click();
 }
 
-//TODO: eventually remove these console logs if it works on mornings as well as afternoon
-//TODO: the console logs are currently commented out unless needed for debugging
+/**
+ * Calculates the expected week a scheduled vaccine is due
+ * @param date - The date to calculate the due date from
+ * @param unit - The unit of time to add, e.g. 'weeks' or 'months'
+ * @param unitsToAdd - The number of units to add to the date
+ * @returns The expected due date in the format of "MM/dd/yyyy"
+ */
 export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', unitsToAdd: number) {
-  //TODO: delete these console logs
- // console.log('date', date);
  let dueDate: Date;
 
  if (unit === 'weeks') {
@@ -233,7 +236,6 @@ export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', 
  else {
   throw new Error('Invalid unit');
  }
- // console.log('dueDate', dueDate);
 
   // Extract just the date components to avoid timezone issues
   const year = dueDate.getFullYear();
@@ -243,14 +245,11 @@ export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', 
   // Create a local date object for startOfWeek
   const localDate = new Date(year, month, day);
   const weekStart = startOfWeek(localDate, { weekStartsOn: 1 });
-//  console.log('weekStart', weekStart);
   
   // Convert result back to UTC
   const utcWeekStart = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
- // console.log('utcWeekStart', utcWeekStart);
 
   const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
-  console.log('formattedUtcWeekStart', formattedUtcWeekStart);
   
   return formattedUtcWeekStart;
 }
