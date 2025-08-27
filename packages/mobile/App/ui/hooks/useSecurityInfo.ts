@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { NativeModules } from 'react-native';
+import { SETTING_KEYS } from '@tamanu/constants';
 import {
   SecurityInfoModule,
   StorageEncryptionStatus,
   DeviceSecurityStatus,
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
+import { useSettings } from '~/ui/hooks/useSettings';
 
 const SecurityInfoNativeModule: SecurityInfoModule = NativeModules.SecurityInfo;
 
@@ -43,6 +45,8 @@ export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(false);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { getSetting } = useSettings();
+  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
 
   useEffect(() => {
     const fetchSecurityInfo = async () => {
@@ -55,7 +59,8 @@ export const useSecurityInfo = () => {
     };
 
     fetchSecurityInfo();
-  }, []);
+  }, [allowUnencryptedStorage]);
 
-  return { isStorageEncrypted, isDeviceSecure, isLoading };
+  const isStorageSecure = allowUnencryptedStorage ? true : isStorageEncrypted;
+  return { isSecurityCompliant: isStorageSecure && isDeviceSecure, isLoading };
 };
