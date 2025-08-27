@@ -1,5 +1,5 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
-import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
+import { PORTAL_ONE_TIME_TOKEN_TYPE_VALUES } from '@tamanu/constants';
 
 const TABLE_NAME = 'portal_one_time_tokens';
 
@@ -35,7 +35,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     type: {
-      type: DataTypes.ENUM(...PORTAL_ONE_TIME_TOKEN_TYPES),
+      type: DataTypes.ENUM(...PORTAL_ONE_TIME_TOKEN_TYPE_VALUES),
       allowNull: false,
       defaultValue: 'login',
     },
