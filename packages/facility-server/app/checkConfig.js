@@ -9,6 +9,7 @@ export async function checkConfig({ settings, models }) {
       log.error(`Default survey ${modelName} with code ${code} could not be found`);
     }
   };
+
   const facilityIds = selectFacilityIds(config);
   for (const facilityId of facilityIds) {
     const { department, location } = await settings[facilityId].get('survey.defaultCodes');
