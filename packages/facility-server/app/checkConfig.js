@@ -1,10 +1,9 @@
 import config from 'config';
 import { log } from '@tamanu/shared/services/logging';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { REPORT_STATUSES } from '@tamanu/constants/reports';
 
 export async function checkConfig({ settings, models }) {
-  const ensureSurveyDefaultExists = async (modelName, code) => {
+  const ensureExists = async (modelName, code) => {
     const found = await models[modelName].findOne({ where: { code } });
     if (!found) {
       log.error(`Default survey ${modelName} with code ${code} could not be found`);
@@ -13,18 +12,6 @@ export async function checkConfig({ settings, models }) {
   const facilityIds = selectFacilityIds(config);
   for (const facilityId of facilityIds) {
     const { department, location } = await settings[facilityId].get('survey.defaultCodes');
-    await Promise.all([
-      ensureSurveyDefaultExists('Department', department),
-      ensureSurveyDefaultExists('Location', location),
-    ]);
-  }
-
-  const { reportIds } = await settings.central.get('integrations.dhis2');
-  const databaseReportIds = await models.ReportDefinition.findAll({
-    where: { id: reportIds, status: REPORT_STATUSES.PUBLISHED },
-  });
-  if (databaseReportIds.length < reportIds.length) {
-    const missing = reportIds.filter(id => !databaseReportIds.some(r => r.id === id));
-    log.error(`Reports ${missing} could not be found or is not published`);
+    await Promise.all([ensureExists('Department', department), ensureExists('Location', location)]);
   }
 }
