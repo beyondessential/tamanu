@@ -37,15 +37,13 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
           include: [{ model: this.context.store.models.ReportDefinitionVersion, as: 'versions' }],
         });
 
-        // console.log('Report data: ', report.toJSON());
-
         log.info('Processing report', { reportId, report });
 
         const reportVersion = getLatestVersion(report.versions, REPORT_STATUSES.PUBLISHED);
 
-        console.log('Report version: ', reportVersion.toJSON());
-
         const reportData = await reportVersion.dataGenerator(this.context, {});
+
+        // TODO: Send this to DHIS2
         log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
       }
 
