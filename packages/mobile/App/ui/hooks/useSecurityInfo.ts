@@ -4,7 +4,6 @@ import { SETTING_KEYS } from '@tamanu/constants';
 import {
   SecurityInfoModule,
   StorageEncryptionStatus,
-  DeviceSecurityStatus,
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
 import { useSettings } from '~/ui/hooks/useSettings';
@@ -23,7 +22,7 @@ async function getStorageEncryptionStatus(): Promise<StorageEncryptionStatus> {
   }
 }
 
-async function checkIsDeviceSecure(): Promise<DeviceSecurityStatus> {
+async function checkIsDeviceSecure(): Promise<boolean> {
   try {
     return await SecurityInfoNativeModule.isDeviceSecure();
   } catch (error) {
