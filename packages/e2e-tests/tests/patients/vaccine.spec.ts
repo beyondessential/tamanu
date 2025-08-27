@@ -604,8 +604,6 @@ test.describe('Recorded vaccines', () => {
 
 });
 
-//TODO: check other todos in other files (jsdocs, consoles etc)
-//TODO: add any remaining vaccine tests from slack?
 test.describe('Scheduled vaccines', () => {
   test('Vaccines scheduled at birth display', async ({
     page,
