@@ -98,7 +98,7 @@ export const centralSettings = {
       },
     },
     integrations: {
-      description: 'Integrations with other services',
+      description: 'Integrations with external services',
       properties: {
         dhis2: {
           description: 'DHIS2 settings',
