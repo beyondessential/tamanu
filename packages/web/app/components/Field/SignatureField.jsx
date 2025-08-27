@@ -49,13 +49,7 @@ const PreviewImage = styled.img`
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 150;
 
-export const SignatureInput = ({
-  value = '',
-  onChange,
-  label,
-  disabled = false,
-  ...props
-}) => {
+export const SignatureInput = ({ value = '', onChange, label, disabled = false, ...props }) => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [hasSignature, setHasSignature] = useState(false);
@@ -90,7 +84,7 @@ export const SignatureInput = ({
       // If we have a file object, convert it to data URL
       if (value instanceof File) {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = e => {
           setSignatureData(e.target.result);
           setHasSignature(true);
         };
@@ -109,10 +103,10 @@ export const SignatureInput = ({
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
+
     return {
       x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      y: (e.clientY - rect.top) * scaleY,
     };
   }, []);
 
@@ -120,55 +114,64 @@ export const SignatureInput = ({
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    
+
     return {
       x: (e.touches[0].clientX - rect.left) * scaleX,
-      y: (e.touches[0].clientY - rect.top) * scaleY
+      y: (e.touches[0].clientY - rect.top) * scaleY,
     };
   }, []);
 
-  const startDrawing = useCallback((e) => {
-    if (disabled) return;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const startDrawing = useCallback(
+    e => {
+      if (disabled) return;
 
-    setIsDrawing(true);
-    const ctx = canvas.getContext('2d');
-    
-    const pos = e.type.includes('touch') ? getTouchPos(canvas, e) : getMousePos(canvas, e);
-    ctx.beginPath();
-    ctx.moveTo(pos.x, pos.y);
-    
-    // Prevent scrolling on touch devices
-    e.preventDefault();
-  }, [disabled, getMousePos, getTouchPos]);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-  const draw = useCallback((e) => {
-    if (!isDrawing || disabled) return;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+      setIsDrawing(true);
+      const ctx = canvas.getContext('2d');
 
-    const ctx = canvas.getContext('2d');
-    const pos = e.type.includes('touch') ? getTouchPos(canvas, e) : getMousePos(canvas, e);
-    
-    ctx.lineTo(pos.x, pos.y);
-    ctx.stroke();
-    
-    // Prevent scrolling on touch devices
-    e.preventDefault();
-  }, [isDrawing, disabled, getMousePos, getTouchPos]);
+      const pos = e.type.includes('touch') ? getTouchPos(canvas, e) : getMousePos(canvas, e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
 
-  const stopDrawing = useCallback((e) => {
-    if (!isDrawing) return;
-    
-    setIsDrawing(false);
-    setHasSignature(true);
-    
-    // Prevent scrolling on touch devices
-    e.preventDefault();
-  }, [isDrawing]);
+      // Prevent scrolling on touch devices
+      e.preventDefault();
+    },
+    [disabled, getMousePos, getTouchPos],
+  );
+
+  const draw = useCallback(
+    e => {
+      if (!isDrawing || disabled) return;
+
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+      const pos = e.type.includes('touch') ? getTouchPos(canvas, e) : getMousePos(canvas, e);
+
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+
+      // Prevent scrolling on touch devices
+      e.preventDefault();
+    },
+    [isDrawing, disabled, getMousePos, getTouchPos],
+  );
+
+  const stopDrawing = useCallback(
+    e => {
+      if (!isDrawing) return;
+
+      setIsDrawing(false);
+      setHasSignature(true);
+
+      // Prevent scrolling on touch devices
+      e.preventDefault();
+    },
+    [isDrawing],
+  );
 
   const clearSignature = useCallback(() => {
     const canvas = canvasRef.current;
@@ -177,7 +180,7 @@ export const SignatureInput = ({
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    
+
     setHasSignature(false);
     setSignatureData('');
     onChange({ target: { value: '' } });
@@ -188,11 +191,11 @@ export const SignatureInput = ({
     if (!canvas || !hasSignature) return;
 
     // Convert canvas to blob and then to File object
-    canvas.toBlob((blob) => {
+    canvas.toBlob(blob => {
       if (blob) {
         const file = new File([blob], 'signature.png', { type: 'image/png' });
         onChange({ target: { value: file } });
-        
+
         // Also store as data URL for preview
         const dataURL = canvas.toDataURL('image/png');
         setSignatureData(dataURL);
@@ -207,11 +210,7 @@ export const SignatureInput = ({
           <PreviewImage src={signatureData} alt="Signature" />
         </SignaturePreview>
         <ButtonContainer>
-          <StyledButton
-            variant="outlined"
-            color="primary"
-            onClick={clearSignature}
-          >
+          <StyledButton variant="outlined" color="primary" onClick={clearSignature}>
             <TranslatedText
               stringId="general.questionComponent.signatureField.clear"
               fallback="Clear"
@@ -233,10 +232,10 @@ export const SignatureInput = ({
         onTouchStart={startDrawing}
         onTouchMove={draw}
         onTouchEnd={stopDrawing}
-        style={{ 
-          width: '100%', 
+        style={{
+          width: '100%',
           maxWidth: `${CANVAS_WIDTH}px`,
-          height: `${CANVAS_HEIGHT}px`
+          height: `${CANVAS_HEIGHT}px`,
         }}
       />
       <ButtonContainer>
@@ -268,9 +267,5 @@ export const SignatureInput = ({
 };
 
 export const SignatureField = ({ field, ...props }) => (
-  <SignatureInput
-    value={field.value || ''}
-    onChange={field.onChange}
-    {...props}
-  />
+  <SignatureInput value={field.value || ''} onChange={field.onChange} {...props} />
 );
