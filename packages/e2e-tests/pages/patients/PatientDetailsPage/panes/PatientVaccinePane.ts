@@ -33,6 +33,7 @@ export class PatientVaccinePane extends BasePatientPane {
   readonly dateColumnHeader: Locator;
   readonly scheduledVaccinesTableBody: Locator;
   readonly finalScheduledVaccine: Locator;
+  readonly scheduledVaccinesTableSearchLimit = 20;
   constructor(page: Page) {
     super(page);
 
@@ -63,18 +64,6 @@ export class PatientVaccinePane extends BasePatientPane {
 
   async clickRecordVaccineButton(): Promise<RecordVaccineModal> {
     await this.recordVaccineButton.click();
-    if (!this.recordVaccineModal) {
-      this.recordVaccineModal = new RecordVaccineModal(this.page);
-    }
-
-    return this.recordVaccineModal;
-  }
-
-  async clickRecordVaccineButtonForSpecificScheduledVaccine(): Promise<RecordVaccineModal> {
-    await this.page
-      .getByTestId('styledtablecell-2gyy-0-action')
-      .getByRole('button', { name: 'Record' })
-      .click();
     if (!this.recordVaccineModal) {
       this.recordVaccineModal = new RecordVaccineModal(this.page);
     }
@@ -230,7 +219,7 @@ export class PatientVaccinePane extends BasePatientPane {
     expectedDueDate: string,
     status: string,
   ) {
-    const rowsToSearch = 20;
+    const rowsToSearch = this.scheduledVaccinesTableSearchLimit;
     const scheduledVaccinesTable = 'scheduledVaccines';
     const expectedDueDateFormatted = `Week of ${expectedDueDate}`;
 
@@ -272,7 +261,7 @@ export class PatientVaccinePane extends BasePatientPane {
    * @returns The RecordVaccineModal instance
    */
   async recordScheduledVaccine(vaccine: string, schedule: string) {
-    const rowsToSearch = 20;
+    const rowsToSearch = this.scheduledVaccinesTableSearchLimit;
 
     const row = await this.findRowNumberForVaccine(
       this.scheduledVaccinesTableWrapper,
@@ -301,7 +290,7 @@ export class PatientVaccinePane extends BasePatientPane {
    * @returns True if the vaccine does not exist in the scheduled vaccines table, throws custom error if found
    */
   async confirmScheduledVaccineDoesNotExist(vaccine: string, schedule: string) {
-    const rowsToSearch = 20;
+    const rowsToSearch = this.scheduledVaccinesTableSearchLimit;
     const returnFalseIfNotFound = true;
     const rowFound = await this.findRowNumberForVaccine(
       this.scheduledVaccinesTableWrapper,

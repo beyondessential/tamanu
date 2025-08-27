@@ -225,8 +225,13 @@ export class RecordVaccineModal extends BasePatientModal {
 
     if (category !== 'Other') {
       if (recordScheduledVaccine) {
+        if (!specificVaccine || !specificScheduleOption) {
+          throw new Error(
+            'A specific vaccine and schedule option must be provided when recordScheduledVaccine is true',
+          );
+        }
         //Confirm the vaccine and schedule are prefilled
-        await this.assertScheduledVaccine(specificVaccine!, specificScheduleOption!);
+        await this.assertScheduledVaccine(specificVaccine, specificScheduleOption);
         vaccineName = specificVaccine;
         scheduleOption = specificScheduleOption;
       } else {
