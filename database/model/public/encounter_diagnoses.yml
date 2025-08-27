@@ -41,12 +41,13 @@ sources:
             description: "{{ doc('encounter_diagnoses__certainty') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - confirmed
-                    - disproven
-                    - emergency
-                    - error
-                    - suspected
+                  arguments:
+                    values:
+                      - confirmed
+                      - disproven
+                      - emergency
+                      - error
+                      - suspected
           - name: is_primary
             data_type: boolean
             description: "{{ doc('encounter_diagnoses__is_primary') }}"
@@ -63,16 +64,18 @@ sources:
             description: "{{ doc('encounter_diagnoses__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: diagnosis_id
             data_type: character varying(255)
             description: "{{ doc('encounter_diagnoses__diagnosis_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'diagnosis'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'diagnosis'
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in encounter_diagnoses."
@@ -89,5 +92,6 @@ sources:
             description: "{{ doc('encounter_diagnoses__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id

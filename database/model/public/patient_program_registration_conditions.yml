@@ -54,22 +54,25 @@ sources:
             description: "{{ doc('patient_program_registration_conditions__program_registry_condition_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_registry_conditions')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_registry_conditions')
+                    field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: deletion_clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registration_conditions__deletion_clinician_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registration_conditions."

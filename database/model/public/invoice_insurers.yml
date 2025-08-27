@@ -28,17 +28,19 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoices')
+                    field: id
           - name: insurer_id
             data_type: character varying(255)
             description: "{{ doc('invoice_insurers__insurer_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'insurer'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'insurer'
           - name: percentage
             data_type: numeric
             description: "{{ doc('invoice_insurers__percentage') }}"
