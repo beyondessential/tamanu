@@ -44,18 +44,9 @@ test.describe('Patient Side Bar', () => {
       patientDetailsPage.submitNewOngoingConditionAddButton,
     );
 
-    await expect(patientDetailsPage.warningModalTitle).toContainText(
-      'Please fix below errors to continue',
-    );
-    await expect(patientDetailsPage.warningModalContent).toContainText(
-      'The Condition field is required',
-    );
-
-    await patientDetailsPage.warningModalDismissButton.click();
-
     await expect(
-      patientDetailsPage.onGoingConditionForm.filter({
-        hasText: 'The Condition field is required',
+      patientDetailsPage.ongoingConditionNameWrapper.filter({
+        hasText: 'Required',
       }),
     ).toBeVisible();
   });

@@ -14,6 +14,7 @@ export class PatientDetailsPage extends BasePatientPage {
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
+  readonly ongoingConditionNameWrapper: Locator;
   readonly ongoingConditionDateRecordedField: Locator;
   readonly ongoingConditionClinicianField: Locator;
   readonly savedOnGoingConditionName: Locator;
@@ -21,7 +22,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionDate: Locator;
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
-  readonly onGoingConditionForm: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -98,7 +98,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
+    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();

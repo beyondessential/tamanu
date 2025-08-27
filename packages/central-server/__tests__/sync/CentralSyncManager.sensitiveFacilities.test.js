@@ -570,10 +570,13 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       let nonSensitivePrescription;
       let sensitiveEncounterPrescription;
       let nonSensitiveEncounterPrescription;
+      let sensitiveMedicationAdministrationRecord;
+      let nonSensitiveMedicationAdministrationRecord;
 
       beforeEach(async () => {
         sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
         nonSensitivePrescription = await models.Prescription.create(fake(models.Prescription));
+
         sensitiveEncounterPrescription = await models.EncounterPrescription.create(
           fake(models.EncounterPrescription, {
             encounterId: sensitiveEncounter.id,
@@ -586,6 +589,28 @@ describe('CentralSyncManager Sensitive Facilities', () => {
             prescriptionId: nonSensitivePrescription.id,
           }),
         );
+
+        sensitiveMedicationAdministrationRecord =
+          await models.MedicationAdministrationRecord.create(
+            fake(models.MedicationAdministrationRecord, {
+              prescriptionId: sensitivePrescription.id,
+            }),
+          );
+
+        nonSensitiveMedicationAdministrationRecord =
+          await models.MedicationAdministrationRecord.create(
+            fake(models.MedicationAdministrationRecord, {
+              prescriptionId: nonSensitivePrescription.id,
+            }),
+          );
+      });
+
+      it("won't sync sensitive prescriptions", async () => {
+        await checkSensitiveRecordFiltering({
+          model: models.Prescription,
+          sensitiveId: sensitivePrescription.id,
+          nonSensitiveId: nonSensitivePrescription.id,
+        });
       });
 
       it("won't sync sensitive encounter prescriptions", async () => {
@@ -632,6 +657,39 @@ describe('CentralSyncManager Sensitive Facilities', () => {
           model: models.EncounterPausePrescriptionHistory,
           sensitiveId: sensitiveEncounterPausePrescriptionHistory.id,
           nonSensitiveId: nonSensitiveEncounterPausePrescriptionHistory.id,
+        });
+      });
+
+      it("won't sync sensitive medication administration records", async () => {
+        await checkSensitiveRecordFiltering({
+          model: models.MedicationAdministrationRecord,
+          sensitiveId: sensitiveMedicationAdministrationRecord.id,
+          nonSensitiveId: nonSensitiveMedicationAdministrationRecord.id,
+        });
+      });
+
+      it("won't sync sensitive medication administration record doses", async () => {
+        const sensitiveMedicationAdministrationRecordDose =
+          await models.MedicationAdministrationRecordDose.create(
+            fake(models.MedicationAdministrationRecordDose, {
+              marId: sensitiveMedicationAdministrationRecord.id,
+              recordedByUserId: practitioner.id,
+              givenByUserId: practitioner.id,
+            }),
+          );
+        const nonSensitiveMedicationAdministrationRecordDose =
+          await models.MedicationAdministrationRecordDose.create(
+            fake(models.MedicationAdministrationRecordDose, {
+              marId: nonSensitiveMedicationAdministrationRecord.id,
+              recordedByUserId: practitioner.id,
+              givenByUserId: practitioner.id,
+            }),
+          );
+
+        await checkSensitiveRecordFiltering({
+          model: models.MedicationAdministrationRecordDose,
+          sensitiveId: sensitiveMedicationAdministrationRecordDose.id,
+          nonSensitiveId: nonSensitiveMedicationAdministrationRecordDose.id,
         });
       });
     });
@@ -1114,6 +1172,52 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         'encounters',
       );
       expect(updatedEncounterIds).not.toContain(encounter.id);
+    });
+
+    it('will sync prescriptions linked through patient_ongoing_prescriptions if marked for sync', async () => {
+      const testPatient1 = await models.Patient.create(fake(models.Patient));
+      const testPatient2 = await models.Patient.create(fake(models.Patient));
+
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: testPatient1.id,
+        facilityId: nonSensitiveFacility.id,
+      });
+      await models.PatientFacility.create({
+        id: models.PatientFacility.generateId(),
+        patientId: testPatient2.id,
+        facilityId: nonSensitiveFacility.id,
+      });
+
+      // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
+      const patientOnlyPrescription = await models.Prescription.create(fake(models.Prescription));
+      const patientOnlyPrescription2 = await models.Prescription.create(fake(models.Prescription));
+
+      await models.PatientOngoingPrescription.create(
+        fake(models.PatientOngoingPrescription, {
+          patientId: testPatient1.id,
+          prescriptionId: patientOnlyPrescription.id,
+        }),
+      );
+      await models.PatientOngoingPrescription.create(
+        fake(models.PatientOngoingPrescription, {
+          patientId: testPatient2.id,
+          prescriptionId: patientOnlyPrescription2.id,
+        }),
+      );
+
+      const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
+      await centralSyncManager.updateLookupTable();
+
+      // Check that both prescriptions are in the lookup table
+      const recordIds = await getOutgoingIdsForRecordType(
+        centralSyncManager,
+        nonSensitiveFacility.id,
+        models.Prescription.tableName,
+      );
+
+      expect(recordIds).toContain(patientOnlyPrescription.id);
+      expect(recordIds).toContain(patientOnlyPrescription2.id);
     });
   });
 });
