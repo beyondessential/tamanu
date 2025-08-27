@@ -1,7 +1,10 @@
 import { addMinutes } from 'date-fns';
-import { randomInt, randomBytes, createHash } from 'crypto';
+import { randomInt, randomBytes } from 'crypto';
+import bcrypt from 'bcrypt';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
+
+const DEFAULT_SALT_ROUNDS = 10;
 
 function randomSixDigitCode() {
   // returns a zero-padded 6 digit string using crypto.randomInt for better security
@@ -13,8 +16,8 @@ function randomRegisterCode() {
   return randomBytes(16).toString('hex');
 }
 
-export function hashPortalToken(token) {
-  return createHash('sha256').update(token).digest('hex');
+export async function hashPortalToken(token) {
+  return bcrypt.hash(token, DEFAULT_SALT_ROUNDS);
 }
 
 export class PortalOneTimeTokenService {
@@ -26,7 +29,7 @@ export class PortalOneTimeTokenService {
   async createLoginToken(portalUserId) {
     const { PortalOneTimeToken } = this.models;
     const token = randomSixDigitCode();
-    const hashedToken = hashPortalToken(token);
+    const hashedToken = await hashPortalToken(token);
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing login tokens for this user
@@ -50,7 +53,7 @@ export class PortalOneTimeTokenService {
   async createRegisterToken(portalUserId) {
     const { PortalOneTimeToken } = this.models;
     const token = randomRegisterCode();
-    const hashedToken = hashPortalToken(token);
+    const hashedToken = await hashPortalToken(token);
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing register tokens for this user
@@ -73,25 +76,36 @@ export class PortalOneTimeTokenService {
 
   async verifyAndConsume({ token, type = PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN }) {
     const { PortalOneTimeToken, PortalUser } = this.models;
-    const hashedToken = hashPortalToken(token);
-    const record = await PortalOneTimeToken.findOne({
-      where: { type, token: hashedToken },
+
+    // Find all records of this type to compare against
+    const records = await PortalOneTimeToken.findAll({
+      where: { type },
     });
 
-    if (!record) {
+    let matchingRecord = null;
+
+    // Compare the token against all stored hashes
+    for (const record of records) {
+      if (await bcrypt.compare(token, record.token)) {
+        matchingRecord = record;
+        break;
+      }
+    }
+
+    if (!matchingRecord) {
       throw new BadAuthenticationError('Invalid verification code');
     }
 
-    if (record.isExpired()) {
+    if (matchingRecord.isExpired()) {
       throw new BadAuthenticationError('Verification code has expired');
     }
 
-    const portalUser = await PortalUser.findByPk(record.portalUserId);
+    const portalUser = await PortalUser.findByPk(matchingRecord.portalUserId);
     if (!portalUser) {
       throw new BadAuthenticationError('Invalid verification code');
     }
 
-    await record.destroy({
+    await matchingRecord.destroy({
       where: { portalUserId: portalUser.id, type },
       force: true,
     });

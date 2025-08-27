@@ -8,6 +8,7 @@ import {
   PortalOneTimeTokenService,
   hashPortalToken,
 } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import bcrypt from 'bcrypt';
 
 describe('OneTimeTokenService', () => {
   let ctx;
@@ -68,9 +69,9 @@ describe('OneTimeTokenService', () => {
       });
 
       expect(tokenRecord).not.toBeNull();
-      // The database should store the hashed token, not the plain token
-      expect(tokenRecord.token).toEqual(hashPortalToken(result.token));
       expect(tokenRecord.expiresAt).toEqual(result.expiresAt);
+      const verified = await bcrypt.compare(result.token, tokenRecord.token);
+      expect(verified).toEqual(true);
     });
 
     it('should create a token that expires in the configured time', async () => {
@@ -129,8 +130,9 @@ describe('OneTimeTokenService', () => {
 
       expect(tokenRecord).not.toBeNull();
       // The database should store the hashed token, not the plain token
-      expect(tokenRecord.token).toEqual(hashPortalToken(result.token));
       expect(tokenRecord.expiresAt).toEqual(result.expiresAt);
+      const verified = await bcrypt.compare(result.token, tokenRecord.token);
+      expect(verified).toEqual(true);
     });
 
     it('should create a register token that expires in the configured time', async () => {
@@ -197,7 +199,7 @@ describe('OneTimeTokenService', () => {
 
       // Verify hashed token exists in database
       const tokenExists = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, token: hashPortalToken(token) },
+        where: { portalUserId: testPortalUser.id },
       });
       expect(tokenExists).not.toBeNull();
 
@@ -209,9 +211,7 @@ describe('OneTimeTokenService', () => {
       expect(result.id).toEqual(testPortalUser.id);
 
       // Verify token no longer exists
-      const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, token: hashPortalToken(token) },
-      });
+      const tokenAfterConsume = await models.PortalOneTimeToken.findByPk(tokenExists.id);
       expect(tokenAfterConsume).toBeNull();
     });
 
@@ -230,10 +230,11 @@ describe('OneTimeTokenService', () => {
 
       // Manually create expired token with hashed value
       const token = '123456';
+      const hashedToken = await hashPortalToken(token);
       await models.PortalOneTimeToken.create({
         portalUserId: testPortalUser.id,
         type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
-        token: hashPortalToken(token), // Store the hashed token
+        token: hashedToken,
         expiresAt,
       });
 
