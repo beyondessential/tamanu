@@ -103,11 +103,6 @@ export const centralSettings = {
         dhis2: {
           description: 'DHIS2 settings',
           properties: {
-            enabled: {
-              description: 'Whether DHIS2 integration is enabled',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
             reportIds: {
               description: 'The IDs of the reports to send to DHIS2',
               type: yup.array(yup.string().min(1)),
