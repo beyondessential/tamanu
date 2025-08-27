@@ -1219,6 +1219,11 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
           },
         },
       },
