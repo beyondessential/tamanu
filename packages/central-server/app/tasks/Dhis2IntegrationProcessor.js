@@ -45,8 +45,8 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
 
         console.log('Report version: ', reportVersion.toJSON());
 
-        // const reportData = await reportVersion.dataGenerator(this.context, {});
-        // log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
+        const reportData = await reportVersion.dataGenerator(this.context, {});
+        log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
       }
 
       log.debug('DHIS2 integration processing completed');
