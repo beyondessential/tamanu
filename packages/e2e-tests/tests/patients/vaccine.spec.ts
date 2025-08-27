@@ -841,99 +841,60 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Record vaccine with due status from scheduled vaccines table', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-    const vaccine = 'BCG';
-    const schedule = 'Birth';
-    const status = 'Due';
-    const dueDate = await expectedDueDateWeek(currentDate, 'weeks', 1);
+  //Test data for recording scheduled vaccines test cases
+  const recordScheduledVaccineTestCases = [
+    {
+      status: 'Due',
+      getBirthDate: (currentDate: Date) => currentDate,
+      vaccine: 'BCG',
+      schedule: 'Birth',
+      getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 1),
+    },
+    {
+      status: 'Scheduled',
+      getBirthDate: (currentDate: Date) => currentDate,
+      vaccine: 'PCV13',
+      schedule: '6 weeks',
+      getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 6),
+    },
+    {
+      status: 'Overdue',
+      getBirthDate: (currentDate: Date) => subWeeks(currentDate, 3),
+      vaccine: 'BCG',
+      schedule: 'Birth',
+      getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 1),
+    },
+    {
+      status: 'Upcoming',
+      getBirthDate: (currentDate: Date) => subWeeks(currentDate, 3),
+      vaccine: 'PCV13',
+      schedule: '6 weeks',
+      getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 6),
+    },
+  ];
 
-    const patient = await createPatient(api, page, {
-      dateOfBirth: currentDate,
+  for (const { status, getBirthDate, vaccine, schedule, getDueDate } of recordScheduledVaccineTestCases) {
+    test(`Record vaccine with ${status.toLowerCase()} status from scheduled vaccines table`, async ({
+      page,
+      api,
+      patientDetailsPage,
+    }) => {
+      const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+      const birthDate = getBirthDate(currentDate);
+      const dueDate = await getDueDate(birthDate);
+
+      const patient = await createPatient(api, page, {
+        dateOfBirth: birthDate,
+      });
+
+      await patientDetailsPage.goToPatient(patient);
+      await patientDetailsPage.navigateToVaccineTab();
+
+      await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
+
+      await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
     });
-
-    await patientDetailsPage.goToPatient(patient);
-    await patientDetailsPage.navigateToVaccineTab();
-
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
-
-    await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
-  });
-
-  test('Record vaccine with scheduled status from scheduled vaccines table', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-    const vaccine = 'PCV13';
-    const schedule = '6 weeks';
-    const status = 'Scheduled';
-    const dueDate = await expectedDueDateWeek(currentDate, 'weeks', 6);
-
-    const patient = await createPatient(api, page, {
-      dateOfBirth: currentDate,
-    });
-
-    await patientDetailsPage.goToPatient(patient);
-    await patientDetailsPage.navigateToVaccineTab();
-
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
-
-    await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
-  });
-
-  test('Record vaccine with overdue status from scheduled vaccines table', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-    const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
-    const vaccine = 'BCG';
-    const schedule = 'Birth';
-    const status = 'Overdue';
-    const dueDate = await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 1);
-
-    const patient = await createPatient(api, page, {
-      dateOfBirth: birthDateThreeWeeksAgo,
-    });
-
-    await patientDetailsPage.goToPatient(patient);
-    await patientDetailsPage.navigateToVaccineTab();
-
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
-
-    await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
-  });
-
-  test('Record vaccine with upcoming status from scheduled vaccines table', async ({
-    page,
-    api,
-    patientDetailsPage,
-  }) => {
-    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-    const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
-    const vaccine = 'PCV13';
-    const schedule = '6 weeks';
-    const status = 'Upcoming';
-    const dueDate = await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 6);
-
-    const patient = await createPatient(api, page, {
-      dateOfBirth: birthDateThreeWeeksAgo,
-    });
-
-    await patientDetailsPage.goToPatient(patient);
-    await patientDetailsPage.navigateToVaccineTab();
-
-    await recordScheduledVaccine(patientDetailsPage, vaccine, schedule, dueDate, status);
-
-    await confirmVaccineNoLongerScheduled(patientDetailsPage, vaccine, schedule);
-  });
+  }
 
   test('Vaccine remains scheduled if "not given" is selected when recording', async ({
     page,
