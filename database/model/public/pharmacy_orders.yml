@@ -10,8 +10,10 @@ sources:
           tags: []
           meta:
             triggers:
+              - fhir_refresh
               - notify_pharmacy_orders_changed
               - record_pharmacy_orders_changelog
+              - set_pharmacy_orders_updated_at
               - set_pharmacy_orders_updated_at_sync_tick
         columns:
           - name: id
@@ -33,6 +35,9 @@ sources:
           - name: comments
             data_type: text
             description: "{{ doc('pharmacy_orders__comments') }}"
+            config:
+              meta:
+                masking: text
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in pharmacy_orders."
