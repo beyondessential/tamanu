@@ -5,7 +5,7 @@ import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 function randomSixDigitCode() {
   // returns a zero-padded 6 digit string using crypto.randomInt for better security
-  return randomInt(100000, 1000000).toString();
+  return Array.from({ length: 6 }, () => randomInt(0, 9)).join('');
 }
 
 function randomRegisterCode() {
@@ -13,7 +13,7 @@ function randomRegisterCode() {
   return randomBytes(16).toString('hex');
 }
 
-function hashToken(token) {
+export function hashPortalToken(token) {
   return createHash('sha256').update(token).digest('hex');
 }
 
@@ -26,7 +26,7 @@ export class PortalOneTimeTokenService {
   async createLoginToken(portalUserId) {
     const { PortalOneTimeToken } = this.models;
     const token = randomSixDigitCode();
-    const hashedToken = hashToken(token);
+    const hashedToken = hashPortalToken(token);
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing login tokens for this user
@@ -50,7 +50,7 @@ export class PortalOneTimeTokenService {
   async createRegisterToken(portalUserId) {
     const { PortalOneTimeToken } = this.models;
     const token = randomRegisterCode();
-    const hashedToken = hashToken(token);
+    const hashedToken = hashPortalToken(token);
     const expiresAt = addMinutes(new Date(), this.expiryMinutes);
 
     // Overwrite existing register tokens for this user
@@ -73,7 +73,7 @@ export class PortalOneTimeTokenService {
 
   async verifyAndConsume({ token, type = PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN }) {
     const { PortalOneTimeToken, PortalUser } = this.models;
-    const hashedToken = hashToken(token);
+    const hashedToken = hashPortalToken(token);
     const record = await PortalOneTimeToken.findOne({
       where: { type, token: hashedToken },
     });
@@ -82,16 +82,19 @@ export class PortalOneTimeTokenService {
       throw new BadAuthenticationError('Invalid verification code');
     }
 
-    const portalUser = await PortalUser.findByPk(record.portalUserId);
-    if (!portalUser || !record) {
-      throw new BadAuthenticationError('Invalid verification code');
-    }
-
     if (record.isExpired()) {
       throw new BadAuthenticationError('Verification code has expired');
     }
 
-    await record.destroy({ force: true });
+    const portalUser = await PortalUser.findByPk(record.portalUserId);
+    if (!portalUser) {
+      throw new BadAuthenticationError('Invalid verification code');
+    }
+
+    await record.destroy({
+      where: { portalUserId: portalUser.id, type },
+      force: true,
+    });
     return portalUser;
   }
 }

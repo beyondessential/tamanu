@@ -40,10 +40,7 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     throw new Error('Failed to send email');
   }
 
-  // Respond with the 6-digit code
-  return res.status(200).json({
-    message: 'One-time token sent successfully',
-  });
+  return res.status(200);
 });
 
 export const patientPortalLogin = ({ secret }) =>

@@ -1,23 +1,24 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
+import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 
 const TABLE_NAME = 'portal_one_time_tokens';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE_NAME, {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
       allowNull: false,
       primaryKey: true,
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 6),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 6),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     deleted_at: {
@@ -25,7 +26,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     portal_user_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       references: {
         model: 'portal_users',
         key: 'id',
@@ -34,7 +35,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     type: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM(...PORTAL_ONE_TIME_TOKEN_TYPES),
       allowNull: false,
       defaultValue: 'login',
     },

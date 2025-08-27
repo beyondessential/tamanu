@@ -7,7 +7,10 @@ Foreign key that references the id of the portal user to whom this token belongs
 {% enddocs %}
 
 {% docs portal_one_time_tokens__type %}
-Specifies the purpose of the token, such as 'login', 'password-reset', or other authentication purposes. The default value is 'login'.
+Specifies the purpose of the token
+One of:
+- `login` (default)
+- `password-reset`
 {% enddocs %}
 
 {% docs portal_one_time_tokens__token %}
