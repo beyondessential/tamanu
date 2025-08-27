@@ -104,6 +104,68 @@ describe('Survey', () => {
     });
   });
 
+  describe('chart surveys', () => {
+    let limitedPermsApp = null;
+    let chartSurvey1 = null;
+    let chartSurvey2 = null;
+
+    disableHardcodedPermissionsForSuite();
+
+    beforeAll(async () => {
+      // Create chart surveys
+      const { survey: survey1 } = await setupSurveyFromObject(models, {
+        program: {
+          id: 'chart-program-1',
+        },
+        survey: {
+          id: 'chart-survey-1',
+          name: 'Chart Survey 1',
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+        },
+        questions: [
+          {
+            name: 'ChartQuestion1',
+            type: 'Number',
+          },
+        ],
+      });
+      chartSurvey1 = survey1;
+
+      const { survey: survey2 } = await setupSurveyFromObject(models, {
+        program: {
+          id: 'chart-program-2',
+        },
+        survey: {
+          id: 'chart-survey-2',
+          name: 'Chart Survey 2',
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+        },
+        questions: [
+          {
+            name: 'ChartQuestion2',
+            type: 'Number',
+          },
+        ],
+      });
+      chartSurvey2 = survey2;
+
+      // Create limited permissions app
+      const permissions = [['list', 'Charting', chartSurvey1.id]];
+      limitedPermsApp = await baseApp.asNewRole(permissions);
+    });
+
+    it('should return only permitted chart surveys when user has limited permissions', async () => {
+      const result = await limitedPermsApp.get('/api/survey/charts');
+      expect(result).toHaveSucceeded();
+
+      // Should only return the survey the user has permission to access
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(chartSurvey1.id);
+      expect(surveyIds).not.toContain(chartSurvey2.id);
+      expect(surveyIds).toHaveLength(1);
+    });
+  });
+
   describe('vitals', () => {
     beforeAll(async () => {
       await setupSurveyFromObject(models, {

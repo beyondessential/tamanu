@@ -14,6 +14,7 @@ sources:
               - fhir_refresh
               - notify_scheduled_vaccines_changed
               - record_scheduled_vaccines_changelog
+              - set_scheduled_vaccines_updated_at
               - set_scheduled_vaccines_updated_at_sync_tick
         columns:
           - name: id
@@ -40,11 +41,12 @@ sources:
             description: "{{ doc('scheduled_vaccines__category') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - Campaign
-                    - Catchup
-                    - Other
-                    - Routine
+                  arguments:
+                    values:
+                      - Campaign
+                      - Catchup
+                      - Other
+                      - Routine
           - name: label
             data_type: character varying(255)
             description: "{{ doc('scheduled_vaccines__label') }}"

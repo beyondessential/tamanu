@@ -94,6 +94,21 @@ export const DateHeadCell = React.memo(({ value }) => (
   </TableTooltip>
 ));
 
+export const DateBodyCell = React.memo(({ value, onClick }) => {
+  const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
+  return (
+    <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-3knb">
+      <CellContainer
+        onClick={onClick}
+        data-testid="cellcontainer-slh4"
+      >
+        <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
+        <div>{DateDisplay.stringFormat(value, formatTime)}</div>
+      </CellContainer>
+    </TableTooltip>
+  );
+});
+
 const LimitedLinesCellWrapper = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
@@ -108,12 +123,18 @@ const LimitedLinesCellWrapper = styled.div`
   ${({ maxWidth }) => maxWidth && `max-width: ${maxWidth};`};
 `;
 
+const LimitedLinesCellContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+`;
+
 export const LimitedLinesCell = ({
   value,
   maxWidth,
   maxLines = 2,
   isOneLine = false,
   disableTooltip = false,
+  isEdited = false,
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -151,15 +172,18 @@ export const LimitedLinesCell = ({
   }
 
   return (
-    <TableTooltip
-      title={value ?? ''}
-      open={isClamped && tooltipOpen}
-      onOpen={() => setTooltipOpen(true)}
-      onClose={() => setTooltipOpen(false)}
-      data-testid="tabletooltip-fs9r"
-    >
-      {renderLimitedLinesCellWrapper()}
-    </TableTooltip>
+    <LimitedLinesCellContainer>
+      <TableTooltip
+        title={value ?? ''}
+        open={isClamped && tooltipOpen}
+        onOpen={() => setTooltipOpen(true)}
+        onClose={() => setTooltipOpen(false)}
+        data-testid="tabletooltip-fs9r"
+      >
+        {renderLimitedLinesCellWrapper()}
+      </TableTooltip>
+      {isEdited && isClamped && <span>*</span>}
+    </LimitedLinesCellContainer>
   );
 };
 
@@ -206,7 +230,7 @@ export const RangeValidatedCell = React.memo(
         {...props}
         data-testid="cellcontainer-4zzh"
       >
-        <ValueWrapper value={formattedValue} data-testid="valuewrapper-nbfj" />
+        <ValueWrapper value={formattedValue} isEdited={isEdited} data-testid="valuewrapper-nbfj" />
       </CellContainer>
     );
 
