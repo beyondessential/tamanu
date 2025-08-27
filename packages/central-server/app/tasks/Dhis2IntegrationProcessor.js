@@ -22,8 +22,13 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
     try {
       log.debug('Starting DHIS2 integration processing');
 
+      const {
+        settings,
+        store: { models },
+      } = this.context;
+
       // Get DHIS2 settings
-      const { enabled, reportIds } = await this.context.settings.get('integrations.dhis2');
+      const { enabled, reportIds } = await settings.get('integrations.dhis2');
 
       if (!enabled) {
         log.debug('DHIS2 integration is disabled, skipping processing');
@@ -33,8 +38,8 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
 
       for (const reportId of reportIds) {
-        const report = await this.context.store.models.ReportDefinition.findByPk(reportId, {
-          include: [{ model: this.context.store.models.ReportDefinitionVersion, as: 'versions' }],
+        const report = await models.ReportDefinition.findByPk(reportId, {
+          include: [{ model: models.ReportDefinitionVersion, as: 'versions' }],
         });
 
         if (!report) {
