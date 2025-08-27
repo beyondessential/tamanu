@@ -17,6 +17,8 @@ const ButtonContainer = styled(Box)`
   margin-top: 0.5rem;
   display: flex;
   gap: 1rem;
+  width: 100%;
+  max-width: ${CANVAS_WIDTH}px;
 `;
 
 const StyledButton = styled(MuiButton)`
@@ -30,6 +32,8 @@ const SignaturePreview = styled.div`
   border-radius: 3px;
   background-color: ${Colors.white};
   min-height: 150px;
+  width: 100%;
+  max-width: ${CANVAS_WIDTH}px;
   display: flex;
   align-items: center;
   justify-content: center;
