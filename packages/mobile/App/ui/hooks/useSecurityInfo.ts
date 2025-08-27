@@ -47,6 +47,7 @@ export const useSecurityInfo = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { getSetting } = useSettings();
   const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
+  const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   useEffect(() => {
     const fetchSecurityInfo = async () => {
@@ -62,5 +63,6 @@ export const useSecurityInfo = () => {
   }, []);
 
   const isStorageSecure = allowUnencryptedStorage ? true : isStorageEncrypted;
-  return { isSecurityCompliant: isStorageSecure && isDeviceSecure, isLoading };
+  const isPasscodeProtected = allowUnprotected ? true : isDeviceSecure;
+  return { isSecurityCompliant: isStorageSecure && isPasscodeProtected, isLoading };
 };
