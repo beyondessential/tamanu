@@ -5,6 +5,9 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { Colors } from '../../constants';
 
+const CANVAS_WIDTH = 400;
+const CANVAS_HEIGHT = 150;
+
 const SignatureCanvas = styled.canvas`
   border: 2px solid ${Colors.outline};
   border-radius: 3px;
@@ -45,9 +48,6 @@ const PreviewImage = styled.img`
   max-height: 150px;
   object-fit: contain;
 `;
-
-const CANVAS_WIDTH = 400;
-const CANVAS_HEIGHT = 150;
 
 export const SignatureInput = ({ value = '', onChange, label, disabled = false, ...props }) => {
   const canvasRef = useRef(null);
