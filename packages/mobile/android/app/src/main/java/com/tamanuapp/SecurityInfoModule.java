@@ -13,11 +13,8 @@ import com.facebook.react.bridge.Arguments;
 
 public class SecurityInfoModule extends ReactContextBaseJavaModule {
 
-    private final ReactApplicationContext context;
-
     public SecurityInfoModule(ReactApplicationContext context) {
         super(context);
-        this.context = context;
     }
 
     @Override
@@ -28,7 +25,7 @@ public class SecurityInfoModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void getStorageEncryptionStatus(Promise promise) {
         try {
-            DevicePolicyManager devicePolicyManager = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            DevicePolicyManager devicePolicyManager = (DevicePolicyManager) getReactApplicationContext().getSystemService(Context.DEVICE_POLICY_SERVICE);
             
             if (devicePolicyManager == null) {
                 promise.reject("DEVICE_POLICY_MANAGER_NULL", "DevicePolicyManager is not available");
@@ -50,7 +47,7 @@ public class SecurityInfoModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void isDeviceSecure(Promise promise) {
         try {
-            KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+            KeyguardManager keyguardManager = (KeyguardManager) getReactApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
             
             if (keyguardManager == null) {
                 promise.reject("KEYGUARD_MANAGER_NULL", "KeyguardManager is not available");
