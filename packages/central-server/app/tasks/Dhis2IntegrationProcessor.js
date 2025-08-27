@@ -37,13 +37,24 @@ export class Dhis2IntegrationProcessor extends ScheduledTask {
           include: [{ model: this.context.store.models.ReportDefinitionVersion, as: 'versions' }],
         });
 
+        if (!report) {
+          log.warn(`Report ${reportId} doesn't exist, skipping`);
+          continue;
+        }
+
         log.info('Processing report', { reportId });
 
         const reportVersion = getLatestVersion(report.versions, REPORT_STATUSES.PUBLISHED);
+
+        if (!reportVersion) {
+          log.warn(`Report ${reportId} has no published version, skipping`);
+          continue;
+        }
+
         const reportData = await reportVersion.dataGenerator(this.context, {});
 
         // TODO: Send this to DHIS2 in TAN-2540
-        log.info(`Report ${reportId} data: ${JSON.stringify(reportData)}`);
+        log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
 
       log.debug('DHIS2 integration processing completed');
