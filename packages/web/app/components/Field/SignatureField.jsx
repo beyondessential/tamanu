@@ -21,7 +21,6 @@ const ButtonContainer = styled(Box)`
   display: flex;
   gap: 1rem;
   width: 100%;
-  max-width: ${CANVAS_WIDTH}px;
 `;
 
 const StyledButton = styled(MuiButton)`
@@ -36,7 +35,6 @@ const SignaturePreview = styled.div`
   background-color: ${Colors.white};
   min-height: 150px;
   width: 100%;
-  max-width: ${CANVAS_WIDTH}px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -234,7 +232,6 @@ export const SignatureInput = ({ value = '', onChange, label, disabled = false, 
         onTouchEnd={stopDrawing}
         style={{
           width: '100%',
-          maxWidth: `${CANVAS_WIDTH}px`,
           height: `${CANVAS_HEIGHT}px`,
         }}
       />
