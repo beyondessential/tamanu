@@ -55,7 +55,9 @@ export class PatientVaccinePane extends BasePatientPane {
     this.closeModalButton = this.page.getByTestId('iconbutton-eull');
     this.vaccineColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-vaccineDisplayName');
     this.dateColumnHeader = this.page.getByTestId('tablesortlabel-0qxx-date');
-    this.scheduledVaccinesTableBody = this.page.getByTestId('tablewrapper-rbs7').getByTestId('styledtablebody-a0jz');
+    this.scheduledVaccinesTableBody = this.page
+      .getByTestId('tablewrapper-rbs7')
+      .getByTestId('styledtablebody-a0jz');
     this.finalScheduledVaccine = this.page.getByTestId('styledtablecell-2gyy-18-vaccine');
   }
 
@@ -69,7 +71,10 @@ export class PatientVaccinePane extends BasePatientPane {
   }
 
   async clickRecordVaccineButtonForSpecificScheduledVaccine(): Promise<RecordVaccineModal> {
-    await this.page.getByTestId('styledtablecell-2gyy-0-action').getByRole('button', { name: 'Record' }).click();
+    await this.page
+      .getByTestId('styledtablecell-2gyy-0-action')
+      .getByRole('button', { name: 'Record' })
+      .click();
     if (!this.recordVaccineModal) {
       this.recordVaccineModal = new RecordVaccineModal(this.page);
     }
@@ -94,7 +99,14 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error('Missing required vaccine fields');
     }
 
-    const row = await this.findRowNumberForVaccine(this.recordedVaccinesTableWrapper, vaccineName, scheduleOption, this.vaccineTableRowPrefix, 'vaccineDisplayName', count);
+    const row = await this.findRowNumberForVaccine(
+      this.recordedVaccinesTableWrapper,
+      vaccineName,
+      scheduleOption,
+      this.vaccineTableRowPrefix,
+      'vaccineDisplayName',
+      count,
+    );
     const vaccineKebabMenu = this.recordedVaccinesTableWrapper
       .getByTestId(`${this.vaccineTableRowPrefix}${row}-action`)
       .getByTestId(this.vaccineKebabMenuTestId);
@@ -212,7 +224,12 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param expectedDueDate - The expected due date of the vaccine, e.g. "2025-01-01"
    * @param status - The status of the vaccine, e.g. "Due", "Scheduled", "Overdue", "Upcoming"
    */
-  async assertScheduledVaccinesTable(vaccine: string, schedule: string, expectedDueDate: string, status: string) {
+  async assertScheduledVaccinesTable(
+    vaccine: string,
+    schedule: string,
+    expectedDueDate: string,
+    status: string,
+  ) {
     const rowsToSearch = 20;
     const scheduledVaccinesTable = 'scheduledVaccines';
     const expectedDueDateFormatted = `Week of ${expectedDueDate}`;
@@ -221,23 +238,29 @@ export class PatientVaccinePane extends BasePatientPane {
     const assertions = [
       { value: vaccine, locatorSuffix: 'vaccine', errorPrefix: `Vaccine "${vaccine}"` },
       { value: schedule, locatorSuffix: 'schedule', errorPrefix: `Schedule option "${schedule}"` },
-      { value: expectedDueDateFormatted, locatorSuffix: 'dueDate', errorPrefix: `Due date "${expectedDueDate}"` },
+      {
+        value: expectedDueDateFormatted,
+        locatorSuffix: 'dueDate',
+        errorPrefix: `Due date "${expectedDueDate}"`,
+      },
       { value: status, locatorSuffix: 'status', errorPrefix: `Status "${status}"` },
     ];
 
     // Check each assertion
     for (const assertion of assertions) {
       const found = await this.searchSpecificTableRowForMatch(
-        scheduledVaccinesTable, 
-        assertion.value, 
-        assertion.locatorSuffix, 
-        rowsToSearch, 
-        vaccine, 
-        schedule
+        scheduledVaccinesTable,
+        assertion.value,
+        assertion.locatorSuffix,
+        rowsToSearch,
+        vaccine,
+        schedule,
       );
-      
+
       if (!found) {
-        throw new Error(`${assertion.errorPrefix} not found in the scheduled vaccines table for the specified vaccine`);
+        throw new Error(
+          `${assertion.errorPrefix} not found in the scheduled vaccines table for the specified vaccine`,
+        );
       }
     }
   }
@@ -251,11 +274,18 @@ export class PatientVaccinePane extends BasePatientPane {
   async recordScheduledVaccine(vaccine: string, schedule: string) {
     const rowsToSearch = 20;
 
-    const row = await this.findRowNumberForVaccine(this.scheduledVaccinesTableWrapper, vaccine, schedule, this.vaccineTableRowPrefix, 'vaccine', rowsToSearch);
+    const row = await this.findRowNumberForVaccine(
+      this.scheduledVaccinesTableWrapper,
+      vaccine,
+      schedule,
+      this.vaccineTableRowPrefix,
+      'vaccine',
+      rowsToSearch,
+    );
 
     const rowTestId = `styledtablecell-2gyy-${row}-action`;
     const recordButton = this.page.getByTestId(rowTestId).getByRole('button', { name: 'Record' });
-   
+
     await recordButton.click();
 
     if (!this.recordVaccineModal) {
@@ -273,14 +303,23 @@ export class PatientVaccinePane extends BasePatientPane {
   async confirmScheduledVaccineDoesNotExist(vaccine: string, schedule: string) {
     const rowsToSearch = 20;
     const returnFalseIfNotFound = true;
-    const rowFound = await this.findRowNumberForVaccine(this.scheduledVaccinesTableWrapper, vaccine, schedule, this.vaccineTableRowPrefix, 'vaccine', rowsToSearch, returnFalseIfNotFound);
+    const rowFound = await this.findRowNumberForVaccine(
+      this.scheduledVaccinesTableWrapper,
+      vaccine,
+      schedule,
+      this.vaccineTableRowPrefix,
+      'vaccine',
+      rowsToSearch,
+      returnFalseIfNotFound,
+    );
 
-     if (rowFound) {
-      throw new Error(`Vaccine "${vaccine}" with schedule "${schedule}" still exists in the scheduled vaccines table`);
-     }
-     else {
+    if (rowFound) {
+      throw new Error(
+        `Vaccine "${vaccine}" with schedule "${schedule}" still exists in the scheduled vaccines table`,
+      );
+    } else {
       return true;
-     }
+    }
   }
 
   /**
@@ -310,12 +349,18 @@ export class PatientVaccinePane extends BasePatientPane {
     } else if (table === 'scheduledVaccines') {
       tableLocator = this.scheduledVaccinesTableWrapper;
       tableFirstColumnPrefix = 'vaccine';
-    }
-    else {
+    } else {
       throw new Error('Invalid table type');
     }
 
-    const row = await this.findRowNumberForVaccine(tableLocator, vaccine, scheduleOption, this.vaccineTableRowPrefix, tableFirstColumnPrefix, count);
+    const row = await this.findRowNumberForVaccine(
+      tableLocator,
+      vaccine,
+      scheduleOption,
+      this.vaccineTableRowPrefix,
+      tableFirstColumnPrefix,
+      count,
+    );
     //Search the specific row in the table for the value to match
     const locator = tableLocator.getByTestId(
       `${this.vaccineTableRowPrefix}${row}-${locatorSuffix}`,
@@ -337,7 +382,15 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param count - The number of times to run the search
    * @returns The row number of the unique vaccine name / schedule combo
    */
-  async findRowNumberForVaccine(table: Locator, vaccine: string, scheduleOption: string, locatorPrefix: string, locatorSuffix: string, count: number, returnFalseIfNotFound?: boolean) {
+  async findRowNumberForVaccine(
+    table: Locator,
+    vaccine: string,
+    scheduleOption: string,
+    locatorPrefix: string,
+    locatorSuffix: string,
+    count: number,
+    returnFalseIfNotFound?: boolean,
+  ) {
     let row: number | undefined;
     const timesToRun = count > 1 ? count : 1;
     const firstRow = table.getByTestId(`${locatorPrefix}0-${locatorSuffix}`);
@@ -345,9 +398,7 @@ export class PatientVaccinePane extends BasePatientPane {
 
     //Find the row that contains the unique vaccine name / schedule combo and save the row number
     for (let i = 0; i < timesToRun; i++) {
-      const locator = table.getByTestId(
-        `${locatorPrefix}${i}-${locatorSuffix}`,
-      );
+      const locator = table.getByTestId(`${locatorPrefix}${i}-${locatorSuffix}`);
 
       //Check if the locator is visible and skip iteration if it's not
       const isVisible = await locator.isVisible();
@@ -366,7 +417,7 @@ export class PatientVaccinePane extends BasePatientPane {
     }
 
     if (row === undefined) {
-     if (returnFalseIfNotFound) {
+      if (returnFalseIfNotFound) {
         return false;
       }
       throw new Error(`Vaccine "${vaccine}" not found in the table`);
@@ -383,10 +434,13 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param row - The row number to search for, e.g. 0
    * @returns True if the schedule option matches, false otherwise
    */
-  async rowScheduleOptionMatchesVaccine(table: Locator, scheduleOption: string, locatorPrefix: string, row: number) {
-    const locator = table.getByTestId(
-      `${locatorPrefix}${row}-schedule`,
-    );
+  async rowScheduleOptionMatchesVaccine(
+    table: Locator,
+    scheduleOption: string,
+    locatorPrefix: string,
+    row: number,
+  ) {
+    const locator = table.getByTestId(`${locatorPrefix}${row}-schedule`);
 
     const text = await locator.innerText();
     if (text.includes(scheduleOption)) {
@@ -406,7 +460,14 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error('Missing required vaccine fields');
     }
 
-    const row = await this.findRowNumberForVaccine(this.recordedVaccinesTableWrapper, vaccineName, scheduleOption, this.vaccineTableRowPrefix, 'vaccineDisplayName', count);
+    const row = await this.findRowNumberForVaccine(
+      this.recordedVaccinesTableWrapper,
+      vaccineName,
+      scheduleOption,
+      this.vaccineTableRowPrefix,
+      'vaccineDisplayName',
+      count,
+    );
     const viewButton = this.recordedVaccinesTableWrapper
       .getByTestId(`${this.vaccineTableRowPrefix}${row}-action`)
       .getByRole('button', { name: 'View' });

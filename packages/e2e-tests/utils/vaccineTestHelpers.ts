@@ -39,14 +39,17 @@ export async function addVaccineAndAssert(
     recordScheduledVaccine?: boolean;
   } = {},
 ) {
- if (recordScheduledVaccine) {
-  if (!specificVaccine || !specificScheduleOption) {
-    throw new Error('Vaccine and schedule are required when recordScheduledVaccine is true');
+  if (recordScheduledVaccine) {
+    if (!specificVaccine || !specificScheduleOption) {
+      throw new Error('Vaccine and schedule are required when recordScheduledVaccine is true');
+    }
+    await patientDetailsPage.patientVaccinePane?.recordScheduledVaccine(
+      specificVaccine,
+      specificScheduleOption,
+    );
+  } else {
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
   }
-  await patientDetailsPage.patientVaccinePane?.recordScheduledVaccine(specificVaccine, specificScheduleOption);
- } else {
-  await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
- }
 
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
@@ -123,10 +126,9 @@ export async function editVaccine(
   specificEdits: Partial<Vaccine> = {},
   onlyEditSpecificFields?: boolean,
 ) {
-
   const edits = {
     ...vaccine,
-    ...specificEdits
+    ...specificEdits,
   };
 
   await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
@@ -168,8 +170,20 @@ interface RecordScheduledVaccineOptions {
  * @param given - Optional: Whether the vaccine was given, e.g. true or false. Defaults to true if no value is provided
  * @param specificCategory - Optional: The specific category to use, e.g. 'Routine', 'Catchup', 'Campaign', 'Other'. Defaults to 'Routine' if no value is provided
  */
-export async function recordScheduledVaccine(patientDetailsPage: PatientDetailsPage, vaccine: string, schedule: string, dueDate: string, status: string, options: RecordScheduledVaccineOptions = {}) {
-  await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
+export async function recordScheduledVaccine(
+  patientDetailsPage: PatientDetailsPage,
+  vaccine: string,
+  schedule: string,
+  dueDate: string,
+  status: string,
+  options: RecordScheduledVaccineOptions = {},
+) {
+  await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
+    vaccine,
+    schedule,
+    dueDate,
+    status,
+  );
 
   const isGiven = options.given ?? true;
   const category = options.category ?? 'Routine';
@@ -190,8 +204,16 @@ export async function recordScheduledVaccine(patientDetailsPage: PatientDetailsP
  * @param vaccine - The vaccine to confirm is no longer scheduled
  * @param schedule - The schedule the vaccine was scheduled on, e.g. 'Birth', '6 weeks' etc
  */
-export async function confirmVaccineNoLongerScheduled(patientDetailsPage: PatientDetailsPage, vaccine: string, schedule: string) {
-  const vaccineNoLongerScheduled = await patientDetailsPage.patientVaccinePane?.confirmScheduledVaccineDoesNotExist(vaccine, schedule);
+export async function confirmVaccineNoLongerScheduled(
+  patientDetailsPage: PatientDetailsPage,
+  vaccine: string,
+  schedule: string,
+) {
+  const vaccineNoLongerScheduled =
+    await patientDetailsPage.patientVaccinePane?.confirmScheduledVaccineDoesNotExist(
+      vaccine,
+      schedule,
+    );
   expect(vaccineNoLongerScheduled).toBe(true);
 }
 
@@ -225,31 +247,36 @@ export async function assertEditedVaccine(
  * @param unitsToAdd - The number of units to add to the date
  * @returns The expected due date in the format of "MM/dd/yyyy"
  */
-export async function expectedDueDateWeek(date: Date, unit: 'weeks' | 'months', unitsToAdd: number) {
- let dueDate: Date;
+export async function expectedDueDateWeek(
+  date: Date,
+  unit: 'weeks' | 'months',
+  unitsToAdd: number,
+) {
+  let dueDate: Date;
 
- if (unit === 'weeks') {
-  dueDate = addWeeks(date, unitsToAdd);
- } else if (unit === 'months') {
-  dueDate = addMonths(date, unitsToAdd);
- }
- else {
-  throw new Error('Invalid unit');
- }
+  if (unit === 'weeks') {
+    dueDate = addWeeks(date, unitsToAdd);
+  } else if (unit === 'months') {
+    dueDate = addMonths(date, unitsToAdd);
+  } else {
+    throw new Error('Invalid unit');
+  }
 
   // Extract just the date components to avoid timezone issues
   const year = dueDate.getFullYear();
   const month = dueDate.getMonth();
   const day = dueDate.getDate();
-  
+
   // Create a local date object for startOfWeek
   const localDate = new Date(year, month, day);
   const weekStart = startOfWeek(localDate, { weekStartsOn: 1 });
-  
+
   // Convert result back to UTC
-  const utcWeekStart = new Date(Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()));
+  const utcWeekStart = new Date(
+    Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
+  );
 
   const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
-  
+
   return formattedUtcWeekStart;
 }

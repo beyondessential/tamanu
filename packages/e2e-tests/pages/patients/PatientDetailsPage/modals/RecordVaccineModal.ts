@@ -139,7 +139,9 @@ export class RecordVaccineModal extends BasePatientModal {
   }
 
   async assertScheduledVaccine(specificVaccine: string, specificScheduleOption: string) {
-    const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', { name: specificScheduleOption });
+    const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', {
+      name: specificScheduleOption,
+    });
     expect(this.vaccineSelectField).toContainText(specificVaccine);
     expect(scheduleOptionLocator).toBeChecked();
   }
