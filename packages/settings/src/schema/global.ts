@@ -227,7 +227,18 @@ export const globalSettings = {
             },
           },
         },
+        mandatoryChartingEditReason: {
+          description: 'Require a reason for change text field to be filled out on chart edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableChartingEdit: {
+          description: 'Allow existing charting records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         desktopCharting: {
+          description: 'Enable desktop charting module',
           properties: {
             enabled: {
               type: yup.boolean(),
@@ -926,6 +937,11 @@ export const globalSettings = {
           properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
         },
       },
+    },
+    fileChooserMbSizeLimit: {
+      description: 'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      type: yup.number().min(1),
+      defaultValue: 10,
     },
     integrations: {
       name: 'Integrations',
