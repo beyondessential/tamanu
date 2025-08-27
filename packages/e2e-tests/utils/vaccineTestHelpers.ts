@@ -60,6 +60,7 @@ export async function addVaccineAndAssert(
       isFollowUpVaccine,
       specificScheduleOption,
       specificDate,
+      recordScheduledVaccine,
     },
   );
 

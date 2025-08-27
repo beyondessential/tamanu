@@ -602,10 +602,9 @@ test.describe('Recorded vaccines', () => {
 
 });
 
-//TODO: test recording vaccines from here
 //TODO: check other todos in other files (jsdocs, consoles etc)
-//TODO: when recording vaccines the vacc & schedule are prefilled, need to account for this in tests (currently addVacccineAndAssert does not)
 //TODO: specific tests for above for unconventional schedule (e.g. the 2nd radio option)?
+//TODO: dry out this section? quite a few repeated consts, some test steps identical (e.g. record vaccine with x status is all the same)
 test.describe('Scheduled vaccines', () => {
   test('Vaccines scheduled at birth display', async ({
     page,
@@ -790,7 +789,6 @@ test.describe('Scheduled vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable('PCV13', '6 weeks', upcoming.dueDate, upcoming.status);
   });
 
-  //TODO: need to refactor addVaccineAndAssert to confirm details are prefilled
   test('Record vaccine with due status from scheduled vaccines table', async ({
     page,
     api,
@@ -799,6 +797,8 @@ test.describe('Scheduled vaccines', () => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const vaccine = 'BCG';
     const schedule = 'Birth';
+    const status = 'Due';
+    const dueDate = await expectedDueDateWeek(currentDate, 'weeks', 1);
 
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
@@ -806,6 +806,8 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
       recordScheduledVaccine: true,
@@ -819,7 +821,6 @@ test.describe('Scheduled vaccines', () => {
     expect(vaccineNoLongerScheduled).toBe(true);
   });
 
-    //TODO: need to refactor addVaccineAndAssert to confirm details are prefilled
   test('Record vaccine with scheduled status from scheduled vaccines table', async ({
     page,
     api,
@@ -828,6 +829,8 @@ test.describe('Scheduled vaccines', () => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const vaccine = 'PCV13';
     const schedule = '6 weeks';
+    const status = 'Scheduled';
+    const dueDate = await expectedDueDateWeek(currentDate, 'weeks', 6);
 
     const patient = await createPatient(api, page, {
       dateOfBirth: currentDate,
@@ -835,6 +838,8 @@ test.describe('Scheduled vaccines', () => {
 
     await patientDetailsPage.goToPatient(patient);
     await patientDetailsPage.navigateToVaccineTab();
+
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
       recordScheduledVaccine: true,
@@ -848,6 +853,71 @@ test.describe('Scheduled vaccines', () => {
     expect(vaccineNoLongerScheduled).toBe(true);
   });
 
-  //TODO: more tests for each status (e.g. overdue, upcoming etc)
+  test('Record vaccine with overdue status from scheduled vaccines table', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
+    const vaccine = 'BCG';
+    const schedule = 'Birth';
+    const status = 'Overdue';
+    const dueDate = await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 1);
 
+    const patient = await createPatient(api, page, {
+      dateOfBirth: birthDateThreeWeeksAgo,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      recordScheduledVaccine: true,
+      specificVaccine: vaccine,
+      specificScheduleOption: schedule,
+      viewVaccineRecord: true,
+    });
+
+    //Confirm that the vaccine no longer appears in the scheduled vaccines table
+    const vaccineNoLongerScheduled = await patientDetailsPage.patientVaccinePane?.confirmScheduledVaccineDoesNotExist(vaccine, schedule);
+    expect(vaccineNoLongerScheduled).toBe(true);
+  });
+
+  test('Record vaccine with upcoming status from scheduled vaccines table', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
+    const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
+    const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
+    const vaccine = 'PCV13';
+    const schedule = '6 weeks';
+    const status = 'Upcoming';
+    const dueDate = await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 6);
+
+    const patient = await createPatient(api, page, {
+      dateOfBirth: birthDateThreeWeeksAgo,
+    });
+
+    await patientDetailsPage.goToPatient(patient);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(vaccine, schedule, dueDate, status);
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      recordScheduledVaccine: true,
+      specificVaccine: vaccine,
+      specificScheduleOption: schedule,
+      viewVaccineRecord: true,
+    });
+
+    //Confirm that the vaccine no longer appears in the scheduled vaccines table
+    const vaccineNoLongerScheduled = await patientDetailsPage.patientVaccinePane?.confirmScheduledVaccineDoesNotExist(vaccine, schedule);
+    expect(vaccineNoLongerScheduled).toBe(true);
+  });
+
+  //TODO: test case for not given?
 });

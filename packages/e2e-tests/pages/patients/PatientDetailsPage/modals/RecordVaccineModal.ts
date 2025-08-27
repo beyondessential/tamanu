@@ -13,6 +13,7 @@ interface RecordVaccineOptions {
   isFollowUpVaccine?: boolean;
   specificScheduleOption?: string;
   specificDate?: string;
+  recordScheduledVaccine?: boolean;
 }
 
 interface OptionalVaccineFields {
@@ -137,6 +138,12 @@ export class RecordVaccineModal extends BasePatientModal {
     return vaccineName;
   }
 
+  async assertScheduledVaccine(specificVaccine: string, specificScheduleOption: string) {
+    const scheduleOptionLocator = this.scheduleRadioGroup.getByRole('radio', { name: specificScheduleOption });
+    expect(this.vaccineSelectField).toContainText(specificVaccine);
+    expect(scheduleOptionLocator).toBeChecked();
+  }
+
   async selectNotGivenReason() {
     const notGivenReason = await selectFieldOption(this.page, this.notGivenReasonField, {
       returnOptionText: true,
@@ -198,6 +205,7 @@ export class RecordVaccineModal extends BasePatientModal {
       isFollowUpVaccine = false,
       specificScheduleOption = undefined,
       specificDate = undefined,
+      recordScheduledVaccine = false,
     }: RecordVaccineOptions = {},
   ) {
     const givenStatus = await this.selectIsVaccineGiven(given);
@@ -214,8 +222,15 @@ export class RecordVaccineModal extends BasePatientModal {
     const dateGiven = await this.dateField.evaluate((el: HTMLInputElement) => el.value);
 
     if (category !== 'Other') {
-      vaccineName = await this.selectVaccine(specificVaccine);
-      scheduleOption = await this.selectScheduleOption(specificScheduleOption, isFollowUpVaccine);
+      if (recordScheduledVaccine) {
+        //Confirm the vaccine and schedule are prefilled
+        await this.assertScheduledVaccine(specificVaccine!, specificScheduleOption!);
+        vaccineName = specificVaccine;
+        scheduleOption = specificScheduleOption;
+      } else {
+        vaccineName = await this.selectVaccine(specificVaccine);
+        scheduleOption = await this.selectScheduleOption(specificScheduleOption, isFollowUpVaccine);
+      }
     } else {
       vaccineName = 'Test Vaccine';
       scheduleOption = 'N/A';
