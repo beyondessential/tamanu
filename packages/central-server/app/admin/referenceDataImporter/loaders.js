@@ -231,7 +231,7 @@ export async function permissionLoader(item, { models, pushError }) {
   const normalizedVerb = verb.trim();
   const normalizedNoun = noun.trim();
   
-  await validateObjectId({ ...item, objectId: normalizedObjectId }, models, pushError);
+  await validateObjectId({ ...item, noun: normalizedNoun, objectId: normalizedObjectId }, models, pushError);
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
