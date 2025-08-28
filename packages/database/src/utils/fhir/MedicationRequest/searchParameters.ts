@@ -13,7 +13,7 @@ export const searchParameters = {
   },
   category: {
     type: FHIR_SEARCH_PARAMETERS.TOKEN,
-    path: [['category', '[]', 'coding', '[]']],
+    path: [['category', 'coding', '[]']],
     tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
   },
   intent: {
@@ -30,7 +30,7 @@ export const searchParameters = {
   },
   medication: {
     type: FHIR_SEARCH_PARAMETERS.TOKEN,
-    path: [['medication', '[]', 'coding', '[]']],
+    path: [['medication', 'coding', '[]']],
     tokenType: FHIR_SEARCH_TOKEN_TYPES.CODING,
   },
   subject: {
