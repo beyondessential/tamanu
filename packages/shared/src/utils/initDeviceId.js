@@ -13,8 +13,7 @@ export async function initDeviceId({ context, deviceType }) {
   }
 
   const { LocalSystemFact } = context.store?.models || context.models;
-  // TODO: this is a test
-  let deviceId = LocalSystemFact ? await LocalSystemFact.get(FACT_DEVICE_ID) : null;
+  let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
     deviceId = config.deviceId ?? `${deviceType}-${shortid()}`;
     await LocalSystemFact.set(FACT_DEVICE_ID, deviceId);
