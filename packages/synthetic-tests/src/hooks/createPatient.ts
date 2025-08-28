@@ -11,7 +11,5 @@ export async function generatePatientPayload(context: any, _events: any): Promis
     patientRegistryType: 'new_patient',
   });
 
-  console.log(testBody);
-
   context.vars.patientPayload = testBody;
 }
