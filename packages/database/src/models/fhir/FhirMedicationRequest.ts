@@ -4,7 +4,11 @@ import { FHIR_INTERACTIONS } from '@tamanu/constants';
 import { FhirResource } from './Resource';
 import type { Models } from '../../types/model';
 import { PharmacyOrderPrescription } from '../../models';
-import { getQueryToFindUpstreamIds, getValues } from '../../utils/fhir/MedicationRequest';
+import {
+  getQueryToFindUpstreamIds,
+  getValues,
+  searchParameters,
+} from '../../utils/fhir/MedicationRequest';
 
 export class FhirMedicationRequest extends FhirResource {
   declare identifier?: Record<string, any>;
@@ -84,5 +88,12 @@ export class FhirMedicationRequest extends FhirResource {
       return getQueryToFindUpstreamIds(this.sequelize.models, table, id);
     }
     return null;
+  }
+
+  static searchParameters() {
+    return {
+      ...super.searchParameters(),
+      ...searchParameters,
+    };
   }
 }

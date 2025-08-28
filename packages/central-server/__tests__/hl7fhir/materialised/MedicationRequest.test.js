@@ -258,5 +258,136 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
       expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(mat.lastUpdated)));
       expect(response).toHaveSucceeded();
     });
+
+    describe('search', () => {
+      it('should search by medication code', async () => {
+        // arrange
+        const { FhirMedicationRequest, PharmacyOrder, PharmacyOrderPrescription, Prescription } =
+          ctx.store.models;
+
+        const prescription1 = await Prescription.create(
+          fake(Prescription, {
+            medicationId: resources.drug1.id,
+            frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+            idealTimes: ['11:00'],
+            route: DRUG_ROUTES.oral,
+          }),
+        );
+
+        const prescription2 = await Prescription.create(
+          fake(Prescription, {
+            medicationId: resources.drug2.id,
+            frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+            idealTimes: ['11:00'],
+            route: DRUG_ROUTES.oral,
+          }),
+        );
+        const pharmacyOrder = await PharmacyOrder.create(
+          fake(PharmacyOrder, {
+            encounterId: resources.encounter.id,
+            orderingClinicianId: resources.practitioner.id,
+            comments: 'Test comments',
+            isDischargePrescription: true,
+          }),
+        );
+        const pharmacyOrderPrescription1 = await PharmacyOrderPrescription.create(
+          fake(PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription1.id,
+            quantity: 10,
+            repeats: 3,
+          }),
+        );
+
+        const pharmacyOrderPrescription2 = await PharmacyOrderPrescription.create(
+          fake(PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription2.id,
+            quantity: 10,
+            repeats: 3,
+          }),
+        );
+
+        const mat1 = await FhirMedicationRequest.materialiseFromUpstream(
+          pharmacyOrderPrescription1.id,
+        );
+        const mat2 = await FhirMedicationRequest.materialiseFromUpstream(
+          pharmacyOrderPrescription2.id,
+        );
+
+        const path = `/api/integration/${INTEGRATION_ROUTE}/MedicationRequest`;
+
+        const drug1Results = await app.get(`${path}?medication=${resources.drug1.code}`);
+
+        expect(drug1Results.body.total).toBe(1);
+        expect(drug1Results.body.entry[0].resource.id).toBe(mat1.id);
+
+        const drug2Results = await app.get(`${path}?medication=${resources.drug2.code}`);
+
+        expect(drug2Results.body.total).toBe(1);
+        expect(drug2Results.body.entry[0].resource.id).toBe(mat2.id);
+      });
+
+      it('can include referenced resources', async () => {
+        // arrange
+        const { FhirMedicationRequest, PharmacyOrder, PharmacyOrderPrescription, Prescription } =
+          ctx.store.models;
+
+        const prescription = await Prescription.create(
+          fake(Prescription, {
+            medicationId: resources.drug1.id,
+            units: DRUG_UNITS.mg,
+            frequency: ADMINISTRATION_FREQUENCIES.DAILY,
+            idealTimes: ['11:00'],
+            route: DRUG_ROUTES.oral,
+          }),
+        );
+        const pharmacyOrder = await PharmacyOrder.create(
+          fake(PharmacyOrder, {
+            encounterId: resources.encounter.id,
+            orderingClinicianId: resources.practitioner.id,
+            comments: 'Test comments',
+            isDischargePrescription: true,
+          }),
+        );
+        const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
+          fake(PharmacyOrderPrescription, {
+            pharmacyOrderId: pharmacyOrder.id,
+            prescriptionId: prescription.id,
+            quantity: 10,
+            repeats: 3,
+          }),
+        );
+
+        await FhirMedicationRequest.materialiseFromUpstream(pharmacyOrderPrescription.id);
+
+        const path = `/api/integration/${INTEGRATION_ROUTE}/MedicationRequest`;
+
+        // act
+        const response = await app.get(
+          `${path}?_include=Patient:subject&_include=Encounter:encounter&_include=Organization:requester&_include=Practitioner:recorder`,
+        );
+
+        // assert
+        expect(response.body.total).toBe(1);
+        expect(response.body.entry.length).toBe(5);
+        const includedSubject = response.body.entry.find(
+          e => e.resource.resourceType === 'Patient',
+        );
+        expect(includedSubject.resource.id).toBe(resources.fhirPatient.id);
+        const includedEncounter = response.body.entry.find(
+          e => e.resource.resourceType === 'Encounter',
+        );
+        expect(includedEncounter.resource.id).toBe(resources.fhirEncounter.id);
+        const includedRequester = response.body.entry.find(
+          e => e.resource.resourceType === 'Organization',
+        );
+        expect(includedRequester.resource.id).toBe(resources.fhirOrganization.id);
+        const includedRecorder = response.body.entry.find(
+          e => e.resource.resourceType === 'Practitioner',
+        );
+        expect(includedRecorder.resource.id).toBe(resources.fhirPractitioner.id);
+      });
+    });
   });
 });
