@@ -916,7 +916,7 @@ describe('Patient merge', () => {
       expect(removedFacility).toBeFalsy();
     });
 
-    it.only('Should remerge PortalUser records', async () => {
+    it('Should remerge PortalUser records', async () => {
       const { PortalUser } = models;
 
       const [keep, merge] = await makeTwoPatients(models);
