@@ -206,7 +206,7 @@
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
     },
-    "DHIS2IntegrationProcessor": {
+    "dhis2IntegrationProcessor": {
       "enabled": false,
       "schedule": "0 2 * * *"
     },

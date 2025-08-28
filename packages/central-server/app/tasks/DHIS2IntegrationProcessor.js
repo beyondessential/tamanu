@@ -3,7 +3,6 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { getLatestVersion } from '../subCommands/importReport/utils';
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -11,7 +10,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   constructor(context) {
-    const conf = config.schedules.DHIS2IntegrationProcessor;
+    const conf = config.schedules.dhis2IntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
@@ -20,8 +19,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async run() {
     try {
-      log.debug('Starting DHIS2 integration processing');
-
       const {
         settings,
         store: { models },
@@ -33,7 +30,16 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
       for (const reportId of reportIds) {
         const report = await models.ReportDefinition.findByPk(reportId, {
-          include: [{ model: models.ReportDefinitionVersion, as: 'versions' }],
+          include: [
+            {
+              model: models.ReportDefinitionVersion,
+              as: 'versions',
+              where: { status: REPORT_STATUSES.PUBLISHED },
+              order: [['createdAt', 'DESC']],
+              limit: 1,
+              separate: true,
+            },
+          ],
         });
 
         if (!report) {
@@ -43,14 +49,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
         log.info('Processing report', { reportId });
 
-        const reportVersion = getLatestVersion(report.versions, REPORT_STATUSES.PUBLISHED);
-
-        if (!reportVersion) {
+        if (!report.versions || report.versions.length === 0) {
           log.warn(`Report ${reportId} has no published version, skipping`);
           continue;
         }
 
-        const reportData = await reportVersion.dataGenerator(this.context, {});
+        const latestVersion = report.versions[0];
+        const reportData = await latestVersion.dataGenerator(this.context, {});
 
         // TODO: Send this to DHIS2 in TAN-2540
         log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
