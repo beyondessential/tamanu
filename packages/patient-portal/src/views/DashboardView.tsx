@@ -1,8 +1,6 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
-
-import { usePatientQuery } from '@api/queries/usePatientQuery';
-import { StyledCircularProgress } from '../components/StyledCircularProgress';
+import { useCurrentUser } from '@routes/PrivateRoute';
 
 // Section imports
 import { OutstandingFormsSection } from '../features/dashboard/OutstandingForms/OutstandingFormsSection';
@@ -14,7 +12,7 @@ import { MedicationsSection } from '../features/dashboard/MedicationSection';
 import { VaccinationsSection } from '../features/dashboard/Vaccinations/VaccinationsSection';
 
 export const DashboardView = () => {
-  const { data: patient, isLoading } = usePatientQuery();
+  const patient = useCurrentUser();
 
   // Format patient name
   const getPatientName = () => {
@@ -23,14 +21,6 @@ export const DashboardView = () => {
     const lastName = patient.lastName || '';
     return `${firstName} ${lastName}`.trim() || 'there';
   };
-
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <StyledCircularProgress size={40} />
-      </Box>
-    );
-  }
 
   return (
     <Box>

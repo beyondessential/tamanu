@@ -40,7 +40,9 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     throw new Error('Failed to send email');
   }
 
-  return res.status(200);
+  return res.status(200).json({
+    message: 'One-time token sent successfully',
+  });
 });
 
 export const patientPortalLogin = ({ secret }) =>

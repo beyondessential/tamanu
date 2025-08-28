@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 
-import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';
+import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 
 export const PageHeader = () => {
   return (

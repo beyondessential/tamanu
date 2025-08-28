@@ -9,11 +9,10 @@ import '@fontsource/roboto';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/600.css';
 import './fonts.css';
-import { RoutingApp } from './RoutingApp';
+import { App } from './App';
 import { theme } from './theme/theme';
-import { AuthProvider } from './auth/AuthProvider';
-import { ApiContext } from './api/ApiContext';
-import { TamanuApi } from './api/TamanuApi';
+import { ApiContext } from '@api/ApiContext';
+import { TamanuApi } from '@api/TamanuApi';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,9 +32,7 @@ createRoot(document.getElementById('root')!).render(
             <MuiThemeProvider theme={theme}>
               <ThemeProvider theme={theme}>
                 <CssBaseline />
-                <AuthProvider>
-                  <RoutingApp />
-                </AuthProvider>
+                <App />
               </ThemeProvider>
             </MuiThemeProvider>
           </MuiLatestThemeProvider>
