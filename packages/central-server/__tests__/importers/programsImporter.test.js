@@ -13,12 +13,7 @@ describe('Programs import', () => {
   });
 
   beforeEach(async () => {
-    const {
-      Program,
-      Survey,
-      ProgramDataElement,
-      SurveyScreenComponent,
-    } = ctx.store.models;
+    const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
@@ -78,7 +73,10 @@ describe('Programs import', () => {
   it('should properly skip surveys as obsolete', async () => {
     await doImport({ file: 'valid', dryRun: false });
     await doImport({ file: 'obsolete', dryRun: false });
-    const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete-clone', dryRun: true });
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'obsolete-clone',
+      dryRun: true,
+    });
     console.log('stats', stats);
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
