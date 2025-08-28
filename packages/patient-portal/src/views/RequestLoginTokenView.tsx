@@ -8,8 +8,8 @@ export const RequestLoginTokenView = () => {
   const navigate = useNavigate();
 
   const { mutate: submit } = useRequestLoginToken({
-    onSuccess: () => {
-      navigate('/login-submit');
+    onSuccess: ({ email }) => {
+      navigate('/login-submit', { state: { email } });
     },
   });
 
@@ -18,7 +18,8 @@ export const RequestLoginTokenView = () => {
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const email = formData.get('email') as string;
-    if (email && email.trim()) {
+    if (email) {
+      email.trim();
       submit(email);
     }
   };

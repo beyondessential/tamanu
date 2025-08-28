@@ -1,17 +1,15 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-
-interface RequestLoginTokenResponse {
-  message: string;
-}
+import { RequestLoginTokenResponse } from '../types';
 
 export const useRequestLoginToken = (
   options?: UseMutationOptions<RequestLoginTokenResponse, Error, string>,
 ) => {
   const api = useApi();
-  return useMutation({
+  return useMutation<RequestLoginTokenResponse, Error, string>({
     mutationFn: async (email: string): Promise<RequestLoginTokenResponse> => {
-      return await api.post('request-login-token', { email } as any);
+      await api.post('request-login-token', { email } as any);
+      return { email };
     },
     ...options,
   });

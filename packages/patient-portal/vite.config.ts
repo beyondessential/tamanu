@@ -28,6 +28,7 @@ export default async () =>
     },
     server: {
       host: 'localhost',
+      port: 5175,
       proxy: {
         '/api': {
           target: process.env.TAMANU_VITE_TARGET ?? 'http://localhost:3000',

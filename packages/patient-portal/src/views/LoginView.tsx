@@ -1,18 +1,26 @@
 import React from 'react';
 import { Typography, TextField } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
+import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
+  const location = useLocation();
+
+  const storedEmail = location.state?.email;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const token = formData.get('verificationCode') as string;
+    const loginToken = formData.get('verificationCode') as string;
 
-    if (token.trim()) {
-      login(token);
+    const email = storedEmail || (formData.get('email') as string);
+
+    if (loginToken && email) {
+      loginToken.trim();
+      email.trim();
+      login({ loginToken, email });
     }
   };
 
@@ -23,6 +31,18 @@ export const LoginView = () => {
       </Typography>
       <Typography>We’ve sent a 6-digit verification code to your email address</Typography>
       <form onSubmit={handleSubmit}>
+        {!storedEmail && (
+          <TextField
+            fullWidth
+            type="email"
+            name="email"
+            label="Email Address"
+            required
+            autoComplete="email"
+            autoFocus
+            sx={{ mb: 2 }}
+          />
+        )}
         <TextField
           fullWidth
           type="text"

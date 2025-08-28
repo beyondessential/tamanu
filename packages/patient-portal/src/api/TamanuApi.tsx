@@ -1,6 +1,6 @@
-// @ts-ignore - Using JS package without types for now
 import { TamanuApi as BaseTamanuApi } from '@tamanu/api-client';
 import { getDeviceId } from '@utils/getDeviceId';
+import { LoginCredentials, LoginResponse } from './types';
 
 const TOKEN = 'patientPortalApiToken';
 
@@ -27,9 +27,9 @@ export class TamanuApi extends BaseTamanuApi {
     return super.setToken(token);
   }
 
-  // Override login for patient portal authentication flow
-  async login(loginToken: string, config = {}) {
-    const response = await this.post('login', { loginToken } as any, {
+  // Override login for the patient portal authentication flow
+  async login({ loginToken, email }: LoginCredentials, config = {}) {
+    const response = await this.post('login', { loginToken, email } as any, {
       ...config,
       returnResponse: true,
       useAuthToken: false,
@@ -43,7 +43,7 @@ export class TamanuApi extends BaseTamanuApi {
     const userResponse = await this.get('me', {}, { ...config, waitForAuth: false });
     const user = userResponse.data; // Extract the actual patient data
 
-    return { token, user };
+    return { token, user } as LoginResponse;
   }
 
   async logout() {
