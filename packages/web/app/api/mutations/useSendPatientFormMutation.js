@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { useAuth } from '../../contexts/Auth';
 
-export const useSendPatientPortalForm = (patientId, { onSuccess, onError }) => {
+export const useSendPatientPortalForm = (patientId, { onSuccess, onError } = {}) => {
   const api = useApi();
   const { facilityId } = useAuth();
   const queryClient = useQueryClient();
@@ -18,10 +18,10 @@ export const useSendPatientPortalForm = (patientId, { onSuccess, onError }) => {
     {
       onSuccess: args => {
         queryClient.invalidateQueries(['patient', patientId]);
-        onSuccess(args);
+        onSuccess?.(args);
       },
       onError: args => {
-        onError(args);
+        onError?.(args);
       },
     },
   );

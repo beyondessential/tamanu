@@ -40,10 +40,7 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     throw new Error('Failed to send email');
   }
 
-  // Respond with the 6-digit code
-  return res.status(200).json({
-    message: 'One-time token sent successfully',
-  });
+  return res.status(200);
 });
 
 export const patientPortalLogin = ({ secret }) =>
@@ -51,11 +48,13 @@ export const patientPortalLogin = ({ secret }) =>
     const { store, body } = req;
     const { canonicalHostName } = config;
     const { models } = store;
-    const { loginToken } = body;
+    const { loginToken, email } = body;
 
+    const portalUser = await models.PortalUser.getForAuthByEmail(email);
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
-    const portalUser = await oneTimeTokenService.verifyAndConsume({
+    await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
+      portalUserId: portalUser.id,
     });
 
     const { auth } = config;

@@ -5,19 +5,19 @@ const TABLE_NAME = 'portal_one_time_tokens';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(TABLE_NAME, {
     id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
       allowNull: false,
       primaryKey: true,
     },
     created_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 6),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     updated_at: {
       type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('current_timestamp', 6),
+      defaultValue: Sequelize.fn('now'),
       allowNull: false,
     },
     deleted_at: {
@@ -25,7 +25,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     portal_user_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       references: {
         model: 'portal_users',
         key: 'id',
@@ -54,5 +54,6 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
+  await query.removeIndex(TABLE_NAME, `idx_${TABLE_NAME}_portal_user_id`);
   await query.dropTable(TABLE_NAME);
 }

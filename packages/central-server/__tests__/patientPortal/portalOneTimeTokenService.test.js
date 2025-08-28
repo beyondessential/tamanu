@@ -1,16 +1,14 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
-import { createHash } from 'crypto';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
-
-// Helper function to hash tokens (same as in service)
-function hashToken(token) {
-  return createHash('sha256').update(token).digest('hex');
-}
+import {
+  PortalOneTimeTokenService,
+  hashPortalToken,
+} from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import bcrypt from 'bcrypt';
 
 describe('OneTimeTokenService', () => {
   let ctx;
@@ -71,9 +69,9 @@ describe('OneTimeTokenService', () => {
       });
 
       expect(tokenRecord).not.toBeNull();
-      // The database should store the hashed token, not the plain token
-      expect(tokenRecord.token).toEqual(hashToken(result.token));
       expect(tokenRecord.expiresAt).toEqual(result.expiresAt);
+      const verified = await bcrypt.compare(result.token, tokenRecord.token);
+      expect(verified).toEqual(true);
     });
 
     it('should create a token that expires in the configured time', async () => {
@@ -132,8 +130,9 @@ describe('OneTimeTokenService', () => {
 
       expect(tokenRecord).not.toBeNull();
       // The database should store the hashed token, not the plain token
-      expect(tokenRecord.token).toEqual(hashToken(result.token));
       expect(tokenRecord.expiresAt).toEqual(result.expiresAt);
+      const verified = await bcrypt.compare(result.token, tokenRecord.token);
+      expect(verified).toEqual(true);
     });
 
     it('should create a register token that expires in the configured time', async () => {
@@ -181,6 +180,7 @@ describe('OneTimeTokenService', () => {
       const result = await oneTimeTokenService.verifyAndConsume({
         token,
         type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
+        portalUserId: testPortalUser.id,
       });
 
       expect(result.id).toEqual(testPortalUser.id);
@@ -200,21 +200,20 @@ describe('OneTimeTokenService', () => {
 
       // Verify hashed token exists in database
       const tokenExists = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, token: hashToken(token) },
+        where: { portalUserId: testPortalUser.id },
       });
       expect(tokenExists).not.toBeNull();
 
       // Verify and consume the token
       const result = await oneTimeTokenService.verifyAndConsume({
         token,
+        portalUserId: testPortalUser.id,
       });
 
       expect(result.id).toEqual(testPortalUser.id);
 
       // Verify token no longer exists
-      const tokenAfterConsume = await models.PortalOneTimeToken.findOne({
-        where: { portalUserId: testPortalUser.id, token: hashToken(token) },
-      });
+      const tokenAfterConsume = await models.PortalOneTimeToken.findByPk(tokenExists.id);
       expect(tokenAfterConsume).toBeNull();
     });
 
@@ -223,6 +222,7 @@ describe('OneTimeTokenService', () => {
       await expect(
         oneTimeTokenService.verifyAndConsume({
           token: '123456',
+          portalUserId: testPortalUser.id,
         }),
       ).rejects.toThrow(BadAuthenticationError);
     });
@@ -233,10 +233,11 @@ describe('OneTimeTokenService', () => {
 
       // Manually create expired token with hashed value
       const token = '123456';
+      const hashedToken = await hashPortalToken(token);
       await models.PortalOneTimeToken.create({
         portalUserId: testPortalUser.id,
         type: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
-        token: hashToken(token), // Store the hashed token
+        token: hashedToken,
         expiresAt,
       });
 
@@ -244,6 +245,7 @@ describe('OneTimeTokenService', () => {
       await expect(
         oneTimeTokenService.verifyAndConsume({
           token,
+          portalUserId: testPortalUser.id,
         }),
       ).rejects.toThrow(BadAuthenticationError);
     });

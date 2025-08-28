@@ -1,6 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { isBefore, parseISO } from 'date-fns';
-import { SYNC_DIRECTIONS, PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  PORTAL_ONE_TIME_TOKEN_TYPES,
+  PORTAL_ONE_TIME_TOKEN_TYPE_VALUES,
+} from '@tamanu/constants';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
@@ -16,7 +20,7 @@ export class PortalOneTimeToken extends Model {
       {
         id: primaryKey,
         type: {
-          type: DataTypes.STRING,
+          type: DataTypes.ENUM(...PORTAL_ONE_TIME_TOKEN_TYPE_VALUES),
           defaultValue: PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN,
           allowNull: false,
         },
