@@ -5,13 +5,13 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { getLatestVersion } from '../subCommands/importReport/utils';
 
-export class Dhis2IntegrationProcessor extends ScheduledTask {
+export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
-    return 'Dhis2IntegrationProcessor';
+    return 'DHIS2IntegrationProcessor';
   }
 
   constructor(context) {
-    const conf = config.schedules.dhis2IntegrationProcessor;
+    const conf = config.schedules.DHIS2IntegrationProcessor;
     const { schedule, jitterTime, enabled } = conf;
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
