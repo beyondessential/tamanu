@@ -180,6 +180,7 @@ describe('OneTimeTokenService', () => {
       const result = await oneTimeTokenService.verifyAndConsume({
         token,
         type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
+        portalUserId: testPortalUser.id,
       });
 
       expect(result.id).toEqual(testPortalUser.id);
@@ -206,6 +207,7 @@ describe('OneTimeTokenService', () => {
       // Verify and consume the token
       const result = await oneTimeTokenService.verifyAndConsume({
         token,
+        portalUserId: testPortalUser.id,
       });
 
       expect(result.id).toEqual(testPortalUser.id);
@@ -220,6 +222,7 @@ describe('OneTimeTokenService', () => {
       await expect(
         oneTimeTokenService.verifyAndConsume({
           token: '123456',
+          portalUserId: testPortalUser.id,
         }),
       ).rejects.toThrow(BadAuthenticationError);
     });
@@ -242,6 +245,7 @@ describe('OneTimeTokenService', () => {
       await expect(
         oneTimeTokenService.verifyAndConsume({
           token,
+          portalUserId: testPortalUser.id,
         }),
       ).rejects.toThrow(BadAuthenticationError);
     });

@@ -74,41 +74,38 @@ export class PortalOneTimeTokenService {
     };
   }
 
-  async verifyAndConsume({ token, type = PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN }) {
+  async verifyAndConsume({ portalUserId, token, type = PORTAL_ONE_TIME_TOKEN_TYPES.LOGIN }) {
     const { PortalOneTimeToken, PortalUser } = this.models;
 
-    // Find all records of this type to compare against
-    const records = await PortalOneTimeToken.findAll({
-      where: { type },
-    });
-
-    let matchingRecord = null;
-
-    // Compare the token against all stored hashes
-    for (const record of records) {
-      if (await bcrypt.compare(token, record.token)) {
-        matchingRecord = record;
-        break;
-      }
-    }
-
-    if (!matchingRecord) {
-      throw new BadAuthenticationError('Invalid verification code');
-    }
-
-    if (matchingRecord.isExpired()) {
-      throw new BadAuthenticationError('Verification code has expired');
-    }
-
-    const portalUser = await PortalUser.findByPk(matchingRecord.portalUserId);
+    const portalUser = await PortalUser.findByPk(portalUserId);
     if (!portalUser) {
       throw new BadAuthenticationError('Invalid verification code');
     }
 
-    await matchingRecord.destroy({
-      where: { portalUserId: portalUser.id, type },
+    const tokenRecord = await PortalOneTimeToken.findOne({
+      where: { portalUserId, type },
+      order: [['expiresAt', 'DESC']],
+    });
+
+    if (!tokenRecord) {
+      throw new BadAuthenticationError('Invalid verification code');
+    }
+
+    if (tokenRecord.isExpired()) {
+      throw new BadAuthenticationError('Verification code has expired');
+    }
+
+    const isVerified = await bcrypt.compare(token, tokenRecord.token);
+
+    if (!isVerified) {
+      throw new BadAuthenticationError('Invalid verification code');
+    }
+
+    await tokenRecord.destroy({
+      where: { id: tokenRecord.id },
       force: true,
     });
+
     return portalUser;
   }
 }
