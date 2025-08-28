@@ -91,7 +91,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
         // Send data to DHIS2
-        await this.postToDHIS(reportId, reportData);
+        await this.postToDHIS2(reportId, reportData);
 
         log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
