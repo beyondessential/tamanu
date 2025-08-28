@@ -1,4 +1,5 @@
 import config from 'config';
+import { fetch } from 'undici';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
@@ -15,6 +16,38 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     super(schedule, log, jitterTime, enabled);
     this.config = conf;
     this.context = context;
+  }
+
+  async postToDHIS(reportId, reportData) {
+    try {
+      const response = await fetch('https://dhis2.tamantestnotreal.cd/api/dataValueSets', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          dataValues: reportData,
+          reportId,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (response.status === 200) {
+        const responseData = await response.json();
+        log.info(`Successfully sent report ${reportId} to DHIS2`, { responseData });
+        return true;
+      } else {
+        log.warn(`Failed to send report ${reportId} to DHIS2`, {
+          status: response.status,
+          statusText: response.statusText,
+        });
+        return false;
+      }
+    } catch (dhis2Error) {
+      log.error(`Error sending report ${reportId} to DHIS2`, { error: dhis2Error.message });
+      return false;
+    }
   }
 
   async run() {
@@ -57,7 +90,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         const latestVersion = report.versions[0];
         const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
-        // TODO: Send this to DHIS2 in TAN-2540
+        // Send data to DHIS2
+        await this.postToDHIS(reportId, reportData);
+
         log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
 
