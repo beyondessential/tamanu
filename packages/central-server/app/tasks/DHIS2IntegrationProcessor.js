@@ -3,7 +3,6 @@ import config from 'config';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { convertToDHIS2Format } from '../utils/convertToDHIS2Format';
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -58,9 +57,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         const latestVersion = report.versions[0];
         const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
-        const dhis2Data = convertToDHIS2Format(reportData);
-
-        log.info('DHIS2 Data', { reportName: report.name, dhis2Data });
+        // TODO: Send this to DHIS2 in TAN-2540
+        log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
 
       log.info('DHIS2 integration processing completed');
