@@ -14,6 +14,7 @@ interface RecordVaccineOptions {
   specificScheduleOption?: string;
   specificDate?: string;
   recordScheduledVaccine?: boolean;
+  prefilledLocations?: { area: string; location: string; department: string };
 }
 
 interface OptionalVaccineFields {
@@ -34,6 +35,7 @@ const notGivenClinician = 'Test Clinician';
 
 export class RecordVaccineModal extends BasePatientModal {
   readonly modal: Locator;
+  readonly modalHeading: Locator;
   readonly categoryRadioGroup: Locator;
   readonly vaccineSelectField: Locator;
   readonly consentCheckbox: Locator;
@@ -70,6 +72,7 @@ export class RecordVaccineModal extends BasePatientModal {
     super(page);
 
     this.modal = this.page.getByTestId('modal-record-vaccine');
+    this.modalHeading = this.page.getByRole('heading', { name: 'Record vaccine' });
     this.categoryRadioGroup = this.page.getByTestId('field-rd4e');
     this.vaccineSelectField = this.page.getByTestId('field-npct-select');
     this.consentCheckbox = this.page.getByTestId('consentfield-rvwt-controlcheck');
@@ -170,6 +173,9 @@ export class RecordVaccineModal extends BasePatientModal {
     const department = await selectAutocompleteFieldOption(this.page, this.departmentField, {
       returnOptionText: true,
     });
+    if (!area || !location || !department) {
+      throw new Error('Failed to select location group');
+    }
     return { area, location, department };
   }
 
@@ -208,6 +214,7 @@ export class RecordVaccineModal extends BasePatientModal {
       specificScheduleOption = undefined,
       specificDate = undefined,
       recordScheduledVaccine = false,
+      prefilledLocations = undefined,
     }: RecordVaccineOptions = {},
   ) {
     const givenStatus = await this.selectIsVaccineGiven(given);
@@ -244,7 +251,12 @@ export class RecordVaccineModal extends BasePatientModal {
       await this.vaccineNameField.fill(vaccineName);
     }
 
-    const locationGroup = await this.selectLocationGroup();
+    let locationGroup: { area: string; location: string; department: string } | undefined;
+    if (prefilledLocations) {
+      locationGroup = prefilledLocations;
+    } else {
+      locationGroup = await this.selectLocationGroup();
+    }
 
     if (given) {
       await this.consentCheckbox.check();
@@ -326,6 +338,28 @@ export class RecordVaccineModal extends BasePatientModal {
         option,
         `"${vaccineName}" was found in the dropdown when it should not be present`,
       ).not.toBe(vaccineName);
+    }
+  }
+
+  async assertLocationPrefilled(prefilledLocations: {
+    area: string;
+    location: string;
+    department: string;
+  }) {
+    const { area, location, department } = prefilledLocations;
+
+    const inputFields = [
+      { input: this.areaField.locator('input'), expectedValue: area },
+      { input: this.locationField.locator('input'), expectedValue: location },
+      { input: this.departmentField.locator('input'), expectedValue: department },
+    ];
+
+    //Wait for modal to open
+    await expect(this.modalHeading).toBeVisible();
+
+    //Assert the each location field is prefilled with the correct value
+    for (const field of inputFields) {
+      await expect(field.input).toHaveValue(field.expectedValue);
     }
   }
 }

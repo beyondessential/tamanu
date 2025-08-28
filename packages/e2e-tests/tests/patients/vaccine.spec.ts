@@ -600,6 +600,49 @@ test.describe('Recorded vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
   });
+
+  test('Location is prefilled for patients with active encounter', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    //These locations match the defaults for newPatientWithHospitalAdmission
+    const prefilledLocations = {
+      area: 'Emergency Department',
+      location: 'Bed 1',
+      department: 'Cardiology',
+    };
+
+    const given = true;
+    const category = 'Routine';
+    const count = 1;
+
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    const recordVaccineModal =
+      await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    if (!recordVaccineModal) {
+      throw new Error('Record vaccine modal failed to open');
+    }
+
+    await recordVaccineModal.assertLocationPrefilled(prefilledLocations);
+
+    const vaccine = await recordVaccineModal.recordVaccine(given, category, count, {
+      prefilledLocations: prefilledLocations,
+    });
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+
+    //Assert the vaccine in the recorded vaccines table was created successfully
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
+
+    //Assert the vaccine in the view vaccine record modal was created successfully
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
+  });
 });
 
 test.describe('Scheduled vaccines', () => {
@@ -873,7 +916,13 @@ test.describe('Scheduled vaccines', () => {
     },
   ];
 
-  for (const { status, getBirthDate, vaccine, schedule, getDueDate } of recordScheduledVaccineTestCases) {
+  for (const {
+    status,
+    getBirthDate,
+    vaccine,
+    schedule,
+    getDueDate,
+  } of recordScheduledVaccineTestCases) {
     test(`Record vaccine with ${status.toLowerCase()} status from scheduled vaccines table`, async ({
       page,
       api,
