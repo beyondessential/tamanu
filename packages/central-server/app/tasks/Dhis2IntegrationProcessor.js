@@ -27,7 +27,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         store: { models },
       } = this.context;
 
-      // Get DHIS2 settings
       const { enabled, reportIds } = await settings.get('integrations.dhis2');
 
       if (!enabled) {
