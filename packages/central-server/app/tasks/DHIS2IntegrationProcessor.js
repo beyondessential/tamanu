@@ -27,12 +27,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         store: { models },
       } = this.context;
 
-      const { enabled, reportIds } = await settings.get('integrations.dhis2');
-
-      if (!enabled) {
-        log.debug('DHIS2 integration is disabled, skipping processing');
-        return;
-      }
+      const { reportIds } = await settings.get('integrations.dhis2');
 
       log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
 
