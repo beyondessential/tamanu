@@ -150,7 +150,7 @@ export const SendFormToPatientPortalModal = ({ open, setOpen, formId }) => {
     },
   });
 
-  const handleSubmit = ({ email }) => {
+  const handleSubmit = ({ email } = {}) => {
     sendPatientPortalForm({
       formId,
       assignedAt: getCurrentDateTimeString(),
