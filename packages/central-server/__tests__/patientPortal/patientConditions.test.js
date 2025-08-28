@@ -48,7 +48,7 @@ describe('Patient Portal Conditions Endpoints', () => {
     });
 
     // Login to get auth token
-    authToken = await getPatientAuthToken(baseApp, TEST_PATIENT_EMAIL);
+    authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -132,7 +132,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: false,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'bob@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -186,7 +186,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: undefined, // Undefined resolved status
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'alice@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -257,7 +257,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         resolved: true,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')
@@ -290,7 +290,7 @@ describe('Patient Portal Conditions Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'diana@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/ongoing-conditions')

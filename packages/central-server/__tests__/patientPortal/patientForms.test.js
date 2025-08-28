@@ -48,7 +48,7 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     // Login to get auth token
-    authToken = await getPatientAuthToken(baseApp, TEST_PATIENT_EMAIL);
+    authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -104,7 +104,7 @@ describe('Patient Portal Forms Endpoints', () => {
         status: 'inactive', // Inactive status
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'bob@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/forms/outstanding')
@@ -141,7 +141,7 @@ describe('Patient Portal Forms Endpoints', () => {
         description: null, // Null description
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'alice@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/forms/outstanding')
@@ -177,7 +177,7 @@ describe('Patient Portal Forms Endpoints', () => {
         status: undefined, // Undefined status
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/forms/outstanding')
@@ -223,7 +223,7 @@ describe('Patient Portal Forms Endpoints', () => {
       // Note: In a real implementation, there would be logic to mark surveys as completed
       // This test assumes the endpoint filters out completed surveys
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'diana@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/forms/outstanding')
@@ -252,7 +252,7 @@ describe('Patient Portal Forms Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'eve@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/forms/outstanding')
