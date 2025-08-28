@@ -21,7 +21,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     try {
       const {
         settings,
-        store: { models },
+        store: { models, sequelize },
       } = this.context;
 
       const { reportIds } = await settings.get('integrations.dhis2');
@@ -55,7 +55,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         }
 
         const latestVersion = report.versions[0];
-        const reportData = await latestVersion.dataGenerator(this.context, {});
+        const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
         // TODO: Send this to DHIS2 in TAN-2540
         log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
