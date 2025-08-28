@@ -1,4 +1,4 @@
-import { RandomEntityFetcher } from '@tamanu/fake-data/utils/RandomEntityFetcher';
+import { RandomEntityFetcher } from '@tamanu/fake-data/services/RandomEntityFetcher';
 
 import { TamanuApi } from '@tamanu/api-client';
 import { version } from '../../package.json';

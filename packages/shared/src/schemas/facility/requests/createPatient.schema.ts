@@ -21,7 +21,7 @@ export const createPatientSchema = z.object({
   facilityId: foreignKey,
 
   // Primary Details (from GenericPrimaryDetailsLayout)
-  displayId: z.string().max(255).optional(),
+  displayId: z.string().max(255),
   firstName: z.string().max(255).optional(),
   middleName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),

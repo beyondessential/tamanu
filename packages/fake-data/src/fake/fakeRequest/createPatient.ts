@@ -1,36 +1,17 @@
-import { zocker } from 'zocker';
+import { z } from 'zod';
 
 import { createPatientSchema } from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
-import { generateId } from '@tamanu/utils/generateId';
-import { CreateSchemaOptions } from './types';
-import { processMock } from './utils';
+import { keysFor } from '../utils/types';
+import { createFakeSchemaFactory } from '../utils/schemaFaker';
 
-type CreatePatientOptions = CreateSchemaOptions<typeof createPatientSchema>;
+type Schema = z.infer<typeof createPatientSchema>;
 
-/**
- * @param options - The options for creating the patient
- * @returns The final patient object
- */
-export const fakeCreatePatientRequestBody = (options: CreatePatientOptions) => {
-  const {
-    required,
-    excludedFields = ['patientFields', 'dateOfBirth', 'timeOfBirth'],
-    overrides = {},
-  } = options;
+const requiredKeys = keysFor<Schema>()('facilityId', 'registeredById');
 
-  const mock = zocker(createPatientSchema)
-    .supply(createPatientSchema.shape.displayId, generateId())
-    .generate();
+const excludedFields = keysFor<Schema>()('patientFields');
 
-  const final = {
-    ...processMock({
-      schema: createPatientSchema,
-      mock,
-      excludedFields,
-    }),
-    ...overrides,
-    ...required,
-  };
-
-  return final;
-};
+export const fakeCreatePatientRequestBody = createFakeSchemaFactory(
+  createPatientSchema,
+  requiredKeys,
+  excludedFields,
+);

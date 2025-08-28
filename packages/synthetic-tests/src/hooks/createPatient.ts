@@ -6,14 +6,12 @@ import { fakeCreatePatientRequestBody } from '@tamanu/fake-data/fake/fakeRequest
  */
 export async function generatePatientPayload(context: any, _events: any): Promise<void> {
   const testBody = fakeCreatePatientRequestBody({
-    required: {
-      facilityId: context.vars.facilityId,
-      registeredById: context.vars.userId,
-    },
-    overrides: {
-      patientRegistryType: 'new_patient',
-    },
+    facilityId: context.vars.facilityId,
+    registeredById: context.vars.userId,
+    patientRegistryType: 'new_patient',
   });
+
+  console.log(testBody);
 
   context.vars.patientPayload = testBody;
 }

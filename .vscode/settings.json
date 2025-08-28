@@ -18,9 +18,10 @@
   },
   "yaml.schemas": {
     "https://www.artillery.io/schema.json": [
-      "packages/synthetic-tests/src/config/*.yml",
-      "packages/synthetic-tests/src/scenarios/*.yml",
-      "packages/synthetic-tests/src/merged-scenarios.yml"
+      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/config/common-config.yml",
+      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/merged-scenarios.yml",
+      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/scenarios/create-patient.yml",
+      "file:///Users/flynnteh/BES/tamanu/packages/synthetic-tests/src/scenarios/create-encounter.yml"
     ]
   },
   "yaml.validate": true,
