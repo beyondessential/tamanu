@@ -61,7 +61,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
 
-      log.debug('DHIS2 integration processing completed');
+      log.info('DHIS2 integration processing completed');
     } catch (error) {
       log.error('Error in DHIS2 integration processing', { error: error.message });
       throw error;
