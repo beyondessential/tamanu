@@ -68,6 +68,7 @@ describe('Patient Portal Auth', () => {
       const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
       const response = await baseApp.post('/api/portal/login').send({
         loginToken: token,
+        email: TEST_PATIENT_EMAIL,
       });
 
       expect(response).toHaveSucceeded();
@@ -179,6 +180,7 @@ describe('Patient Portal Auth', () => {
       const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
       const response = await baseApp.post('/api/portal/login').send({
         loginToken: token,
+        email: TEST_PATIENT_EMAIL,
       });
       expect(response).toHaveSucceeded();
     });

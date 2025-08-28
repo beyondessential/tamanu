@@ -336,15 +336,14 @@ export async function mergePortalUser(models, keepPatientId, unwantedPatientId) 
       patientId: keepPatientId,
     });
   }
-  
+
   const shouldKeepUnwantedAccount =
     // If keep account is inactive but unwanted account is registered
     (existingKeepPortalUser.status !== PORTAL_USER_STATUSES.REGISTERED &&
       existingUnwantedPortalUser.status === PORTAL_USER_STATUSES.REGISTERED) ||
     // If both have same status, prefer the one with more recent updates
     (existingKeepPortalUser.status === existingUnwantedPortalUser.status &&
-      new Date(existingUnwantedPortalUser.updatedAt) >
-        new Date(existingKeepPortalUser.updatedAt));
+      new Date(existingUnwantedPortalUser.updatedAt) > new Date(existingKeepPortalUser.updatedAt));
 
   if (shouldKeepUnwantedAccount) {
     // Delete the keep patient's account and transfer the unwanted patient's account
@@ -424,6 +423,7 @@ async function updateDependentRecordsForResync(models, unwantedPatientId) {
   // Patient Death Data
   const patientDeathDataRecords = await models.PatientDeathData.findAll({
     where: { patientId: unwantedPatientId },
+
     attributes: ['id'],
   });
   await refreshMultiChildRecordsForSync(models.PatientDeathData, patientDeathDataRecords);
@@ -539,7 +539,7 @@ export async function mergePatient(
     const updatedPortalUser = await mergePortalUser(models, keepPatientId, unwantedPatientId);
     if (updatedPortalUser) {
       updates.PortalUser = 1;
-    } 
+    }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup
     // so need to be handled slightly differently.
