@@ -80,8 +80,7 @@ export const AssignmentsCell = ({
   const { selectedCell, updateSelectedCell } = useLocationAssignmentsContext();
   const isSelected = selectedCell.locationId === locationId && isEqual(date, selectedCell.date);
 
-  const handleCellClick = (e) => {
-    if (e.target.closest('.assignment-tile')) return; // Don't open drawer if clicking on assignment
+  const handleCellClick = () => {
     updateSelectedCell({ date, locationId });
     openAssignmentDrawer({
       locationId,
