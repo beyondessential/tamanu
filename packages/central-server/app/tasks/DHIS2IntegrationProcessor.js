@@ -18,7 +18,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS(reportId, reportData) {
+  async postToDHIS2(reportId, reportData) {
     try {
       const response = await fetch('https://dhis2.tamantestnotreal.cd/api/dataValueSets', {
         method: 'POST',
