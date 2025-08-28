@@ -1,6 +1,7 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
 
@@ -47,12 +48,7 @@ describe('Patient Portal Profile Endpoints', () => {
     });
 
     // Login to get auth token
-    const loginResponse = await baseApp.post('/api/portal/login').send({
-      email: TEST_PATIENT_EMAIL,
-    });
-
-    expect(loginResponse).toHaveSucceeded();
-    authToken = loginResponse.body.token;
+    authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -92,11 +88,7 @@ describe('Patient Portal Profile Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'jane@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'jane@test.com');
 
       const response = await baseApp
         .get('/api/portal/me')
@@ -132,11 +124,7 @@ describe('Patient Portal Profile Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'bob@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me')
@@ -171,11 +159,7 @@ describe('Patient Portal Profile Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: 'alice@test.com',
-      });
-
-      const newAuthToken = loginResponse.body.token;
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me')

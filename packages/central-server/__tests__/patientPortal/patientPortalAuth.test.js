@@ -5,6 +5,8 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
 
@@ -62,8 +64,10 @@ describe('Patient Portal Auth', () => {
 
   describe('Patient Portal Login', () => {
     it('Should get a valid access token for correct patient credentials', async () => {
+      const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
+      const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
       const response = await baseApp.post('/api/portal/login').send({
-        email: TEST_PATIENT_EMAIL,
+        loginToken: token,
       });
 
       expect(response).toHaveSucceeded();
@@ -82,26 +86,26 @@ describe('Patient Portal Auth', () => {
     });
 
     it('Should reject an empty email', async () => {
-      const response = await baseApp.post('/api/portal/login').send({
+      const response = await baseApp.post('/api/portal/request-login-token').send({
         email: '',
       });
       expect(response).toHaveRequestError();
     });
 
     it('Should reject a non-existent email', async () => {
-      const response = await baseApp.post('/api/portal/login').send({
+      const response = await baseApp.post('/api/portal/request-login-token').send({
         email: 'nonexistent@test.com',
       });
       expect(response).toHaveRequestError();
     });
 
     it('Should reject login without email', async () => {
-      const response = await baseApp.post('/api/portal/login').send({});
+      const response = await baseApp.post('/api/portal/request-login-token').send({});
       expect(response).toHaveRequestError();
     });
 
     it('Should reject a deactivated portal user', async () => {
-      const response = await baseApp.post('/api/portal/login').send({
+      const response = await baseApp.post('/api/portal/request-login-token').send({
         email: deactivatedPortalUser.email,
       });
       expect(response).toHaveRequestError();
@@ -113,12 +117,7 @@ describe('Patient Portal Auth', () => {
 
     beforeAll(async () => {
       // Get auth token for testing protected endpoints
-      const loginResponse = await baseApp.post('/api/portal/login').send({
-        email: TEST_PATIENT_EMAIL,
-      });
-
-      expect(loginResponse).toHaveSucceeded();
-      authToken = loginResponse.body.token;
+      authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
     });
 
     it('Should return patient information for authenticated request', async () => {
@@ -176,8 +175,10 @@ describe('Patient Portal Auth', () => {
 
   describe('Patient Portal Route Protection', () => {
     it('Should allow access to login endpoint without authentication', async () => {
+      const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
+      const { token } = await oneTimeTokenService.createLoginToken(testPortalUser.id);
       const response = await baseApp.post('/api/portal/login').send({
-        email: TEST_PATIENT_EMAIL,
+        loginToken: token,
       });
       expect(response).toHaveSucceeded();
     });
