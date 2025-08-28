@@ -19,6 +19,7 @@ export const NON_SYNCING_TABLES = [
   'public.sync_sessions',
   'public.user_localisation_caches',
   'public.user_recently_viewed_patients',
+  'public.portal_one_time_tokens',
 ];
 
 export const NON_LOGGED_TABLES = [

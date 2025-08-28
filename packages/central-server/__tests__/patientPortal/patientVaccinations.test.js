@@ -108,7 +108,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
     });
 
     // Login to get auth token
-    authToken = await getPatientAuthToken(baseApp, TEST_PATIENT_EMAIL);
+    authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
   });
 
   afterAll(async () => close());
@@ -189,7 +189,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         }),
       );
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'bob@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/vaccinations/upcoming')
@@ -218,7 +218,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'alice@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/vaccinations/upcoming')
@@ -358,9 +358,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         locationId: testLocation.id,
         departmentId: testDepartment.id,
         recorderId: testExaminer.id,
-      }); 
+      });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'charlie@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/vaccinations/administered')
@@ -438,7 +438,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         recorderId: testExaminer.id,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'diana@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/vaccinations/administered')
@@ -473,7 +473,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       });
 
-      const newAuthToken = await getPatientAuthToken(baseApp, 'eve@test.com');
+      const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
         .get('/api/portal/me/vaccinations/administered')
