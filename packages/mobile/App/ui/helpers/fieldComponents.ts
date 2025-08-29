@@ -8,6 +8,7 @@ import { Checkbox } from '~/ui/components/Checkbox';
 import { NumberField } from '~/ui/components/NumberField';
 import { ReadOnlyField } from '~/ui/components/ReadOnlyField';
 import { UploadPhoto } from '~/ui/components/UploadPhoto';
+import { SignatureField } from '~/ui/components/SignatureField';
 
 import { SurveyQuestionAutocomplete } from '../components/AutocompleteModal/SurveyQuestionAutocomplete';
 import { SurveyLink } from '../components/Forms/SurveyForm/SurveyLink';
@@ -35,6 +36,7 @@ export const FieldByType = {
   [FieldTypes.PATIENT_DATA]: ReadOnlyField,
   [FieldTypes.USER_DATA]: ReadOnlyField,
   [FieldTypes.PHOTO]: UploadPhoto,
+  [FieldTypes.SIGNATURE]: SignatureField,
   [FieldTypes.INSTRUCTION]: null,
   [FieldTypes.RESULT]: null,
   [FieldTypes.PATIENT_ISSUE_GENERATOR]: ReadOnlyField,

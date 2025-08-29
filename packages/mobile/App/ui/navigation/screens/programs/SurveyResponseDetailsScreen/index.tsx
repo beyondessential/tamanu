@@ -113,6 +113,8 @@ export const renderAnswer = (question, answer): ReactElement => {
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.SIGNATURE:
+      return <ViewPhotoLink imageId={answer} />;
     case FieldTypes.SURVEY_ANSWER:
       return <SurveyAnswerResult question={question} answer={answer} />;
     default:
