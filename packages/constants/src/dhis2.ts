@@ -1,0 +1,3 @@
+export const DHIS2_REQUEST_STATUSES = {
+  SUCCESS: 'SUCCESS',
+};

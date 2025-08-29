@@ -3,7 +3,7 @@ import { fetch } from 'undici';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { REPORT_STATUSES } from '@tamanu/constants';
+import { REPORT_STATUSES, DHIS2_REQUEST_STATUSES } from '@tamanu/constants';
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -18,34 +18,22 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportId, reportData, dryRun = false }) {
-    try {
-      const { host, username, password } = config.integrations.dhis2;
-      const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
+  async postToDHIS2({ reportData, dryRun = false }) {
+    const { host, username, password } = config.integrations.dhis2;
+    const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-      const params = new URLSearchParams({ dryRun });
-      const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/csv',
-          Accept: 'application/json',
-          Authorization: `Basic ${authHeader}`,
-        },
-        body: reportData,
-      });
+    const params = new URLSearchParams({ dryRun });
+    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/csv',
+        Accept: 'application/json',
+        Authorization: `Basic ${authHeader}`,
+      },
+      body: reportData,
+    });
 
-      console.log(response);
-
-      if (response.status === 200) {
-        log.info(`Successfully sent report ${reportId} to DHIS2`);
-      } else {
-        log.warn(`Error received from DHIS2 for report ${reportId}`);
-      }
-      return response;
-    } catch (error) {
-      log.error(`Error sending report ${reportId} to DHIS2`, { error: error.message });
-      return error;
-    }
+    return await response.json();
   }
 
   async run() {
@@ -98,11 +86,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         const latestVersion = report.versions[0];
         const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
-        const dryRunResponse = await this.postToDHIS2({ reportId, reportData, dryRun: true });
-        if (dryRunResponse.status === 200) {
-          await this.postToDHIS2({ reportId, reportData });
+        const dryRunResponse = await this.postToDHIS2({ reportData, dryRun: true });
+        if (dryRunResponse.status === DHIS2_REQUEST_STATUSES.SUCCESS) {
+          const { importCount } = await this.postToDHIS2({ reportData });
+
+          log.info(`Report ${report.name} (${reportId}) sent to DHIS2`, importCount);
         } else {
-          log.warn(`Dry run DHIS2 integration failed for report ${reportId}`);
+          log.warn(`Dry run DHIS2 integration failed for report ${reportId}`, dryRunResponse);
         }
       }
     } catch (error) {
