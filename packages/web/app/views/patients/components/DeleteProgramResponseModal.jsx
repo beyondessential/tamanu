@@ -9,11 +9,20 @@ const SubText = styled.div`
   padding: 30px;
 `;
 
-export const DeleteProgramResponseModal = ({ open, onClose, surveyResponseToDelete, endpoint }) => {
+export const DeleteProgramResponseModal = ({
+  open,
+  onClose,
+  onDelete,
+  surveyResponseToDelete,
+  endpoint,
+}) => {
   const api = useApi();
 
   const onSubmit = async () => {
     await api.delete(`${endpoint}/${surveyResponseToDelete.id}`);
+    if (onDelete) {
+      onDelete();
+    }
     onClose();
   };
 

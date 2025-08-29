@@ -20,6 +20,10 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-block-start: 24px;
 `;
 
+const CancelButton = styled(OutlinedButton)`
+  margin-right: auto;
+`;
+
 const useCalculatedFormValues = (components, values, setFieldValue) => {
   useEffect(() => {
     // recalculate dynamic fields
@@ -42,7 +46,7 @@ const useScrollToFirstError = () => {
     return questionRefs.current;
   }
 
-  const scrollToQuestion = (questionId) => {
+  const scrollToQuestion = questionId => {
     const map = getQuestionMap();
     const node = map.get(questionId);
     node.scrollIntoView({
@@ -51,7 +55,7 @@ const useScrollToFirstError = () => {
     });
   };
 
-  const setQuestionToRef = (dataElementId) => (node) => {
+  const setQuestionToRef = dataElementId => node => {
     const map = getQuestionMap();
     if (node) {
       map.set(dataElementId, node);
@@ -79,6 +83,8 @@ export const SurveyScreen = ({
   status,
   setStatus,
   encounterType,
+  onCancel,
+  showCancelButton = false,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -87,10 +93,10 @@ export const SurveyScreen = ({
     const formErrors = await validateForm();
 
     // Only include visible elements
-    const pageErrors = Object.keys(formErrors).filter((x) =>
+    const pageErrors = Object.keys(formErrors).filter(x =>
       screenComponents
-        .filter((c) => checkVisibility(c, values, allComponents))
-        .map((c) => c.dataElementId)
+        .filter(c => checkVisibility(c, values, allComponents))
+        .map(c => c.dataElementId)
         .includes(x),
     );
 
@@ -113,7 +119,7 @@ export const SurveyScreen = ({
   const getVisibleComponents = useCallback(
     (components, allComponents) =>
       components
-        .filter((c) => checkVisibility(c, values, allComponents))
+        .filter(c => checkVisibility(c, values, allComponents))
         .map((c, index) => (
           <SurveyQuestion
             component={c}
@@ -145,6 +151,11 @@ export const SurveyScreen = ({
       <StyledButtonRow data-testid="styledbuttonrow-pvdv">
         {submitButton || (
           <>
+            {showCancelButton && onCancel && (
+              <CancelButton onClick={onCancel}>
+                <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+              </CancelButton>
+            )}
             <OutlinedButton
               onClick={onStepBack || undefined}
               disabled={!onStepBack}

@@ -70,59 +70,45 @@ sources:
             description: "{{ doc('procedures__encounter_id') }}"
             data_tests:
               - relationships:
-                  arguments:
-                    to: source('tamanu', 'encounters')
-                    field: id
+                  to: source('tamanu', 'encounters')
+                  field: id
           - name: location_id
             data_type: character varying(255)
             description: "{{ doc('procedures__location_id') }}"
             data_tests:
               - relationships:
-                  arguments:
-                    to: source('tamanu', 'locations')
-                    field: id
+                  to: source('tamanu', 'locations')
+                  field: id
           - name: procedure_type_id
             data_type: character varying(255)
             description: "{{ doc('procedures__procedure_type_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  arguments:
-                    to: source('tamanu', 'reference_data')
-                    field: id
-                    to_condition: type = 'procedureType'
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'procedureType'
           - name: anaesthetic_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetic_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  arguments:
-                    to: source('tamanu', 'reference_data')
-                    field: id
-                    to_condition: type = 'drug'
+                  to: source('tamanu', 'reference_data')
+                  field: id
+                  to_condition: type = 'drug'
           - name: physician_id
             data_type: character varying(255)
             description: "{{ doc('procedures__physician_id') }}"
             data_tests:
               - relationships:
-                  arguments:
-                    to: source('tamanu', 'users')
-                    field: id
-          - name: assistant_id
-            data_type: character varying(255)
-            description: "{{ doc('procedures__assistant_id') }}"
-            data_tests:
-              - relationships:
-                  arguments:
-                    to: source('tamanu', 'users')
-                    field: id
+                  to: source('tamanu', 'users')
+                  field: id
           - name: anaesthetist_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetist_id') }}"
             data_tests:
               - relationships:
-                  arguments:
-                    to: source('tamanu', 'users')
-                    field: id
+                  to: source('tamanu', 'users')
+                  field: id
           - name: start_time
             data_type: character(19)
             description: "{{ doc('procedures__start_time') }}"
@@ -152,3 +138,15 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in procedures."
             data_tests:
               - not_null
+          - name: department_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__department_id') }}"
+          - name: assistant_anaesthetist_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__assistant_anaesthetist_id') }}"
+          - name: time_in
+            data_type: character(19)
+            description: "{{ doc('procedures__time_in') }}"
+          - name: time_out
+            data_type: character(19)
+            description: "{{ doc('procedures__time_out') }}"
