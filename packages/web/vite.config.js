@@ -27,11 +27,7 @@ export default async () => {
     esbuild: {
       loader: 'jsx',
     },
-    plugins: [
-      react(),
-      json5Plugin()
-      svgr(),
-    ],
+    plugins: [react(), json5Plugin(), svgr()],
 
     define: {
       __VERSION__: JSON.stringify(
