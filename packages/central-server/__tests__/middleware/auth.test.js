@@ -47,12 +47,16 @@ describe('Auth', () => {
     close = ctx.close;
     store = ctx.store;
     emailService = ctx.emailService;
-    const { Role, User, Facility } = store.models;
-    await Promise.all([
+    const { Role, User, Facility, Device } = store.models;
+    const [, user] = await Promise.all([
       Role.create(fake(Role, { id: TEST_ROLE_ID })),
-      ...USERS.map((r) => User.create(r)),
+      ...USERS.map(r => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
+    await Device.create({
+      id: TEST_DEVICE_ID,
+      registeredById: user.id,
+    });
     deactivatedUser = await User.create(
       fake(User, {
         password: TEST_PASSWORD,
