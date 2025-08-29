@@ -180,7 +180,7 @@ test.describe('Recorded vaccines', () => {
     });
   });
 
-  test('Add multiple doses of the same vaccine and view each of their vaccine records', async ({
+  test('Add multiple doses of the same vaccine and confirm the first dose is disabled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -194,6 +194,29 @@ test.describe('Recorded vaccines', () => {
       specificScheduleOption: '10 weeks',
       viewVaccineRecord: true,
     });
+  });
+
+  test('When a vaccine has all doses administered remove it from dropdown', async ({
+    patientDetailsPage,
+  }) => {
+    const category = 'Routine';
+    const vaccineName = 'Rotavirus';
+    await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+      specificVaccine: vaccineName,
+    });
+
+    await addVaccineAndAssert(patientDetailsPage, true, category, 2, {
+      specificVaccine: vaccineName,
+      isFollowUpVaccine: true,
+      specificScheduleOption: '10 weeks',
+    });
+
+    const recordVaccineModal = await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    if (!recordVaccineModal) {
+      throw new Error('Record vaccine modal failed to open');
+    }
+
+    await recordVaccineModal.assertVaccineNotSelectable(vaccineName, category);
   });
 
   test('Select not given when giving the second scheduled dose of a vaccine', async ({
