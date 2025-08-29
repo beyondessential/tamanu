@@ -52,9 +52,15 @@ export class ViewVaccineModal extends BasePatientModal {
     this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
     this.facilityLocation = this.page.getByTestId('displayfield-jkpx-location-translatedtext-iukb');
     this.recordedBy = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-e9ru');
-    this.givenElsewhereReason = this.page.getByTestId('displayfield-jkpx-status-translatedtext-rth0');
-    this.givenElsewhereCountry = this.page.getByTestId('displayfield-jkpx-country-translatedtext-c7hy');
-    this.givenElsewhereFacility = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-iukb');
+    this.givenElsewhereReason = this.page.getByTestId(
+      'displayfield-jkpx-status-translatedtext-rth0',
+    );
+    this.givenElsewhereCountry = this.page.getByTestId(
+      'displayfield-jkpx-country-translatedtext-c7hy',
+    );
+    this.givenElsewhereFacility = this.page.getByTestId(
+      'displayfield-jkpx-recorded-translatedtext-iukb',
+    );
     this.status = this.page.getByTestId('displayfield-jkpx-status-translatedtext-qgo7');
   }
 
@@ -68,8 +74,17 @@ export class ViewVaccineModal extends BasePatientModal {
    * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
   async assertVaccineModalRequiredFields(vaccine: Partial<Vaccine>) {
-    const { vaccineName, dateGiven, area, location, department, given, category, scheduleOption, givenElsewhereReason } =
-      vaccine;
+    const {
+      vaccineName,
+      dateGiven,
+      area,
+      location,
+      department,
+      given,
+      category,
+      scheduleOption,
+      givenElsewhereReason,
+    } = vaccine;
 
     //Most of the locators are custom here so it's cleaner to assert the given elsewhere fields separately
     if (givenElsewhereReason) {
@@ -146,8 +161,7 @@ export class ViewVaccineModal extends BasePatientModal {
 
     if (dateGiven) {
       await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
-    }
-    else {
+    } else {
       await expect(this.dateGiven).toContainText('--/--/----');
     }
 

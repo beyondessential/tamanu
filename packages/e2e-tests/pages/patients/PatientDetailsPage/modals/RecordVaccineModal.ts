@@ -397,7 +397,10 @@ export class RecordVaccineModal extends BasePatientModal {
     }
   }
 
-  async assertVaccineNotSelectable(vaccineName: string, category: 'Routine' | 'Catchup' | 'Campaign' | 'Other') {
+  async assertVaccineNotSelectable(
+    vaccineName: string,
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+  ) {
     await this.selectCategory(category);
     await this.vaccineSelectField.click();
     await expect(this.vaccineSelectField.getByText(vaccineName)).not.toBeVisible();

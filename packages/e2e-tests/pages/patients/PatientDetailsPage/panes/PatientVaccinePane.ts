@@ -129,7 +129,16 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param vaccine - A partial vaccine object containing the fields to assert against
    */
   async assertRecordedVaccineTable(vaccine: Partial<Vaccine>) {
-    const { vaccineName, scheduleOption, dateGiven, count, given, givenBy, givenElsewhereReason, givenElsewhereCountry } = vaccine;
+    const {
+      vaccineName,
+      scheduleOption,
+      dateGiven,
+      count,
+      given,
+      givenBy,
+      givenElsewhereReason,
+      givenElsewhereCountry,
+    } = vaccine;
     const recordedVaccinesTable = 'recordedVaccines';
 
     if (!vaccineName || count === undefined || !scheduleOption) {
@@ -196,7 +205,9 @@ export class PatientVaccinePane extends BasePatientPane {
 
     const displayLocationValue = givenElsewhereReason ? givenElsewhereCountry : 'facility-1';
     if (!displayLocationValue) {
-      throw new Error('Display location value is not defined - likely the country was not selected');
+      throw new Error(
+        'Display location value is not defined - likely the country was not selected',
+      );
     }
 
     const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
@@ -208,7 +219,9 @@ export class PatientVaccinePane extends BasePatientPane {
       scheduleOption,
     );
     if (!correctDisplayLocationFound) {
-      throw new Error(`Display location "${displayLocationValue}" not found in the recorded vaccines table`);
+      throw new Error(
+        `Display location "${displayLocationValue}" not found in the recorded vaccines table`,
+      );
     }
   }
 
