@@ -1,7 +1,7 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
-import { addWeeks, startOfWeek, format, addMonths } from 'date-fns';
+import { addWeeks, startOfWeek, format } from 'date-fns';
 
 interface AddVaccineOptions {
   specificVaccine?: string | null;
@@ -254,18 +254,9 @@ export async function assertEditedVaccine(
  */
 export async function expectedDueDateWeek(
   date: Date,
-  unit: 'weeks' | 'months',
-  unitsToAdd: number,
+  weeksToAdd: number,
 ) {
-  let dueDate: Date;
-
-  if (unit === 'weeks') {
-    dueDate = addWeeks(date, unitsToAdd);
-  } else if (unit === 'months') {
-    dueDate = addMonths(date, unitsToAdd);
-  } else {
-    throw new Error('Invalid unit');
-  }
+  const dueDate = addWeeks(date, weeksToAdd);
 
   // Extract just the date components to avoid timezone issues
   const year = dueDate.getFullYear();

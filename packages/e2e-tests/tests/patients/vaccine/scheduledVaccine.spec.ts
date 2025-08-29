@@ -12,7 +12,7 @@ import { subYears, subWeeks } from 'date-fns';
 test.describe('Scheduled vaccines', () => {
     test('Vaccines scheduled at birth display', async ({ page, api, patientDetailsPage }) => {
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-      const birthDueDate = await expectedDueDateWeek(currentDate, 'weeks', 1);
+      const birthDueDate = await expectedDueDateWeek(currentDate, 1);
       const status = 'Due';
       const schedule = 'Birth';
   
@@ -41,9 +41,9 @@ test.describe('Scheduled vaccines', () => {
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
       const status = 'Scheduled';
   
-      const sixWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 6);
-      const tenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 10);
-      const fourteenWeekDueDate = await expectedDueDateWeek(currentDate, 'weeks', 14);
+      const sixWeekDueDate = await expectedDueDateWeek(currentDate, 6);
+      const tenWeekDueDate = await expectedDueDateWeek(currentDate, 10);
+      const fourteenWeekDueDate = await expectedDueDateWeek(currentDate, 14);
   
       const patient = await createPatient(api, page, {
         dateOfBirth: currentDate,
@@ -88,8 +88,9 @@ test.describe('Scheduled vaccines', () => {
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
       const status = 'Scheduled';
   
-      const nineMonthDueDate = await expectedDueDateWeek(currentDate, 'months', 9);
-      const fifteenMonthDueDate = await expectedDueDateWeek(currentDate, 'months', 15);
+      //Weeks are used in this calculation because this is how its calculated in the database
+      const nineMonthDueDate = await expectedDueDateWeek(currentDate, 39);
+      const fifteenMonthDueDate = await expectedDueDateWeek(currentDate, 65);
   
       const patient = await createPatient(api, page, {
         dateOfBirth: currentDate,
@@ -127,7 +128,7 @@ test.describe('Scheduled vaccines', () => {
       const status = 'Due';
   
       //521 weeks is used here because this is how the due date is calculated in the database
-      const tenYearDueDate = await expectedDueDateWeek(birthDateTenYearsAgo, 'weeks', 521);
+      const tenYearDueDate = await expectedDueDateWeek(birthDateTenYearsAgo, 521);
   
       const patient = await createPatient(api, page, {
         dateOfBirth: birthDateTenYearsAgo,
@@ -151,7 +152,7 @@ test.describe('Scheduled vaccines', () => {
       patientDetailsPage,
     }) => {
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-      const doseTwoDueDate = await expectedDueDateWeek(currentDate, 'weeks', 8);
+      const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
       const birthDateTenYearsAgo = subYears(currentDate, 10);
       const vaccine = 'COVID-19 AZ';
       const schedule = 'Dose 2';
@@ -186,19 +187,19 @@ test.describe('Scheduled vaccines', () => {
   
       const due = {
         status: 'Due',
-        dueDate: await expectedDueDateWeek(currentDate, 'weeks', 1),
+        dueDate: await expectedDueDateWeek(currentDate, 1),
       };
       const scheduled = {
         status: 'Scheduled',
-        dueDate: await expectedDueDateWeek(currentDate, 'weeks', 6),
+        dueDate: await expectedDueDateWeek(currentDate, 6),
       };
       const overdue = {
         status: 'Overdue',
-        dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 1),
+        dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 1),
       };
       const upcoming = {
         status: 'Upcoming',
-        dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 'weeks', 6),
+        dueDate: await expectedDueDateWeek(birthDateThreeWeeksAgo, 6),
       };
   
       const patientBornToday = await createPatient(api, page, {
@@ -255,28 +256,28 @@ test.describe('Scheduled vaccines', () => {
         getBirthDate: (currentDate: Date) => currentDate,
         vaccine: 'BCG',
         schedule: 'Birth',
-        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 1),
+        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
       },
       {
         status: 'Scheduled',
         getBirthDate: (currentDate: Date) => currentDate,
         vaccine: 'PCV13',
         schedule: '6 weeks',
-        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 6),
+        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
       },
       {
         status: 'Overdue',
         getBirthDate: (currentDate: Date) => subWeeks(currentDate, 3),
         vaccine: 'BCG',
         schedule: 'Birth',
-        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 1),
+        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
       },
       {
         status: 'Upcoming',
         getBirthDate: (currentDate: Date) => subWeeks(currentDate, 3),
         vaccine: 'PCV13',
         schedule: '6 weeks',
-        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 'weeks', 6),
+        getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
       },
     ];
   
@@ -318,7 +319,7 @@ test.describe('Scheduled vaccines', () => {
       const vaccine = 'BCG';
       const schedule = 'Birth';
       const status = 'Due';
-      const dueDate = await expectedDueDateWeek(currentDate, 'weeks', 1);
+      const dueDate = await expectedDueDateWeek(currentDate, 1);
       const givenStatus = false;
   
       const patient = await createPatient(api, page, {
@@ -347,7 +348,7 @@ test.describe('Scheduled vaccines', () => {
       patientDetailsPage,
     }) => {
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
-      const doseTwoDueDate = await expectedDueDateWeek(currentDate, 'weeks', 8);
+      const doseTwoDueDate = await expectedDueDateWeek(currentDate, 8);
       const birthDateTenYearsAgo = subYears(currentDate, 10);
       const vaccine = 'COVID-19 AZ';
       const schedule = 'Dose 2';
