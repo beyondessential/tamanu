@@ -140,15 +140,21 @@ export class ViewVaccineModal extends BasePatientModal {
   async assertGivenElsewhereVaccineModalFields(vaccine: Partial<Vaccine>) {
     const { vaccineName, givenElsewhereReason, givenElsewhereCountry, dateGiven } = vaccine;
 
-    if (!vaccineName || !givenElsewhereReason || !givenElsewhereCountry || !dateGiven) {
+    if (!vaccineName || !givenElsewhereReason || !givenElsewhereCountry) {
       throw new Error('Missing required given elsewhere fields');
+    }
+
+    if (dateGiven) {
+      await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
+    }
+    else {
+      await expect(this.dateGiven).toContainText('--/--/----');
     }
 
     await expect(this.givenElsewhereReason).toContainText(givenElsewhereReason);
     await expect(this.givenElsewhereCountry).toContainText(givenElsewhereCountry);
     await expect(this.status).toContainText('Given elsewhere');
     await expect(this.givenVaccineName).toContainText(vaccineName);
-    await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
     await expect(this.givenElsewhereFacility).toContainText('facility-1');
     await expect(this.recordedBy).toContainText('Initial Admin');
   }

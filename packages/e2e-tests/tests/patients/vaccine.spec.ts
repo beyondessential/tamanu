@@ -658,9 +658,20 @@ test.describe('Recorded vaccines', () => {
       specificDate: currentBrowserDate,
       viewVaccineRecord: true,
     });
+  });
 
-    //TODO: record vaccine (has unique fields)
-    //TODO: view vaccine record modal (has unique fields)
+  test('Date field can be empty when vaccine is given elsewhere', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    const givenElsewhereReason = 'Given overseas';
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      vaccineGivenElsewhere: givenElsewhereReason,
+      viewVaccineRecord: true,
+    });
   });
 });
 

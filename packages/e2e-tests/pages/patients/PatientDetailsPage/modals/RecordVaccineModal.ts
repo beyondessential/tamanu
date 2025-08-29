@@ -76,6 +76,7 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly vaccineGivenElsewhereDropdown: Locator;
   readonly givenElsewhereCheckbox: Locator;
   readonly countryField: Locator;
+  readonly modalScrollManager: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -121,6 +122,7 @@ export class RecordVaccineModal extends BasePatientModal {
     this.vaccineGivenElsewhereDropdown = this.page.getByTestId('styledindicator-dx40');
     this.givenElsewhereCheckbox = this.page.getByTestId('field-w50x-controlcheck');
     this.countryField = this.page.getByTestId('field-e5kc-input');
+    this.modalScrollManager = this.page.locator('.css-bp8cua-ScrollManager');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -240,9 +242,6 @@ export class RecordVaccineModal extends BasePatientModal {
     if (vaccineGivenElsewhere) {
       await this.givenElsewhereCheckbox.click();
       givenElsewhere = await this.recordVaccineGivenElsewhere(vaccineGivenElsewhere);
-      if (!specificDate) {
-        throw new Error('A specific date must be provided in the test data when vaccine is given elsewhere');
-      }
     }
 
     if (specificDate) {
@@ -352,7 +351,7 @@ export class RecordVaccineModal extends BasePatientModal {
   async recordVaccineGivenElsewhere(vaccineGivenElsewhere: string) {
     await this.vaccineGivenElsewhereDropdown.click();
     await this.page.getByText(vaccineGivenElsewhere).click();
-    await this.page.locator('.css-bp8cua-ScrollManager').click(); //Close the dropdown
+    await this.modalScrollManager.click(); //Close the dropdown
     const country = await selectAutocompleteFieldOption(this.page, this.countryField, {
       returnOptionText: true,
     });

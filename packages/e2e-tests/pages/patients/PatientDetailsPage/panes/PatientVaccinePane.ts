@@ -132,12 +132,9 @@ export class PatientVaccinePane extends BasePatientPane {
     const { vaccineName, scheduleOption, dateGiven, count, given, givenBy, givenElsewhereReason, givenElsewhereCountry } = vaccine;
     const recordedVaccinesTable = 'recordedVaccines';
 
-    if (!vaccineName || !dateGiven || count === undefined || !scheduleOption) {
+    if (!vaccineName || count === undefined || !scheduleOption) {
       throw new Error('Missing required vaccine fields');
     }
-
-    //The date field in this table uses the MM/DD/YYYY format immediately after creation so that's why this format is used here
-    const formattedDate = convertDateFormat(dateGiven);
 
     const correctVaccineFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
@@ -167,9 +164,11 @@ export class PatientVaccinePane extends BasePatientPane {
       );
     }
 
+    const dateValue = dateGiven ? convertDateFormat(dateGiven) : 'Unknown';
+
     const correctDateFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      formattedDate,
+      dateValue,
       'date',
       count,
       vaccineName,
