@@ -14,6 +14,7 @@ import {
 } from '~/types';
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -31,6 +32,7 @@ function transformPatientData(
   patient: IPatient,
   additionalData: IPatientAdditionalData | null,
   patientProgramRegistration: IPatientProgramRegistration | null,
+  customPatientFieldValues: CustomPatientFieldValues | null,
   config,
 ): string | undefined | null {
   const { column = 'fullName' } = config;
@@ -53,6 +55,9 @@ function transformPatientData(
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
+          if (customPatientFieldValues[column]) {
+            return customPatientFieldValues[column][0].value;
+          }
           return undefined;
       }
     }
@@ -65,6 +70,7 @@ export function getFormInitialValues(
   patient: IPatient,
   patientAdditionalData: IPatientAdditionalData,
   patientProgramRegistration: IPatientProgramRegistration,
+  customPatientFieldValues: CustomPatientFieldValues,
 ): { [key: string]: any } {
   const initialValues = components.reduce<{ [key: string]: any }>((acc, { dataElement }) => {
     const initialValue = getInitialValue(dataElement);
@@ -94,6 +100,7 @@ export function getFormInitialValues(
         patient,
         patientAdditionalData,
         patientProgramRegistration,
+        customPatientFieldValues,
         config,
       );
       if (patientValue !== undefined) initialValues[component.dataElement.code] = patientValue;

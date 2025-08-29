@@ -74,6 +74,7 @@ import { addFacilityIsSensitiveColumn1752187477000 } from './1752187477000-addFa
 import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
 import { addIsSensitiveColumnToReferenceDrugsTable1753911142171 } from './1753911142171-addIsSensitiveColumnToReferenceDrugsTable';
 import { addTaskTables1754000000000 } from './1754000000000-addTaskTables';
+import { addMotherFatherIdToPatientAdditionalData1756413939000 } from './1756413939000-addMotherFatherIdToPatientAdditionalData';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -151,4 +152,5 @@ export const migrationList = [
   correctPrescriptionStartDates1753393877000,
   addIsSensitiveColumnToReferenceDrugsTable1753911142171,
   addTaskTables1754000000000,
+  addMotherFatherIdToPatientAdditionalData1756413939000,
 ];

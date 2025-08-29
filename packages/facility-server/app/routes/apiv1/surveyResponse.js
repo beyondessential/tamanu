@@ -2,9 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
 
-import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
-import { SURVEY_TYPES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import {
+  getPatientDataFieldAssociationData,
+  transformAnswers,
+} from '@tamanu/shared/reports/utilities/transformAnswers';
+import { PATIENT_DATA_FIELD_LOCATIONS, SURVEY_TYPES } from '@tamanu/constants';
+import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
 
 export const surveyResponse = express.Router();
 
@@ -41,13 +44,14 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map((answer) => {
-        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
+      answers: answers.map(answer => {
+        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
           body: transformedAnswer?.body,
           sourceType: transformedAnswer?.sourceType,
+          sourceConfig: transformedAnswer?.sourceConfig,
         };
       }),
     });
@@ -72,7 +76,7 @@ surveyResponse.post(
       req.checkPermission('create', noun);
     }
 
-    const getDefaultId = async (type) =>
+    const getDefaultId = async type =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
@@ -92,12 +96,7 @@ surveyResponse.post(
 surveyResponse.put(
   '/complexChartInstance/:id',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      body,
-      params,
-      db,
-    } = req;
+    const { models, body, params, db } = req;
 
     const responseRecord = await models.SurveyResponse.findByPk(params.id);
     if (!responseRecord) {
@@ -118,7 +117,7 @@ surveyResponse.put(
 
     await db.transaction(async () => {
       for (const [dataElementId, value] of Object.entries(body.answers)) {
-        if (!components.some((c) => c.dataElementId === dataElementId)) {
+        if (!components.some(c => c.dataElementId === dataElementId)) {
           throw new InvalidOperationError('Some components are missing from the survey');
         }
 
@@ -127,7 +126,7 @@ surveyResponse.put(
           continue;
         }
 
-        const existingAnswer = responseAnswers.find((a) => a.dataElementId === dataElementId);
+        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
         if (existingAnswer) {
           await existingAnswer.update({ body: value });
         } else {
@@ -141,5 +140,47 @@ surveyResponse.put(
     });
 
     res.send(responseRecord);
+  }),
+);
+
+surveyResponse.get(
+  '/patient-data-field-association-data/:column',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const value = query.value;
+    const column = params.column;
+
+    req.checkPermission('read', 'Patient');
+
+    if (!column) {
+      throw new InvalidParameterError('Value and column are required');
+    }
+    if (!value) {
+      res.json({
+        data: null,
+      });
+      return;
+    }
+
+    const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
+
+    if (!modelName) {
+      res.json({
+        data: value,
+      });
+      return;
+    }
+
+    const { data, targetModel } = await getPatientDataFieldAssociationData({
+      models,
+      modelName,
+      fieldName,
+      answer: value,
+    });
+
+    res.json({
+      model: targetModel,
+      data,
+    });
   }),
 );
