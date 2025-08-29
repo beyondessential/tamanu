@@ -656,6 +656,7 @@ test.describe('Recorded vaccines', () => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
       vaccineGivenElsewhere: givenElsewhereReason,
       specificDate: currentBrowserDate,
+      viewVaccineRecord: true,
     });
 
     //TODO: record vaccine (has unique fields)
