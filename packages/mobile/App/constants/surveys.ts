@@ -1,12 +1,25 @@
+import { BLOOD_LABELS, EDUCATIONAL_ATTAINMENT_LABELS, MARTIAL_STATUS_LABELS, SEX_LABELS, SOCIAL_MEDIA_LABELS, TITLE_LABELS } from "./patientFields";
+import { PROGRAM_REGISTRATION_STATUS_LABELS } from "./programRegistries";
+
 // utility function for when a model's fields are all a direct match for their survey configs
-const makeLookupFields = (model: string, fields: string[]) =>
-  fields.map(f => [model, f]).reduce((state, c) => ({ ...state, [c[1]]: c }), {});
+const makeLookupFields = (model: string, fields: (string | [string, Record<string, string>])[]) =>
+  Object.fromEntries(
+    fields.map(f => [Array.isArray(f) ? f[0] : f, [model, ...(Array.isArray(f) ? f : [f])]]),
+  );
+
+type PatientDataFieldLocationsType = {
+  [key: string]: [string, string, Record<string, string>] | [string, string];
+};
 
 // Please keep in sync with:
 // - @tamanu/constants/surveys.js
-export const PATIENT_DATA_FIELD_LOCATIONS = {
+export const PATIENT_DATA_FIELD_LOCATIONS: PatientDataFieldLocationsType = {
   registrationClinicalStatus: ['PatientProgramRegistration', 'clinicalStatusId'],
-  programRegistrationStatus: ['PatientProgramRegistration', 'registrationStatus'],
+  programRegistrationStatus: [
+    'PatientProgramRegistration',
+    'registrationStatus',
+    PROGRAM_REGISTRATION_STATUS_LABELS,
+  ],
   registrationClinician: ['PatientProgramRegistration', 'clinicianId'],
   registeringFacility: ['PatientProgramRegistration', 'registeringFacilityId'],
   registrationCurrentlyAtVillage: ['PatientProgramRegistration', 'villageId'],
@@ -18,22 +31,21 @@ export const PATIENT_DATA_FIELD_LOCATIONS = {
     'culturalName',
     'dateOfBirth',
     'dateOfDeath',
-    'sex',
+    ['sex', SEX_LABELS],
     'email',
-
     'villageId',
   ]),
   ...makeLookupFields('PatientAdditionalData', [
     'placeOfBirth',
-    'bloodType',
+    ['bloodType', BLOOD_LABELS],
     'primaryContactNumber',
     'secondaryContactNumber',
-    'maritalStatus',
+    ['maritalStatus', MARTIAL_STATUS_LABELS],
     'cityTown',
     'streetVillage',
-    'educationalLevel',
-    'socialMedia',
-    'title',
+    ['educationalLevel', EDUCATIONAL_ATTAINMENT_LABELS],
+    ['socialMedia', SOCIAL_MEDIA_LABELS],
+    ['title', TITLE_LABELS],
     'birthCertificate',
     'drivingLicense',
     'passport',
