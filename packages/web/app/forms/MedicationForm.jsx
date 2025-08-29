@@ -534,7 +534,6 @@ export const MedicationForm = ({
 
   const patient = useSelector(state => state.patient);
   const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
-
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
 
