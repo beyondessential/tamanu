@@ -5,7 +5,7 @@ import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns
 import { useFormikContext } from 'formik';
 import { isEqual } from 'lodash';
 import { PropTypes } from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled, { css } from 'styled-components';
 
 import {
@@ -307,9 +307,11 @@ export const TimeSlotPicker = ({
     [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
 
+  const lastValuesRef = useRef({ startTime: null, endTime: null });
+
   /**
    * Treating the `startTime` and `endTime` string values from the Formik context as the source of
-   * truth, synchronise this {@link TimeSlotPicker}’s selection of {@link ToggleButton}s with the
+   * truth, synchronise this {@link TimeSlotPicker}'s selection of {@link ToggleButton}s with the
    * currently selected start and end times.
    *
    * - If the user switches from an overnight booking to non-, preserve only the earliest time
@@ -318,13 +320,21 @@ export const TimeSlotPicker = ({
    *   starting time slot. If this {@link TimeSlotPicker} would result in a selection that
    *   conflicts with another appointment, clear the start and/or end times as needed to maintain
    *   legal state.
-   * - There’s no good heuristic for mapping end times between overnight and non-, so end times are
+   * - There's no good heuristic for mapping end times between overnight and non-, so end times are
    *   simply discarded when toggling the `overnight` checkbox.
    */
   useEffect(() => {
-    // Not a destructure to convince linter we don’t need `values` object dependency
+    // Not a destructure to convince linter we don't need `values` object dependency
     const startTime = values.startTime;
     const endTime = values.endTime;
+
+    // Check if values have actually changed to avoid unnecessary processing
+    if (startTime === lastValuesRef.current.startTime && 
+        endTime === lastValuesRef.current.endTime) {
+      return;
+    }
+
+    lastValuesRef.current = { startTime, endTime };
 
     const start = parseISO(startTime);
     const end = parseISO(endTime);
@@ -345,12 +355,12 @@ export const TimeSlotPicker = ({
       }
 
       /*
-       * It’s only possible to have a start time but no end time if the user has just switched from
+       * It's only possible to have a start time but no end time if the user has just switched from
        * an overnight booking. Preserve the first time slot from that selection.
        */
       if (!endTime) {
-        const start = parseISO(startTime);
-        const slot = slotContaining(start);
+        const startDate = parseISO(startTime);
+        const slot = slotContaining(startDate);
 
         updateInterval(slot); // Retriggers this useEffect hook, but will fall to the next branch
         return;
