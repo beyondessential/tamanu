@@ -498,6 +498,56 @@ describe('Location Assignment API', () => {
 
       expect(result).toHaveSucceeded();
     });
+
+    it('Should detect partial overlaps in repeating assignments', async () => {
+      const today = toDateString(new Date());
+      const endDate = toDateString(addWeeks(new Date(), 8));
+
+      // Create a weekly repeating assignment for 8 weeks
+      await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: today,
+        startTime: '10:00:00',
+        endTime: '12:00:00',
+        isRepeating: true,
+        repeatFrequency: 1,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: endDate,
+      });
+
+      // Create a weekly repeating assignment that starts 4 weeks later (should overlap for 4 weeks)
+      const partialOverlapResult = await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: toDateString(addWeeks(new Date(), 4)),
+        startTime: '11:00:00',
+        endTime: '13:00:00',
+        isRepeating: true,
+        repeatFrequency: 1,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addWeeks(new Date(), 12)),
+      });
+
+      expect(partialOverlapResult).toHaveRequestError(400);
+      expect(partialOverlapResult.body.error.type).toEqual('overlap_assignment_error');
+      expect(partialOverlapResult.body.error.overlapAssignments.length).toBeGreaterThan(0);
+
+      // Verify that assignments that don't overlap in time are allowed
+      const noOverlapResult = await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: toDateString(addWeeks(new Date(), 4)),
+        startTime: '08:00:00',
+        endTime: '09:00:00',
+        isRepeating: true,
+        repeatFrequency: 1,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addWeeks(new Date(), 12)),
+      });
+
+      expect(noOverlapResult).toHaveSucceeded();
+    });
   });
 
   describe('Modify non-repeating assignment', () => {

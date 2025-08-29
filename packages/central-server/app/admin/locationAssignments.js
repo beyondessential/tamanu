@@ -393,7 +393,7 @@ async function createSingleLocationAssignment(req, body) {
   });
 
   if (userLeave) {
-    throw new InvalidOperationError(`User is on leave on ${date}`);
+    throw new InvalidOperationError(`User is on leave ${date}`);
   }
 
   await LocationAssignment.create({

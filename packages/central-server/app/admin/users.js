@@ -206,9 +206,9 @@ const userLeaveSchema = yup.object().shape({
 usersRouter.post(
   '/:id/leaves',
   asyncHandler(async (req, res) => {
-    const { models, params, body, user: currentUser } = req;
+    const { models, params, body, user: currentUser, db } = req;
     const { id: userId } = params;
-    const { UserLeave } = models;
+    const { UserLeave, LocationAssignment } = models;
 
     req.checkPermission('write', 'User');
 
@@ -226,26 +226,37 @@ usersRouter.post(
       throw new InvalidOperationError('startDate must be before or equal to endDate');
     }
 
-    // Check for overlapping leaves
-    const overlap = await UserLeave.findOne({
-      where: {
+    const leave = await db.transaction(async () => {
+      // Check for overlapping leaves
+      const overlap = await UserLeave.findOne({
+        where: {
+          userId,
+          removedAt: null,
+          endDate: { [Op.gte]: startDate },
+          startDate: { [Op.lte]: endDate },
+        },
+      });
+
+      if (overlap) {
+        throw new InvalidOperationError('Leave overlaps with an existing leave');
+      }
+
+      const leave = await UserLeave.create({
         userId,
-        removedAt: null,
-        endDate: { [Op.gte]: startDate },
-        startDate: { [Op.lte]: endDate },
-      },
-    });
+        startDate,
+        endDate,
+        scheduledBy: currentUser.id,
+        scheduledAt: getCurrentDateTimeString(),
+      });
 
-    if (overlap) {
-      throw new InvalidOperationError('Leave overlaps with an existing leave');
-    }
+      await LocationAssignment.destroy({
+        where: {
+          userId,
+          date: { [Op.between]: [startDate, endDate] },
+        },
+      });
 
-    const leave = await UserLeave.create({
-      userId,
-      startDate,
-      endDate,
-      scheduledBy: currentUser.id,
-      scheduledAt: getCurrentDateTimeString(),
+      return leave;
     });
 
     res.send(leave);
