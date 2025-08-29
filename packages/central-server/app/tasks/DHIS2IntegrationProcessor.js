@@ -18,15 +18,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2(reportId, reportData) {
+  async postToDHIS2({ reportId, reportData, dryRun = false }) {
     try {
       const { host, username, password } = config.integrations.dhis2;
       const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-      const params = new URLSearchParams({
-        dryRun: 'true',
-      });
-
+      const params = new URLSearchParams({ dryRun });
       const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
         method: 'POST',
         headers: {
@@ -37,19 +34,17 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         body: reportData,
       });
 
+      console.log(response);
+
       if (response.status === 200) {
-        const responseData = await response.json();
-        log.info(`Successfully sent report ${reportId} to DHIS2`, { responseData });
+        log.info(`Successfully sent report ${reportId} to DHIS2`);
       } else {
-        log.warn(`Failed to send report ${reportId} to DHIS2`, {
-          status: response.status,
-          statusText: response.statusText,
-        });
+        log.warn(`Error received from DHIS2 for report ${reportId}`);
       }
       return response;
-    } catch (dhis2Error) {
-      log.error(`Error sending report ${reportId} to DHIS2`, { error: dhis2Error.message });
-      return dhis2Error;
+    } catch (error) {
+      log.error(`Error sending report ${reportId} to DHIS2`, { error: error.message });
+      return error;
     }
   }
 
@@ -72,7 +67,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         return;
       }
 
-      log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
+      log.info(`Sending ${reportIds.length} reports to DHIS2`);
 
       for (const reportId of reportIds) {
         const report = await models.ReportDefinition.findByPk(reportId, {
@@ -103,12 +98,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         const latestVersion = report.versions[0];
         const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
 
-        await this.postToDHIS2(reportId, reportData);
-
-        log.info(`Report ${reportId} successfully sent to DHIS2`);
+        const dryRunResponse = await this.postToDHIS2({ reportId, reportData, dryRun: true });
+        if (dryRunResponse.status === 200) {
+          await this.postToDHIS2({ reportId, reportData });
+        } else {
+          log.warn(`Dry run DHIS2 integration failed for report ${reportId}`);
+        }
       }
-
-      log.info('DHIS2 integration processing completed');
     } catch (error) {
       log.error('Error in DHIS2 integration processing', { error: error.message });
       throw error;
