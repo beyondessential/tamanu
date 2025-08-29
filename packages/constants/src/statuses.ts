@@ -91,3 +91,15 @@ export const JOB_QUEUE_STATUSES = {
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
+
+export const PORTAL_USER_STATUSES = {
+  PENDING: 'pending',
+  REGISTERED: 'registered',
+};
+
+export const PORTAL_USER_STATUS_LABELS = {
+  [PORTAL_USER_STATUSES.PENDING]: 'Pending',
+  [PORTAL_USER_STATUSES.REGISTERED]: 'Registered',
+};
+
+export const PORTAL_USER_STATUS_VALUES = Object.values(PORTAL_USER_STATUSES);
