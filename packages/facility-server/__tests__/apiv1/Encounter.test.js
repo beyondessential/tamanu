@@ -963,6 +963,7 @@ describe('Encounter', () => {
           .send({
             orderingClinicianId: app.user.id,
             comments,
+            isDischargePrescription: true,
             pharmacyOrderPrescriptions: [
               {
                 prescriptionId: testPrescription.id,
@@ -974,6 +975,7 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         expect(result.body.id).toBeTruthy();
         expect(result.body.comments).toBe(comments);
+        expect(result.body.isDischargePrescription).toBe(true);
         expect(result.body.orderingClinicianId).toBe(app.user.id);
         const pharmacyOrderId = result.body.id;
         const pharmacyOrderPrescriptions = await models.PharmacyOrderPrescription.findAll({

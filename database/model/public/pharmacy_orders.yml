@@ -56,3 +56,8 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in pharmacy_orders."
             data_tests:
               - not_null
+          - name: is_discharge_prescription
+            data_type: boolean
+            description: "{{ doc('pharmacy_orders__is_discharge_prescription') }}"
+            data_tests:
+              - not_null

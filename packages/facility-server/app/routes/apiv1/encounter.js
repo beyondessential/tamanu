@@ -209,13 +209,15 @@ encounter.post(
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
 
-    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+    const { orderingClinicianId, comments, isDischargePrescription, pharmacyOrderPrescriptions } =
+      body;
 
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
         orderingClinicianId,
-        comments,
         encounterId: id,
+        comments,
+        isDischargePrescription,
       });
 
       await models.PharmacyOrderPrescription.bulkCreate(

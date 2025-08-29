@@ -131,6 +131,7 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
           encounterId: resources.encounter.id,
           orderingClinicianId: resources.practitioner.id,
           comments: 'Test comments',
+          isDischargePrescription: true,
         }),
       );
       const pharmacyOrderPrescription = await PharmacyOrderPrescription.create(
@@ -162,6 +163,14 @@ describe(`Materialised FHIR - MedicationRequest`, () => {
             value: pharmacyOrderPrescription.id,
           },
         ],
+        category: {
+          coding: [
+            {
+              system: 'https://hl7.org/fhir/R4B/codesystem-medicationrequest-category.html',
+              code: 'discharge',
+            },
+          ],
+        },
         groupIdentifier: [
           {
             system: 'http://data-dictionary.tamanu.org/tamanu-mrid-pharmacyorder.html',

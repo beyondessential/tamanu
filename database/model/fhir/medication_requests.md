@@ -55,3 +55,7 @@ Information about the dosage and instructions for taking the medication.
 {% docs fhir__medication_requests__dispense_request %}
 Information about the quantity of the medication to be dispensed and the number of repeats.
 {% enddocs %}
+
+{% docs fhir__medication_requests__category %}
+The type of medication usage. Currently will only be present as 'discharge' if its a discharge prescription.
+{% enddocs %}

@@ -87,3 +87,6 @@ sources:
             description: "{{ doc('fhir__generic__is_live') }} in medication_requests."
             data_tests:
               - not_null
+          - name: category
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__category') }}"

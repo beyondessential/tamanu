@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 
-import { AutocompleteInput, TextField } from '../Field';
+import { AutocompleteInput, CheckInput, TextField } from '../Field';
 import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -44,9 +44,18 @@ const OrderingClinicianWrapper = styled.div`
   margin-top: 20px;
 `;
 
+const HorizontalDivider = styled(Divider)`
+  margin: 15px 0;
+`;
+
 const CommentsWrapper = styled.div`
-  margin-bottom: 20px;
   margin-top: 20px;
+`;
+
+const DischargePrescriptionWrapper = styled.div`
+  margin-top: 20px;
+  margin-bottom: 40px;
+  font-size: 14px;
 `;
 
 const DialogPrimaryText = styled.div`
@@ -58,6 +67,17 @@ const DialogPrimaryText = styled.div`
 
 const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
   text-align: left;
+`;
+
+const DischargePrescriptionMessage = styled.div`
+  font-weight: 500;
+  color: ${Colors.textSecondary};
+  margin-bottom: 6px;
+`;
+
+const DischargePrescriptionLabel = styled.div`
+  font-size: 14px;
+  color: ${Colors.textSecondary};
 `;
 
 const DialogSecondaryText = styled.div`
@@ -96,7 +116,8 @@ const AlreadyOrderedMedicationsWrapper = styled.div`
 `;
 
 export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubmit }) => {
-  const [orderingClinicianId, setOrderingClinicianId] = useState(null);
+  const [orderingClinicianId, setOrderingClinicianId] = useState('');
+  const [isDischargePrescription, setIsDischargePrescription] = useState(false);
   const [comments, setComments] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [showAlreadyOrderedConfirmation, setShowAlreadyOrderedConfirmation] = useState(false);
@@ -217,6 +238,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         encounterId: encounter.id,
         orderingClinicianId,
         comments,
+        isDischargePrescription,
         pharmacyOrderPrescriptions: selectedPrescriptions.map(prescription => ({
           prescriptionId: prescription.id,
           quantity: prescription.quantity,
@@ -238,6 +260,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
     encounter.id,
     orderingClinicianId,
     comments,
+    isDischargePrescription,
     prescriptions,
     api,
     refetchEncounterMedications,
@@ -256,14 +279,10 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
   }, [validateForm, handleSendOrder, getAlreadyOrderedPrescriptions]);
 
   const handleClose = useCallback(() => {
-    onClose();
     setTimeout(() => {
-      setShowSuccess(false);
-      setShowAlreadyOrderedConfirmation(false);
-      setComments('');
-      setPrescriptions(initialPrescriptions);
+      onClose();
     }, 200);
-  }, [initialPrescriptions, onClose]);
+  }, [onClose]);
 
   const isFormValid = validateForm();
 
@@ -442,6 +461,30 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
           data-testid="textfield-comments"
         />
       </CommentsWrapper>
+
+      <HorizontalDivider color={Colors.outline} />
+
+      <DischargePrescriptionWrapper>
+        <DischargePrescriptionMessage>
+          <TranslatedText
+            stringId="pharmacyOrder.dischargePrescription.message"
+            fallback="Check the box below if this is a discharge prescription"
+          />
+        </DischargePrescriptionMessage>
+        <CheckInput
+          name="isDischargePrescription"
+          value={isDischargePrescription}
+          onChange={e => setIsDischargePrescription(e.target.checked)}
+          label={
+            <DischargePrescriptionLabel>
+              <TranslatedText
+                stringId="pharmacyOrder.dischargePrescription.label"
+                fallback="Discharge prescription"
+              />
+            </DischargePrescriptionLabel>
+          }
+        />
+      </DischargePrescriptionWrapper>
 
       <SubmitButtonsWrapper>
         <ConfirmCancelRow
