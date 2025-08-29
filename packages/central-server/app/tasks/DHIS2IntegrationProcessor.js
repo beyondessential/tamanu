@@ -5,6 +5,8 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES, DHIS2_REQUEST_STATUSES } from '@tamanu/constants';
 
+const importCountHasData = importCount => Object.values(importCount).some(value => value > 0);
+
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
     return 'DHIS2IntegrationProcessor';
@@ -76,10 +78,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
           continue;
         }
 
-        log.info('Processing report', { reportId });
+        const reportString = `${report.name} (${reportId})`;
+
+        log.info('Processing report', { reportString });
 
         if (!report.versions || report.versions.length === 0) {
-          log.warn(`Report ${reportId} has no published version, skipping`);
+          log.warn(`Report ${reportString} has no published version, skipping`);
           continue;
         }
 
@@ -88,11 +92,14 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
         const dryRunResponse = await this.postToDHIS2({ reportData, dryRun: true });
         if (dryRunResponse.status === DHIS2_REQUEST_STATUSES.SUCCESS) {
-          const { importCount } = await this.postToDHIS2({ reportData });
-
-          log.info(`Report ${report.name} (${reportId}) sent to DHIS2`, importCount);
+          if (importCountHasData(dryRunResponse.importCount)) {
+            const { importCount } = await this.postToDHIS2({ reportData });
+            log.info(`Report ${reportString} sent to DHIS2`, importCount);
+          } else {
+            log.warn(`Report ${reportString} dry run successful but no data was imported`);
+          }
         } else {
-          log.warn(`Dry run DHIS2 integration failed for report ${reportId}`, dryRunResponse);
+          log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, dryRunResponse);
         }
       }
     } catch (error) {
