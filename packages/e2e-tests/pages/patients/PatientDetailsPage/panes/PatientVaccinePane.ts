@@ -129,7 +129,7 @@ export class PatientVaccinePane extends BasePatientPane {
    * @param vaccine - A partial vaccine object containing the fields to assert against
    */
   async assertRecordedVaccineTable(vaccine: Partial<Vaccine>) {
-    const { vaccineName, scheduleOption, dateGiven, count, given, givenBy } = vaccine;
+    const { vaccineName, scheduleOption, dateGiven, count, given, givenBy, givenElsewhereReason, givenElsewhereCountry } = vaccine;
     const recordedVaccinesTable = 'recordedVaccines';
 
     if (!vaccineName || !dateGiven || count === undefined || !scheduleOption) {
@@ -180,29 +180,36 @@ export class PatientVaccinePane extends BasePatientPane {
       throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
     }
 
+    const givenByValue = givenElsewhereReason ? 'Given elsewhere' : 'Unknown';
+
     const correctGivenByFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      given ? givenBy || 'Unknown' : 'Not given',
+      given ? givenBy || givenByValue : 'Not given',
       'givenBy',
       count,
       vaccineName,
       scheduleOption,
     );
     if (!correctGivenByFound) {
-      const expectedValue = given ? givenBy || 'Unknown' : 'Not given';
+      const expectedValue = given ? givenBy || givenByValue : 'Not given';
       throw new Error(`Given by "${expectedValue}" not found in the recorded vaccines table`);
+    }
+
+    const displayLocationValue = givenElsewhereReason ? givenElsewhereCountry : 'facility-1';
+    if (!displayLocationValue) {
+      throw new Error('Display location value is not defined - likely the country was not selected');
     }
 
     const correctDisplayLocationFound = await this.searchSpecificTableRowForMatch(
       recordedVaccinesTable,
-      'facility-1',
+      displayLocationValue,
       'displayLocation',
       count,
       vaccineName,
       scheduleOption,
     );
     if (!correctDisplayLocationFound) {
-      throw new Error('Display location "facility-1" not found in the recorded vaccines table');
+      throw new Error(`Display location "${displayLocationValue}" not found in the recorded vaccines table`);
     }
   }
 

@@ -643,6 +643,24 @@ test.describe('Recorded vaccines', () => {
     //Assert the vaccine in the view vaccine record modal was created successfully
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
   });
+
+  test('Record given elsewhere for patient with active encounter', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    const givenElsewhereReason = 'Given overseas';
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      vaccineGivenElsewhere: givenElsewhereReason,
+      specificDate: currentBrowserDate,
+    });
+
+    //TODO: record vaccine (has unique fields)
+    //TODO: view vaccine record modal (has unique fields)
+  });
 });
 
 test.describe('Scheduled vaccines', () => {

@@ -15,6 +15,7 @@ interface RecordVaccineOptions {
   specificDate?: string;
   recordScheduledVaccine?: boolean;
   prefilledLocations?: { area: string; location: string; department: string };
+  vaccineGivenElsewhere?: string;
 }
 
 interface OptionalVaccineFields {
@@ -26,6 +27,11 @@ interface OptionalVaccineFields {
   disease?: string;
   notGivenReason?: string;
   notGivenClinician?: string;
+}
+
+interface GivenElsewhereFields {
+  givenElsewhereCountry?: string;
+  givenElsewhereReason?: string;
 }
 
 const givenBy = 'Test Doctor';
@@ -67,7 +73,9 @@ export class RecordVaccineModal extends BasePatientModal {
   readonly categoryRequiredError: Locator;
   readonly consentGivenRequiredError: Locator;
   readonly vaccineNameRequiredError: Locator;
-
+  readonly vaccineGivenElsewhereDropdown: Locator;
+  readonly givenElsewhereCheckbox: Locator;
+  readonly countryField: Locator;
   constructor(page: Page) {
     super(page);
 
@@ -110,6 +118,9 @@ export class RecordVaccineModal extends BasePatientModal {
     this.categoryRequiredError = this.page.getByTestId('formhelpertext-sz5u');
     this.consentGivenRequiredError = this.page.getByTestId('formhelpertext-2d0o');
     this.vaccineNameRequiredError = this.page.getByTestId('field-npct-formhelptertext');
+    this.vaccineGivenElsewhereDropdown = this.page.getByTestId('styledindicator-dx40');
+    this.givenElsewhereCheckbox = this.page.getByTestId('field-w50x-controlcheck');
+    this.countryField = this.page.getByTestId('field-e5kc-input');
   }
 
   async selectIsVaccineGiven(isVaccineGiven: boolean) {
@@ -215,6 +226,7 @@ export class RecordVaccineModal extends BasePatientModal {
       specificDate = undefined,
       recordScheduledVaccine = false,
       prefilledLocations = undefined,
+      vaccineGivenElsewhere = undefined,
     }: RecordVaccineOptions = {},
   ) {
     const givenStatus = await this.selectIsVaccineGiven(given);
@@ -223,6 +235,15 @@ export class RecordVaccineModal extends BasePatientModal {
     let vaccineName: string | undefined;
     let scheduleOption: string | undefined;
     let optionalFields: OptionalVaccineFields | undefined;
+    let givenElsewhere: GivenElsewhereFields | undefined;
+
+    if (vaccineGivenElsewhere) {
+      await this.givenElsewhereCheckbox.click();
+      givenElsewhere = await this.recordVaccineGivenElsewhere(vaccineGivenElsewhere);
+      if (!specificDate) {
+        throw new Error('A specific date must be provided in the test data when vaccine is given elsewhere');
+      }
+    }
 
     if (specificDate) {
       await this.dateField.fill(specificDate);
@@ -254,6 +275,9 @@ export class RecordVaccineModal extends BasePatientModal {
     let locationGroup: { area: string; location: string; department: string } | undefined;
     if (prefilledLocations) {
       locationGroup = prefilledLocations;
+    } else if (vaccineGivenElsewhere) {
+      //If the vaccine is given elsewhere there is no locationGroup
+      locationGroup = undefined;
     } else {
       locationGroup = await this.selectLocationGroup();
     }
@@ -279,6 +303,7 @@ export class RecordVaccineModal extends BasePatientModal {
       given,
       givenStatus,
       fillOptionalFields,
+      ...givenElsewhere,
       ...optionalFields,
       ...locationGroup,
     };
@@ -322,6 +347,16 @@ export class RecordVaccineModal extends BasePatientModal {
     }
 
     return { notGivenReason, notGivenClinician, disease };
+  }
+
+  async recordVaccineGivenElsewhere(vaccineGivenElsewhere: string) {
+    await this.vaccineGivenElsewhereDropdown.click();
+    await this.page.getByText(vaccineGivenElsewhere).click();
+    await this.page.locator('.css-bp8cua-ScrollManager').click(); //Close the dropdown
+    const country = await selectAutocompleteFieldOption(this.page, this.countryField, {
+      returnOptionText: true,
+    });
+    return { givenElsewhereCountry: country, givenElsewhereReason: vaccineGivenElsewhere };
   }
 
   async assertVaccineNotInDropdown(

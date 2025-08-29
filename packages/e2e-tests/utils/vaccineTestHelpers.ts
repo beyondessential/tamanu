@@ -3,6 +3,17 @@ import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format, addMonths } from 'date-fns';
 
+interface AddVaccineOptions {
+  specificVaccine?: string | null;
+  fillOptionalFields?: boolean;
+  viewVaccineRecord?: boolean;
+  isFollowUpVaccine?: boolean;
+  specificScheduleOption?: string;
+  specificDate?: string;
+  recordScheduledVaccine?: boolean;
+  vaccineGivenElsewhere?: string;
+}
+
 /**
  * Adds a vaccine to the patient's vaccine record and asserts the vaccine was added successfully
  * @param patientDetailsPage - The patient details page
@@ -29,15 +40,8 @@ export async function addVaccineAndAssert(
     specificScheduleOption = undefined,
     specificDate = undefined,
     recordScheduledVaccine = false,
-  }: {
-    specificVaccine?: string | null;
-    fillOptionalFields?: boolean;
-    viewVaccineRecord?: boolean;
-    isFollowUpVaccine?: boolean;
-    specificScheduleOption?: string;
-    specificDate?: string;
-    recordScheduledVaccine?: boolean;
-  } = {},
+    vaccineGivenElsewhere = undefined,
+  }: AddVaccineOptions = {},
 ) {
   if (recordScheduledVaccine) {
     if (!specificVaccine || !specificScheduleOption) {
@@ -64,6 +68,7 @@ export async function addVaccineAndAssert(
       specificScheduleOption,
       specificDate,
       recordScheduledVaccine,
+      vaccineGivenElsewhere,
     },
   );
 
