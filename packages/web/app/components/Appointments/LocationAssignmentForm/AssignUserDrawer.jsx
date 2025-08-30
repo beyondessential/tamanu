@@ -5,11 +5,13 @@ import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
-import { useLocationAssignmentMutation } from '../../../api/mutations';
+import { useLocationAssignmentMutation, useLocationAssignmentDeleteMutation } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
-import { FormSubmitCancelRow } from '../../ButtonRow';
+import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
+import { OutlinedButton } from '../../Button';
+import { DeleteOutlined } from '@material-ui/icons';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
@@ -18,6 +20,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { BOOKING_SLOT_TYPES } from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
+import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -41,6 +44,28 @@ const StyledFormSubmitCancelRow = styled(FormSubmitCancelRow)`
   }
 `;
 
+const StyledButtonRow = styled(ButtonRow)`
+  justify-content: space-between;
+  button {
+    padding: 10px 16px;
+    font-size: 12px;
+    height: 36px;
+    min-height: 36px;
+    min-width: 0px;
+    &:not(:first-child) {
+      margin-left: 8px;
+    }
+  }
+`;
+
+const StyledDeleteButton = styled(OutlinedButton)`
+  padding: 10px 16px;
+  font-size: 12px;
+  height: 36px;
+  min-height: 36px;
+  min-width: 0px;
+`;
+
 const ErrorMessage = ({ error }) => {
   return (
     <TranslatedText
@@ -55,6 +80,7 @@ const ErrorMessage = ({ error }) => {
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
@@ -76,6 +102,19 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     },
   });
 
+  const { mutateAsync: deleteAssignment } = useLocationAssignmentDeleteMutation({
+    onError: error => {
+      notifyError(
+        <TranslatedText
+          stringId="locationAssignment.notification.delete.error"
+          fallback="Failed to delete assignment"
+          replacements={{ error: error.message }}
+          data-testid="translatedtext-delete-error"
+        />,
+      );
+    },
+  });
+
   const handleSubmit = async ({ userId, locationId, date, startTime, endTime }, { resetForm }) => {
     mutateAssignment(
       {
@@ -93,6 +132,24 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         },
       },
     );
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async ({ deleteFuture }) => {
+    try {
+      await deleteAssignment({ id: initialValues.id, deleteFuture });
+      setIsDeleteModalOpen(false);
+      onClose();
+    } catch (error) {
+      // Error is handled by the mutation's onError callback
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
   };
 
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
@@ -118,15 +175,15 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         onClose={onClose}
         title={
           <TranslatedText
-            stringId="locationAssignment.form.new.heading"
-            fallback="Assign user"
+            stringId={initialValues.id ? "locationAssignment.form.edit.heading" : "locationAssignment.form.new.heading"}
+            fallback={initialValues.id ? "Edit assignment" : "Assign user"}
             data-testid="translatedtext-nugq"
           />
         }
         description={
           <TranslatedText
-            stringId="locationAssignment.form.new.description"
-            fallback="Assign a user to a location using the form below."
+            stringId={initialValues.id ? "locationAssignment.form.edit.description" : "locationAssignment.form.new.description"}
+            fallback={initialValues.id ? "Edit the assignment details below." : "Assign a user to a location using the form below."}
             data-testid="translatedtext-p4qw"
           />
         }
@@ -192,22 +249,43 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          <StyledFormSubmitCancelRow 
-            onCancel={isViewing ? undefined : onClose}
-            onConfirm={isViewing ? onClose : undefined}
-            confirmText={isViewing ? (
-              <TranslatedText
-                stringId="general.action.close"
-                fallback="Close"
-                data-testid="translatedtext-close"
-              />
-            ) : <TranslatedText
-                stringId="general.action.saveChanges"
-                fallback="Save changes"
-                data-testid="translatedtext-saveChanges"
-              />}
-            data-testid="formsubmitcancelrow-bj5z" 
-          />
+          {isViewing ? (
+            <StyledButtonRow>
+              <StyledDeleteButton 
+                onClick={handleDeleteClick}
+                data-testid="delete-button"
+              >
+                <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
+                <TranslatedText
+                  stringId="general.action.delete"
+                  fallback="Delete"
+                  data-testid="translatedtext-delete"
+                />
+              </StyledDeleteButton>
+              <StyledDeleteButton 
+                onClick={onClose}
+                data-testid="close-button"
+              >
+                <TranslatedText
+                  stringId="general.action.close"
+                  fallback="Close"
+                  data-testid="translatedtext-close"
+                />
+              </StyledDeleteButton>
+            </StyledButtonRow>
+          ) : (
+            <StyledFormSubmitCancelRow 
+              onCancel={onClose}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.saveChanges"
+                  fallback="Save changes"
+                  data-testid="translatedtext-saveChanges"
+                />
+              }
+              data-testid="formsubmitcancelrow-bj5z" 
+            />
+          )}
         </FormGrid>
       </Drawer>
     );
@@ -225,6 +303,13 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         validationSchema={validationSchema}
         style={formStyles}
         data-testid="form-rwgy"
+      />
+      <DeleteLocationAssignmentModal
+        open={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        assignment={initialValues}
+        data-testid="delete-assignment-modal"
       />
     </>
   );
