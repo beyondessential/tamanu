@@ -18,7 +18,7 @@ const dateStringValidator = z.string()
   });
 
 const locationAssignmentSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(),
   locationId: z.string(),
   date: dateStringValidator,
   startTime: z.string(),
@@ -123,7 +123,7 @@ locationAssignmentsRouter.get(
 
     res.send({
       count,
-      data: rows
+      data: rows,
     });
   }),
 );

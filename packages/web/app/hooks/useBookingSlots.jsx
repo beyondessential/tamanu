@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { isWithinIntervalExcludingEnd } from '@tamanu/utils/dateTime';
 
 import { useSettings } from '../contexts/Settings';
+import { BOOKING_SLOT_TYPES } from '../constants/locationAssignments';
 
 /**
  * @param bookingSlotSettings See @tamanu/settings/src/schema/facility.ts for schema.
@@ -35,14 +36,17 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  * Returns the bookable time slots for the provided date, or `null` if the date is invalid. If the
  * booking slot settings are still pending, returns `undefined`.
  */
-export const useBookingSlots = (date) => {
-  const { getSetting } = useSettings();
-  const bookingSlotSettings = getSetting('appointments.bookingSlots');
+export const useBookingSlots = (date, type = BOOKING_SLOT_TYPES.BOOKINGS) => {
+  const { getSetting, isSettingsLoaded } = useSettings();
 
-  const isPending = bookingSlotSettings === undefined;
+  const bookingSlotSettings =
+    type === BOOKING_SLOT_TYPES.BOOKINGS
+      ? getSetting('appointments.bookingSlots')
+      : getSetting('locationAssignments.assignmentSlots');
 
-  // “Pointless” destructure so we can use primitives as `useMemo` dependencies
-  const { startTime, endTime, slotDuration } = bookingSlotSettings;
+  const isPending = !isSettingsLoaded || bookingSlotSettings === undefined;
+  // "Pointless" destructure so we can use primitives as `useMemo` dependencies
+  const { startTime, endTime, slotDuration } = bookingSlotSettings || {};
   const slots = useMemo(
     () => {
       if (!date) return null;
@@ -55,13 +59,12 @@ export const useBookingSlots = (date) => {
   );
 
   const slotContaining = useCallback(
-    (time) => slots?.find((slot) => isWithinIntervalExcludingEnd(time, slot)),
+    time => slots?.find(slot => isWithinIntervalExcludingEnd(time, slot)),
     [slots],
   );
-  const endOfSlotContaining = useCallback(
-    (time) => slotContaining(time)?.end ?? null,
-    [slotContaining],
-  );
+  const endOfSlotContaining = useCallback(time => slotContaining(time)?.end ?? null, [
+    slotContaining,
+  ]);
 
   return {
     isPending,
