@@ -23,6 +23,7 @@
     "shell": "npm run build && node dist shell",
     "start": "node dist",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
+    "start-dev:test": "NODE_ENV=test concurrently npm:build-watch npm:start-watch",
     "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
     "test": "npm run test-build && NODE_ENV=test jest",
     "test-build": "swc --delete-dir-on-start --out-dir __disttests__ --copy-files --source-maps true __tests__",
