@@ -5,7 +5,10 @@ import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
-import { useLocationAssignmentMutation, useLocationAssignmentDeleteMutation } from '../../../api/mutations';
+import {
+  useLocationAssignmentMutation,
+  useLocationAssignmentDeleteMutation,
+} from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
@@ -139,13 +142,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   };
 
   const handleDeleteConfirm = async ({ deleteFuture }) => {
-    try {
-      await deleteAssignment({ id: initialValues.id, deleteFuture });
-      setIsDeleteModalOpen(false);
-      onClose();
-    } catch (error) {
-      // Error is handled by the mutation's onError callback
-    }
+    await deleteAssignment({ id: initialValues.id, deleteFuture });
+    setIsDeleteModalOpen(false);
+    onClose();
   };
 
   const handleDeleteCancel = () => {
@@ -175,15 +174,27 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         onClose={onClose}
         title={
           <TranslatedText
-            stringId={initialValues.id ? "locationAssignment.form.edit.heading" : "locationAssignment.form.new.heading"}
-            fallback={initialValues.id ? "Edit assignment" : "Assign user"}
+            stringId={
+              initialValues.id
+                ? 'locationAssignment.form.edit.heading'
+                : 'locationAssignment.form.new.heading'
+            }
+            fallback={initialValues.id ? 'Edit assignment' : 'Assign user'}
             data-testid="translatedtext-nugq"
           />
         }
         description={
           <TranslatedText
-            stringId={initialValues.id ? "locationAssignment.form.edit.description" : "locationAssignment.form.new.description"}
-            fallback={initialValues.id ? "Edit the assignment details below." : "Assign a user to a location using the form below."}
+            stringId={
+              initialValues.id
+                ? 'locationAssignment.form.edit.description'
+                : 'locationAssignment.form.new.description'
+            }
+            fallback={
+              initialValues.id
+                ? 'Edit the assignment details below.'
+                : 'Assign a user to a location using the form below.'
+            }
             data-testid="translatedtext-p4qw"
           />
         }
@@ -251,10 +262,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
           />
           {isViewing ? (
             <StyledButtonRow>
-              <StyledDeleteButton 
-                onClick={handleDeleteClick}
-                data-testid="delete-button"
-              >
+              <StyledDeleteButton onClick={handleDeleteClick} data-testid="delete-button">
                 <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
                 <TranslatedText
                   stringId="general.action.delete"
@@ -262,10 +270,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
                   data-testid="translatedtext-delete"
                 />
               </StyledDeleteButton>
-              <StyledDeleteButton 
-                onClick={onClose}
-                data-testid="close-button"
-              >
+              <StyledDeleteButton onClick={onClose} data-testid="close-button">
                 <TranslatedText
                   stringId="general.action.close"
                   fallback="Close"
@@ -274,7 +279,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
               </StyledDeleteButton>
             </StyledButtonRow>
           ) : (
-            <StyledFormSubmitCancelRow 
+            <StyledFormSubmitCancelRow
               onCancel={onClose}
               confirmText={
                 <TranslatedText
@@ -283,7 +288,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
                   data-testid="translatedtext-saveChanges"
                 />
               }
-              data-testid="formsubmitcancelrow-bj5z" 
+              data-testid="formsubmitcancelrow-bj5z"
             />
           )}
         </FormGrid>
