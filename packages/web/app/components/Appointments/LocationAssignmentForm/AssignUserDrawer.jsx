@@ -1,5 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
+import styled from 'styled-components';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -27,6 +28,19 @@ const formStyles = {
   insetBlockStart: `${TOP_BAR_HEIGHT + 1}px`,
 };
 
+const StyledFormSubmitCancelRow = styled(FormSubmitCancelRow)`
+  button {
+    padding: 10px 16px;
+    font-size: 12px;
+    height: 36px;
+    min-height: 36px;
+    min-width: 0px;
+    &:not(:first-child) {
+      margin-left: 8px;
+    }
+  }
+`;
+
 const ErrorMessage = ({ error }) => {
   return (
     <TranslatedText
@@ -40,6 +54,7 @@ const ErrorMessage = ({ error }) => {
 
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
+  const isViewing = Boolean(initialValues?.id);
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
@@ -134,6 +149,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             )}
             required
             suggester={userSuggester}
+            disabled={isViewing}
             data-testid="field-uglc"
           />
           <Field
@@ -142,6 +158,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             locationGroupSuggesterType="bookableLocationGroup"
+            disabled={isViewing}
             data-testid="field-lmrx"
             showAllLocations
           />
@@ -157,11 +174,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
             saveDateAsString
+            disabled={isViewing}
             data-testid="field-date"
           />
           <TimeSlotPicker
             date={values.date}
-            disabled={!values.locationId || !values.date}
+            disabled={isViewing || !values.locationId || !values.date}
             label={
               <TranslatedText
                 stringId="locationAssignment.form.allocatedTime.label"
@@ -174,7 +192,22 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          <FormSubmitCancelRow onCancel={onClose} data-testid="formsubmitcancelrow-bj5z" />
+          <StyledFormSubmitCancelRow 
+            onCancel={isViewing ? undefined : onClose}
+            onConfirm={isViewing ? onClose : undefined}
+            confirmText={isViewing ? (
+              <TranslatedText
+                stringId="general.action.close"
+                fallback="Close"
+                data-testid="translatedtext-close"
+              />
+            ) : <TranslatedText
+                stringId="general.action.saveChanges"
+                fallback="Save changes"
+                data-testid="translatedtext-saveChanges"
+              />}
+            data-testid="formsubmitcancelrow-bj5z" 
+          />
         </FormGrid>
       </Drawer>
     );
