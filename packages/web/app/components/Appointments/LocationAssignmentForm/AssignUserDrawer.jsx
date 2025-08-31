@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -56,6 +56,13 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // Reset edit mode when drawer closes or when switching to a different assignment
+  useEffect(() => {
+    if (!open || !initialValues?.id) {
+      setIsEditMode(false);
+    }
+  }, [open, initialValues?.id]);
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
@@ -151,7 +158,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             )}
             required
             suggester={userSuggester}
-            disabled={true}
+            disabled={isViewing}
             data-testid="field-uglc"
           />
           <Field
