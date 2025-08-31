@@ -30,11 +30,13 @@ location.get(
           as: 'locationGroup',
           where: {
             visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-            ...(bookableOnly ? { 
-              isBookable: {
-                [Op.ne]: LOCATION_BOOKABLE_VIEW.NO
-              } 
-            } : null),
+            ...(bookableOnly
+              ? {
+                  isBookable: {
+                    [Op.ne]: LOCATION_BOOKABLE_VIEW.NO,
+                  },
+                }
+              : null),
             ...(locationGroupIds ? { id: { [Op.in]: locationGroupIds } } : null),
           },
         },
