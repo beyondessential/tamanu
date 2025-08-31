@@ -1,6 +1,7 @@
 import { QueryInterface } from 'sequelize';
 import { SYSTEM_USER_UUID, DEVICE_SCOPES } from '@tamanu/constants';
 
+// Note that we want to populate the column with an array with only the sync client scope
 const INITIAL_DEVICE_SCOPES = [DEVICE_SCOPES.SYNC_CLIENT];
 
 export async function up(query: QueryInterface): Promise<void> {
