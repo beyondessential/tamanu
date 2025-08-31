@@ -101,20 +101,15 @@ export class Setting extends BaseModel {
     return getAtPath(settings, key);
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
-      const sanitizedRow = {
-        ...row,
-      };
+  static sanitizePulledRecord(row) {
 
       // Convert updatedAtByField to JSON STRING
       // because updatedAtByField's type is string in mobile
       // (Sqlite does not support JSON type)
       if (row.data.value) {
-        sanitizedRow.data.value = JSON.stringify(sanitizedRow.data.value);
+        row.data.value = JSON.stringify(row.data.value);
       }
 
-      return sanitizedRow;
-    });
+      return row;
   }
 }

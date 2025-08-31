@@ -112,17 +112,11 @@ export class Prescription extends BaseModel {
     });
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map(row => {
-      const sanitizedRow = {
-        ...row,
-      };
+  static sanitizePulledRecord(row) {
+    if (row.data.idealTimes) {
       // Convert idealTimes to string because Sqlite does not support ARRAY type
-      if (row.data.idealTimes) {
-        sanitizedRow.data.idealTimes = sanitizedRow.data.idealTimes.join(',');
-      }
-
-      return sanitizedRow;
-    });
+      row.data.idealTimes = row.data.idealTimes.join(',');
+    }
+    return row;
   }
 }

@@ -43,17 +43,12 @@ export class PatientFieldDefinition extends BaseModel implements IPatientFieldDe
     });
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
-      const sanitizedRow = {
-        ...row,
-      };
+  static sanitizePulledRecord(row) {
+    if (row.data.options) {
       // Convert options to string because Sqlite does not support ARRAY type
-      if (row.data.options) {
-        sanitizedRow.data.options = sanitizedRow.data.options.join(',');
-      }
+      row.data.options = row.data.options.join(',');
+    }
 
-      return sanitizedRow;
-    });
+    return row;
   }
 }

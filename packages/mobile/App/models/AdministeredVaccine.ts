@@ -122,18 +122,12 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
     });
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
-      const sanitizedRow = {
-        ...row,
-      };
-
+  static sanitizePulledRecord(row) {
       // Convert circumstanceIds to string because Sqlite does not support ARRAY type
       if (row.data.circumstanceIds) {
-        sanitizedRow.data.circumstanceIds = sanitizedRow.data.circumstanceIds.join(',');
+        row.data.circumstanceIds = row.data.circumstanceIds.join(',');
       }
 
-      return sanitizedRow;
-    });
+      return row;
   }
 }

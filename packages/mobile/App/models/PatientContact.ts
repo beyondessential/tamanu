@@ -47,18 +47,12 @@ export class PatientContact extends BaseModel implements IPatientContact {
     });
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
-      const sanitizedRow = {
-        ...row,
-      };
-      // Convert connectionDetails to string because Sqlite does not support JSON type
-      if (row.data.connectionDetails) {
-        sanitizedRow.data.connectionDetails = JSON.stringify(sanitizedRow.data.connectionDetails);
-      }
-
-      return sanitizedRow;
-    });
+  static sanitizePulledRecord(row) {
+    if (row.data.connectionDetails) {
+      // Convert connectionDetails to JSON because Sqlite does not support JSON type
+      row.data.connectionDetails = JSON.stringify(row.data.connectionDetails);
+    }
+    return row;
   }
 
   @BeforeInsert()

@@ -256,20 +256,14 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     });
   }
 
-  static sanitizePulledRecordData(rows) {
-    return rows.map((row) => {
-      const sanitizedRow = {
-        ...row,
-      };
-
+  static sanitizePulledRecord(row) {
       // Convert updatedAtByField to JSON STRING
       // because updatedAtByField's type is string in mobile
       // (Sqlite does not support JSON type)
       if (row.data.updatedAtByField) {
-        sanitizedRow.data.updatedAtByField = JSON.stringify(sanitizedRow.data.updatedAtByField);
+        row.data.updatedAtByField = JSON.stringify(row.data.updatedAtByField);
       }
 
-      return sanitizedRow;
-    });
+    return row;
   }
 }

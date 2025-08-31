@@ -23,9 +23,7 @@ import { SETTING_KEYS } from '~/constants/settings';
 import { SettingsService } from '../settings';
 import { pullRecordsInBatches } from './utils/pullRecordsInBatches';
 import { saveChangesFromSnapshot, saveChangesFromMemory } from './utils/saveIncomingChanges';
-import { sortInDependencyOrder } from './utils/sortInDependencyOrder';
 
-import { type TransactingModel } from './utils/getModelsForDirection';
 import { type DynamicLimiterSettings } from './utils/calculatePageLimit';
 import { type EntityManager } from 'typeorm';
 
@@ -396,9 +394,8 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
         const processStreamedDataFunction = async (records: any) => {
-          await saveChangesFromMemory(records, sortedModels, this.syncSettings, progressCallback);
+          await saveChangesFromMemory(records, incomingModels, this.syncSettings, progressCallback);
         };
 
         await pullRecordsInBatches(pullParams, processStreamedDataFunction);
@@ -448,8 +445,7 @@ export class MobileSyncManager {
           SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
           transactionEntityManager,
         );
-        const sortedModels = (await sortInDependencyOrder(incomingModels)) as TransactingModel[];
-        await saveChangesFromSnapshot(sortedModels, this.syncSettings, saveProgressCallback);
+        await saveChangesFromSnapshot(incomingModels, this.syncSettings, saveProgressCallback);
         await this.postPull(transactionEntityManager, pullUntil);
       } catch (err) {
         console.error(

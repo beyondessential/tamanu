@@ -7,8 +7,8 @@ export type TransactingModel = typeof MODELS_MAP[keyof typeof MODELS_MAP] & {
   getTransactionalRepository: () => any;
 };
 
-type TransactingModelMap = {
-  [K in keyof Partial<typeof MODELS_MAP>]: typeof MODELS_MAP[K] & { getTransactionalRepository: () => any };
+export type TransactingModelMap = {
+  [tableName: string]: typeof MODELS_MAP[keyof typeof MODELS_MAP] & { getTransactionalRepository: () => any };
 };
 
 export const getModelsForDirection = (
@@ -30,9 +30,9 @@ export const getTransactingModelsForDirection = (
 
   // Create a model map with getTransactionalRepository method bound to the transactional entity manager
   const transactionalModels = {};
-  for (const [modelName, modelClass] of Object.entries(modelsForDirection)) {
-    transactionalModels[modelName] = modelClass;
-    transactionalModels[modelName].getTransactionalRepository = () =>
+  for (const modelClass of Object.values(modelsForDirection)) {
+    transactionalModels[modelClass.getTableName()] = modelClass;
+    transactionalModels[modelClass.getTableName()].getTransactionalRepository = () =>
       entityManager.getRepository(modelClass);
   }
 

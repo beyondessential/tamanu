@@ -1,6 +1,7 @@
 import { saveChangesForModel } from './saveIncomingChanges';
 import * as preparedQueryModules from './executePreparedQuery';
 import { MobileSyncSettings } from '../MobileSyncManager';
+import { DataToPersist } from '..';
 
 jest.mock('./executePreparedQuery');
 jest.mock('./buildFromSyncRecord', () => ({
@@ -58,16 +59,9 @@ describe('saveChangesForModel', () => {
       const existingRecords = [];
       mockExistingRecords(existingRecords);
       const newRecord = { id: 'new_record_id' };
-      const isDeleted = false;
       const changes = [
-        {
-          id: 'new_record_id',
-          recordId: 'new_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+        newRecord,
+      ] as DataToPersist[];
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
@@ -91,19 +85,8 @@ describe('saveChangesForModel', () => {
       // setup test data
       const existingRecords = [];
       mockExistingRecords(existingRecords);
-      const newRecord = {
-        id: 'new_record_id',
-      };
-      const isDeleted = true;
-      const changes = [
-        {
-          id: 'new_record_id',
-          recordId: 'new_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+      const newRecord = { id: 'new_record_id' };
+      const changes = [newRecord] as DataToPersist[];
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
@@ -131,20 +114,11 @@ describe('saveChangesForModel', () => {
         generateExistingRecord('existing_record_id', { status: 'historical' }),
       ];
       mockExistingRecords(existingRecords);
-      const newRecord = {
-        id: 'existing_record_id',
-        status: 'current',
-      };
-      const isDeleted = false;
+      const newRecord = { id: 'existing_record_id', status: 'current' };
       const changes = [
-        {
-          id: 'existing_record_id',
-          recordId: 'existing_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+        { ...newRecord, deletedAt: null },
+        newRecord,
+      ] as DataToPersist[];
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
@@ -171,22 +145,13 @@ describe('saveChangesForModel', () => {
           status: 'historical',
           deletedAt: new Date(),
         }),
-      ];
+      ] as DataToPersist[];
       mockExistingRecords(existingRecords);
-      const newRecord = {
-        id: 'existing_record_id',
-        status: 'current',
-      };
-      const isDeleted = true;
+      const newRecord = { id: 'existing_record_id', status: 'current' };
       const changes = [
-        {
-          id: 'existing_record_id',
-          recordId: 'existing_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+        { ...newRecord, deletedAt: null },
+        newRecord,
+      ] as DataToPersist[];
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
@@ -206,19 +171,10 @@ describe('saveChangesForModel', () => {
       // setup test data
       const existingRecords = [generateExistingRecord('existing_record_id')];
       mockExistingRecords(existingRecords);
-      const newRecord = {
-        id: 'existing_record_id',
-      };
-      const isDeleted = true;
+      const newRecord = { id: 'existing_record_id' };
       const changes = [
-        {
-          id: 'existing_record_id',
-          recordId: 'existing_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+        newRecord,
+      ] as DataToPersist[];
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
@@ -246,19 +202,10 @@ describe('saveChangesForModel', () => {
         generateExistingRecord('existing_record_id', { deletedAt: new Date() }),
       ];
       mockExistingRecords(existingRecords);
-      const newRecord = {
-        id: 'existing_record_id',
-      };
-      const isDeleted = false;
+      const newRecord = { id: 'existing_record_id' };
       const changes = [
-        {
-          id: 'existing_record_id',
-          recordId: 'existing_record_id',
-          recordType: 'string',
-          data: newRecord,
-          isDeleted,
-        },
-      ];
+        newRecord,
+      ] as DataToPersist[]    ;
       // act
       await saveChangesForModel(Model, changes, mobileSyncSettings, progressCallback);
       // assertions
