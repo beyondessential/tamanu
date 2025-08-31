@@ -55,7 +55,7 @@ function transformPatientData(
         case 'PatientProgramRegistration':
           return patientProgramRegistration ? patientProgramRegistration[fieldName] : undefined;
         default:
-          if (customPatientFieldValues[column]) {
+          if (customPatientFieldValues?.[column]) {
             return customPatientFieldValues[column][0].value;
           }
           return undefined;
