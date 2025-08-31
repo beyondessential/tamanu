@@ -85,7 +85,7 @@ appointments.post(
       body: { facilityId, schedule: scheduleData, ...appointmentData },
       settings,
     } = req;
-    const { Appointment } = models;
+    const { Appointment, PatientFacility } = models;
     const result = await db.transaction(async () => {
       const appointment = scheduleData
         ? (
@@ -96,6 +96,10 @@ appointments.post(
             })
           ).firstAppointment
         : await Appointment.create(appointmentData);
+
+      await PatientFacility.findOrCreate({
+        where: { patientId: appointment.patientId, facilityId },
+      });
 
       const { email } = appointmentData;
       if (email) {
@@ -189,7 +193,7 @@ appointments.put(
   }),
 );
 
-const isStringOrArray = (obj) => typeof obj === 'string' || Array.isArray(obj);
+const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
 const searchableFields = [
   'startTime',
@@ -226,7 +230,7 @@ const sortKeys = {
   bookingArea: Sequelize.col('location.locationGroup.name'),
 };
 
-const buildPatientNameOrIdQuery = (patientNameOrId) => {
+const buildPatientNameOrIdQuery = patientNameOrId => {
   if (!patientNameOrId) return null;
 
   const ilikeClause = {
@@ -355,11 +359,11 @@ appointments.post(
     req.checkPermission('create', 'Appointment');
 
     const { models, body } = req;
-    const { startTime, endTime, locationId } = body;
-    const { Appointment } = models;
+    const { startTime, endTime, locationId, patientId } = body;
+    const { Appointment, PatientFacility, Location } = models;
 
     try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const result = await Appointment.sequelize.transaction(async transaction => {
         const [timeQueryWhereClause, timeQueryBindParams] = buildTimeQuery(startTime, endTime);
         const conflictCount = await Appointment.count({
           where: {
@@ -376,6 +380,14 @@ appointments.post(
         });
 
         if (conflictCount > 0) throw new ResourceConflictError();
+
+        const location = await Location.findByPk(locationId, { transaction });
+        if (!location) throw new NotFoundError('Location not found');
+
+        await PatientFacility.findOrCreate({
+          where: { patientId, facilityId: location.facilityId },
+          transaction,
+        });
 
         return await Appointment.create(body, { transaction });
       });
@@ -399,7 +411,7 @@ appointments.put(
     const { Appointment } = models;
 
     try {
-      const result = await Appointment.sequelize.transaction(async (transaction) => {
+      const result = await Appointment.sequelize.transaction(async transaction => {
         const existingBooking = await Appointment.findByPk(id, { transaction });
 
         if (!existingBooking) {

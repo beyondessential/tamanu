@@ -279,7 +279,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   title={
                     <TranslatedText
                       stringId="medication.action.newPrescription.tooltip"
-                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab.'"
+                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
                     />
                   }
                 >

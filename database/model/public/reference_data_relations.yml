@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_reference_data_relations_changed
+              - record_reference_data_relations_changelog
+              - set_reference_data_relations_updated_at
+              - set_reference_data_relations_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

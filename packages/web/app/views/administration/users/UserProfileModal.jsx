@@ -70,7 +70,7 @@ const validationSchema = yup.object().shape({
     .nullable()
     .test(
       'passwords-match',
-      <TranslatedText stringId="validation.passwords.mismatch" fallback="Passwords do not match" />,
+      <TranslatedText stringId="validation.passwords.mismatch" fallback="Passwords don't match" />,
       function(value) {
         const { newPassword } = this.parent;
         // Only validate if both passwords are provided

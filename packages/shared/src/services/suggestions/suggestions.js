@@ -379,9 +379,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         type: typeName,
       };
 
-      const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+      const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
 
-      if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canListSensitiveMedication) {
+      if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
         baseWhere.id = {
           [Op.notIn]: Sequelize.literal(`
             (SELECT DISTINCT(rdr.reference_data_parent_id)
@@ -397,7 +397,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      if (typeName === REFERENCE_TYPES.DRUG && !canListSensitiveMedication) {
+      if (typeName === REFERENCE_TYPES.DRUG && !canCreateSensitiveMedication) {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
