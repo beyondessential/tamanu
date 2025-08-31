@@ -2,7 +2,7 @@ import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 
 const tableName = 'patient_additional_data';
 
-export class addMotherFatherIdToPatientAdditionalData1756413939000 implements MigrationInterface {
+export class addMotherFatherIdToPatientAdditionalData1756663661549 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     // Temporarily disable foreign key constraints
     await queryRunner.query('PRAGMA foreign_keys = OFF;');

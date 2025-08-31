@@ -71,7 +71,7 @@ export const PatientDataDisplayField = ({
   useEffect(() => {
     if (!value) return;
     handleGetDisplayValue();
-  }, [JSON.stringify(value)]);
+  }, [value]);
 
   const handleGetDisplayValue = async () => {
     if (!config?.column) {

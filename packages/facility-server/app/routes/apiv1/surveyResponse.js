@@ -153,7 +153,7 @@ surveyResponse.get(
     req.checkPermission('read', 'Patient');
 
     if (!column) {
-      throw new InvalidParameterError('Value and column are required');
+      throw new InvalidParameterError('Column parameter is required');
     }
     if (!value) {
       res.json({

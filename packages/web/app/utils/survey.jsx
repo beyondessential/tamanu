@@ -87,6 +87,10 @@ const QUESTION_COMPONENTS = {
   ),
 };
 
+const PatientDataDisplayFieldWrapper = props => (
+  <PatientDataDisplayField {...props} value={props.field.value} />
+);
+
 export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
@@ -96,7 +100,7 @@ export function getComponentForQuestionType(type, { writeToPatient: { fieldType 
     } else {
       // we're displaying a relation, so use PatientDataDisplayField
       // (using a LimitedTextField will just display the bare id)
-      component = props => <PatientDataDisplayField {...props} value={props.field.value} />;
+      component = PatientDataDisplayFieldWrapper;
     }
   }
   if (component === undefined) {

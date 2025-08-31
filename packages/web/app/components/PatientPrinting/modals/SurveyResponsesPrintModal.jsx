@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
@@ -10,23 +10,17 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { SurveyResponsesPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { useSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
+import { useTransformedSurveyResponseQuery } from '../../../api/queries/useSurveyResponseQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { useSettings } from '../../../contexts/Settings';
-import { cloneDeep } from 'lodash';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getPatientDataDisplayValue } from '../../../utils/survey';
 
 export const SurveyResponsesPrintModal = React.memo(
   ({ patient, open, onClose, surveyResponseId, title, isReferral, submittedBy }) => {
     const { getLocalisation } = useLocalisation();
-    const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+    const { getTranslation } = useTranslation();
     const { getSetting } = useSettings();
     const api = useApi();
     const { data: certificateData, isFetching: isCertificateFetching } = useCertificate();
-
-    const [transformedSurveyResponse, setTransformedSurveyResponse] = useState(null);
-    const [isTransforming, setIsTransforming] = useState(false);
 
     const { facilityId, currentUser } = useAuth();
     const { data: facility, isLoading: isFacilityLoading } = useQuery(
@@ -50,87 +44,25 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: surveyResponse, isLoading: surveyResponseLoading } = useSurveyResponseQuery(
+    const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } = useTransformedSurveyResponseQuery(
       surveyResponseId,
     );
 
     const { data: user, isLoading: isUserLoading } = useQuery(
-      ['user', surveyResponse?.userId],
-      () => api.get(`user/${surveyResponse?.userId}`),
+      ['user', transformedSurveyResponse?.userId],
+      () => api.get(`user/${transformedSurveyResponse?.userId}`),
       {
-        enabled: !!surveyResponse?.userId,
+        enabled: !!transformedSurveyResponse?.userId,
       },
     );
-
-    useEffect(() => {
-      if (surveyResponse) {
-        handleTransformSurveyResponse(surveyResponse);
-      }
-    }, [surveyResponse]);
-
-    const handleTransformSurveyResponse = async surveyResponse => {
-      setIsTransforming(true);
-      const transformedSurveyResponse = cloneDeep(surveyResponse);
-      const answers = transformedSurveyResponse.answers;
-
-      const patientDataPromises = transformedSurveyResponse.answers
-        .filter(answer => {
-          const component = surveyResponse.components.find(
-            component => component.dataElementId === answer.dataElementId,
-          );
-          return (
-            component &&
-            (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA ||
-              (component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER &&
-                answer.sourceType === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA))
-          );
-        })
-        .map(async answer => {
-          const component = surveyResponse.components.find(
-            component => component.dataElementId === answer.dataElementId,
-          );
-
-          const originalConfig = component.config;
-          const sourceConfig = answer.sourceConfig;
-          const config =
-            component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER
-              ? sourceConfig
-              : originalConfig;
-
-          const displayValue = await getPatientDataDisplayValue({
-            api,
-            getEnumTranslation,
-            getReferenceDataTranslation,
-            value: answer.originalBody,
-            config: config ? JSON.parse(config) : {},
-          });
-          return {
-            dataElementId: answer.dataElementId,
-            displayValue,
-          };
-        });
-
-      const patientDataResults = await Promise.all(patientDataPromises);
-
-      patientDataResults.forEach(({ dataElementId, displayValue }) => {
-        const currentAnswer = answers.find(a => a.dataElementId === dataElementId);
-        if (currentAnswer) {
-          currentAnswer.body = displayValue;
-        }
-      });
-
-      setTransformedSurveyResponse(transformedSurveyResponse);
-      setIsTransforming(false);
-    };
 
     const isLoading =
       isAdditionalDataLoading ||
       isCertificateFetching ||
       (isVillageQueryLoading && patient?.villageId) ||
       surveyResponseLoading ||
-      (isUserLoading && surveyResponse?.userId) ||
-      (isFacilityLoading && facilityId) ||
-      isTransforming;
+      (isUserLoading && transformedSurveyResponse?.userId) ||
+      (isFacilityLoading && facilityId);
 
     return (
       <Modal
