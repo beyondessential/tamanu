@@ -1,11 +1,42 @@
 import React, { ReactElement } from 'react';
 
-import { StyledSafeAreaView, StyledText } from '../../../styled/common';
+import { StyledSafeAreaView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { Button } from '/components/Button';
 
-export const SecurityScreen = ({ isLoading }: { isLoading: boolean }): ReactElement => {
+interface SecurityScreenProps {
+  isLoading: boolean;
+  securityIssues: string[];
+  handleRetry: () => void;
+}
+
+const IssueSection = ({ securityIssues }: { securityIssues: string[] }): ReactElement => {
+  return (
+    <StyledView marginTop={20} alignItems="flex-start">
+      <StyledText
+        color={theme.colors.WHITE}
+        fontSize={screenPercentageToDP(1.94, Orientation.Height)}
+        fontWeight={500}
+        alignSelf="center"
+      >
+        <TranslatedText stringId="general.device.security.issues.title" fallback="Issues" />
+      </StyledText>
+      {securityIssues.map((issue) => (
+        <StyledText key={issue} color={theme.colors.WHITE} fontSize={screenPercentageToDP(1.94, Orientation.Height)}>
+          - {issue}
+        </StyledText>
+      ))}
+    </StyledView>
+  );
+};
+
+export const SecurityScreen = ({
+  isLoading,
+  securityIssues,
+  handleRetry,
+}: SecurityScreenProps): ReactElement => {
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">
       <StyledText
@@ -38,6 +69,18 @@ export const SecurityScreen = ({ isLoading }: { isLoading: boolean }): ReactElem
           />
         }
       </StyledText>
+      <IssueSection securityIssues={securityIssues} />
+      <StyledView>
+        <Button
+          marginTop={20}
+          backgroundColor={theme.colors.SECONDARY_MAIN}
+          onPress={handleRetry}
+          textColor={theme.colors.TEXT_SUPER_DARK}
+          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          fontWeight={500}
+          buttonText="Retry security check"
+        />
+      </StyledView>
     </StyledSafeAreaView>
   );
 };
