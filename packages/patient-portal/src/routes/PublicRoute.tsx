@@ -1,49 +1,48 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
-import { CircularProgress, Paper, Container, Box } from '@mui/material';
+import { CircularProgress, Paper, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 
 const PageContainer = styled(Box)`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
+  padding-top: 70px;
   height: 100vh;
+  width: 100vw;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(17, 114, 209, 0.2) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 20.19%, rgba(17, 114, 209, 0.3) 99.94%), #FFFFFF;
 `;
 
 const Card = styled(Paper)`
-  margin: 100px auto;
+  margin: 6.25rem auto;
   display: block;
-  padding: 30px;
-  min-width: 300px;
-  width: 500px;
+  padding: 1.875rem;
+  min-width: 18.75rem;
+  width: 32.5rem;
   max-width: 100%;
   text-align: center;
   box-shadow: none;
-
-  h1 {
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin-bottom: 30px;
-  }
-
-  button {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+  border: none;
 `;
 
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 
+const TamanuLogo = styled('img')`
+  position: absolute;
+  width: 193px;
+  height: 60px;
+  left: calc(50% - 193px/2 - 0.5px);
+  top: 70px;
+`;
+
+
 const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
-  <PageContainer maxWidth="md">
-    <img src={tamanuLogoBlue} alt="Tamanu Logo" />
-    <Card variant="outlined">{children}</Card>
+  <PageContainer>
+    <TamanuLogo src={tamanuLogoBlue} alt="Tamanu Logo" />
+    <Card>{children}</Card>
   </PageContainer>
 );
 
