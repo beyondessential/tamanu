@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { NativeModules } from 'react-native';
 import { SETTING_KEYS } from '@tamanu/constants';
 import {
@@ -48,20 +48,25 @@ export const useSecurityInfo = () => {
   const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
-  useEffect(() => {
-    const fetchSecurityInfo = async () => {
-      const storageEncryptionStatus = await getStorageEncryptionStatus();
-      const isStorageEncryptedValue = checkIsStorageEncrypted(storageEncryptionStatus);
-      const isDeviceSecureValue = await checkIsDeviceSecure();
-      setIsStorageEncrypted(isStorageEncryptedValue);
-      setIsDeviceSecure(isDeviceSecureValue);
-      setIsLoading(false);
-    };
-
-    fetchSecurityInfo();
+  const fetchSecurityInfo = useCallback(async () => {
+    setIsLoading(true);
+    const storageEncryptionStatus = await getStorageEncryptionStatus();
+    const isStorageEncryptedValue = checkIsStorageEncrypted(storageEncryptionStatus);
+    const isDeviceSecureValue = await checkIsDeviceSecure();
+    setIsStorageEncrypted(isStorageEncryptedValue);
+    setIsDeviceSecure(isDeviceSecureValue);
+    setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchSecurityInfo();
+  }, [fetchSecurityInfo]);
 
   const isStorageCompliant = allowUnencryptedStorage ? true : isStorageEncrypted;
   const isPasscodeCompliant = allowUnprotected ? true : isDeviceSecure;
-  return { isSecurityCompliant: isStorageCompliant && isPasscodeCompliant, isLoading };
+  return {
+    isSecurityCompliant: isStorageCompliant && isPasscodeCompliant,
+    isLoading,
+    fetchSecurityInfo,
+  };
 };
