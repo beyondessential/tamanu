@@ -19,6 +19,7 @@ import { useUpdateUserMutation } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
 import { UserLeaveSection } from './UserLeaveSection';
+import { useAuth } from '../../../contexts/Auth';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -85,6 +86,8 @@ const validationSchema = yup.object().shape({
 export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const { mutate: updateUser } = useUpdateUserMutation(user.id);
   const { getTranslation } = useTranslation();
+  const { ability } = useAuth();
+  const canUpdateUser = ability.can('write', 'User');
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
@@ -155,7 +158,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
         onSubmit={handleSubmit}
         formType={FORM_TYPES.EDIT_FORM}
         render={({ submitForm, dirty }) => {
-          const allowSave = dirty;
+          const allowSave = dirty && canUpdateUser;
           return (
             <>
               <Container>
@@ -182,6 +185,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     options={statusOptions}
                     isClearable={false}
                     required
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="displayName"
@@ -193,11 +197,13 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     }
                     component={TextField}
                     required
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="displayId"
                     label={<TranslatedText stringId="admin.users.displayId.label" fallback="ID" />}
                     component={TextField}
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="role"
@@ -205,6 +211,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     component={AutocompleteField}
                     suggester={roleSuggester}
                     required
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="designations"
@@ -216,12 +223,14 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     }
                     component={MultiAutocompleteField}
                     suggester={designationSuggester}
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="email"
                     label={<TranslatedText stringId="admin.users.email.label" fallback="Email" />}
                     component={TextField}
                     required
+                    disabled={!canUpdateUser}
                   />
                   <Field
                     name="phoneNumber"
@@ -229,58 +238,63 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                       <TranslatedText stringId="admin.users.phoneNumber.label" fallback="Phone" />
                     }
                     component={TextField}
+                    disabled={!canUpdateUser}
                   />
                 </FormGrid>
-                <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
-                <FormGrid columns={2} nested>
-                  <SectionContainer gridColumn="span 2">
-                    <SectionTitle>
-                      <TranslatedText
-                        stringId="admin.users.changePassword.title"
-                        fallback="Change password"
+                {canUpdateUser && (
+                  <>
+                    <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
+                    <FormGrid columns={2} nested>
+                      <SectionContainer gridColumn="span 2">
+                        <SectionTitle>
+                          <TranslatedText
+                            stringId="admin.users.changePassword.title"
+                            fallback="Change password"
+                          />
+                        </SectionTitle>
+                        <SectionSubtitle>
+                          <TranslatedText
+                            stringId="admin.users.changePassword.subtitle"
+                            fallback="Use the fields below to reset the users password."
+                          />
+                        </SectionSubtitle>
+                      </SectionContainer>
+                      <Field
+                        name="newPassword"
+                        label={
+                          <TranslatedText
+                            stringId="admin.users.newPassword.label"
+                            fallback="New password"
+                          />
+                        }
+                        placeholder={getTranslation(
+                          'admin.users.newPassword.placeholder',
+                          'Enter new password',
+                        )}
+                        component={TextField}
+                        type="password"
+                        required
+                        autoComplete="new-password"
                       />
-                    </SectionTitle>
-                    <SectionSubtitle>
-                      <TranslatedText
-                        stringId="admin.users.changePassword.subtitle"
-                        fallback="Use the fields below to reset the users password."
+                      <Field
+                        name="confirmPassword"
+                        label={
+                          <TranslatedText
+                            stringId="admin.users.confirmPassword.label"
+                            fallback="Confirm new password"
+                          />
+                        }
+                        placeholder={getTranslation(
+                          'admin.users.confirmPassword.placeholder',
+                          'Confirm new password',
+                        )}
+                        component={TextField}
+                        type="password"
+                        required
                       />
-                    </SectionSubtitle>
-                  </SectionContainer>
-                  <Field
-                    name="newPassword"
-                    label={
-                      <TranslatedText
-                        stringId="admin.users.newPassword.label"
-                        fallback="New password"
-                      />
-                    }
-                    placeholder={getTranslation(
-                      'admin.users.newPassword.placeholder',
-                      'Enter new password',
-                    )}
-                    component={TextField}
-                    type="password"
-                    required
-                    autoComplete="new-password"
-                  />
-                  <Field
-                    name="confirmPassword"
-                    label={
-                      <TranslatedText
-                        stringId="admin.users.confirmPassword.label"
-                        fallback="Confirm new password"
-                      />
-                    }
-                    placeholder={getTranslation(
-                      'admin.users.confirmPassword.placeholder',
-                      'Confirm new password',
-                    )}
-                    component={TextField}
-                    type="password"
-                    required
-                  />
-                </FormGrid>
+                    </FormGrid>
+                  </>
+                )}
               </Container>
 
               <Divider sx={{ borderColor: Colors.outline }} />
