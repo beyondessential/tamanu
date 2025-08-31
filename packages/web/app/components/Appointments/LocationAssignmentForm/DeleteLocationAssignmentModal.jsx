@@ -66,7 +66,7 @@ const DetailItem = styled.div`
 `;
 
 const DetailLabel = styled.span`
-  font-size: 12px;
+  font-size: 14px;
   color: ${Colors.midText};
   margin-bottom: 0.25rem;
 `;
