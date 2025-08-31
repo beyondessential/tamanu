@@ -98,8 +98,7 @@ export const ProcedureModal = ({
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
-  const [unsavedProgramFormOpen, setUnSavedProgramFormOpen] = useState(false);
-  const [unsavedProgramFormOnSubmitOpen, setUnsavedProgramFormOnSubmitOpen] = useState(false);
+  const [unsavedProgramFormOpen, setUnsavedProgramFormOpen] = useState(false);
   const [pendingFormData, setPendingFormData] = useState(null); // Add this line
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProcedureProgramResponsesQuery(
@@ -132,18 +131,14 @@ export const ProcedureModal = ({
       onSubmit={async data => {
         if (selectedSurveyId) {
           setPendingFormData(data); // Store the form data
-          setUnsavedProgramFormOnSubmitOpen(true);
+          setUnsavedProgramFormOpen(true);
         } else {
           await onSubmit(data);
         }
       }}
       render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
-          if (selectedSurveyId) {
-            // selectedSurveyId is defined when a program form is in progress
-            setUnSavedProgramFormOpen(true);
-          } else if (dirty) {
-            // user has made other changes to procedure details
+          if (dirty) {
             setUnSavedChangesModalOpen(true);
           } else {
             onClose();
@@ -260,21 +255,11 @@ export const ProcedureModal = ({
             <UnSavedProcedureProgramModal
               open={unsavedProgramFormOpen}
               onCancel={() => {
-                setUnSavedProgramFormOpen(false);
-              }}
-              onConfirm={() => {
-                setUnSavedProgramFormOpen(false);
-                onClose();
-              }}
-            />
-            <UnSavedProcedureProgramModal
-              open={unsavedProgramFormOnSubmitOpen}
-              onCancel={() => {
-                setUnsavedProgramFormOnSubmitOpen(false);
+                setUnsavedProgramFormOpen(false);
                 setPendingFormData(null);
               }}
               onConfirm={async () => {
-                setUnsavedProgramFormOnSubmitOpen(false);
+                setUnsavedProgramFormOpen(false);
                 if (pendingFormData) {
                   await onSubmit(pendingFormData);
                   setPendingFormData(null);
