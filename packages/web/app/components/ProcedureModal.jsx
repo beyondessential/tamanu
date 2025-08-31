@@ -202,7 +202,7 @@ export const ProcedureModal = ({
                   toast.success(
                     <TranslatedText
                       stringId="procedure.form.saved.message"
-                      fallback="Procedure successfully saved"
+                      fallback="Additional data successfully saved"
                     />,
                   );
                 }}
@@ -216,8 +216,8 @@ export const ProcedureModal = ({
                       updateRefreshCount();
                       toast.success(
                         <TranslatedText
-                          stringId="procedure.form.saved.message"
-                          fallback="Procedure successfully saved"
+                          stringId="procedure.form.deleted.message"
+                          fallback="Additional data successfully deleted"
                         />,
                       );
                     }}
@@ -232,14 +232,16 @@ export const ProcedureModal = ({
                 </>
               )}
               <ButtonRow>
-                <FormCancelButton onClick={handleCancel}>
-                  {dirty ? (
+                {!procedureId || dirty ? (
+                  <FormCancelButton onClick={handleCancel}>
                     <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                  ) : (
+                  </FormCancelButton>
+                ) : (
+                  <FormCancelButton onClick={handleCancel} variant="contained">
                     <TranslatedText stringId="general.action.close" fallback="Close" />
-                  )}
-                </FormCancelButton>
-                {dirty ? (
+                  </FormCancelButton>
+                )}
+                {!procedureId || dirty ? (
                   <FormSubmitButton onSubmit={submitForm}>
                     <TranslatedText
                       stringId="general.action.submit"
