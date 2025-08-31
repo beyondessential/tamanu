@@ -1,14 +1,17 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
-import { CircularProgress, Paper, Container } from '@mui/material';
+import { CircularProgress, Paper, Container, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 
-const PageContainer = styled(Container)`
+const PageContainer = styled(Box)`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 50px;
+  height: 100vh;
+  justify-content: center;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(17, 114, 209, 0.2) 100%);
 `;
 
 const Card = styled(Paper)`
