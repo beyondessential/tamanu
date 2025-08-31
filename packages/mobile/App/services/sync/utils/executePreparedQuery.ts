@@ -3,26 +3,13 @@ import { chunk } from 'lodash';
 import { DataToPersist } from '../types';
 import { getEffectiveBatchSize } from '../../../infra/db/limits';
 
-const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): string =>
-  Array.from(
-    { length: rowCount },
-    () => `(${Array.from({ length: columnsCount }, () => '?').join(', ')})`,
-  ).join(', ');
+const getColumnPlaceholders = (columns: string[]): string =>
+  columns.map(() => '?').join(', ');
+
+const getValuePlaceholdersForRows = (chunkRows: DataToPersist[], columnPlaceholders: string): string =>
+  chunkRows.map(() => `(${columnPlaceholders})`).join(', ');
 
 const quote = (identifier: string): string => `"${identifier}"`;
-
-const dedupe = (rows: DataToPersist[]): DataToPersist[] => {
-  const deduplicatedRows = [];
-  const idsAdded = new Set();
-  for (const row of rows) {
-    const { id } = row;
-    if (!idsAdded.has(id)) {
-      deduplicatedRows.push(row);
-      idsAdded.add(id);
-    }
-  }
-  return deduplicatedRows;
-};
 
 /**
  * Much faster than typeorm bulk insert or save
@@ -39,21 +26,29 @@ export const executePreparedInsert = async (
   // Can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
   // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
   // because it has a lab request attached
-  const deduplicatedRows = dedupe(rows);
+  // const deduplicatedRows = dedupe(rows);
 
   const { tableName } = repository.metadata;
 
-  const columns = Object.keys(deduplicatedRows[0]);
+  const columns = Object.keys(rows[0]);
   const columnNames = columns.map(quote).join(', ');
+  const columnPlaceholders = getColumnPlaceholders(columns);
 
   const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
 
-  for (const chunkRows of chunk(deduplicatedRows, chunkSize)) {
+  for (const chunkRows of chunk(rows, chunkSize)) {
     const query = `
     INSERT INTO ${tableName} (${columnNames}) 
-    VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
+    VALUES ${getValuePlaceholdersForRows(chunkRows, columnPlaceholders)}
   `;
-    const parameters = chunkRows.flatMap(row => columns.map(col => row[col]));
+    const parameters: any[] = [];
+    for (let i = 0; i < chunkRows.length; i++) {
+      const row = chunkRows[i];
+      for (let j = 0; j < columns.length; j++) {
+        const col = columns[j];
+        parameters.push(row[col]);
+      }
+    }
     try {
       await repository.query(query, parameters);
     } catch (e: any) {
@@ -88,6 +83,7 @@ export const executePreparedUpdate = async (
   const updatableColumns = columns.filter(col => col !== 'id');
   const updateColumnsQuoted = updatableColumns.map(quote);
   const cteColumns = [quote('id'), ...updateColumnsQuoted];
+  const columnPlaceholders = getColumnPlaceholders(cteColumns);
 
   const setFragments = updateColumnsQuoted
     .map(col => `${col} = (SELECT ${col} FROM updates WHERE updates.id = ${tableName}.id)`)
@@ -98,14 +94,16 @@ export const executePreparedUpdate = async (
 
   for (const chunkRows of chunk(rows, chunkSize)) {
     const query = `
-    WITH updates (${cteColumns.join(', ')}) AS (VALUES ${getValuePlaceholdersForRows(chunkRows.length, cteColumns.length)})
+    WITH updates (${cteColumns.join(', ')}) AS (VALUES ${getValuePlaceholdersForRows(chunkRows, columnPlaceholders)})
     UPDATE ${tableName} SET ${setFragments} WHERE id IN (SELECT id FROM updates)
   `;
 
     const parameters: any[] = [];
-    for (const row of chunkRows) {
+    for (let i = 0; i < chunkRows.length; i++) {
+      const row = chunkRows[i];
       parameters.push(row.id);
-      for (const col of updatableColumns) {
+      for (let j = 0; j < updatableColumns.length; j++) {
+        const col = updatableColumns[j];
         parameters.push(row[col]);
       }
     }
