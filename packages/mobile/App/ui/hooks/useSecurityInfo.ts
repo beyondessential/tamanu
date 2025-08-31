@@ -7,6 +7,12 @@ import {
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
 import { useSettings } from '~/ui/hooks/useSettings';
+import { useTranslation, GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+
+interface SecurityComplianceProperties {
+  isStorageCompliant: boolean;
+  isPasscodeCompliant: boolean;
+}
 
 const SecurityInfoNativeModule: SecurityInfoModule = NativeModules.SecurityInfo;
 
@@ -40,10 +46,29 @@ function checkIsStorageEncrypted(status: StorageEncryptionStatus): boolean {
   ].includes(status.status);
 }
 
+function getSecurityIssues(
+  getTranslation: GetTranslationFunction,
+  { isStorageCompliant, isPasscodeCompliant }: SecurityComplianceProperties,
+): string[] {
+  const issues = [];
+  if (!isStorageCompliant) {
+    issues.push(
+      getTranslation('general.device.security.issues.storage', 'Storage is not encrypted'),
+    );
+  }
+  if (!isPasscodeCompliant) {
+    issues.push(
+      getTranslation('general.device.security.issues.passcode', 'No passcode is set'),
+    );
+  }
+  return issues;
+}
+
 export const useSecurityInfo = () => {
   const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(false);
   const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
@@ -65,7 +90,7 @@ export const useSecurityInfo = () => {
   const isStorageCompliant = allowUnencryptedStorage ? true : isStorageEncrypted;
   const isPasscodeCompliant = allowUnprotected ? true : isDeviceSecure;
   return {
-    isSecurityCompliant: isStorageCompliant && isPasscodeCompliant,
+    securityIssues: getSecurityIssues(getTranslation, { isStorageCompliant, isPasscodeCompliant }),
     isLoading,
     fetchSecurityInfo,
   };
