@@ -244,7 +244,7 @@ export const ProcedureModal = ({
                 {!procedureId || dirty ? (
                   <FormSubmitButton onSubmit={submitForm}>
                     <TranslatedText
-                      stringId="general.action.submit"
+                      stringId="procedure.form.action.submit"
                       fallback="Save procedure"
                       data-testid="translatedtext-162m"
                     />
