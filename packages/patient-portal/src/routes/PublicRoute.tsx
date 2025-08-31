@@ -11,7 +11,7 @@ const PageContainer = styled(Box)`
   padding-top: 50px;
   height: 100vh;
   justify-content: center;
-  background: linear-gradient(0deg, #FFFFFF, #FFFFFF), linear-gradient(180deg, rgba(255, 255, 255, 0.5) 20.19%, rgba(17, 114, 209, 0.3) 99.94%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, rgba(17, 114, 209, 0.2) 100%);
 `;
 
 const Card = styled(Paper)`
