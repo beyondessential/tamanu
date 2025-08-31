@@ -149,6 +149,11 @@ export const ProcedureModal = ({
             onClose();
           }
         };
+
+        // A procedure is new if editedProcedure has an id key and any other key
+        const isNewProcedure =
+          editedProcedure && editedProcedure.id && Object.keys(editedProcedure).length > 1;
+
         return (
           <>
             <FormModal
@@ -158,7 +163,7 @@ export const ProcedureModal = ({
                   stringId="procedure.modal.title"
                   fallback=":action procedure"
                   replacements={{
-                    action: procedureId ? (
+                    action: isNewProcedure ? (
                       <TranslatedText
                         stringId="general.action.update"
                         fallback="Update"
@@ -196,7 +201,7 @@ export const ProcedureModal = ({
                 selectedSurveyId={selectedSurveyId}
                 setSelectedSurveyId={setSelectedSurveyId}
                 onSuccess={id => {
-                  setEditedProcedure({ ...values, id });
+                  setEditedProcedure({ id });
                   setFieldValue('id', id);
                   updateRefreshCount();
                   toast.success(
