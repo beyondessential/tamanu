@@ -69,18 +69,20 @@ export const SecurityScreen = ({
           />
         }
       </StyledText>
-      <IssueSection securityIssues={securityIssues} />
-      <StyledView>
-        <Button
-          marginTop={20}
-          backgroundColor={theme.colors.SECONDARY_MAIN}
-          onPress={handleRetry}
-          textColor={theme.colors.TEXT_SUPER_DARK}
-          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
-          fontWeight={500}
-          buttonText="Retry security check"
-        />
-      </StyledView>
+      {securityIssues.length > 0 && (<IssueSection securityIssues={securityIssues} />)}
+      {!isLoading && (
+        <StyledView>
+          <Button
+            marginTop={20}
+            backgroundColor={theme.colors.SECONDARY_MAIN}
+            onPress={handleRetry}
+            textColor={theme.colors.TEXT_SUPER_DARK}
+            fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+            fontWeight={500}
+            buttonText="Retry security check"
+          />
+        </StyledView>
+      )}
     </StyledSafeAreaView>
   );
 };
