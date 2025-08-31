@@ -6,7 +6,7 @@ import {
   StorageEncryptionStatus,
   ENCRYPTION_STATUS,
 } from '~/types/SecurityInfo';
-import { useSettings } from '~/ui/hooks/useSettings';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation, GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 
 interface SecurityComplianceProperties {
