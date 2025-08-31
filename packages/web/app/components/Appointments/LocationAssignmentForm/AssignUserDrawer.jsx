@@ -13,7 +13,7 @@ import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
-import { OutlinedButton } from '../../Button';
+import { Button } from '../../Button';
 import { DeleteOutlined } from '@material-ui/icons';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
@@ -61,7 +61,7 @@ const StyledButtonRow = styled(ButtonRow)`
   }
 `;
 
-const StyledDeleteButton = styled(OutlinedButton)`
+const StyledButton = styled(Button)`
   padding: 10px 16px;
   font-size: 12px;
   height: 36px;
@@ -262,21 +262,25 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
           />
           {isViewing ? (
             <StyledButtonRow>
-              <StyledDeleteButton onClick={handleDeleteClick} data-testid="delete-button">
+              <StyledButton
+                variant="outlined"
+                onClick={handleDeleteClick}
+                data-testid="delete-button"
+              >
                 <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
                 <TranslatedText
                   stringId="general.action.delete"
                   fallback="Delete"
                   data-testid="translatedtext-delete"
                 />
-              </StyledDeleteButton>
-              <StyledDeleteButton onClick={onClose} data-testid="close-button">
+              </StyledButton>
+              <StyledButton onClick={onClose} data-testid="close-button">
                 <TranslatedText
                   stringId="general.action.close"
                   fallback="Close"
                   data-testid="translatedtext-close"
                 />
-              </StyledDeleteButton>
+              </StyledButton>
             </StyledButtonRow>
           ) : (
             <StyledFormSubmitCancelRow

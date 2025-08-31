@@ -82,12 +82,7 @@ const DELETE_MODES = {
   ALL_FUTURE: 'allFuture',
 };
 
-export const DeleteLocationAssignmentModal = ({
-  open,
-  onClose,
-  onConfirm,
-  assignment,
-}) => {
+export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assignment }) => {
   const [deleteMode, setDeleteMode] = useState(DELETE_MODES.THIS_ONLY);
   const isRepeating = !!assignment?.templateId;
 
@@ -96,158 +91,114 @@ export const DeleteLocationAssignmentModal = ({
     onConfirm({ deleteFuture });
   };
 
-  if (!isRepeating) {
-    return (
-      <StyledConfirmModal
-        open={open}
-        onCancel={onClose}
-        onConfirm={() => onConfirm({ deleteFuture: false })}
-        title={
-          <TranslatedText
-            stringId="locationAssignment.modal.delete.title"
-            fallback="Delete location assignment"
-            data-testid="translatedtext-delete-title"
-          />
-        }
-        customContent={
-          <ContentWrapper data-testid="delete-content">
-            <AssignmentDetailsGrid>
-              <DetailItem>
-                <DetailLabel>User</DetailLabel>
-                <DetailValue>{assignment?.user?.displayName || 'Unknown User'}</DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>Time</DetailLabel>
-                <DetailValue>
-                  {assignment?.startTime && assignment?.endTime 
-                    ? `${formatTime(assignment.startTime)} - ${formatTime(assignment.endTime)}`
-                    : 'N/A'
-                  }
-                </DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>Area</DetailLabel>
-                <DetailValue>{assignment?.locationGroup?.name || 'N/A'}</DetailValue>
-              </DetailItem>
-              <DetailItem>
-                <DetailLabel>Location</DetailLabel>
-                <DetailValue>{assignment?.location?.name || 'N/A'}</DetailValue>
-              </DetailItem>
-            </AssignmentDetailsGrid>
-          </ContentWrapper>
-        }
-        cancelButtonText={
-          <TranslatedText
-            stringId="general.action.goBack"
-            fallback="Go back"
-            data-testid="translatedtext-go-back"
-          />
-        }
-        confirmButtonText={
-          <TranslatedText
-            stringId="general.action.delete"
-            fallback="Delete"
-            data-testid="translatedtext-delete-confirm"
-          />
-        }
-        data-testid="delete-assignment-modal"
-      />
-    );
-  }
+  const AssignmentDetails = (
+    <AssignmentDetailsGrid>
+      <DetailItem>
+        <DetailLabel>
+          <TranslatedText stringId="general.form.user.label" fallback="User" />
+        </DetailLabel>
+        <DetailValue>{assignment?.user?.displayName || 'Unknown User'}</DetailValue>
+      </DetailItem>
+      <DetailItem>
+        <DetailLabel>
+          <TranslatedText stringId="general.time" fallback="Time" />
+        </DetailLabel>
+        <DetailValue>
+          {assignment?.startTime && assignment?.endTime
+            ? `${formatTime(assignment.startTime)} - ${formatTime(assignment.endTime)}`
+            : 'N/A'}
+        </DetailValue>
+      </DetailItem>
+      <DetailItem>
+        <DetailLabel>
+          <TranslatedText stringId="general.area" fallback="Area" />
+        </DetailLabel>
+        <DetailValue>{assignment?.locationGroup?.name || 'N/A'}</DetailValue>
+      </DetailItem>
+      <DetailItem>
+        <DetailLabel>
+          <TranslatedText stringId="general.location" fallback="Location" />
+        </DetailLabel>
+        <DetailValue>{assignment?.location?.name || 'N/A'}</DetailValue>
+      </DetailItem>
+    </AssignmentDetailsGrid>
+  );
+
+  const customContent = (
+    <ContentWrapper data-testid={'delete-content'}>
+      {AssignmentDetails}
+      {isRepeating && (
+        <RadioGroupWrapper data-testid="delete-mode-radio-group">
+          <BodyText mb={3} data-testid="delete-repeating-text">
+            <TranslatedText
+              stringId="locationAssignment.modal.deleteRepeating.text"
+              fallback="This is a repeating assignment. Would you like to delete this assignment only or this assignment and all future assignments as well?"
+              data-testid="translatedtext-delete-repeating-text"
+            />
+          </BodyText>
+          <RadioGroup
+            value={deleteMode}
+            onChange={e => setDeleteMode(e.target.value)}
+            data-testid="delete-mode-radio-group-input"
+          >
+            <FormControlLabel
+              value={DELETE_MODES.THIS_ONLY}
+              control={<Radio color="primary" />}
+              label={
+                <TranslatedText
+                  stringId="locationAssignment.modal.deleteRepeating.thisAssignment"
+                  fallback="This assignment"
+                  data-testid="translatedtext-delete-this-assignment"
+                />
+              }
+              data-testid="delete-this-assignment-option"
+            />
+            <FormControlLabel
+              value={DELETE_MODES.ALL_FUTURE}
+              control={<Radio color="primary" />}
+              label={
+                <TranslatedText
+                  stringId="locationAssignment.modal.deleteRepeating.thisAndFuture"
+                  fallback="This and future assignments"
+                  data-testid="translatedtext-delete-this-and-future"
+                />
+              }
+              data-testid="delete-this-and-future-option"
+            />
+          </RadioGroup>
+        </RadioGroupWrapper>
+      )}
+    </ContentWrapper>
+  );
 
   return (
     <StyledConfirmModal
       open={open}
       onCancel={onClose}
-      onConfirm={handleConfirm}
+      onConfirm={isRepeating ? handleConfirm : () => onConfirm({ deleteFuture: false })}
       title={
         <TranslatedText
-          stringId="locationAssignment.modal.deleteRepeating.title"
+          stringId={'locationAssignment.modal.delete.title'}
           fallback="Delete location assignment"
-          data-testid="translatedtext-delete-repeating-title"
+          data-testid={'translatedtext-delete-title'}
         />
       }
-      customContent={
-        <ContentWrapper data-testid="delete-repeating-content">
-          <AssignmentDetailsGrid>
-            <DetailItem>
-              <DetailLabel>User</DetailLabel>
-              <DetailValue>{assignment?.user?.displayName || 'Unknown User'}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Time</DetailLabel>
-              <DetailValue>
-                {assignment?.startTime && assignment?.endTime 
-                  ? `${formatTime(assignment.startTime)} - ${formatTime(assignment.endTime)}`
-                  : 'N/A'
-                }
-              </DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Area</DetailLabel>
-              <DetailValue>{assignment?.locationGroup?.name || 'N/A'}</DetailValue>
-            </DetailItem>
-            <DetailItem>
-              <DetailLabel>Location</DetailLabel>
-              <DetailValue>{assignment?.location?.name || 'N/A'}</DetailValue>
-            </DetailItem>
-          </AssignmentDetailsGrid>
-          <RadioGroupWrapper data-testid="delete-mode-radio-group">
-            <BodyText mb={3} data-testid="delete-repeating-text">
-              <TranslatedText
-                stringId="locationAssignment.modal.deleteRepeating.text"
-                fallback="This is a repeating assignment. Would you like to delete this assignment only or this assignment and all future assignments as well?"
-                data-testid="translatedtext-delete-repeating-text"
-              />
-            </BodyText>
-            <RadioGroup
-              value={deleteMode}
-              onChange={(e) => setDeleteMode(e.target.value)}
-              data-testid="delete-mode-radio-group-input"
-            >
-              <FormControlLabel
-                value={DELETE_MODES.THIS_ONLY}
-                control={<Radio color="primary" />}
-                label={
-                  <TranslatedText
-                    stringId="locationAssignment.modal.deleteRepeating.thisAssignment"
-                    fallback="This assignment"
-                    data-testid="translatedtext-delete-this-assignment"
-                  />
-                }
-                data-testid="delete-this-assignment-option"
-              />
-              <FormControlLabel
-                value={DELETE_MODES.ALL_FUTURE}
-                control={<Radio color="primary" />}
-                label={
-                  <TranslatedText
-                    stringId="locationAssignment.modal.deleteRepeating.thisAndFuture"
-                    fallback="This and future assignments"
-                    data-testid="translatedtext-delete-this-and-future"
-                  />
-                }
-                data-testid="delete-this-and-future-option"
-              />
-            </RadioGroup>
-          </RadioGroupWrapper>
-        </ContentWrapper>
-      }
+      customContent={customContent}
       cancelButtonText={
         <TranslatedText
           stringId="general.action.goBack"
           fallback="Go back"
-          data-testid="translatedtext-go-back-repeating"
+          data-testid={'translatedtext-go-back-repeating'}
         />
       }
       confirmButtonText={
         <TranslatedText
           stringId="general.action.delete"
           fallback="Delete"
-          data-testid="translatedtext-delete-repeating-confirm"
+          data-testid={'translatedtext-delete-repeating-confirm'}
         />
       }
-      data-testid="delete-repeating-assignment-modal"
+      data-testid={'delete-repeating-assignment-modal'}
     />
   );
 };
