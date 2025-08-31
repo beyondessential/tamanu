@@ -30,9 +30,9 @@ function getSignInFlowRoute(signedIn: boolean, facilityId?: string): string {
 export const Core: FunctionComponent<any> = () => {
   const { signedIn } = useAuth();
   const { facilityId } = useFacility();
-  const { isSecurityCompliant, isLoading } = useSecurityInfo();
+  const { isLoading, securityIssues } = useSecurityInfo();
 
-  if (isLoading || !isSecurityCompliant) {
+  if (isLoading || securityIssues.length > 0) {
     return <SecurityScreen isLoading={isLoading} />;
   }
 
