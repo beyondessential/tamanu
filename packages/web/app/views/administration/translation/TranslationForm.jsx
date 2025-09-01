@@ -245,7 +245,20 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(translationToFormValue(data[0]), ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
+      {
+        key: DEFAULT_LANGUAGE_CODE,
+        title: (
+          <TranslatedText
+            stringId="admin.translation.table.column.default"
+            fallback="Default"
+            data-testid="translatedtext-cwdl"
+          />
+        ),
+        accessor: row => `${row[DEFAULT_LANGUAGE_CODE]}`,
+      },
+      ...Object.keys(
+        omit(translationToFormValue(data[0]), ['stringId', DEFAULT_LANGUAGE_CODE]),
+      ).map(code => ({
         key: code,
         title: languageNames[code],
         accessor: row => (
@@ -368,7 +381,7 @@ export const TranslationForm = () => {
   const sortedTranslations = sortBy(
     translations,
     obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
-  );  // Ensure languageName and countryCode stays on top
+  ); // Ensure languageName and countryCode stays on top
 
   return (
     <Container data-testid="container-v9eo">
