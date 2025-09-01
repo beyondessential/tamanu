@@ -18,7 +18,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   },
 }));
 
-export const TextField = ({ label, ...props }: Omit<import('@mui/material').TextFieldProps, 'variant' | 'label'> & { label: string }) => {
+export const TextField = ({ label, ...props }: Omit<TextFieldProps, 'variant' | 'label'> & { label: string }) => {
   return (
     <FormControl fullWidth={props.fullWidth} variant="standard">
       <StyledInputLabel shrink htmlFor={props.id} required={props.required}>
