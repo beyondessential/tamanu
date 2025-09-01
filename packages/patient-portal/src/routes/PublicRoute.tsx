@@ -19,7 +19,7 @@ const PageContainer = styled(Box)`
 const Card = styled(Paper)`
   margin: 6.25rem auto;
   display: block;
-  padding: 1.875rem;
+  padding: 1.375rem;
   min-width: 18.75rem;
   width: 32.5rem;
   max-width: 100%;
