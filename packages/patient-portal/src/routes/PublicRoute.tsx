@@ -37,22 +37,22 @@ const PageContainer = styled(Box)`
 `;
 
 const Card = styled(Paper)`
-  margin: 6.25rem auto;
+  margin: 100px auto;
   display: block;
-  padding: 1.375rem;
-  min-width: 18.75rem;
-  width: 32.5rem;
+  padding: 22px;
+  min-width: 300px;
+  width: 520px;
   max-width: 100%;
   text-align: center;
-  border-radius: 0.625rem;
+  border-radius: 10px;
   box-shadow: none;
   border: none;
 `;
 
 const TamanuLogo = styled('img')`
-  width: 10rem;
+  width: 160px;
   position: absolute;
-  top: 4rem;
+  top: 64px;
 `;
 
 const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
