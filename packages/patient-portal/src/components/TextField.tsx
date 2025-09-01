@@ -14,7 +14,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
     marginTop: theme.spacing(2),
   },
   '& .MuiInputBase-input': {
-    padding: '14.5px 12px',
+    padding: '12.5px 10px',
   },
   '& .MuiInputBase-root': {
     width: '100%',
