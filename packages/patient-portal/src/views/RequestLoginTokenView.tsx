@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import { Typography, TextField } from '@mui/material';
-import { Button } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
 
 export const RequestLoginTokenView = () => {
@@ -29,7 +29,7 @@ export const RequestLoginTokenView = () => {
       <Typography variant="h1" component="h1" gutterBottom>
         Log In
       </Typography>
-      <Typography>Enter your email below to log in</Typography>
+      <Typography mb={4} style={{color: TAMANU_COLORS.darkText}}>Enter your email below to log in</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           fullWidth

@@ -10,7 +10,6 @@ const PageContainer = styled(Box)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 70px;
   height: 100vh;
   width: 100vw;
   justify-content: center;
@@ -25,13 +24,16 @@ const Card = styled(Paper)`
   width: 32.5rem;
   max-width: 100%;
   text-align: center;
+  border-radius: 0.625rem;
   box-shadow: none;
   border: none;
 `;
 
 
 const TamanuLogo = styled('img')`
-  width: 193px;
+  width: 10rem;
+  position: absolute;
+  top: 4rem;
 `;
 
 
