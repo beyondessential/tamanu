@@ -16,12 +16,7 @@ describe('Programs import - Vitals Survey', () => {
   });
 
   beforeEach(async () => {
-    const {
-      Program,
-      Survey,
-      ProgramDataElement,
-      SurveyScreenComponent,
-    } = ctx.store.models;
+    const { Program, Survey, ProgramDataElement, SurveyScreenComponent } = ctx.store.models;
     await SurveyScreenComponent.destroy({ where: {}, force: true });
     await ProgramDataElement.destroy({ where: {}, force: true });
     await Survey.destroy({ where: {}, force: true });
@@ -110,8 +105,8 @@ describe('Programs import - Vitals Survey', () => {
     expect(stats).toMatchObject({
       Program: { created: 1, updated: 0, errored: 0 },
       Survey: { created: 1, updated: 0, errored: 0 },
-      ProgramDataElement: { created: 16, updated: 0, errored: 0 },
-      SurveyScreenComponent: { created: 16, updated: 0, errored: 0 },
+      ProgramDataElement: { created: 17, updated: 0, errored: 0 },
+      SurveyScreenComponent: { created: 17, updated: 0, errored: 0 },
     });
   });
 
