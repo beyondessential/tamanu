@@ -92,7 +92,12 @@ const validationSchema = yup.object().shape({
 
 export const UserLeaveSection = ({ user }) => {
   const { ability } = useAuth();
-  const canUpdateUser = ability.can('write', 'User');
+  const canUpdateUser = ability.can(
+    'write',
+    new (function User() {
+      this.id = user.id;
+    })(),
+  );
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const [leaveToDelete, setLeaveToDelete] = useState(null);

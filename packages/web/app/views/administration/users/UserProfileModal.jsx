@@ -87,7 +87,12 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const { mutate: updateUser } = useUpdateUserMutation(user.id);
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
-  const canUpdateUser = ability.can('write', 'User');
+  const canUpdateUser = ability.can(
+    'write',
+    new (function User() {
+      this.id = user.id;
+    })(),
+  );
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
