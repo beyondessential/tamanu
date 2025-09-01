@@ -37,7 +37,7 @@ import { startSnapshotWhenCapacityAvailable } from './startSnapshotWhenCapacityA
 import { createMarkedForSyncPatientsTable } from './createMarkedForSyncPatientsTable';
 import { updateLookupTable, updateSyncLookupPendingRecords } from './updateLookupTable';
 
-const errorMessageFromSession = (session) =>
+const errorMessageFromSession = session =>
   `Sync session '${session.id}' encountered an error: ${session.errors[session.errors.length - 1]}`;
 
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
@@ -98,13 +98,25 @@ export class CentralSyncManager {
     const parameters = { deviceId, facilityIds, isMobile };
 
     const unmarkSessionAsProcessing = await this.markSessionAsProcessing(sessionId);
-    const syncSession = await this.store.models.SyncSession.create({
-      id: sessionId,
-      startTime,
-      lastConnectionTime: startTime,
-      debugInfo,
-      parameters,
-    });
+    let syncSession;
+    try {
+      syncSession = await this.store.models.SyncSession.create({
+        id: sessionId,
+        startTime,
+        lastConnectionTime: startTime,
+        debugInfo,
+        parameters,
+      });
+    } catch (error) {
+      // If the session creation fails, we need to release the lock otherwise it will hold up
+      // an open connection until the application restarts
+      await unmarkSessionAsProcessing();
+      const wrappedError = new Error(
+        `Failed to create sync session, server may be overloaded with sync requests: ${error.message}`,
+      );
+      wrappedError.stack = error.stack; // Preserve the original stack trace
+      throw wrappedError;
+    }
 
     // no await as prepare session (especially the tickTockGlobalClock action) might get blocked
     // and take a while if the central server is concurrently persisting records from another client.
@@ -272,7 +284,7 @@ export class CentralSyncManager {
 
       const isInitialBuildOfLookupTable = parseInt(previouslyUpToTick, 10) === -1;
 
-      await repeatableReadTransaction(store.sequelize, async (transaction) => {
+      await repeatableReadTransaction(store.sequelize, async transaction => {
         // do not need to update pending records when it is initial build
         // because it uses ticks from the actual tables for updated_at_sync_tick
         if (isInitialBuildOfLookupTable) {
@@ -340,13 +352,13 @@ export class CentralSyncManager {
   async waitForPendingEdits(tick) {
     // get all the ticks (ie: keys of in-flight transaction advisory locks) of previously pending edits
     const pendingSyncTicks = (await getSyncTicksOfPendingEdits(this.store.sequelize)).filter(
-      (t) => t < tick,
+      t => t < tick,
     );
 
     // wait for any in-flight transactions of pending edits
     // that we don't miss any changes that are in progress
     await Promise.all(
-      pendingSyncTicks.map((t) => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
+      pendingSyncTicks.map(t => waitForPendingEditsUsingSyncTick(this.store.sequelize, t)),
     );
   }
 
@@ -683,7 +695,7 @@ export class CentralSyncManager {
   async addIncomingChanges(sessionId, changes) {
     const { sequelize } = this.store;
     await this.connectToSession(sessionId);
-    const incomingSnapshotRecords = changes.map((c) => ({
+    const incomingSnapshotRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       updatedAtByFieldSum: c.data.updatedAtByField
