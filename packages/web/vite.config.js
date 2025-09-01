@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
+import svgr from 'vite-plugin-svgr';
 import json5Plugin from 'vite-plugin-json5';
 
 /** @see https://vitejs.dev/config */
@@ -26,10 +27,7 @@ export default async () => {
     esbuild: {
       loader: 'jsx',
     },
-    plugins: [
-      react(),
-      json5Plugin()
-    ],
+    plugins: [react(), json5Plugin(), svgr()],
 
     define: {
       __VERSION__: JSON.stringify(

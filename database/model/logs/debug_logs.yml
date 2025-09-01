@@ -23,8 +23,9 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - syncLookupUpdate
+                  arguments:
+                    values:
+                      - syncLookupUpdate
           - name: info
             data_type: json
             description: "{{ doc('logs__debug_logs__info') }}"

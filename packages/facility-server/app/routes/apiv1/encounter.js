@@ -28,6 +28,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
+import { keyBy } from 'lodash';
 
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
@@ -270,7 +271,7 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, query, db } = req;
     const { Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
@@ -378,15 +379,32 @@ encounterRelations.get(
       distinct: true,
     });
 
-    const objects = await Prescription.findAll({
+    const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map(x => x.forResponse());
+    let responseData = prescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [pharmacyOrderPrescriptions] = await db.query(
+        `
+        SELECT prescription_id, max(created_at) as last_ordered_at 
+        FROM pharmacy_order_prescriptions 
+        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
 
-    res.send({ count, data });
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+      }));
+    }
+
+    res.send({ count, data: responseData });
   }),
 );
 
@@ -820,7 +838,7 @@ encounterRelations.get(
       group: [['survey.id']],
     });
     req.flagPermissionChecked();
-    const allowedSurvey = chartSurvey.find((response) =>
+    const allowedSurvey = chartSurvey.find(response =>
       req.ability.can('list', subject('Charting', { id: response.survey.id })),
     );
 
