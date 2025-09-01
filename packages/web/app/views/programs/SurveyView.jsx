@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -21,6 +21,16 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
+const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {
+  useEffect(() => {
+    if (onFormDirtyChange) {
+      onFormDirtyChange(dirty);
+    }
+  }, [dirty, onFormDirtyChange]);
+
+  return null;
+};
+
 export const SurveyViewForm = ({
   survey,
   onSubmit,
@@ -30,6 +40,7 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
+  onFormDirtyChange,
 }) => {
   const { getTranslation } = useTranslation();
   const { components } = survey;
@@ -47,6 +58,7 @@ export const SurveyViewForm = ({
     survey,
     getTranslation,
   ]);
+
   const renderSurvey = props => {
     const {
       submitForm,
@@ -58,6 +70,7 @@ export const SurveyViewForm = ({
       errors,
       setStatus,
       status,
+      dirty,
     } = props;
 
     // 1. get a list of visible fields
@@ -80,21 +93,24 @@ export const SurveyViewForm = ({
     };
 
     return (
-      <SurveyScreenPaginator
-        survey={survey}
-        patient={patient}
-        values={values}
-        setFieldValue={setFieldValue}
-        onSurveyComplete={submitVisibleValues}
-        onCancel={onCancel}
-        validateForm={validateForm}
-        setErrors={setErrors}
-        errors={errors}
-        setStatus={setStatus}
-        status={status}
-        showCancelButton={showCancelButton}
-        data-testid="surveyscreenpaginator-8wns"
-      />
+      <>
+        <DirtyStateTracker dirty={dirty} onFormDirtyChange={onFormDirtyChange} />
+        <SurveyScreenPaginator
+          survey={survey}
+          patient={patient}
+          values={values}
+          setFieldValue={setFieldValue}
+          onSurveyComplete={submitVisibleValues}
+          onCancel={onCancel}
+          validateForm={validateForm}
+          setErrors={setErrors}
+          errors={errors}
+          setStatus={setStatus}
+          status={status}
+          showCancelButton={showCancelButton}
+          data-testid="surveyscreenpaginator-8wns"
+        />
+      </>
     );
   };
 

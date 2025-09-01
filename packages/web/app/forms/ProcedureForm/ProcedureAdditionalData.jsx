@@ -68,6 +68,7 @@ export const ProcedureAdditionalData = ({
   const { currentUser, facilityId } = useAuth();
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
+  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
 
   const surveys = useProcedureSurveys(procedureTypeId);
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
@@ -89,12 +90,13 @@ export const ProcedureAdditionalData = ({
       onSuccess: data => {
         onSuccess(data.procedureId);
         setSelectedSurveyId(null);
+        setSurveyFormDirty(false);
       },
     },
   );
 
   const onFormSelect = event => {
-    if (!event.target.value) {
+    if (surveyFormDirty) {
       setCancelFormModalOpen(true);
     } else {
       setSelectedSurveyId(event.target.value);
@@ -148,6 +150,7 @@ export const ProcedureAdditionalData = ({
               patientAdditionalData={patientAdditionalData}
               currentUser={currentUser}
               showCancelButton
+              onFormDirtyChange={setSurveyFormDirty}
             />
           </SurveyBox>
         )}
@@ -161,6 +164,7 @@ export const ProcedureAdditionalData = ({
         onConfirm={() => {
           setCancelFormModalOpen(false);
           setSelectedSurveyId(null);
+          setSurveyFormDirty(false);
         }}
       />
     </>
