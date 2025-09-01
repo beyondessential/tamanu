@@ -1,19 +1,32 @@
 import React from 'react';
-import { FormControl, InputLabel, InputBase, styled } from '@mui/material';
+import { FormControl, InputLabel, TextField as MuiTextField, styled } from '@mui/material';
 
-const StyledTextField = styled(InputBase)(({ theme }) => ({
-    'label + &': {
-      marginTop: theme.spacing(3),
-    },
-  }));
-  
+const StyledInputLabel = styled(InputLabel)(({ theme }) => ({
+  fontSize: '14px',
+  fontWeight: 500,
+  '& .MuiFormLabel-asterisk': {
+    color: theme.palette.error.main,
+  }
+}));
+
+const StyledTextField = styled(MuiTextField)(({ theme }) => ({
+  'label + &': {
+    marginTop: theme.spacing(2),
+  },
+  '& .MuiInputBase-input': {
+    padding: '14.5px 12px',
+  },
+  '& .MuiInputBase-root': {
+    width: '100%',
+  },
+}));
 
 export const TextField = ({ label, ...props }: { label: string; [key: string]: any }) => {
   return (
     <FormControl variant="standard">
-      <InputLabel shrink htmlFor={props.id}>
+      <StyledInputLabel shrink htmlFor={props.id} required={props.required}>
         {label}
-      </InputLabel>
+      </StyledInputLabel>
       <StyledTextField {...props} />
     </FormControl>
   );
