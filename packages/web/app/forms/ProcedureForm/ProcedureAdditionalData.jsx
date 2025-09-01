@@ -69,6 +69,7 @@ export const ProcedureAdditionalData = ({
   const [cancelFormModalOpen, setCancelFormModalOpen] = useState(false);
   const [startTime] = useState(getCurrentDateTimeString());
   const [surveyFormDirty, setSurveyFormDirty] = useState(false);
+  const [pendingSelectedSurveyId, setPendingSelectedSurveyId] = useState(null);
 
   const surveys = useProcedureSurveys(procedureTypeId);
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
@@ -96,15 +97,18 @@ export const ProcedureAdditionalData = ({
   );
 
   const onFormSelect = event => {
+    const newSurveyId = event.target.value;
     if (surveyFormDirty) {
+      setPendingSelectedSurveyId(newSurveyId);
       setCancelFormModalOpen(true);
     } else {
-      setSelectedSurveyId(event.target.value);
+      setSelectedSurveyId(newSurveyId);
     }
   };
 
   const onCancel = () => {
     if (surveyFormDirty) {
+      setPendingSelectedSurveyId(null);
       setCancelFormModalOpen(true);
     } else {
       setSelectedSurveyId(null);
@@ -165,10 +169,13 @@ export const ProcedureAdditionalData = ({
         open={cancelFormModalOpen}
         onCancel={() => {
           setCancelFormModalOpen(false);
+          setPendingSelectedSurveyId(null);
         }}
         onConfirm={() => {
           setCancelFormModalOpen(false);
-          setSelectedSurveyId(null);
+          // If there's a pending survey selection, apply it; otherwise clear the current selection
+          setSelectedSurveyId(pendingSelectedSurveyId);
+          setPendingSelectedSurveyId(null);
           setSurveyFormDirty(false);
         }}
       />
