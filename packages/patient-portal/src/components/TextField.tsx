@@ -23,7 +23,7 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
 
 export const TextField = ({ label, ...props }: { label: string; [key: string]: any }) => {
   return (
-    <FormControl variant="standard">
+    <FormControl fullWidth={props.fullWidth} variant="standard">
       <StyledInputLabel shrink htmlFor={props.id} required={props.required}>
         {label}
       </StyledInputLabel>
