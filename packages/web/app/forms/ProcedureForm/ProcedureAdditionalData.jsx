@@ -73,8 +73,8 @@ export const ProcedureAdditionalData = ({
   const { data: patientAdditionalData } = usePatientAdditionalDataQuery(patient.id);
   const { data: survey } = useSurveyQuery(selectedSurveyId);
 
-  const { mutate: submitSurveyResponse } = useMutation({
-    mutationFn: async body => {
+  const { mutateAsync: submitSurveyResponse } = useMutation(
+    async body => {
       return api.post('procedure/surveyResponse', {
         surveyId: survey.id,
         startTime,
@@ -85,12 +85,13 @@ export const ProcedureAdditionalData = ({
         procedureId,
       });
     },
-    onError: error => notifyError(error.message),
-    onSuccess: data => {
-      onSuccess(data.procedureId);
-      setSelectedSurveyId(null);
+    {
+      onSuccess: data => {
+        onSuccess(data.procedureId);
+        setSelectedSurveyId(null);
+      },
     },
-  });
+  );
 
   const onFormSelect = event => {
     if (!event.target.value) {
