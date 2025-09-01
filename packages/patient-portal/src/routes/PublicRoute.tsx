@@ -4,6 +4,7 @@ import { Navigate, Outlet } from 'react-router';
 import { CircularProgress, Paper, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const PageContainer = styled(Box)`
   position: relative;
@@ -13,7 +14,12 @@ const PageContainer = styled(Box)`
   height: 100vh;
   width: 100vw;
   justify-content: center;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 20.19%, rgba(17, 114, 209, 0.3) 99.94%), #FFFFFF;
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 20.19%,
+      rgba(17, 114, 209, 0.3) 99.94%
+    ),
+    ${TAMANU_COLORS.white};
 `;
 
 const Card = styled(Paper)`
@@ -29,13 +35,11 @@ const Card = styled(Paper)`
   border: none;
 `;
 
-
 const TamanuLogo = styled('img')`
   width: 10rem;
   position: absolute;
   top: 4rem;
 `;
-
 
 const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
   <PageContainer>
