@@ -1,46 +1,64 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
-import { CircularProgress, Paper, Container } from '@mui/material';
+import { CircularProgress, Paper, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
+import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
-const PageContainer = styled(Container)`
+const PageContainer = styled(Box)`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.485) 8.1%,
+      rgba(253, 253, 255, 0.46) 15.5%,
+      rgba(248, 248, 255, 0.425) 22.5%,
+      rgba(240, 243, 255, 0.385) 29%,
+      rgba(229, 237, 255, 0.345) 35.3%,
+      rgba(215, 230, 255, 0.31) 41.2%,
+      rgba(198, 222, 255, 0.28) 47.1%,
+      rgba(178, 213, 255, 0.26) 52.9%,
+      rgba(156, 203, 255, 0.25) 58.8%,
+      rgba(132, 192, 255, 0.255) 64.7%,
+      rgba(106, 180, 255, 0.27) 71%,
+      rgba(79, 167, 252, 0.285) 77.5%,
+      rgba(52, 153, 245, 0.305) 84.5%,
+      rgba(26, 138, 235, 0.32) 91.9%,
+      rgba(17, 114, 209, 0.3) 100%
+    ),
+    ${TAMANU_COLORS.white};
 `;
 
 const Card = styled(Paper)`
   margin: 100px auto;
   display: block;
-  padding: 30px;
+  padding: 22px;
   min-width: 300px;
-  width: 500px;
+  width: 520px;
   max-width: 100%;
   text-align: center;
+  border-radius: 10px;
   box-shadow: none;
-
-  h1 {
-    margin-bottom: 16px;
-  }
-
-  p {
-    margin-bottom: 30px;
-  }
-
-  button {
-    margin-top: 20px;
-    margin-bottom: 20px;
-  }
+  border: none;
 `;
 
-import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
+const TamanuLogo = styled('img')`
+  width: 160px;
+  position: absolute;
+  top: 64px;
+`;
 
 const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
-  <PageContainer maxWidth="md">
-    <img src={tamanuLogoBlue} alt="Tamanu Logo" />
-    <Card variant="outlined">{children}</Card>
+  <PageContainer>
+    <TamanuLogo src={tamanuLogoBlue} alt="Tamanu Logo" />
+    <Card>{children}</Card>
   </PageContainer>
 );
 
