@@ -1,8 +1,9 @@
 import React from 'react';
-import { Typography, TextField } from '@mui/material';
+import { Typography, InputLabel, FormControl, InputBase, styled } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
+import { TextField } from '../components/TextField';
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -32,16 +33,17 @@ export const LoginView = () => {
       <Typography>We’ve sent a 6-digit verification code to your email address</Typography>
       <form onSubmit={handleSubmit}>
         {!storedEmail && (
-          <TextField
-            fullWidth
-            type="email"
-            name="email"
-            label="Email Address"
-            required
-            autoComplete="email"
-            autoFocus
-            sx={{ mb: 2 }}
-          />
+            <TextField
+              label="Email Address"
+                fullWidth
+                id="email"
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                autoFocus
+                sx={{ mb: 2 }}
+              />
         )}
         <TextField
           fullWidth
