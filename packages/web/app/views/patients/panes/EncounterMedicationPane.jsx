@@ -160,6 +160,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           encounter={encounter}
           open={pharmacyOrderModalOpen}
           onClose={() => setPharmacyOrderModalOpen(false)}
+          onSubmit={() => setRefreshEncounterMedications(prev => prev + 1)}
         />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
@@ -308,6 +309,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}
           onImportOngoingPrescriptions={() => setMedicationImportModalOpen(true)}
+          isPharmacyOrdersEnabled={pharmacyOrderEnabled}
         />
       </TableContainer>
     </TabPane>

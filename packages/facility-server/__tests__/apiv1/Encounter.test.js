@@ -944,6 +944,16 @@ describe('Encounter', () => {
             medicationId: testMedication.id,
           }),
         );
+
+        await models.EncounterPrescription.create({
+          encounterId: pharmacyOrderEncounter.id,
+          prescriptionId: testPrescription.id,
+        });
+      });
+
+      afterEach(async () => {
+        await models.PharmacyOrderPrescription.truncate({ cascade: true, force: true });
+        await models.PharmacyOrder.truncate({ cascade: true, force: true });
       });
 
       it('should record a pharmacy order', async () => {
@@ -973,6 +983,33 @@ describe('Encounter', () => {
         expect(pharmacyOrderPrescriptions[0].prescriptionId).toBe(testPrescription.id);
         expect(pharmacyOrderPrescriptions[0].quantity).toBe(1);
         expect(pharmacyOrderPrescriptions[0].repeats).toBe(1);
+      });
+
+      it('should return the last ordered timestamp of the medication has been ordered', async () => {
+        const fakeCreatedAt = new Date('2020-01-01T00:00:00.000Z');
+        const pharmacyOrder = await app
+          .post(`/api/encounter/${pharmacyOrderEncounter.id}/pharmacyOrder`)
+          .send({
+            orderingClinicianId: app.user.id,
+            comments: 'comments',
+            pharmacyOrderPrescriptions: [
+              {
+                prescriptionId: testPrescription.id,
+                quantity: 1,
+                repeats: 1,
+              },
+            ],
+          });
+
+        await models.PharmacyOrderPrescription.update(
+          { createdAt: fakeCreatedAt },
+          { where: { pharmacyOrderId: pharmacyOrder.body.id } },
+        );
+
+        const result = await app.get(`/api/encounter/${pharmacyOrderEncounter.id}/medications`);
+        expect(result).toHaveSucceeded();
+        const { body } = result;
+        expect(body.data[0].lastOrderedAt).toEqual(fakeCreatedAt.toISOString());
       });
     });
 
