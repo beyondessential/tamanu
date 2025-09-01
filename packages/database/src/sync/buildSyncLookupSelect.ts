@@ -10,7 +10,11 @@ interface Columns {
 }
 
 /**
- * When fully rebuilding we want to use the underlying
+ * When fully rebuilding we want to use base table's updated_at_sync_tick so that clients don't
+ * resync records they already have. Calling this the 'historicalRecordSyncTick'
+ *
+ * During regular sync lookup building, we either want to use the passed in `updatedAtSyncTick` variable (which is usually the SYNC_LOOKUP_PENDING_UPDATE_FLAG)
+ * or if that value is null (typically for an initial build) we use th base table's updated at sync tick again.
  */
 const updatedAtSyncTickClause = (table: string, isFullyRebuilding: boolean) => {
   const historicRecordSyncTick = `${table}.updated_at_sync_tick`;
