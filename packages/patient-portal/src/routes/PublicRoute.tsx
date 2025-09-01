@@ -3,6 +3,7 @@ import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
 import { CircularProgress, Paper, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
+import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 
 const PageContainer = styled(Box)`
   position: relative;
@@ -28,14 +29,9 @@ const Card = styled(Paper)`
   border: none;
 `;
 
-import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 
 const TamanuLogo = styled('img')`
-  position: absolute;
   width: 193px;
-  height: 60px;
-  left: calc(50% - 193px/2 - 0.5px);
-  top: 70px;
 `;
 
 
