@@ -53,7 +53,7 @@ export const RequestLoginTokenView = () => {
         </LoginButton>
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
-          <b>Issue with your email?</b> If you have forgotten or lost access to your email, please
+          <strong>Issue with your email?</strong> If you have forgotten or lost access to your email, please
           contact the facility.
         </Typography>
       </form>
