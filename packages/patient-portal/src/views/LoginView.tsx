@@ -1,8 +1,9 @@
 import React from 'react';
-import { Typography, TextField } from '@mui/material';
+import { Typography } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
+import { TextField } from '../components/TextField';
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -33,10 +34,11 @@ export const LoginView = () => {
       <form onSubmit={handleSubmit}>
         {!storedEmail && (
           <TextField
+            label="Email Address"
             fullWidth
+            id="email"
             type="email"
             name="email"
-            label="Email Address"
             required
             autoComplete="email"
             autoFocus
