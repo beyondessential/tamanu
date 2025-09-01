@@ -215,7 +215,7 @@ usersRouter.post(
     const { id: userId } = params;
     const { UserLeave } = models;
 
-    req.checkPermission('write', 'User');
+    req.checkPermission('write', currentUser);
 
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
@@ -266,7 +266,8 @@ usersRouter.get(
     const { models, params, query } = req;
     const { id: userId } = params;
 
-    req.checkPermission('list', 'User');
+    const user = await models.User.findByPk(userId);
+    req.checkPermission('read', user);
 
     let where = {
       userId,
@@ -294,7 +295,9 @@ usersRouter.delete(
     const { models, params, user: currentUser } = req;
     const { id: userId, leaveId } = params;
 
-    req.checkPermission('write', 'User');
+    const user = await models.User.findByPk(userId);
+
+    req.checkPermission('write', user);
 
     const leave = await models.UserLeave.findOne({
       where: { id: leaveId, userId },
@@ -355,14 +358,13 @@ usersRouter.put(
       db,
     } = req;
 
-    req.checkPermission('write', 'User');
-
     const fields = await UPDATE_VALIDATION.validate(req.body);
 
     const user = await User.findByPk(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
+    req.checkPermission('write', user);
 
     const role = await Role.findByPk(fields.role);
     if (!role) {
