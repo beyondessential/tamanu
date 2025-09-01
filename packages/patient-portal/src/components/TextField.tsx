@@ -16,9 +16,6 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   '& .MuiInputBase-input': {
     padding: '12.5px 10px',
   },
-  '& .MuiInputBase-root': {
-    width: '100%',
-  },
 }));
 
 export const TextField = ({ label, ...props }: Omit<import('@mui/material').TextFieldProps, 'variant' | 'label'> & { label: string }) => {
