@@ -104,7 +104,11 @@ export const ProcedureAdditionalData = ({
   };
 
   const onCancel = () => {
-    setCancelFormModalOpen(true);
+    if (surveyFormDirty) {
+      setCancelFormModalOpen(true);
+    } else {
+      setSelectedSurveyId(null);
+    }
   };
 
   const hasAdditionalDataForms = surveys?.length > 0;
