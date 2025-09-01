@@ -67,6 +67,11 @@ export class Survey extends Model {
       as: 'components',
       foreignKey: 'surveyId',
     });
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ProcedureTypeSurvey,
+      as: 'procedureTypes',
+      foreignKey: 'surveyId',
+    });
   }
 
   static getAllReferrals() {
