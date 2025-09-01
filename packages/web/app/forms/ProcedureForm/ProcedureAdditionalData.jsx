@@ -147,6 +147,7 @@ export const ProcedureAdditionalData = ({
         {survey && (
           <SurveyBox>
             <SurveyViewForm
+              key={survey.id}
               onSubmit={submitSurveyResponse}
               survey={survey}
               onCancel={onCancel}
