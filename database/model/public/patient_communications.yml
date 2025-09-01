@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_patient_communications_changed
+              - record_patient_communications_changelog
+              - set_patient_communications_updated_at
+              - set_patient_communications_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -42,9 +48,15 @@ sources:
           - name: subject
             data_type: text
             description: "{{ doc('patient_communications__subject') }}"
+            config:
+              meta:
+                masking: text
           - name: content
             data_type: text
             description: "{{ doc('patient_communications__content') }}"
+            config:
+              meta:
+                masking: text
           - name: status
             data_type: user-defined
             description: "{{ doc('patient_communications__status') }}"
@@ -61,14 +73,21 @@ sources:
             description: "{{ doc('patient_communications__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: destination
             data_type: character varying(255)
             description: "{{ doc('patient_communications__destination') }}"
+            config:
+              meta:
+                masking: email
           - name: attachment
             data_type: character varying(255)
             description: "{{ doc('patient_communications__attachment') }}"
+            config:
+              meta:
+                masking: text
           - name: hash
             data_type: integer
             description: "{{ doc('patient_communications__hash') }}"

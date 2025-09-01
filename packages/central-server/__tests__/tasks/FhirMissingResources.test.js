@@ -16,13 +16,16 @@ describe('FhirMissingResources task', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const { FhirEncounter, FhirPractitioner } = ctx.store.models;
+    const { FhirEncounter, FhirPractitioner, MediciReport, FhirOrganization } = ctx.store.models;
 
     fhirMissingResourcesWorker = new FhirMissingResources(ctx);
     resources = await fakeResourcesOfFhirServiceRequest(ctx.store.models);
 
     await FhirEncounter.materialiseFromUpstream(resources.encounter.id);
+    await MediciReport.materialiseFromUpstream(resources.encounter.id);
     await FhirPractitioner.materialiseFromUpstream(resources.practitioner.id);
+    await FhirPractitioner.materialiseFromUpstream(SYSTEM_USER_UUID);
+    await FhirOrganization.materialiseFromUpstream(resources.facility.id);
   });
 
   beforeEach(async () => {
@@ -50,32 +53,23 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(4); // 1 Organization, 1 ServiceRequest, 1 Specimen, 1 Practitioner
-    rows.forEach((job) => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
+    expect(count).toEqual(2); // 1 ServiceRequest, 1 Specimen
+    rows.forEach(job => expect(job.priority).toEqual(JOB_PRIORITIES.LOW));
 
     await labRequest.destroy();
   });
 
   it('should create FHIR fromUpstream jobs if FHIR resource are missing', async () => {
-    const { FhirServiceRequest, FhirJob } = ctx.store.models;
+    const { FhirJob } = ctx.store.models;
     const imagingRequest = await fakeResourcesOfFhirServiceRequestWithImagingRequest(
       ctx.store.models,
       resources,
     );
-    await FhirServiceRequest.materialiseFromUpstream(imagingRequest.id);
-    await FhirServiceRequest.resolveUpstreams();
-
-    const fhirServiceRequest = await FhirServiceRequest.findOne({
-      where: {
-        upstreamId: imagingRequest.id,
-      },
-    });
-    await fhirServiceRequest.destroy();
 
     const name = fhirMissingResourcesWorker.getName();
     expect(name).toEqual('FhirMissingResources');
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(3); // 1 MediciReport, 1 ServiceRequest, 1 Practitioner
+    expect(countQueue).toEqual(1); // 1 ServiceRequest
     await fhirMissingResourcesWorker.run();
 
     const fhirJob = await FhirJob.findOne({
@@ -96,8 +90,7 @@ describe('FhirMissingResources task', () => {
   });
 
   it('should not create one FHIR fromUpstream job if the missing upstream resource do not meet pre-filter criteria', async () => {
-    const { Encounter, FhirJob } = ctx.store.models;
-    await fhirMissingResourcesWorker.run();
+    const { Encounter } = ctx.store.models;
 
     // A new encounter That should not be materialised
     const encounter = await Encounter.create(
@@ -107,29 +100,13 @@ describe('FhirMissingResources task', () => {
         departmentId: resources.department.id,
         examinerId: resources.practitioner.id,
         encounterType: 'surveyResponse',
+        endDate: null,
       }),
     );
 
     const countQueue = await fhirMissingResourcesWorker.countQueue();
-    expect(countQueue).toEqual(2);
-    await fhirMissingResourcesWorker.run();
+    expect(countQueue).toEqual(0);
 
-    const fhirJob = await FhirJob.findOne({
-      where: {
-        topic: 'fhir.refresh.fromUpstream',
-        payload: {
-          resource: {
-            [Op.ne]: 'Organization',
-          },
-        },
-      },
-    });
-
-    expect(fhirJob).toMatchObject({
-      payload: expect.objectContaining({
-        upstreamId: SYSTEM_USER_UUID,
-      }),
-    });
     await encounter.destroy();
   });
 
@@ -159,7 +136,7 @@ describe('FhirMissingResources task', () => {
     });
 
     const countQueue = await fhirMissingResourcesCreatedAfterWorker.countQueue();
-    expect(countQueue).toEqual(4); // 1 Organization, 1 ServiceRequest, 1 Specimen, 1 Practitioner
+    expect(countQueue).toEqual(2); // 1 ServiceRequest, 1 Specimen
     await fhirMissingResourcesCreatedAfterWorker.run();
 
     const { count, rows } = await FhirJob.findAndCountAll({
@@ -173,10 +150,8 @@ describe('FhirMissingResources task', () => {
       },
     });
 
-    expect(count).toEqual(3);
-    rows
-      .filter((job) => job.payload.upstreamId !== SYSTEM_USER_UUID)
-      .forEach((job) => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
+    expect(count).toEqual(2);
+    rows.forEach(job => expect(job.payload.upstreamId).toEqual(newLabRequest.id));
 
     await oldLabRequest.destroy();
     await newLabRequest.destroy();
