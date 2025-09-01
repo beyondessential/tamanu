@@ -47,17 +47,18 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - DUE
-                    - GIVEN
-                    - HISTORICAL
-                    - MISSED
-                    - NOT_GIVEN
-                    - OVERDUE
-                    - RECORDED_IN_ERROR
-                    - SCHEDULED
-                    - UNKNOWN
-                    - UPCOMING
+                  arguments:
+                    values:
+                      - DUE
+                      - GIVEN
+                      - HISTORICAL
+                      - MISSED
+                      - NOT_GIVEN
+                      - OVERDUE
+                      - RECORDED_IN_ERROR
+                      - SCHEDULED
+                      - UNKNOWN
+                      - UPCOMING
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__reason') }}"
@@ -75,27 +76,30 @@ sources:
             description: "{{ doc('administered_vaccines__scheduled_vaccine_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'scheduled_vaccines')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'scheduled_vaccines')
+                    field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: injection_site
             data_type: character varying(255)
             description: "{{ doc('administered_vaccines__injection_site') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - left_arm
-                    - right_arm
-                    - left_thigh
-                    - right_thigh
-                    - oral
-                    - other
+                  arguments:
+                    values:
+                      - left_arm
+                      - right_arm
+                      - left_thigh
+                      - right_thigh
+                      - oral
+                      - other
           - name: consent
             data_type: boolean
             description: "{{ doc('administered_vaccines__consent') }}"
@@ -130,9 +134,10 @@ sources:
             description: "{{ doc('administered_vaccines__not_given_reason_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'vaccineNotGivenReason'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'vaccineNotGivenReason'
           - name: given_elsewhere
             data_type: boolean
             description: "{{ doc('administered_vaccines__given_elsewhere') }}"

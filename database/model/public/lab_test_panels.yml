@@ -59,9 +59,10 @@ sources:
             description: "{{ doc('lab_test_panels__category_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'labTestCategory'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'labTestCategory'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_test_panels."
