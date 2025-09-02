@@ -31,7 +31,11 @@ export const RegisterAccountStep3Container: FC<any> = ({
       confirmPassword: registerFormState.confirmPassword,
       readPrivacyPolice: registerFormState.readPrivacyPolice,
     }),
-    [],
+    [
+      registerFormState.password,
+      registerFormState.confirmPassword,
+      registerFormState.readPrivacyPolice,
+    ],
   );
 
   onKeyboardOpenListener(() => {

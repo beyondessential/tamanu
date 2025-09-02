@@ -107,7 +107,7 @@ export const MoreScreen = (): ReactElement => {
         onPress: (): Promise<void> => Linking.openURL(supportDeskUrl),
       },
     ],
-    [],
+    [supportDeskUrl],
   );
 
   const signOut = useCallback(() => {

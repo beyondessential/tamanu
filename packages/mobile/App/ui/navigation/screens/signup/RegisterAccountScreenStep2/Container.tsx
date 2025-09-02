@@ -33,7 +33,13 @@ export const RegisterAccountStep2Container: FC<any> = ({
       professionalRegistrationNumber: registerFormState.professionalRegistrationNumber,
       firstYearOfRegistration: registerFormState.firstYearOfRegistration,
     }),
-    [],
+    [
+      registerFormState.role,
+      registerFormState.homeFacility,
+      registerFormState.profession,
+      registerFormState.professionalRegistrationNumber,
+      registerFormState.firstYearOfRegistration,
+    ],
   );
 
   onKeyboardOpenListener(() => {

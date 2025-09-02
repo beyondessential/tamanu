@@ -129,7 +129,6 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
       surveyId,
       surveyType,
       user.id,
-      survey,
       components,
     ],
   );

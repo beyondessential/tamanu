@@ -111,7 +111,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [syncManager.lastSuccessfulSyncTime]);
 
   const syncFinishedSuccessfully = syncStarted && !isSyncing && !isQueuing && !hasError;
 

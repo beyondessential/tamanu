@@ -33,7 +33,13 @@ export const RegisterAccountStep1Container: FC<any> = ({
       phone: registerFormState.phone,
       gender: registerFormState.gender,
     }),
-    [],
+    [
+      registerFormState.firstName,
+      registerFormState.lastName,
+      registerFormState.email,
+      registerFormState.phone,
+      registerFormState.gender,
+    ],
   );
 
   onKeyboardOpenListener(() => {
