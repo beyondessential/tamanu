@@ -10,15 +10,28 @@ export const useFilterFields = () => {
   const villageId = useField('villageId');
   const programRegistryId = useField('programRegistryId');
 
+  const sexValue = sex[1].value;
+  const dateOfBirthValue = dateOfBirth[1].value;
+  const firstNameValue = firstName[1].value;
+  const lastNameValue = lastName[1].value;
+  const villageIdValue = villageId[1].value;
+  const programRegistryIdValue = programRegistryId[1].value;
+
   const fields = useMemo(
     () => [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId],
     [
-      sex[1].value,
-      dateOfBirth[1].value,
-      firstName[1].value,
-      lastName[1].value,
-      villageId[1].value,
-      programRegistryId[1].value,
+      sex,
+      dateOfBirth,
+      firstName,
+      lastName,
+      villageId,
+      programRegistryId,
+      sexValue,
+      dateOfBirthValue,
+      firstNameValue,
+      lastNameValue,
+      villageIdValue,
+      programRegistryIdValue,
     ],
   );
 

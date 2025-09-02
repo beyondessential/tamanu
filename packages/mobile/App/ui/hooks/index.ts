@@ -32,7 +32,7 @@ export const useCancelableEffect = <T>(
     return (): void => {
       canceled = true;
     };
-  }, dependencies);
+  }, [...dependencies, onFetch]);
 
   return [data, error, isLoading, onFetch];
 };
