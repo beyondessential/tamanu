@@ -28,37 +28,43 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
     setIdle(0);
   };
 
-  const debouncedResetIdle = useCallback(debounce(resetIdle, 300), []);
+  const debouncedResetIdle = useCallback(
+    debounce(() => setIdle(0), 300),
+    [],
+  );
 
-  const handleResetIdle = (): boolean => {
+  const handleResetIdle = useCallback((): boolean => {
     debouncedResetIdle();
     // Returns false to indicate that this component
     // shouldn't block native components from becoming the JS responder
     return false;
-  };
+  }, [debouncedResetIdle]);
 
-  const handleIdleLogout = (): void => {
+  const handleIdleLogout = useCallback((): void => {
     signOutClient(true);
-  };
+  }, [signOutClient]);
 
-  const handleStateChange = (nextAppState: AppStateStatus): void => {
-    if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
-      // App has moved to the background
-      setScreenOffTime(Date.now());
-    } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
-      // App has moved to the foreground
-      if (screenOffTime) {
-        const timeDiff = Date.now() - screenOffTime;
-        const newIdle = idle + timeDiff;
-        setIdle(newIdle);
-        setScreenOffTime(null);
-        if (newIdle >= UI_EXPIRY_TIME) {
-          handleIdleLogout();
+  const handleStateChange = useCallback(
+    (nextAppState: AppStateStatus): void => {
+      if (appState.current === 'active' && nextAppState.match(/inactive|background/)) {
+        // App has moved to the background
+        setScreenOffTime(Date.now());
+      } else if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // App has moved to the foreground
+        if (screenOffTime) {
+          const timeDiff = Date.now() - screenOffTime;
+          const newIdle = idle + timeDiff;
+          setIdle(newIdle);
+          setScreenOffTime(null);
+          if (newIdle >= UI_EXPIRY_TIME) {
+            handleIdleLogout();
+          }
         }
       }
-    }
-    appState.current = nextAppState;
-  };
+      appState.current = nextAppState;
+    },
+    [screenOffTime, idle, handleIdleLogout],
+  );
 
   useEffect(() => {
     let intervalId: NodeJS.Timer;
