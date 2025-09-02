@@ -38,7 +38,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       inputRefs.current[index + 1]?.focus();
     }
 
-    if (code.length === length && code.replace(/\s/g, '').length === length) {
+    if (code.length === length) {
       onComplete?.(code);
     }
   };
@@ -68,17 +68,14 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       }
       return;
     }
-    
     if (e.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus();
       return;
     }
-    
     if (e.key === 'ArrowRight' && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
       return;
     }
-    
     // Allow other control keys
     if (allowedKeys.includes(e.key)) {
       return;
@@ -124,7 +121,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     
     if (code.length === length) {
       onComplete?.(code);
-      inputRefs.current[length - 1]?.focus();
+      inputRefs.current.at(-1)?.focus();
     } else {
       inputRefs.current[pasteData.length]?.focus();
     }
