@@ -23,7 +23,8 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   }, []);
 
   const handleChange = (index: number, value: string) => {
-    if (value.length > 1) return;
+    // Only allow single digits
+    if (value.length > 1 || (value && !/^\d$/.test(value))) return;
     
     const newValues = [...values];
     newValues[index] = value;
@@ -43,6 +44,13 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   };
 
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+    // Allow navigation and control keys
+    const allowedKeys = [
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End'
+    ];
+
     if (e.key === 'Backspace') {
       if (values[index]) {
         // If current field has a value, clear it
@@ -63,25 +71,36 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     
     if (e.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus();
+      return;
     }
     
     if (e.key === 'ArrowRight' && index < length - 1) {
       inputRefs.current[index + 1]?.focus();
+      return;
     }
     
-    // If a digit is typed and current field has a value, replace it
-    if (/^\d$/.test(e.key) && values[index]) {
-      const newValues = [...values];
-      newValues[index] = e.key;
-      setValues(newValues);
-      onChange?.(newValues.join(''));
-      
-      // Move to next field if not the last one
-      if (index < length - 1) {
-        inputRefs.current[index + 1]?.focus();
-      }
-      e.preventDefault();
+    // Allow other control keys
+    if (allowedKeys.includes(e.key)) {
+      return;
     }
+    
+    // Only allow digits 0-9
+    if (!/^\d$/.test(e.key)) {
+      e.preventDefault();
+      return;
+    }
+    
+    // If a digit is typed, replace current value
+    const newValues = [...values];
+    newValues[index] = e.key;
+    setValues(newValues);
+    onChange?.(newValues.join(''));
+    
+    // Move to next field if not the last one
+    if (index < length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+    e.preventDefault();
   };
 
   const handleFocus = (index: number) => {
@@ -93,7 +112,10 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text').slice(0, length);
+    const pasteData = e.clipboardData.getData('text')
+      .replace(/\D/g, '') // Remove all non-digits
+      .slice(0, length); // Limit to field length
+    
     const newValues = pasteData.split('').concat(new Array(length).fill('')).slice(0, length);
     setValues(newValues);
     
@@ -122,6 +144,8 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
             onPaste={handlePaste}
             inputProps={{
               maxLength: 1,
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
               style: {
                 textAlign: 'center',
                 fontSize: '1.5rem',
