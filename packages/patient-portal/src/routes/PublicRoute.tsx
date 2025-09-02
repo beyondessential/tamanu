@@ -35,20 +35,6 @@ const PageContainer = styled(Box)`
     ),
     ${TAMANU_COLORS.white};
 `;
-
-const Card = styled(Paper)`
-  margin: 100px auto;
-  display: block;
-  padding: 22px;
-  min-width: 300px;
-  width: 520px;
-  max-width: 100%;
-  text-align: center;
-  border-radius: 10px;
-  box-shadow: none;
-  border: none;
-`;
-
 const TamanuLogo = styled('img')`
   width: 160px;
   position: absolute;
@@ -58,7 +44,7 @@ const TamanuLogo = styled('img')`
 const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
   <PageContainer>
     <TamanuLogo src={tamanuLogoBlue} alt="Tamanu Logo" />
-    <Card>{children}</Card>
+    {children}
   </PageContainer>
 );
 

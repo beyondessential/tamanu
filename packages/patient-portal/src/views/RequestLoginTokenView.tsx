@@ -4,6 +4,7 @@ import { Divider, Typography, styled } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
 import { TextField } from '../components/TextField';
+import { Card } from '../components/Card';
 
 const LoginButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -30,7 +31,7 @@ export const RequestLoginTokenView = () => {
   };
 
   return (
-    <>
+    <Card>
       <Typography variant="h1" component="h1" gutterBottom>
         Log In
       </Typography>
@@ -57,6 +58,6 @@ export const RequestLoginTokenView = () => {
           contact the facility.
         </Typography>
       </form>
-    </>
+    </Card>
   );
 };
