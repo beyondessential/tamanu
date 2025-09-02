@@ -1,12 +1,12 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
+import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 
 import { TextField } from '../components/TextField';
 import { Card } from '../components/Card';
-
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -30,9 +30,12 @@ export const LoginView = () => {
 
   return (
     <Card>
-      <Typography variant="h3" component="h1" gutterBottom>
-        Account authentication
-      </Typography>
+      <Box display="flex" alignItems="center" justifyContent="center" gap={0.75} mb={1}>
+        <ShieldIcon fontSize='small' color="primary" />
+        <Typography variant="h3">
+          Account authentication
+        </Typography>
+      </Box>
       <Typography>We’ve sent a 6-digit verification code to your email address</Typography>
       <form onSubmit={handleSubmit}>
         {!storedEmail && (
