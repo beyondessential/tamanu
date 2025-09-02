@@ -70,9 +70,12 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
-  };
+  const generateAbilityForUser = useCallback(
+    (user: User): PureAbility => {
+      return buildAbility(user, backend.permissions.data);
+    },
+    [backend.permissions.data],
+  );
 
   const setContextUserAndAbility = useCallback(
     (userData): void => {
@@ -80,7 +83,7 @@ const Provider = ({
       const abilityObject = generateAbilityForUser(userData);
       setAbility(abilityObject);
     },
-    [backend.permissions.data],
+    [generateAbilityForUser],
   );
 
   const signInAs = (authenticatedUser): void => {

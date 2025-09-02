@@ -158,8 +158,8 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const netInfo = useNetInfo();
   const { centralServer } = useBackend();
 
-  const handleClose = (): void => setOpen(false);
-  const handleOpen = (): void => setOpen(true);
+  const handleClose = useCallback((): void => setOpen(false), []);
+  const handleOpen = useCallback((): void => setOpen(true), []);
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 

@@ -35,6 +35,7 @@ export const useCancelableEffect = <T>(
     return (): void => {
       canceled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFetch, ...dependencies]);
 
   return [data, error, isLoading, onFetch];

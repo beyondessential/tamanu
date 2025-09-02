@@ -24,21 +24,14 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
   const appState = useRef(AppState.currentState);
   const { signOutClient, signedIn } = useAuth();
 
-  const resetIdle = (): void => {
-    setIdle(0);
-  };
-
-  const debouncedResetIdle = useCallback(
-    debounce(() => setIdle(0), 300),
-    [],
-  );
+  const debouncedResetIdleRef = useRef(debounce(() => setIdle(0), 300));
 
   const handleResetIdle = useCallback((): boolean => {
-    debouncedResetIdle();
+    debouncedResetIdleRef.current();
     // Returns false to indicate that this component
     // shouldn't block native components from becoming the JS responder
     return false;
-  }, [debouncedResetIdle]);
+  }, []);
 
   const handleIdleLogout = useCallback((): void => {
     signOutClient(true);
