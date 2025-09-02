@@ -1,5 +1,6 @@
 import React from 'react';
-import { styled, Paper } from '@mui/material';
+import { Paper } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 export const Card = styled(Paper)`
   margin: 100px auto;

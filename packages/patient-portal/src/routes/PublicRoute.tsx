@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { Navigate, Outlet } from 'react-router';
-import { CircularProgress, Paper, Box } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
 import { TAMANU_COLORS } from '@tamanu/ui-components';

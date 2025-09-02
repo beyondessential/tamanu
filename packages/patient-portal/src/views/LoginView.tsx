@@ -5,20 +5,6 @@ import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
 import { TextField } from '../components/TextField';
 
-const Card = styled(Paper)`
-  margin: 100px auto;
-  display: block;
-  padding: 22px;
-  min-width: 300px;
-  width: 520px;
-  max-width: 100%;
-  text-align: center;
-  border-radius: 10px;
-  box-shadow: none;
-  border: none;
-`;
-
-
 export const LoginView = () => {
   const { mutate: login } = useLogin();
   const location = useLocation();
@@ -40,7 +26,7 @@ export const LoginView = () => {
   };
 
   return (
-    <>
+    <Card>
       <Typography variant="h3" component="h1" gutterBottom>
         Account authentication
       </Typography>
@@ -70,6 +56,6 @@ export const LoginView = () => {
           Log in
         </Button>
       </form>
-    </>
+    </Card>
   );
 };
