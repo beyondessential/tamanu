@@ -3,6 +3,8 @@ import { Typography } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
+
+import { Card } from '../components/Card';
 import { TextField } from '../components/TextField';
 
 export const LoginView = () => {
