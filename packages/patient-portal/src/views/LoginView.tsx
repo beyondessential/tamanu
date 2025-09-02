@@ -7,6 +7,7 @@ import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 
 import { TextField } from '../components/TextField';
 import { Card } from '../components/Card';
+import { VerificationCodeInput } from '../components/VerificationCodeInput';
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -36,7 +37,14 @@ export const LoginView = () => {
           Account authentication
         </Typography>
       </Box>
-      <Typography>We’ve sent a 6-digit verification code to your email address</Typography>
+      {storedEmail && (
+        <Box>
+          <Typography variant="body2">
+            Email sent to {storedEmail.replace(/^(.{1,3}).*(@.*)/, '$1*******$2')}
+          </Typography>
+        </Box>
+      )}
+
       <form onSubmit={handleSubmit}>
         {!storedEmail && (
           <TextField
@@ -51,13 +59,10 @@ export const LoginView = () => {
             sx={{ mb: 2 }}
           />
         )}
-        <TextField
-          fullWidth
-          type="text"
-          label="Enter 6-digit verification code"
-          name="verificationCode"
-          required
-        />
+        <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
+          Enter 6-digit verification code
+        </Typography>
+        <VerificationCodeInput name="verificationCode" />
         <Button type="submit" fullWidth variant="contained">
           Log in
         </Button>
