@@ -9,7 +9,7 @@ import {
   RegisterAccountFormStep2FormValues,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
-import { onKeyboardCloseListener, onKeyboardOpenListener } from '/helpers/keyboard';
+import { useKeyboardCloseListener, useKeyboardOpenListener } from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
@@ -42,12 +42,12 @@ export const RegisterAccountStep2Container: FC<any> = ({
     ],
   );
 
-  onKeyboardOpenListener(() => {
+  useKeyboardOpenListener(() => {
     animateState(viewTopPosition, 5, 300);
     animateState(iconSize, 30, 300);
     animateState(titleFont, screenPercentageToDP('1.55', Orientation.Height), 300);
   });
-  onKeyboardCloseListener(() => {
+  useKeyboardCloseListener(() => {
     animateState(viewTopPosition, 20, 300);
     animateState(iconSize, screenPercentageToDP('7.29', Orientation.Height), 300);
     animateState(titleFont, screenPercentageToDP('2.55', Orientation.Height), 300);

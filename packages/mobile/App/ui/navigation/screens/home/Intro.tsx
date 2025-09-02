@@ -10,7 +10,7 @@ import { Button } from '../../../components/Button';
 //helpers
 import { authUserSelector } from '../../../helpers/selectors';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { disableAndroidBackButton } from '../../../helpers/android';
+import { useDisableAndroidBackButton } from '../../../helpers/android';
 // Props
 import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -28,7 +28,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
   const user = useSelector(authUserSelector);
 
   if (step === 1) {
-    disableAndroidBackButton();
+    useDisableAndroidBackButton();
   }
 
   const Icon = useMemo(() => {

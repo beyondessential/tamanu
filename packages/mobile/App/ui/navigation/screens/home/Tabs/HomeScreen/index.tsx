@@ -8,9 +8,9 @@ import { withAuth } from '/containers/Auth';
 import { withPatient } from '~/ui/containers/Patient';
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import { disableAndroidBackButton } from '/helpers/android';
+import { useDisableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useSetStatusBar } from '/helpers/screen';
 import { BaseAppProps } from '/interfaces/BaseAppProps';
 import {
   FullView,
@@ -49,7 +49,7 @@ const SearchPatientsButton = ({ onPress }: { onPress: () => void }): ReactElemen
 );
 
 const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps): ReactElement => {
-  disableAndroidBackButton();
+  useDisableAndroidBackButton();
   const { checkFirstSession, setUserFirstSignIn } = useAuth();
   const { facilityName, facilityId } = useFacility();
 
@@ -64,7 +64,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     navigation.navigate(Routes.HomeStack.SearchPatientStack.Index);
   }, [navigation, setSelectedPatient]);
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useSetStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   if (!user) {
     // This is only encountered in situations where it's about to immediately

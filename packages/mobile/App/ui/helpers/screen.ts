@@ -76,7 +76,7 @@ export const calculateDropdownPosition = (
   return initialPosition;
 };
 
-export const setStatusBar = (
+export const useSetStatusBar = (
   barStyle: 'light-content' | 'dark-content',
   backgroundColor: string,
 ): void =>

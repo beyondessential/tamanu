@@ -3,7 +3,7 @@ import { ActivityIndicator } from 'react-native';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
+import { Orientation, screenPercentageToDP, useSetStatusBar } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
 import {
   MobileSyncManager,
@@ -35,7 +35,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
   const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
   const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
 
-  setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
+  useSetStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
     syncManager.triggerUrgentSync();

@@ -6,7 +6,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import styled from 'styled-components';
 
 import { CenterView, FullView, RowView, StyledText, StyledView } from '/styled/common';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useSetStatusBar } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { UserAvatar } from '/components/UserAvatar';
 import { Button } from '/components/Button';
@@ -114,7 +114,7 @@ export const MoreScreen = (): ReactElement => {
     authCtx.signOut();
   }, [authCtx]);
 
-  setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
+  useSetStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
 
   return (
     <FullView>
