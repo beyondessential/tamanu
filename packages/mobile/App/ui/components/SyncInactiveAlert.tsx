@@ -44,7 +44,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
     if (errorMessage) {
       setErrorMessage(null);
     }
-  }, [open]);
+  }, [open, errorMessage]);
 
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
