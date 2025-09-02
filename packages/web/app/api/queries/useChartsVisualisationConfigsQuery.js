@@ -1,7 +1,7 @@
 import { useEncounter } from '../../contexts/Encounter';
 import { combineQueries } from '../combineQueries';
 import { usePatientDataQuery } from './usePatientDataQuery';
-import { useChartSurveyQuery } from './useChartSurveyQuery';
+import { useSurveyQuery } from './useSurveyQuery';
 import { useChartData } from '../../contexts/ChartData';
 import { getVisualisationConfig } from '../../utils/getVisualisationConfig';
 
@@ -11,7 +11,7 @@ export const useChartsVisualisationConfigsQuery = () => {
 
   const patientQuery = usePatientDataQuery(encounter.patientId);
   const { selectedChartTypeId } = useChartData();
-  const chartSurveyQuery = useChartSurveyQuery(selectedChartTypeId);
+  const chartSurveyQuery = useSurveyQuery(selectedChartTypeId);
 
   const {
     data: [patientData, surveyData],

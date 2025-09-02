@@ -1,8 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { Typography, TextField } from '@mui/material';
+import { Divider, Typography, styled } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
+import { TextField } from '../components/TextField';
+
+const LoginButton = styled(Button)(({ theme }) => ({
+  marginTop: theme.spacing(2),
+}));
 
 export const RequestLoginTokenView = () => {
   const navigate = useNavigate();
@@ -29,20 +34,28 @@ export const RequestLoginTokenView = () => {
       <Typography variant="h1" component="h1" gutterBottom>
         Log In
       </Typography>
-      <Typography>Enter your email below to log in</Typography>
+      <Typography variant="body1" mb={3} color="text.secondary">
+        Enter your email below to log in
+      </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
+          label="Email"
           fullWidth
           type="email"
           name="email"
-          label="Email Address"
+          id="email"
           required
           autoComplete="email"
           autoFocus
         />
-        <Button type="submit" fullWidth variant="contained">
+        <LoginButton type="submit" fullWidth variant="contained">
           Log in
-        </Button>
+        </LoginButton>
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="body2" color="text.secondary">
+          <strong>Issue with your email?</strong> If you have forgotten or lost access to your email, please
+          contact the facility.
+        </Typography>
       </form>
     </>
   );
