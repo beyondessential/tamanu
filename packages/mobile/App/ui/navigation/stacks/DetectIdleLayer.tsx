@@ -20,7 +20,7 @@ const UI_EXPIRY_TIME = ONE_MINUTE * 30;
 
 export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElement => {
   const [idle, setIdle] = useState(0);
-  const [screenOffTime, setScreenOffTime] = useState<number|null>(null);
+  const [screenOffTime, setScreenOffTime] = useState<number | null>(null);
   const appState = useRef(AppState.currentState);
   const { signOutClient, signedIn } = useAuth();
 
@@ -62,7 +62,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
 
   useEffect(() => {
     let intervalId: NodeJS.Timer;
-    let subscriptions: (EmitterSubscription|NativeEventSubscription)[] = [];
+    let subscriptions: (EmitterSubscription | NativeEventSubscription)[] = [];
     if (signedIn) {
       subscriptions = [
         AppState.addEventListener('change', handleStateChange),
@@ -83,7 +83,7 @@ export const DetectIdleLayer = ({ children }: DetectIdleLayerProps): ReactElemen
       }
       subscriptions.forEach(subscription => subscription?.remove());
     };
-  }, [idle, signedIn, screenOffTime]);
+  }, [handleIdleLogout, handleResetIdle, handleStateChange, idle, signedIn, screenOffTime]);
 
   const panResponder = useRef(
     PanResponder.create({

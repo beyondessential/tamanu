@@ -183,7 +183,7 @@ const Provider = ({
     if (props.token && props.user) {
       setContextUserAndAbility(props.user);
     }
-  }, []);
+  }, [props.token, props.user, setContextUserAndAbility]);
 
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface

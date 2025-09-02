@@ -57,7 +57,7 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
     if (checkFirstSession()) {
       setUserFirstSignIn();
     }
-  }, []);
+  }, [checkFirstSession, setUserFirstSignIn]);
 
   const onNavigateToSearchPatient = useCallback(() => {
     setSelectedPatient(null);
@@ -108,7 +108,11 @@ const BaseHomeScreen = ({ navigation, user, setSelectedPatient }: BaseAppProps):
               fontSize={screenPercentageToDP(2.18, Orientation.Height)}
               color={theme.colors.WHITE}
             >
-              <TranslatedReferenceData category='facility' value={facilityId} fallback={facilityName} />
+              <TranslatedReferenceData
+                category="facility"
+                value={facilityId}
+                fallback={facilityName}
+              />
             </StyledText>
           </StyledView>
         </StyledView>

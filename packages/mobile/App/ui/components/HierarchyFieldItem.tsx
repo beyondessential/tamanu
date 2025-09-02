@@ -38,7 +38,7 @@ export const HierarchyFieldItem = ({
   useEffect(() => {
     if (!dirty) return;
     setFieldValue(name, '');
-  }, [name, parentId]);
+  }, [dirty, name, parentId, setFieldValue]);
 
   return (
     <Field

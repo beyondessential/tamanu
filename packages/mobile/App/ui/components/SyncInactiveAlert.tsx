@@ -190,7 +190,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
     return () => {
       centralServer.emitter.off('statusChange', handler);
     };
-  }, [netInfo.isInternetReachable, open]);
+  }, [centralServer.emitter, handleStatusChange, netInfo.isInternetReachable, open]);
 
   return (
     <>

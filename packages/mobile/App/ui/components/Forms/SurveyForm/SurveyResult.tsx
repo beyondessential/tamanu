@@ -19,7 +19,7 @@ export const SurveyResult = ({ patient, config, name }) => {
       setSurveyResponse(responses[0]); // getForPatient returns responses sorted by most recent, we want the most recent.
       setFieldValue(name, responses[0].resultText || responses[0].resultText);
     })();
-  }, [patient, config.source]);
+  }, [models.SurveyResponse, name, patient, config.source, setFieldValue]);
 
   if (!surveyResponse)
     return (

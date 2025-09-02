@@ -47,7 +47,7 @@ export const LocationField: React.FC<LocationFieldProps> = ({ navigation, requir
         setValues(newValues);
       })();
     }
-  }, [values.locationId]);
+  }, [models.Location, setValues, values]);
 
   const handleChangeLocationGroup = () => {
     // reset location value when changing the parent location group

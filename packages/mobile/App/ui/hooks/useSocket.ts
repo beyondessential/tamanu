@@ -1,5 +1,5 @@
 import io, { Socket } from 'socket.io-client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { readConfig } from '~/services/config';
 
 interface Props {
@@ -13,9 +13,33 @@ export const useSocket = (props: Props = {}) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionUrl, setConnectionUrl] = useState('');
 
+  const setupConnectionUrl = useCallback(async () => {
+    const syncServerLocation = await readConfig('syncServerLocation');
+    const connectionUrl = uri || syncServerLocation;
+    setConnectionUrl(connectionUrl);
+  }, [uri]);
+
+  const initSocket = useCallback(async () => {
+    if (!connectionUrl) return;
+
+    const cached = cachedWebSocketInstances[connectionUrl];
+    if (cached) {
+      cachedWebSocketInstances[connectionUrl].count += 1;
+      setSocket(cached.instance);
+      return;
+    }
+
+    const newSocket = io(connectionUrl, { transports: ['websocket'] });
+    cachedWebSocketInstances[connectionUrl] = {
+      instance: newSocket,
+      count: 1,
+    };
+    setSocket(newSocket);
+  }, [connectionUrl]);
+
   useEffect(() => {
     setupConnectionUrl();
-  }, []);
+  }, [setupConnectionUrl]);
 
   useEffect(() => {
     if (!connectionUrl) return;
@@ -29,28 +53,7 @@ export const useSocket = (props: Props = {}) => {
       delete cachedWebSocketInstances[connectionUrl];
       socket?.disconnect();
     };
-  }, [connectionUrl]);
-
-  const setupConnectionUrl = async () => {
-    const syncServerLocation = await readConfig('syncServerLocation');
-    const connectionUrl = uri || syncServerLocation;
-    setConnectionUrl(connectionUrl);
-  };
-
-  const initSocket = async () => {
-    const cached = cachedWebSocketInstances[connectionUrl];
-    if (cached) {
-      cachedWebSocketInstances[connectionUrl].count += 1;
-      setSocket(cached.instance);
-    }
-
-    const newSocket = io(connectionUrl, { transports: ['websocket'] });
-    cachedWebSocketInstances[connectionUrl] = {
-      instance: newSocket,
-      count: 1,
-    };
-    setSocket(newSocket);
-  };
+  }, [connectionUrl, initSocket, socket]);
 
   return {
     socket,

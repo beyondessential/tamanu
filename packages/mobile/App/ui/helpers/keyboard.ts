@@ -1,15 +1,13 @@
 import { useEffect } from 'react';
 import { Keyboard, KeyboardEventName, Platform } from 'react-native';
 
-export const keyboardListener = (
-  event: KeyboardEventName, callback: () => void,
-): void => {
+export const keyboardListener = (event: KeyboardEventName, callback: () => void): void => {
   useEffect(() => {
     const keyboardEventListener = Keyboard.addListener(event, callback);
     return (): void => {
       keyboardEventListener.remove();
     };
-  }, []);
+  }, [callback, event]);
 };
 
 export const onKeyboardCloseListener = (callback: () => void): void => {
@@ -21,7 +19,7 @@ export const onKeyboardCloseListener = (callback: () => void): void => {
     return (): void => {
       keyboardEventListener.remove();
     };
-  }, []);
+  }, [callback]);
 };
 
 export const onKeyboardOpenListener = (callback: () => void): void => {
@@ -33,5 +31,5 @@ export const onKeyboardOpenListener = (callback: () => void): void => {
     return (): void => {
       keyboardEventListener.remove();
     };
-  }, []);
+  }, [callback]);
 };
