@@ -8,7 +8,7 @@ import { useApi } from '@api/useApi';
 const useVerifyRegistration = () => {
   const api = useApi();
   return useMutation({
-    mutationFn: (token: string) => api.post(`/verify-registration/${token}`),
+    mutationFn: (token: string) => api.post(`verify-registration/${token}`),
   });
 };
 

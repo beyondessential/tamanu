@@ -69,7 +69,7 @@ export class PortalOneTimeTokenService {
       expiresAt,
     });
     return {
-      token: `${portalUserId}.${hashedToken}`,
+      token,
       expiresAt: record.expiresAt,
     };
   }

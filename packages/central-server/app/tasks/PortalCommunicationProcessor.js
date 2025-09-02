@@ -1,5 +1,6 @@
-import { PATIENT_COMMUNICATION_CHANNELS } from '@tamanu/constants';
+import config from 'config';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { PATIENT_COMMUNICATION_CHANNELS, PATIENT_COMMUNICATION_TYPES } from '@tamanu/constants';
 import { BaseCommunicationProcessor } from './BaseCommunicationProcessor';
 import { PortalOneTimeTokenService } from '../patientPortal/auth/PortalOneTimeTokenService';
 
@@ -8,12 +9,24 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     super(context, 'portalCommunicationProcessor', PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL);
   }
 
-  async transformContent(emailRecord) {
-    const portalOneTimeTokenService = new PortalOneTimeTokenService(this.context.store.models);
-    const { token } = await portalOneTimeTokenService.createRegisterToken(emailRecord.patientId);
-    const registrationLink = `http://localhost:5173/register/${token}`;
+  async transformContent({ content, patientId, type }) {
+    const { models } = this.context.store;
+    const portalUser = await models.PortalUser.findOne({ where: { patientId } });
+    const portalOneTimeTokenService = new PortalOneTimeTokenService(models);
 
-    return replaceInTemplate(emailRecord.content, {
+    const portalUserId = portalUser.id;
+    let token;
+
+    if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
+      ({ token } = await portalOneTimeTokenService.createLoginToken(portalUserId));
+    } else {
+      ({ token } = await portalOneTimeTokenService.createRegisterToken(portalUserId));
+    }
+    console.log('config.portalHostName', config);
+
+    const registrationLink = `${config.portalHostName}/register/${portalUserId}.${token}`;
+
+    return replaceInTemplate(content, {
       registrationLink,
     });
   }

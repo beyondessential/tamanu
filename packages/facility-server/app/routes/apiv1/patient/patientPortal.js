@@ -1,7 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { mapQueryFilters } from '../../../database/utils';
@@ -44,117 +43,54 @@ const getSurveyOrThrow = async ({ models, surveyId }) => {
   return survey;
 };
 
-const registerPatient = async ({ patientId, patientEmail, models }) => {
+const registerPatient = async ({ patientId, email, models }) => {
   const [portalUser, created] = await models.PortalUser.findOrCreate({
     where: { patientId },
-    defaults: { email: patientEmail },
+    defaults: { email },
   });
 
-  if (!created && patientEmail && portalUser.email !== patientEmail) {
-    // A PortalUser already exists. If a new email is provided, update it.
-    // Note that email has a unique constraint, so this may fail if the email is taken by another user.
-    portalUser.email = patientEmail;
+  if (!created && email && portalUser.email !== email) {
+    portalUser.email = email;
     await portalUser.save();
   }
 
   return [portalUser, created];
 };
 
-const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
+const sendPortalEmail = async ({ patient, email, models, settings, facilityId, emailType }) => {
   const facility = await models.Facility.findByPk(facilityId);
-  const patientPortalRegistrationTemplate = await settings[facilityId].get(
-    'templates.patientPortalRegistrationEmail',
-  );
+  const emailTemplates = {
+    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION]:
+      'templates.patientPortalRegistrationEmail',
+    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM]:
+      'templates.patientPortalRegisteredFormEmail',
+    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM]:
+      'templates.patientPortalUnregisteredFormEmail',
+  };
 
-  const subject = replaceInTemplate(patientPortalRegistrationTemplate.subject, {
-    facilityName: facility.name,
-  });
+  const templateKey = emailTemplates[emailType];
+  if (!templateKey) {
+    throw new Error(`Unknown email type: ${emailType}`);
+  }
 
-  const content = replaceInTemplate(patientPortalRegistrationTemplate.body, {
+  const template = await settings[facilityId].get(templateKey);
+  const templateData = {
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
-  });
+  };
+
+  const subject = replaceInTemplate(template.subject, templateData);
+
+  // The registration link is added in the Portal Communication Processor
+  const content = replaceInTemplate(template.body, templateData);
 
   await models.PatientCommunication.create({
     patientId: patient.id,
-    type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION,
+    type: emailType,
     channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
-    destination: patientEmail,
-    subject,
-    content,
-  });
-};
-
-/**
- * This sends an email to an already registered patient to complete a form.
- */
-const sendRegisteredFormEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
-  await getPortalUserOrThrow({ models, patientId: patient.id });
-  const facility = await models.Facility.findByPk(facilityId);
-
-  const patientPortalRegisteredFormTemplate = await settings[facilityId].get(
-    'templates.patientPortalRegisteredFormEmail',
-  );
-
-  const subject = replaceInTemplate(patientPortalRegisteredFormTemplate.subject, {
-    facilityName: facility.name,
-  });
-
-  const content = replaceInTemplate(patientPortalRegisteredFormTemplate.body, {
-    firstName: patient.firstName,
-    lastName: patient.lastName,
-    facilityName: facility.name,
-  });
-
-  await models.PatientCommunication.create({
-    patientId: patient.id,
-    type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM,
-    channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
-    status: COMMUNICATION_STATUSES.QUEUED,
-    destination: patientEmail,
-    subject,
-    content,
-  });
-};
-
-/**
- * This sends an email to an unregistered patient to complete a form.
- * It will contain a registration link rather than a login link.
- * Note that the PortalUser model should have been created before calling this method.
- */
-const sendUnregisteredFormEmail = async ({
-  patient,
-  patientEmail,
-  models,
-  settings,
-  facilityId,
-}) => {
-  // Although this email is for an unregistered patient, they should still have been registered (PortalUser created) before calling this method.
-  await getPortalUserOrThrow({ models, patientId: patient.id });
-  const facility = await models.Facility.findByPk(facilityId);
-
-  const patientPortalUnregisteredFormTemplate = await settings[facilityId].get(
-    'templates.patientPortalUnregisteredFormEmail',
-  );
-
-  const subject = replaceInTemplate(patientPortalUnregisteredFormTemplate.subject, {
-    facilityName: facility.name,
-  });
-
-  const content = replaceInTemplate(patientPortalUnregisteredFormTemplate.body, {
-    firstName: patient.firstName,
-    lastName: patient.lastName,
-    facilityName: facility.name,
-  });
-
-  await models.PatientCommunication.create({
-    patientId: patient.id,
-    type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM,
-    channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
-    status: COMMUNICATION_STATUSES.QUEUED,
-    destination: patientEmail,
+    destination: email,
     subject,
     content,
   });
@@ -174,40 +110,38 @@ patientPortal.get(
       where: { patientId: patient.id },
     });
 
-    if (!portalUser) {
-      return res.send({
-        hasPortalAccount: false,
-        status: null,
-      });
-    }
-
     res.send({
-      hasPortalAccount: true,
-      status: portalUser.status,
+      hasPortalAccount: !!portalUser,
+      status: portalUser?.status || null,
     });
   }),
 );
 
-// Soft registers the patient for portal access.
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortal');
     const { models, settings, body } = req;
     const { id: patientId } = req.params;
-    const { email: patientEmail, facilityId } = body;
+    const { email, facilityId } = body;
 
-    if (!patientEmail) {
+    if (!email) {
       throw new ValidationError('Email is required');
     }
 
     const patient = await getPatientOrThrow({ models, patientId });
+    const [portalUser] = await registerPatient({ email, patientId, models });
 
-    const [newPatient] = await registerPatient({ patientEmail, patientId, models });
+    await sendPortalEmail({
+      patient,
+      email,
+      models,
+      settings,
+      facilityId,
+      emailType: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION,
+    });
 
-    await sendRegistrationEmail({ patient, patientEmail, models, settings, facilityId });
-
-    res.send(newPatient);
+    res.send(portalUser);
   }),
 );
 
@@ -215,46 +149,39 @@ patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortalForm');
-
     const { models, user, settings } = req;
     const { id: patientId } = req.params;
-    const {
-      formId,
-      assignedAt,
-      email: patientEmail,
-      facilityId,
-    } = SendPortalFormRequestSchema.parse(req.body);
+    const { formId, assignedAt, email, facilityId } = SendPortalFormRequestSchema.parse(req.body);
 
     const patient = await getPatientOrThrow({ models, patientId });
-    const portalUser = await models.PortalUser.findOne({
-      where: { patientId: patient.id },
-    });
     const survey = await getSurveyOrThrow({ models, surveyId: formId });
+    let portalUser = await getPortalUserOrThrow({ models, patientId: patient.id });
 
-    if (!patientEmail && (!portalUser || !portalUser.email)) {
+    if (!email && (!portalUser || !portalUser.email)) {
       throw new ValidationError(
         'Patient has no registered email address - provide an email to send the form.',
       );
     }
 
-    // If the patient has not yet registered for the portal, we need to register them and send the unregistered form email.
-    // Otherwise, we just send the registered form email.
+    // Handle user registration and email sending
     if (!portalUser) {
-      await registerPatient({ patientId, models, patientEmail });
-      await sendUnregisteredFormEmail({
+      await registerPatient({ patientId: patient.id, models, email });
+      await sendPortalEmail({
         patient,
-        patientEmail: patientEmail ?? portalUser.email,
+        email,
         models,
         settings,
         facilityId,
+        emailType: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM,
       });
     } else {
-      await sendRegisteredFormEmail({
+      await sendPortalEmail({
         patient,
-        patientEmail: patientEmail ?? portalUser.email,
+        email,
         models,
         settings,
         facilityId,
+        emailType: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM,
       });
     }
 
@@ -265,7 +192,7 @@ patientPortal.post(
       assignedAt: assignedAt,
     });
 
-    res.send({ portalSurveyAssignment });
+    res.send(portalSurveyAssignment);
   }),
 );
 
@@ -277,9 +204,10 @@ patientPortal.get(
     const { models, query } = req;
     const { id: patientId } = req.params;
 
-    // Handle both `params` object and query params
     const params = query.params || query;
+    const patient = await getPatientOrThrow({ models, patientId });
 
+    // Inline buildFormsQuery logic
     const {
       page = 0,
       rowsPerPage = 25,
@@ -290,10 +218,7 @@ patientPortal.get(
       ...filterParams
     } = params;
 
-    const patient = await getPatientOrThrow({ models, patientId });
-
     const offset = all ? undefined : page * rowsPerPage;
-
     const filters = mapQueryFilters(filterParams, [{ key: 'surveyId', operator: Op.eq }]);
 
     const baseQueryOptions = {
@@ -302,39 +227,51 @@ patientPortal.get(
       },
       include: [
         {
-          model: models.Survey,
+          model: 'Survey',
           as: 'survey',
-          include: [{ model: models.Program, as: 'program' }],
+          include: [{ model: 'Program', as: 'program' }],
         },
         {
-          model: models.User,
+          model: 'User',
           as: 'assignedBy',
         },
         {
-          model: models.Patient,
+          model: 'Patient',
           as: 'patient',
         },
       ],
+    };
+
+    const pagination = {
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
+      limit: all ? undefined : rowsPerPage,
+      offset,
     };
 
     const count = await models.PortalSurveyAssignment.count({
       where: baseQueryOptions.where,
     });
 
-    // If no results, return early
     if (count === 0) {
-      res.send({
-        count: 0,
-        data: [],
-      });
-      return;
+      return res.send({ count: 0, data: [] });
     }
 
-    const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
+    // Fix include models reference
+    const queryWithModels = {
       ...baseQueryOptions,
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
-      limit: all ? undefined : rowsPerPage,
-      offset,
+      include: baseQueryOptions.include.map(inc => ({
+        ...inc,
+        model: models[inc.model],
+        include: inc.include?.map(subInc => ({
+          ...subInc,
+          model: models[subInc.model],
+        })),
+      })),
+    };
+
+    const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
+      ...queryWithModels,
+      ...pagination,
     });
 
     res.send({
@@ -355,6 +292,7 @@ patientPortal.delete(
     const { id: patientId, assignmentId } = req.params;
 
     const patient = await getPatientOrThrow({ models, patientId });
+
     await models.PortalSurveyAssignment.destroy({
       where: { id: assignmentId, patientId: patient.id },
     });

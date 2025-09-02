@@ -35,14 +35,21 @@ export const verifyRegistration = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('User already registered');
   }
 
-  const oneTimeTokenService = new PortalOneTimeTokenService(models);
-  await oneTimeTokenService.verifyAndConsume({
-    portalUserId,
-    token: oneTimeToken,
-    type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
-  });
+  await store.sequelize.transaction(async () => {
+    const oneTimeTokenService = new PortalOneTimeTokenService(models);
+    await oneTimeTokenService.verifyAndConsume({
+      portalUserId,
+      token: oneTimeToken,
+      type: PORTAL_ONE_TIME_TOKEN_TYPES.REGISTER,
+    });
 
-  await models.PortalUser.update({ status: PORTAL_USER_STATUSES.REGISTERED }, { id: portalUserId });
+    await models.PortalUser.update(
+      { status: PORTAL_USER_STATUSES.REGISTERED },
+      {
+        where: { id: portalUserId },
+      },
+    );
+  });
 
   return res.status(200).json({
     message: 'User registered successfully',
