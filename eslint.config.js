@@ -61,6 +61,7 @@ export default [
       'no-unused-private-class-members': 'error',
       'no-unused-vars': 'error',
       'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
       'react/jsx-key': 'error',
       'require-atomic-updates': 'error',
 
@@ -80,12 +81,12 @@ export default [
       'no-unused-vars': 'off',
 
       // support _unusedVar pattern
-      "@typescript-eslint/no-unused-vars": [
+      '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
 
@@ -130,10 +131,7 @@ export default [
     },
   },
   {
-    files: [
-      `packages/web/!({.storybook,stories})/**/*.${EXTS}`,
-      `packages/web/*.${EXTS}`,
-    ],
+    files: [`packages/web/!({.storybook,stories})/**/*.${EXTS}`, `packages/web/*.${EXTS}`],
     languageOptions: {
       globals: {
         ...globals.browser,
