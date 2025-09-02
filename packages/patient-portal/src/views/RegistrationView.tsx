@@ -40,33 +40,33 @@ export const RegistrationView = () => {
     return null;
   }
 
-  if (error) {
-    return (
-      <Card sx={{ width: '425px' }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          Error
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          {error.message}
-        </Typography>
-      </Card>
-    );
-  }
-
   return (
     <Card sx={{ width: '425px' }}>
-     <IconDisplay>
-        <CheckCircleIcon color="success" />
-      </IconDisplay>
-      <Typography mb={2} variant="h2">
-        Account successfully created!
-      </Typography>
-      <Typography variant="body1" mb={3} color="text.secondary">
-        Continue to log in to access the Patient Portal.
-      </Typography>
-      <Button onClick={() => navigate('/login')} fullWidth variant="contained">
-        Continue to log in
-      </Button>
+      {error ? (
+        <>
+          <Typography variant="h2" component="h1" gutterBottom>
+            Error
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            {error.message}
+          </Typography>
+        </>
+      ) : (
+        <>
+          <IconDisplay>
+            <CheckCircleIcon color="success" />
+          </IconDisplay>
+          <Typography mb={2} variant="h2">
+            Account successfully created!
+          </Typography>
+          <Typography variant="body1" mb={3} color="text.secondary">
+            Continue to log in to access the Patient Portal.
+          </Typography>
+          <Button onClick={() => navigate('/login')} fullWidth variant="contained">
+            Continue to log in
+          </Button>
+        </>
+      )}
     </Card>
   );
 };
