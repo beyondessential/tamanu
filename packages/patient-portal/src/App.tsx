@@ -12,7 +12,7 @@ export const App = () => {
           <Route path="/login" element={<RequestLoginTokenView />} />
           <Route path="/login-submit" element={<LoginView />} />
           {/* Users can only register with a generated token, as of current. */}
-          <Route path="/register" element={<RegistrationView />} />
+          <Route path="/register/:token" element={<RegistrationView />} />
         </Route>
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<DashboardView />} />
