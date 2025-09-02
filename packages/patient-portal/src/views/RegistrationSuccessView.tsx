@@ -6,6 +6,7 @@ import { Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { Card } from '../components/Card';
+import { useNavigate } from 'react-router';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
@@ -17,7 +18,8 @@ const IconDisplay = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-export const LoginSuccessView = () => {
+export const RegistrationSuccessView = () => {
+  const navigate = useNavigate();
   return (
     <Card width="425px">
       <IconDisplay>
@@ -29,7 +31,7 @@ export const LoginSuccessView = () => {
       <Typography variant="body1" mb={3} color="text.secondary">
         Continue to log in to access the Patient Portal.
       </Typography>
-      <Button type="submit" fullWidth variant="contained">
+      <Button onClick={() => navigate('/login')} type="submit" fullWidth variant="contained">
         Continue to log in
       </Button>
     </Card>
