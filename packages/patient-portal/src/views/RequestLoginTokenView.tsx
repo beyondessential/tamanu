@@ -51,12 +51,12 @@ export const RequestLoginTokenView = () => {
           autoFocus
         />
         <LoginButton type="submit" fullWidth variant="contained">
-          Log in
+          Send code
         </LoginButton>
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
           <strong>Issue with your email?</strong> If you have forgotten or lost access to your email, please
-          contact the facility.
+          contact the health facility associated with your Patient Portal.
         </Typography>
       </form>
     </Card>
