@@ -44,16 +44,6 @@ const getSurveyOrThrow = async ({ models, surveyId }) => {
   return survey;
 };
 
-const constructLoginLink = () => {
-  // TODO - construct link for the patient portal
-  return 'http://localhost:5173/login';
-};
-
-const constructRegistrationLink = () => {
-  // TODO - construct link for the patient portal
-  return 'http://localhost:5173/register';
-};
-
 const registerPatient = async ({ patientId, patientEmail, models }) => {
   const [portalUser, created] = await models.PortalUser.findOrCreate({
     where: { patientId },
@@ -72,9 +62,6 @@ const registerPatient = async ({ patientId, patientEmail, models }) => {
 
 const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, facilityId }) => {
   const facility = await models.Facility.findByPk(facilityId);
-
-  // TODO - fetch the **unexpired** token for the portal user, throw if none exists
-
   const patientPortalRegistrationTemplate = await settings[facilityId].get(
     'templates.patientPortalRegistrationEmail',
   );
@@ -87,13 +74,12 @@ const sendRegistrationEmail = async ({ patient, patientEmail, models, settings, 
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
-    registrationLink: constructRegistrationLink(),
   });
 
   await models.PatientCommunication.create({
     patientId: patient.id,
     type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION,
-    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
     destination: patientEmail,
     subject,
@@ -120,13 +106,12 @@ const sendRegisteredFormEmail = async ({ patient, patientEmail, models, settings
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
-    registrationLink: constructLoginLink(),
   });
 
   await models.PatientCommunication.create({
     patientId: patient.id,
     type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM,
-    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
     destination: patientEmail,
     subject,
@@ -162,13 +147,12 @@ const sendUnregisteredFormEmail = async ({
     firstName: patient.firstName,
     lastName: patient.lastName,
     facilityName: facility.name,
-    registrationLink: constructRegistrationLink(),
   });
 
   await models.PatientCommunication.create({
     patientId: patient.id,
     type: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM,
-    channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+    channel: PATIENT_COMMUNICATION_CHANNELS.PORTAL_EMAIL,
     status: COMMUNICATION_STATUSES.QUEUED,
     destination: patientEmail,
     subject,
@@ -333,7 +317,7 @@ patientPortal.get(
       ],
     };
 
-      const count = await models.PortalSurveyAssignment.count({
+    const count = await models.PortalSurveyAssignment.count({
       where: baseQueryOptions.where,
     });
 
@@ -373,7 +357,7 @@ patientPortal.delete(
     const patient = await getPatientOrThrow({ models, patientId });
     await models.PortalSurveyAssignment.destroy({
       where: { id: assignmentId, patientId: patient.id },
-    }); 
+    });
 
     res.send({ message: 'Portal survey assignments deleted' });
   }),

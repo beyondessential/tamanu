@@ -171,6 +171,12 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "portalCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "deceasedPatientDischarger": {
       // once an hour
       "schedule": "29 * * * *",
