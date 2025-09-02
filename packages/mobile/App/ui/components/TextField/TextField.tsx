@@ -87,8 +87,9 @@ export const TextField = React.memo(
       setFocus(true);
     }, [setFocus, onFocus]);
     const onBlurInput = useCallback((): void => {
+      if (onBlur) onBlur();
       setFocus(false);
-    }, [setFocus]);
+    }, [setFocus, onBlur]);
 
     const inputHeight = useMemo(() => {
       if (!label) return '100%';

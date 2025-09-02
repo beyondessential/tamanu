@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
