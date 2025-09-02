@@ -127,7 +127,14 @@ test.describe('Scheduled vaccines', () => {
         currentTime: new Date().toISOString(),
         currentTimeLocal: new Date().toString(),
         currentDateISO: patientDetailsPage.getCurrentBrowserDateISOFormat(),
+        browserTimezone: await page.evaluate(() => {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+          }),   
+        browserDate: await page.evaluate(() => {
+            return new Date().toLocaleString();
+          }),
     });
+
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
       const birthDateTenYearsAgo = subYears(currentDate, 10);
       const vaccine = 'Td Booster';
