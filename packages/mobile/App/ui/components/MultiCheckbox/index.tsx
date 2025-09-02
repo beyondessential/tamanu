@@ -31,7 +31,7 @@ export const MultiCheckbox = ({ value = [], options, onChange }: CheckboxProps):
         : value.filter(v => v !== optionId);
       onChange(selectedValues);
     },
-    [onChange, value, options],
+    [onChange, value],
   );
 
   return (

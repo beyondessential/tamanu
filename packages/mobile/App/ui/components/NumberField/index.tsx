@@ -63,7 +63,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     if (props.value !== number) {
       setNumber(props.value);
     }
-  }, [props.value]);
+  }, [props.value, number]);
 
   return (
     <TextField
