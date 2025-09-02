@@ -73,7 +73,6 @@ describe('Programs import - Translation', () => {
       dryRun: false,
     });
 
-    // find all elements with options
     const programDataElements = await models.ProgramDataElement.findAll({
       where: {
         defaultOptions: {
