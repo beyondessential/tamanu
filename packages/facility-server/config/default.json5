@@ -54,7 +54,6 @@
     "verbose": false,
     "migrateOnStartup": false,
     "reportSchemas": {
-      "enabled": false,
       "connections": {
         "raw": {
           "pool": {
