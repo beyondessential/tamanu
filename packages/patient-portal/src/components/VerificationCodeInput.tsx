@@ -1,12 +1,18 @@
-import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, useCallback } from 'react';
-import { Box, TextField } from '@mui/material';
+import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
+import { Box, styled, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
+  onChange: (code: string) => void;
   length?: number;
-  onComplete?: (code: string) => void;
-  onChange?: (code: string) => void;
   name?: string;
 }
+
+const SingleNumberInput = styled(TextField)({
+  width: 56,
+  '& .MuiOutlinedInput-root': {
+    height: 56,
+  },
+}); 
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
@@ -16,12 +22,12 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const [values, setValues] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const moveFocusForward =(index: number) => {
+  const moveFocusForward = (index: number) => {
     inputRefs.current[index + 1]?.focus();
-  }
+  };
   const moveFocusBackward = (index: number) => {
     inputRefs.current[index - 1]?.focus();
-  }
+  };
 
   // Auto-focus the first field on mount
   useEffect(() => {
@@ -55,13 +61,13 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
         const newValues = [...values];
         newValues[index] = '';
         setValues(newValues);
-        onChange?.(newValues.join(''));
+        onChange(newValues.join(''));
       } else if (index > 0) {
         // If current field is empty, move to previous field and clear it
         const newValues = [...values];
         newValues[index - 1] = '';
         setValues(newValues);
-        onChange?.(newValues.join(''));
+        onChange(newValues.join(''));
         inputRefs.current[index - 1]?.focus();
       }
       return;
@@ -125,7 +131,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     <>
       <Box display="flex" gap={1} justifyContent="center" mb={2}>
         {values.map((value, index) => (
-          <TextField
+          <SingleNumberInput
             key={index}
             inputRef={el => (inputRefs.current[index] = el)}
             value={value}
@@ -139,12 +145,6 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
                 textAlign: 'center',
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
-              },
-            }}
-            sx={{
-              width: 56,
-              '& .MuiOutlinedInput-root': {
-                height: 56,
               },
             }}
           />
