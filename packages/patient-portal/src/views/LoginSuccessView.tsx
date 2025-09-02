@@ -19,7 +19,7 @@ const IconDisplay = styled('div')(({ theme }) => ({
 
 export const LoginSuccessView = () => {
   return (
-    <Card width="300px">
+    <Card width="425px">
       <IconDisplay>
         <CheckCircleIcon color="success" />
       </IconDisplay>
