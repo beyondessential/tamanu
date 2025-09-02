@@ -31,7 +31,7 @@ export const RegistrationSuccessView = () => {
       <Typography variant="body1" mb={3} color="text.secondary">
         Continue to log in to access the Patient Portal.
       </Typography>
-      <Button onClick={() => navigate('/login')} type="submit" fullWidth variant="contained">
+      <Button onClick={() => navigate('/login')} fullWidth variant="contained">
         Continue to log in
       </Button>
     </Card>
