@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { ConfirmCancelRow, Modal, TranslatedText } from '../..';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
@@ -78,234 +78,249 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
     if (data) {
       processedData(data.map((l, index) => ({ ...l, index })));
     }
-  }, [data]);
+  }, [data, processedData]);
 
-  const getUserChanged = log => {
+  const getUserChanged = useCallback(log => {
     return {
       name: log.changedByUser,
       date: `${formatShortest(log.createdAt)} ${formatTimeSlot(log.createdAt)}`,
     };
-  };
+  }, []);
 
-  const getNotGivenDataChanges = (log, previousLog) => {
-    const changes = [];
-    if (previousLog?.marNotGivenReason?.id !== log.marNotGivenReason.id) {
-      changes.push({ label: LABELS.reason, value: log.marNotGivenReason.name });
-    }
-    if (previousLog?.recordedByUser?.id !== log.recordedByUser.id) {
-      changes.push({ label: LABELS.recordedBy, value: log.recordedByUser.name });
-    }
-    if (!changes.length) {
-      return [];
-    }
-    if (log.marChangingNotGivenInfoReason) {
-      changes.push({ label: LABELS.reasonForChange, value: log.marChangingNotGivenInfoReason });
-    }
-    return [
-      {
-        changes,
-        userChanged: getUserChanged(log),
-      },
-    ];
-  };
-
-  const getGivenDataChanges = (logs, lastSwitchToGivenLogIndex) => {
-    const result = [];
-    for (const log of logs) {
-      if (log.type === 'mar') continue;
-      if (log.changeType === 'CREATED') {
-        result.push([
-          {
-            changes: [
-              {
-                label: LABELS.doseGiven,
-                value: getMarDoseDisplay(
-                  { doseAmount: log.doseAmount, units: medication.units },
-                  getEnumTranslation,
-                ),
-              },
-              { label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) },
-              { label: LABELS.givenBy, value: log.doseGivenByUser.name },
-              { label: LABELS.recordedBy, value: log.recordedByUser.name },
-            ],
-            userChanged: getUserChanged(log),
-            doseIndex: log.doseIndex + 1,
-          },
-        ]);
+  const getNotGivenDataChanges = useCallback(
+    (log, previousLog) => {
+      const changes = [];
+      if (previousLog?.marNotGivenReason?.id !== log.marNotGivenReason.id) {
+        changes.push({ label: LABELS.reason, value: log.marNotGivenReason.name });
       }
-      if (log.changeType === 'UPDATED') {
-        if (log.doseIsRemoved) {
+      if (previousLog?.recordedByUser?.id !== log.recordedByUser.id) {
+        changes.push({ label: LABELS.recordedBy, value: log.recordedByUser.name });
+      }
+      if (!changes.length) {
+        return [];
+      }
+      if (log.marChangingNotGivenInfoReason) {
+        changes.push({ label: LABELS.reasonForChange, value: log.marChangingNotGivenInfoReason });
+      }
+      return [
+        {
+          changes,
+          userChanged: getUserChanged(log),
+        },
+      ];
+    },
+    [getUserChanged],
+  );
+
+  const getGivenDataChanges = useCallback(
+    (logs, lastSwitchToGivenLogIndex) => {
+      const result = [];
+      for (const log of logs) {
+        if (log.type === 'mar') continue;
+        if (log.changeType === 'CREATED') {
           result.push([
             {
               changes: [
-                { label: LABELS.doseRemoved },
                 {
-                  label: LABELS.reasonForRemoval,
-                  value: log.doseReasonForRemoval,
+                  label: LABELS.doseGiven,
+                  value: getMarDoseDisplay(
+                    { doseAmount: log.doseAmount, units: medication.units },
+                    getEnumTranslation,
+                  ),
                 },
+                { label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) },
+                { label: LABELS.givenBy, value: log.doseGivenByUser.name },
+                { label: LABELS.recordedBy, value: log.recordedByUser.name },
               ],
               userChanged: getUserChanged(log),
               doseIndex: log.doseIndex + 1,
             },
           ]);
-        } else {
-          const previousLog = data.slice(log.index + 1).find(l => l.id === log.id);
-          const changes = [];
-          if (previousLog?.doseAmount !== log.doseAmount) {
-            changes.push({
-              label: LABELS.doseGiven,
-              value: getMarDoseDisplay(
-                { doseAmount: log.doseAmount, units: medication.units },
-                getEnumTranslation,
-              ),
-            });
-          }
-          if (previousLog?.doseGivenTime !== log.doseGivenTime) {
-            changes.push({ label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) });
-          }
-          if (previousLog?.doseGivenByUser?.id !== log.doseGivenByUser.id) {
-            changes.push({ label: LABELS.givenBy, value: log.doseGivenByUser.name });
-          }
-          if (previousLog?.recordedByUser?.id !== log.recordedByUser.id) {
-            changes.push({ label: LABELS.recordedBy, value: log.recordedByUser.name });
-          }
-          if (log.doseReasonForChange && changes.length) {
-            changes.push({ label: LABELS.reasonForChange, value: log.doseReasonForChange });
-          }
-          const shouldShowDoseIndex = data
-            .slice(log.index + 1, lastSwitchToGivenLogIndex)
-            .some(l => l.doseIndex > 0);
-          if (changes.length) {
+        }
+        if (log.changeType === 'UPDATED') {
+          if (log.doseIsRemoved) {
             result.push([
               {
-                changes,
-                userChanged: getUserChanged(log),
-                doseIndex: shouldShowDoseIndex ? log.doseIndex + 1 : null,
-              },
-            ]);
-          }
-        }
-      }
-    }
-    return result;
-  };
-
-  const processedData = data => {
-    const groupedLogs = [...data].reverse().reduce((acc, item) => {
-      if (item.type === 'mar') {
-        acc.push([item]);
-      } else {
-        acc[acc.length - 1]?.push(item);
-      }
-      return acc;
-    }, []);
-
-    let currentStatus = '';
-    let lastSwitchToGivenLogIndex = null;
-    const newChangeLogList = [];
-    groupedLogs.forEach((logs, index) => {
-      const marStatus = logs[0].marStatus;
-      if (!marStatus && !currentStatus) {
-        return;
-      }
-
-      // change status
-      if (!currentStatus || marStatus !== currentStatus) {
-        if (marStatus === 'not-given') {
-          const marChanges = [
-            {
-              changes: [
-                { label: LABELS.status, value: LABELS.notGiven },
-                { label: LABELS.reason, value: logs[0].marNotGivenReason.name },
-                { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
-                ...(logs[0].marChangingStatusReason
-                  ? [{ label: LABELS.reasonForChange, value: logs[0].marChangingStatusReason }]
-                  : []),
-              ],
-              userChanged: getUserChanged(logs[0]),
-            },
-          ];
-          const doseChanges = logs
-            .filter(log => log.recordDeletedAt && log.type === 'dose')
-            .sort((a, b) => b.doseIndex - a.doseIndex)
-            .map((log, _, array) => {
-              return {
                 changes: [
                   { label: LABELS.doseRemoved },
                   {
                     label: LABELS.reasonForRemoval,
-                    value: (
-                      <TranslatedText
-                        stringId="medication.mar.reasonForRemoval.dose.dueStatusChange"
-                        fallback="Removed due to status change"
-                      />
-                    ),
+                    value: log.doseReasonForRemoval,
                   },
                 ],
                 userChanged: getUserChanged(log),
-                doseIndex: array.length > 1 ? log.doseIndex + 1 : null,
-              };
-            });
-          marChanges.push(...doseChanges);
-          newChangeLogList.push(marChanges);
-        } else if (marStatus === 'given') {
-          lastSwitchToGivenLogIndex = logs[0].index;
-          const marChanges = [
-            {
-              changes: [
-                { label: LABELS.status, value: LABELS.given },
+                doseIndex: log.doseIndex + 1,
+              },
+            ]);
+          } else {
+            const previousLog = data.slice(log.index + 1).find(l => l.id === log.id);
+            const changes = [];
+            if (previousLog?.doseAmount !== log.doseAmount) {
+              changes.push({
+                label: LABELS.doseGiven,
+                value: getMarDoseDisplay(
+                  { doseAmount: log.doseAmount, units: medication.units },
+                  getEnumTranslation,
+                ),
+              });
+            }
+            if (previousLog?.doseGivenTime !== log.doseGivenTime) {
+              changes.push({ label: LABELS.timeGiven, value: formatTimeSlot(log.doseGivenTime) });
+            }
+            if (previousLog?.doseGivenByUser?.id !== log.doseGivenByUser.id) {
+              changes.push({ label: LABELS.givenBy, value: log.doseGivenByUser.name });
+            }
+            if (previousLog?.recordedByUser?.id !== log.recordedByUser.id) {
+              changes.push({ label: LABELS.recordedBy, value: log.recordedByUser.name });
+            }
+            if (log.doseReasonForChange && changes.length) {
+              changes.push({ label: LABELS.reasonForChange, value: log.doseReasonForChange });
+            }
+            const shouldShowDoseIndex = data
+              .slice(log.index + 1, lastSwitchToGivenLogIndex)
+              .some(l => l.doseIndex > 0);
+            if (changes.length) {
+              result.push([
                 {
-                  label: LABELS.doseGiven,
-                  value: getMarDoseDisplay(
-                    { doseAmount: logs[1].doseAmount, units: medication.units },
-                    getEnumTranslation,
-                  ),
+                  changes,
+                  userChanged: getUserChanged(log),
+                  doseIndex: shouldShowDoseIndex ? log.doseIndex + 1 : null,
                 },
-                {
-                  label: LABELS.timeGiven,
-                  value: logs[1].doseGivenTime && formatTimeSlot(logs[1].doseGivenTime),
-                },
-                { label: LABELS.givenBy, value: logs[1].doseGivenByUser.name },
-                { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
-                ...(logs[0].marChangingStatusReason
-                  ? [{ label: LABELS.reasonForChange, value: logs[0].marChangingStatusReason }]
-                  : []),
-              ],
-              userChanged: getUserChanged(logs[0]),
-            },
-          ];
-          newChangeLogList.push(marChanges);
-          // remove the first two logs because they are already in the marChanges
-          const doseChanges = getGivenDataChanges(logs.slice(2), lastSwitchToGivenLogIndex);
+              ]);
+            }
+          }
+        }
+      }
+      return result;
+    },
+    [data, getEnumTranslation, getUserChanged, medication.units],
+  );
+
+  const processedData = useCallback(
+    data => {
+      const groupedLogs = [...data].reverse().reduce((acc, item) => {
+        if (item.type === 'mar') {
+          acc.push([item]);
+        } else {
+          acc[acc.length - 1]?.push(item);
+        }
+        return acc;
+      }, []);
+
+      let currentStatus = '';
+      let lastSwitchToGivenLogIndex = null;
+      const newChangeLogList = [];
+      groupedLogs.forEach((logs, index) => {
+        const marStatus = logs[0].marStatus;
+        if (!marStatus && !currentStatus) {
+          return;
+        }
+
+        // change status
+        if (!currentStatus || marStatus !== currentStatus) {
+          if (marStatus === 'not-given') {
+            const marChanges = [
+              {
+                changes: [
+                  { label: LABELS.status, value: LABELS.notGiven },
+                  { label: LABELS.reason, value: logs[0].marNotGivenReason.name },
+                  { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
+                  ...(logs[0].marChangingStatusReason
+                    ? [{ label: LABELS.reasonForChange, value: logs[0].marChangingStatusReason }]
+                    : []),
+                ],
+                userChanged: getUserChanged(logs[0]),
+              },
+            ];
+            const doseChanges = logs
+              .filter(log => log.recordDeletedAt && log.type === 'dose')
+              .sort((a, b) => b.doseIndex - a.doseIndex)
+              .map((log, _, array) => {
+                return {
+                  changes: [
+                    { label: LABELS.doseRemoved },
+                    {
+                      label: LABELS.reasonForRemoval,
+                      value: (
+                        <TranslatedText
+                          stringId="medication.mar.reasonForRemoval.dose.dueStatusChange"
+                          fallback="Removed due to status change"
+                        />
+                      ),
+                    },
+                  ],
+                  userChanged: getUserChanged(log),
+                  doseIndex: array.length > 1 ? log.doseIndex + 1 : null,
+                };
+              });
+            marChanges.push(...doseChanges);
+            newChangeLogList.push(marChanges);
+          } else if (marStatus === 'given') {
+            lastSwitchToGivenLogIndex = logs[0].index;
+            const marChanges = [
+              {
+                changes: [
+                  { label: LABELS.status, value: LABELS.given },
+                  {
+                    label: LABELS.doseGiven,
+                    value: getMarDoseDisplay(
+                      { doseAmount: logs[1].doseAmount, units: medication.units },
+                      getEnumTranslation,
+                    ),
+                  },
+                  {
+                    label: LABELS.timeGiven,
+                    value: logs[1].doseGivenTime && formatTimeSlot(logs[1].doseGivenTime),
+                  },
+                  { label: LABELS.givenBy, value: logs[1].doseGivenByUser.name },
+                  { label: LABELS.recordedBy, value: logs[0].recordedByUser.name },
+                  ...(logs[0].marChangingStatusReason
+                    ? [{ label: LABELS.reasonForChange, value: logs[0].marChangingStatusReason }]
+                    : []),
+                ],
+                userChanged: getUserChanged(logs[0]),
+              },
+            ];
+            newChangeLogList.push(marChanges);
+            // remove the first two logs because they are already in the marChanges
+            const doseChanges = getGivenDataChanges(logs.slice(2), lastSwitchToGivenLogIndex);
+            if (doseChanges.length) {
+              newChangeLogList.push(...doseChanges);
+            }
+          }
+          currentStatus = marStatus;
+          return;
+        }
+
+        // update not given info, we don't care about the changes of doses in this case
+        if (marStatus === 'not-given') {
+          const dataChanges = getNotGivenDataChanges(logs[0], groupedLogs[index - 1]?.[0]);
+          if (dataChanges.length) {
+            newChangeLogList.push(dataChanges);
+          }
+          return;
+        }
+
+        // update given doses, we only care about the changes of doses in this case
+        if (marStatus === 'given') {
+          // remove the first log because it is marChanges and doesn't necessary
+          const doseChanges = getGivenDataChanges(logs.slice(1), lastSwitchToGivenLogIndex);
           if (doseChanges.length) {
             newChangeLogList.push(...doseChanges);
           }
+          return;
         }
-        currentStatus = marStatus;
-        return;
-      }
-
-      // update not given info, we don't care about the changes of doses in this case
-      if (marStatus === 'not-given') {
-        const dataChanges = getNotGivenDataChanges(logs[0], groupedLogs[index - 1]?.[0]);
-        if (dataChanges.length) {
-          newChangeLogList.push(dataChanges);
-        }
-        return;
-      }
-
-      // update given doses, we only care about the changes of doses in this case
-      if (marStatus === 'given') {
-        // remove the first log because it is marChanges and doesn't necessary
-        const doseChanges = getGivenDataChanges(logs.slice(1), lastSwitchToGivenLogIndex);
-        if (doseChanges.length) {
-          newChangeLogList.push(...doseChanges);
-        }
-        return;
-      }
-    });
-    setChangeLogList(newChangeLogList.reverse());
-  };
+      });
+      setChangeLogList(newChangeLogList.reverse());
+    },
+    [
+      getEnumTranslation,
+      getUserChanged,
+      getNotGivenDataChanges,
+      getGivenDataChanges,
+      medication.units,
+    ],
+  );
 
   return (
     <Modal

@@ -19,7 +19,7 @@ export const useSelectableColumn = (
     if (!rows) {
       return [];
     }
-    return rows.filter((row) => selectedKeys.has(row[selectionKey]));
+    return rows.filter(row => selectedKeys.has(row[selectionKey]));
   }, [rows, selectedKeys, selectionKey]);
 
   useEffect(() => {
@@ -34,50 +34,48 @@ export const useSelectableColumn = (
       const rowKey = rows[rowIndex][selectionKey];
       const newSelection = event.target.checked
         ? [...selectedKeys, rowKey]
-        : [...selectedKeys].filter((k) => k !== rowKey);
+        : [...selectedKeys].filter(k => k !== rowKey);
       setSelectedKeys(new Set(newSelection));
     },
     [rows, selectionKey, selectedKeys],
   );
   const cellAccessor = useCallback(
-    (row) => {
+    row => {
       const { rowIndex } = row;
       return (
         <CheckInput
           value={selectedKeys.has(rows[rowIndex][selectionKey])}
           name="selected"
-          onChange={(event) => cellOnChange(event, rowIndex)}
+          onChange={event => cellOnChange(event, rowIndex)}
           style={{ margin: 'auto' }}
           disabled={getIsRowDisabled(selectedKeys, row)}
           data-testid="checkinput-83pj"
         />
       );
     },
-    [rows, selectionKey, selectedKeys, cellOnChange],
+    [rows, selectionKey, selectedKeys, cellOnChange, getIsRowDisabled],
   );
 
   const titleOnChange = useCallback(
-    (event) => {
+    event => {
       const newSelection = event.target.checked
         ? [
             ...selectedKeys,
-            ...rows.filter(getRowsFilterer(selectedKeys)).map((row) => row[selectionKey]),
+            ...rows.filter(getRowsFilterer(selectedKeys)).map(row => row[selectionKey]),
           ]
-        : [...selectedKeys].filter((k) => !rows.some((row) => row[selectionKey] === k));
+        : [...selectedKeys].filter(k => !rows.some(row => row[selectionKey] === k));
       setSelectedKeys(new Set(newSelection));
     },
-    [rows, selectionKey, selectedKeys],
+    [rows, selectionKey, selectedKeys, getRowsFilterer],
   );
 
   const titleAccessor = useCallback(() => {
     const isEveryRowSelected =
       rows?.length > 0 &&
-      rows.filter(getRowsFilterer(selectedKeys)).every((r) => selectedKeys.has(r[selectionKey]));
+      rows.filter(getRowsFilterer(selectedKeys)).every(r => selectedKeys.has(r[selectionKey]));
 
     const isSomeRowSelected =
-      rows?.length > 0 &&
-      rows.some((r) => selectedKeys.has(r[selectionKey])) &&
-      !isEveryRowSelected;
+      rows?.length > 0 && rows.some(r => selectedKeys.has(r[selectionKey])) && !isEveryRowSelected;
 
     return (
       <CheckInput
@@ -90,7 +88,15 @@ export const useSelectableColumn = (
         data-testid="checkinput-irky"
       />
     );
-  }, [rows, selectedRows, titleOnChange, selectedKeys]);
+  }, [
+    rows,
+    titleOnChange,
+    selectedKeys,
+    getIsTitleDisabled,
+    getRowsFilterer,
+    selectionKey,
+    showIndeterminate,
+  ]);
 
   const resetSelection = useCallback(() => {
     setSelectedKeys(new Set());

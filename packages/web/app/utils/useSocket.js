@@ -34,7 +34,7 @@ export const useSocket = (props = {}) => {
       delete cachedWebSocketInstances[connectionUrl];
       socket?.disconnect();
     };
-  }, []);
+  }, [connectionUrl, socket]);
 
   return {
     socket,

@@ -165,9 +165,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
           let actions = [
             {
-              label: (
-                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
-              ),
+              label: <TranslatedText stringId="programRegistry.action.update" fallback="Update" />,
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
@@ -212,7 +210,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         dontCallRowInput: true,
       },
     ];
-  }, []);
+  }, [getEnumTranslation, getTranslation]);
 
   useEffect(() => updateRefreshCount(), [updateRefreshCount, searchParameters]);
 

@@ -27,7 +27,7 @@ export const SurveyAnswerField = ({ config, label, patient, field, form }) => {
     }
 
     setSurveyResponseAnswer(answer?.displayAnswer || answer?.body || '');
-  }, [field.name, answer]);
+  }, [field.name, answer, form]);
 
   return (
     <Container data-testid="container-xmfz">

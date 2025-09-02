@@ -69,7 +69,7 @@ export const PatientPaymentForm = ({
     if (editingPayment?.patientPayment?.methodId) {
       onDataChange({ paymentMethod: { value: editingPayment.patientPayment.methodId } });
     }
-  }, [editingPayment]);
+  }, [editingPayment, onDataChange]);
 
   const generateReceiptNumber = () => {
     return customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ123456789', 8)();

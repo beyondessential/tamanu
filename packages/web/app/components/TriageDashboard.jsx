@@ -9,7 +9,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 
-const getAverageWaitTime = (categoryData) => {
+const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
     return 0;
   }
@@ -38,11 +38,11 @@ const useTriageData = () => {
     // update data every 30 seconds
     const interval = setInterval(() => fetchTriageData(), 30000);
     return () => clearInterval(interval);
-  }, [api]);
+  }, [api, facilityId]);
 
-  return triageCategories?.map((category) => {
+  return triageCategories?.map(category => {
     const categoryData = data.filter(
-      (triage) =>
+      triage =>
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );

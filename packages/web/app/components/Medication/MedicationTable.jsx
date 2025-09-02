@@ -347,12 +347,15 @@ export const EncounterMedicationTable = ({
       handleInitialMedication(openMedicationId);
       history.replace(location.pathname);
     }
-  }, []);
+  }, [handleInitialMedication, history, location.pathname, location.search]);
 
-  const handleInitialMedication = async id => {
-    const medication = await api.get(`medication/${id}`);
-    setSelectedMedication(medication);
-  };
+  const handleInitialMedication = useCallback(
+    async id => {
+      const medication = await api.get(`medication/${id}`);
+      setSelectedMedication(medication);
+    },
+    [api, setSelectedMedication],
+  );
 
   const handleRefreshTable = () => {
     setRefreshCount(refreshCount + 1);

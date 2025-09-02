@@ -15,11 +15,10 @@ const Container = styled.div`
   background: ${Colors.white};
   border-radius: 5px;
   display: grid;
-  grid-template-columns: ${(props) =>
-    props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)'};
+  grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
 
-  > div:nth-last-child(-n + ${(props) => (props.hasPanels ? '6' : '5')}) {
+  > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
     border-bottom: none;
   }
 `;
@@ -70,58 +69,69 @@ export const SampleDetailsField = ({
   const { getSetting } = useSettings();
   const mandateSpecimenType = getSetting(SETTING_KEYS.FEATURE_MANDATE_SPECIMEN_TYPE);
 
-  const HEADERS = [
-    <TranslatedText
-      key="category"
-      stringId="lab.sampleDetail.table.column.category"
-      fallback="Category"
-      data-testid="translatedtext-r56z"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectionDateTime"
-      fallback="Date & time collected"
-      data-testid="translatedtext-2dwc"
-    />,
-    <TranslatedText
-      key="dateTimeCollected"
-      stringId="lab.sampleDetail.table.column.collectedBy"
-      fallback="Collected by"
-      data-testid="translatedtext-xd1n"
-    />,
-    <>
+  const HEADERS = useMemo(
+    () => [
       <TranslatedText
-        key="specimentType"
-        stringId="lab.sampleDetail.table.column.specimenType"
-        fallback="Specimen type"
-        data-testid="translatedtext-tznt"
-      />
-      {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
-    </>,
-    <TranslatedText
-      key="site"
-      stringId="lab.site.label"
-      fallback="Site"
-      data-testid="translatedtext-umcq"
-    />,
-  ];
-  const WITH_PANELS_HEADERS = [
-    <TranslatedText
-      key="panel"
-      stringId="lab.sampleDetail.table.column.panel"
-      fallback="Panel"
-      data-testid="translatedtext-8f07"
-    />,
-    ...HEADERS,
-  ];
+        key="category"
+        stringId="lab.sampleDetail.table.column.category"
+        fallback="Category"
+        data-testid="translatedtext-r56z"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectionDateTime"
+        fallback="Date & time collected"
+        data-testid="translatedtext-2dwc"
+      />,
+      <TranslatedText
+        key="dateTimeCollected"
+        stringId="lab.sampleDetail.table.column.collectedBy"
+        fallback="Collected by"
+        data-testid="translatedtext-xd1n"
+      />,
+      <>
+        <TranslatedText
+          key="specimentType"
+          stringId="lab.sampleDetail.table.column.specimenType"
+          fallback="Specimen type"
+          data-testid="translatedtext-tznt"
+        />
+        {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
+      </>,
+      <TranslatedText
+        key="site"
+        stringId="lab.site.label"
+        fallback="Site"
+        data-testid="translatedtext-umcq"
+      />,
+    ],
+    [mandateSpecimenType],
+  );
+
+  const WITH_PANELS_HEADERS = useMemo(
+    () => [
+      <TranslatedText
+        key="panel"
+        stringId="lab.sampleDetail.table.column.panel"
+        fallback="Panel"
+        data-testid="translatedtext-8f07"
+      />,
+      ...HEADERS,
+    ],
+    [HEADERS],
+  );
 
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {
-    return initialSamples.some((sample) => sample.panelId);
+    return initialSamples.some(sample => sample.panelId);
   }, [initialSamples]);
 
-  const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
+  const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [
+    hasPanels,
+    HEADERS,
+    WITH_PANELS_HEADERS,
+  ]);
 
   useEffect(() => {
     if (samples && onSampleChange) {
@@ -136,7 +146,7 @@ export const SampleDetailsField = ({
       // It's going to store in this state { category-1: { sampleTime: '2023-06-12 00:00'} }
       // Next time when it's called with the specimenType, it will be something like it: { identifier: 'category-1', 'specimenType', 'specimen-type-id'}
       // we need to store that { category-1: { sampleTime: '2023-06-12 00:00', specimenType: 'specimen-type-id'} }
-      setSamples((previousState) => {
+      setSamples(previousState => {
         const previousSample = previousState[identifier] || {};
         return {
           ...previousState,
@@ -148,8 +158,8 @@ export const SampleDetailsField = ({
   );
 
   const removeSample = useCallback(
-    (identifier) => {
-      setSamples((previousState) => {
+    identifier => {
+      setSamples(previousState => {
         const value = { ...previousState };
         delete value[identifier];
         return value;
@@ -159,7 +169,7 @@ export const SampleDetailsField = ({
   );
 
   const renderSampleDetails = useCallback(
-    (sample) => {
+    sample => {
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
@@ -258,7 +268,7 @@ export const SampleDetailsField = ({
           {columnName}
         </HeaderCell>
       ))}
-      {initialSamples.map((request) => {
+      {initialSamples.map(request => {
         return renderSampleDetails(request);
       })}
     </Container>

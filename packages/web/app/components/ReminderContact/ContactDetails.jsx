@@ -32,9 +32,9 @@ const StyledTextButton = styled(TextButton)`
   }
 `;
 
-const StyledContactListTable = (props) => {
+const StyledContactListTable = props => {
   const Component = styled(DataFetchingTable)`
-    display: ${(props) => (props.isEmpty ? 'none' : 'block')};
+    display: ${props => (props.isEmpty ? 'none' : 'block')};
     margin-bottom: 28px;
     border-radius: 5px;
     border: 1px solid ${Colors.outline};
@@ -80,10 +80,10 @@ const RowActionLink = styled.a`
 `;
 
 const ColoredText = styled.span`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
 `;
 
-const ContactDetailTable = (props) => {
+const ContactDetailTable = props => {
   const Component = styled(Table)`
     border: 1px solid ${Colors.outline};
     box-shadow: none;
@@ -154,7 +154,7 @@ export const ContactDetails = ({
 }) => {
   const { socket } = useSocket();
   const { getTranslation } = useTranslation();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const patientName = joinNames(patient);
   const [isEmpty, setIsEmpty] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
@@ -163,13 +163,13 @@ export const ContactDetails = ({
   const canRemoveReminderContacts = ability.can('write', 'Patient');
 
   const unsubscribersListener = useCallback(() => {
-    setRefreshCount((prev) => prev + 1);
+    setRefreshCount(prev => prev + 1);
   }, []);
 
   useEffect(() => {
     socket.on(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
     return () => socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE_SUCCESS, unsubscribersListener);
-  }, []);
+  }, [socket, unsubscribersListener]);
 
   const onDataFetched = ({ count }) => {
     setIsEmpty(!count);
@@ -282,7 +282,7 @@ export const ContactDetails = ({
             key: '',
             title: '',
             sortable: false,
-            accessor: (data) => {
+            accessor: data => {
               return (
                 <StyledTextButton
                   onClick={() => onRemoveContact(data)}
@@ -305,7 +305,7 @@ export const ContactDetails = ({
             key: '',
             title: '',
             sortable: false,
-            accessor: (row) =>
+            accessor: row =>
               getStatus(pendingContacts[row.id]?.isTimerStarted, row.id, row.connectionDetails) ===
               CONNECTION_STATUS.FAILED ? (
                 <RowActionLink onClick={() => onRetry(row)} data-testid="rowactionlink-pfr5">
