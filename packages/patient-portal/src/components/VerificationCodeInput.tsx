@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, useCallback } from 'react';
 import { Box, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
@@ -10,12 +10,18 @@ interface VerificationCodeInputProps {
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
-  onComplete,
   onChange,
-  name = 'verificationCode'
+  name = 'verificationCode',
 }) => {
   const [values, setValues] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const moveFocusForward =(index: number) => {
+    inputRefs.current[index + 1]?.focus();
+  }
+  const moveFocusBackward = (index: number) => {
+    inputRefs.current[index - 1]?.focus();
+  }
 
   // Auto-focus the first field on mount
   useEffect(() => {
@@ -25,7 +31,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const handleChange = (index: number, value: string) => {
     // Only allow single digits
     if (value.length > 1 || (value && !/^\d$/.test(value))) return;
-    
+
     const newValues = [...values];
     newValues[index] = value;
     setValues(newValues);
@@ -35,20 +41,13 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
     // Auto-advance to next field when a digit is entered
     if (value && index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (code.length === length) {
-      onComplete?.(code);
+      moveFocusForward(index);
     }
   };
 
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     // Allow navigation and control keys
-    const allowedKeys = [
-      'Delete', 'Tab', 'Escape', 'Enter',
-      'ArrowUp', 'ArrowDown', 'Home', 'End'
-    ];
+    const allowedKeys = ['Delete', 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
 
     if (e.key === 'Backspace') {
       if (values[index]) {
@@ -68,33 +67,33 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       return;
     }
     if (e.key === 'ArrowLeft' && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+      moveFocusBackward(index);
       return;
     }
     if (e.key === 'ArrowRight' && index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
+      moveFocusForward(index);
       return;
     }
     // Allow other control keys
     if (allowedKeys.includes(e.key)) {
       return;
     }
-    
+
     // Only allow digits 0-9
     if (!/^\d$/.test(e.key)) {
       e.preventDefault();
       return;
     }
-    
+
     // If a digit is typed, replace current value
     const newValues = [...values];
     newValues[index] = e.key;
     setValues(newValues);
     onChange?.(newValues.join(''));
-    
+
     // Move to next field if not the last one
     if (index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
+      moveFocusForward(index);
     }
     e.preventDefault();
   };
@@ -108,22 +107,18 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasteData = e.clipboardData.getData('text')
+    const pasteData = e.clipboardData
+      .getData('text')
       .replace(/\D/g, '') // Remove all non-digits
       .slice(0, length); // Limit to field length
-    
+
     const newValues = pasteData.split('').concat(new Array(length).fill('')).slice(0, length);
     setValues(newValues);
-    
+
     const code = newValues.join('');
     onChange?.(code);
-    
-    if (code.length === length) {
-      onComplete?.(code);
-      inputRefs.current.at(-1)?.focus();
-    } else {
-      inputRefs.current[pasteData.length]?.focus();
-    }
+
+    inputRefs.current[pasteData.length]?.focus();
   };
 
   return (
@@ -132,7 +127,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
         {values.map((value, index) => (
           <TextField
             key={index}
-            inputRef={(el) => (inputRefs.current[index] = el)}
+            inputRef={el => (inputRefs.current[index] = el)}
             value={value}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(index, e.target.value)}
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
@@ -144,22 +139,18 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
                 textAlign: 'center',
                 fontSize: '1.5rem',
                 fontWeight: 'bold',
-              }
+              },
             }}
             sx={{
               width: 56,
               '& .MuiOutlinedInput-root': {
                 height: 56,
-              }
+              },
             }}
           />
         ))}
       </Box>
-      <input
-        type="hidden"
-        name={name}
-        value={values.join('')}
-      />
+      <input type="hidden" name={name} value={values.join('')} />
     </>
   );
 };
