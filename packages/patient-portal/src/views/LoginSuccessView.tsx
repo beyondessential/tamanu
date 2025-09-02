@@ -1,6 +1,7 @@
 import React from 'react';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutlined';
 import styled from 'styled-components';
+import { Button } from '@tamanu/ui-components';
 import { Typography } from '@mui/material';
 
 const IconDisplay = styled('div')(({ theme }) => ({
@@ -19,7 +20,9 @@ export const LoginSuccessView = () => {
       <IconDisplay>
         <CheckCircleIcon color="success" />
       </IconDisplay>
-        <Typography variant="h2">Account successfully created</Typography>
+        <Typography mb={2} variant="h2">Account successfully created!</Typography>
+        <Typography variant="body1" mb={3} color="text.secondary">Continue to log in to access the Patient Portal.</Typography>
+        <Button type="submit" fullWidth variant="contained">Continue to log in</Button>
     </>
   );
 };
