@@ -266,7 +266,7 @@ export const EncounterView = () => {
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
-  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
@@ -292,13 +292,13 @@ export const EncounterView = () => {
     if (!isEqual(newTabs, tabs)) {
       setTabs([...newTabs]);
     }
-  }, [userPreferences?.encounterTabOrders]);
+  }, [userPreferences?.encounterTabOrders, currentTab, tabs, visibleTabs]);
 
   useEffect(() => {
     if (!currentTab) {
       setCurrentTab(visibleTabs[0].key);
     }
-  }, [isLoadingUserPreferences]);
+  }, [currentTab, visibleTabs]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);

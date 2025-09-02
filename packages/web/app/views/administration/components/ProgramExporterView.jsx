@@ -43,7 +43,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
 
   const programOptions = useMemo(
     () =>
-      programs?.data?.map((program) => ({
+      programs?.data?.map(program => ({
         label: program.name,
         value: program.id,
       })),
@@ -54,7 +54,7 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
     async ({ programId }) => {
       try {
         setIsLoading(true);
-        const programName = programOptions.find((option) => option.value === programId).label;
+        const programName = programOptions.find(option => option.value === programId).label;
         await saveFile({
           defaultFileName: `Program-${programName}-export-${getCurrentDateTimeString()}`,
           getData: async () => await api.download(`admin/export/program/${programId}`),
@@ -67,11 +67,11 @@ export const ProgramExporterView = memo(({ setIsLoading }) => {
         setIsLoading(false);
       }
     },
-    [api, programOptions],
+    [api, programOptions, getTranslation, setIsLoading],
   );
 
   const renderForm = useCallback(
-    (props) => <ExportForm options={programOptions} {...props} data-testid="exportform-qx7d" />,
+    props => <ExportForm options={programOptions} {...props} data-testid="exportform-qx7d" />,
     [programOptions],
   );
 

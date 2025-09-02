@@ -83,7 +83,7 @@ export const TasksPane = React.memo(({ encounter }) => {
     }
 
     setSearchParameters({ ...searchParameters, statuses });
-  }, [showCompleted, showNotCompleted]);
+  }, [showCompleted, showNotCompleted, searchParameters]);
 
   return (
     <TabPane data-testid="tabpane-g2ah">

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box, Divider, Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
@@ -290,22 +290,22 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
     return `${formatTimeSlot(getDateFromTimeString(firstSlot.startTime))} - ${formatTimeSlot(
       getDateFromTimeString(firstSlot.endTime),
     )} ${formatShort(new Date(firstStartTime))}`;
-  }, [values.startDate, selectedTimeSlots]);
+  }, [values.startDate, selectedTimeSlots, values.frequency]);
 
   useEffect(() => {
     if (frequencyChanged) {
       handleResetToDefault();
     }
-  }, [frequencyChanged]);
+  }, [frequencyChanged, handleResetToDefault]);
 
-  const handleResetToDefault = () => {
+  const handleResetToDefault = useCallback(() => {
     if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
 
     setValues({
       ...values,
       timeSlots: defaultTimeSlots,
     });
-  };
+  }, [values, defaultTimeSlots, setValues]);
 
   const handleSelectTimeSlot = (checked, slot, index) => {
     setValues({

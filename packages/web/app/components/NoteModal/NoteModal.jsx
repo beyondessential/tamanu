@@ -262,7 +262,7 @@ export const NoteModal = React.memo(() => {
         unblockRef.current();
       }
     };
-  }, [isNoteModalOpen, history, closeNoteModal]);
+  }, [isNoteModalOpen, history, closeNoteModal, getTranslation]);
 
   return (
     <>

@@ -34,7 +34,7 @@ export const CreateEditNoteForm = ({
       ...values,
       template: null,
     }));
-  }, []);
+  }, [setValues]);
 
   const onChangeTemplate = useCallback(
     async templateId => {

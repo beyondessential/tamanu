@@ -169,7 +169,7 @@ export const TaskActionModal = ({
       default:
         return null;
     }
-  }, [action]);
+  }, [action, onClose, refreshTaskTable, taskIds]);
 
   return (
     <FormModal

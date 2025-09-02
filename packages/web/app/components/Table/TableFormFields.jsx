@@ -26,7 +26,7 @@ const StyledFixedTable = styled(MaterialTable)`
   width: 100%;
 
   &:last-child {
-    border-bottom: ${(props) => (props.$pagination ? 'auto' : 'none')};
+    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -35,7 +35,7 @@ const StyledTableHead = styled(TableHead)`
 `;
 
 const StyledTableHeaderCell = styled(TableCell)`
-  width: ${(props) => (props.width ? props.width : 'auto')};
+  width: ${props => (props.width ? props.width : 'auto')};
   padding: 1.5%;
   text-align: center;
 `;
@@ -88,7 +88,7 @@ export const TableFormFields = React.memo(
     useEffect(() => {
       setPageRows(data.slice(0, rowsPerPage));
       setPage(0);
-    }, [data]);
+    }, [data, rowsPerPage]);
 
     // Display the relevant page's rows when the table page is changed
     const handlePageChange = (event, newPage) => {
@@ -97,7 +97,7 @@ export const TableFormFields = React.memo(
     };
 
     // Display the new amount of rows per page and set to page 1
-    const handleRowsPerPageChange = (event) => {
+    const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
       setPage(0);

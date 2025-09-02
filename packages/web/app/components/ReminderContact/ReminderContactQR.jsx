@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
@@ -48,7 +48,7 @@ const ErrorMessage = styled.div`
 
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { data: botInfo, isFetching, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');
@@ -57,9 +57,9 @@ export const ReminderContactQR = ({ contact, onClose }) => {
     if (botInfo && botInfo.username) {
       generateQRCode();
     }
-  }, [botInfo?.username]);
+  }, [botInfo, generateQRCode]);
 
-  const generateQRCode = async () => {
+  const generateQRCode = useCallback(async () => {
     try {
       const urlString = `https://t.me/${botInfo.username}?start=${contact.id}`;
 
@@ -69,7 +69,7 @@ export const ReminderContactQR = ({ contact, onClose }) => {
     } catch (error) {
       toast.error(`Error generating QR code: ${error}`);
     }
-  };
+  }, [botInfo.username, contact.id]);
 
   const patientName = joinNames(patient);
 

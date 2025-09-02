@@ -17,7 +17,7 @@ export const HierarchyFieldItem = ({ isFirstLevel, relationType, parentId, field
     // Don't clear the value unless the form has been edited
     if (!dirty) return;
     setFieldValue(fieldData.name, undefined);
-  }, [fieldData.name, parentId, setFieldValue]);
+  }, [fieldData.name, parentId, setFieldValue, dirty]);
 
   return (
     <LocalisedField

@@ -38,7 +38,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
     if (invoice.encounter.id) {
       loadEncounter(invoice.encounter.id);
     }
-  }, [invoice.encounter.id]);
+  }, [invoice.encounter.id, loadEncounter]);
 
   const patientQuery = usePatientDataQuery(invoice.encounter.patientId);
   const patient = patientQuery.data;

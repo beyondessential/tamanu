@@ -38,7 +38,7 @@ const ExportForm = ({
           />
         }
         component={ExpandedMultiSelectField}
-        options={dataTypes.map((value) => ({ value, label: startCase(value) }))}
+        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
         data-testid="field-aww5"
       />
     )}
@@ -54,7 +54,7 @@ export const ExporterView = memo(
     const { getTranslation } = useTranslation();
 
     const onSubmit = useCallback(
-      async (queryParameters) => {
+      async queryParameters => {
         await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
           getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
@@ -64,7 +64,7 @@ export const ExporterView = memo(
           getTranslation('document.notification.downloadSuccess', 'Successfully downloaded file'),
         );
       },
-      [api, title, endpoint],
+      [api, title, endpoint, getTranslation],
     );
 
     const buttonLabel = useMemo(() => {
@@ -81,7 +81,7 @@ export const ExporterView = memo(
     }, [title]);
 
     const renderForm = useCallback(
-      (props) => (
+      props => (
         <ExportForm
           dataTypes={dataTypes}
           dataTypesSelectable={dataTypesSelectable}
