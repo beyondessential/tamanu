@@ -215,7 +215,16 @@ export const DateField = React.memo(
                 max={max}
               />
             ),
-            [isDatePickerVisible, currentPickerMode, tempDate],
+            [
+              isDatePickerVisible,
+              currentPickerMode,
+              tempDate,
+              dateValue,
+              max,
+              min,
+              mode,
+              onAndroidDateChange,
+            ],
           )
         }
         {error && <TextFieldErrorMessage>{error}</TextFieldErrorMessage>}
