@@ -21,7 +21,7 @@ const IconDisplay = styled('div')(({ theme }) => ({
 export const RegistrationSuccessView = () => {
   const navigate = useNavigate();
   return (
-    <Card width="425px">
+    <Card style={{ width: '425px' }}>
       <IconDisplay>
         <CheckCircleIcon color="success" />
       </IconDisplay>

@@ -6,7 +6,7 @@ export const Card = styled(Paper)`
   display: block;
   padding: 22px;
   min-width: 300px;
-  width: ${({ width }: { width?: string }) => width || '520px'};
+  width: 520px;
   max-width: 100%;
   text-align: center;
   border-radius: 10px;
