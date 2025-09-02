@@ -22,7 +22,7 @@ type NewProgramEntryTabsProps = {
 const TabNavigator = ({ navigation, selectedPatient }: NewProgramEntryTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
   return (
     <FullView>
       <StackHeader title={joinNames(selectedPatient)} onGoBack={goBack} />

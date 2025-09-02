@@ -33,7 +33,7 @@ export const SurveyResponseLink = ({
         surveyResponseId: surveyResponse.id,
       });
     }
-  }, [isSensitive, navigation, surveyResponse]);
+  }, [isSensitive, navigation, surveyResponse, detailsRouteName]);
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>

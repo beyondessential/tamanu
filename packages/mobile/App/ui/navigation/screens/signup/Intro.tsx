@@ -19,7 +19,7 @@ import { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro'
 export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: IntroScreenProps) => {
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
-  }, []);
+  }, [navigation]);
 
   const { signedOutFromInactivity } = route.params;
 
@@ -63,10 +63,7 @@ export const IntroScreen: FunctionComponent<any> = ({ navigation, route }: Intro
         >
           For Hospitals, Health Centres and clinics around the world
         </StyledText>
-        <RowView
-          justifyContent="center"
-          marginTop={screenPercentageToDP(13, Orientation.Height)}
-        >
+        <RowView justifyContent="center" marginTop={screenPercentageToDP(13, Orientation.Height)}>
           <Button
             id="intro-sign-in-button"
             onPress={onNavigateToSignIn}

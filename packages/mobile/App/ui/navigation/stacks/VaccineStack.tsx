@@ -43,7 +43,7 @@ const HeaderTitle = compose(withPatient)(HeaderTitleComponent);
 const Header = ({ navigation }: StackHeaderProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
-  }, []);
+  }, [navigation]);
   return (
     <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
       <RowView

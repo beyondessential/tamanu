@@ -26,7 +26,7 @@ const TabNavigator = ({
 }: DiagnosisAndTreatmentTabsProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
   return (
     <ErrorBoundary>
       <FullView>

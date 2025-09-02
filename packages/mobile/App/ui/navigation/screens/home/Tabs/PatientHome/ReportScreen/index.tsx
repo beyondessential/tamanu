@@ -155,7 +155,7 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
 
   const navigateToExportData = useCallback(() => {
     navigation.navigate(Routes.HomeStack.ExportDataScreen);
-  }, []);
+  }, [navigation]);
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 

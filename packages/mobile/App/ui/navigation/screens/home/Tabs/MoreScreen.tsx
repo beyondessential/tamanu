@@ -112,7 +112,7 @@ export const MoreScreen = (): ReactElement => {
 
   const signOut = useCallback(() => {
     authCtx.signOut();
-  }, []);
+  }, [authCtx]);
 
   setStatusBar('dark-content', theme.colors.BACKGROUND_GREY);
 

@@ -23,19 +23,22 @@ export const VaccineHistoryTabComponent = ({
   selectedPatient,
 }: VaccineHistoryTabProps): ReactElement => {
   const category = route.name.split('/')[route.name.split('/').length - 1];
-  const onNavigateToClickedCell = useCallback(item => {
-    if (item.status === VaccineStatus.SCHEDULED) {
-      navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
-        vaccine: item,
-        patient: selectedPatient,
-      });
-    } else {
-      navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
-        vaccine: item,
-        patient: selectedPatient,
-      });
-    }
-  }, []);
+  const onNavigateToClickedCell = useCallback(
+    item => {
+      if (item.status === VaccineStatus.SCHEDULED) {
+        navigation.navigate(Routes.HomeStack.VaccineStack.NewVaccineTabs.Index, {
+          vaccine: item,
+          patient: selectedPatient,
+        });
+      } else {
+        navigation.navigate(Routes.HomeStack.VaccineStack.VaccineModalScreen, {
+          vaccine: item,
+          patient: selectedPatient,
+        });
+      }
+    },
+    [navigation, selectedPatient],
+  );
 
   return (
     <StyledSafeAreaView flex={1}>

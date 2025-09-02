@@ -119,7 +119,19 @@ export const SurveyResponseScreen = ({ route }: SurveyResponseScreenProps): Reac
         return;
       }
     },
-    [survey, components],
+    [
+      isReferral,
+      models.Referral,
+      models.SurveyResponse,
+      navigation,
+      selectedPatient,
+      selectedPatientId,
+      surveyId,
+      surveyType,
+      user.id,
+      survey,
+      components,
+    ],
   );
 
   const closeModalCallback = useCallback(async () => {

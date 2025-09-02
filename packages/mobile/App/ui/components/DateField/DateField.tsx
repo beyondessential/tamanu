@@ -138,10 +138,13 @@ export const DateField = React.memo(
         if (mode === 'date') return formatDate(dateValue, DateFormats.DDMMYY);
         if (mode === 'time') return formatDate(dateValue, DateFormats.TIME);
         if (mode === 'datetime')
-          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(dateValue, DateFormats.TIME)}`;
+          return `${formatDate(dateValue, DateFormats.DDMMYY)} ${formatDate(
+            dateValue,
+            DateFormats.TIME,
+          )}`;
       }
       return null;
-    }, [mode, value]);
+    }, [mode, value, dateValue]);
 
     const IconComponent = mode === 'time' ? Icons.ClockIcon : Icons.CalendarIcon;
 

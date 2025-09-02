@@ -84,5 +84,5 @@ export const setStatusBar = (
     useCallback(() => {
       if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
       StatusBar.setBarStyle(barStyle);
-    }, []),
+    }, [backgroundColor, barStyle]),
   );

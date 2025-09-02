@@ -31,7 +31,7 @@ const Header = ({
 }: NewVaccineHeaderProps): ReactElement => {
   const onPress = useCallback(() => {
     navigation.navigate(Routes.HomeStack.VaccineStack.VaccineTabs.Index);
-  }, []);
+  }, [navigation]);
   return (
     <SafeAreaView
       style={{

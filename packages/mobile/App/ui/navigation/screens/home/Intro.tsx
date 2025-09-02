@@ -46,7 +46,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
 
   const onPressButton = useCallback(() => {
     navigation.navigate(nextRoute);
-  }, []);
+  }, [navigation, nextRoute]);
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">

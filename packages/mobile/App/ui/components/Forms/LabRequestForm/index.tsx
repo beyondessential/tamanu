@@ -59,31 +59,34 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
     options: { column: 'displayName' },
   });
 
-  const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
-    const where: any = {
-      labTestCategory: { id: selectedValue },
-      visibilityStatus: VisibilityStatus.Current,
-    };
-    if (!canCreateSensitive) {
-      where.isSensitive = false;
-    }
-    const selectedLabTestTypes = await models.LabTestType.find({
-      where,
-      order: { name: 'ASC' },
-    });
-    const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
-      id: labTestType.id,
-      text: (
-        <TranslatedReferenceData
-          fallback={labTestType.name}
-          value={labTestType.id}
-          category="labTestType"
-        />
-      ),
-      value: false,
-    }));
-    setLabTestTypes(labTestTypeOptions);
-  }, []);
+  const handleLabRequestTypeSelected = useCallback(
+    async selectedValue => {
+      const where: any = {
+        labTestCategory: { id: selectedValue },
+        visibilityStatus: VisibilityStatus.Current,
+      };
+      if (!canCreateSensitive) {
+        where.isSensitive = false;
+      }
+      const selectedLabTestTypes = await models.LabTestType.find({
+        where,
+        order: { name: 'ASC' },
+      });
+      const labTestTypeOptions = selectedLabTestTypes.map(labTestType => ({
+        id: labTestType.id,
+        text: (
+          <TranslatedReferenceData
+            fallback={labTestType.name}
+            value={labTestType.id}
+            category="labTestType"
+          />
+        ),
+        value: false,
+      }));
+      setLabTestTypes(labTestTypeOptions);
+    },
+    [canCreateSensitive, models.LabTestType],
+  );
 
   return (
     <FormScreenView paddingRight={20} paddingLeft={20} paddingTop={20}>

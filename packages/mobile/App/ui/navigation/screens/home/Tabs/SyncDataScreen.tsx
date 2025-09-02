@@ -39,7 +39,7 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
 
   const manualSync = useCallback(() => {
     syncManager.triggerUrgentSync();
-  }, []);
+  }, [syncManager]);
 
   useEffect(() => {
     // Add this listener to detect when users exit/switch to another tab

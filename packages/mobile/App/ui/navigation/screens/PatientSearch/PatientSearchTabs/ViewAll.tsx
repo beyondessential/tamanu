@@ -167,17 +167,20 @@ const Screen: FC<ViewAllScreenProps> = ({
     };
   }, [syncManager, list?.length]);
 
-  const onNavigateToPatientHome = useCallback(patient => {
-    setSelectedPatient(patient);
-    navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
-      screen: Routes.HomeStack.SearchPatientStack.Index,
-      from: PatientFromRoute.ALL_PATIENT,
-    });
-  }, []);
+  const onNavigateToPatientHome = useCallback(
+    patient => {
+      setSelectedPatient(patient);
+      navigation.navigate(Routes.HomeStack.SearchPatientStack.Index, {
+        screen: Routes.HomeStack.SearchPatientStack.Index,
+        from: PatientFromRoute.ALL_PATIENT,
+      });
+    },
+    [navigation, setSelectedPatient],
+  );
 
   const onNavigateToFilters = useCallback(
     () => navigation.navigate(Routes.HomeStack.SearchPatientStack.FilterSearch),
-    [],
+    [navigation],
   );
 
   if (!list) {
