@@ -28,7 +28,7 @@ import { TabDisplay } from '../../../components/TabDisplay';
 import { Colors } from '../../../constants';
 import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
-import { useChartSurveyQuery } from '../../../api/queries/useChartSurveyQuery';
+import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
 import { SimpleChartModal } from '../../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
@@ -120,7 +120,7 @@ const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyI
   );
 };
 
-const getTooltipMessage = (selectedSurveyId) => {
+const getTooltipMessage = selectedSurveyId => {
   if (!selectedSurveyId) {
     return (
       <TranslatedText
@@ -130,7 +130,7 @@ const getTooltipMessage = (selectedSurveyId) => {
       />
     );
   }
-  
+
   return (
     <TranslatedText
       stringId="chart.action.record.disabledTooltip"
@@ -190,7 +190,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     selectedChartTypeId,
   ]);
 
-  const { data: coreComplexChartSurvey } = useChartSurveyQuery(coreComplexChartSurveyId);
+  const { data: coreComplexChartSurvey } = useSurveyQuery(coreComplexChartSurveyId);
 
   const fieldVisibility = useMemo(
     () =>
@@ -208,12 +208,10 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
     const findDataElement = id => componentsByDataElementId[id]?.dataElement;
 
     return {
-      instanceNameDataElement: findDataElement(
-        CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName
-      ),
+      instanceNameDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName),
       dateDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartDate),
       typeDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartType),
-      subtypeDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartSubtype)
+      subtypeDataElement: findDataElement(CHARTING_DATA_ELEMENT_IDS.complexChartSubtype),
     };
   }, [coreComplexChartSurvey]);
 
@@ -317,16 +315,22 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
   const complexChartFormMode = getComplexChartFormMode(chartSurveyToSubmit);
   const selectedChartSurveyName = selectedChartSurvey?.name;
-  const actionText = complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE
-    ? getTranslation('general.action.add', 'Add')
-    : getTranslation('general.action.record', 'Record');
+  const actionText =
+    complexChartFormMode === COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE
+      ? getTranslation('general.action.add', 'Add')
+      : getTranslation('general.action.record', 'Record');
   const chartModalTitle = `${selectedChartSurveyName} | ${actionText}`;
   const isCurrentChart = selectedChartSurvey?.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
-  const recordButtonEnabled = isCurrentChart &&
-    ((isComplexChart && !!currentComplexChartInstance) || (!isComplexChart && !!selectedChartTypeId));
+  const recordButtonEnabled =
+    isCurrentChart &&
+    ((isComplexChart && !!currentComplexChartInstance) ||
+      (!isComplexChart && !!selectedChartTypeId));
   const hasNoCharts = chartTypes.length === 0;
   const isWaitingForInstances = isInstancesQueryEnabled && isLoadingInstances;
-  const canCreateCoreComplexInstance = ability.can('create', subject('Charting', { id: coreComplexChartSurveyId }));
+  const canCreateCoreComplexInstance = ability.can(
+    'create',
+    subject('Charting', { id: coreComplexChartSurveyId }),
+  );
 
   const baseChartModalProps = {
     open: modalOpen,
