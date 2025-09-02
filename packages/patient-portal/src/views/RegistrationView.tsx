@@ -42,7 +42,7 @@ export const RegistrationView = () => {
 
   if (error) {
     return (
-      <Card width="425px">
+      <Card sx={{ width: '425px' }}>
         <Typography variant="h2" component="h1" gutterBottom>
           Error
         </Typography>
@@ -54,7 +54,7 @@ export const RegistrationView = () => {
   }
 
   return (
-    <Card width="425px">
+    <Card sx={{ width: '425px' }}>
      <IconDisplay>
         <CheckCircleIcon color="success" />
       </IconDisplay>
