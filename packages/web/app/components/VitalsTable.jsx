@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { SETTING_KEYS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
+import { getReferenceDataOptionStringId, getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { DynamicColumnTable } from './Table';
 import { useEncounter } from '../contexts/Encounter';
@@ -11,7 +11,6 @@ import { useVitalsQuery } from '../api/queries/useVitalsQuery';
 import { EditVitalCellModal } from './EditVitalCellModal';
 import { getVitalsTableColumns } from './VitalsAndChartsTableColumns';
 import { useSettings } from '../contexts/Settings';
-import { TranslatedReferenceData } from './Translation';
 import { useTranslation } from '../contexts/Translation';
 
 const StyledDynamicColumnTable = styled(DynamicColumnTable)`
@@ -43,12 +42,9 @@ export const VitalsTable = React.memo(() => {
     // First translate the element heading
     const processedRecord = {
       ...record,
-      value: (
-        <TranslatedReferenceData
-          category="programDataElement"
-          value={record.dataElementId}
-          fallback={record.value}
-        />
+      value: getTranslation(
+        getReferenceDataStringId(record.dataElementId, 'programDataElement'),
+        record.value,
       ),
     };
 
