@@ -140,12 +140,7 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
           path: ${{ env.NODE_MODULES_PATHS }}
       - run: npm i
-
-      - name: Lint errors
-        run: npm run lint-all -- --quiet
-
-      - name: Lint warnings
-        run: npm run lint-all
+      - run: npm run lint-all
 
   storybook:
     needs: node_modules_cache
