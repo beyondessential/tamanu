@@ -42,7 +42,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
       default:
         return AppIntro1Icon;
     }
-  }, []);
+  }, [step]);
 
   const onPressButton = useCallback(() => {
     navigation.navigate(nextRoute);

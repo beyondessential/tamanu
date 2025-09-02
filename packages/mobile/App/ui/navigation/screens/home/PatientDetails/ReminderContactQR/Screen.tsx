@@ -39,7 +39,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
     return () => {
       socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     };
-  }, [socket]);
+  }, [socket, handleBotInfo]);
 
   const handleBotInfo = useCallback(
     botInfo => {
