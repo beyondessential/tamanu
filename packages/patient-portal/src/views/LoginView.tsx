@@ -3,10 +3,10 @@ import { Typography } from '@mui/material';
 import { Button } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
-import { TextField } from '../components/TextField';
 
-import { Card } from '../components/Card';
 import { TextField } from '../components/TextField';
+import { Card } from '../components/Card';
+
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
