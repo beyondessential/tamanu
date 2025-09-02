@@ -46,9 +46,8 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     // Allow navigation and control keys
     const allowedKeys = [
-      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
-      'Home', 'End'
+      'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowUp', 'ArrowDown', 'Home', 'End'
     ];
 
     if (e.key === 'Backspace') {
@@ -141,8 +140,6 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
             onPaste={handlePaste}
             inputProps={{
               maxLength: 1,
-              inputMode: 'numeric',
-              pattern: '[0-9]*',
               style: {
                 textAlign: 'center',
                 fontSize: '1.5rem',
