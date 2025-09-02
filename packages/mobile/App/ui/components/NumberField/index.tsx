@@ -41,11 +41,11 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     labelFontSize,
     fieldFontSize,
   } = props;
-  const [number, setNumber] = useState(undefined);
+  const [number, setNumber] = useState(props.value || '');
   const onChangeNumber = (newNumber: string): void => {
     const value = parseFloat(newNumber);
     if (Number.isNaN(value)) {
-      setNumber(undefined);
+      setNumber('');
     } else {
       setNumber(newNumber);
     }
@@ -54,14 +54,14 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
       if (Number.isNaN(value)) {
         props.onChange('');
       } else {
-        props.onChange(value);
+        props.onChange(newNumber);
       }
     }
   };
 
   useEffect((): void => {
     if (props.value !== number) {
-      setNumber(props.value);
+      setNumber(props.value || '');
     }
   }, [props.value, number]);
 
@@ -79,7 +79,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
       onFocus={onFocus}
       onBlur={onBlur}
       error={error}
-      value={number === undefined || number === null ? '' : number.toString()}
+      value={number || ''}
       onChange={onChangeNumber}
       keyboardType="numeric"
       labelFontSize={labelFontSize}
