@@ -25,7 +25,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
     return () => {
       backendManager.stopSyncService();
     };
-  }, [backendManager]);
+  }, []);
 
   if (!initialised) {
     return <LoadingScreen />;

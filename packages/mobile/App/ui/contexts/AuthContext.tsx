@@ -176,7 +176,7 @@ const Provider = ({
     } else {
       backend.auth.endSession();
     }
-  }, [backend, props.token, props.user]);
+  }, [backend, props.token, props.user, props.refreshToken]);
 
   // sets state again after launching the app
   useEffect(() => {
@@ -201,7 +201,7 @@ const Provider = ({
     return () => {
       backend.auth.emitter.off('authError', errHandler);
     };
-  }, [backend, props.token, preventSignOutOnFailure]);
+  }, [backend, props.token, preventSignOutOnFailure, signOut]);
 
   return (
     <AuthContext.Provider
