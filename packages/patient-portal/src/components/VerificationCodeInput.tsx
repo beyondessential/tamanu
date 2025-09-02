@@ -22,12 +22,25 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const [values, setValues] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  const updateValues = (newValues: string[]) => {
+    setValues(newValues);
+    const code = newValues.join('');
+    onChange?.(code);
+  };
+  const updateValueAtIndex = (index: number, newValue: string) => {
+    const newValues = [...values];
+    newValues[index] = newValue;
+    updateValues(newValues);
+  };
+
   const moveFocusForward = (index: number) => {
     inputRefs.current[index + 1]?.focus();
   };
+  
   const moveFocusBackward = (index: number) => {
     inputRefs.current[index - 1]?.focus();
   };
+
 
   // Auto-focus the first field on mount
   useEffect(() => {
@@ -38,12 +51,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     // Only allow single digits
     if (value.length > 1 || (value && !/^\d$/.test(value))) return;
 
-    const newValues = [...values];
-    newValues[index] = value;
-    setValues(newValues);
-
-    const code = newValues.join('');
-    onChange?.(code);
+    updateValueAtIndex(index, value);
 
     // Auto-advance to next field when a digit is entered
     if (value && index < length - 1) {
@@ -58,17 +66,11 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     if (e.key === 'Backspace') {
       if (values[index]) {
         // If current field has a value, clear it
-        const newValues = [...values];
-        newValues[index] = '';
-        setValues(newValues);
-        onChange(newValues.join(''));
+        updateValueAtIndex(index, '');
       } else if (index > 0) {
         // If current field is empty, move to previous field and clear it
-        const newValues = [...values];
-        newValues[index - 1] = '';
-        setValues(newValues);
-        onChange(newValues.join(''));
-        inputRefs.current[index - 1]?.focus();
+        updateValueAtIndex(index - 1, '');
+        moveFocusBackward(index);
       }
       return;
     }
@@ -92,10 +94,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
     }
 
     // If a digit is typed, replace current value
-    const newValues = [...values];
-    newValues[index] = e.key;
-    setValues(newValues);
-    onChange?.(newValues.join(''));
+    updateValueAtIndex(index, e.key);
 
     // Move to next field if not the last one
     if (index < length - 1) {
@@ -119,10 +118,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       .slice(0, length); // Limit to field length
 
     const newValues = pasteData.split('').concat(new Array(length).fill('')).slice(0, length);
-    setValues(newValues);
-
-    const code = newValues.join('');
-    onChange?.(code);
+    updateValues(newValues);
 
     inputRefs.current[pasteData.length]?.focus();
   };
