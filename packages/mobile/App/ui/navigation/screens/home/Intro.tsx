@@ -27,9 +27,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
   const { title, message, step, nextRoute } = route.params;
   const user = useSelector(authUserSelector);
 
-  if (step === 1) {
-    useDisableAndroidBackButton();
-  }
+  useDisableAndroidBackButton(step === 1);
 
   const Icon = useMemo(() => {
     switch (step) {
