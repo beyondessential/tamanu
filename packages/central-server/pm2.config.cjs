@@ -24,6 +24,7 @@ function task(name, args, instances = 1, env = {}) {
     cwd,
     script: './dist/index.js',
     args,
+    interpreter: require.resolve('node/bin/node'),
     interpreter_args: `--max_old_space_size=${memory}`,
     instances,
     exec_mode: 'fork',
