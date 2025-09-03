@@ -97,7 +97,7 @@ export class Task extends Model {
         },
         highPriority: {
           type: DataTypes.BOOLEAN,
-          allowNull: true,
+          allowNull: false,
           defaultValue: false,
         },
         parentTaskId: {
