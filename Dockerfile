@@ -1,6 +1,6 @@
 ## Base images
 # The general concept is to build in build-base, then copy into a slimmer run-base
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 WORKDIR /app
 COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
