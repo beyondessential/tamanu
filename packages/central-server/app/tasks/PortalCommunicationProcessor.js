@@ -15,17 +15,21 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     const portalOneTimeTokenService = new PortalOneTimeTokenService(models);
 
     const portalUserId = portalUser.id;
-    let token;
+    const baseUrl = config.portalHostName;
 
+    // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
-      ({ token } = await portalOneTimeTokenService.createLoginToken(portalUserId));
-    } else {
-      ({ token } = await portalOneTimeTokenService.createRegisterToken(portalUserId));
+      const { token } = await portalOneTimeTokenService.createLoginToken(portalUserId);
+      const loginLink = `${baseUrl}/login/${portalUserId}.${token}`;
+      const loginCode = token;
+      return replaceInTemplate(content, {
+        loginLink,
+        loginCode,
+      });
     }
-    console.log('config.portalHostName', config);
 
-    const registrationLink = `${config.portalHostName}/register/${portalUserId}.${token}`;
-
+    const { token } = await portalOneTimeTokenService.createRegisterToken(portalUserId);
+    const registrationLink = `${baseUrl}/register/${portalUserId}.${token}`;
     return replaceInTemplate(content, {
       registrationLink,
     });
