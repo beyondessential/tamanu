@@ -96,6 +96,13 @@ const patientPortalThemeConfig = {
     borderRadius: 5,
   },
   components: {
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          marginLeft: 0
+        }
+      }
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         notchedOutline: {

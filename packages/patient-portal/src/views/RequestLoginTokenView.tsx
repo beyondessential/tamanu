@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -6,12 +6,14 @@ import { Button } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
 import { TextField } from '../components/TextField';
 import { Card } from '../components/Card';
+import { z } from 'zod';
 
 const LoginButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
 export const RequestLoginTokenView = () => {
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const { mutate: submit } = useRequestLoginToken({
@@ -25,8 +27,18 @@ export const RequestLoginTokenView = () => {
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const email = formData.get('email') as string;
+    if (!email) {
+      setError('*Required');
+    }
+    email?.trim();
+    const emailSchema = z.email();
+    const result = emailSchema.safeParse(email);
+    console.log(result);
+    if (!result.success) {
+      setError('Please enter a valid email');
+      return;
+    }
     if (email) {
-      email.trim();
       submit(email);
     }
   };
@@ -43,11 +55,14 @@ export const RequestLoginTokenView = () => {
         <TextField
           label="Email"
           fullWidth
-          type="email"
+          // type="email"
           name="email"
           id="email"
           required
           autoComplete="email"
+          error={!!error}
+          helperText={error}
+          onChange={() => error && setError(null)}
           autoFocus
         />
         <LoginButton type="submit" fullWidth variant="contained">
@@ -55,8 +70,8 @@ export const RequestLoginTokenView = () => {
         </LoginButton>
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
-          <strong>Issue with your email?</strong> If you have forgotten or lost access to your email, please
-          contact the health facility associated with your Patient Portal.
+          <strong>Issue with your email?</strong> If you have forgotten or lost access to your
+          email, please contact the health facility associated with your Patient Portal.
         </Typography>
       </form>
     </Card>
