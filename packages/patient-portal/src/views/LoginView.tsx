@@ -22,7 +22,7 @@ const EmailSectionContainer = styled(Box)({
 });
 
 const EmailSection = ({ email }: { email: string }) => {
-  const maskedEmail = useMemo(() => email.replace(/^.*?(.{1,3}@.*)/, '*******$1'), [email]);
+  const maskedEmail = useMemo(() => email.replace(/^.+?(.{0,3}@.*)/, '*******$1'), [email]);
   return (
     <EmailSectionContainer>
       <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
