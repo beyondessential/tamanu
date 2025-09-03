@@ -23,7 +23,8 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        "countryTimeZone": "Pacific/Auckland"
     }
 EOF
 
@@ -75,7 +76,8 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-	    }
+	    },
+        "countryTimeZone": "Pacific/Auckland"
 	}
 EOF
 
