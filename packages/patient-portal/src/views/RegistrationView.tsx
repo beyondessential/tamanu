@@ -4,9 +4,9 @@ import { useMutation } from '@tanstack/react-query';
 import { Button } from '@tamanu/ui-components';
 import { styled, Typography } from '@mui/material';
 import { useApi } from '@api/useApi';
+import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 
 import { Card } from '../components/Card';
-import { CheckCircleIcon } from 'lucide-react';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
