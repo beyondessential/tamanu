@@ -1219,6 +1219,20 @@ export const globalSettings = {
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
+        patientPortalLoginEmail: {
+          description: 'The email sent to the patient with their login code',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Your Tamanu Patient Portal Login Code',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
+            },
+          },
+        },
         patientPortalRegistrationEmail: {
           description: 'The email sent to the patient to register for the patient portal',
           properties: {
