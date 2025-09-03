@@ -49,8 +49,7 @@ const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const PublicRoute = () => {
-  const { data: user, isPending, status } = useCurrentUserQuery();
-  console.log('status', status, user);
+  const { data: user, isPending } = useCurrentUserQuery();
 
   if (isPending) {
     return <CircularProgress />;

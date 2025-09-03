@@ -32,6 +32,14 @@ export const verifyRegistration = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('Invalid registration token');
   }
 
+  // If the user is already registered and verified,
+  // don't continue verifying the token
+  if (portalUser.status === PORTAL_USER_STATUSES.REGISTERED) {
+    return res.status(200).json({
+      message: 'User already registered',
+    });
+  }
+
   await store.sequelize.transaction(async () => {
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({

@@ -84,6 +84,25 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     expect(tokenRecord).toBeNull();
   });
 
+  it('Should return successfully if already registered', async () => {
+    // Create a new portal user that is already registered
+    const alreadyRegisteredUser = await store.models.PortalUser.create({
+      email: 'already-registered@test.com',
+      patientId: testPatient.id,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      status: PORTAL_USER_STATUSES.REGISTERED,
+    });
+
+    // Create a registration token
+    const { token } = await oneTimeTokenService.createRegisterToken(alreadyRegisteredUser.id);
+    const fullToken = `${alreadyRegisteredUser.id}.${token}`;
+
+    const response = await baseApp.post(`${REGISTRATION_URL}/${fullToken}`);
+
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveProperty('message', 'User already registered');
+  });
+
   it('Should reject registration with invalid token format', async () => {
     const response = await baseApp.post(`${REGISTRATION_URL}/invalid-token`);
 

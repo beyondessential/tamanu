@@ -9,7 +9,6 @@ import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const template = await settings.get('templates.patientPortalLoginEmail');
-  console.log('template', template);
   const templateData = {
     token,
   };
