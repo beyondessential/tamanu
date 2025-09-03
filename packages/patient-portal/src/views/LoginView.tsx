@@ -21,8 +21,15 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
+const maskEmail = (email: string) => {
+  const regex = /(.+?.?)(.{0,3})(@.*)/;
+  return email.replace(regex, (_match, p1, p2, p3) => {
+    return '*'.repeat(p1.length) + p2 + p3;
+  });
+};
+
 const EmailSection = ({ email }: { email: string }) => {
-  const maskedEmail = useMemo(() => email.replace(/^.+?(.{0,3}@.*)/, '*******$1'), [email]);
+  const maskedEmail = useMemo(() => maskEmail(email), [email]);
   return (
     <EmailSectionContainer>
       <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
@@ -91,7 +98,9 @@ export const LoginView = () => {
         </Button>
       </form>
       <Divider sx={{ my: 2 }} />
-      <Button onClick={() => navigate('/login')} variant='text'>Back to login</Button>
+      <Button onClick={() => navigate('/login')} variant="text">
+        Back to login
+      </Button>
     </Card>
   );
 };

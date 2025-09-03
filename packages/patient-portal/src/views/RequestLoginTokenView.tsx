@@ -21,6 +21,8 @@ export const RequestLoginTokenView = () => {
       navigate('/login-submit', { state: { email } });
     },
     onError: (error) => {
+      navigate('/login-submit', { state: { email: '200000@gmail.com' } });
+      return
       // TODO: should pretend to send a code in all cases.
       if (error.message.includes('Invalid email address')) {
         setError('Please enter a valid email');
