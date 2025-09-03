@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
+
 import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { mapQueryFilters } from '../../../database/utils';
@@ -110,9 +111,16 @@ patientPortal.get(
       where: { patientId: patient.id },
     });
 
+    if (!portalUser) {
+      return res.send({
+        hasPortalAccount: false,
+        status: null,
+      });
+    }
+
     res.send({
-      hasPortalAccount: !!portalUser,
-      status: portalUser?.status || null,
+      hasPortalAccount: true,
+      status: portalUser.status,
     });
   }),
 );
@@ -149,6 +157,7 @@ patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortalForm');
+
     const { models, user, settings } = req;
     const { id: patientId } = req.params;
     const { formId, assignedAt, email, facilityId } = SendPortalFormRequestSchema.parse(req.body);
@@ -204,10 +213,9 @@ patientPortal.get(
     const { models, query } = req;
     const { id: patientId } = req.params;
 
+    // Handle both `params` object and query params
     const params = query.params || query;
-    const patient = await getPatientOrThrow({ models, patientId });
 
-    // Inline buildFormsQuery logic
     const {
       page = 0,
       rowsPerPage = 25,
@@ -218,7 +226,10 @@ patientPortal.get(
       ...filterParams
     } = params;
 
+    const patient = await getPatientOrThrow({ models, patientId });
+
     const offset = all ? undefined : page * rowsPerPage;
+
     const filters = mapQueryFilters(filterParams, [{ key: 'surveyId', operator: Op.eq }]);
 
     const baseQueryOptions = {
@@ -227,51 +238,39 @@ patientPortal.get(
       },
       include: [
         {
-          model: 'Survey',
+          model: models.Survey,
           as: 'survey',
-          include: [{ model: 'Program', as: 'program' }],
+          include: [{ model: models.Program, as: 'program' }],
         },
         {
-          model: 'User',
+          model: models.User,
           as: 'assignedBy',
         },
         {
-          model: 'Patient',
+          model: models.Patient,
           as: 'patient',
         },
       ],
-    };
-
-    const pagination = {
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
-      limit: all ? undefined : rowsPerPage,
-      offset,
     };
 
     const count = await models.PortalSurveyAssignment.count({
       where: baseQueryOptions.where,
     });
 
+    // If no results, return early
     if (count === 0) {
-      return res.send({ count: 0, data: [] });
+      res.send({
+        count: 0,
+        data: [],
+      });
+      return;
     }
 
-    // Fix include models reference
-    const queryWithModels = {
-      ...baseQueryOptions,
-      include: baseQueryOptions.include.map(inc => ({
-        ...inc,
-        model: models[inc.model],
-        include: inc.include?.map(subInc => ({
-          ...subInc,
-          model: models[subInc.model],
-        })),
-      })),
-    };
-
     const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
-      ...queryWithModels,
-      ...pagination,
+      ...baseQueryOptions,
+      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
+      limit: all ? undefined : rowsPerPage,
+      offset,
     });
 
     res.send({
@@ -292,7 +291,6 @@ patientPortal.delete(
     const { id: patientId, assignmentId } = req.params;
 
     const patient = await getPatientOrThrow({ models, patientId });
-
     await models.PortalSurveyAssignment.destroy({
       where: { id: assignmentId, patientId: patient.id },
     });
