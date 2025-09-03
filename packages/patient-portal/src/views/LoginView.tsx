@@ -1,14 +1,39 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { Button } from '@tamanu/ui-components';
+import React, { useMemo } from 'react';
+import { Box, Typography, styled } from '@mui/material';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useLocation } from 'react-router';
 import { useLogin } from '@api/mutations';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 
 import { TextField } from '../components/TextField';
 import { Card } from '../components/Card';
 import { VerificationCodeInput } from '../components/VerificationCodeInput';
 
+const EmailSectionContainer = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 8,
+  backgroundColor: '#E8F1FB',
+  padding: 16,
+  borderRadius: 8,
+  border: `1px solid ${TAMANU_COLORS.blue}`,
+  marginBlock: 32,
+});
+
+const EmailSection = ({ email }: { email: string }) => {
+  const maskedEmail = useMemo(() => email?.replace(/^.*?(.{1,3}@.*)/, '*******$1'), [email]);
+  if (!email) return null;
+  return (
+    <EmailSectionContainer>
+      <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
+      <Typography fontWeight={500} variant="body1">
+        Email sent to {maskedEmail}
+      </Typography>
+    </EmailSectionContainer>
+  );
+};
 
 export const LoginView = () => {
   const { mutate: login } = useLogin();
@@ -33,18 +58,13 @@ export const LoginView = () => {
   return (
     <Card>
       <Box display="flex" alignItems="center" justifyContent="center" gap={0.75} mb={1}>
-        <ShieldIcon fontSize='small' color="primary" />
-        <Typography variant="h3">
-          Account authentication
-        </Typography>
+        <ShieldIcon fontSize="small" color="primary" />
+        <Typography variant="h3">Account authentication</Typography>
       </Box>
-      {storedEmail && (
-        <Box>
-          <Typography variant="body2">
-            Email sent to {storedEmail.replace(/^(.{1,3}).*(@.*)/, '$1*******$2')}
-          </Typography>
-        </Box>
-      )}
+      <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
+        We’ve sent a 6-digit verification code to your email address
+      </Typography>
+      <EmailSection email={storedEmail} />
 
       <form onSubmit={handleSubmit}>
         {!storedEmail && (
@@ -63,7 +83,9 @@ export const LoginView = () => {
         <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
           Enter 6-digit verification code
         </Typography>
-        <VerificationCodeInput name="verificationCode" />
+        <Box sx={{ mb: 3 }}>
+          <VerificationCodeInput name="verificationCode" />
+        </Box>
         <Button type="submit" fullWidth variant="contained">
           Log in
         </Button>
