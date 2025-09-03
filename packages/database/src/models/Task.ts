@@ -5,7 +5,6 @@ import {
   TASK_DELETE_PATIENT_DISCHARGED_REASON_ID,
   SYSTEM_USER_UUID,
   TASK_DURATION_UNIT,
-  TASK_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import config from 'config';
@@ -50,7 +49,6 @@ export class Task extends Model {
   declare notCompletedReasonId?: string;
   declare deletedReasonId?: string;
   declare deletedReasonForSyncId?: string;
-  declare taskType: string;
   declare designations: TaskDesignation[];
 
   static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
@@ -127,11 +125,6 @@ export class Task extends Model {
         deletedTime: dateTimeType('deletedTime', {
           allowNull: true,
         }),
-        taskType: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          defaultValue: TASK_TYPES.NORMAL_TASK,
-        },
       },
       {
         ...options,
