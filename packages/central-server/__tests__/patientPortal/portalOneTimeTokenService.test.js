@@ -10,7 +10,7 @@ import {
 } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
 import bcrypt from 'bcrypt';
 
-describe('OneTimeTokenService', () => {
+describe('PortalOneTimeTokenService', () => {
   let ctx;
   let store;
   let models;
