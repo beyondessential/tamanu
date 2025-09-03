@@ -10,6 +10,7 @@ interface VerificationCodeInputProps {
 interface SlotBoxProps {
   isActive?: boolean;
 }
+
 const SlotBox = styled('div', { shouldForwardProp: prop => prop !== 'isActive' })<SlotBoxProps>(
   ({ theme, isActive }) => ({
     width: 40,
