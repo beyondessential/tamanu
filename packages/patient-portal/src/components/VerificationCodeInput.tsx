@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
+import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, useMemo } from 'react';
 import { Box, styled, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
@@ -6,12 +6,19 @@ interface VerificationCodeInputProps {
   name: string;
 }
 
-const SingleNumberInput = styled(TextField)({
-  width: 56,
+const SingleNumberInput = styled(TextField)(({ theme }) => ({
+  width: 40,
   '& .MuiOutlinedInput-root': {
-    height: 56,
+    background: theme.palette.background.default,
+    height: 50,
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
   },
-});
+}));
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
@@ -19,6 +26,8 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 }) => {
   const [values, setValues] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const joinedValue = useMemo(() => values.join(''), [values]);
 
   const updateValueAtIndex = (index: number, newValue: string) => {
     const newValues = [...values];
@@ -128,14 +137,14 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
               maxLength: 1,
               style: {
                 textAlign: 'center',
-                fontSize: '1.5rem',
+                fontSize: '1.2rem',
                 fontWeight: 'bold',
               },
             }}
           />
         ))}
       </Box>
-      <input type="hidden" name={name} value={values.join('')} />
+      <input type="hidden" name={name} value={joinedValue} />
     </>
   );
 };
