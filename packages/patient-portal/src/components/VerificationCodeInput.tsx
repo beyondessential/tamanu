@@ -1,4 +1,12 @@
-import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent, useMemo } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  KeyboardEvent,
+  ChangeEvent,
+  useMemo,
+  useCallback,
+} from 'react';
 import { Box, styled, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
@@ -20,6 +28,10 @@ const SingleNumberInput = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const validateSingleDigit = (value: string) => {
+  return value && /^\d$/.test(value);
+};
+
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
   name = 'verificationCode',
@@ -29,95 +41,119 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
   const joinedValue = useMemo(() => values.join(''), [values]);
 
-  const updateValueAtIndex = (index: number, newValue: string) => {
-    if (index >= length || index < 0) return;
-    const newValues = [...values];
-    newValues[index] = newValue;
-    setValues(newValues);
-  };
+  const updateValueAtIndex = useCallback(
+    (index: number, newValue: string) => {
+      if (index >= length || index < 0) return;
+      setValues(prevValues => {
+        const newValues = [...prevValues];
+        newValues[index] = newValue;
+        return newValues;
+      });
+    },
+    [length],
+  );
 
-  const focusFieldAtIndex = (index: number) => {
+  const focusFieldAtIndex = useCallback((index: number) => {
     inputRefs.current[index]?.focus();
-  };
-  const incrementFocusedField = (index: number) => {
-    const nextIndex = index + 1;
-    if (nextIndex >= length) return;
-    focusFieldAtIndex(nextIndex);
-  };
-  const decrementFocusedField = (index: number) => {
-    const prevIndex = index - 1;
-    if (prevIndex < 0) return;
-    focusFieldAtIndex(prevIndex);
-  };
-
-  const validateSingleDigit = (value: string) => {
-    return value && /^\d$/.test(value);
-  };
+  }, []);
+  const incrementFocusedField = useCallback(
+    (index: number) => {
+      const nextIndex = index + 1;
+      if (nextIndex >= length) return;
+      focusFieldAtIndex(nextIndex);
+    },
+    [length, focusFieldAtIndex],
+  );
+  const decrementFocusedField = useCallback(
+    (index: number) => {
+      const prevIndex = index - 1;
+      if (prevIndex < 0) return;
+      focusFieldAtIndex(prevIndex);
+    },
+    [focusFieldAtIndex],
+  );
 
   // Auto-focus the first field on mount
   useEffect(() => {
     focusFieldAtIndex(0);
-  }, []);
+  }, [focusFieldAtIndex]);
 
-  const handleChange = (index: number, value: string) => {
-    if (!validateSingleDigit(value)) return;
-    updateValueAtIndex(index, value);
-    // Auto-advance to next field when a digit is entered
-    incrementFocusedField(index);
-  };
+  const handleChange = useCallback(
+    (index: number, value: string) => {
+      if (!validateSingleDigit(value)) return;
+      updateValueAtIndex(index, value);
+      // Auto-advance to next field when a digit is entered
+      incrementFocusedField(index);
+    },
+    [updateValueAtIndex, incrementFocusedField],
+  );
 
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-    // Allow navigation and control keys
-    const allowedKeys = ['Delete', 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
-    // Check if the key is a control key for paste
-    const isMetaKey = e.ctrlKey || e.metaKey;
+  const handleKeyDown = useCallback(
+    (index: number, e: KeyboardEvent<HTMLInputElement>) => {
+      // Allow navigation and control keys
+      const allowedKeys = [
+        'Delete',
+        'Tab',
+        'Escape',
+        'Enter',
+        'ArrowUp',
+        'ArrowDown',
+        'Home',
+        'End',
+      ];
+      // Check if the key is a control key for paste
+      const isMetaKey = e.ctrlKey || e.metaKey;
 
-    // Allow other control keys
-    if (allowedKeys.includes(e.key) || isMetaKey) {
-      return;
-    }
-
-    if (e.key === 'Backspace') {
-      if (values[index]) {
-        // If current field has a value, clear it
-        updateValueAtIndex(index, '');
+      // Allow other control keys
+      if (allowedKeys.includes(e.key) || isMetaKey) {
         return;
       }
+
+      if (e.key === 'Backspace') {
+        if (values[index]) {
+          // If current field has a value, clear it
+          updateValueAtIndex(index, '');
+          return;
+        }
         // If current field is empty, move to previous field and clear it
         updateValueAtIndex(index - 1, '');
         decrementFocusedField(index);
-    
-    }
-    if (e.key === 'ArrowLeft') {
-      decrementFocusedField(index);
-      return;
-    }
-    if (e.key === 'ArrowRight') {
-      incrementFocusedField(index);
-      return;
-    }
-
-    handleChange(index, e.key);
-    e.preventDefault();
-  };
-
-  const handlePaste = (index: number, e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const digits = e.clipboardData.getData('text').replace(/\D/g, '');
-    if (!digits) return;
-
-    const toWriteLength = Math.min(digits.length, length - index);
-    setValues(prev => {
-      const next = [...prev];
-      for (let i = 0; i < toWriteLength; i += 1) {
-        next[index + i] = digits[i];
       }
-      return next;
-    });
+      if (e.key === 'ArrowLeft') {
+        decrementFocusedField(index);
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        incrementFocusedField(index);
+        return;
+      }
 
-    const nextFocusIndex = Math.min(index + toWriteLength, length - 1);
-    focusFieldAtIndex(nextFocusIndex);
-  };
+      handleChange(index, e.key);
+      e.preventDefault();
+    },
+    [values, updateValueAtIndex, decrementFocusedField, incrementFocusedField, handleChange],
+  );
+
+  const handlePaste = useCallback(
+    (index: number, e: React.ClipboardEvent) => {
+      e.preventDefault();
+      const digits = e.clipboardData.getData('text').replace(/\D/g, '');
+      if (!digits) return;
+
+      const toWriteLength = Math.min(digits.length, length - index);
+      setValues(prev => {
+        const next = [...prev];
+        for (let i = 0; i < toWriteLength; i += 1) {
+          next[index + i] = digits[i];
+        }
+        return next;
+      });
+
+      const nextFocusIndex = Math.min(index + toWriteLength, length - 1);
+      focusFieldAtIndex(nextFocusIndex);
+    },
+    [length, focusFieldAtIndex],
+  );
 
   return (
     <>
@@ -130,12 +166,16 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(index, e.target.value)}
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
             onPaste={e => handlePaste(index, e)}
-            inputProps={{
-              maxLength: 1,
-              style: {
-                textAlign: 'center',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
+            slotProps={{
+              input: {
+                inputProps: {
+                  maxLength: 1,
+                },
+                style: {
+                  textAlign: 'center',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                },
               },
             }}
           />
