@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from '
 import { Box, styled, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
-  onChange: (code: string) => void;
   length?: number;
-  name?: string;
+  name: string;
 }
 
 const SingleNumberInput = styled(TextField)({
@@ -16,28 +15,22 @@ const SingleNumberInput = styled(TextField)({
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
-  onChange,
   name = 'verificationCode',
 }) => {
   const [values, setValues] = useState<string[]>(new Array(length).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const updateValues = (newValues: string[]) => {
-    setValues(newValues);
-    const code = newValues.join('');
-    onChange?.(code);
-  };
   const updateValueAtIndex = (index: number, newValue: string) => {
     const newValues = [...values];
     newValues[index] = newValue;
-    updateValues(newValues);
+    setValues(newValues);
   };
 
-  const moveFocusForward = (index: number) => {
+  const incrementFocusedField = (index: number) => {
     inputRefs.current[index + 1]?.focus();
   };
   
-  const moveFocusBackward = (index: number) => {
+  const decrementFocusedField = (index: number) => {
     inputRefs.current[index - 1]?.focus();
   };
 
@@ -55,7 +48,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
     // Auto-advance to next field when a digit is entered
     if (value && index < length - 1) {
-      moveFocusForward(index);
+      incrementFocusedField(index);
     }
   };
 
@@ -70,16 +63,16 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       } else if (index > 0) {
         // If current field is empty, move to previous field and clear it
         updateValueAtIndex(index - 1, '');
-        moveFocusBackward(index);
+        decrementFocusedField(index);
       }
       return;
     }
     if (e.key === 'ArrowLeft' && index > 0) {
-      moveFocusBackward(index);
+      decrementFocusedField(index);
       return;
     }
     if (e.key === 'ArrowRight' && index < length - 1) {
-      moveFocusForward(index);
+      incrementFocusedField(index);
       return;
     }
     // Allow other control keys
@@ -92,19 +85,17 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       e.preventDefault();
       return;
     }
-
-    // If a digit is typed, replace current value
+    
     updateValueAtIndex(index, e.key);
 
-    // Move to next field if not the last one
     if (index < length - 1) {
-      moveFocusForward(index);
+      incrementFocusedField(index);
     }
     e.preventDefault();
   };
 
   const handleFocus = (index: number) => {
-    // Select all text when focusing on a field that has content
+    // Select digit when focusing on a field that has content
     if (values[index]) {
       inputRefs.current[index]?.select();
     }
@@ -118,7 +109,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       .slice(0, length); // Limit to field length
 
     const newValues = pasteData.split('').concat(new Array(length).fill('')).slice(0, length);
-    updateValues(newValues);
+    setValues(newValues);
 
     inputRefs.current[pasteData.length]?.focus();
   };
