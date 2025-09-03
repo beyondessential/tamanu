@@ -98,6 +98,7 @@ export class Task extends Model {
         highPriority: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
+          defaultValue: false,
         },
         parentTaskId: {
           type: DataTypes.UUID,
