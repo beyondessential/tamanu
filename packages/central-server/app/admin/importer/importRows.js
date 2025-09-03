@@ -296,7 +296,6 @@ export async function importRows(
             if (hasValueChanges) {
               updateStat(stats, statkey(model, sheetName), 'updated');
             } else {
-              console.log('CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC', existing, skipExisting);
               updateStat(stats, statkey(model, sheetName), 'skipped');
             }
           }
