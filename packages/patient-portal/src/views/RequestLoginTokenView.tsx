@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import { Divider, Typography, styled } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { Button } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
 import { TextField } from '../components/TextField';
+import { Card } from '../components/Card';
 
 const LoginButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -30,7 +32,7 @@ export const RequestLoginTokenView = () => {
   };
 
   return (
-    <>
+    <Card>
       <Typography variant="h1" component="h1" gutterBottom>
         Log In
       </Typography>
@@ -49,14 +51,14 @@ export const RequestLoginTokenView = () => {
           autoFocus
         />
         <LoginButton type="submit" fullWidth variant="contained">
-          Log in
+          Send code
         </LoginButton>
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
           <strong>Issue with your email?</strong> If you have forgotten or lost access to your email, please
-          contact the facility.
+          contact the health facility associated with your Patient Portal.
         </Typography>
       </form>
-    </>
+    </Card>
   );
 };
