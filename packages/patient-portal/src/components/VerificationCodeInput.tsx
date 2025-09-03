@@ -3,13 +3,13 @@ import { Box, styled, TextField } from '@mui/material';
 
 interface VerificationCodeInputProps {
   length?: number;
-  name: string;
+  name?: string;
 }
 
 const SingleNumberInput = styled(TextField)(({ theme }) => ({
-  width: 40,
   '& .MuiOutlinedInput-root': {
     background: theme.palette.background.default,
+    width: 40,
     height: 50,
     '& .MuiOutlinedInput-notchedOutline': {
       border: 'none',
@@ -30,95 +30,93 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const joinedValue = useMemo(() => values.join(''), [values]);
 
   const updateValueAtIndex = (index: number, newValue: string) => {
+    if (index >= length || index < 0) return;
     const newValues = [...values];
     newValues[index] = newValue;
     setValues(newValues);
   };
 
+  const focusFieldAtIndex = (index: number) => {
+    inputRefs.current[index]?.focus();
+  };
   const incrementFocusedField = (index: number) => {
-    inputRefs.current[index + 1]?.focus();
+    const nextIndex = index + 1;
+    if (nextIndex >= length) return;
+    focusFieldAtIndex(nextIndex);
   };
   const decrementFocusedField = (index: number) => {
-    inputRefs.current[index - 1]?.focus();
+    const prevIndex = index - 1;
+    if (prevIndex < 0) return;
+    focusFieldAtIndex(prevIndex);
   };
 
-  const validateSingleDigit = (value: string) => value && /^\d$/.test(value);
+  const validateSingleDigit = (value: string) => {
+    return value && /^\d$/.test(value);
+  };
 
   // Auto-focus the first field on mount
   useEffect(() => {
-    inputRefs.current[0]?.focus();
+    focusFieldAtIndex(0);
   }, []);
 
   const handleChange = (index: number, value: string) => {
     if (!validateSingleDigit(value)) return;
-
     updateValueAtIndex(index, value);
-
     // Auto-advance to next field when a digit is entered
-    if (value && index < length - 1) {
-      incrementFocusedField(index);
-    }
+    incrementFocusedField(index);
   };
 
   const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
     // Allow navigation and control keys
     const allowedKeys = ['Delete', 'Tab', 'Escape', 'Enter', 'ArrowUp', 'ArrowDown', 'Home', 'End'];
+    // Check if the key is a control key for paste
+    const isMetaKey = e.ctrlKey || e.metaKey;
+
+    // Allow other control keys
+    if (allowedKeys.includes(e.key) || isMetaKey) {
+      return;
+    }
 
     if (e.key === 'Backspace') {
       if (values[index]) {
         // If current field has a value, clear it
         updateValueAtIndex(index, '');
-      } else if (index > 0) {
+        return;
+      }
         // If current field is empty, move to previous field and clear it
         updateValueAtIndex(index - 1, '');
         decrementFocusedField(index);
-      }
-      return;
+    
     }
-    if (e.key === 'ArrowLeft' && index > 0) {
+    if (e.key === 'ArrowLeft') {
       decrementFocusedField(index);
       return;
     }
-    if (e.key === 'ArrowRight' && index < length - 1) {
+    if (e.key === 'ArrowRight') {
       incrementFocusedField(index);
       return;
     }
-    // Allow other control keys
-    if (allowedKeys.includes(e.key)) {
-      return;
-    }
 
-    if (!validateSingleDigit(e.key)) {
-      e.preventDefault();
-      return;
-    }
-
-    updateValueAtIndex(index, e.key);
-
-    if (index < length - 1) {
-      incrementFocusedField(index);
-    }
+    handleChange(index, e.key);
     e.preventDefault();
   };
 
-  const handleFocus = (index: number) => {
-    // Select digit when focusing on a field that has content
-    if (values[index]) {
-      inputRefs.current[index]?.select();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handlePaste = (index: number, e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasteData = e.clipboardData
-      .getData('text')
-      .replace(/\D/g, '') // Remove all non-digits
-      .slice(0, length); // Limit to field length
+    const digits = e.clipboardData.getData('text').replace(/\D/g, '');
+    if (!digits) return;
 
-    const newValues = pasteData.split('').concat(new Array(length).fill('')).slice(0, length);
-    setValues(newValues);
+    const toWriteLength = Math.min(digits.length, length - index);
+    setValues(prev => {
+      const next = [...prev];
+      for (let i = 0; i < toWriteLength; i += 1) {
+        next[index + i] = digits[i];
+      }
+      return next;
+    });
 
-    inputRefs.current[pasteData.length]?.focus();
+    const nextFocusIndex = Math.min(index + toWriteLength, length - 1);
+    focusFieldAtIndex(nextFocusIndex);
   };
 
   return (
@@ -131,8 +129,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
             value={value}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(index, e.target.value)}
             onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
-            onFocus={() => handleFocus(index)}
-            onPaste={handlePaste}
+            onPaste={e => handlePaste(index, e)}
             inputProps={{
               maxLength: 1,
               style: {
