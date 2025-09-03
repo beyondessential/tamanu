@@ -42,7 +42,7 @@ export class Task extends BaseModel {
   durationUnit?: string;
 
   @Column({ type: 'boolean', nullable: true })
-  highPriority: boolean;
+  highPriority?: boolean;
 
   @Column({ type: 'varchar', nullable: true })
   parentTaskId?: string;
