@@ -19,6 +19,7 @@ const SlotBox = styled('div')(({ theme }) => ({
   fontSize: '1.2rem',
   fontWeight: 'bold',
   cursor: 'text',
+  userSelect: 'none',
   '&[data-active="true"]': {
     borderColor: theme.palette.grey[400],
   },
@@ -45,7 +46,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
             <Box display="flex" gap={1}>
               {slots.map((slot, idx) => (
                 <SlotBox key={idx} data-active={slot.isActive ? 'true' : undefined}>
-                  {slot.char}
+                  {slot.char ?? ' '}
                 </SlotBox>
               ))}
             </Box>
