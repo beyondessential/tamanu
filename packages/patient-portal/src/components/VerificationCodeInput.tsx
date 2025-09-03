@@ -28,8 +28,19 @@ const SingleNumberInput = styled(TextField)(({ theme }) => ({
   },
 }));
 
+const ALLOWED_KEYS = new Set<string>([
+  'Delete',
+  'Tab',
+  'Escape',
+  'Enter',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+]);
+
 const validateSingleDigit = (value: string) => {
-  return value && /^\d$/.test(value);
+  return /^\d$/.test(value);
 };
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
@@ -80,32 +91,26 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
 
   const handleChange = useCallback(
     (index: number, value: string) => {
-      if (!validateSingleDigit(value)) return;
-      updateValueAtIndex(index, value);
-      // Auto-advance to next field when a digit is entered
-      incrementFocusedField(index);
+      if (value === '') {
+        updateValueAtIndex(index, '');
+        return;
+      }
+      if (validateSingleDigit(value)) {
+        updateValueAtIndex(index, value);
+        // Auto-advance to next field when a digit is entered
+        incrementFocusedField(index);
+      }
     },
     [updateValueAtIndex, incrementFocusedField],
   );
 
   const handleKeyDown = useCallback(
     (index: number, e: KeyboardEvent<HTMLInputElement>) => {
-      // Allow navigation and control keys
-      const allowedKeys = [
-        'Delete',
-        'Tab',
-        'Escape',
-        'Enter',
-        'ArrowUp',
-        'ArrowDown',
-        'Home',
-        'End',
-      ];
       // Check if the key is a control key for paste
       const isMetaKey = e.ctrlKey || e.metaKey;
 
       // Allow other control keys
-      if (allowedKeys.includes(e.key) || isMetaKey) {
+      if (ALLOWED_KEYS.has(e.key) || isMetaKey) {
         return;
       }
 
