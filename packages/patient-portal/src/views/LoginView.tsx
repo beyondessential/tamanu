@@ -19,12 +19,10 @@ const EmailSectionContainer = styled(Box)({
   padding: 16,
   borderRadius: 8,
   border: `1px solid ${TAMANU_COLORS.blue}`,
-  marginBlock: 32,
 });
 
 const EmailSection = ({ email }: { email: string }) => {
-  const maskedEmail = useMemo(() => email?.replace(/^.*?(.{1,3}@.*)/, '*******$1'), [email]);
-  if (!email) return null;
+  const maskedEmail = useMemo(() => email.replace(/^.*?(.{1,3}@.*)/, '*******$1'), [email]);
   return (
     <EmailSectionContainer>
       <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
@@ -64,22 +62,23 @@ export const LoginView = () => {
       <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
         We’ve sent a 6-digit verification code to your email address
       </Typography>
-      <EmailSection email={storedEmail} />
-
       <form onSubmit={handleSubmit}>
-        {!storedEmail && (
-          <TextField
-            label="Email Address"
-            fullWidth
-            id="email"
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            autoFocus
-            sx={{ mb: 2 }}
-          />
-        )}
+        <Box sx={{ my: 3 }}>
+          {storedEmail ? (
+            <EmailSection email={storedEmail} />
+          ) : (
+            <TextField
+              label="Email Address"
+              fullWidth
+              id="email"
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              autoFocus
+            />
+          )}
+        </Box>
         <Typography variant="body1" sx={{ mb: 2, textAlign: 'center', color: 'text.secondary' }}>
           Enter 6-digit verification code
         </Typography>
