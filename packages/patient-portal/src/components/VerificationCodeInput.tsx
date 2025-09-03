@@ -11,7 +11,7 @@ const SingleNumberInput = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     height: 56,
   },
-}); 
+});
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
@@ -29,11 +29,11 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   const incrementFocusedField = (index: number) => {
     inputRefs.current[index + 1]?.focus();
   };
-  
   const decrementFocusedField = (index: number) => {
     inputRefs.current[index - 1]?.focus();
   };
 
+  const validateSingleDigit = (value: string) => value && /^\d$/.test(value);
 
   // Auto-focus the first field on mount
   useEffect(() => {
@@ -41,8 +41,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   }, []);
 
   const handleChange = (index: number, value: string) => {
-    // Only allow single digits
-    if (value.length > 1 || (value && !/^\d$/.test(value))) return;
+    if (!validateSingleDigit(value)) return;
 
     updateValueAtIndex(index, value);
 
@@ -80,12 +79,11 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
       return;
     }
 
-    // Only allow digits 0-9
-    if (!/^\d$/.test(e.key)) {
+    if (!validateSingleDigit(e.key)) {
       e.preventDefault();
       return;
     }
-    
+
     updateValueAtIndex(index, e.key);
 
     if (index < length - 1) {
