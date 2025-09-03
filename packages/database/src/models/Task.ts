@@ -98,7 +98,6 @@ export class Task extends Model {
         highPriority: {
           type: DataTypes.BOOLEAN,
           allowNull: true,
-          defaultValue: false,
         },
         parentTaskId: {
           type: DataTypes.UUID,
@@ -274,7 +273,7 @@ export class Task extends Model {
     const allGeneratedTasks = [];
     const allClonedDesignations = [];
 
-    const repeatingTasks = tasks.filter((task) => task.frequencyValue && task.frequencyUnit);
+    const repeatingTasks = tasks.filter(task => task.frequencyValue && task.frequencyUnit);
 
     for (const task of repeatingTasks) {
       let lastGeneratedTask = await this.findOne({
@@ -348,7 +347,7 @@ export class Task extends Model {
 
       for (const generatedTask of generatedTasks) {
         clonedDesignations.push(
-          ...task.designations.map((designation) => ({
+          ...task.designations.map(designation => ({
             taskId: generatedTask.id,
             designationId: designation.id,
           })),
