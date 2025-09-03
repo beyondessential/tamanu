@@ -134,6 +134,8 @@ export class LabRequestModalBase {
 
   async validateRequestedDateTimeIsToday() {
     const todayString = this.getCurrentDateTime();
+    console.log('todayString', todayString);
+    console.log('requestDateTimeInput', await this.requestDateTimeInput.inputValue());
     await expect(this.requestDateTimeInput).toHaveValue(todayString);
     return todayString;
   }

@@ -124,8 +124,7 @@ test.describe('Scheduled vaccines', () => {
     // Log timezone information for debugging
          console.log('Test environment timezone info:', {
         nodeTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        currentTime: new Date().toISOString(),
-        currentTimeLocal: new Date().toString(),
+        currentTime: new Date().toString(),
         currentDateISO: patientDetailsPage.getCurrentBrowserDateISOFormat(),
         currentDateISOFull: new Date(patientDetailsPage.getCurrentBrowserDateISOFormat()).toLocaleString(),
         browserTimezone: await page.evaluate(() => {
