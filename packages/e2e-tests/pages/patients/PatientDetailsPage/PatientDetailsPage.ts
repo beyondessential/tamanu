@@ -364,6 +364,8 @@ export class PatientDetailsPage extends BasePatientPage {
    * Gets current browser date in the YYYY-MM-DD format in the browser timezone
    */
   getCurrentBrowserDateISOFormat() {
+    console.log('getCurrentBrowserDateISO1', new Date().toISOString());
+    console.log('getCurrentBrowserDateISO2', new Date().toLocaleString());
     return format(new Date(), 'yyyy-MM-dd');
   }
 
