@@ -127,6 +127,7 @@ test.describe('Scheduled vaccines', () => {
         currentTime: new Date().toISOString(),
         currentTimeLocal: new Date().toString(),
         currentDateISO: patientDetailsPage.getCurrentBrowserDateISOFormat(),
+        currentDateISOFull: new Date(patientDetailsPage.getCurrentBrowserDateISOFormat()).toLocaleString(),
         browserTimezone: await page.evaluate(() => {
             return Intl.DateTimeFormat().resolvedOptions().timeZone;
           }),   
