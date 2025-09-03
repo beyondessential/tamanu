@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
+import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button } from '@tamanu/ui-components';
 import { styled, Typography } from '@mui/material';
 import { useApi } from '@api/useApi';
-import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 
 import { Card } from '../components/Card';
 
