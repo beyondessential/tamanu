@@ -26,6 +26,8 @@ export const RequestLoginTokenView = () => {
         setError('Please enter a valid email');
         return;
       }
+
+      // TODO: Handle message from server
       setError(error.message);
     },
   });

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
+import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import { Button } from '@tamanu/ui-components';
 import { styled, Typography } from '@mui/material';
 import { useApi } from '@api/useApi';
@@ -10,7 +11,6 @@ import { Card } from '../components/Card';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
-  background: '#EDFAF3',
   borderRadius: '50%',
   width: 'fit-content',
   display: 'flex',
@@ -44,16 +44,20 @@ export const RegistrationView = () => {
     <Card sx={{ width: '425px' }}>
       {error ? (
         <>
-          <Typography variant="h2" component="h1" gutterBottom>
-            Error
+          <IconDisplay sx={{ background: '#FEEAEA' }}>
+            <ErrorIcon color="error" />
+          </IconDisplay>
+          <Typography mb={2} variant="h2">
+            Failed to create account
           </Typography>
           <Typography variant="body1" gutterBottom>
+            {/* TODO: Nice messages from server */}
             {error.message}
           </Typography>
         </>
       ) : (
         <>
-          <IconDisplay>
+          <IconDisplay sx={{ background: '#EDFAF3' }}>
             <CheckCircleIcon color="success" />
           </IconDisplay>
           <Typography mb={2} variant="h2">
