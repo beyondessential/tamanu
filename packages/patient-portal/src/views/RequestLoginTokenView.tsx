@@ -20,27 +20,34 @@ export const RequestLoginTokenView = () => {
     onSuccess: ({ email }) => {
       navigate('/login-submit', { state: { email } });
     },
+    onError: (error) => {
+      // TODO: should pretend to send a code in all cases.
+      if (error.message.includes('Invalid email address')) {
+        setError('Please enter a valid email');
+        return;
+      }
+      setError(error.message);
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // TODO: incorporate form library for validation or port from web to ui-components.
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     const email = formData.get('email') as string;
+    email?.trim();
     if (!email) {
       setError('*Required');
+      return;
     }
-    email?.trim();
-    const emailSchema = z.email();
-    const result = emailSchema.safeParse(email);
-    console.log(result);
-    if (!result.success) {
+    const { success: emailValid } = z.email().safeParse(email);
+    if (!emailValid) {
       setError('Please enter a valid email');
       return;
     }
-    if (email) {
-      submit(email);
-    }
+
+    submit(email);
   };
 
   return (
@@ -55,10 +62,8 @@ export const RequestLoginTokenView = () => {
         <TextField
           label="Email"
           fullWidth
-          // type="email"
           name="email"
           id="email"
-          required
           autoComplete="email"
           error={!!error}
           helperText={error}
