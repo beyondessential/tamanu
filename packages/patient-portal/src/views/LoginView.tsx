@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, styled } from '@mui/material';
+import { Box, Divider, Typography, styled } from '@mui/material';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
-import { useLocation } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useLogin } from '@api/mutations';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
@@ -36,6 +36,7 @@ const EmailSection = ({ email }: { email: string }) => {
 export const LoginView = () => {
   const { mutate: login } = useLogin();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const storedEmail = location.state?.email;
 
@@ -89,6 +90,8 @@ export const LoginView = () => {
           Log in
         </Button>
       </form>
+      <Divider sx={{ my: 2 }} />
+      <Button onClick={() => navigate('/login')} variant='text'>Back to login</Button>
     </Card>
   );
 };
