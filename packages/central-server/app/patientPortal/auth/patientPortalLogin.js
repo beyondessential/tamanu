@@ -7,8 +7,9 @@ import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
-const getOneTimeTokenEmail = async ({ email, token, settings, facilityId }) => {
-  const template = await settings[facilityId].get('templates.patientPortalLoginEmail');
+const getOneTimeTokenEmail = async ({ email, token, settings }) => {
+  const template = await settings.get('templates.patientPortalLoginEmail');
+  console.log('template', template);
   const templateData = {
     token,
   };
@@ -27,7 +28,7 @@ const getOneTimeTokenEmail = async ({ email, token, settings, facilityId }) => {
 export const requestLoginToken = asyncHandler(async (req, res) => {
   const { store, body, emailService, settings } = req;
   const { models } = store;
-  const { email, facilityId } = body;
+  const { email } = body;
 
   // Validate that the portal user exists
   const portalUser = await models.PortalUser.getForAuthByEmail(email);
@@ -40,7 +41,7 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
   const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
 
   // Send email with the 6-digit code
-  const oneTimeTokenEmail = await getOneTimeTokenEmail({ email, token, settings, facilityId });
+  const oneTimeTokenEmail = await getOneTimeTokenEmail({ email, token, settings });
   const emailResult = await emailService.sendEmail(oneTimeTokenEmail);
 
   if (emailResult.status === COMMUNICATION_STATUSES.ERROR) {
