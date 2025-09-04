@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { EndpointKey } from 'mushi';
 
-import { SYNC_DIRECTIONS, FACT_DEVICE_KEY } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, FACT_DEVICE_KEY, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
@@ -87,5 +87,34 @@ export class LocalSystemFact extends Model {
     const newDeviceKey = EndpointKey.generateFor('ecdsa256');
     await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
     return newDeviceKey;
+  }
+
+  static async getLookupModelsToRebuild() {
+    const value = await this.get(FACT_LOOKUP_MODELS_TO_REBUILD);
+    if (!value) {
+      return [];
+    }
+    return value.split(',').map((model) => model.trim());
+  }
+
+  static async isLookupRebuildingModel(modelName: string) {
+    const modelsToRebuild = await this.getLookupModelsToRebuild();
+    return modelsToRebuild.includes(modelName);
+  }
+
+  static async markLookupModelRebuilt(modelName: string) {
+    await this.sequelize.query(
+      `
+        UPDATE local_system_facts
+	      SET value = array_to_string(array_remove(string_to_array(value, ','), :modelName), ',')
+	      WHERE key = :key
+    `,
+      {
+        replacements: {
+          modelName,
+          key: FACT_LOOKUP_MODELS_TO_REBUILD,
+        },
+      },
+    );
   }
 }
