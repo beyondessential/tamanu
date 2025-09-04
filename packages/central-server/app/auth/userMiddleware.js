@@ -10,6 +10,7 @@ import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdent
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -68,6 +69,7 @@ export const userMiddleware = ({ secret }) =>
       enabled: auditSettings?.accesses.enabled,
       userId,
       version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL },
     });
 
     const spanAttributes = user

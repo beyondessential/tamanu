@@ -11,6 +11,7 @@ import { initAuditActions } from '@tamanu/database/utils/audit';
 import { version } from '../../package.json';
 import { findPortalUserById } from './utils';
 import { verifyToken } from '../../auth/utils';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -75,6 +76,7 @@ export const patientPortalMiddleware = ({ secret }) =>
       userId: SYSTEM_USER_UUID,
       portalUserId,
       version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL, },
     });
 
     const spanAttributes = {

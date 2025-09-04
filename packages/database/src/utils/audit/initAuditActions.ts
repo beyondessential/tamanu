@@ -7,7 +7,7 @@ interface InitAuditActionsParams {
   portalUserId?: string;
   version: string;
   isMobile?: boolean;
-  frontEndContext?: Record<string, any>;
+  backEndContext?: Record<string, any>;
 }
 
 export interface CreateAccessLogParams {
@@ -21,16 +21,16 @@ export const initAuditActions = (req: ExpressRequest, params: InitAuditActionsPa
     if (!params.enabled) return;
     return req.models.AccessLog.create({
       sessionId: req.sessionId,
-      deviceId: req.deviceId || 'unknown-device',
-      facilityId: req.facilityId || null,
-      backEndContext: { endpoint: req.originalUrl },
+      deviceId: req.deviceId ?? 'unknown-device',
+      facilityId: req.facilityId ?? null,
+      backEndContext: { ...params.backEndContext, endpoint: req.originalUrl },
       userId: params.userId,
       portalUserId: params.portalUserId,
       version: params.version,
       isMobile: params.isMobile,
       recordType: model.name,
       recordId,
-      frontEndContext: { ...params.frontEndContext, ...frontEndContext },
+      frontEndContext,
       loggedAt: new Date(),
     });
   },

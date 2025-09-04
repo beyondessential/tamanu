@@ -272,7 +272,8 @@ export const authMiddleware = async (req, res, next) => {
     req.audit = initAuditActions(req, {
       enabled: auditSettings?.accesses.enabled,
       userId,
-      version, 
+      version,
+      backEndContext: { serverType: SERVER_TYPES.FACILITY },
     });
 
     const spanAttributes = {};
