@@ -1,0 +1,170 @@
+name: Synthetic Test Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      attempt:
+        description: 'Attempt number'
+        required: true
+        type: number
+      max_attempts:
+        description: 'Maximum number of attempts'
+        required: false
+        type: number
+        default: 5
+      target_url:
+        description: 'Target URL for synthetic tests'
+        required: true
+        type: string
+      pr_number:
+        description: 'PR number'
+        required: true
+        type: string
+      pr_ref:
+        description: 'PR ref'
+        required: true
+        type: string
+      pr_sha:
+        description: 'PR SHA'
+        required: true
+        type: string
+
+jobs:
+  validate-and-run:
+    name: synthetic-test-run-${{ inputs.pr_number }}-${{ github.run_id }}
+    runs-on: ubuntu-latest
+    env:
+      TARGET_URL: ${{ inputs.target_url }}
+      PR_NUMBER: ${{ inputs.pr_number }}
+      PR_REF: ${{ inputs.pr_ref }}
+      PR_SHA: ${{ inputs.pr_sha }}
+
+    steps:
+      - name: Set dynamic commit status context
+        id: metadata
+        run: echo "RUN_CONTEXT=synthetic-test-run-$(date -u +'%Y-%m-%dT%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Set commit status to pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'pending',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test running...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Verify checkbox is still checked
+        uses: actions/github-script@v7
+        with:
+          script: |    
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            
+            if (isNaN(prNumber)) {
+              core.setFailed(`Invalid PR number: ${process.env.PR_NUMBER}`);
+              return;
+            }
+            
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            const syntheticTestMatch = pr.body?.match(/\[x\]\s+.*?<!-- #synthetic-test -->/);
+            const shouldRun = !!syntheticTestMatch;
+
+            if (!shouldRun) {
+              core.setFailed('Checkbox is no longer checked – skipping test.');
+            }
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PR_REF }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build-shared
+
+      - name: Ensure latest merged scenarios
+        run: npm run --workspace=@tamanu/synthetic-tests merge-scenarios
+
+      - name: Run synthetic test
+        uses: artilleryio/action-cli@v1
+        with:
+          command: run packages/synthetic-tests/src/merged-scenarios.yml --target=${{ env.TARGET_URL }}
+
+      - name: Update commit status on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'success',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test passed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Update commit status on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'failure',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+      - name: Update commit status on cancel
+        if: cancelled()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: 'error',
+              context: '${{ steps.metadata.outputs.RUN_CONTEXT }}',
+              description: 'Synthetic test was cancelled',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${process.env.GITHUB_RUN_ID}`
+            });
+
+  retrigger-synthetic-test:
+    name: retrigger-synthetic-test-${{ inputs.attempt }}-${{ inputs.pr_number }}-${{ github.run_id }}
+    runs-on: ubuntu-latest
+    needs: validate-and-run
+    if: needs.validate-and-run.result == 'success' && inputs.attempt < inputs.max_attempts
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Trigger Synthetic Test Runner
+        run: |
+          echo "Triggering ci-synthetic-test-runner.yml on ref ${{ inputs.pr_ref }}"
+          NEXT_ATTEMPT=$(( ${{ inputs.attempt }} + 1 ))
+          gh workflow run --repo ${{ github.repository }} ci-synthetic-test-runner.yml \
+            --ref "${{ inputs.pr_ref }}" \
+            --field attempt="$NEXT_ATTEMPT" \
+            --field max_attempts="${{ inputs.max_attempts }}" \
+            --field target_url="${{ inputs.target_url }}" \
+            --field pr_number="${{ inputs.pr_number }}" \
+            --field pr_ref="${{ inputs.pr_ref }}" \
+            --field pr_sha="${{ inputs.pr_sha }}"
+

@@ -60,7 +60,7 @@ EOF
 EOF
 
     # specify ports for consistency
-    npm run --workspace @tamanu/central-server start migrate
+    npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
     nohup npm run --workspace @tamanu/central-server start > central-server.out &
     echo "CENTRAL_SERVER_PID=$!" >> $GITHUB_ENV
@@ -86,10 +86,10 @@ test_facility_offline_facility_start() {
 	        "verbose": true,
 	        "username": "tamanu",
 	        "password": "tamanu",
-	        "migrateOnStartup": true
 	    }
 	}
 	EOF
+	npm run --workspace @tamanu/facility-server start upgrade
 	nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
 	echo "FACILITY_SERVER_PID=$!" >> $GITHUB_ENV
 	curl --retry 8 --retry-all-errors localhost:4000

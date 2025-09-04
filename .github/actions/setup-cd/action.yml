@@ -28,10 +28,18 @@ runs:
       shell: bash
       run: rm -rf ops/.git
 
-    - name: Install Node.js
+    - name: Install Node.js for ops
+      if: inputs.ops-ssh-key
       uses: actions/setup-node@v4
       with:
-        node-version-file: '.nvmrc'
+        node-version-file: ops/.node-version
+        cache: npm
+
+    - name: Install Node.js for us
+      if: '!inputs.ops-ssh-key'
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .node-version
         cache: npm
 
     - name: Prepare pulumi
