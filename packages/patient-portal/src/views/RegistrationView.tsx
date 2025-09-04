@@ -44,7 +44,7 @@ export const RegistrationView = () => {
     <Card sx={{ width: '425px' }}>
       {error ? (
         <>
-          <IconDisplay sx={{ background: '#FEEAEA' }}>
+          <IconDisplay sx={{ background: 'error.light' }}>
             <ErrorIcon color="error" />
           </IconDisplay>
           <Typography mb={2} variant="h2">
@@ -56,7 +56,7 @@ export const RegistrationView = () => {
         </>
       ) : (
         <>
-          <IconDisplay sx={{ background: '#EDFAF3' }}>
+          <IconDisplay sx={{ background: 'success.light' }}>
             <CheckCircleIcon color="success" />
           </IconDisplay>
           <Typography mb={2} variant="h2">

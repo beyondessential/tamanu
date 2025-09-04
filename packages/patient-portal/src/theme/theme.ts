@@ -20,9 +20,11 @@ const patientPortalThemeConfig = {
     },
     error: {
       main: TAMANU_COLORS.alert,
+      light: '#FFF0EE',
     },
     success: {
       main: TAMANU_COLORS.safe,
+      light: '#EDFAF3'
     },
     text: {
       primary: TAMANU_COLORS.darkestText,

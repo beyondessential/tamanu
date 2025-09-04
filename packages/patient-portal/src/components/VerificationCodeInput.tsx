@@ -16,10 +16,16 @@ interface SlotBoxProps {
 
 const SlotBox = styled('div', {
   shouldForwardProp: prop => prop !== 'isActive' && prop !== 'hasError',
-})<SlotBoxProps & { hasError?: boolean }>(({ theme, isActive, hasError }) => ({
+})<SlotBoxProps & { hasError?: boolean }>(({ theme, isActive, hasError }) => {
+  const getBackgroundColor = () => {
+    if (hasError) return theme.palette.error.light;
+    if (isActive) return theme.palette.background.default;
+    return 'transparent';
+  };
+  return {
   width: 40,
   height: 50,
-  background: hasError ? '#FFF0EE' : theme.palette.background.default,
+  background: hasError ? theme.palette.error.light : theme.palette.background.default,
   border: `1px solid ${theme.palette.background.default}`,
   borderRadius: 4,
   display: 'flex',
@@ -28,8 +34,9 @@ const SlotBox = styled('div', {
   fontSize: 20,
   fontWeight: 500,
   cursor: 'text',
-  borderColor: hasError ? theme.palette.error.main : isActive ? theme.palette.grey[400] : undefined,
-}));
+  borderColor: getBackgroundColor(),
+  };
+});
 
 export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   length = 6,
@@ -50,7 +57,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
         <OTPInput
           name={name}
           maxLength={length}
-          inputMode="numeric" 
+          inputMode="numeric"
           onFocus={onFocus}
           pattern={REGEXP_ONLY_DIGITS}
           render={({ slots }) => (
