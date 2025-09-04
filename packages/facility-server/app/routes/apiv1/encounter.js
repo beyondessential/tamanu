@@ -257,7 +257,7 @@ encounterRelations.get(
     if (!discharge) throw new NotFoundError();
     await req.audit?.access?.({
       recordId: discharge.id,
-      params,
+      frontEndContext: params,
       model: Discharge,
     });
 

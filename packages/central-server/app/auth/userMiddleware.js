@@ -7,6 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { addAuditUtilToRequest } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
 
@@ -64,24 +65,13 @@ export const userMiddleware = ({ secret }) =>
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        });
-      },
-    };
+    req.audit = addAuditUtilToRequest(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId,
+      sessionId,
+      version,
+      isMobile: false,
+    });
 
     const spanAttributes = user
       ? {

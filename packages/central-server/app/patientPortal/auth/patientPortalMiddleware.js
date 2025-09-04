@@ -2,12 +2,15 @@ import { context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
-import { verifyToken } from '../../auth/utils';
-import { findPortalUserById } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { addAuditUtilToRequest } from '@tamanu/database/utils/audit';
+
+import { version } from '../../package.json';
+import { findPortalUserById } from './utils';
+import { verifyToken } from '../../auth/utils';
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -63,6 +66,18 @@ export const patientPortalMiddleware = ({ secret }) =>
     req.patient = patient;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
+
+    const auditSettings = await store.models.Setting.get('audit');
+    // Attach auditing helper similar to standard user middleware
+    // eslint-disable-next-line require-atomic-updates
+    req.audit = addAuditUtilToRequest(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId: SYSTEM_USER_UUID,
+      portalUserId,
+      sessionId,
+      version,
+
+    });
 
     const spanAttributes = {
       'app.patient.id': patient.id,

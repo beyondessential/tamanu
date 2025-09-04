@@ -24,7 +24,7 @@ import type { LocationGroup } from './LocationGroup';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
-export class ImagingRequest extends Model {
+export class ImagingRequest extends Model  {
   declare id: string;
   declare displayId: string;
   declare imagingType: (typeof IMAGING_TYPES_VALUES)[number];
