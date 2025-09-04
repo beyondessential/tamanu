@@ -28,8 +28,7 @@ export const RequestLoginTokenView = () => {
 
     // TODO: incorporate form library for validation or port from web to ui-components.
     const formData = new FormData(e.currentTarget as HTMLFormElement);
-    const email = formData.get('email') as string;
-    email?.trim();
+    const email = (formData.get('email') as string)?.trim();
     if (!email) {
       setError('*Required');
       return;
