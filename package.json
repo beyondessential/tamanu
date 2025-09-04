@@ -96,16 +96,15 @@
     "node": "^24.7.0",
     "patch-package": "^8.0.0",
     "pm2": "^5.4.2",
-    "re-resizable": "^6.11.2"
+    "re-resizable": "^6.11.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "overrides": {
     "axios": "^1.8.2",
-    "react": "18.2.0",
     "react-native-svg": "^12.1.0",
-    "react-redux": "8.0.2",
-    "react-dom": "18.2.0",
-    "react-test-renderer": "^18.3.1",
+    "react-redux": "^8.0.2",
     "@react-pdf/renderer": "^3.4.4",
-    "@react-pdf/layout": "3.11.5"
+    "@react-pdf/layout": "^3.11.5"
   }
 }
