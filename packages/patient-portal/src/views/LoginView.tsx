@@ -24,11 +24,11 @@ const EmailSectionContainer = styled(Box)({
 /**
  * Mask the email address so that the last characters of the local part are visible.
  * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
- * 
+ *
  * @example
- * maskEmail('maa@gmail.com') // **a@gmail.com
- * maskEmail('abcd@gmail.com') // **cd@gmail.com
- * maskEmail('abcdefghijk@gmail.com') // *******ijk@gmail.com
+ * maskEmail('maa@gmail.com') // returns **a@gmail.com
+ * maskEmail('abcd@gmail.com') // returns **cd@gmail.com
+ * maskEmail('abcdefghijk@gmail.com') // returns *******ijk@gmail.com
  */
 const maskEmail = (email: string) => {
   return email.replace(/(.+?.?)(.{0,3}@.*)/, (_match, p1, p2) => `${'*'.repeat(p1.length)}${p2}`);
@@ -74,7 +74,8 @@ export const LoginView = () => {
         <Typography variant="h3">Account authentication</Typography>
       </Box>
       <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
-        We’ve sent a 6-digit verification code to your email address
+        If there is an account associated with the email address provided you will receive a 6-digit
+        verification code.
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box sx={{ my: 3 }}>
