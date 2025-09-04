@@ -115,42 +115,11 @@ export async function createApi(ctx) {
   });
 
   // Patient Portal - must go before main API to avoid main authentication
-  express.use(
-    '/api/portal',
-    asyncHandler(async (req, res, next) => {
-      try {
-        // Check if patient portal feature flag is enabled
-        let patientPortalEnabled = false;
-        const test = await req.settings.get('features.patientPortal');
-        console.log('patientPortalEnabled', test);
-
-        if (req.settings) {
-          if (typeof req.settings.get === 'function') {
-            // Single facility or central server
-            patientPortalEnabled = await req.settings.get('features.patientPortal');
-          } else {
-            // Multi-facility setup - check if any facility has it enabled
-            for (const facilityId of Object.keys(req.settings)) {
-              if (await req.settings[facilityId].get('features.patientPortal')) {
-                patientPortalEnabled = true;
-                break;
-              }
-            }
-          }
-        }
-
-        if (patientPortalEnabled) {
-          return patientPortalModule(req, res, next);
-        } else {
-          // Return 404 if patient portal is disabled
-          return res.status(404).end();
-        }
-      } catch (error) {
-        log.error('Error checking patient portal feature flag:', error);
-        return next(error);
-      }
-    }),
-  );
+  express.use('/api/portal', async (req, res, next) => {
+    // Todo: discuss using a config property instead so that it doesn't have to be checked at run-time
+    const patientPortalEnabled = await req.settings.get('features.patientPortal');
+    return patientPortalEnabled ? patientPortalModule(req, res, next) : res.status(404).end();
+  });
 
   // API
   express.use('/api', api(ctx));

@@ -5,7 +5,8 @@ import { ButtonRow } from '../../components/ButtonRow';
 import { SelectInput } from '../../components/Field/SelectField';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
 import { TranslatedText } from '../../components';
-import { SendIcon } from '../../components/Icons/SendIcon.jsx';
+import { SendIcon } from '../../components/Icons/SendIcon';
+import { useSettings } from '../../contexts/Settings';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -21,6 +22,8 @@ const StyledButtonRow = styled(ButtonRow)`
 
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
   const [open, setOpen] = useState(false);
+  const { getSetting } = useSettings();
+  const patientPortalEnabled = getSetting('features.patientPortal');
 
   const handleChange = event => {
     const surveyId = event.target.value;
@@ -41,13 +44,16 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        <TextButton onClick={() => setOpen(true)} disabled={!value}>
-          <SendIcon width={12} height={12} />
-          <TranslatedText
-            stringId="program.action.sendToPatientPortal"
-            fallback="Send to patient portal"
-          />
-        </TextButton>
+        {patientPortalEnabled && (
+          <TextButton onClick={() => setOpen(true)} disabled={!value}>
+            <SendIcon width={12} height={12} />
+            <TranslatedText
+              stringId="program.action.sendToPatientPortal"
+              fallback="Send to patient portal"
+            />
+          </TextButton>
+        )}
+
         <Button
           onClick={handleSubmit}
           disabled={!value}
