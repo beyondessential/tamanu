@@ -24,7 +24,7 @@ const EmailSectionContainer = styled(Box)({
 /**
  * Mask the email address so that the last characters of the local part are visible.
  * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
- * 
+ *
  * a@gmail.com -> **c@gmail.com
  * abcd@gmail.com -> **cd@gmail.com
  * abcdef@gmail.com -> ***def@gmail.com
@@ -47,7 +47,7 @@ const EmailSection = ({ email }: { email: string }) => {
 };
 
 export const LoginView = () => {
-  const { mutate: login, error } = useLogin();
+  const { mutate: login, isError: isLoginError, reset: resetLogin } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -97,7 +97,16 @@ export const LoginView = () => {
           Enter 6-digit verification code
         </Typography>
         <Box sx={{ mb: 3 }}>
-          <VerificationCodeInput name="verificationCode" error={!!error} />
+          <VerificationCodeInput
+            name="verificationCode"
+            error={isLoginError}
+            helperText={isLoginError ? 'Incorrect verification code.' : ''}
+            onFocus={() => {
+              if (!isLoginError) return;
+              // Reset error state when the input is re-focused after submitting
+              resetLogin();
+            }}
+          />
         </Box>
         <Button type="submit" fullWidth variant="contained">
           Log in
