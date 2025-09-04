@@ -50,7 +50,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
         <OTPInput
           name={name}
           maxLength={length}
-          inputMode="numeric" 
+          inputMode="numeric"
           onFocus={onFocus}
           pattern={REGEXP_ONLY_DIGITS}
           render={({ slots }) => (
