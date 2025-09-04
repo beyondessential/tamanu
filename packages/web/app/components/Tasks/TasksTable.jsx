@@ -398,7 +398,7 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.COMPLETED, row)}
             data-testid="iconbutton-0wvd"
-          >
+            size="large">
             <StyledCheckCircleIcon data-testid="styledcheckcircleicon-31o6" />
           </IconButton>
         </TableTooltip>
@@ -417,7 +417,7 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.NON_COMPLETED, row)}
             data-testid="iconbutton-vptw"
-          >
+            size="large">
             <StyledCancelIcon data-testid="styledcancelicon-nzdl" />
           </IconButton>
         </TableTooltip>
@@ -436,7 +436,7 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.TODO, row)}
             data-testid="iconbutton-si29"
-          >
+            size="large">
             <StatusTodo data-testid="statustodo-1wc8" />
           </IconButton>
         </TableTooltip>
@@ -455,7 +455,7 @@ const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
           <IconButton
             onClick={() => handleActionModalOpen(TASK_ACTIONS.DELETED, row)}
             data-testid="iconbutton-edm0"
-          >
+            size="large">
             <StyledDeleteOutlineIcon data-testid="styleddeleteoutlineicon-w3ya" />
           </IconButton>
         </TableTooltip>

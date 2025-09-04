@@ -218,7 +218,7 @@ const CustomCellContainer = styled(Box)`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  .MuiIconButton-root {
+  .MuiButtonBase-root {
     background-color: transparent;
   }
 `;

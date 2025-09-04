@@ -3,7 +3,7 @@
  * Copyright (c) 2017 - 2022 Beyond Essential Systems Pty Ltd
  */
 
-import { createTheme } from '@mui/material/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 import { Colors, MUI_SPACING_UNIT } from '../constants';
 import { createGlobalStyle } from 'styled-components';
 
@@ -78,4 +78,4 @@ const components = {
   },
 };
 
-export const theme = createTheme({ palette, themeName, typography, shape, overrides, components });
+export const theme = createTheme(adaptV4Theme({ palette, themeName, typography, shape, overrides, components }));

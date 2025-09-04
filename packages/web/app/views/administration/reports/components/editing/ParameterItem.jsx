@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Divider as BaseDivider } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import BaseDeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import {
   ArrayField,
@@ -91,7 +91,11 @@ export const ParameterItem = props => {
         />
       </Grid>
       <Grid item xs={1} data-testid="grid-3jx1">
-        <IconButton variant="text" onClick={() => onDelete(id)} data-testid="iconbutton-lbtf">
+        <IconButton
+          variant="text"
+          onClick={() => onDelete(id)}
+          data-testid="iconbutton-lbtf"
+          size="large">
           <DeleteOutlinedIcon data-testid="deleteoutlinedicon-njop" />
         </IconButton>
       </Grid>

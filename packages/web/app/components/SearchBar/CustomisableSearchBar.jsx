@@ -105,7 +105,7 @@ export const CustomisableSearchBar = ({
                     }}
                     color="primary"
                     data-testid="iconbutton-zrkv"
-                  >
+                    size="large">
                     <img
                       src={isExpanded ? doubleUp : doubleDown}
                       alt={`${isExpanded ? 'hide' : 'show'} advanced search`}

@@ -213,7 +213,7 @@ const NoDataContainer = styled.div`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  .MuiIconButton-root {
+  .MuiButtonBase-root {
     &:hover {
       background-color: transparent;
     }

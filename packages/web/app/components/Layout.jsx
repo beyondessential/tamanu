@@ -60,7 +60,7 @@ export const BottomBar = ({ children }) => (
   <Grid
     container
     item
-    justify="flex-end"
+    justifyContent="flex-end"
     style={{ marginTop: spacing * 3 }}
     data-testid="grid-wbih"
   >
@@ -89,7 +89,7 @@ export const SubHeader = ({ title, children }) => (
       </Typography>
     </Grid>
     {children && (
-      <Grid container item xs justify="flex-end" data-testid="grid-inxu">
+      <Grid container item xs justifyContent="flex-end" data-testid="grid-inxu">
         {children}
       </Grid>
     )}

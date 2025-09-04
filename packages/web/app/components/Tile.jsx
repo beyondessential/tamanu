@@ -23,7 +23,7 @@ const Header = styled.div`
   padding-left: 2px;
   padding-right: 2px;
 
-  .MuiIconButton-root {
+  .MuiButtonBase-root {
     margin-top: -8px;
     margin-right: -8px;
   }

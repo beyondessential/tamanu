@@ -5,7 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@mui/material';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, StyledEngineProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@mui/material/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -69,30 +69,32 @@ function Root({ api, store, history }) {
           <ConnectedRouter history={history}>
             <StylesProvider injectFirst>
               <MuiLatestThemeProvider theme={theme}>
-                <MuiThemeProvider theme={theme}>
-                  <ThemeProvider theme={theme}>
-                    <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
-                      <StateContextProviders store={store}>
-                        <ReactQueryDevtools initialIsOpen={false} />
-                        <GlobalStyles />
-                        <CustomToastContainer
-                          hideProgressBar
-                          transition={Slide}
-                          closeOnClick
-                          pauseOnFocusLoss
-                          draggable
-                          pauseOnHover
-                          theme="colored"
-                          icon={false}
-                          limit={5}
-                          closeButton={<ClearIcon />}
-                        />
-                        <CssBaseline />
-                        <RoutingApp />
-                      </StateContextProviders>
-                    </MuiLocalisationProvider>
-                  </ThemeProvider>
-                </MuiThemeProvider>
+                <StyledEngineProvider injectFirst>
+                  <MuiThemeProvider theme={theme}>
+                    <ThemeProvider theme={theme}>
+                      <MuiLocalisationProvider dateAdapter={AdapterDateFns}>
+                        <StateContextProviders store={store}>
+                          <ReactQueryDevtools initialIsOpen={false} />
+                          <GlobalStyles />
+                          <CustomToastContainer
+                            hideProgressBar
+                            transition={Slide}
+                            closeOnClick
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                            theme="colored"
+                            icon={false}
+                            limit={5}
+                            closeButton={<ClearIcon />}
+                          />
+                          <CssBaseline />
+                          <RoutingApp />
+                        </StateContextProviders>
+                      </MuiLocalisationProvider>
+                    </ThemeProvider>
+                  </MuiThemeProvider>
+                </StyledEngineProvider>
               </MuiLatestThemeProvider>
             </StylesProvider>
           </ConnectedRouter>

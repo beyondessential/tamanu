@@ -476,7 +476,7 @@ export const ReportGeneratorForm = () => {
               {successMessage}
             </Alert>
           )}
-          <Box display="flex" justifyContent="flex-end" gridGap="1em" data-testid="box-5cle">
+          <Box display="flex" justifyContent="flex-end" gap="1em" data-testid="box-5cle">
             {dataReadyForSaving ? (
               <Button
                 onClick={onDownload}

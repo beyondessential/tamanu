@@ -526,7 +526,7 @@ const DischargeFormScreen = props => {
 
   return (
     <>
-      <IconButton onClick={handleCancelAttempt} data-testid="iconbutton-h244">
+      <IconButton onClick={handleCancelAttempt} data-testid="iconbutton-h244" size="large">
         <CloseIcon data-testid="closeicon-ggbt" />
       </IconButton>
       <DefaultFormScreen
@@ -613,7 +613,7 @@ const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
   };
   return (
     <div>
-      <IconButton onClick={onStepBack} data-testid="iconbutton-r4jg">
+      <IconButton onClick={onStepBack} data-testid="iconbutton-r4jg" size="large">
         <CloseIcon data-testid="closeicon-nkjl" />
       </IconButton>
       <UnsavedContent data-testid="unsavedcontent-lqwq">

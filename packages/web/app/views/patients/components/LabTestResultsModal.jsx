@@ -211,7 +211,7 @@ const ResultsFormSkeleton = () => (
         </div>
       </Box>
       <Skeleton
-        variant="rect"
+        variant="rectangular"
         height={254}
         style={{ borderRadius: 4 }}
         data-testid="skeleton-dl86"

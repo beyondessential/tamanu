@@ -96,7 +96,7 @@ const BaseButton = ({
         // see the disabled prop so it won't add its own styling, but the underlying button element
         // is still disabled.
         // eslint-disable-next-line react/button-has-type
-        <button type={type} {...buttonProps} ref={ref} disabled data-testid="button-0nnt" />
+        (<button type={type} {...buttonProps} ref={ref} disabled data-testid="button-0nnt" />)
       ))
     : undefined;
 
@@ -301,7 +301,7 @@ export const LargeOutlinedSubmitButton = props => (
 );
 
 export const DefaultIconButton = styled(({ children, ...props }) => (
-  <IconButton {...props} data-testid="iconbutton-zsiq">
+  <IconButton {...props} data-testid="iconbutton-zsiq" size="large">
     {children}
   </IconButton>
 ))`

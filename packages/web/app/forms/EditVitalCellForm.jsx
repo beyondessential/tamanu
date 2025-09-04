@@ -35,7 +35,7 @@ const DeleteEntryButton = ({ disabled, onClick }) => (
       onClick={onClick}
       disableRipple
       data-testid="iconbutton-o9qe"
-    >
+      size="large">
       <DeleteOutlineIcon fontSize="small" data-testid="deleteoutlineicon-cb9o" />
       <Text data-testid="text-pcnu">
         <TranslatedText

@@ -162,13 +162,13 @@ const useTranslationMutation = () => {
 
 const TranslationField = ({ stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  <AccessorField
+  (<AccessorField
     id={`['${stringId}']`}
     name={code}
     component={TextField}
     multiline
     data-testid="accessorfield-e12n"
-  />
+  />)
 );
 
 // Saving doesn't track `isSubmitting` correctly because there is a custom mutation handling

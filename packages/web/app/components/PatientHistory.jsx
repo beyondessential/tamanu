@@ -154,7 +154,7 @@ const MenuContainer = styled.div`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  .MuiIconButton-root {
+  .MuiButtonBase-root {
     &:hover {
       background-color: transparent;
     }
@@ -306,13 +306,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       ),
       accessor: props => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
-        <TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
+        (<TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
           <LocationGroupCell
             style={{ minWidth: 45 }}
             {...props}
             data-testid="locationgroupcell-loyq"
           />
-        </TranslationContext.Provider>
+        </TranslationContext.Provider>)
       ),
       CellComponent: LimitedLinesCell,
     },

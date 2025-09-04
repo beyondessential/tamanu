@@ -33,7 +33,7 @@ export const MedicationSummary = ({ medication }) => {
       px={2.5}
       py={2}
       border={`1px solid ${Colors.outline}`}
-      borderRadius={'3px'}
+      borderRadius="3pxpx"
       bgcolor={Colors.white}
       display={'flex'}
       justifyContent={'space-between'}

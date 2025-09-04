@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, StyledEngineProvider } from 'styled-components';
 import { TranslationContext } from '../../app/contexts/Translation';
-import { createTheme } from '@mui/material/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
 import { vi } from 'vitest';
 
 export const createQueryClient = () =>
@@ -15,7 +15,7 @@ export const createQueryClient = () =>
     },
   });
 
-export const createStubTheme = () => createTheme({});
+export const createStubTheme = () => createTheme(adaptV4Theme({}));
 
 const createStubTranslationContext = () => {
   // eslint-disable-next-line no-unused-vars
@@ -35,11 +35,13 @@ const CompositeTranslationProvider = ({
   children,
 }) => (
   <QueryClientProvider client={createQueryClient()}>
-    <ThemeProvider theme={createStubTheme()}>
-      <TranslationContext.Provider value={translationContext}>
-        {children}
-      </TranslationContext.Provider>
-    </ThemeProvider>
+    <StyledEngineProvider injectFirst>
+      <ThemeProvider theme={createStubTheme()}>
+        <TranslationContext.Provider value={translationContext}>
+          {children}
+        </TranslationContext.Provider>
+      </ThemeProvider>
+    </StyledEngineProvider>
   </QueryClientProvider>
 );
 

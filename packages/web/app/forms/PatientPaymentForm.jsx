@@ -224,7 +224,7 @@ export const PatientPaymentForm = ({
                 <IconButton
                   onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
                   data-testid="iconbutton-9yvq"
-                >
+                  size="large">
                   <CachedIcon data-testid="cachedicon-vghh" />
                 </IconButton>
               </NoteModalActionBlocker>

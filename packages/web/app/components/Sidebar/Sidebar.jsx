@@ -53,7 +53,7 @@ const RetractExtendButton = styled(IconButton)`
   padding: 8px;
   background-color: ${Colors.primaryDark};
 
-  &.MuiIconButton-root:hover {
+  &.MuiButtonBase-root:hover {
     background-color: #4e5f71;
   }
 `;

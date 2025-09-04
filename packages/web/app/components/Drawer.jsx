@@ -85,7 +85,11 @@ export const Drawer = ({
       <Wrapper data-testid="wrapper-7g6v">
         <Header data-testid="header-odk1">
           <Title data-testid="title-bpjt">{title}</Title>
-          <IconButton aria-label="Close drawer" onClick={onClose} data-testid="iconbutton-354x">
+          <IconButton
+            aria-label="Close drawer"
+            onClick={onClose}
+            data-testid="iconbutton-354x"
+            size="large">
             <CloseDrawerIcon data-testid="closedrawericon-76xf" />
           </IconButton>
         </Header>

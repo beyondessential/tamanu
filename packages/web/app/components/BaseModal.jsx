@@ -160,7 +160,11 @@ export const BaseModal = memo(
               </StyledButton>
             )}
             {cornerExitButton && (
-              <IconButton onClick={onClose} disabled={!isClosable} data-testid="iconbutton-eull">
+              <IconButton
+                onClick={onClose}
+                disabled={!isClosable}
+                data-testid="iconbutton-eull"
+                size="large">
                 <CloseIcon data-testid="closeicon-z1u6" />
               </IconButton>
             )}

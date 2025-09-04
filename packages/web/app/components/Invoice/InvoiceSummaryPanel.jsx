@@ -390,7 +390,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           </DescriptionText>
           {editable && (
             <NoteModalActionBlocker>
-              <IconButton onClick={handleEditDiscount}>
+              <IconButton onClick={handleEditDiscount} size="large">
                 <PencilIcon />
               </IconButton>
             </NoteModalActionBlocker>

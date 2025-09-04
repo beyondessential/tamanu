@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider, StyledEngineProvider } from 'styled-components';
 import { CssBaseline } from '@mui/material';
 import { MuiThemeProvider, StylesProvider } from '@mui/material/styles';
 import { theme } from '../app/theme';
@@ -27,20 +27,22 @@ const preview = {
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>
-            <MuiThemeProvider theme={theme}>
-              <ThemeProvider theme={theme}>
-                <QueryClientProvider client={queryClient}>
-                  <CssBaseline />
-                  <LocalisationProvider>
-                    <TranslationProvider>
-                      <MockedApi endpoints={defaultEndpoints}>
-                        <Story />
-                      </MockedApi>
-                    </TranslationProvider>
-                  </LocalisationProvider>
-                </QueryClientProvider>
-              </ThemeProvider>
-            </MuiThemeProvider>
+            <StyledEngineProvider injectFirst>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                  <QueryClientProvider client={queryClient}>
+                    <CssBaseline />
+                    <LocalisationProvider>
+                      <TranslationProvider>
+                        <MockedApi endpoints={defaultEndpoints}>
+                          <Story />
+                        </MockedApi>
+                      </TranslationProvider>
+                    </LocalisationProvider>
+                  </QueryClientProvider>
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </StyledEngineProvider>
           </StylesProvider>
         </ConnectedRouter>
       </Provider>
