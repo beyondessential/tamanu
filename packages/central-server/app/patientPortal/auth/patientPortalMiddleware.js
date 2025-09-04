@@ -76,7 +76,7 @@ export const patientPortalMiddleware = ({ secret }) =>
       userId: SYSTEM_USER_UUID,
       portalUserId,
       version,
-      backEndContext: { serverType: SERVER_TYPES.CENTRAL, },
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL, isPatientPortal: true },
     });
 
     const spanAttributes = {

@@ -73,11 +73,6 @@ export class AccessLog extends Model {
       as: 'user',
     });
 
-    this.belongsTo(models.PortalUser, {
-      foreignKey: 'portalUserId',
-      as: 'portalUser',
-    });
-
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
       as: 'facility',

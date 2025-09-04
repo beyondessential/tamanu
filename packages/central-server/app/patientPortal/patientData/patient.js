@@ -7,7 +7,6 @@ export const getPatient = asyncHandler(async (req, res) => {
   const village = await patient.getVillage();
   await req.audit.access({
     recordId: patient.id,
-    frontEndContext: req.params,
     model: req.models.Patient,
   });
   res.send({
