@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -9,7 +9,8 @@ import {
   useLocationAssignmentMutation,
   useLocationAssignmentDeleteMutation,
 } from '../../../api/mutations';
-import { FORM_TYPES } from '../../../constants';
+import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
+import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
@@ -89,6 +90,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
+
   const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation({
     onError: error => {
       if (error.response?.data?.error?.type === 'overlap_assignment_error') {
@@ -153,10 +156,64 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
 
+  const checkLeaveOverlap = useCallback(
+    async (userId, date, setFieldError, setStatus) => {
+      if (!userId || !date || isViewing) {
+        setFieldError('date', ''); // Clear error when user or date is empty
+        return;
+      }
+
+      const response = await checkOverlappingLeaves({
+        userId,
+        date,
+        isRepeating: false,
+      });
+      if (response?.userLeaves?.length > 0) {
+        setFieldError(
+          'date',
+          <TranslatedText
+            stringId="locationAssignment.form.new.error"
+            fallback="User has scheduled leave on this date"
+          />,
+        );
+        // Force the form to show errors by setting submit status
+        setStatus({ submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      } else {
+        setFieldError('date', ''); // Clear error if no overlapping leaves
+      }
+    },
+    [checkOverlappingLeaves, isViewing],
+  );
+
   const validationSchema = yup.object({
     userId: yup.string().required(requiredMessage),
     locationId: yup.string().required(requiredMessage),
-    date: yup.string().required(requiredMessage),
+    date: yup
+      .string()
+      .required(requiredMessage)
+      .test('leave-conflict', async function(value) {
+        if (!value || !this.parent.userId || isViewing) return true;
+
+        const response = await checkOverlappingLeaves({
+          userId: this.parent.userId,
+          date: value,
+          isRepeating: false,
+        });
+
+        if (response?.userLeaves?.length > 0) {
+          return this.createError({
+            message: (
+              <TranslatedText
+                stringId="locationAssignment.form.new.error"
+                fallback="User has scheduled leave on this date"
+              />
+            ),
+            path: this.path,
+          });
+        }
+
+        return true;
+      }),
     startTime: yup
       .date()
       .nullable()
@@ -167,7 +224,21 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       .required(requiredMessage),
   });
 
-  const renderForm = ({ values }) => {
+  const renderForm = ({ values, setFieldError, setStatus }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      checkLeaveOverlap(values.userId, values.date, setFieldError, setStatus);
+    }, [values.userId, values.date, setFieldError, setStatus]);
+
+    // Clear TimeSlotPicker errors when valid times are selected
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      if (values.startTime && values.endTime) {
+        setFieldError('startTime', '');
+        setFieldError('endTime', '');
+      }
+    }, [values.startTime, values.endTime, setFieldError]);
+
     return (
       <Drawer
         open={open}
