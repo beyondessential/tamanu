@@ -28,6 +28,7 @@ import {
 } from '@tamanu/shared/utils/crudHelpers';
 import { add } from 'date-fns';
 import { z } from 'zod';
+import { keyBy } from 'lodash';
 
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
@@ -208,13 +209,15 @@ encounter.post(
     const encounterObject = await models.Encounter.findByPk(id);
     if (!encounterObject) throw new NotFoundError();
 
-    const { orderingClinicianId, comments, pharmacyOrderPrescriptions } = body;
+    const { orderingClinicianId, comments, isDischargePrescription, pharmacyOrderPrescriptions } =
+      body;
 
     const result = await db.transaction(async () => {
       const pharmacyOrder = await models.PharmacyOrder.create({
         orderingClinicianId,
-        comments,
         encounterId: id,
+        comments,
+        isDischargePrescription,
       });
 
       await models.PharmacyOrderPrescription.bulkCreate(
@@ -270,7 +273,7 @@ encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'en
 encounterRelations.get(
   '/:id/medications',
   asyncHandler(async (req, res) => {
-    const { models, params, query } = req;
+    const { models, params, query, db } = req;
     const { Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
@@ -378,15 +381,32 @@ encounterRelations.get(
       distinct: true,
     });
 
-    const objects = await Prescription.findAll({
+    const prescriptions = await Prescription.findAll({
       ...baseQueryOptions,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const data = objects.map(x => x.forResponse());
+    let responseData = prescriptions.map(p => p.forResponse());
+    if (responseData.length > 0) {
+      const prescriptionIds = responseData.map(p => p.id);
+      const [pharmacyOrderPrescriptions] = await db.query(
+        `
+        SELECT prescription_id, max(created_at) as last_ordered_at 
+        FROM pharmacy_order_prescriptions 
+        WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
+      `,
+        { replacements: { prescriptionIds } },
+      );
+      const lastOrderedAts = keyBy(pharmacyOrderPrescriptions, 'prescription_id');
 
-    res.send({ count, data });
+      responseData = responseData.map(p => ({
+        ...p,
+        lastOrderedAt: lastOrderedAts[p.id]?.last_ordered_at?.toISOString(),
+      }));
+    }
+
+    res.send({ count, data: responseData });
   }),
 );
 
@@ -574,6 +594,7 @@ encounterRelations.get(
           survey_responses.deleted_at IS NULL
         AND
           encounters.deleted_at is null
+        AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses)
         ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId, surveyType, surveyIds: permittedSurveyIds },
@@ -820,7 +841,7 @@ encounterRelations.get(
       group: [['survey.id']],
     });
     req.flagPermissionChecked();
-    const allowedSurvey = chartSurvey.find((response) =>
+    const allowedSurvey = chartSurvey.find(response =>
       req.ability.can('list', subject('Charting', { id: response.survey.id })),
     );
 
