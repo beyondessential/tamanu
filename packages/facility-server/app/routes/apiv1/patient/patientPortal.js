@@ -24,26 +24,6 @@ const getPatientOrThrow = async ({ models, patientId }) => {
   return patient;
 };
 
-const getPortalUserOrThrow = async ({ models, patientId }) => {
-  const portalUser = await models.PortalUser.findOne({
-    where: { patientId },
-  });
-  if (!portalUser) {
-    throw new NotFoundError(
-      'Patient has not been registered for portal access. Please register the patient first.',
-    );
-  }
-  return portalUser;
-};
-
-const getSurveyOrThrow = async ({ models, surveyId }) => {
-  const survey = await models.Survey.findByPk(surveyId);
-  if (!survey) {
-    throw new NotFoundError('Survey not found');
-  }
-  return survey;
-};
-
 const registerPatient = async ({ patientId, email, models }) => {
   const [portalUser, created] = await models.PortalUser.findOrCreate({
     where: { patientId },
@@ -163,13 +143,17 @@ patientPortal.post(
     const { formId, assignedAt, email, facilityId } = SendPortalFormRequestSchema.parse(req.body);
 
     const patient = await getPatientOrThrow({ models, patientId });
-    const survey = await getSurveyOrThrow({ models, surveyId: formId });
-    let portalUser = await getPortalUserOrThrow({ models, patientId: patient.id });
+    const survey = await models.Survey.findByPk(formId);
+    if (!survey) {
+      throw new NotFoundError('Survey not found');
+    }
 
-    if (!email && (!portalUser || !portalUser.email)) {
-      throw new ValidationError(
-        'Patient has no registered email address - provide an email to send the form.',
-      );
+    const portalUser = await models.PortalUser.findOne({
+      where: { patientId },
+    });
+
+    if (!email) {
+      throw new ValidationError('You must provide an email to send the form.');
     }
 
     // Handle user registration and email sending

@@ -1,5 +1,6 @@
 import config from 'config';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { PATIENT_COMMUNICATION_CHANNELS, PATIENT_COMMUNICATION_TYPES } from '@tamanu/constants';
 import { BaseCommunicationProcessor } from './BaseCommunicationProcessor';
 import { PortalOneTimeTokenService } from '../patientPortal/auth/PortalOneTimeTokenService';
@@ -11,8 +12,12 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
 
   async transformContent({ content, patientId, type }) {
     const { models } = this.context.store;
-    const portalUser = await models.PortalUser.findOne({ where: { patientId } });
     const portalOneTimeTokenService = new PortalOneTimeTokenService(models);
+    const portalUser = await models.PortalUser.findOne({ where: { patientId } });
+
+    if (!portalUser) {
+      throw new NotFoundError(`Could not find portal user with patient id ${patientId}`);
+    }
 
     const portalUserId = portalUser.id;
     const baseUrl = config.portalHostName;
