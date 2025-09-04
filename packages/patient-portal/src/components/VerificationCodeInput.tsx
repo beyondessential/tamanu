@@ -19,7 +19,7 @@ const SlotBox = styled('div', {
   ({ theme, isActive, hasError }) => ({
     width: 40,
     height: 50,
-    background: theme.palette.background.default,
+    background: hasError ? '#FFF0EE' : theme.palette.background.default,
     border: `1px solid ${theme.palette.background.default}`,
     borderRadius: 4,
     display: 'flex',
@@ -51,7 +51,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
           inputMode="numeric"
           pattern={REGEXP_ONLY_DIGITS}
           render={({ slots }) => (
-            <Box display="flex" gap={1}>
+            <Box display="flex" gap={0.5}>
               {slots.map((slot, idx) => (
                 <SlotBox key={idx} isActive={slot.isActive} hasError={error}>
                   {slot.char ?? ' '}

@@ -47,7 +47,7 @@ const EmailSection = ({ email }: { email: string }) => {
 };
 
 export const LoginView = () => {
-  const { mutate: login } = useLogin();
+  const { mutate: login, error } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -97,7 +97,7 @@ export const LoginView = () => {
           Enter 6-digit verification code
         </Typography>
         <Box sx={{ mb: 3 }}>
-          <VerificationCodeInput name="verificationCode" />
+          <VerificationCodeInput name="verificationCode" error={!!error} />
         </Box>
         <Button type="submit" fullWidth variant="contained">
           Log in
