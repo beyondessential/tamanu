@@ -27,7 +27,6 @@ export class Model<
   declare static syncDirection: InitOptions['syncDirection'];
   declare static defaultIdValue?: string | number;
   declare static usesPublicSchema: boolean;
-  declare static name: string;
   declare static buildSyncFilter: () => string | null;
   declare static buildPatientSyncFilter: (
     _patientCount: number,
