@@ -118,7 +118,7 @@ export async function createApi(ctx) {
   express.use('/api/portal', async (req, res, next) => {
     // Todo: discuss using a config property instead so that it doesn't have to be checked at run-time
     const patientPortalEnabled = await req.settings.get('features.patientPortal');
-    return patientPortalEnabled ? patientPortalModule(req, res, next) : res.status(404).end();
+    return patientPortalEnabled ? patientPortalModule(req, res, next) : res.status(501).end();
   });
 
   // API
