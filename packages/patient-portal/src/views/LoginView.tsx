@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useLocation, useNavigate } from 'react-router';
-import { useLogin } from '@api/mutations';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 
-import { TextField } from '../components/TextField';
-import { Card } from '../components/Card';
-import { VerificationCodeInput } from '../components/VerificationCodeInput';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { useLogin } from '@api/mutations';
+
+import { TextField } from '@components/TextField';
+import { Card } from '@components/Card';
+import { VerificationCodeInput } from '@components/VerificationCodeInput';
 
 const EmailSectionContainer = styled(Box)({
   display: 'flex',
@@ -21,8 +22,21 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
+/**
+ * Mask the email address so that the last characters of the local part are visible.
+ * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
+ *
+ * @example
+ * maskEmail('maa@gmail.com') // returns **a@gmail.com
+ * maskEmail('abcd@gmail.com') // returns **cd@gmail.com
+ * maskEmail('abcdefghijk@gmail.com') // returns ********ijk@gmail.com
+ */
+const maskEmail = (email: string) => {
+  return email.replace(/(.+?.?)(.{0,3}@.*)/, (_match, p1, p2) => `${'*'.repeat(p1.length)}${p2}`);
+};
+
 const EmailSection = ({ email }: { email: string }) => {
-  const maskedEmail = useMemo(() => email.replace(/^.*?(.{1,3}@.*)/, '*******$1'), [email]);
+  const maskedEmail = useMemo(() => maskEmail(email), [email]);
   return (
     <EmailSectionContainer>
       <MarkEmailReadIcon fontSize="small" style={{ color: TAMANU_COLORS.blue }} />
@@ -34,7 +48,7 @@ const EmailSection = ({ email }: { email: string }) => {
 };
 
 export const LoginView = () => {
-  const { mutate: login } = useLogin();
+  const { mutate: login, isError: isLoginError, reset: resetLogin } = useLogin();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -61,7 +75,8 @@ export const LoginView = () => {
         <Typography variant="h3">Account authentication</Typography>
       </Box>
       <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
-        We’ve sent a 6-digit verification code to your email address
+        If there is an account associated with the email address provided you will receive a 6-digit
+        verification code.
       </Typography>
       <form onSubmit={handleSubmit}>
         <Box sx={{ my: 3 }}>
@@ -84,14 +99,25 @@ export const LoginView = () => {
           Enter 6-digit verification code
         </Typography>
         <Box sx={{ mb: 3 }}>
-          <VerificationCodeInput name="verificationCode" />
+          <VerificationCodeInput
+            name="verificationCode"
+            error={isLoginError}
+            helperText={isLoginError ? 'Incorrect verification code.' : ''}
+            onFocus={() => {
+              if (!isLoginError) return;
+              // Reset error state when the input is re-focused after submitting
+              resetLogin();
+            }}
+          />
         </Box>
         <Button type="submit" fullWidth variant="contained">
           Log in
         </Button>
       </form>
       <Divider sx={{ my: 2 }} />
-      <Button onClick={() => navigate('/login')} variant='text'>Back to login</Button>
+      <Button onClick={() => navigate('/login')} variant="text">
+        Back to login
+      </Button>
     </Card>
   );
 };

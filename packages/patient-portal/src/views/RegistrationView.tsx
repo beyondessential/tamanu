@@ -2,15 +2,16 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
-import { Button } from '@tamanu/ui-components';
+import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import { styled, Typography } from '@mui/material';
-import { useApi } from '@api/useApi';
 
-import { Card } from '../components/Card';
+import { Button } from '@tamanu/ui-components';
+
+import { useApi } from '@api/useApi';
+import { Card } from '@components/Card';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
-  background: '#EDFAF3',
   borderRadius: '50%',
   width: 'fit-content',
   display: 'flex',
@@ -20,8 +21,9 @@ const IconDisplay = styled('div')(({ theme }) => ({
 
 const useVerifyRegistration = () => {
   const api = useApi();
+
   return useMutation({
-    mutationFn: (token: string) => api.post(`/verify-registration/${token}`),
+    mutationFn: (token: string) => api.post('/verify-registration', { token } as any),
   });
 };
 
@@ -44,8 +46,11 @@ export const RegistrationView = () => {
     <Card sx={{ width: '425px' }}>
       {error ? (
         <>
-          <Typography variant="h2" component="h1" gutterBottom>
-            Error
+          <IconDisplay sx={{ background: 'error.light' }}>
+            <ErrorIcon color="error" />
+          </IconDisplay>
+          <Typography mb={2} variant="h2">
+            Failed to create account
           </Typography>
           <Typography variant="body1" gutterBottom>
             {error.message}
@@ -53,7 +58,7 @@ export const RegistrationView = () => {
         </>
       ) : (
         <>
-          <IconDisplay>
+          <IconDisplay sx={{ background: 'success.light' }}>
             <CheckCircleIcon color="success" />
           </IconDisplay>
           <Typography mb={2} variant="h2">
