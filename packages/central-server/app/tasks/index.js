@@ -4,6 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
@@ -36,6 +37,7 @@ export async function startScheduledTasks(context) {
     OutpatientDischarger,
     DeceasedPatientDischarger,
     PatientEmailCommunicationProcessor,
+    PortalCommunicationProcessor,
     ReportRequestProcessor,
     CertificateNotificationProcessor,
     IPSRequestProcessor,
@@ -65,7 +67,7 @@ export async function startScheduledTasks(context) {
 
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map((TaskClass) => {
+    ...taskClasses.map(TaskClass => {
       try {
         log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
         return new TaskClass(context);
@@ -75,9 +77,9 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter((x) => x);
-  tasks.forEach((t) => t.beginPolling());
-  return () => tasks.forEach((t) => t.cancelPolling());
+  ].filter(x => x);
+  tasks.forEach(t => t.beginPolling());
+  return () => tasks.forEach(t => t.cancelPolling());
 }
 
 async function getReportSchedulers(context) {

@@ -9,14 +9,22 @@ import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
-const getOneTimeTokenEmail = ({ email, token }) => {
+const getOneTimeTokenEmail = async ({ email, token, settings }) => {
+  const template = await settings.get('templates.patientPortalLoginEmail');
+  const templateData = {
+    token,
+  };
+
+  const subject = replaceInTemplate(template.subject, templateData);
+  const content = replaceInTemplate(template.body, templateData);
+
   return {
     to: email,
     from: config.mailgun.from,
-    subject: 'Your login code',
-    text: `Your 6-digit login code is: ${token}`,
-    html: `<p>Your 6-digit login code is: <strong>${token}</strong></p>`,
+    subject,
+    text: content,
   };
 };
 
@@ -25,7 +33,7 @@ const requestLoginSchema = z.object({
 });
 
 export const requestLoginToken = asyncHandler(async (req, res) => {
-  const { store, body, emailService } = req;
+  const { store, body, emailService, settings } = req;
   const { models } = store;
   let email;
   try {
@@ -46,12 +54,11 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     });
   }
 
-  // Create one-time token using the service
   const oneTimeTokenService = new PortalOneTimeTokenService(models);
   const { token } = await oneTimeTokenService.createLoginToken(portalUser.id);
 
   // Send email with the 6-digit code
-  const oneTimeTokenEmail = getOneTimeTokenEmail({ email, token });
+  const oneTimeTokenEmail = await getOneTimeTokenEmail({ email, token, settings });
   const emailResult = await emailService.sendEmail(oneTimeTokenEmail);
 
   if (emailResult.status === COMMUNICATION_STATUSES.ERROR) {
