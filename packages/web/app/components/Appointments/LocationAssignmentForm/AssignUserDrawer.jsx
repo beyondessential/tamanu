@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
@@ -56,6 +56,14 @@ const ErrorMessage = ({ error }) => {
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  // Reset edit mode when drawer closes or when switching to a different assignment
+  useEffect(() => {
+    if (!open || !initialValues?.id) {
+      setIsEditMode(false);
+    }
+  }, [open, initialValues?.id]);
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
@@ -190,17 +198,18 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         title={
           <TranslatedText
             stringId="locationAssignment.form.new.heading"
-            fallback="Assign user"
+            fallback="Location assignment"
             data-testid="translatedtext-nugq"
           />
         }
         description={
           <TranslatedText
             stringId="locationAssignment.form.new.description"
-            fallback="Assign a user to a location using the form below."
+            fallback="View, modify or delete this assignment."
             data-testid="translatedtext-p4qw"
           />
         }
+        onEdit={isViewing ? () => setIsEditMode(!isEditMode) : undefined}
         data-testid="drawer-au2a"
       >
         <FormGrid nested columns={1} data-testid="formgrid-71fd">
@@ -229,7 +238,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             locationGroupSuggesterType="bookableLocationGroup"
-            disabled={isViewing}
+            disabled={isViewing && !isEditMode}
             data-testid="field-lmrx"
             showAllLocations
           />
@@ -245,12 +254,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
             saveDateAsString
-            disabled={isViewing}
+            disabled={isViewing && !isEditMode}
             data-testid="field-date"
           />
           <TimeSlotPicker
             date={values.date}
-            disabled={isViewing || !values.locationId || !values.date}
+            disabled={(isViewing && !isEditMode) || !values.locationId || !values.date}
             label={
               <TranslatedText
                 stringId="locationAssignment.form.allocatedTime.label"
@@ -264,19 +273,34 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             data-testid="timeslotpicker-assignment"
           />
           <StyledFormSubmitCancelRow 
-            onCancel={isViewing ? undefined : onClose}
-            onConfirm={isViewing ? onClose : undefined}
-            confirmText={isViewing ? (
+            onCancel={isViewing && !isEditMode ? undefined : isEditMode ? () => setIsEditMode(false) : onClose}
+            onConfirm={isViewing && !isEditMode ? onClose : undefined}
+            confirmText={isViewing && !isEditMode ? (
               <TranslatedText
                 stringId="general.action.close"
                 fallback="Close"
                 data-testid="translatedtext-close"
               />
-            ) : <TranslatedText
+            ) : isEditMode ? (
+              <TranslatedText
+                stringId="general.action.confirm"
+                fallback="Confirm"
+                data-testid="translatedtext-confirm"
+              />
+            ) : (
+              <TranslatedText
                 stringId="general.action.saveChanges"
                 fallback="Save changes"
                 data-testid="translatedtext-saveChanges"
-              />}
+              />
+            )}
+            cancelText={isEditMode ? (
+              <TranslatedText
+                stringId="general.action.cancel"
+                fallback="Cancel"
+                data-testid="translatedtext-cancel"
+              />
+            ) : undefined}
             data-testid="formsubmitcancelrow-bj5z" 
           />
         </FormGrid>
