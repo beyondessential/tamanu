@@ -52,7 +52,6 @@ export const Appointment = ({ appointment, onUpdated }) => {
       disableHoverListener
       disableFocusListener
       disableTouchListener
-      interactive
       title={
         <AppointmentDetail
           appointment={appointment}

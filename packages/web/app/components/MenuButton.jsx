@@ -24,7 +24,7 @@ const List = styled(MenuList)`
   padding: 3px;
   border-radius: 3px;
 
-  .MuiListItem-root {
+  .MuiButtonBase-root {
     padding: 4px;
   }
 `;
