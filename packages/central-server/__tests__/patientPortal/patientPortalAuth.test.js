@@ -93,11 +93,14 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('Should reject a non-existent email', async () => {
+    it('Should return success for a non-existent email and not create a token', async () => {
+      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
       const response = await baseApp.post('/api/portal/request-login-token').send({
         email: 'nonexistent@test.com',
       });
-      expect(response).toHaveRequestError();
+      expect(response).toHaveSucceeded();
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
     });
 
     it('Should reject login without email', async () => {
@@ -105,11 +108,14 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('Should reject a deactivated portal user', async () => {
+    it('Should return success for a deactivated portal user and not create a token', async () => {
+      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
       const response = await baseApp.post('/api/portal/request-login-token').send({
         email: deactivatedPortalUser.email,
       });
-      expect(response).toHaveRequestError();
+      expect(response).toHaveSucceeded();
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
     });
   });
 
