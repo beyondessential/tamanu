@@ -100,7 +100,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map((x) => x.endTime)).toEqual([
+      expect(response.body.data.map(x => x.endTime)).toEqual([
         '2019-01-01 00:00:00',
         '2019-01-02 00:00:00',
         '2019-01-03 00:00:00',
@@ -140,7 +140,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map((x) => x.surveyName)).toEqual([
+      expect(response.body.data.map(x => x.surveyName)).toEqual([
         'survey-a',
         'survey-b',
         'survey-c',
@@ -178,7 +178,144 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(1);
       expect(response.body.data).toHaveLength(1);
-      expect(response.body.data.map((x) => x.surveyName)).toEqual(['survey-d']);
+      expect(response.body.data.map(x => x.surveyName)).toEqual(['survey-d']);
+    });
+
+    it('should filter by procedureId when provided', async () => {
+      const { patient, survey, surveyResponse } = await setupSurvey({
+        models,
+        surveyName: 'procedure-survey',
+      });
+
+      const procedure = await models.Procedure.create({
+        ...fake(models.Procedure),
+        encounterId: surveyResponse.encounterId,
+      });
+
+      await models.ProcedureSurveyResponse.create({
+        procedureId: procedure.id,
+        surveyResponseId: surveyResponse.id,
+      });
+
+      // Create another survey response not linked to the procedure
+      const { survey: survey2 } = await setupSurvey({
+        models,
+        surveyName: 'non-procedure-survey',
+        patientId: patient.id,
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+        ['read', 'Survey', survey2.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      // Test without procedureId filter - should return unlinked survey
+      const responseWithoutFilter = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses`,
+      );
+      expect(responseWithoutFilter).toHaveSucceeded();
+      expect(responseWithoutFilter.body.count).toEqual(1);
+      expect(responseWithoutFilter.body.data[0].surveyName).toEqual('non-procedure-survey');
+
+      // Test with procedureId filter - should return only the procedure-linked response
+      const responseWithFilter = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses?procedureId=${procedure.id}`,
+      );
+      expect(responseWithFilter).toHaveSucceeded();
+      expect(responseWithFilter.body.count).toEqual(1);
+      expect(responseWithFilter.body.data).toHaveLength(1);
+      expect(responseWithFilter.body.data[0].surveyName).toEqual('procedure-survey');
+    });
+
+    it('should return empty list when filtering by non-existent procedureId', async () => {
+      const { patient, survey } = await setupSurvey({
+        models,
+        surveyName: 'test-survey',
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      const nonExistentProcedureId = 'non-existent-id';
+      const response = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses?procedureId=${nonExistentProcedureId}`,
+      );
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    it('should handle multiple procedures with survey responses', async () => {
+      const {
+        patient,
+        survey: survey1,
+        surveyResponse: surveyResponse1,
+      } = await setupSurvey({
+        models,
+        surveyName: 'procedure-survey-1',
+      });
+
+      const { survey: survey2, surveyResponse: surveyResponse2 } = await setupSurvey({
+        models,
+        surveyName: 'procedure-survey-2',
+        patientId: patient.id,
+      });
+
+      // Create two procedures
+      const procedure1 = await models.Procedure.create({
+        ...fake(models.Procedure),
+        encounterId: surveyResponse1.encounterId,
+      });
+
+      const procedure2 = await models.Procedure.create({
+        ...fake(models.Procedure),
+        encounterId: surveyResponse2.encounterId,
+      });
+
+      // Link each survey response to a different procedure
+      await models.ProcedureSurveyResponse.create({
+        procedureId: procedure1.id,
+        surveyResponseId: surveyResponse1.id,
+      });
+
+      await models.ProcedureSurveyResponse.create({
+        procedureId: procedure2.id,
+        surveyResponseId: surveyResponse2.id,
+      });
+
+      const permissions = [
+        ['read', 'Patient'],
+        ['list', 'SurveyResponse'],
+        ['read', 'Survey', survey1.id],
+        ['read', 'Survey', survey2.id],
+      ];
+
+      permissionApp = await baseApp.asNewRole(permissions);
+
+      // Test filtering by first procedure
+      const responseForProcedure1 = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses?procedureId=${procedure1.id}`,
+      );
+      expect(responseForProcedure1).toHaveSucceeded();
+      expect(responseForProcedure1.body.count).toEqual(1);
+      expect(responseForProcedure1.body.data[0].surveyName).toEqual('procedure-survey-1');
+
+      // Test filtering by second procedure
+      const responseForProcedure2 = await permissionApp.get(
+        `/api/patient/${patient.id}/programResponses?procedureId=${procedure2.id}`,
+      );
+      expect(responseForProcedure2).toHaveSucceeded();
+      expect(responseForProcedure2.body.count).toEqual(1);
+      expect(responseForProcedure2.body.data[0].surveyName).toEqual('procedure-survey-2');
     });
   });
 
@@ -295,7 +432,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map((x) => x.surveyResponse.submissionDate)).toEqual([
+      expect(response.body.data.map(x => x.surveyResponse.submissionDate)).toEqual([
         '2019-01-01',
         '2019-01-02',
         '2019-01-03',
@@ -336,7 +473,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
-      expect(response.body.data.map((x) => x.surveyResponse.survey.name)).toEqual([
+      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
         'name-a',
         'name-b',
         'name-c',
@@ -378,7 +515,7 @@ describe('Patient relations', () => {
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(2);
       expect(response.body.data).toHaveLength(2);
-      expect(response.body.data.map((x) => x.surveyResponse.survey.name)).toEqual([
+      expect(response.body.data.map(x => x.surveyResponse.survey.name)).toEqual([
         'name-a',
         'name-b',
       ]);
@@ -417,7 +554,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/issues`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
   });
 
@@ -453,7 +590,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/allergies`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -502,7 +639,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/familyHistory`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -551,7 +688,7 @@ describe('Patient relations', () => {
       const result = await app.get(`/api/patient/${patient.id}/conditions`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(2);
-      expect(result.body.data.every((x) => x.note.includes('include'))).toEqual(true);
+      expect(result.body.data.every(x => x.note.includes('include'))).toEqual(true);
     });
 
     it('should include reference data', async () => {
@@ -777,8 +914,8 @@ describe('Patient relations', () => {
       const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      response.body.data.forEach((testResults) => {
-        Object.values(testResults.results).forEach((res) =>
+      response.body.data.forEach(testResults => {
+        Object.values(testResults.results).forEach(res =>
           expect(publishedLabTests).toContain(res.id),
         );
       });
@@ -790,8 +927,8 @@ describe('Patient relations', () => {
       );
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      response.body.data.forEach((testResults) => {
-        Object.values(testResults.results).forEach((res) =>
+      response.body.data.forEach(testResults => {
+        Object.values(testResults.results).forEach(res =>
           expect(unpublishedLabTests).toContain(res.id),
         );
       });
@@ -801,7 +938,7 @@ describe('Patient relations', () => {
       const response = await app.get(`/api/patient/${labTestsPatient.id}/labTestResults`);
       expect(response).toHaveSucceeded();
       expect(response.body.count).toEqual(labTestTypes.length);
-      const uniqueCategories = [...new Set(response.body.data.map((x) => x.testCategory))];
+      const uniqueCategories = [...new Set(response.body.data.map(x => x.testCategory))];
       expect(uniqueCategories.length).toBeGreaterThan(1);
     });
 
@@ -810,7 +947,7 @@ describe('Patient relations', () => {
         `/api/patient/${labTestsPatient.id}/labTestResults?categoryId=${randomCategory.id}`,
       );
       expect(response).toHaveSucceeded();
-      response.body.data.forEach((labTest) => {
+      response.body.data.forEach(labTest => {
         expect(labTest.testCategory).toEqual(randomCategory.name);
       });
     });

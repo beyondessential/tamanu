@@ -43,6 +43,19 @@ const existingRecordLoaders = {
     TTD.findOne({ where: { taskTemplateId, designationId }, paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
     UD.findOne({ where: { userId, designationId }, paranoid: false }),
+  ProcedureTypeSurvey: async (Model, values) => {
+    const { procedureTypeId, surveyId } = values;
+    if (!procedureTypeId || !surveyId) {
+      return null;
+    }
+    return await Model.findOne({
+      where: {
+        procedureTypeId,
+        surveyId,
+      },
+      paranoid: false,
+    });
+  },
 };
 
 function loadExisting(Model, values) {
@@ -247,7 +260,14 @@ export async function importRows(
 
       if (existing) {
         if (normalizedValues.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
+          if (
+            ![
+              'Permission',
+              'SurveyScreenComponent',
+              'UserFacility',
+              'ProcedureTypeSurvey',
+            ].includes(model)
+          ) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
           if (!existing.deletedAt) {

@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.39.0",
+  "version": "2.40.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -40,6 +40,7 @@
     "rimraf": "^6.0.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.20",
+    "vite-plugin-svgr": "^4.3.0",
     "vitest": "^2.1.8"
   },
   "dependencies": {

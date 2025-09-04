@@ -41,8 +41,8 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map((answer) => {
-        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
+      answers: answers.map(answer => {
+        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
@@ -54,36 +54,39 @@ surveyResponse.get(
   }),
 );
 
+export async function createSurveyResponse(req) {
+  const {
+    models,
+    body: { facilityId, ...body },
+    settings,
+  } = req;
+
+  // Responses for the vitals survey will check against 'Vitals' create permissions
+  // All others will check against 'SurveyResponse' create permissions
+  const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
+  if (noun === 'Charting') {
+    req.checkPermission('create', subject('Charting', { id: body.surveyId }));
+  } else {
+    req.checkPermission('create', noun);
+  }
+
+  const getDefaultId = async type =>
+    models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
+  const updatedBody = {
+    locationId: body.locationId || (await getDefaultId('location')),
+    departmentId: body.departmentId || (await getDefaultId('department')),
+    userId: req.user.id,
+    facilityId,
+    ...body,
+  };
+  return await models.SurveyResponse.createWithAnswers(updatedBody);
+}
+
 surveyResponse.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      body: { facilityId, ...body },
-      db,
-      settings,
-    } = req;
-    // Responses for the vitals survey will check against 'Vitals' create permissions
-    // All others will check against 'SurveyResponse' create permissions
-    const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
-    if (noun === 'Charting') {
-      req.checkPermission('create', subject('Charting', { id: body.surveyId }));
-    } else {
-      req.checkPermission('create', noun);
-    }
-
-    const getDefaultId = async (type) =>
-      models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
-    const updatedBody = {
-      locationId: body.locationId || (await getDefaultId('location')),
-      departmentId: body.departmentId || (await getDefaultId('department')),
-      userId: req.user.id,
-      facilityId,
-      ...body,
-    };
-
-    const responseRecord = await db.transaction(async () => {
-      return models.SurveyResponse.createWithAnswers(updatedBody);
+    const responseRecord = await req.db.transaction(async () => {
+      return await createSurveyResponse(req);
     });
     res.send(responseRecord);
   }),
@@ -92,12 +95,7 @@ surveyResponse.post(
 surveyResponse.put(
   '/complexChartInstance/:id',
   asyncHandler(async (req, res) => {
-    const {
-      models,
-      body,
-      params,
-      db,
-    } = req;
+    const { models, body, params, db } = req;
 
     const responseRecord = await models.SurveyResponse.findByPk(params.id);
     if (!responseRecord) {
@@ -118,7 +116,7 @@ surveyResponse.put(
 
     await db.transaction(async () => {
       for (const [dataElementId, value] of Object.entries(body.answers)) {
-        if (!components.some((c) => c.dataElementId === dataElementId)) {
+        if (!components.some(c => c.dataElementId === dataElementId)) {
           throw new InvalidOperationError('Some components are missing from the survey');
         }
 
@@ -127,7 +125,7 @@ surveyResponse.put(
           continue;
         }
 
-        const existingAnswer = responseAnswers.find((a) => a.dataElementId === dataElementId);
+        const existingAnswer = responseAnswers.find(a => a.dataElementId === dataElementId);
         if (existingAnswer) {
           await existingAnswer.update({ body: value });
         } else {

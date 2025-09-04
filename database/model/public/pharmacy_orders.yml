@@ -10,6 +10,7 @@ sources:
           tags: []
           meta:
             triggers:
+              - fhir_refresh
               - notify_pharmacy_orders_changed
               - record_pharmacy_orders_changelog
               - set_pharmacy_orders_updated_at
@@ -53,5 +54,10 @@ sources:
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in pharmacy_orders."
+            data_tests:
+              - not_null
+          - name: is_discharge_prescription
+            data_type: boolean
+            description: "{{ doc('pharmacy_orders__is_discharge_prescription') }}"
             data_tests:
               - not_null

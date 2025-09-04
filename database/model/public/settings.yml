@@ -48,8 +48,9 @@ sources:
             description: "{{ doc('settings__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in settings."
@@ -61,7 +62,8 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - global
-                    - central
-                    - facility
+                  arguments:
+                    values:
+                      - global
+                      - central
+                      - facility

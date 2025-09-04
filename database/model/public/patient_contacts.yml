@@ -50,11 +50,12 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Email
-                    - Sms
-                    - WhatsApp
-                    - Telegram
+                  arguments:
+                    values:
+                      - Email
+                      - Sms
+                      - WhatsApp
+                      - Telegram
           - name: connection_details
             data_type: jsonb
             description: "{{ doc('patient_contacts__connection_details') }}"
@@ -67,17 +68,19 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: relationship_id
             data_type: character varying(255)
             description: "{{ doc('patient_contacts__relationship_id') }}"
             data_tests:
               - not_null
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'contactRelationship'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'contactRelationship'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_contacts."

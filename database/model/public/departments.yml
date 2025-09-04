@@ -47,8 +47,9 @@ sources:
             description: "{{ doc('departments__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: visibility_status
             data_type: text
             description: "{{ doc('generic__visibility_status') }} in departments."

@@ -102,13 +102,6 @@ sources:
               - relationships:
                   to: source('tamanu', 'users')
                   field: id
-          - name: assistant_id
-            data_type: character varying(255)
-            description: "{{ doc('procedures__assistant_id') }}"
-            data_tests:
-              - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
           - name: anaesthetist_id
             data_type: character varying(255)
             description: "{{ doc('procedures__anaesthetist_id') }}"
@@ -145,3 +138,15 @@ sources:
             description: "{{ doc('generic__updated_at_sync_tick') }} in procedures."
             data_tests:
               - not_null
+          - name: department_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__department_id') }}"
+          - name: assistant_anaesthetist_id
+            data_type: character varying(255)
+            description: "{{ doc('procedures__assistant_anaesthetist_id') }}"
+          - name: time_in
+            data_type: character(19)
+            description: "{{ doc('procedures__time_in') }}"
+          - name: time_out
+            data_type: character(19)
+            description: "{{ doc('procedures__time_out') }}"

@@ -30,7 +30,7 @@
     "pauseBetweenPersistedCacheBatchesInMilliseconds": 50,
     "pauseBetweenCacheBatchInMilliseconds": 50,
     "persistUpdateWorkerPoolSize": 5,
-    "assertIfPulledRecordsUpdatedAfterPushSnapshot": false,
+    "assertIfPulledRecordsUpdatedAfterPushSnapshot": true,
     "enabled": true,
     "jitterTime": "1s",
     "backoff": {
