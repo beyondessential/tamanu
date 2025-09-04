@@ -26,10 +26,9 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
       const { token } = await portalOneTimeTokenService.createLoginToken(portalUserId);
       const loginLink = `${baseUrl}/login/${portalUserId}.${token}`;
-      const loginCode = token;
       return replaceInTemplate(content, {
         loginLink,
-        loginCode,
+        loginCode: token,
       });
     }
 

@@ -5,8 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import { Button } from '@tamanu/ui-components';
 import { styled, Typography } from '@mui/material';
 import { useApi } from '@api/useApi';
-
-import { Card } from '../components/Card';
+import { Card } from '@components/Card';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),
@@ -20,8 +19,9 @@ const IconDisplay = styled('div')(({ theme }) => ({
 
 const useVerifyRegistration = () => {
   const api = useApi();
+
   return useMutation({
-    mutationFn: (token: string) => api.post(`/verify-registration/${token}`),
+    mutationFn: (token: string) => api.post('/verify-registration', { token } as any),
   });
 };
 

@@ -1,26 +1,29 @@
 import asyncHandler from 'express-async-handler';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { z } from 'zod';
 import { PORTAL_ONE_TIME_TOKEN_TYPES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 
+const RegistrationTokenSchema = z.string().refine(token => token.split('.').length === 2, {
+  message: 'Token must contain exactly one period',
+});
+
 function parseRegistrationToken(token) {
-  if (typeof token !== 'string') {
+  try {
+    // Validate token format
+    RegistrationTokenSchema.parse(token);
+
+    // Split into parts after validation
+    return token.split('.');
+  } catch (error) {
     throw new BadAuthenticationError('Invalid registration token');
   }
-
-  // Check if token contains exactly one full stop
-  const parts = token.split('.');
-  if (parts.length !== 2) {
-    throw new BadAuthenticationError('Invalid registration token');
-  }
-
-  return parts;
 }
 
 export const verifyRegistration = asyncHandler(async (req, res) => {
-  const { store, params } = req;
+  const { store, body } = req;
   const { models } = store;
-  const { token } = params;
+  const { token } = body;
 
   if (!token) {
     throw new BadAuthenticationError('No registration token provided');
