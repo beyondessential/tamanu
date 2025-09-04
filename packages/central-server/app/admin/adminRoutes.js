@@ -47,7 +47,9 @@ adminRoutes.get(
 
     await req.audit.access({
       recordId: patient.id,
-      params: req.params,
+      frontEndContext: {
+        client: 'Patient Portal',
+      },
       model: Patient,
     });
 

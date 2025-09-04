@@ -12,7 +12,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { addAuditUtilToRequest } from '@tamanu/database/utils/audit';
+import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { CentralServerConnection } from '../sync';
 
@@ -269,12 +269,10 @@ export const authMiddleware = async (req, res, next) => {
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
-    req.audit = addAuditUtilToRequest(req, {
+    req.audit = initAuditActions(req, {
       enabled: auditSettings?.accesses.enabled,
       userId,
-      sessionId,
-      version,
-      isMobile: false,  
+      version, 
     });
 
     const spanAttributes = {};
