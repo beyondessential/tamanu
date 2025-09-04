@@ -3,11 +3,12 @@ import { useNavigate, useParams } from 'react-router';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
-import { Button } from '@tamanu/ui-components';
 import { styled, Typography } from '@mui/material';
-import { useApi } from '@api/useApi';
 
-import { Card } from '../components/Card';
+import { Button } from '@tamanu/ui-components';
+
+import { useApi } from '@api/useApi';
+import { Card } from '@components/Card';
 
 const IconDisplay = styled('div')(({ theme }) => ({
   padding: theme.spacing(1),

@@ -1,10 +1,12 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
-import { log } from '@tamanu/shared/services/logging';
 
 const getOneTimeTokenEmail = ({ email, token }) => {
   return {

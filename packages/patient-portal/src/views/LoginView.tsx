@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useLocation, useNavigate } from 'react-router';
-import { useLogin } from '@api/mutations';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 
-import { TextField } from '../components/TextField';
-import { Card } from '../components/Card';
-import { VerificationCodeInput } from '../components/VerificationCodeInput';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { useLogin } from '@api/mutations';
+
+import { TextField } from '@components/TextField';
+import { Card } from '@components/Card';
+import { VerificationCodeInput } from '@components/VerificationCodeInput';
 
 const EmailSectionContainer = styled(Box)({
   display: 'flex',
