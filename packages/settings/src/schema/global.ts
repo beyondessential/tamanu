@@ -196,6 +196,12 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        patientPortal: {
+          description:
+            'Enable patient portal. When turned off, the patient portal api is disconnected and the UI in tamanu web to register portal users and assign them forms is hidden',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
           type: yup.boolean(),
@@ -946,7 +952,8 @@ export const globalSettings = {
       },
     },
     fileChooserMbSizeLimit: {
-      description: 'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      description:
+        'The maximum size in megabytes of files that can be uploaded with the file chooser',
       type: yup.number().min(1),
       defaultValue: 10,
     },
