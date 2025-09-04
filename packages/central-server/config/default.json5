@@ -523,4 +523,8 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "patientPortal": {
+    "portalUrl": "http://localhost:5175",
+    "tokenDuration": "24h"
+  }
 }
