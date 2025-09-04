@@ -17,10 +17,11 @@ interface SlotBoxProps {
 const SlotBox = styled('div', {
   shouldForwardProp: prop => prop !== 'isActive' && prop !== 'hasError',
 })<SlotBoxProps & { hasError?: boolean }>(({ theme, isActive, hasError }) => {
-  const getBackgroundColor = () => {
-    if (hasError) return theme.palette.error.light;
-    if (isActive) return theme.palette.background.default;
+  const getBorderColor = () => {
+    if (hasError) return theme.palette.error.main;
+    if (isActive) return theme.palette.grey[400];
     return 'transparent';
+
   };
   return {
   width: 40,
@@ -34,7 +35,7 @@ const SlotBox = styled('div', {
   fontSize: 20,
   fontWeight: 500,
   cursor: 'text',
-  borderColor: getBackgroundColor(),
+  borderColor: getBorderColor(),
   };
 });
 
@@ -46,7 +47,7 @@ export const VerificationCodeInput: React.FC<VerificationCodeInputProps> = ({
   onFocus,
 }) => {
   return (
-    <Box display="flex" alignItems="center">
+    <Box display="flex" justifyContent="center">
       <Box
         display="flex"
         justifyContent="center"

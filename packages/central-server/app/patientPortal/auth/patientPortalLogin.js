@@ -1,9 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { z } from 'zod';
 
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
@@ -18,10 +20,20 @@ const getOneTimeTokenEmail = ({ email, token }) => {
   };
 };
 
+const requestLoginSchema = z.object({
+  email: z.email(),
+});
+
 export const requestLoginToken = asyncHandler(async (req, res) => {
   const { store, body, emailService } = req;
   const { models } = store;
-  const { email } = body;
+  let email;
+  try {
+    const result = await requestLoginSchema.parseAsync(body);
+    email = result.email;
+  } catch (error) {
+    throw new BadAuthenticationError('Invalid email address');
+  }
 
   // Validate that the portal user exists
   const portalUser = await models.PortalUser.getForAuthByEmail(email);
