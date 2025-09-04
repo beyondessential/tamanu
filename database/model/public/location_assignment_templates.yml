@@ -60,19 +60,9 @@ sources:
             description: "{{ doc('generic__created_at') }} in location_assignment_templates."
             data_tests:
               - not_null
-          - name: created_by
-            data_type: character varying(255)
-            description: "{{ doc('location_assignment_templates__created_by') }}"
-            data_tests:
-              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in location_assignment_templates."
-            data_tests:
-              - not_null
-          - name: updated_by
-            data_type: character varying(255)
-            description: "{{ doc('generic__updated_by') }} in location_assignment_templates."
             data_tests:
               - not_null
           - name: deleted_at

@@ -231,7 +231,6 @@ usersRouter.post(
       const overlap = await UserLeave.findOne({
         where: {
           userId,
-          removedAt: null,
           endDate: { [Op.gte]: startDate },
           startDate: { [Op.lte]: endDate },
         },
@@ -245,8 +244,6 @@ usersRouter.post(
         userId,
         startDate,
         endDate,
-        scheduledBy: currentUser.id,
-        scheduledAt: getCurrentDateTimeString(),
       });
 
       await LocationAssignment.destroy({
@@ -277,7 +274,6 @@ usersRouter.get(
 
     let where = {
       userId,
-      removedAt: null,
     };
 
     if (query.all !== 'true') {
@@ -298,7 +294,7 @@ usersRouter.get(
 usersRouter.delete(
   '/:id/leaves/:leaveId',
   asyncHandler(async (req, res) => {
-    const { models, params, user: currentUser } = req;
+    const { models, params } = req;
     const { id: userId, leaveId } = params;
 
     req.checkPermission('write', 'User');
@@ -311,13 +307,8 @@ usersRouter.delete(
       throw new NotFoundError('Leave not found');
     }
 
-    if (leave.removedAt) {
-      throw new InvalidOperationError('Leave already removed');
-    }
-
-    leave.removedBy = currentUser.id;
-    leave.removedAt = getCurrentDateTimeString();
-    await leave.save();
+    // Delete the leave instead of marking it as removed
+    await leave.destroy();
 
     res.send(leave);
   }),

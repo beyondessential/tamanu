@@ -309,6 +309,17 @@ export const dateCustomValidation = z.string().refine(
   },
 );
 
+export const timeCustomValidation = z.string().refine(
+  (val: string) => {
+    const regex = /^\d{2}:\d{2}:\d{2}$/;
+    if (!regex.test(val)) return false;
+    return true;
+  },
+  {
+    message: 'Invalid time format, expected HH:MM:SS',
+  },
+);
+
 // Custom validator for "YYYY-MM-DD HH:MM:SS" format
 export const datetimeCustomValidation = z.string().refine(
   (val: string) => {

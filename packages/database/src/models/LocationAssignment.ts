@@ -12,8 +12,6 @@ export class LocationAssignment extends Model {
   declare startTime: string;
   declare endTime: string;
   declare templateId?: string;
-  declare createdBy: string;
-  declare updatedBy?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -54,23 +52,13 @@ export class LocationAssignment extends Model {
       foreignKey: 'locationId',
       as: 'location',
     });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'createdBy',
-      as: 'createdByUser',
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'updatedBy',
-      as: 'updatedByUser',
-    });
-    
   }
 
   static buildSyncFilter() {
     return `
       LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
-      WHERE locations.facility_id IN (:facilityIds) 
+      LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
+      WHERE COALESCE(location_groups.facility_id, locations.facility_id) IN (:facilityIds)
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
@@ -78,10 +66,11 @@ export class LocationAssignment extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
-        facilityId: 'locations.facility_id',
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `
         LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+        LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
       `,
     };
   }

@@ -7,7 +7,6 @@ import {
   REPEAT_FREQUENCY,
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
-  SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 
 export class LocationAssignmentTemplate extends Model {
@@ -20,8 +19,6 @@ export class LocationAssignmentTemplate extends Model {
   declare repeatEndDate: string;
   declare repeatFrequency: number;
   declare repeatUnit: keyof typeof REPEAT_FREQUENCY;
-  declare createdBy: string;
-  declare updatedBy?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -75,22 +72,13 @@ export class LocationAssignmentTemplate extends Model {
       foreignKey: 'locationId',
       as: 'location',
     });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'createdBy',
-      as: 'createdByUser',
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'updatedBy',
-      as: 'updatedByUser',
-    });
   }
 
   static buildSyncFilter() {
     return `
       LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
-      WHERE locations.facility_id IN (:facilityIds) 
+      LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
+      WHERE COALESCE(location_groups.facility_id, locations.facility_id) IN (:facilityIds)
       AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
@@ -98,10 +86,11 @@ export class LocationAssignmentTemplate extends Model {
   static buildSyncLookupQueryDetails() {
     return {
       select: buildSyncLookupSelect(this, {
-        facilityId: 'locations.facility_id',
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `
         LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+        LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
       `,
     };
   }
@@ -149,7 +138,6 @@ export class LocationAssignmentTemplate extends Model {
     const userLeaves = await UserLeave.findAll({
       where: {
         userId,
-        removedAt: null,
         endDate: { [Op.gte]: nextAssignmentDates[0] },
         startDate: { [Op.lte]: nextAssignmentDates.at(-1) }
       },
@@ -175,8 +163,6 @@ export class LocationAssignmentTemplate extends Model {
         startTime,
         endTime,
         templateId: this.id,
-        createdBy: SYSTEM_USER_UUID,
-        updatedBy: SYSTEM_USER_UUID,
       });
     }
 
