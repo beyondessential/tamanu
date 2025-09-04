@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
-import { NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { Box, Button, Divider, IconButton, List, Typography } from '@mui/material';
+import { NavigateBefore, NavigateNext } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { getCurrentRoute } from '../../store/router';

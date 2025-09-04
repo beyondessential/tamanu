@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import InfoIcon from '@material-ui/icons/Info';
-import MuiTooltip from '@material-ui/core/Tooltip';
+import InfoIcon from '@mui/icons-material/Info';
+import MuiTooltip from '@mui/material/Tooltip';
 import { Colors } from '../constants';
 
 const StyledInfoIcon = styled(InfoIcon)`
@@ -13,7 +13,7 @@ const StyledInfoIcon = styled(InfoIcon)`
   height: 18px;
 `;
 
-export const FormTooltip = styled((props) => (
+export const FormTooltip = styled(props => (
   <MuiTooltip classes={{ popper: props.className }} arrow {...props} data-testid="muitooltip-s88r">
     <StyledInfoIcon data-testid="styledinfoicon-sg86" />
   </MuiTooltip>
@@ -27,7 +27,7 @@ export const FormTooltip = styled((props) => (
     font-size: 0.6875rem;
     max-inline-size: 8rem;
     line-height: 1.7;
-     & .MuiTooltip-arrow {
+    & .MuiTooltip-arrow {
       color: ${Colors.primaryDark};
     }
   }

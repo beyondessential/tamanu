@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import NotesIcon from '@material-ui/icons/Notes';
-import { Box } from '@material-ui/core';
+import NotesIcon from '@mui/icons-material/Notes';
+import { Box } from '@mui/material';
 import { NOTE_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -43,7 +43,7 @@ const ListItem = styled.li`
 `;
 
 const Caption = styled.span`
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-left: 6px;
 `;
 
@@ -66,14 +66,14 @@ const buttonStyle = css`
   padding-right: 8px;
   min-width: auto;
   background: none;
-  color: ${(props) =>
+  color: ${props =>
     props.$underline ? props.theme.palette.primary.main : props.theme.palette.text.tertiary};
-  text-decoration: ${(props) => (props.$underline ? 'underline' : 'none')};
+  text-decoration: ${props => (props.$underline ? 'underline' : 'none')};
 
   &.MuiButton-root:hover {
     background: none;
     text-decoration: underline;
-    color: ${(props) => props.theme.palette.primary.main};
+    color: ${props => props.theme.palette.primary.main};
   }
 `;
 

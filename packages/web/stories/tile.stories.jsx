@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { AssignmentLate, Business, Category, Timelapse } from '@material-ui/icons';
+import { AssignmentLate, Business, Category, Timelapse } from '@mui/icons-material';
 import { DateDisplay, Tile, TileContainer, TileTag, TileTooltip } from '../app/components';
 
 export default {

@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { Box, Divider, Typography } from '@material-ui/core';
+import { Box, Divider, Typography } from '@mui/material';
 
 import { Colors } from '../../constants';
 import { FormConfirmCancelBackRow } from '../ButtonRow';
@@ -62,11 +62,11 @@ export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
   const { getTranslation } = useTranslation();
   const api = useApi();
 
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
 
   const patientName = joinNames(patient);
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     const body = {
       name: values.reminderContactName,
       relationshipId: values.reminderContactRelationship,

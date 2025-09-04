@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import { Box, IconButton } from '@material-ui/core';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import { Box, IconButton } from '@mui/material';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
@@ -182,10 +182,9 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+const getType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 const getReasonForEncounter = ({ reasonForEncounter }) => (
   <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
     {reasonForEncounter}

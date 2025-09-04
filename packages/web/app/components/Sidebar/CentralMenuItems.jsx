@@ -9,7 +9,7 @@ import {
   Language as LanguageIcon,
   Settings as SettingsIcon,
   Translate as TranslateIcon,
-} from '@material-ui/icons';
+} from '@mui/icons-material';
 
 import { TranslatedText } from '../Translation/TranslatedText';
 import {

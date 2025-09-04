@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { Button, OutlinedButton } from '../components';
 import { getVisibleQuestions } from '../utils';
 import { SummaryScreenOne } from './DeathFormSummaryScreens';
@@ -30,7 +30,7 @@ export const DeathFormScreen = ({
   onCancel,
 }) => {
   const [showSummary, setShowSummary] = useState(false);
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { children } = screenReactElement.props;
   const screenQuestionReactElements = React.Children.toArray(children);
   const visibleQuestions = getVisibleQuestions(
@@ -47,15 +47,15 @@ export const DeathFormScreen = ({
   };
 
   // Inject special value to be used in form validation and only keep specific fields
-  const handleSubmit = (event) => {
+  const handleSubmit = event => {
     const { clinicianId, timeOfDeath } = values;
     setValues({ clinicianId, timeOfDeath, isPartialWorkflow: true });
     submitForm(event);
   };
 
   const toggleSummary = () => {
-    setShowStepper((prev) => !prev);
-    setShowSummary((prev) => !prev);
+    setShowStepper(prev => !prev);
+    setShowSummary(prev => !prev);
   };
 
   if (showSummary) {

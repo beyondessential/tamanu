@@ -1,6 +1,6 @@
 import React, { isValidElement } from 'react';
 import styled from 'styled-components';
-import { Divider, ListItem, ListItemText } from '@material-ui/core';
+import { Divider, ListItem, ListItemText } from '@mui/material';
 import { administrationIcon } from '../../constants/images';
 import { ThemedTooltip } from '../Tooltip';
 

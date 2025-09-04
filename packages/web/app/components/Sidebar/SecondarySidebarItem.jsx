@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ListItem, ListItemText } from '@material-ui/core';
+import { ListItem, ListItemText } from '@mui/material';
 
 const SecondaryListItem = styled(ListItem)`
   margin-bottom: 2px;
@@ -25,7 +25,7 @@ const Dot = styled.div`
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: ${(props) => props.$color};
+  background: ${props => props.$color};
   margin-right: 14px;
 `;
 export const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => {

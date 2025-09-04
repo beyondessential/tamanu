@@ -1,5 +1,5 @@
 import React from 'react';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import styled from 'styled-components';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';

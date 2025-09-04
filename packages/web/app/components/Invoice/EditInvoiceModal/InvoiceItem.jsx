@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { TranslatedText } from '../../Translation';
 import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
 import { useSuggester } from '../../../api';

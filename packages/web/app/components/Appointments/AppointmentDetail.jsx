@@ -4,9 +4,9 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
-import CloseIcon from '@material-ui/icons/Close';
-import { IconButton } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import CloseIcon from '@mui/icons-material/Close';
+import { IconButton } from '@mui/material';
+import { Alert } from '@mui/material';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
@@ -56,7 +56,7 @@ const PatientInfoValue = styled.td`
   text-transform: capitalize;
 `;
 
-const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map((status) => ({
+const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(status => ({
   value: status,
   label: status,
 }));
@@ -257,7 +257,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
     patient.id,
   );
   const [statusOption, setStatusOption] = useState(
-    APPOINTMENT_STATUS_OPTIONS.find((option) => option.value === status),
+    APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status),
   );
   const [appointmentModal, setAppointmentModal] = useState(false);
   const [encounterModal, setEncounterModal] = useState(false);
@@ -268,7 +268,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   useEffect(() => {
-    setStatusOption(APPOINTMENT_STATUS_OPTIONS.find((option) => option.value === status));
+    setStatusOption(APPOINTMENT_STATUS_OPTIONS.find(option => option.value === status));
   }, [status]);
 
   useEffect(() => {
@@ -278,7 +278,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   }, [currentEncounterError]);
 
   const updateAppointmentStatus = useCallback(
-    async (newValue) => {
+    async newValue => {
       await api.put(`appointments/${id}`, {
         status: newValue,
       });
@@ -292,7 +292,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const onOpenEncounterModal = useCallback(() => setEncounterModal(true), []);
   const onCloseEncounterModal = useCallback(() => setEncounterModal(false), []);
   const onSubmitEncounterModal = useCallback(
-    async (encounter) => {
+    async encounter => {
       setCreatedEncounter(encounter);
       onCloseEncounterModal();
     },
@@ -348,7 +348,7 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           options={APPOINTMENT_STATUS_OPTIONS}
           value={statusOption}
           name="status"
-          onChange={async (selectedOption) => {
+          onChange={async selectedOption => {
             if (selectedOption.value === APPOINTMENT_STATUSES.CANCELLED && !cancelConfirmed) {
               setCancelModal(true);
               return;
@@ -357,29 +357,29 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
             await updateAppointmentStatus(selectedOption.value);
           }}
           styles={{
-            placeholder: (baseStyles) => ({
+            placeholder: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            valueContainer: (baseStyles) => ({
+            valueContainer: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            dropdownIndicator: (baseStyles) => ({
+            dropdownIndicator: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            singleValue: (baseStyles) => ({
+            singleValue: baseStyles => ({
               ...baseStyles,
               color: Colors.white,
             }),
-            control: (baseStyles) => ({
+            control: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,
               borderColor: 'transparent',
             }),
-            menu: (baseStyles) => ({
+            menu: baseStyles => ({
               ...baseStyles,
               backgroundColor: Colors.primary,
               color: Colors.white,

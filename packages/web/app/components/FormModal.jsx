@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Alert, AlertTitle } from '@mui/material';
 
 import { FormSubmissionProvider, useFormSubmission } from '../contexts/FormSubmission';
 import { BaseModal } from './BaseModal';

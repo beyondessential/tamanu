@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
-import { Box, Typography } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
-import GetAppIcon from '@material-ui/icons/GetApp';
+import { Box, Typography } from '@mui/material';
+import { Alert, AlertTitle } from '@mui/material';
+import GetAppIcon from '@mui/icons-material/GetApp';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import {
@@ -75,7 +75,7 @@ const AboutReportButton = styled(TextButton)`
 const ReportIdField = ({ onValueChange, ...props }) => {
   const { field } = props;
   const changeCallback = useCallback(
-    (event) => {
+    event => {
       onValueChange(event.target.value);
       field.onChange(event);
     },
@@ -100,7 +100,7 @@ const useFileName = () => {
 
   const countryName = getTranslation(getReferenceDataStringId(country.id, 'country'), country.name);
 
-  return (reportName) => {
+  return reportName => {
     const dashedName = `${reportName}-${countryName}`
       .trim()
       .replace(/\s+/g, '-')
@@ -110,7 +110,7 @@ const useFileName = () => {
   };
 };
 
-const getAboutReportText = (reportName) => (
+const getAboutReportText = reportName => (
   <TranslatedText
     stringId="report.generate.about.label"
     fallback="About :reportName"
@@ -119,7 +119,7 @@ const getAboutReportText = (reportName) => (
   />
 );
 
-const isJsonString = (str) => {
+const isJsonString = str => {
   try {
     JSON.parse(str);
   } catch (e) {
@@ -146,7 +146,7 @@ export const ReportGeneratorForm = () => {
   const reportOptions = useMemo(
     () =>
       orderBy(
-        availableReports.map((r) => ({ value: r.id, label: r.name })),
+        availableReports.map(r => ({ value: r.id, label: r.name })),
         'label',
       ),
     [availableReports],
@@ -192,7 +192,7 @@ export const ReportGeneratorForm = () => {
     })();
   }, [api]);
 
-  const submitRequestReport = async (formValues) => {
+  const submitRequestReport = async formValues => {
     const { reportId, ...filterValues } = formValues;
     delete filterValues.emails;
 
@@ -329,7 +329,7 @@ export const ReportGeneratorForm = () => {
               component={ReportIdField}
               options={reportOptions}
               required
-              onValueChange={(reportId) => {
+              onValueChange={reportId => {
                 setSelectedReportId(reportId);
                 clearForm();
                 resetDownload();
@@ -340,7 +340,7 @@ export const ReportGeneratorForm = () => {
               name="dataSource"
               label=" "
               value={dataSource}
-              onChange={(e) => {
+              onChange={e => {
                 setDataSource(e.target.value);
                 resetDownload();
               }}
@@ -508,7 +508,7 @@ export const ReportGeneratorForm = () => {
                         data-testid="translatedtext-2hhw"
                       />
                     ),
-                    onClick: (event) => {
+                    onClick: event => {
                       setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
                       submitForm(event);
                     },
@@ -521,7 +521,7 @@ export const ReportGeneratorForm = () => {
                         data-testid="translatedtext-h038"
                       />
                     ),
-                    onClick: (event) => {
+                    onClick: event => {
                       setBookFormat(REPORT_EXPORT_FORMATS.CSV);
                       submitForm(event);
                     },

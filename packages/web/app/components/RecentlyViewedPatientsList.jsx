@@ -1,9 +1,9 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Collapse, Divider, IconButton, ListItem, Typography } from '@material-ui/core';
+import { Collapse, Divider, IconButton, ListItem, Typography } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
-import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-ui/icons';
+import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@mui/icons-material';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
@@ -37,7 +37,7 @@ const ComponentDivider = styled(Divider)`
 const SectionLabel = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.primary};
+  color: ${props => props.theme.palette.text.primary};
   letter-spacing: 0;
   text-transform: none;
   text-decoration: none;
@@ -46,7 +46,7 @@ const SectionLabel = styled.div`
 const CardComponent = styled.div`
   padding: 10px;
   padding-bottom: 15px;
-  width: ${(p) => (p.patientPerPage === 4 ? '25%' : '16%')};
+  width: ${p => (p.patientPerPage === 4 ? '25%' : '16%')};
   margin-left: 1%;
   background-color: white;
   border-radius: 3px;
@@ -59,7 +59,7 @@ const CardComponent = styled.div`
   &:first-child {
     margin-left: 0;
   }
-  ${(p) =>
+  ${p =>
     p.$isDashboard
       ? `border: 1px solid ${Colors.outline};
       height: 100px;
@@ -82,7 +82,7 @@ const CardListContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  ${(p) =>
+  ${p =>
     p.$isDashboard
       ? `background-color: ${Colors.white};
     margin-left: 20px;
@@ -234,11 +234,10 @@ export const RecentlyViewedPatientsList = ({
   );
 
   const pageCount = Math.ceil(recentlyViewedPatients?.length / patientPerPage);
-  const changePage = (delta) =>
-    setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
+  const changePage = delta => setPageIndex(Math.max(0, Math.min(pageCount - 1, pageIndex + delta)));
 
   const cardOnClick = useCallback(
-    async (patientId) => {
+    async patientId => {
       await dispatch(reloadPatient(patientId));
       navigateToPatient(patientId);
     },

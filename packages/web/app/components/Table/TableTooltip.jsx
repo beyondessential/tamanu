@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@mui/material/Tooltip';
 import { Colors } from '../../constants';
 
 export const TableTooltip = styled(({ className, children, placement = 'top', ...props }) => (

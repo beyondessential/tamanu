@@ -3,7 +3,7 @@ import { push } from 'connected-react-router';
 import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';

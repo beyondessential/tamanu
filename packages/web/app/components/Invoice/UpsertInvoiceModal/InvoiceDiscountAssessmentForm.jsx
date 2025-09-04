@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3 } from '../../Typography';
@@ -47,8 +47,8 @@ export const InvoiceDiscountAssessmentForm = ({
     });
   }, [familySize, slidingFeeScale]);
 
-  const handleAnnualIncomeChange = (e) => {
-    const selectedOption = annualIncomeOptions.find((option) => option.value === e.target.value);
+  const handleAnnualIncomeChange = e => {
+    const selectedOption = annualIncomeOptions.find(option => option.value === e.target.value);
     if (selectedOption) {
       setPercentage(selectedOption.percentage);
     }
@@ -86,7 +86,7 @@ export const InvoiceDiscountAssessmentForm = ({
                 }
                 component={SelectField}
                 options={familySizesOptions}
-                onChange={(e) => setFamilySize(e.target.value)}
+                onChange={e => setFamilySize(e.target.value)}
                 data-testid="field-23z3"
               />
               <Field

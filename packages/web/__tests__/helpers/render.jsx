@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
 import { TranslationContext } from '../../app/contexts/Translation';
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme } from '@mui/material/styles';
 import { vi } from 'vitest';
 
 export const createQueryClient = () =>

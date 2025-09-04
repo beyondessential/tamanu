@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import CancelIcon from '@material-ui/icons/Cancel';
+import { Box, Divider } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { TASK_STATUSES, TASK_TYPES, WS_EVENTS } from '@tamanu/constants';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 

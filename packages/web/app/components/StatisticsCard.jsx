@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
-import ArrowDownward from '@material-ui/icons/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -16,7 +16,7 @@ const Container = styled.div`
 
 const Header = styled.div`
   color: ${Colors.white};
-  background: ${(props) => props.background};
+  background: ${props => props.background};
   text-align: center;
   font-weight: 500;
   font-size: 16px;
@@ -37,7 +37,7 @@ const Content = styled.div`
 `;
 
 const ValueText = styled.span`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
   font-size: 48px;
   line-height: 32px;
 `;
@@ -46,7 +46,7 @@ const PercentageText = styled.div`
   color: ${Colors.midText};
   font-size: 18px;
   align-self: center;
-  display: ${(props) => props.percentage === 0 && 'none'};
+  display: ${props => props.percentage === 0 && 'none'};
 
   svg {
     font-size: 28px;

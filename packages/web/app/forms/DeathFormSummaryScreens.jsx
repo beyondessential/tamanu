@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 import { Button, FormGrid, OutlinedButton } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -18,14 +18,14 @@ const RedHeading = styled(Typography)`
   font-size: 18px;
   line-height: 21px;
   font-weight: 500;
-  color: ${(props) => props.theme.palette.error.main};
+  color: ${props => props.theme.palette.error.main};
 `;
 
 const Text = styled(Typography)`
   font-size: 15px;
   line-height: 21px;
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   margin-bottom: 48px;
   white-space: pre-line;
 `;

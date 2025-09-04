@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePDF } from '@react-pdf/renderer';
-import { Box, CircularProgress, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import styled from 'styled-components';
 import { TranslatedText } from '../Translation';
 
@@ -23,7 +23,7 @@ const Loader = styled.div`
   .MuiTypography-root {
     margin-top: 40px;
     font-size: 16px;
-    color: ${(props) => props.theme.palette.text.secondary};
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 
@@ -78,7 +78,7 @@ const PDFViewer = React.memo(({ id, children }) => {
   );
 });
 
-export const printPDF = (elementId) => {
+export const printPDF = elementId => {
   const iframe = document.getElementById(elementId);
   iframe.contentWindow.print();
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ExpandMore } from '@material-ui/icons';
-import { Collapse, Divider, List, ListItem, ListItemText } from '@material-ui/core';
+import { ExpandMore } from '@mui/icons-material';
+import { Collapse, Divider, List, ListItem, ListItemText } from '@mui/material';
 import { administrationIcon } from '../../constants/images';
 import { ThemedTooltip } from '../Tooltip';
 
@@ -21,16 +21,16 @@ const PrimaryListItem = styled(ListItem)`
   }
 
   &.Mui-selected {
-    background: ${(props) =>
+    background: ${props =>
       props.$highlighted && props.$retracted ? 'rgba(255, 255, 255, 0.15)' : 'none'};
-    transition: ${(props) => props.theme.transitions.create('background')};
+    transition: ${props => props.theme.transitions.create('background')};
 
     .MuiSvgIcon-root {
       transform: rotate(180deg);
     }
   }
 
-  background: ${(props) => (props.$highlighted ? 'rgba(255, 255, 255, 0.15)' : '')};
+  background: ${props => (props.$highlighted ? 'rgba(255, 255, 255, 0.15)' : '')};
 
   &:hover,
   &.Mui-selected:hover {
@@ -50,9 +50,9 @@ const PrimaryItemText = styled(ListItemText)`
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
-  color: ${(props) => (props.$invisible ? 'transparent' : '')};
-  max-height: ${(props) => (props.$invisible ? '18px' : 'default')};
-  transition: ${(props) => props.theme.transitions.create(['color', 'max-height'])};
+  color: ${props => (props.$invisible ? 'transparent' : '')};
+  max-height: ${props => (props.$invisible ? '18px' : 'default')};
+  transition: ${props => props.theme.transitions.create(['color', 'max-height'])};
 `;
 
 const StyledList = styled(List)`
@@ -61,8 +61,8 @@ const StyledList = styled(List)`
 
 const ListDivider = styled(Divider)`
   background-color: rgba(255, 255, 255, 0.2);
-  margin: ${(props) => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
-  transition: ${(props) => props.theme.transitions.create('margin')};
+  margin: ${props => (props.$retracted ? '2px 10px' : '2px 10px 2px 16px')};
+  transition: ${props => props.theme.transitions.create('margin')};
 `;
 
 const StyledTooltip = styled(ThemedTooltip)`

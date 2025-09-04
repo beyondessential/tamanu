@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import styled from 'styled-components';
 import { DataFetchingTable, DataFetchingTableWithPermissionCheck } from './DataFetchingTable';
 

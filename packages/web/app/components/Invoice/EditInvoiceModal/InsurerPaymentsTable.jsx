@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../Translation';
@@ -26,7 +26,7 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const getInsurerPaymentStatus = (insurerPayment) => {
+const getInsurerPaymentStatus = insurerPayment => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
     return (
       <Box color={Colors.alert} data-testid="box-lbl5">
@@ -108,7 +108,7 @@ const COLUMNS = [
 
 export const InsurerPaymentsTable = ({ invoice }) => {
   const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurerPayments = invoice.payments.filter((payment) => !!payment?.insurerPayment?.id);
+  const insurerPayments = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
 
   return (
     <TableContainer data-testid="tablecontainer-x4t9">

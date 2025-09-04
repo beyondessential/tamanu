@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { Pagination, PaginationItem } from '@material-ui/lab';
-import { MenuItem, Select } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Pagination, PaginationItem } from '@mui/material';
+import { MenuItem, Select } from '@mui/material';
+import { makeStyles } from '@mui/material/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -156,7 +156,7 @@ export const Paginator = React.memo(
             disabled={!isDataInTable}
             data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map((option) => (
+            {rowsPerPageOptions.map(option => (
               <StyledMenuItem
                 key={option}
                 value={option}
@@ -171,7 +171,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={(item) => {
+            renderItem={item => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (

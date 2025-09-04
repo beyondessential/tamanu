@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import MuiDivider from '@material-ui/core/Divider';
+import MuiDivider from '@mui/material/Divider';
 import { SelectInput, TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';

@@ -7,7 +7,7 @@ import { Modal } from './Modal';
 import { Button, OutlinedButton, TextButton } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ButtonRow } from './ButtonRow';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import { LoadingIndicator } from './LoadingIndicator';
 import { useTranslation } from '../contexts/Translation';
 import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';

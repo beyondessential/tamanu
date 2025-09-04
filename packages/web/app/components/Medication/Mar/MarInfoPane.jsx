@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { formatTimeSlot } from '../../../utils/medications';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {

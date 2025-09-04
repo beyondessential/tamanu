@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Divider from '@material-ui/core/Divider';
-import { CheckCircleRounded } from '@material-ui/icons';
+import Divider from '@mui/material/Divider';
+import { CheckCircleRounded } from '@mui/icons-material';
 
 import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
 

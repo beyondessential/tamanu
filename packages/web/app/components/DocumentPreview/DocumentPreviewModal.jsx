@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import { Typography } from '@material-ui/core';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import { Typography } from '@mui/material';
 import { DOCUMENT_SOURCES } from '@tamanu/constants';
 
 import PDFPreview from './PDFPreview';
@@ -43,7 +43,7 @@ const DownloadButton = ({ onClick }) => {
 
 const Subtitle = styled(Typography)`
   font-size: 12px;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const Preview = ({ documentType, attachmentId, ...props }) => {

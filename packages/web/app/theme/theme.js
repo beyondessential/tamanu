@@ -3,7 +3,7 @@
  * Copyright (c) 2017 - 2022 Beyond Essential Systems Pty Ltd
  */
 
-import { createTheme } from '@material-ui/core/styles';
+import { createTheme } from '@mui/material/styles';
 import { Colors, MUI_SPACING_UNIT } from '../constants';
 import { createGlobalStyle } from 'styled-components';
 

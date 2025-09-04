@@ -1,5 +1,5 @@
-import { Typography } from '@material-ui/core';
-import { AddRounded } from '@material-ui/icons';
+import { Typography } from '@mui/material';
+import { AddRounded } from '@mui/icons-material';
 import { parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
@@ -74,7 +74,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async (appointment) => {
+  const openBookingForm = async appointment => {
     // “Useless” await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
@@ -86,7 +86,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const openCancelModal = (appointment) => {
+  const openCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };

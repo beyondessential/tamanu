@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { Box, IconButton } from '@mui/material';
 import { toast } from 'react-toastify';
 import { Colors } from '../../constants';
 import { Button } from '../Button';
@@ -61,10 +61,7 @@ const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
         >
           {smallName}
         </ConditionalTooltip>
-        <StyledIconButton
-          onClick={onClear}
-          data-testid="removeselectionbutton-yt3j"
-        >
+        <StyledIconButton onClick={onClear} data-testid="removeselectionbutton-yt3j">
           <StyledClearIcon />
         </StyledIconButton>
       </Box>
@@ -74,10 +71,7 @@ const ValueSection = ({ value, smallDisplay, showFileDialog, onClear }) => {
   return (
     <>
       {value.name}
-      <ChangeSelectionButton
-        onClick={showFileDialog}
-        data-testid="changeselectionbutton-fvw1"
-      >
+      <ChangeSelectionButton onClick={showFileDialog} data-testid="changeselectionbutton-fvw1">
         <TranslatedText
           stringId="chooseFile.button.changeSelection.label"
           fallback="Change selection"
@@ -92,11 +86,11 @@ export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions:
 export const FILTER_IMAGES = { name: 'Images (.png, .svg)', extensions: ['png', 'svg'] };
 export const FILTER_PHOTOS = { name: 'Photos (.jpg, .jpeg)', extensions: ['jpg', 'jpeg'] };
 
-const getFilterNames = (filters) => {
+const getFilterNames = filters => {
   if (filters.length === 1 && filters[0].name === FILTER_PHOTOS.name) {
     return filters[0].extensions.join(' or ');
   }
-  return filters.map((filter) => filter.name).join(', ');
+  return filters.map(filter => filter.name).join(', ');
 };
 
 export const FileChooserInput = ({
@@ -120,7 +114,7 @@ export const FileChooserInput = ({
   const maxFileSizeInBytes = maxFileSizeInMB * 1000 * 1000;
 
   // Convert the given filters into string format for the accept attribute of file input
-  const acceptString = filters.map((filter) => `.${filter.extensions.join(', .')}`).join(', ');
+  const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
 
   const inputRef = useRef(null);
 
@@ -129,7 +123,7 @@ export const FileChooserInput = ({
     inputRef.current.click();
   };
 
-  const selectFile = (event) => {
+  const selectFile = event => {
     const file = event.target.files[0];
     if (!file) return;
 

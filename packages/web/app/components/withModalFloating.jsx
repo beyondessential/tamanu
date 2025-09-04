@@ -2,7 +2,7 @@ import React, { useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Draggable from 'react-draggable';
 import { Resizable } from 're-resizable';
-import { Paper } from '@material-ui/core';
+import { Paper } from '@mui/material';
 import styled from 'styled-components';
 
 import { ResizeCornerIcon } from './Icons/ResizeCornerIcon';

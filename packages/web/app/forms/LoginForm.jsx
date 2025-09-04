@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
@@ -227,7 +227,7 @@ export const LoginForm = React.memo(
     const { getTranslation } = useTranslation();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
-    const onError = (errors) => {
+    const onError = errors => {
       if (errors.host) {
         setAdvancedExpanded(true);
       }

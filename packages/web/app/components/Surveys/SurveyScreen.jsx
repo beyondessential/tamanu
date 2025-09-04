@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
 import { checkVisibility } from '../../utils';

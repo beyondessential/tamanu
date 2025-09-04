@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
-import { Divider, ButtonBase } from '@material-ui/core';
+import { Divider, ButtonBase } from '@mui/material';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { Heading5, TranslatedText } from '../../components';

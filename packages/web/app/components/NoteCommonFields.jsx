@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@mui/material/Divider';
+import Tooltip from '@mui/material/Tooltip';
 import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
   AutocompleteField,
@@ -153,7 +153,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+/* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
 const NoteContentBox = styled(Box)`
@@ -185,7 +185,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({

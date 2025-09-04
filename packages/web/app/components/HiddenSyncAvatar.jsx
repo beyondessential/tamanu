@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { Avatar, CircularProgress } from '@material-ui/core';
+import { Avatar, CircularProgress } from '@mui/material';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -56,7 +56,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
   const api = useApi();
 
   const handleEvent = useCallback(
-    async (cb) => {
+    async cb => {
       if (loading) return;
       setLoading(true);
 
@@ -71,7 +71,7 @@ export const HiddenSyncAvatar = ({ children, onClick, ...props }) => {
     [loading],
   );
 
-  const handleClick = async (event) => {
+  const handleClick = async event => {
     if (event.shiftKey) {
       handleEvent(async () => {
         toast.info(

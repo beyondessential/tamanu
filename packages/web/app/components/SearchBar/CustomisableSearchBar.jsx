@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import Box from '@material-ui/core/Box';
-import { IconButton } from '@material-ui/core';
+import Box from '@mui/material/Box';
+import { IconButton } from '@mui/material';
 import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
 import { Button, TextButton } from '../Button';
@@ -79,10 +79,10 @@ export const CustomisableSearchBar = ({
   hasPermission = true,
 }) => {
   const switchExpandValue = useCallback(() => {
-    setIsExpanded((previous) => !previous);
+    setIsExpanded(previous => !previous);
   }, [setIsExpanded]);
 
-  const handleSubmit = (values) => {
+  const handleSubmit = values => {
     onSearch({ ...values });
   };
 

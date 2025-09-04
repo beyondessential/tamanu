@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
@@ -158,12 +158,12 @@ export const PatientLabTestsTable = React.memo(
         ),
         accessor: row => (
           <CategoryCell data-testid="categorycell-7aet">
-         <TranslatedReferenceData
-        fallback={row.testType}
-        value={row.testTypeId}
-        category="labTestType"
-        data-testid="translatedreferencedata-kplb"
-      />
+            <TranslatedReferenceData
+              fallback={row.testType}
+              value={row.testTypeId}
+              category="labTestType"
+              data-testid="translatedreferencedata-kplb"
+            />
             <br />
             <BodyText color="textTertiary" data-testid="bodytext-zxuk">
               {row.unit ? `(${row.unit})` : null}

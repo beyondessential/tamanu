@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { Button } from '..';
 import { ReminderContactModal } from './ReminderContactModal';
 import { useAuth } from '../../contexts/Auth';

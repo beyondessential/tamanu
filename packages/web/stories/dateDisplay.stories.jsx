@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import { DateDisplay } from '../app/components/DateDisplay';
 
 const testDate = new Date();

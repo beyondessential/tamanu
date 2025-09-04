@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import CloseIcon from '@material-ui/icons/Close';
-import { Drawer } from '@material-ui/core';
+import CloseIcon from '@mui/icons-material/Close';
+import { Drawer } from '@mui/material';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';

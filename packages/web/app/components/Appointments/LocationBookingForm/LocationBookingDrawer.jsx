@@ -1,4 +1,4 @@
-import OvernightIcon from '@material-ui/icons/Brightness2';
+import OvernightIcon from '@mui/icons-material/Brightness2';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -42,7 +42,7 @@ const OvernightStayLabel = styled.span`
 `;
 
 const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = (confirmed) => {
+  const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
@@ -134,7 +134,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const [resolveFn, setResolveFn] = useState(null);
 
   const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
@@ -144,7 +144,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     {
       onSuccess: () =>
         notifySuccess(<SuccessMessage isEdit={isEdit} data-testid="successmessage-7twp" />),
-      onError: (error) => {
+      onError: error => {
         if (error.message === 409) {
           notifyError(
             <TranslatedText
@@ -191,22 +191,37 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     locationId: yup.string().required(requiredMessage),
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
-      is: (value) => !value,
-      then: yup.string().nullable().required(requiredMessage),
+      is: value => !value,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup.date().nullable().required(requiredMessage),
-    endTime: yup.date().nullable().required(requiredMessage),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),
@@ -222,7 +237,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       updateSelectedCell({ locationId: null, date: null });
     };
 
-    const resetFields = (fields) => {
+    const resetFields = fields => {
       for (const field of fields) void setFieldValue(field, null);
     };
 
@@ -268,7 +283,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={(e) => {
+            onChange={e => {
               updateSelectedCell({ locationId: e.target.value });
               resetFields(['startTime', 'endDate', 'endTime']);
             }}

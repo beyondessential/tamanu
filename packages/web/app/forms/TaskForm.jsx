@@ -3,8 +3,8 @@ import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
-import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
-import { Box, Divider } from '@material-ui/core';
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
+import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   REFERENCE_DATA_RELATION_TYPES,
@@ -96,7 +96,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
   const [selectedTask, setSelectedTask] = useState({});
 
-  const onSubmit = (values) => {
+  const onSubmit = values => {
     const {
       designationIds,
       highPriority,
@@ -137,7 +137,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
             frequencyUnit: taskTemplate.frequencyUnit,
           }),
         highPriority: !!taskTemplate.highPriority,
-        designationIds: taskTemplate.designations.map((item) => item.designationId),
+        designationIds: taskTemplate.designations.map(item => item.designationId),
         startTime: startTimeString,
         ...(durationValue && durationUnit && { durationValue, durationUnit }),
       }));
@@ -167,7 +167,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
 
       setFieldValue(
         'designationIds',
-        designations?.map((item) => item.designationId),
+        designations?.map(item => item.designationId),
       );
       setFieldValue('highPriority', highPriority);
       frequencyValue ? setFieldValue('frequencyValue', Number(frequencyValue)) : null;
@@ -198,9 +198,9 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                   multiSection
                   allowCreatingCustomValue={canCreateReferenceData}
                   groupByKey="type"
-                  getSectionTitle={(section) => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
+                  getSectionTitle={section => REFERENCE_DATA_TYPE_TO_LABEL[section.type]}
                   required
-                  onChange={(e) => handleTaskChange(e, { setFieldValue })}
+                  onChange={e => handleTaskChange(e, { setFieldValue })}
                   data-testid="field-hp09"
                 />
                 <Field
@@ -284,7 +284,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     component={NumberField}
                     onInput={preventInvalidNumber}
                     data-testid="field-7vdy"
-                    onChange={(e) => {
+                    onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
                         setFieldValue('durationUnit', '');
@@ -297,7 +297,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
                     component={TranslatedSelectField}
                     enumValues={TASK_FREQUENCY_UNIT_LABELS}
                     data-testid="field-tadr"
-                    onChange={(e) => {
+                    onChange={e => {
                       if (!e.target.value) {
                         setFieldValue('durationValue', '');
                         setFieldValue('durationUnit', '');
@@ -418,7 +418,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
           note: yup.string(),
           highPriority: yup.boolean(),
           frequencyValue: yup.number().when('frequencyUnit', {
-            is: (unit) => !!unit,
+            is: unit => !!unit,
             then: yup
               .number()
               .positive(
@@ -427,7 +427,7 @@ export const TaskForm = React.memo(({ onClose, refreshTaskTable }) => {
               .required(getTranslation('validation.required.inline', '*Required')),
           }),
           frequencyUnit: yup.string().when('frequencyValue', {
-            is: (value) => !!value,
+            is: value => !!value,
             then: yup.string().required(getTranslation('validation.required.inline', '*Required')),
           }),
           durationValue: yup

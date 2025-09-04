@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { Box, IconButton } from '@mui/material';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { TASK_STATUSES } from '@tamanu/constants';
 import { Colors } from '../../../constants';
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';

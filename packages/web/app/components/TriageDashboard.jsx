@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import AccessTime from '@material-ui/icons/AccessTime';
+import AccessTime from '@mui/icons-material/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
@@ -9,7 +9,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 
-const getAverageWaitTime = (categoryData) => {
+const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
     return 0;
   }
@@ -40,9 +40,9 @@ const useTriageData = () => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return triageCategories?.map((category) => {
+  return triageCategories?.map(category => {
     const categoryData = data.filter(
-      (triage) =>
+      triage =>
         triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
         parseInt(triage.score) === category.level,
     );

@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Grid, Paper, Typography } from '@material-ui/core';
-import { grey } from '@material-ui/core/colors';
+import { Grid, Paper, Typography } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import { PropTypes } from 'prop-types';
 import { MUI_SPACING_UNIT as spacing } from '../constants';
 
 // workaround for https://github.com/styled-components/styled-components/issues/1198
 const ContainerChild = styled(Paper)`
-  padding: ${(props) => (props.nopadding ? 0 : `${spacing * 2}px ${spacing * 3}px`)};
+  padding: ${props => (props.nopadding ? 0 : `${spacing * 2}px ${spacing * 3}px`)};
   box-shadow: none !important;
-  min-height: ${(props) => (props.autoheight ? 'auto' : 'calc(100vh - 70px)')};
+  min-height: ${props => (props.autoheight ? 'auto' : 'calc(100vh - 70px)')};
   flex-grow: 1;
 `;
 

@@ -4,7 +4,7 @@ import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {

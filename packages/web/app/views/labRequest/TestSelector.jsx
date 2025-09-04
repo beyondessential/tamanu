@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, capitalize, FormHelperText } from '@material-ui/core';
+import { Box, capitalize, FormHelperText } from '@mui/material';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useQuery } from '@tanstack/react-query';
@@ -12,10 +12,7 @@ import { SearchField, SuggesterSelectField } from '../../components/Field';
 import { TextButton } from '../../components/Button';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
-import {
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../../components/Translation';
 import { useTranslation } from '../../contexts/Translation';
 
 const SELECTABLE_DATA_ENDPOINTS = {
@@ -130,7 +127,7 @@ const VerticalLine = styled.div`
   height: 100%;
 `;
 
-const useSelectable = (formType) => {
+const useSelectable = formType => {
   const api = useApi();
   const endpoint = SELECTABLE_DATA_ENDPOINTS[formType];
   return useQuery([endpoint], () => api.get(endpoint), {
@@ -139,7 +136,7 @@ const useSelectable = (formType) => {
 };
 
 const queryBySearch = (formType, data, { search, labTestCategoryId }, getTranslation) => {
-  return data.filter((result) => {
+  return data.filter(result => {
     const nameMatch = subStrSearch(search, result.name);
     if (formType === LAB_REQUEST_FORM_TYPES.PANEL) {
       const categoryName = getTranslation(
@@ -183,7 +180,7 @@ export const TestSelectorInput = ({
   const allSelected = queriedData.length && queriedData.every(isSelected);
   const someSelected = queriedData.some(isSelected) && !allSelected;
 
-  const handleChange = (newSelected) => {
+  const handleChange = newSelected => {
     if (!onChange) return;
     const selectedObjects = data.filter(({ id }) => newSelected.includes(id));
     onChange({ target: { name, value: newSelected }, selectedObjects });
@@ -192,20 +189,20 @@ export const TestSelectorInput = ({
   const handleClear = () => {
     handleChange([]);
   };
-  const handleChangeSearchQuery = (event) =>
+  const handleChangeSearchQuery = event =>
     setSearchQuery({ ...searchQuery, [event.target.name]: event.target.value });
 
   const handleSelectAll = () =>
     handleChange(
       allSelected
-        ? value.filter((id) => !queriedData.some(({ id: dataId }) => dataId === id))
+        ? value.filter(id => !queriedData.some(({ id: dataId }) => dataId === id))
         : [...value, ...queriedData.filter(({ id }) => !value.includes(id)).map(({ id }) => id)],
     );
-  const handleSelect = (event) => {
+  const handleSelect = event => {
     handleChange(
       event.target.checked
         ? [...value, event.target.name]
-        : value.filter((id) => id !== event.target.name),
+        : value.filter(id => id !== event.target.name),
     );
   };
 
@@ -283,7 +280,7 @@ export const TestSelectorInput = ({
             )}
             {!showLoadingText &&
               (queriedData.length > 0 ? (
-                queriedData.map((selectable) => (
+                queriedData.map(selectable => (
                   <SelectableTestItem
                     key={`${selectable.id}-checkbox`}
                     label={
@@ -344,7 +341,7 @@ export const TestSelectorInput = ({
           </Box>
           <FormSeparatorLine data-testid="formseparatorline-2m0r" />
           <SelectorTable data-testid="selectortable-6eaw">
-            {selected.map((option) => {
+            {selected.map(option => {
               return (
                 <TestItem
                   key={`${option.id}-selected`}

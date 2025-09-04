@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 
 import {
   AutocompleteField,
@@ -25,7 +25,7 @@ export const MarkTaskTodoForm = ({ onClose, refreshTaskTable, taskIds }) => {
   const { mutate: markTaskTodo, isLoading } = useMarkTaskTodo();
   const { currentUser } = useAuth();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     markTaskTodo(
       {
         ...values,

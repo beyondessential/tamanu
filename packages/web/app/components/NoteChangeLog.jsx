@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';

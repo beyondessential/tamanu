@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import EditIcon from '@material-ui/icons/Edit';
-import { Box, IconButton } from '@material-ui/core';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton } from '@mui/material';
 import { subject } from '@casl/ability';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
@@ -93,15 +93,15 @@ export const ChartInstanceInfoSection = ({
   if (instanceNameDataElement?.id) {
     editedObject[instanceNameDataElement.id] = chartInstanceName;
   }
-  
+
   if (dateDataElement?.id) {
     editedObject[dateDataElement.id] = chartDate;
   }
-  
+
   if (isTypeVisible && typeDataElement?.id) {
     editedObject[typeDataElement.id] = chartType;
   }
-  
+
   if (isSubtypeVisible && subtypeDataElement?.id) {
     editedObject[subtypeDataElement.id] = chartSubtype;
   }
@@ -110,7 +110,9 @@ export const ChartInstanceInfoSection = ({
     <>
       <FormModal title={title} open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <ChartForm
-          onClose={() => {setIsEditModalOpen(false)}}
+          onClose={() => {
+            setIsEditModalOpen(false);
+          }}
           onSubmit={handleEdit}
           patient={patient}
           chartSurveyId={chartSurveyId}

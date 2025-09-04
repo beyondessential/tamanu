@@ -1,5 +1,5 @@
-import { Box } from '@material-ui/core';
-import Brightness2Icon from '@material-ui/icons/Brightness2';
+import { Box } from '@mui/material';
+import Brightness2Icon from '@mui/icons-material/Brightness2';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -110,8 +110,8 @@ const StatusBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 11px;
-  color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]};
-  background-color: ${(p) => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
+  color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]};
+  background-color: ${p => APPOINTMENT_STATUS_COLORS[p.$status]}1a;
 `;
 
 const OvernightIcon = styled.span`
@@ -187,7 +187,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ location }) => location?.locationGroup?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-1mrf" />
     ),
   },
@@ -202,7 +202,7 @@ const COLUMNS = [
     ),
     accessor: ({ location }) => location?.name || '-',
     sortable: false,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-bdup" />
     ),
   },
@@ -216,7 +216,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ clinician }) => clinician?.displayName || '-',
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-f99y" />
     ),
   },
@@ -230,7 +230,7 @@ const COLUMNS = [
       />
     ),
     accessor: ({ bookingType }) => bookingType?.name,
-    CellComponent: (props) => (
+    CellComponent: props => (
       <LimitedLinesCell {...props} isOneLine data-testid="limitedlinescell-hk2s" />
     ),
   },

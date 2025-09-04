@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import * as yup from 'yup';
 
 import {
@@ -27,7 +27,7 @@ export const MarkTaskNotCompletedForm = ({ onClose, refreshTaskTable, taskIds })
 
   const { mutate: markTaskNotCompleted } = useMarkTaskNotCompleted();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     const { notCompletedReasonId, ...others } = values;
     markTaskNotCompleted(
       {

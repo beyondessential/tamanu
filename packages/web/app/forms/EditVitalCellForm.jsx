@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton, Typography } from '@material-ui/core';
-import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { Box, IconButton, Typography } from '@mui/material';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
 import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';

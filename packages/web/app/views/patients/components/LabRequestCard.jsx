@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay } from '../../../components';
 import { Colors } from '../../../constants';
@@ -30,7 +30,7 @@ const CardItem = styled.div`
   grid-row-gap: 2px;
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
 `;
 
 const BorderSection = styled(CardItem)`
@@ -45,7 +45,7 @@ const CardLabel = styled.span`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 export const LabRequestCard = ({ labRequest, actions }) => {

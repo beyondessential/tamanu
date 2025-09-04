@@ -1,6 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import {
   AllPatientsSearchBar,
   CovidPatientsSearchBar,

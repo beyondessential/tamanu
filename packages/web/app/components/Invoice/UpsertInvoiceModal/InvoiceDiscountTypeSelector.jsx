@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Divider, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../../Typography';
 import { Colors, INVOICE_DISCOUNT_TYPES } from '../../../constants';
@@ -14,7 +14,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+  ${p => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;

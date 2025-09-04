@@ -3,9 +3,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Divider as BaseDivider } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid';
-import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
+import { Divider as BaseDivider } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import BaseDeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import {
   ArrayField,
   DefaultIconButton,
@@ -48,12 +48,12 @@ const DeleteContainer = styled.div`
   }
 `;
 
-export const ParameterItem = (props) => {
+export const ParameterItem = props => {
   const { getTranslation } = useTranslation();
   const { id, parameterIndex, parameterField, setFieldValue, onDelete, options } = props;
   const baseName = `parameters.${parameterIndex}`;
 
-  const onOptionDelete = (index) => {
+  const onOptionDelete = index => {
     const optionsWithRemovedKey = options.filter((_, i) => i !== index);
     setFieldValue(`${baseName}.options`, optionsWithRemovedKey);
   };
@@ -99,7 +99,7 @@ export const ParameterItem = (props) => {
         <Field
           name={`${baseName}.parameterField`}
           component={SelectField}
-          onChange={(event) => {
+          onChange={event => {
             const { value } = event.target;
             setFieldValue(`${baseName}.suggesterEndpoint`, undefined);
             setFieldValue(
@@ -115,7 +115,7 @@ export const ParameterItem = (props) => {
               data-testid="translatedtext-6dpc"
             />
           }
-          options={Object.keys(PARAMETER_FIELD_COMPONENTS).map((key) => ({
+          options={Object.keys(PARAMETER_FIELD_COMPONENTS).map(key => ({
             label: key,
             value: key,
           }))}
@@ -137,7 +137,7 @@ export const ParameterItem = (props) => {
             }
             options={FIELD_TYPES_TO_SUGGESTER_OPTIONS[parameterField]
               .sort((a, b) => a.localeCompare(b))
-              .map((key) => ({
+              .map(key => ({
                 label: key,
                 value: key,
               }))}

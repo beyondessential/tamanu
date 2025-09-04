@@ -11,11 +11,10 @@ import {
 } from '../../utils';
 import { Field, FieldWithTooltip } from '../Field';
 import { useEncounter } from '../../contexts/Encounter';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 import { Colors } from '../../constants';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -80,8 +79,10 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
     );
   }
 
-  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded
-    || component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+  if (
+    component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+  ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 

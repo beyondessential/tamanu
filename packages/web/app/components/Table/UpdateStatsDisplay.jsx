@@ -1,4 +1,4 @@
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BodyText } from '../Typography';
 import { TranslatedText } from '../Translation';
@@ -40,7 +40,7 @@ export const UpdateStatsDisplay = ({
   const { getTranslation } = useTranslation();
 
   const dateAsDistanceToNow = useCallback(
-    (date) =>
+    date =>
       formatDistanceToNow(new Date(date), {
         addSuffix: getTranslation('schedule.distanceFromNow.suffix', 'ago'),
       }),

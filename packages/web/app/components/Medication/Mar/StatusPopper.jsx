@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@material-ui/core';
+import { Divider, Popper, Paper, ClickAwayListener, Fade, IconButton } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';

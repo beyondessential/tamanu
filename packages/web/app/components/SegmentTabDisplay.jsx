@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Tab, Tabs } from '@material-ui/core';
+import { Tab, Tabs } from '@mui/material';
 import { Colors } from '../constants';
 
 const TabBar = styled.div`
@@ -56,7 +56,7 @@ const StyledTab = styled(Tab)`
 export const SegmentTabDisplay = React.memo(
   ({ tabs, currentTabKey, onTabSelect, className, scrollable, ...tabProps }) => {
     delete tabProps.singleTabStyle;
-    const currentTabData = tabs.find((t) => t.key === currentTabKey);
+    const currentTabData = tabs.find(t => t.key === currentTabKey);
     const buttons = tabs.map(({ key, label, render }) => (
       <StyledTab
         key={key}

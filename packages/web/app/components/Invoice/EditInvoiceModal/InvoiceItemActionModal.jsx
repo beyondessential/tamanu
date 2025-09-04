@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider } from '@mui/material';
 import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
@@ -23,13 +23,13 @@ const discountTypeOptions = [
   { value: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, label: '$' },
 ];
 
-const preventInvalid = (event) => {
+const preventInvalid = event => {
   if (!event.target.validity.valid) {
     event.target.value = '';
   }
 };
 
-const validateDecimalPlaces = (e) => {
+const validateDecimalPlaces = e => {
   const value = e.target.value;
   if (/^[−-]/.test(value)) {
     e.target.value = '';
@@ -230,12 +230,12 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       .moreThan(0)
       .when('type', {
         is: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
-        then: (schema) => schema.max(100),
-        otherwise: (schema) =>
+        then: schema => schema.max(100),
+        otherwise: schema =>
           schema.test(
             'is-valid-amount',
             'Discount amount must be less than invoice item price',
-            (value) => value <= invoicePrice,
+            value => value <= invoicePrice,
           ),
       })
       .translatedLabel(
@@ -325,7 +325,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     },
   };
 
-  const handleSubmit = async (submitData) => {
+  const handleSubmit = async submitData => {
     onAction(submitData);
   };
 

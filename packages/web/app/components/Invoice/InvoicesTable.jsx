@@ -13,7 +13,7 @@ import { formatShortest } from '@tamanu/utils/dateTime';
 import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { TranslatedEnum, TranslatedText } from '../Translation';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { ThemedTooltip } from '../Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';

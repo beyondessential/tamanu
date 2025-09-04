@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from '@material-ui/lab';
+import { Skeleton } from '@mui/material';
 import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
@@ -103,7 +103,7 @@ const useLabRequestFormTypeOptions = () => {
   );
   const options =
     isSuccess && !isFetching
-      ? POSSIBLE_OPTIONS_LIST.filter((option) => {
+      ? POSSIBLE_OPTIONS_LIST.filter(option => {
           if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
           if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
           return true;

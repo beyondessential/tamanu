@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import FormLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import MuiButton from '@material-ui/core/Button';
-import MuiButtonGroup from '@material-ui/core/ButtonGroup';
+import FormLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import MuiButton from '@mui/material/Button';
+import MuiButtonGroup from '@mui/material/ButtonGroup';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 

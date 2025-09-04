@@ -3,8 +3,8 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
-import { CssBaseline } from '@material-ui/core';
-import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+import { CssBaseline } from '@mui/material';
+import { MuiThemeProvider, StylesProvider } from '@mui/material/styles';
 import { theme } from '../app/theme';
 import { TranslationProvider } from '../app/contexts/Translation';
 import { LocalisationProvider } from '../app/contexts/Localisation';
@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
 
 const preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>

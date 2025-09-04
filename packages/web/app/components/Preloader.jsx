@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fade, Grid } from '@material-ui/core';
+import { Fade, Grid } from '@mui/material';
 import styled from 'styled-components';
 import preloaderSrc from '../assets/images/preloader.svg';
 

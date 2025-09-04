@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
@@ -28,7 +28,7 @@ const Container = styled.div`
 `;
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { getSetting } = useSettings();
   const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 

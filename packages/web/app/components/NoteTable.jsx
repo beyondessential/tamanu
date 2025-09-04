@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import EditIcon from '@material-ui/icons/Edit';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 

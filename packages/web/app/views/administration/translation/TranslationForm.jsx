@@ -3,10 +3,10 @@ import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, Tooltip } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import { Box, Tooltip } from '@mui/material';
+import { Alert } from '@mui/material';
 import { toast } from 'react-toastify';
-import HelpIcon from '@material-ui/icons/HelpOutlined';
+import HelpIcon from '@mui/icons-material/HelpOutlined';
 import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   ENGLISH_LANGUAGE_CODE,
@@ -78,7 +78,7 @@ const formValuesToTranslation = ({
  * new value: { [randomString]: { stringId: [stringId], en: Radiology } }
  *
  */
-const validationSchema = yup.lazy((values) => {
+const validationSchema = yup.lazy(values => {
   const existingStringIds = new Set(); // Use to check if a new id clashes with an existing id
   const numNewIdsByStringId = {}; // Use to check if any new ids clash with each other
 
@@ -90,7 +90,7 @@ const validationSchema = yup.lazy((values) => {
       .test(
         'isUnique',
         'Must be unique',
-        (value) => !existingStringIds.has(value) && numNewIdsByStringId[value] === 1, // id does not already exist AND is unique among new ids
+        value => !existingStringIds.has(value) && numNewIdsByStringId[value] === 1, // id does not already exist AND is unique among new ids
       ),
   });
 
@@ -122,8 +122,8 @@ const useTranslationQuery = () => {
 const useTranslationMutation = () => {
   const api = useApi();
   const queryClient = useQueryClient();
-  return useMutation((payload) => api.put('admin/translation', payload), {
-    onSuccess: (response) => {
+  return useMutation(payload => api.put('admin/translation', payload), {
+    onSuccess: response => {
       const newStringIds = response?.data?.length;
       toast.success(
         <span>
@@ -149,7 +149,7 @@ const useTranslationMutation = () => {
       );
       queryClient.invalidateQueries(['translation']);
     },
-    onError: (err) => {
+    onError: err => {
       <TranslatedText
         stringId="admin.translation.notification.savingFailed"
         fallback={`Error saving translations: ${err.message}`}
@@ -192,7 +192,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
   const [includeReferenceData, setIncludeReferenceData] = useState(false);
   const [isSaving] = useIsSaving(isSubmitting, dirty);
 
-  const handleSave = (event) => {
+  const handleSave = event => {
     // Reset search so any validation errors are visible
     setSearchValue('');
     submitForm(event);
@@ -244,10 +244,10 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           return stringId;
         },
       },
-      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map((code) => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code],
-        accessor: (row) => (
+        accessor: row => (
           <TranslationField code={code} {...row} data-testid={`translationfield-xrew-${code}`} />
         ),
       })),
@@ -258,10 +258,10 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
   const tableRows = useMemo(() => {
     const includedTranslations = includeReferenceData
       ? data
-      : data.filter((row) => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
+      : data.filter(row => !row.stringId.startsWith(REFERENCE_DATA_TRANSLATION_PREFIX));
 
     if (searchValue) {
-      return includedTranslations.filter((row) =>
+      return includedTranslations.filter(row =>
         // Search from start of stringId or after a . delimiter
         row.stringId.match(new RegExp(`(?:^|\\.)${searchValue.replace('.', '\\.')}`, 'i')),
       );
@@ -289,7 +289,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
               />
             }
             value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            onChange={e => setSearchValue(e.target.value)}
             onClear={() => setSearchValue('')}
             data-testid="styledsearchinput-l73m"
           />
@@ -338,7 +338,7 @@ export const TranslationForm = () => {
     return values;
   }, [translations]);
 
-  const handleSubmit = async (payload) => {
+  const handleSubmit = async payload => {
     const submitData = Object.fromEntries(
       Object.entries(payload).map(([key, { stringId, ...rest }]) => [
         stringId || key,
@@ -366,7 +366,7 @@ export const TranslationForm = () => {
 
   const sortedTranslations = sortBy(
     translations,
-    (obj) => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
+    obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
   ); // Ensure languageName key stays on top
 
   return (
@@ -377,7 +377,7 @@ export const TranslationForm = () => {
         showInlineErrorsOnly
         onSubmit={handleSubmit}
         validationSchema={validationSchema}
-        render={(props) => (
+        render={props => (
           <FormContents
             {...props}
             data={sortedTranslations}

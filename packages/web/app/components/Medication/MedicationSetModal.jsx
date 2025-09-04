@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Divider, IconButton } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Box, Divider, IconButton } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import styled from 'styled-components';
-import { Print } from '@material-ui/icons';
+import { Print } from '@mui/icons-material';
 import { BodyText, ConfirmCancelBackRow, Heading5, Modal, TranslatedText } from '..';
 import { Colors } from '../../constants';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';

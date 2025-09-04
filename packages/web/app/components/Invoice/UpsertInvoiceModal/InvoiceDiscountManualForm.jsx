@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import { FormGrid } from '../../FormGrid';
 import { Field, Form, NumberField, TextField } from '../../Field';
 import { TranslatedText } from '../../Translation';
@@ -15,13 +15,13 @@ const StyledDivider = styled(Divider)`
 
 export const InvoiceDiscountManualForm = React.memo(
   ({ handleSubmit, onClose, handleBack, initialValues, isSubmitting }) => {
-    const preventInvalid = (event) => {
+    const preventInvalid = event => {
       if (!event.target.validity.valid) {
         event.target.value = '';
       }
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = data => {
       const percentage = data.percentage / 100;
       handleSubmit({ ...data, percentage });
     };

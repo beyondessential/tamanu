@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { keyBy, pick } from 'lodash';
-import { Alert, AlertTitle, Skeleton } from '@material-ui/lab';
+import { Alert, AlertTitle, Skeleton } from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
@@ -77,7 +77,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       width: '120px',
-      accessor: (row) => (
+      accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
@@ -103,7 +103,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             options={options}
             disabled={areLabTestResultsReadOnly}
             name={LAB_TEST_PROPERTIES.RESULT}
-            onChange={(e) => onChangeResult(e.target.value, row.id)}
+            onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
             labTestTypeId={labTestTypeId}
             tabIndex={tabIndex(0, i)}
@@ -122,7 +122,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       width: '80px',
-      accessor: (row) => (
+      accessor: row => (
         <BodyText color="textTertiary" data-testid="bodytext-uq3u">
           {row.labTestType.unit || 'N/A'}
         </BodyText>
@@ -249,7 +249,7 @@ const ResultsForm = ({
     (value, labTestId) => {
       const rowValues = values[labTestId];
       if (rowValues?.result || !value) return;
-      AUTOFILL_FIELD_NAMES.forEach((name) => {
+      AUTOFILL_FIELD_NAMES.forEach(name => {
         // Get unique values for this field across all rows
         const unique = Object.values(values).reduce(
           (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
@@ -263,10 +263,11 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const columns = useMemo(
-    () => getColumns(count, onChangeResult, areLabTestResultsReadOnly),
-    [count, onChangeResult, areLabTestResultsReadOnly],
-  );
+  const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [
+    count,
+    onChangeResult,
+    areLabTestResultsReadOnly,
+  ]);
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
   if (isError) return <ResultsFormError error={error} data-testid="resultsformerror-se9z" />;
@@ -318,9 +319,9 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const { displayId } = labRequest;
 
   const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
-    (payload) => api.put(`labRequest/${labRequest.id}/tests`, payload),
+    payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
-      onSuccess: (labTestRes) => {
+      onSuccess: labTestRes => {
         toast.success(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
@@ -335,7 +336,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         refreshLabTestTable();
         onClose();
       },
-      onError: (err) => {
+      onError: err => {
         toast.error(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
@@ -352,7 +353,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const initialData = useMemo(
     () =>
       keyBy(
-        labTestResults?.data.map((data) => pick(data, Object.values(LAB_TEST_PROPERTIES))),
+        labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
         LAB_TEST_PROPERTIES.ID,
       ),
     [labTestResults],

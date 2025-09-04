@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Avatar from '@material-ui/core/Avatar';
+import Avatar from '@mui/material/Avatar';
 import { Colors, ENCOUNTER_OPTIONS } from '../constants';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { Button } from './Button';

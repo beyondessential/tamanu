@@ -1,12 +1,12 @@
 import React, { memo } from 'react';
 
 import styled from 'styled-components';
-import MuiDialog from '@material-ui/core/Dialog';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import DialogActions from '@material-ui/core/DialogActions';
-import PrintIcon from '@material-ui/icons/Print';
-import CloseIcon from '@material-ui/icons/Close';
-import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
+import MuiDialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogActions from '@mui/material/DialogActions';
+import PrintIcon from '@mui/icons-material/Print';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, CircularProgress, IconButton, Typography } from '@mui/material';
 import { Colors } from '../constants';
 import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -40,11 +40,11 @@ const Dialog = styled(MuiDialog)`
 const ModalContent = styled.div`
   flex: 1 1 auto;
   padding: ${MODAL_PADDING_TOP_AND_BOTTOM}px
-    ${(props) => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
+    ${props => (props.$overrideContentPadding ? 0 : MODAL_PADDING_LEFT_AND_RIGHT)}px;
 `;
 
 const ModalContainer = styled.div`
-  background: ${(props) => props.$color};
+  background: ${props => props.$color};
   // Overflow in the modal content ensures that the modal header stays fixed
   overflow: auto;
 
@@ -190,7 +190,7 @@ const Loader = styled(Box)`
     font-weight: 500;
     font-size: 16px;
     line-height: 21px;
-    color: ${(props) => props.theme.palette.text.secondary};
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 

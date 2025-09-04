@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
-import MuiDivider from '@material-ui/core/Divider';
+import Typography from '@mui/material/Typography';
+import MuiDivider from '@mui/material/Divider';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';

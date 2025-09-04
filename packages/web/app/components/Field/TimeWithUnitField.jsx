@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { MenuItem } from '@material-ui/core';
+import { MenuItem } from '@mui/material';
 import { TIME_UNIT_OPTIONS } from '@tamanu/constants';
 import { NumberInput } from './NumberField';
 import { TextInput } from './TextField';
@@ -19,7 +19,7 @@ const Select = styled(TextInput)`
   width: 98px;
 
   .MuiSvgIcon-root {
-    color: ${(props) => props.theme.palette.grey['400']};
+    color: ${props => props.theme.palette.grey['400']};
   }
 `;
 
@@ -31,7 +31,7 @@ const HiddenInput = styled(TextInput)`
   }
 `;
 
-const HiddenField = (props) => (
+const HiddenField = props => (
   <HiddenInput {...props} type="hidden" data-testid="hiddeninput-g7ug" />
 );
 
@@ -48,7 +48,7 @@ export const TimeWithUnitInput = ({
 }) => {
   const [unit, setUnit] = useState(TIME_UNIT_OPTIONS[0].unit);
   const [value, setValue] = useState(0);
-  const selectedOption = TIME_UNIT_OPTIONS.find((o) => o.unit === unit);
+  const selectedOption = TIME_UNIT_OPTIONS.find(o => o.unit === unit);
 
   useEffect(() => {
     if (!valueInMinutes) {
@@ -56,7 +56,7 @@ export const TimeWithUnitInput = ({
     }
 
     const multiple = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
-      (o) => valueInMinutes % o.minutes === 0,
+      o => valueInMinutes % o.minutes === 0,
     );
     setUnit(multiple.unit);
     const newValue = valueInMinutes / multiple.minutes;
@@ -64,21 +64,21 @@ export const TimeWithUnitInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const updateExternalValue = (newValueInMinutes) => {
+  const updateExternalValue = newValueInMinutes => {
     onChange({ target: { value: newValueInMinutes, name } });
   };
 
-  const onValueChange = (event) => {
+  const onValueChange = event => {
     const newValue = event.target.value;
     setValue(newValue);
     updateExternalValue(newValue * selectedOption.minutes);
   };
 
-  const onUnitChange = (event) => {
+  const onUnitChange = event => {
     const newUnit = event.target.value;
     setUnit(newUnit);
 
-    const newOption = TIME_UNIT_OPTIONS.find((o) => o.unit === newUnit);
+    const newOption = TIME_UNIT_OPTIONS.find(o => o.unit === newUnit);
     updateExternalValue(value * newOption.minutes);
   };
 
@@ -100,7 +100,7 @@ export const TimeWithUnitInput = ({
           data-testid="mainfield-r4oz"
         />
         <Select select onChange={onUnitChange} value={unit} data-testid="select-f39x">
-          {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map((option) => (
+          {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
             <MenuItem
               key={option.unit}
               value={option.unit}

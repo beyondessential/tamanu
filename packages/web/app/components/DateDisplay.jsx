@@ -10,7 +10,7 @@ import {
   locale,
   formatLong,
 } from '@tamanu/utils/dateTime';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
 export { formatShortest, formatTime } from '@tamanu/utils/dateTime';
@@ -27,12 +27,12 @@ const SoftText = styled(Text)`
   color: ${Colors.midText};
 `;
 
-const formatShortExplicit = (date) =>
+const formatShortExplicit = date =>
   intlFormatDate(date, {
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
-const formatShortestExplicit = (date) =>
+const formatShortestExplicit = date =>
   intlFormatDate(date, {
     year: '2-digit',
     month: 'short',
@@ -63,7 +63,7 @@ const DateTooltip = ({ date, children, timeOnlyTooltip }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const [debug, setDebug] = useState(false);
 
-  const handleOpen = (event) => {
+  const handleOpen = event => {
     if (event.shiftKey) {
       setDebug(true);
     }

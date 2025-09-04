@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { keyBy, mapValues } from 'lodash';
-import { IconButton, Menu } from '@material-ui/core';
-import { Launch, MoreVert } from '@material-ui/icons';
+import { IconButton, Menu } from '@mui/material';
+import { Launch, MoreVert } from '@mui/icons-material';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
@@ -65,7 +65,7 @@ export const KebabMenu = () => {
     };
   });
 
-  const onOpenKebabMenu = (event) => {
+  const onOpenKebabMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 

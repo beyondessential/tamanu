@@ -2,8 +2,8 @@ import React, { isValidElement, useEffect } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
-import { Typography } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Typography } from '@mui/material';
+import { Alert, AlertTitle } from '@mui/material';
 import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';
@@ -116,83 +116,89 @@ export class Form extends React.PureComponent {
     this.setState({ validationErrors: {} });
   };
 
-  createSubmissionHandler =
-    ({ validateForm, isSubmitting, setSubmitting, getValues, setStatus, status, ...rest }) =>
-    async (event, submissionParameters, componentsToValidate) => {
-      delete rest.handleSubmit;
+  createSubmissionHandler = ({
+    validateForm,
+    isSubmitting,
+    setSubmitting,
+    getValues,
+    setStatus,
+    status,
+    ...rest
+  }) => async (event, submissionParameters, componentsToValidate) => {
+    delete rest.handleSubmit;
 
-      event.preventDefault();
-      event.persist();
+    event.preventDefault();
+    event.persist();
 
-      // Use formik status prop to track if the user has attempted to submit the form. This is used in
-      // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+    // Use formik status prop to track if the user has attempted to submit the form. This is used in
+    // Field.js to only show error messages once the user has attempted to submit the form
+    setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
 
-      // avoid multiple submissions
-      if (isSubmitting) {
-        return null;
-      }
-      setSubmitting(true);
-      const values = { ...getValues(), ...submissionParameters };
+    // avoid multiple submissions
+    if (isSubmitting) {
+      return null;
+    }
+    setSubmitting(true);
+    const values = { ...getValues(), ...submissionParameters };
 
-      // validation phase
+    // validation phase
 
-      // There is a bug in formik when you have validateOnChange set to true and validate manually as
-      // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
-      // @see https://github.com/jaredpalmer/formik/issues/1209
-      const formErrors = await validateForm(values);
-      delete formErrors.isCanceled;
+    // There is a bug in formik when you have validateOnChange set to true and validate manually as
+    // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
+    // @see https://github.com/jaredpalmer/formik/issues/1209
+    const formErrors = await validateForm(values);
+    delete formErrors.isCanceled;
 
-      const validFormErrors = componentsToValidate
-        ? Object.keys(formErrors || {}).filter((problematicComponent) =>
-            componentsToValidate.has(problematicComponent),
-          )
-        : formErrors;
+    const validFormErrors = componentsToValidate
+      ? Object.keys(formErrors || {}).filter(problematicComponent =>
+          componentsToValidate.has(problematicComponent),
+        )
+      : formErrors;
 
-      if (Object.keys(validFormErrors).length > 0) {
-        this.setErrors(validFormErrors);
-        // Set submitting false before throwing the error so that the form is reset
-        // for future form submissions
-        setSubmitting(false);
-        throw new ValidationError('Form was not filled out correctly');
-      }
+    if (Object.keys(validFormErrors).length > 0) {
+      this.setErrors(validFormErrors);
+      // Set submitting false before throwing the error so that the form is reset
+      // for future form submissions
+      setSubmitting(false);
+      throw new ValidationError('Form was not filled out correctly');
+    }
 
-      // submission phase
-      const { onSubmit, onSuccess, formType } = this.props;
-      const { touched } = rest;
-      const newValues = { ...values };
+    // submission phase
+    const { onSubmit, onSuccess, formType } = this.props;
+    const { touched } = rest;
+    const newValues = { ...values };
 
-      // If it is a data form i.e not search form, before submission, convert all the touched undefined values
-      // to null because
-      // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
-      // trying to remove a value when editing a record
-      // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
-      if (formType !== FORM_TYPES.SEARCH_FORM) {
-        for (const key of Object.keys(touched)) {
-          if (newValues[key] === undefined) {
-            newValues[key] = null;
-          }
+    // If it is a data form i.e not search form, before submission, convert all the touched undefined values
+    // to null because
+    // 1. If it is an edit submit form, we need to be able to save the cleared values as null in the database if we are
+    // trying to remove a value when editing a record
+    // 2. If it is a new submit form, it does not matter if the empty value is undefined or null
+    if (formType !== FORM_TYPES.SEARCH_FORM) {
+      for (const key of Object.keys(touched)) {
+        if (newValues[key] === undefined) {
+          newValues[key] = null;
         }
       }
+    }
 
-      try {
-        const result = await onSubmit(newValues, {
-          ...rest,
-          setErrors: this.setErrors,
-        });
-        if (onSuccess) {
-          onSuccess(result);
-        }
-        return result;
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Error during form submission: ', e);
-        this.setErrors({ form: e.message });
-        throw e;
-      } finally {
-        setSubmitting(false);
+    try {
+      const result = await onSubmit(newValues, {
+        ...rest,
+        setErrors: this.setErrors,
+      });
+      if (onSuccess) {
+        onSuccess(result);
       }
-    };
+      return result;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Error during form submission: ', e);
+      this.setErrors({ form: e.message });
+      throw e;
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   renderFormContents = ({ isValid, isSubmitting, setValues: originalSetValues, ...formProps }) => {
     delete formProps.submitForm;

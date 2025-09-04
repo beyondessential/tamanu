@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import { AddReminderContact } from './AddReminderContact';
 import { BaseModal } from '../BaseModal';
@@ -46,12 +46,12 @@ export const ReminderContactModal = ({ onClose, open }) => {
   const [selectedContact, setSelectedContact] = useState();
   const { socket } = useSocket();
 
-  const subscribersListener = useCallback((data) => {
-    setSuccessContactIds((prev) => [...prev, data?.contactId]);
+  const subscribersListener = useCallback(data => {
+    setSuccessContactIds(prev => [...prev, data?.contactId]);
   }, []);
 
   const handleUpdatePendingContacts = (newContactId, isTimerStarted) => {
-    setPendingContacts((previousPendingContacts) => ({
+    setPendingContacts(previousPendingContacts => ({
       ...previousPendingContacts,
       [newContactId]: {
         ...previousPendingContacts[newContactId],
@@ -69,7 +69,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
     setActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   }, [open]);
 
-  const handleActiveView = (value) => {
+  const handleActiveView = value => {
     setActiveView(value);
   };
 
@@ -89,7 +89,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
     }
   };
 
-  const onContinue = (newContact) => {
+  const onContinue = newContact => {
     setNewContact(newContact);
     handleActiveView(REMINDER_CONTACT_VIEWS.ADD_REMINDER_QR_CODE);
     setTimeout(() => {
@@ -102,7 +102,7 @@ export const ReminderContactModal = ({ onClose, open }) => {
     handleActiveView(REMINDER_CONTACT_VIEWS.REMINDER_CONTACT_LIST);
   };
 
-  const handleRemoveContact = (contact) => {
+  const handleRemoveContact = contact => {
     setSelectedContact(contact);
     handleActiveView(REMINDER_CONTACT_VIEWS.REMOVE_REMINDER);
   };

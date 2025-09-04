@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Field, Form, TextField } from '../../Field';

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import LockIcon from '@material-ui/icons/Lock';
+import LockIcon from '@mui/icons-material/Lock';
 
 import { isSetting } from '@tamanu/settings';
 

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
-import { Box } from '@material-ui/core';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import { Box } from '@mui/material';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import PropTypes from 'prop-types';
@@ -81,7 +81,7 @@ export const DateInput = ({
   }, [onChange, name]);
 
   const onValueChange = useCallback(
-    (event) => {
+    event => {
       if (event.target.validity?.badInput) {
         // if the user starts editing the field by typing e.g. a '0' in the month field, until they
         // type another digit the resulting string is an invalid date
@@ -122,7 +122,7 @@ export const DateInput = ({
     [onChange, format, name, saveDateAsString, type, clearValue],
   );
 
-  const onKeyDown = (event) => {
+  const onKeyDown = event => {
     if (event.key === 'Backspace') {
       clearValue();
     }
@@ -132,14 +132,14 @@ export const DateInput = ({
     }
   };
 
-  const onArrowChange = (addDaysAmount) => {
+  const onArrowChange = addDaysAmount => {
     const date = parse(currentText, format, new Date());
     const newDate = formatDate(addDays(date, addDaysAmount), format);
 
     onValueChange({ target: { value: newDate } });
   };
 
-  const handleBlur = (e) => {
+  const handleBlur = e => {
     // if the final input is invalid, clear the component value
     if (!e.target.value) {
       clearValue();
@@ -234,9 +234,9 @@ export const DateInput = ({
   );
 };
 
-export const TimeInput = (props) => <DateInput type="time" format="HH:mm" {...props} />;
+export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
-export const DateTimeInput = (props) => (
+export const DateTimeInput = props => (
   <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
 );
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
-import Tooltip from '@material-ui/core/Tooltip';
-import { Typography } from '@material-ui/core';
-import LabelIcon from '@material-ui/icons/Label';
+import Tooltip from '@mui/material/Tooltip';
+import { Typography } from '@mui/material';
+import LabelIcon from '@mui/icons-material/Label';
 import { MenuButton } from './MenuButton';
 import { TableCellTag } from './Tag';
 
@@ -33,7 +33,7 @@ const Text = styled(Typography)`
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-bottom: 4px;
 `;
 

@@ -1,4 +1,4 @@
-import { Breadcrumbs, Typography } from '@material-ui/core';
+import { Breadcrumbs, Typography } from '@mui/material';
 import React from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';

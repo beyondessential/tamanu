@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
-import CancelIcon from '@material-ui/icons/Cancel';
-import Tooltip from '@material-ui/core/Tooltip';
-import { Box } from '@material-ui/core';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import CancelIcon from '@mui/icons-material/Cancel';
+import Tooltip from '@mui/material/Tooltip';
+import { Box } from '@mui/material';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
@@ -65,7 +65,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
     >
       <StyledAppointment
         className={`status-${status}`}
-        onClick={() => setDetailOpen((open) => !open)}
+        onClick={() => setDetailOpen(open => !open)}
         data-testid="styledappointment-ii9x"
       >
         <div>

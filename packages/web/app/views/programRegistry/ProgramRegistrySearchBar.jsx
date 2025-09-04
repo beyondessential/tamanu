@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Field } from 'formik';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { useSuggester } from '../../api';
 import {

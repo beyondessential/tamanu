@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider as DividerBase } from '@material-ui/core';
+import { Box, Divider as DividerBase } from '@mui/material';
 
 import { useVitalChartData } from '../../contexts/VitalChartData';
 import { CHART_MARGIN, Y_AXIS_WIDTH } from '../../components/Charts/constants';
@@ -33,7 +33,7 @@ export const MultiVitalChartsView = () => {
           <div key={chartKey}>
             <Divider style={{ marginRight: 0 }} data-testid={`divider-1j3f-${chartKey}`} />
             <TitleContainer data-testid={`titlecontainer-0v6s-${chartKey}`}>
-              <span>{visualisationConfigs.find((config) => config.key === chartKey)?.name}</span>
+              <span>{visualisationConfigs.find(config => config.key === chartKey)?.name}</span>
             </TitleContainer>
             <VitalChartComponent
               chartKey={chartKey}

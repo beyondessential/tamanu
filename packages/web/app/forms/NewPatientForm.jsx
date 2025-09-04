@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
-import Button from '@material-ui/core/Button';
+import Collapse from '@mui/material/Collapse';
+import Button from '@mui/material/Button';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
 

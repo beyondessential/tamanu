@@ -21,7 +21,7 @@ import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditio
 import { useTranslation } from '../../contexts/Translation';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { ConditionHistoryTable } from './ConditionHistoryTable';
-import Divider from '@material-ui/core/Divider';
+import Divider from '@mui/material/Divider';
 import { useSettings } from '../../contexts/Settings';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 

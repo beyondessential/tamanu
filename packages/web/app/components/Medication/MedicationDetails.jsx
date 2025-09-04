@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import { CheckSharp } from '@material-ui/icons';
+import { Box } from '@mui/material';
+import { CheckSharp } from '@mui/icons-material';
 import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,

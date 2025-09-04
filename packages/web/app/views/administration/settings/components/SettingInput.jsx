@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
-import { Switch } from '@material-ui/core';
+import { Switch } from '@mui/material';
 
 import {
   LargeBodyText,

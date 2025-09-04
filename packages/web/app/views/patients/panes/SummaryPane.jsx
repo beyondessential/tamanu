@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import { CompactContentPane as ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
@@ -29,7 +29,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const showOutpatientAppointments = showOutpatientAppointmentsSetting && canViewAppointments;
 
   const onViewEncounter = useCallback(
-    (id) => {
+    id => {
       (async () => {
         await loadEncounter(id);
         navigateToEncounter(id);
