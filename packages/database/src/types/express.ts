@@ -9,8 +9,9 @@ export interface ExpressRequest extends Request {
   settings?: ReadSettings;
   deviceId?: string;
   sessionId?: string;
+  facilityId?: string;
   models: Models;
-  audit?: {
+  audit: {
     access: (params: CreateAccessLogParams) => Promise<AccessLog | void>;
   };
 }

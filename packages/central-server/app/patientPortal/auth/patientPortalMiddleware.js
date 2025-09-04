@@ -67,7 +67,7 @@ export const patientPortalMiddleware = ({ secret }) =>
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
-    const auditSettings = await store.models.Setting.get('audit');
+    const auditSettings = await req.settings.get('audit');
     // Attach auditing helper similar to standard user middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = initAuditActions(req, {

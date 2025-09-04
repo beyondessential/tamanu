@@ -22,16 +22,16 @@ export const initAuditActions = (req: ExpressRequest, params: InitAuditActionsPa
     return req.models.AccessLog.create({
       sessionId: req.sessionId,
       deviceId: req.deviceId || 'unknown-device',
+      facilityId: req.facilityId || null,
       backEndContext: { endpoint: req.originalUrl },
       userId: params.userId,
       portalUserId: params.portalUserId,
       version: params.version,
-      isMobile: params.isMobile || false,
+      isMobile: params.isMobile,
       recordType: model.name,
       recordId,
       frontEndContext: { ...params.frontEndContext, ...frontEndContext },
       loggedAt: new Date(),
-      facilityId: null,
     });
   },
 });
