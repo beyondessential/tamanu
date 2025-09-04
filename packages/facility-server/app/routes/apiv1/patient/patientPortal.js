@@ -38,18 +38,19 @@ const registerPatient = async ({ patientId, email, models }) => {
   return [portalUser, created];
 };
 
+const EMAIL_TEMPLATES = {
+  [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION]:
+    'templates.patientPortalRegistrationEmail',
+  [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM]:
+    'templates.patientPortalRegisteredFormEmail',
+  [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM]:
+    'templates.patientPortalUnregisteredFormEmail',
+};
+
 const sendPortalEmail = async ({ patient, email, models, settings, facilityId, emailType }) => {
   const facility = await models.Facility.findByPk(facilityId);
-  const emailTemplates = {
-    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTRATION]:
-      'templates.patientPortalRegistrationEmail',
-    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM]:
-      'templates.patientPortalRegisteredFormEmail',
-    [PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM]:
-      'templates.patientPortalUnregisteredFormEmail',
-  };
 
-  const templateKey = emailTemplates[emailType];
+  const templateKey = EMAIL_TEMPLATES[emailType];
   if (!templateKey) {
     throw new Error(`Unknown email type: ${emailType}`);
   }

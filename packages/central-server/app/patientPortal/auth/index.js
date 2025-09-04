@@ -8,6 +8,6 @@ export const authModule = express.Router();
 
 authModule.post('/login', patientPortalLogin({ secret: DEFAULT_JWT_SECRET }));
 authModule.post('/request-login-token', requestLoginToken);
-authModule.post('/verify-registration/:token?', verifyRegistration);
+authModule.post('/verify-registration', verifyRegistration);
 
 authModule.use(patientPortalMiddleware({ secret: DEFAULT_JWT_SECRET }));
