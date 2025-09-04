@@ -1,11 +1,10 @@
 import { camelCase, inRange, isNil } from 'lodash';
 import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
-import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import { formatDate, parseDate } from './date';
 import { DateFormats } from './constants';
-import { SEX_LABELS } from '~/constants/patientFields';
 import { getPatientNameAsString } from './patient';
+import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 
 export const FieldTypes = {
   TEXT: 'FreeText',

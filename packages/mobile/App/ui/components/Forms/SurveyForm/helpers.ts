@@ -1,7 +1,6 @@
 // Much of this file is duplicated in `packages/web/app/utils/survey.js`
 import * as Yup from 'yup';
 
-import { READONLY_DATA_FIELDS } from '~/constants';
 import { getAgeFromDate, getAgeWithMonthsFromDate } from '~/ui/helpers/date';
 import { getPatientDataDbLocation, checkMandatory, FieldTypes } from '~/ui/helpers/fields';
 import { joinNames } from '~/ui/helpers/user';
@@ -15,6 +14,7 @@ import {
 import { IPatientProgramRegistration } from '~/types/IPatientProgramRegistration';
 import { GetTranslationFunction } from '~/ui/contexts/TranslationContext';
 import { CustomPatientFieldValues } from '~/ui/hooks/usePatientAdditionalData';
+import { READONLY_DATA_FIELDS } from '@tamanu/constants';
 
 function getInitialValue(dataElement): string {
   switch (dataElement.type) {
@@ -153,7 +153,7 @@ export function getFormSchema(
   components: ISurveyScreenComponent[],
   valuesToCheckMandatory: { [key: string]: any } = {},
   getTranslation: GetTranslationFunction,
-): Yup.ObjectSchema {
+): Yup.ObjectSchema<any> {
   const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
     const { dataElement } = component;
     const propName = dataElement.code;

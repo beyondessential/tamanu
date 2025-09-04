@@ -1,9 +1,9 @@
-import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { StyledText } from '~/ui/styled/common';
 import { useBackend } from '~/ui/hooks';
 import { getDisplayNameForModel } from '~/ui/helpers/fields';
+import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
 
 // TypeORM version of getPatientDataFieldAssociationData
 const getPatientDataFieldAssociationData = async ({

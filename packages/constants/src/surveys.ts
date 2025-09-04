@@ -137,6 +137,11 @@ const makeLookupFields = (model: string, fields: (string | [string, Record<strin
     fields.map(f => [Array.isArray(f) ? f[0] : f, [model, ...(Array.isArray(f) ? f : [f])]]),
   );
 
+// Following this format:
+// [modelName, fieldName, options]
+// options is an object with the key being the value and the value being the label
+// if options is not provided, the field is a standard field without options (e.g. 'fullName')
+// if options is provided, the field is a standard field with options (e.g. ['sex', SEX_LABELS])
 type PatientDataFieldLocationsType = {
   [key: string]: [string, string, Record<string, string>] | [string, string];
 };

@@ -250,6 +250,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
+      - run: npm run build-shared
 
       - run: npm run test
         working-directory: packages/mobile
