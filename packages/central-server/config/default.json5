@@ -524,7 +524,7 @@
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
   "patientPortal": {
-    "portalHostName": "http://localhost:5175",
+    "portalUrl": "http://localhost:5175",
     "tokenDuration": "24h"
   }
 }
