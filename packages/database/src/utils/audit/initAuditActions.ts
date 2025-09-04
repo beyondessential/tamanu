@@ -11,7 +11,7 @@ interface InitAuditActionsParams {
 
 export interface CreateAccessLogParams {
   recordId: string;
-  frontEndContext: Record<string, any>;
+  frontEndContext?: Record<string, any>;
   model: typeof Model;
 }
 
