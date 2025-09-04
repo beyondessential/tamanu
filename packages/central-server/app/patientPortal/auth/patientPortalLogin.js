@@ -1,8 +1,12 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { z } from 'zod';
+
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
+
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 
@@ -16,16 +20,30 @@ const getOneTimeTokenEmail = ({ email, token }) => {
   };
 };
 
+const requestLoginSchema = z.object({
+  email: z.email(),
+});
+
 export const requestLoginToken = asyncHandler(async (req, res) => {
   const { store, body, emailService } = req;
   const { models } = store;
-  const { email } = body;
+  let email;
+  try {
+    const result = await requestLoginSchema.parseAsync(body);
+    email = result.email;
+  } catch (error) {
+    throw new BadAuthenticationError('Invalid email address');
+  }
 
   // Validate that the portal user exists
   const portalUser = await models.PortalUser.getForAuthByEmail(email);
 
   if (!portalUser) {
-    throw new BadAuthenticationError('Invalid email address');
+    log.debug('Patient portal login: Invalid email address', { email });
+    // Avoid email enumeration by always returning a success response for invalid email addresses
+    return res.status(200).json({
+      message: 'One-time token sent successfully',
+    });
   }
 
   // Create one-time token using the service
@@ -56,7 +74,8 @@ export const patientPortalLogin = ({ secret }) =>
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
-      portalUserId: portalUser.id,
+      // If the email is unknown, pass undefined so the service throws a generic auth error.
+      portalUserId: portalUser?.id,
     });
 
     const { auth } = config;
