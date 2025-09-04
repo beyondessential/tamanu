@@ -61,9 +61,9 @@ export class PharmacyOrderPrescription extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: await buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'pharmacy_orders', 'encounters']),
     };
   }
