@@ -11,6 +11,7 @@ export class FhirMedicationRequest extends FhirResource {
   declare status: string;
   declare intent: string;
   declare groupIdentifier?: Record<string, any>;
+  declare category?: Record<string, any>;
   declare subject?: Record<string, any>;
   declare encounter?: Record<string, any>;
   declare medication?: Record<string, any>;
@@ -34,6 +35,7 @@ export class FhirMedicationRequest extends FhirResource {
           allowNull: false,
         },
         groupIdentifier: DataTypes.JSONB,
+        category: DataTypes.JSONB,
         subject: DataTypes.JSONB,
         encounter: DataTypes.JSONB,
         medication: DataTypes.JSONB,
