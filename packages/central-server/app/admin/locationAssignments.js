@@ -53,7 +53,7 @@ const updateLocationAssignmentSchema = z.object({
 });
 
 const overlappingLeavesSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string(),
   date: dateStringValidator,
   isRepeating: z.boolean().optional().default(false),
   repeatEndDate: dateStringValidator.nullable().optional(),
