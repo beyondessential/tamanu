@@ -24,11 +24,11 @@ const EmailSectionContainer = styled(Box)({
 /**
  * Mask the email address so that the last characters of the local part are visible.
  * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
- *
- * a@gmail.com -> **c@gmail.com
- * abcd@gmail.com -> **cd@gmail.com
- * abcdef@gmail.com -> ***def@gmail.com
- * abcdefghijk@gmail.com -> *******ijk@gmail.com
+ * 
+ * @example
+ * maskEmail('maa@gmail.com') // **a@gmail.com
+ * maskEmail('abcd@gmail.com') // **cd@gmail.com
+ * maskEmail('abcdefghijk@gmail.com') // *******ijk@gmail.com
  */
 const maskEmail = (email: string) => {
   return email.replace(/(.+?.?)(.{0,3}@.*)/, (_match, p1, p2) => `${'*'.repeat(p1.length)}${p2}`);
