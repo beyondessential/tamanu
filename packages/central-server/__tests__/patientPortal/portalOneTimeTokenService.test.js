@@ -148,7 +148,7 @@ describe('OneTimeTokenService', () => {
       const expectedExpiry = addMinutes(now, customExpiryMinutes);
 
       const expiry = parseISO(result.expiresAt);
-      expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
+      expect(Math.abs(differenceInMinutes(expectedExpiry, expiry))).toBe(0);
     });
 
     it('should overwrite existing register tokens for the same user', async () => {
