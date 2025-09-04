@@ -11,7 +11,7 @@ export const useCurrentUserQuery = () => {
 
   return useQuery<unknown, Error, Patient>({
     queryKey: ['me'],
-    queryFn: () => api.get('/me'),
+    queryFn: () => api.get('me'),
     select: transformSingle<Patient>(PatientSchema),
   });
 };

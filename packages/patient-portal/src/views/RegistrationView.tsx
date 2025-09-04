@@ -21,8 +21,9 @@ const IconDisplay = styled('div')(({ theme }) => ({
 
 const useVerifyRegistration = () => {
   const api = useApi();
+
   return useMutation({
-    mutationFn: (token: string) => api.post(`/verify-registration/${token}`),
+    mutationFn: (token: string) => api.post('/verify-registration', { token } as any),
   });
 };
 
