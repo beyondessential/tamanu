@@ -185,7 +185,7 @@ export class PatientVaccinePane extends BasePatientPane {
     );
 
     if (!correctDateFound) {
-      throw new Error(`Date "${formattedDate}" not found in the recorded vaccines table`);
+      throw new Error(`Date "${dateValue}" not found in the recorded vaccines table`);
     }
 
     const givenByValue = givenElsewhereReason ? 'Given elsewhere' : 'Unknown';
