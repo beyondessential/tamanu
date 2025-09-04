@@ -16,6 +16,8 @@ import type { PharmacyOrder, PharmacyOrderPrescription, Prescription } from '../
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { ADMINISTRATION_FREQUENCIES } from '@tamanu/constants';
 
+const CATEGORY_CODE_SYSTEM = 'https://hl7.org/fhir/R4B/codesystem-medicationrequest-category.html';
+
 export async function getValues(upstream: PharmacyOrderPrescription, models: Models) {
   const { PharmacyOrder } = models;
   const pharmacyOrder = await PharmacyOrder.findOne({ where: { id: upstream.pharmacyOrderId } });
@@ -36,6 +38,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     ],
     status: 'active',
     intent: 'order',
+    category: category(pharmacyOrder),
     groupIdentifier: [
       new FhirIdentifier({
         system: config.hl7.dataDictionaries.pharmacyOrderId,
@@ -53,14 +56,7 @@ export async function getValues(upstream: PharmacyOrderPrescription, models: Mod
     requester,
     subject,
     encounter,
-    note: pharmacyOrder.comments
-      ? [
-          new FhirAnnotation({
-            author: recorder,
-            text: pharmacyOrder.comments,
-          }),
-        ]
-      : null,
+    note: note(pharmacyOrder, recorder),
     resolved:
       requester.isResolved() &&
       recorder.isResolved() &&
@@ -208,4 +204,32 @@ function getFrequencyPeriodUnit(prescription: Prescription) {
     default:
       throw new Error(`Unmapped frequency: ${prescription.frequency}`);
   }
+}
+
+function category(pharmacyOrder: PharmacyOrder) {
+  if (pharmacyOrder.isDischargePrescription) {
+    return new FhirCodeableConcept({
+      coding: [
+        new FhirCoding({
+          system: CATEGORY_CODE_SYSTEM,
+          code: 'discharge',
+        }),
+      ],
+    });
+  }
+
+  return null;
+}
+
+function note(pharmacyOrder: PharmacyOrder, recorder: FhirReference) {
+  if (pharmacyOrder.comments) {
+    return [
+      new FhirAnnotation({
+        author: recorder,
+        text: pharmacyOrder.comments,
+      }),
+    ];
+  }
+
+  return null;
 }
