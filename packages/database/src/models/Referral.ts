@@ -57,9 +57,9 @@ export class Referral extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: await buildEncounterPatientIdSelect(this),
       joins: 'JOIN encounters ON referrals.initiating_encounter_id = encounters.id',
     };
   }

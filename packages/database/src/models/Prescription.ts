@@ -3,6 +3,7 @@ import { NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 
 export class Prescription extends Model {
   declare id: string;
@@ -133,6 +134,7 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'patientOngoingPrescription',
     });
+
     this.belongsToMany(models.Patient, {
       through: models.PatientOngoingPrescription,
       foreignKey: 'prescriptionId',
@@ -143,6 +145,7 @@ export class Prescription extends Model {
       foreignKey: 'medicationId',
       as: 'medication',
     });
+
     this.hasMany(models.MedicationAdministrationRecord, {
       foreignKey: 'prescriptionId',
       as: 'medicationAdministrationRecords',
@@ -153,11 +156,33 @@ export class Prescription extends Model {
     return ['medication', 'prescriber', 'discontinuingClinician'];
   }
 
-  static buildSyncFilter() {
-    return null; // syncs everywhere
+  static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
+    if (patientCount === 0) {
+      return null;
+    }
+    return `
+      LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
+      LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+      LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
+      WHERE (
+        (encounters.patient_id IS NOT NULL AND encounters.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+        OR 
+        (patient_ongoing_prescriptions.patient_id IS NOT NULL AND patient_ongoing_prescriptions.patient_id IN (SELECT patient_id FROM ${markedForSyncPatientsTable}))
+      )
+      AND prescriptions.updated_at_sync_tick > :since
+    `;
   }
 
-  static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+  static async buildSyncLookupQueryDetails() {
+    return {
+      select: await buildSyncLookupSelect(this, {
+        patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
+      }),
+      joins: `
+        LEFT JOIN encounter_prescriptions ON prescriptions.id = encounter_prescriptions.prescription_id
+        LEFT JOIN encounters ON encounter_prescriptions.encounter_id = encounters.id
+        LEFT JOIN patient_ongoing_prescriptions ON prescriptions.id = patient_ongoing_prescriptions.prescription_id
+      `,
+    };
   }
 }
