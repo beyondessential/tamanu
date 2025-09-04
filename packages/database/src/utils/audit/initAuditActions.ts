@@ -11,7 +11,7 @@ interface InitAuditActionsParams {
 
 export interface CreateAccessLogParams {
   recordId: string;
-  frontEndContext: Record<string, any>;
+  frontEndContext?: Record<string, any>;
   model: typeof Model;
 }
 
@@ -26,7 +26,7 @@ export const initAuditActions = (req: ExpressRequest, params: InitAuditActionsPa
       frontEndContext,
       userId: params.userId,
       version: params.version,
-      isMobile: params.isMobile,
+      isMobile: params.isMobile ?? false,
       recordType: model.name,
       recordId,
       loggedAt: new Date(),

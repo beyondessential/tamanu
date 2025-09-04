@@ -1,4 +1,5 @@
 export const PATIENT_COMMUNICATION_CHANNELS = {
+  PORTAL_EMAIL: 'PortalEmail',
   EMAIL: 'Email',
   SMS: 'Sms',
   WHATSAPP: 'WhatsApp',

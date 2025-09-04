@@ -13,3 +13,7 @@ Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) for the 
 {% docs pharmacy_orders__comments %}
 Comments provided by the clinician when placing the order.
 {% enddocs %}
+
+{% docs pharmacy_orders__is_discharge_prescription %}
+If the patient is being discharged with this prescription.
+{% enddocs %}
