@@ -74,7 +74,6 @@ export const patientPortalMiddleware = ({ secret }) =>
     req.audit = initAuditActions(req, {
       enabled: auditSettings?.accesses.enabled,
       userId: SYSTEM_USER_UUID,
-      portalUserId,
       version,
       backEndContext: { serverType: SERVER_TYPES.CENTRAL, isPatientPortal: true },
     });
