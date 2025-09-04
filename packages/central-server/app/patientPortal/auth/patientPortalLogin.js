@@ -66,13 +66,11 @@ export const patientPortalLogin = ({ secret }) =>
       portalUserId: portalUser.id,
     });
 
-    const { auth } = config;
-    const { tokenDuration } = auth;
-
+    const patientPortalTokenDuration = config.patientPortal.tokenDuration;
     const accessTokenJwtId = getRandomU32();
 
     const token = await buildToken({ portalUserId: portalUser.id }, secret, {
-      expiresIn: tokenDuration,
+      expiresIn: patientPortalTokenDuration,
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: canonicalHostName,
       jwtid: accessTokenJwtId.toString(),

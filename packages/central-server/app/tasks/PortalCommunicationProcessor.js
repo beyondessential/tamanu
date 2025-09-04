@@ -20,7 +20,7 @@ export class PortalCommunicationProcessor extends BaseCommunicationProcessor {
     }
 
     const portalUserId = portalUser.id;
-    const baseUrl = config.portalHostName;
+    const baseUrl = config.patientPortal.portalHostName;
 
     // Send form link and login code to a registered user
     if (type === PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM) {
