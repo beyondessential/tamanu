@@ -51,7 +51,6 @@ export const RegistrationView = () => {
             Failed to create account
           </Typography>
           <Typography variant="body1" gutterBottom>
-            {/* TODO: Nice messages from server */}
             {error.message}
           </Typography>
         </>

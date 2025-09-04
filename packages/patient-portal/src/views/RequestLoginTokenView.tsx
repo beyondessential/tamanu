@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import { z } from 'zod';
 import { useNavigate } from 'react-router';
 import { Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Button } from '@tamanu/ui-components';
 import { useRequestLoginToken } from '@api/mutations';
+
 import { TextField } from '../components/TextField';
 import { Card } from '../components/Card';
-import { z } from 'zod';
 
 const LoginButton = styled(Button)(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -19,9 +20,6 @@ export const RequestLoginTokenView = () => {
   const { mutate: submit } = useRequestLoginToken({
     onSuccess: ({ email }) => {
       navigate('/login-submit', { state: { email } });
-    },
-    onError: (error) => {
-      setError(error.message);
     },
   });
 
