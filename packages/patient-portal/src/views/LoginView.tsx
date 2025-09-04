@@ -28,7 +28,7 @@ const EmailSectionContainer = styled(Box)({
  * @example
  * maskEmail('maa@gmail.com') // returns **a@gmail.com
  * maskEmail('abcd@gmail.com') // returns **cd@gmail.com
- * maskEmail('abcdefghijk@gmail.com') // returns *******ijk@gmail.com
+ * maskEmail('abcdefghijk@gmail.com') // returns ********ijk@gmail.com
  */
 const maskEmail = (email: string) => {
   return email.replace(/(.+?.?)(.{0,3}@.*)/, (_match, p1, p2) => `${'*'.repeat(p1.length)}${p2}`);
