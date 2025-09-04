@@ -76,7 +76,6 @@ export const patientPortalMiddleware = ({ secret }) =>
       portalUserId,
       sessionId,
       version,
-
     });
 
     const spanAttributes = {
