@@ -42,6 +42,11 @@ export const RequestLoginTokenView = () => {
     submit(email);
   };
 
+  const resetError = () => {
+    if (!error) return;
+    setError(null);
+  };
+
   return (
     <Card>
       <Typography variant="h1" component="h1" gutterBottom>
@@ -59,7 +64,7 @@ export const RequestLoginTokenView = () => {
           autoComplete="email"
           error={!!error}
           helperText={error}
-          onChange={() => error && setError(null)}
+          onChange={resetError}
           autoFocus
         />
         <LoginButton type="submit" fullWidth variant="contained">
