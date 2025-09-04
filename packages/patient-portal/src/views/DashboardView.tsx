@@ -2,7 +2,6 @@ import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { useCurrentUser } from '@routes/PrivateRoute';
 
-// Section imports
 import { OutstandingFormsSection } from '../features/dashboard/OutstandingForms/OutstandingFormsSection';
 import { UpcomingAppointmentsSection } from '../features/dashboard/Appointments/UpcomingAppointmentsSection';
 import { PatientDetailsSection } from '../features/dashboard/PatientDetailsSection';
@@ -14,7 +13,6 @@ import { VaccinationsSection } from '../features/dashboard/Vaccinations/Vaccinat
 export const DashboardView = () => {
   const patient = useCurrentUser();
 
-  // Format patient name
   const getPatientName = () => {
     if (!patient) return '';
     const firstName = patient.firstName || '';
@@ -25,12 +23,9 @@ export const DashboardView = () => {
   return (
     <Box>
       <Stack spacing={1.5}>
-        {/* Header */}
         <Typography variant="h1" sx={{ fontWeight: 'bold', mb: 1, py: 1 }}>
           Hi {getPatientName()} 👋
         </Typography>
-
-        {/* Sections */}
         <OutstandingFormsSection />
         <UpcomingAppointmentsSection />
         <PatientDetailsSection />
