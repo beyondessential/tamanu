@@ -22,8 +22,7 @@ describe('Patient Portal Appointments Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User, Setting } =
-      store.models;
+    const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User } = store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(
