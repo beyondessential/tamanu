@@ -65,7 +65,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     const { token } = await oneTimeTokenService.createRegisterToken(testPortalUser.id);
     const fullToken = `${testPortalUser.id}.${token}`;
 
-    const response = await baseApp.post(`${REGISTRATION_URL}/${fullToken}`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: fullToken });
 
     expect(response).toHaveSucceeded();
     expect(response.body).toHaveProperty('message', 'User registered successfully');
@@ -97,14 +97,14 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     const { token } = await oneTimeTokenService.createRegisterToken(alreadyRegisteredUser.id);
     const fullToken = `${alreadyRegisteredUser.id}.${token}`;
 
-    const response = await baseApp.post(`${REGISTRATION_URL}/${fullToken}`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: fullToken });
 
     expect(response).toHaveSucceeded();
     expect(response.body).toHaveProperty('message', 'User already registered');
   });
 
   it('Should reject registration with invalid token format', async () => {
-    const response = await baseApp.post(`${REGISTRATION_URL}/invalid-token`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: 'invalid-token' });
 
     expect(response).toHaveRequestError();
     expect(response.body).toHaveProperty('error');
@@ -115,7 +115,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
   it('Should reject registration with non-existent user id', async () => {
     // Create a token with non-existent user ID
     const nonExistentId = '00000000-0000-0000-0000-000000000000';
-    const response = await baseApp.post(`${REGISTRATION_URL}/${nonExistentId}.sometoken`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: `${nonExistentId}.sometoken` });
 
     expect(response).toHaveRequestError();
     expect(response.body).toHaveProperty('error');
@@ -124,7 +124,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
   });
 
   it('Should reject registration with empty token', async () => {
-    const response = await baseApp.post(`${REGISTRATION_URL}/`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: '' });
 
     expect(response).toHaveRequestError();
     expect(response.body).toHaveProperty('error');
@@ -156,7 +156,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
       },
     );
 
-    const response = await baseApp.post(`${REGISTRATION_URL}/${fullToken}`);
+    const response = await baseApp.post(REGISTRATION_URL).send({ token: fullToken });
 
     expect(response).toHaveRequestError();
     expect(response.body).toHaveProperty('error');
