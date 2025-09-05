@@ -3,12 +3,12 @@ import { PORTAL_ONE_TIME_TOKEN_TYPES, SETTINGS_SCOPES } from '@tamanu/constants'
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
+import bcrypt from 'bcrypt';
 import { createTestContext } from '../utilities';
 import {
   PortalOneTimeTokenService,
   hashPortalToken,
 } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
-import bcrypt from 'bcrypt';
 
 describe('PortalOneTimeTokenService', () => {
   let ctx;

@@ -1,6 +1,5 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
@@ -23,9 +22,8 @@ describe('Patient Portal Appointments Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User, Setting } = store.models;
-
-    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
+    const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User, Setting } =
+      store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(

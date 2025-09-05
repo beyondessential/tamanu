@@ -2,7 +2,6 @@ import {
   PORTAL_ONE_TIME_TOKEN_TYPES,
   PORTAL_USER_STATUSES,
   VISIBILITY_STATUSES,
-  SETTINGS_SCOPES,
 } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
@@ -25,9 +24,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, ReferenceData, Setting } = store.models;
-
-    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
+    const { Patient, PortalUser, ReferenceData } = store.models;
 
     // Create a test village
     testVillage = await ReferenceData.create(
