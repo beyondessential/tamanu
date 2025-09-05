@@ -43,12 +43,9 @@ export const FormScreenView = ({
   const [layoutHeight, setLayoutHeight] = useState(0);
   const [scrollOffset, setscrollOffset] = useState(0);
 
-  const onContentSizeChange = useCallback(
-    (w: number, h: number) => {
-      setContentHeight(h);
-    },
-    [contentHeight],
-  );
+  const onContentSizeChange = useCallback((w: number, h: number) => {
+    setContentHeight(h);
+  }, []);
 
   const onLayout = useCallback(({ nativeEvent }: LayoutChangeEvent) => {
     setLayoutHeight(nativeEvent.layout.height);

@@ -27,13 +27,13 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
 
   const onNavigateToLanguageSelect = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.LanguageSelect);
-  }, []);
+  }, [navigation]);
 
   if (!languageOptions || languageOptions.length <= 1) {
     return null;
   }
 
-  const languageOption = languageOptions.find((o) => o.languageCode === language);
+  const languageOption = languageOptions.find(o => o.languageCode === language);
 
   return (
     <StyledTouchableOpacity onPress={onNavigateToLanguageSelect}>

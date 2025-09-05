@@ -36,7 +36,7 @@ export const VaccinesTable = ({
   const { getSetting } = useSettings();
   const thresholds = useMemo(
     () => parseThresholdsSetting(getSetting(SETTING_KEYS.UPCOMING_VACCINATION_THRESHOLDS)),
-    [],
+    [getSetting],
   );
 
   const scrollViewRef = useRef(null);

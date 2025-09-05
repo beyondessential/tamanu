@@ -21,19 +21,19 @@ export const SurveyResponseLink = ({
 }): ReactElement => {
   const navigation = useNavigation();
 
+  const showResponseDetails = useCallback((): void => {
+    if (surveyResponse && !surveyResponse.survey?.isSensitive) {
+      navigation.navigate(detailsRouteName, {
+        surveyResponseId: surveyResponse.id,
+      });
+    }
+  }, [navigation, surveyResponse, detailsRouteName]);
+
   if (!surveyResponse) {
     return null;
   }
   const { survey, endTime = '', resultText } = surveyResponse;
   const { isSensitive } = survey;
-
-  const showResponseDetails = useCallback((): void => {
-    if (!isSensitive) {
-      navigation.navigate(detailsRouteName, {
-        surveyResponseId: surveyResponse.id,
-      });
-    }
-  }, [isSensitive, navigation, surveyResponse]);
 
   return (
     <TouchableOpacity onPress={showResponseDetails}>

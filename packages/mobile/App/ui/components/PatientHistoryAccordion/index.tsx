@@ -12,22 +12,16 @@ interface AccordionListProps {
   rows: HistoryTableRows;
 }
 
-export const PatientHistoryAccordion = ({
-  dataArray,
-  rows,
-}: AccordionListProps): ReactElement => {
+export const PatientHistoryAccordion = ({ dataArray, rows }: AccordionListProps): ReactElement => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {
     setActiveSections(newActiveSection);
   };
 
-  const content = useCallback(
-    (section) => <HistoryTable data={section} rows={rows} />,
-    [dataArray, rows],
-  );
+  const content = useCallback(section => <HistoryTable data={section} rows={rows} />, [rows]);
 
-  const keyExtractor = useCallback((item) => item.id, [dataArray]);
+  const keyExtractor = useCallback(item => item.id, []);
 
   return (
     <StyledScrollView flex={1} width="100%">

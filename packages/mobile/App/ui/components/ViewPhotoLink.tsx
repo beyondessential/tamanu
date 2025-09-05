@@ -73,7 +73,7 @@ export const ViewPhotoLink = React.memo(({ imageId }: ViewPhotoLinkProps) => {
       setLoading(false);
       setErrorMessage(error.message);
     }
-  }, [netInfo]);
+  }, [centralServer, imageId, models.Attachment, netInfo]);
 
   const closeModalCallback = useCallback(async () => {
     setShowModal(false);

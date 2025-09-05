@@ -21,7 +21,7 @@ interface HistoryVitalsStackProps extends BaseAppProps {
 const TabNavigator = ({ navigation, selectedPatient }: HistoryVitalsStackProps): ReactElement => {
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   return (
     <ErrorBoundary>

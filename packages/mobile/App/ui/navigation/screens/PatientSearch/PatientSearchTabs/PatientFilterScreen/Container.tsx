@@ -10,10 +10,8 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
   const fields = useFilterFields();
 
   const onNavigateBack = useCallback(() => {
-    navigation.navigate(
-      Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index,
-    );
-  }, []);
+    navigation.navigate(Routes.HomeStack.SearchPatientStack.SearchPatientTabs.Index);
+  }, [navigation]);
 
   const onClearFilters = useCallback(() => {
     fields.forEach(fieldData => {
@@ -32,15 +30,9 @@ const Container = ({ navigation, route }: BaseAppProps): ReactElement => {
           break;
       }
     });
-  }, []);
+  }, [fields]);
 
-  return (
-    <Screen
-      onCancel={onNavigateBack}
-      onSubmit={onChangeFilters}
-      onClear={onClearFilters}
-    />
-  );
+  return <Screen onCancel={onNavigateBack} onSubmit={onChangeFilters} onClear={onClearFilters} />;
 };
 
 export const PatientFilterScreen = Container;

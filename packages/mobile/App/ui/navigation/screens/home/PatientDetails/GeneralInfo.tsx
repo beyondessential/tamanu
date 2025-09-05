@@ -32,6 +32,7 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     [
       PATIENT_DATA_FIELDS.VILLAGE_ID,
       <TranslatedReferenceData
+        key="village"
         fallback={patient.village?.name ?? ''}
         value={patient.village?.id}
         category="village"
@@ -45,9 +46,9 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
 
   const { patientAdditionalData, loading, error } = usePatientAdditionalData(patient.id);
 
-  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter((fieldName) =>
+  const patientAdditionalDataFields = ALL_ADDITIONAL_DATA_FIELDS.filter(fieldName =>
     getSetting<boolean>(`fields.${fieldName}.requiredPatientData`),
-  ).map((fieldName) => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
+  ).map(fieldName => [fieldName, getFieldData(patientAdditionalData, fieldName)]);
   if (error) {
     return <ErrorScreen error={error} />;
   }

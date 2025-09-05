@@ -32,7 +32,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
   const response = await fetch(`${metaServer}/servers`);
   const servers: Server[] = await response.json();
 
-  const options = servers.map((s) => ({
+  const options = servers.map(s => ({
     label: s.name,
     value: s.host,
   }));
@@ -54,7 +54,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
   const { language, languageOptions, setLanguageOptions, setLanguage, host, setHost } =
     useTranslation();
 
-  const updateHost = (value) => {
+  const updateHost = value => {
     onChange(value);
     setHost(value);
     if (!value) {
@@ -95,7 +95,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
         setOptions(servers);
       }
     })();
-  }, [netInfo.isInternetReachable]);
+  }, [netInfo.isInternetReachable, value]);
 
   if (!netInfo.isInternetReachable) {
     return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;

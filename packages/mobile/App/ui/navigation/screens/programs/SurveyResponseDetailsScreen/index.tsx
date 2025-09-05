@@ -153,7 +153,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
 
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const [surveyResponse, error] = useBackendEffect(
     ({ models }) => models.SurveyResponse.getFullResponse(surveyResponseId),
@@ -173,7 +173,7 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const { patient } = encounter;
 
   const attachAnswer = (q): { answer: string; question: any } | null => {
-    const answerObject = answers.find((a) => a.dataElement.id === q.dataElement.id);
+    const answerObject = answers.find(a => a.dataElement.id === q.dataElement.id);
     return {
       question: q,
       answer: (answerObject || null) && answerObject.body,
@@ -185,9 +185,9 @@ export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   );
 
   const answerItems = questions
-    .filter((q) => q.dataElement.name)
+    .filter(q => q.dataElement.name)
     .map(attachAnswer)
-    .filter((q) => q.answer !== null && q.answer !== '')
+    .filter(q => q.answer !== null && q.answer !== '')
     .map(questionToAnswerItem);
 
   return (

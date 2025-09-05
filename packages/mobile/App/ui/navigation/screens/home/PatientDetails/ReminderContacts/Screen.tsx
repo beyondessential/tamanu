@@ -46,7 +46,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps) => {
 
   useEffect(() => {
     fetchReminderContactList();
-  }, []);
+  }, [fetchReminderContactList]);
 
   const onNavigateBack = useCallback(() => {
     navigation.goBack();

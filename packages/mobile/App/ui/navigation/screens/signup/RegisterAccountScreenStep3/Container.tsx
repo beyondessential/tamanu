@@ -9,10 +9,7 @@ import {
   RegisterAccountFormStep3FormValues,
 } from '../../../../contexts/RegisterAccountContext';
 //helpers
-import {
-  onKeyboardCloseListener,
-  onKeyboardOpenListener,
-} from '/helpers/keyboard';
+import { useKeyboardCloseListener, useKeyboardOpenListener } from '/helpers/keyboard';
 import { animateState } from '/helpers/animation';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
@@ -24,15 +21,9 @@ export const RegisterAccountStep3Container: FC<any> = ({
 }: RegisterAccountScreenProps) => {
   const { registerFormState, updateForm } = useContext(RegisterAccountContext);
 
-  const [iconSize] = useState(
-    new Value(screenPercentageToDP('7.29', Orientation.Height)),
-  );
-  const [titleFont] = useState(
-    new Value(screenPercentageToDP('2.55', Orientation.Height)),
-  );
-  const [viewTopPosition] = useState(
-    new Value(screenPercentageToDP(4.43, Orientation.Height)),
-  );
+  const [iconSize] = useState(new Value(screenPercentageToDP('7.29', Orientation.Height)));
+  const [titleFont] = useState(new Value(screenPercentageToDP('2.55', Orientation.Height)));
+  const [viewTopPosition] = useState(new Value(screenPercentageToDP(4.43, Orientation.Height)));
 
   const step3FormValues = useMemo<RegisterAccountFormStep3FormValues>(
     () => ({
@@ -40,45 +31,40 @@ export const RegisterAccountStep3Container: FC<any> = ({
       confirmPassword: registerFormState.confirmPassword,
       readPrivacyPolice: registerFormState.readPrivacyPolice,
     }),
-    [],
+    [
+      registerFormState.password,
+      registerFormState.confirmPassword,
+      registerFormState.readPrivacyPolice,
+    ],
   );
 
-  onKeyboardOpenListener(() => {
+  useKeyboardOpenListener(() => {
     animateState(viewTopPosition, 5, 300);
     animateState(iconSize, 30, 300);
-    animateState(
-      titleFont,
-      screenPercentageToDP('1.55', Orientation.Height),
-      300,
-    );
+    animateState(titleFont, screenPercentageToDP('1.55', Orientation.Height), 300);
   });
-  onKeyboardCloseListener(() => {
+  useKeyboardCloseListener(() => {
     animateState(viewTopPosition, 20, 300);
-    animateState(
-      iconSize,
-      screenPercentageToDP('7.29', Orientation.Height),
-      300,
-    );
-    animateState(
-      titleFont,
-      screenPercentageToDP('2.55', Orientation.Height),
-      300,
-    );
+    animateState(iconSize, screenPercentageToDP('7.29', Orientation.Height), 300);
+    animateState(titleFont, screenPercentageToDP('2.55', Orientation.Height), 300);
   });
 
   const navigateToIntro = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.Intro);
-  }, []);
+  }, [navigation]);
 
   const navigateFormStepBack = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.RegisterAccountStep2);
-  }, []);
+  }, [navigation]);
 
-  const onSubmitForm = useCallback(values => {
-    Keyboard.dismiss();
-    updateForm(values);
-    navigation.navigate(Routes.HomeStack.Index);
-  }, []);
+  const onSubmitForm = useCallback(
+    values => {
+      Keyboard.dismiss();
+      updateForm(values);
+      navigation.navigate(Routes.HomeStack.Index);
+    },
+    [navigation, updateForm],
+  );
 
   return (
     <Screen

@@ -12,7 +12,7 @@ const RegisterPatientButton = (): ReactElement => {
   const navigation = useNavigation();
   const onNavigateToRegisterPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.Index);
-  }, []);
+  }, [navigation]);
 
   return (
     <StyledView

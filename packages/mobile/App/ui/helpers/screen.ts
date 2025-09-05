@@ -76,7 +76,7 @@ export const calculateDropdownPosition = (
   return initialPosition;
 };
 
-export const setStatusBar = (
+export const useSetStatusBar = (
   barStyle: 'light-content' | 'dark-content',
   backgroundColor: string,
 ): void =>
@@ -84,5 +84,5 @@ export const setStatusBar = (
     useCallback(() => {
       if (Platform.OS === 'android') StatusBar.setBackgroundColor(backgroundColor);
       StatusBar.setBarStyle(barStyle);
-    }, []),
+    }, [backgroundColor, barStyle]),
   );
