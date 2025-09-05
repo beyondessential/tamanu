@@ -3,8 +3,7 @@ import * as yup from 'yup';
 import { omit, sortBy } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box, Tooltip } from '@mui/material';
-import { Alert } from '@mui/material';
+import { Alert, Box, Tooltip } from '@mui/material';
 import { toast } from 'react-toastify';
 import HelpIcon from '@mui/icons-material/HelpOutlined';
 import {
@@ -162,13 +161,13 @@ const useTranslationMutation = () => {
 
 const TranslationField = ({ stringId, code }) => (
   // This id format is necessary to avoid formik nesting at . delimiters
-  (<AccessorField
+  <AccessorField
     id={`['${stringId}']`}
     name={code}
     component={TextField}
     multiline
     data-testid="accessorfield-e12n"
-  />)
+  />
 );
 
 // Saving doesn't track `isSubmitting` correctly because there is a custom mutation handling

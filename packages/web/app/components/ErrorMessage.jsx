@@ -1,6 +1,5 @@
 import React from 'react';
-import { Alert, AlertTitle } from '@mui/material';
-import { Box } from '@mui/material';
+import { Alert, AlertTitle, Box } from '@mui/material';
 
 export const ErrorMessage = ({ title, errorMessage, error }) => {
   return (

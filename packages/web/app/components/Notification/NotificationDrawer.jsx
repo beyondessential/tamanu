@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@mui/icons-material/Close';
-import { Drawer } from '@mui/material';
+import { Box, Drawer } from '@mui/material';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Box } from '@mui/material';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { Colors } from '../../constants';

@@ -2,11 +2,10 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ConfirmCancelRow, Modal, TranslatedText } from '../..';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
-import { Divider } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { formatTimeSlot } from '../../../utils/medications';
-import { Box } from '@mui/material';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 

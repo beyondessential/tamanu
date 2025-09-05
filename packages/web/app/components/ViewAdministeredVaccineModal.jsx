@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Alert, AlertTitle } from '@mui/material';
-import { Box } from '@mui/material';
+import { Alert, AlertTitle, Box } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';

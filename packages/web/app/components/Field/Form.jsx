@@ -2,8 +2,7 @@ import React, { isValidElement, useEffect } from 'react';
 import { Formik, useFormikContext } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
-import { Typography } from '@mui/material';
-import { Alert, AlertTitle } from '@mui/material';
+import { Alert, AlertTitle, Typography } from '@mui/material';
 import styled from 'styled-components';
 
 import { flattenObject } from '../../utils';

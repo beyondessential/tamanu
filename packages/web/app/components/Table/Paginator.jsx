@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { Pagination, PaginationItem } from '@mui/material';
-import { MenuItem, Select } from '@mui/material';
+import { MenuItem, Pagination, PaginationItem, Select } from '@mui/material';
 import { makeStyles } from '@mui/material/styles';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
