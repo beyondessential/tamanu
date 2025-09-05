@@ -284,7 +284,7 @@ user.get(
                             AND epp.deleted_at IS NULL
                             -- Check if pause overlaps with the MAR's time slot
                             -- A pause overlaps if: pause_start < slot_end AND pause_end >= slot_end
-                            -- This matches the frontend logic in MarStatus.jsx line 188
+                            -- This matches the frontend logic in MarStatus.jsx line 169
                             AND epp.pause_start_date::timestamp < mar_time_slot.end_time
                             AND epp.pause_end_date::timestamp >= mar_time_slot.end_time
                         )
