@@ -21,6 +21,13 @@ common() {
     exit 5
   fi
   
+  # Validate package.json before processing
+  if ! jq empty package.json.working 2>/dev/null; then
+    echo "ERROR: package.json.working is not valid JSON"
+    cat package.json.working
+    exit 5
+  fi
+  
   jq '.dependencies["@tamanu/build-tooling"] = "*"' package.json.working > package.json
   rm package.json.working
 
@@ -30,7 +37,10 @@ common() {
 
   # install dependencies
   echo "Installing dependencies..."
-  npm install --no-interactive --package-lock
+  if ! npm install --no-interactive --package-lock; then
+    echo "First npm install failed, trying with --force..."
+    npm install --no-interactive --package-lock --force
+  fi
   echo "Common setup completed successfully."
 }
 
@@ -41,17 +51,34 @@ remove_irrelevant_packages() {
   cp package.json{,.working}
   
   echo "Listing packages to remove..."
-  scripts/list-packages.mjs -- --no-shared -- --paths \
-    | jq \
-      --arg wanted "$1" \
-      '(. - ["packages/\($wanted)"])' \
-    > /tmp/unwanted.json
+  scripts/list-packages.mjs -- --no-shared -- --paths > /tmp/packages_list.json
+  
+  # Validate the JSON output from list-packages.mjs
+  if ! jq empty /tmp/packages_list.json 2>/dev/null; then
+    echo "ERROR: list-packages.mjs output is not valid JSON"
+    echo "Output was:"
+    cat /tmp/packages_list.json
+    exit 5
+  fi
+  
+  jq \
+    --arg wanted "$1" \
+    '(. - ["packages/\($wanted)"])' \
+    /tmp/packages_list.json > /tmp/unwanted.json
 
   echo "Packages to remove:"
   cat /tmp/unwanted.json
 
   # erase from the package.json
   echo "Updating package.json..."
+  
+  # Validate package.json.working before processing
+  if ! jq empty package.json.working 2>/dev/null; then
+    echo "ERROR: package.json.working is not valid JSON in remove_irrelevant_packages"
+    cat package.json.working
+    exit 5
+  fi
+  
   jq \
     --slurpfile unwanted /tmp/unwanted.json \
     '.workspaces.packages -= $unwanted' \
@@ -97,6 +124,14 @@ build_server() {
   # remove build-tooling from top package.json
   echo "Removing build-tooling from package.json..."
   cp package.json{,.working}
+  
+  # Validate package.json before final processing
+  if ! jq empty package.json.working 2>/dev/null; then
+    echo "ERROR: package.json.working is not valid JSON in build_server"
+    cat package.json.working
+    exit 5
+  fi
+  
   jq '.dependencies |= del(."@tamanu/build-tooling") | .workspaces.packages -= ["packages/build-tooling"]' \
     package.json.working > package.json
   rm package.json.working
