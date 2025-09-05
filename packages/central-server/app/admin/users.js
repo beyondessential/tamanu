@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   ResourceConflictError,
   NotFoundError,
@@ -16,6 +16,7 @@ import { isBefore, startOfDay } from 'date-fns';
 export const usersRouter = express.Router();
 
 const createUserFilters = (filterParams, models) => {
+  const includeDeactivated = filterParams.includeDeactivated !== 'false';
   const filters = [
     // Text search filters
     filterParams.displayName && {
@@ -42,9 +43,13 @@ const createUserFilters = (filterParams, models) => {
         )`),
       },
     },
-    // Exclude deactivated users filter
-    filterParams.excludeDeactivated === true && {
+    // Include deactivated users filter
+    !includeDeactivated && {
       visibilityStatus: 'current',
+    },
+    // Exclude system user
+    {
+      id: { [Op.ne]: SYSTEM_USER_UUID },
     },
   ];
 
@@ -210,7 +215,7 @@ usersRouter.post(
     const { id: userId } = params;
     const { UserLeave, LocationAssignment } = models;
 
-    req.checkPermission('write', 'User');
+    req.checkPermission('write', currentUser);
 
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
@@ -270,7 +275,8 @@ usersRouter.get(
     const { models, params, query } = req;
     const { id: userId } = params;
 
-    req.checkPermission('list', 'User');
+    const user = await models.User.findByPk(userId);
+    req.checkPermission('read', user);
 
     let where = {
       userId,
@@ -297,7 +303,9 @@ usersRouter.delete(
     const { models, params } = req;
     const { id: userId, leaveId } = params;
 
-    req.checkPermission('write', 'User');
+    const user = await models.User.findByPk(userId);
+
+    req.checkPermission('write', user);
 
     const leave = await models.UserLeave.findOne({
       where: { id: leaveId, userId },
@@ -353,14 +361,13 @@ usersRouter.put(
       db,
     } = req;
 
-    req.checkPermission('write', 'User');
-
     const fields = await UPDATE_VALIDATION.validate(req.body);
 
     const user = await User.findByPk(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
+    req.checkPermission('write', user);
 
     const role = await Role.findByPk(fields.role);
     if (!role) {

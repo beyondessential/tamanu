@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
-import { DataFetchingTable, TranslatedText, UserSearchBar } from '../../../components';
+import { DataFetchingTable, Heading1, TranslatedText, UserSearchBar } from '../../../components';
 import { USERS_ENDPOINT } from '../constants';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { LimitedLinesCell } from '../../../components/FormattedTableCell';
 import { UserProfileModal } from './UserProfileModal';
+import { useAuth } from '../../../contexts/Auth';
+import { Divider } from '@mui/material';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -48,6 +50,18 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       background-color: ${Colors.veryLightBlue};
     }
   }
+`;
+
+const PermissionDeniedView = styled.div`
+  margin: 20px 20px 34px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 16px;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -127,6 +141,9 @@ export const UserAdminView = React.memo(() => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
 
+  const { ability } = useAuth();
+  const hasPermission = ability.can('list', 'User');
+
   const handleRowClick = user => {
     setSelectedUser(user);
     setIsModalOpen(true);
@@ -141,8 +158,38 @@ export const UserAdminView = React.memo(() => {
     setRefreshCount(prev => prev + 1);
   };
 
+  const title = <TranslatedText stringId="adminSidebar.users" fallback="Users" />;
+
+  if (!hasPermission) {
+    return (
+      <AdminViewContainer title={title}>
+        <Divider sx={{ borderColor: Colors.outline }} />
+        <PermissionDeniedView>
+          <Heading1 m={0}>
+            <TranslatedText
+              stringId="admin.users.noPermission.title"
+              fallback="Permission required"
+            />
+          </Heading1>
+          <span>
+            <TranslatedText
+              stringId="admin.users.noPermission.subtitle"
+              fallback="You do not have permission to use this feature"
+            />
+          </span>
+          <span fontSize="16px">
+            <TranslatedText
+              stringId="admin.users.noPermission.description"
+              fallback="Please speak to your System Administrator if you think this is incorrect."
+            />
+          </span>
+        </PermissionDeniedView>
+      </AdminViewContainer>
+    );
+  }
+
   return (
-    <AdminViewContainer title={<TranslatedText stringId="adminSidebar.users" fallback="Users" />}>
+    <AdminViewContainer title={title}>
       <TableContainer>
         <UserSearchTitle>
           <TranslatedText stringId="admin.users.search.title" fallback="User search" />

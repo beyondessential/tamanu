@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__user_leaves') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_user_leaves_changed
+              - record_user_leaves_changelog
+              - set_user_leaves_updated_at
+              - set_user_leaves_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

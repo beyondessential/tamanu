@@ -138,6 +138,8 @@ describe('Sync Lookup data', () => {
       InvoicePayment,
       LabTestPanelRequest,
       Procedure,
+      ProcedureAssistantClinician,
+      ProcedureSurveyResponse,
       SurveyResponse,
       SurveyResponseAnswer,
       Triage,
@@ -162,6 +164,8 @@ describe('Sync Lookup data', () => {
       Notification,
       EncounterPausePrescription,
       EncounterPausePrescriptionHistory,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
     } = models;
 
     await Asset.create(fake(Asset), {
@@ -311,6 +315,21 @@ describe('Sync Lookup data', () => {
       }),
     );
 
+    const mar = await MedicationAdministrationRecord.create(
+      fake(models.MedicationAdministrationRecord, {
+        prescriptionId: prescription.id,
+        recordedByUserId: examiner.id,
+      }),
+    );
+
+    await MedicationAdministrationRecordDose.create(
+      fake(models.MedicationAdministrationRecordDose, {
+        marId: mar.id,
+        givenByUserId: examiner.id,
+        recordedByUserId: examiner.id,
+      }),
+    );
+
     const pharmacyOrder = await PharmacyOrder.create(
       fake(PharmacyOrder, {
         encounterId: encounter1.id,
@@ -438,11 +457,23 @@ describe('Sync Lookup data', () => {
       labTestPanelId: labTestPanel1.id,
       labTestTypeId: labTestType.id,
     });
-    await Procedure.create(
+    const procedure = await Procedure.create(
       fake(Procedure, {
         encounterId: encounter1.id,
       }),
     );
+    await ProcedureAssistantClinician.create(
+      fake(ProcedureAssistantClinician, {
+        procedureId: procedure.id,
+        userId: examiner.id,
+      }),
+    );
+
+    await ProcedureSurveyResponse.create({
+      procedureId: procedure.id,
+      surveyResponseId: surveyResponse.id,
+    });
+
     // work around as Triage.create needs config.serverFacilityId which is not available in central
     await Triage.upsert({
       encounterId: encounter1.id,
