@@ -13,8 +13,8 @@ RUN apk add --no-cache \
   git \
   jq \
   make \
-  python3
-RUN pip install distutils
+  python3 \
+  py3-distutils-extra
 COPY common.* ./
 COPY scripts/ scripts/
 
