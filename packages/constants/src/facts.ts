@@ -13,6 +13,7 @@ export const FACT_LAST_SUCCESSFUL_SYNC_PULL = 'lastSuccessfulSyncPull';
 export const FACT_LAST_SUCCESSFUL_SYNC_PUSH = 'lastSuccessfulSyncPush';
 export const FACT_LOOKUP_UP_TO_TICK = 'lastSuccessfulLookupTableUpdate';
 export const FACT_SYNC_TRIGGER_CONTROL = 'syncTrigger';
+export const FACT_LOOKUP_MODELS_TO_REBUILD = 'lookupModelsToRebuild';
 
 // Device identity facts
 export const FACT_CENTRAL_HOST = 'syncHost';
