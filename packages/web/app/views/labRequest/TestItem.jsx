@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import Checkbox from '@material-ui/core/Checkbox';
-import { FormControl, IconButton } from '@material-ui/core';
-import { Close as CloseIcon } from '@material-ui/icons';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { FormControl, IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import { Colors } from '../../constants';
 
 export const StyledCheckboxControl = styled(Checkbox)`

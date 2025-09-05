@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { createFilter } from 'react-select';
 import styled from 'styled-components';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { Colors } from '../../constants';
@@ -24,13 +24,13 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const StyledSelect = styled((props) => (
+const StyledSelect = styled(props => (
   <Select classNamePrefix="react-select" {...props} data-testid="select-zra3" />
 ))`
   .react-select__control {
     padding-right: 8px;
     min-height: 44px;
-    ${(props) => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
+    ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
       border: 1px solid ${Colors.primary};
     }
@@ -87,7 +87,7 @@ const StyledSelect = styled((props) => (
   }
 `;
 
-const getValues = (value) => {
+const getValues = value => {
   if (!value?.length) {
     return null;
   }
@@ -95,7 +95,7 @@ const getValues = (value) => {
   return Array.isArray(value) ? value : JSON.parse(value);
 };
 
-const getSearchBy = (option) => {
+const getSearchBy = option => {
   if (option.data.searchString) return option.data.searchString;
   if (typeof option.label === 'string') return option.label;
 
@@ -119,13 +119,13 @@ export const MultiselectInput = ({
   // If value is already set, keep that value, otherwise attempt to load any initial values
   const values = getValues(value) || getValues(initialValues[name]) || [];
 
-  const initialSelectedOptions = options.filter((option) => values.includes(option.value));
+  const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
   const handleChange = useCallback(
-    (selectedOptions) => {
+    selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = JSON.stringify(selectedOptions.map((x) => x.value));
+      const newValue = JSON.stringify(selectedOptions.map(x => x.value));
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],
@@ -133,13 +133,13 @@ export const MultiselectInput = ({
 
   useEffect(() => {
     const newValues = getValues(value) || [];
-    const newOptions = options.filter((option) => newValues.includes(option.value));
+    const newOptions = options.filter(option => newValues.includes(option.value));
     setSelected(newOptions);
   }, [value, options]);
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
-    const valueText = ((options || []).find((o) => o.value === value) || {}).label || '';
+    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
@@ -206,7 +206,7 @@ export const BaseMultiselectField = ({ field, ...props }) => (
   />
 );
 
-export const TranslatedMultiSelectField = (props) => {
+export const TranslatedMultiSelectField = props => {
   return (
     <TranslatedEnumField
       {...props}

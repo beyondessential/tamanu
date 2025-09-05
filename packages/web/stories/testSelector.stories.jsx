@@ -1,7 +1,7 @@
 import { action } from '@storybook/addon-actions';
 import React from 'react';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { TestSelectorInput } from '../app/views/labRequest/TestSelector';
 import { MockedApi } from './utils/mockedApi';
 import { mockTestSelectorEndpoints } from './utils/mockLabData';
@@ -17,12 +17,12 @@ export default {
   component: TestSelectorInput,
 };
 
-const Template = (args) => {
+const Template = args => {
   const { requestFormType } = args;
   const [selected, setSelected] = React.useState([]);
   const changeAction = action('change');
   const onChange = React.useCallback(
-    (e) => {
+    e => {
       const newValue = e.target.value;
       changeAction(newValue);
       setSelected(newValue);

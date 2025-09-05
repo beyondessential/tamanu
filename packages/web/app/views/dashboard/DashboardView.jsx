@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Box, IconButton } from '@material-ui/core';
+import { Box, IconButton } from '@mui/material';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 
@@ -146,7 +146,10 @@ const TopBar = ({ subtitle }) => {
           {subtitle}
         </Heading5>
       </div>
-      <IconButton onClick={() => setNotificationOpen(true)} data-testid="iconbutton-1sk8">
+      <IconButton
+        onClick={() => setNotificationOpen(true)}
+        data-testid="iconbutton-1sk8"
+        size="large">
         <NotificationIcon data-testid="notificationicon-h7mw" />
         {!!notifications.unreadNotifications?.length && (
           <NotificationIndicator data-testid="notificationindicator-yrhl" />

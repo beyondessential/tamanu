@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { keyBy } from 'lodash';
-import { ButtonGroup } from '@material-ui/core';
+import { ButtonGroup } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';

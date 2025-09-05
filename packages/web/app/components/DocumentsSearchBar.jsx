@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import { DynamicSelectField, Form, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
 import { FormSubmitButton, TextButton } from './Button';
@@ -29,7 +29,7 @@ const HeaderBar = styled.div`
   h3 {
     font-size: 1rem;
     font-weight: 500;
-    color: ${(props) => props.theme.palette.text.primary};
+    color: ${props => props.theme.palette.text.primary};
   }
 `;
 
@@ -49,7 +49,7 @@ const SubmitButton = styled(FormSubmitButton)`
 `;
 
 export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     setSearchParameters(values);
   };
 

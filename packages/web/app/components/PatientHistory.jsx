@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQueryClient } from '@tanstack/react-query';
-import GetAppIcon from '@material-ui/icons/GetApp';
-import { Box, IconButton } from '@material-ui/core';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import { Box, IconButton } from '@mui/material';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
@@ -154,7 +154,7 @@ const MenuContainer = styled.div`
 `;
 
 const StyledMenuButton = styled(MenuButton)`
-  .MuiIconButton-root {
+  .MuiButtonBase-root {
     &:hover {
       background-color: transparent;
     }
@@ -182,10 +182,9 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+const getType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 const getReasonForEncounter = ({ reasonForEncounter }) => (
   <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
     {reasonForEncounter}
@@ -307,13 +306,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       ),
       accessor: props => (
         // Component will be detached from context if an inline function is passed to the accessor, so another provider wrapping is needed
-        <TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
+        (<TranslationContext.Provider value={translationContext} data-testid="provider-s1e7">
           <LocationGroupCell
             style={{ minWidth: 45 }}
             {...props}
             data-testid="locationgroupcell-loyq"
           />
-        </TranslationContext.Provider>
+        </TranslationContext.Provider>)
       ),
       CellComponent: LimitedLinesCell,
     },

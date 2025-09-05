@@ -105,7 +105,7 @@ const StyledDatePicker = styled(DatePicker).attrs({
     margin-inline-start: 0;
   }
 
-  .MuiInputAdornment-root .MuiIconButton-root {
+  .MuiInputAdornment-root .MuiButtonBase-root {
     aspect-ratio: 1;
     margin-inline-end: 0;
     padding: 0.375rem;

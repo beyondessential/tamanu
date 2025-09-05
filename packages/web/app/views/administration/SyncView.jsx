@@ -1,12 +1,12 @@
 import ms from 'ms';
 import React from 'react';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import { DataFetchingTable, DateDisplay, PageContainer, TopBar } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-const LastSyncs = React.memo((props) => (
+const LastSyncs = React.memo(props => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[

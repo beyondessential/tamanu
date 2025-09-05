@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { Button } from '@material-ui/core';
+import { Button } from '@mui/material';
 import { useSuggester } from '../../api';
 import { Colors } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
@@ -38,15 +38,13 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
 
   const [handoverNotesModalShown, setHandoverNotesModalShown] = useState(false);
 
-  const handleHandoverNotesButtonClick = useCallback(
-    () => setHandoverNotesModalShown(true),
-    [setHandoverNotesModalShown],
-  );
+  const handleHandoverNotesButtonClick = useCallback(() => setHandoverNotesModalShown(true), [
+    setHandoverNotesModalShown,
+  ]);
 
-  const handleHandoverNotesModalClose = useCallback(
-    () => setHandoverNotesModalShown(false),
-    [setHandoverNotesModalShown],
-  );
+  const handleHandoverNotesModalClose = useCallback(() => setHandoverNotesModalShown(false), [
+    setHandoverNotesModalShown,
+  ]);
 
   const handoverNotesButtonDisabled = !searchParameters?.area;
 
@@ -129,7 +127,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           }
           size="small"
           component={TranslatedSelectField}
-          transformOptions={(options) => [
+          transformOptions={options => [
             { value: '', label: getTranslation('general.select.all', 'All') },
             ...options,
           ]}

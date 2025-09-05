@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Tabs } from '@material-ui/core';
+import { Box, Tabs } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import cn from 'classnames';
 import { Colors } from '../constants';
@@ -36,9 +36,7 @@ const StyledTab = styled(Box)`
   opacity: 0.7;
   position: relative;
   flex-shrink: 0;
-  transition:
-    opacity,
-    background-color 0.3s;
+  transition: opacity, background-color 0.3s;
 
   &:hover {
     opacity: 1;
@@ -68,7 +66,7 @@ const StyledTab = styled(Box)`
 `;
 
 const Icon = styled.i`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
   margin-right: 5px;
 `;
 
@@ -85,9 +83,9 @@ export const TabDisplayDraggable = ({
     ...t,
     order: index,
   }));
-  const currentTabData = tabs.find((t) => t.key === currentTab);
+  const currentTabData = tabs.find(t => t.key === currentTab);
 
-  const onDragEnd = (result) => {
+  const onDragEnd = result => {
     handleDragEnd(result);
   };
 
@@ -99,7 +97,7 @@ export const TabDisplayDraggable = ({
           direction="horizontal"
           data-testid="droppable-3q8i"
         >
-          {(provided) => (
+          {provided => (
             <TabContainer
               ref={provided.innerRef}
               variant={scrollable ? 'scrollable' : 'fixed'}

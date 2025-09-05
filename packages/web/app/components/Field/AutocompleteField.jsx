@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce, groupBy, map } from 'lodash';
-import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
+import { IconButton, MenuItem, Paper, Popper, Typography } from '@mui/material';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';

@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,

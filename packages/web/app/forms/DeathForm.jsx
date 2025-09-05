@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import MuiBox from '@material-ui/core/Box';
+import MuiBox from '@mui/material/Box';
 import { MANNER_OF_DEATHS, PLACE_OF_DEATHS } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
@@ -51,7 +51,7 @@ const attendingClinicianLabel = (
 );
 
 const mannerOfDeathVisibilityCriteria = {
-  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter((x) => x !== 'Disease'),
+  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
 export const DeathForm = React.memo(
@@ -102,7 +102,10 @@ export const DeathForm = React.memo(
                 />,
               ),
           }),
-          clinicianId: yup.string().required().translatedLabel(attendingClinicianLabel),
+          clinicianId: yup
+            .string()
+            .required()
+            .translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
             .max(
@@ -157,7 +160,7 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-x1yy"
               />
             }
-            component={(props) => (
+            component={props => (
               <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
             )}
             saveDateAsString

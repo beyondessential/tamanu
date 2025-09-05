@@ -14,8 +14,8 @@ import {
   TableHead,
   TableRow,
   TableSortLabel,
-} from '@material-ui/core';
-import { ExpandMore } from '@material-ui/icons';
+} from '@mui/material';
+import { ExpandMore } from '@mui/icons-material';
 import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
@@ -28,7 +28,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { get } from 'lodash';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
-const preventInputCallback = (e) => {
+const preventInputCallback = e => {
   e.stopPropagation();
   e.preventDefault();
 };
@@ -65,7 +65,7 @@ const CenteredLoadingIndicatorContainer = styled.div`
 `;
 
 const StyledTableRow = styled(TableRow)`
-  ${(p) =>
+  ${p =>
     p.onClick
       ? `
       cursor: pointer;
@@ -75,9 +75,9 @@ const StyledTableRow = styled(TableRow)`
     `
       : ''}
 
-  ${(p) => (p.$rowStyle ? p.$rowStyle : '')}
+  ${p => (p.$rowStyle ? p.$rowStyle : '')}
 
-  ${(p) =>
+  ${p =>
     p.$lazyLoading
       ? `
       &.MuiTableRow-root {
@@ -94,14 +94,14 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   width: 100%;
-  border: 1px solid ${(props) => (props.$borderColor ? props.$borderColor : Colors.outline)};
-  ${(props) => (props.$elevated ? PaperStyles : null)};
-  ${(props) => (props.containerStyle ? props.containerStyle : null)}
+  border: 1px solid ${props => (props.$borderColor ? props.$borderColor : Colors.outline)};
+  ${props => (props.$elevated ? PaperStyles : null)};
+  ${props => (props.containerStyle ? props.containerStyle : null)}
 `;
 
 const StyledTableBody = styled(TableBody)`
   &.MuiTableBody-root {
-    ${(props) =>
+    ${props =>
       props.$lazyLoading
         ? `
         overflow: auto;
@@ -113,7 +113,7 @@ const StyledTableBody = styled(TableBody)`
 `;
 
 const StyledTableCellContent = styled.div`
-  max-width: ${(props) => props.maxWidth}px;
+  max-width: ${props => props.maxWidth}px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -123,7 +123,7 @@ const StyledTableCell = styled(TableCell)`
   padding: 15px;
   font-size: 14px;
   line-height: 18px;
-  background: ${(props) => props.background};
+  background: ${props => props.background};
 
   &.MuiTableCell-body {
     padding: 20px 15px;
@@ -136,12 +136,12 @@ const StyledTableCell = styled(TableCell)`
   &:last-child {
     padding-right: 20px;
   }
-  ${(props) => (props.$cellStyle ? props.$cellStyle : '')}
+  ${props => (props.$cellStyle ? props.$cellStyle : '')}
 `;
 
 const StyledTable = styled(MaterialTable)`
   border-collapse: unset;
-  background: ${(props) => props.$backgroundColor};
+  background: ${props => props.$backgroundColor};
 
   &:last-child {
     border-bottom: none;
@@ -149,7 +149,7 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  ${(props) =>
+  ${props =>
     props.$lazyLoading
       ? `
       display: table;
@@ -158,20 +158,20 @@ const StyledTableHead = styled(TableHead)`
       padding-right: 15px;
     `
       : ''}
-  ${(props) =>
+  ${props =>
     props.$isBodyScrollable
       ? `
       position: sticky;
       top: 0;
   `
       : ``}
-  background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
+  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
   white-space: nowrap;
   .MuiTableCell-head {
-    background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
-    ${(props) => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
+    background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
+    ${props => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
   }
-  ${(props) => (props.$headStyle ? props.$headStyle : '')}
+  ${props => (props.$headStyle ? props.$headStyle : '')}
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -248,10 +248,10 @@ const RowContainer = React.memo(({ rowTooltip, ...rowProps }) => {
 const StatusTableCell = styled(StyledTableCell)`
   &.MuiTableCell-body {
     padding: 60px;
-    ${(props) => (props.$color ? `color: ${props.$color};` : '')}
+    ${props => (props.$color ? `color: ${props.$color};` : '')}
     border-bottom: none;
   }
-  ${(props) => (props.$statusCellStyle ? props.$statusCellStyle : '')}
+  ${props => (props.$statusCellStyle ? props.$statusCellStyle : '')}
 `;
 
 const Row = React.memo(
@@ -272,7 +272,7 @@ const Row = React.memo(
   }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-        const onChange = cellOnChange ? (event) => cellOnChange(event, key, rowIndex, data) : null;
+        const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const passingData = { refreshTable, onChange, ...data, rowIndex };
         const value = accessor ? React.createElement(accessor, passingData) : get(data, key);
         const displayValue = value === 0 ? '0' : value;
@@ -280,7 +280,7 @@ const Row = React.memo(
         return (
           <StyledTableCell
             key={key}
-            onClick={dontCallRowInput ? preventInputCallback : (e) => onClickRow?.(e, passingData)}
+            onClick={dontCallRowInput ? preventInputCallback : e => onClickRow?.(e, passingData)}
             background={backgroundColor}
             $cellStyle={cellStyle}
             align={numeric ? 'right' : 'left'}
@@ -379,7 +379,7 @@ class TableComponent extends React.Component {
     if (onChangePage) onChangePage(newPage - 1);
   };
 
-  handleScroll = (event) => {
+  handleScroll = event => {
     const { count, lazyLoading, isLoadingMore, onChangePage, page, rowsPerPage } = this.props;
     if (!lazyLoading || isLoadingMore || !onChangePage) return;
     const bottom =
@@ -391,7 +391,7 @@ class TableComponent extends React.Component {
     if (bottom && isNotLastPage) onChangePage(page + 1);
   };
 
-  handleChangeRowsPerPage = (event) => {
+  handleChangeRowsPerPage = event => {
     const { onChangeRowsPerPage, onChangePage } = this.props;
     const newRowsPerPage = parseInt(event.target.value, 10);
     if (onChangeRowsPerPage) onChangeRowsPerPage(newRowsPerPage);
@@ -401,7 +401,7 @@ class TableComponent extends React.Component {
   renderHeaders() {
     const { columns, order, orderBy, onChangeOrderBy, titleData, headerOnChange } = this.props;
     const getContent = ({ key, sortable, title, titleAccessor, tooltip, TitleCellComponent }) => {
-      const onChange = headerOnChange ? (event) => headerOnChange(event, key) : null;
+      const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;

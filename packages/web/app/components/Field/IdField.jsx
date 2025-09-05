@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { Autorenew } from '@material-ui/icons';
+import { Autorenew } from '@mui/icons-material';
 import { Colors } from '../../constants';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { TranslatedText } from '../Translation/TranslatedText';

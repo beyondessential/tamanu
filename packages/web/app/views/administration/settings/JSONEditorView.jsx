@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Settings } from '@material-ui/icons';
+import { Settings } from '@mui/icons-material';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
@@ -45,7 +45,7 @@ const DefaultSettingsButton = styled(TextButton)`
   }
 `;
 
-const buildSettingsString = (settings) => {
+const buildSettingsString = settings => {
   if (Object.keys(settings).length === 0) return '';
   return JSON.stringify(settings, null, 2);
 };
@@ -58,7 +58,7 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
   const settingsViewString = buildSettingsString(values.settings);
   const hasSettingsChanged = settingsViewString !== settingsEditString;
 
-  const updateSettingsEditString = (value) => {
+  const updateSettingsEditString = value => {
     setSettingsEditString(value);
     setJsonError(null);
   };
@@ -67,10 +67,10 @@ export const JSONEditorView = React.memo(({ values, setValues, submitForm, scope
     updateSettingsEditString(buildSettingsString(values.settings) || '{}');
   const turnOffEditMode = () => updateSettingsEditString(null);
 
-  const onChangeSettings = (newValue) => updateSettingsEditString(newValue);
+  const onChangeSettings = newValue => updateSettingsEditString(newValue);
 
   // Convert settings string from editor into object and post to backend
-  const saveSettings = async (event) => {
+  const saveSettings = async event => {
     // Check if the JSON is valid and notify if not
     try {
       JSON.parse(settingsEditString);

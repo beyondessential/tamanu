@@ -3,10 +3,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { REPEATS_LABELS } from '@tamanu/constants';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from '@mui/icons-material/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
+import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@mui/material';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
@@ -526,7 +526,7 @@ const DischargeFormScreen = props => {
 
   return (
     <>
-      <IconButton onClick={handleCancelAttempt} data-testid="iconbutton-h244">
+      <IconButton onClick={handleCancelAttempt} data-testid="iconbutton-h244" size="large">
         <CloseIcon data-testid="closeicon-ggbt" />
       </IconButton>
       <DefaultFormScreen
@@ -613,7 +613,7 @@ const UnsavedChangesScreen = ({ onCancel, onSubmit, values, onStepBack }) => {
   };
   return (
     <div>
-      <IconButton onClick={onStepBack} data-testid="iconbutton-r4jg">
+      <IconButton onClick={onStepBack} data-testid="iconbutton-r4jg" size="large">
         <CloseIcon data-testid="closeicon-nkjl" />
       </IconButton>
       <UnsavedContent data-testid="unsavedcontent-lqwq">

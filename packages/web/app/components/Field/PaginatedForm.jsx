@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import Alert from '@material-ui/lab/Alert';
+import Alert from '@mui/material/Alert';
 import { omit } from 'lodash';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 
 import { Button, OutlinedButton } from '../Button';
 import { Form } from './Form';
@@ -150,7 +150,7 @@ export const usePaginatedForm = () => {
     setScreenIndex(screenIndex + 1);
   };
 
-  const handleStep = (step) => () => {
+  const handleStep = step => () => {
     setScreenIndex(step);
   };
 
@@ -184,7 +184,7 @@ export const PaginatedForm = ({
   const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
-  const onSubmitForm = async (data) => {
+  const onSubmitForm = async data => {
     await onSubmit(data);
     setFormState(FORM_STATES.SUCCESS);
   };
@@ -195,7 +195,7 @@ export const PaginatedForm = ({
 
   const formScreenReactElements = React.Children.toArray(children);
   const allQuestionReactElements = formScreenReactElements
-    .map((s) => React.Children.toArray(s.props.children))
+    .map(s => React.Children.toArray(s.props.children))
     .flat();
   const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
@@ -242,9 +242,9 @@ export const PaginatedForm = ({
           );
         }
 
-        const submitVisibleValues = (event) => {
+        const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(values, allQuestionReactElements).map((q) => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 

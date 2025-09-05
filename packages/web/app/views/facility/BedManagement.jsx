@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
@@ -45,17 +45,17 @@ const DashboardItemContainer = styled.div`
   margin-left: 1%;
   background-color: ${Colors.white};
   border-radius: 5px;
-  border-left: 4px solid ${(props) => props.color || Colors.primaryDark};
+  border-left: 4px solid ${props => props.color || Colors.primaryDark};
   &:first-child {
     margin-left: 0;
   }
-  flex: ${(props) => props.flex || 'auto'};
+  flex: ${props => props.flex || 'auto'};
 `;
 
 const DashboardItemTitle = styled(Typography)`
   font-size: 24px;
   font-weight: 500;
-  color: ${(props) => props.color || Colors.primaryDark};
+  color: ${props => props.color || Colors.primaryDark};
 `;
 
 const DashboardItemDescription = styled(Typography)`
@@ -83,7 +83,7 @@ const DetailedDashboardItemTextContainer = styled.div`
 const DetailedDashboardItemTitle = styled(Typography)`
   font-size: 15px;
   font-weight: 500;
-  color: ${(props) => props.color || Colors.brightBlue};
+  color: ${props => props.color || Colors.brightBlue};
   line-height: 26px;
 `;
 
@@ -218,15 +218,17 @@ export const BedManagement = () => {
     }),
   );
 
-  const { data: { count: currentInpatientsCount } = {}, isLoading: currentInpatientsCountLoading } =
-    useQuery(['currentInpatientsCount'], () =>
-      api.get('patient', {
-        countOnly: true,
-        currentPatient: true,
-        inpatient: true,
-        facilityId,
-      }),
-    );
+  const {
+    data: { count: currentInpatientsCount } = {},
+    isLoading: currentInpatientsCountLoading,
+  } = useQuery(['currentInpatientsCount'], () =>
+    api.get('patient', {
+      countOnly: true,
+      currentPatient: true,
+      inpatient: true,
+      facilityId,
+    }),
+  );
 
   const { data: { data: currentOccupancy } = {}, isLoading: currentOccupancyLoading } = useQuery(
     ['currentOccupancy', facilityId],
@@ -247,11 +249,11 @@ export const BedManagement = () => {
   );
 
   // hides hover for rows that arent clickable (do not have a patient to click to)
-  const rowStyle = (row) =>
+  const rowStyle = row =>
     (row.locationMaxOccupancy !== 1 || !row.patientId) &&
     '&:hover { background-color: transparent; cursor: default; }';
 
-  const handleViewPatient = async (row) => {
+  const handleViewPatient = async row => {
     if (row.locationMaxOccupancy === 1) {
       const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {

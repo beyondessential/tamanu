@@ -26,7 +26,7 @@ const StyledModal = styled(Modal)`
   }
   .MuiDialogTitle-root {
     border-bottom: none;
-    .MuiIconButton-root {
+    .MuiButtonBase-root {
       position: absolute;
       top: 2px;
       right: -1px;

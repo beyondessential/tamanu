@@ -3,7 +3,7 @@ import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
 import { Colors } from '../constants';
 import { LogoDark } from './Logo';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
 import { getBrandName } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -36,7 +36,7 @@ const ErrorMessage = styled(Typography).attrs({
 const ErrorDescription = styled(LargeBodyText)`
   margin-top: 20px;
   max-width: 450px;
-  text-align: ${(props) => (props.$heroImage ? 'left' : 'center')};
+  text-align: ${props => (props.$heroImage ? 'left' : 'center')};
 `;
 
 const Logo = styled(LogoDark)`
@@ -201,10 +201,10 @@ const MobileContainer = styled(Container)`
   img {
     display: block;
     margin: 0 auto;
-    width: ${(props) => (props.$platformType === 'tablet' ? '371px' : '194px')}};
+    width: ${props => (props.$platformType === 'tablet' ? '371px' : '194px')}};
   }
   div {
-    font-size: ${(props) => (props.$platformType === 'tablet' ? '18px' : '14px')}};
+    font-size: ${props => (props.$platformType === 'tablet' ? '18px' : '14px')}};
   }
 `;
 

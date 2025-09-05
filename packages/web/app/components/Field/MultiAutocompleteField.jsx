@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { components } from 'react-select';
 import styled from 'styled-components';
-import FormControl from '@material-ui/core/FormControl';
+import FormControl from '@mui/material/FormControl';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
-import { FormHelperText } from '@material-ui/core';
+import { FormHelperText } from '@mui/material';
 import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
 
 const StyledFormControl = styled(FormControl)`
@@ -26,7 +26,7 @@ const StyledSelect = styled(Select)`
   .react-select__control {
     padding-right: 8px;
     min-height: 39px;
-    border-color: ${(props) => props.$borderColor || Colors.outline};
+    border-color: ${props => props.$borderColor || Colors.outline};
     border-radius: 3px;
   }
   .react-select__control--is-focused {
@@ -44,7 +44,7 @@ const StyledSelect = styled(Select)`
   }
   .react-select__placeholder {
     color: ${Colors.softText};
-    ${(p) => p.size === 'small' && 'font-size: 11px;'}
+    ${p => p.size === 'small' && 'font-size: 11px;'}
   }
 
   .react-select__multi-value {
@@ -87,7 +87,7 @@ const StyledSelect = styled(Select)`
     padding: 10px 15px;
     font-size: 13px;
     display: inline-flex;
-    ${(p) => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
+    ${p => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
     &:hover {
       background-color: ${Colors.background};
     }
@@ -104,7 +104,7 @@ const StyledTick = styled.svg`
   flex-shrink: 0;
 `;
 
-const MultiValue = (props) => {
+const MultiValue = props => {
   const { getTranslation } = useTranslation();
   const { index, clearValue, removeProps, getValue, data, selectProps } = props;
   const selected = getValue();
@@ -112,7 +112,7 @@ const MultiValue = (props) => {
 
   useEffect(() => {
     if (index === 0 && data?.value && !data.label) {
-      selectProps.fetchCurrentOption(data.value).then((option) => {
+      selectProps.fetchCurrentOption(data.value).then(option => {
         setLabel(option.label);
       });
     }
@@ -142,7 +142,7 @@ const MultiValue = (props) => {
   );
 };
 
-const Option = (props) => {
+const Option = props => {
   const children = (
     <>
       {props.isSelected && (
@@ -191,22 +191,22 @@ export const MultiAutocompleteInput = ({
     // fill initial values
     setSelected(
       Array.isArray(value)
-        ? value.map((v) => ({ value: v, label: selected.find((s) => s.value === v)?.label }))
+        ? value.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label }))
         : [],
     );
   }, [value]);
 
   const handleChange = useCallback(
-    (selectedOptions) => {
+    selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = selectedOptions.map((x) => x.value);
+      const newValue = selectedOptions.map(x => x.value);
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],
   );
 
   const handleLoadOption = useCallback(
-    debounce(async (search) => {
+    debounce(async search => {
       try {
         const options = await suggester.fetchSuggestions(search);
         setOptions(options);

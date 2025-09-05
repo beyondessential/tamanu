@@ -28,7 +28,7 @@ function getResultOptions(options) {
   if (!trimmed) return [];
   return trimmed
     .split(/\s*,\s*/)
-    .filter((x) => x)
+    .filter((x) => x);
 }
 
 export const AccessorField = ({ id, name, tabIndex, ...props }) => (

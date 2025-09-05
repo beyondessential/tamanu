@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import Collapse from '@material-ui/core/Collapse';
-import MuiDivider from '@material-ui/core/Divider';
+import Collapse from '@mui/material/Collapse';
+import MuiDivider from '@mui/material/Divider';
 import {
   AutocompleteField,
   CheckField,

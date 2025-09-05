@@ -1,6 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';

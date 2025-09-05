@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Info from '@material-ui/icons/InfoOutlined';
+import Info from '@mui/icons-material/InfoOutlined';
 
 const InfoIcon = styled(Info)`
   width: 1.2rem;

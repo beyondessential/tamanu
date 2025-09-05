@@ -1,4 +1,4 @@
-import { InputAdornment } from '@material-ui/core';
+import { InputAdornment } from '@mui/material';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons';

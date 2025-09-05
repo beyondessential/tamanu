@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Box, CircularProgress, Divider, Typography } from '@material-ui/core';
+import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 
 import { Colors } from '../../constants';
 import { FormConfirmCancelBackRow } from '../ButtonRow';

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
@@ -31,7 +31,7 @@ const Column = styled.div`
 const CardCell = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-bottom: 20px;
 
   &:last-child {
@@ -45,12 +45,12 @@ const CardLabel = styled.div`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const PriceText = styled.span`
   margin-right: 16px;
-  text-decoration: ${(props) => (props.$isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
 const CardItem = ({ label, value, ...props }) => (

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import MaterialTable from '@material-ui/core/Table';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableFooter from '@material-ui/core/TableFooter';
+import MaterialTable from '@mui/material/Table';
+import TableContainer from '@mui/material/TableContainer';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableFooter from '@mui/material/TableFooter';
 
 import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
@@ -26,7 +26,7 @@ const StyledFixedTable = styled(MaterialTable)`
   width: 100%;
 
   &:last-child {
-    border-bottom: ${(props) => (props.$pagination ? 'auto' : 'none')};
+    border-bottom: ${props => (props.$pagination ? 'auto' : 'none')};
   }
 `;
 
@@ -35,7 +35,7 @@ const StyledTableHead = styled(TableHead)`
 `;
 
 const StyledTableHeaderCell = styled(TableCell)`
-  width: ${(props) => (props.width ? props.width : 'auto')};
+  width: ${props => (props.width ? props.width : 'auto')};
   padding: 1.5%;
   text-align: center;
 `;
@@ -97,7 +97,7 @@ export const TableFormFields = React.memo(
     };
 
     // Display the new amount of rows per page and set to page 1
-    const handleRowsPerPageChange = (event) => {
+    const handleRowsPerPageChange = event => {
       const newRowsPerPage = event.target.value;
       setRowsPerPage(newRowsPerPage);
       setPage(0);

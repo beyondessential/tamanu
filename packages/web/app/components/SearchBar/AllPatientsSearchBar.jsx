@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import Box from '@material-ui/core/Box';
+import Box from '@mui/material/Box';
 import styled from 'styled-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import {
@@ -74,8 +74,8 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
                 />
               }
               component={TranslatedSelectField}
-              transformOptions={(options) =>
-                hideOtherSex ? options.filter((o) => o.value !== SEX_VALUES.OTHER) : options
+              transformOptions={options =>
+                hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
               }
               enumValues={SEX_LABELS}
               size="small"
