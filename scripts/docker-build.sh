@@ -25,7 +25,7 @@ remove_irrelevant_packages() {
     | jq \
       --arg wanted "$1" \
       '(. - ["packages/\($wanted)"])' \
-    > /tmp/unwanted.json || true
+    > /tmp/unwanted.json
 
   # erase from the package.json
   jq \
