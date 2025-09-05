@@ -74,11 +74,13 @@ function checkForChanges(existing, normalizedValues, model) {
   return Object.keys(normalizedValues)
     .filter(key => !ignoredFields?.includes(key))
     .some(key => {
-      const existingValue = existing[key];
+      // At this point, we already updated the existing row with the normalized values
+      // so we need to check the previous data values to see if there was a change
+      const existingValue = existing._previousDataValues[key];
       const normalizedValue = normalizedValues[key];
 
       if (typeof existingValue === 'number') {
-        return Number(normalizedValue) !== existingValue;
+        return isNaN(normalizedValue) ? false : Number(normalizedValue) !== existingValue;
       }
       return existing.changed(key);
     });
