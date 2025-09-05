@@ -3,15 +3,15 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
+import { SERVER_TYPES } from '@tamanu/constants/servers';
 import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
-import { version } from '../../package.json';
+import { version } from '../../serverInfo';
 import { findPortalUserById } from './utils';
 import { verifyToken } from '../../auth/utils';
-import { SERVER_TYPES } from '@tamanu/constants';
 
 export const patientPortalMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -68,11 +68,11 @@ export const patientPortalMiddleware = ({ secret }) =>
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
-    const auditSettings = await req.settings.get('audit');
+    const isAuditEnabled = await req.settings.get('audit.accesses.enabled');
     // Attach auditing helper similar to standard user middleware
     // eslint-disable-next-line require-atomic-updates
     req.audit = initAuditActions(req, {
-      enabled: auditSettings?.accesses.enabled,
+      enabled: isAuditEnabled,
       userId: SYSTEM_USER_UUID,
       version,
       backEndContext: { serverType: SERVER_TYPES.CENTRAL, isPatientPortal: true },
