@@ -178,14 +178,14 @@ export const MedicationSetMedicationsList = ({
                 </CheckedLabel>
               )}
               <BodyText sx={{ paddingRight: '52px' }}>
-                {[
+                {[ 
                   getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
                   getTranslatedFrequency(frequency, getTranslation),
                   getEnumTranslation(DRUG_ROUTE_LABELS, route),
+                  durationUnit && durationValue && `${durationValue} ${durationUnit}`,
                 ]
                   .filter(Boolean)
                   .join(', ')}
-                {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
               </BodyText>
               {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
               {editable && (
