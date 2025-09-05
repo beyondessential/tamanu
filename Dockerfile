@@ -6,14 +6,15 @@ COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
-    --virtual .build-deps \
-    bash \
-    g++ \
-    gcc \
-    git \
-    jq \
-    make \
-    python3
+  --virtual .build-deps \
+  bash \
+  g++ \
+  gcc \
+  git \
+  jq \
+  make \
+  python3
+RUN pip install distutils
 COPY common.* ./
 COPY scripts/ scripts/
 
@@ -104,7 +105,7 @@ RUN apt update && apt install -y --no-install-recommends \
   zstd
 RUN \
   curl -L --proto '=https' --tlsv1.2 -sSf -o step-cli.deb \
-    "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
+  "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
   && dpkg -i step-cli.deb \
   && rm step-cli.deb
 RUN \
