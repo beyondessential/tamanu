@@ -4,6 +4,7 @@ import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 /**
  * @typedef {Object} TranslationOptions
@@ -46,7 +47,13 @@ export const TranslationProvider = ({ children }) => {
     return value;
   };
 
-  const updateStoredLanguage = (newLanguage) => {
+  const getReferenceDataTranslation = ({ value, category, fallback, placeholder }) => {
+    return value
+      ? getTranslation(getReferenceDataStringId(value, category), fallback)
+      : placeholder;
+  };
+
+  const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
     // Save the language in local storage so that it persists between sessions
@@ -58,6 +65,7 @@ export const TranslationProvider = ({ children }) => {
       value={{
         getTranslation,
         getEnumTranslation,
+        getReferenceDataTranslation,
         updateStoredLanguage,
         storedLanguage,
         translations,

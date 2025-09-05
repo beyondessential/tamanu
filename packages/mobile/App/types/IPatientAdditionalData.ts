@@ -33,6 +33,8 @@ export interface IPatientAdditionalData {
   religion?: IReferenceData;
   patientBillingType?: IReferenceData;
   secondaryVillage?: IReferenceData;
+  mother?: IPatient;
+  father?: IPatient;
   nationalityId?: string;
   countryId?: string;
   divisionId?: string;
@@ -47,4 +49,6 @@ export interface IPatientAdditionalData {
   patientBillingTypeId?: string;
   secondaryVillageId?: string;
   healthCenterId?: string;
+  motherId?: string;
+  fatherId?: string;
 }
