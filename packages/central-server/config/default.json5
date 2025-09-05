@@ -526,7 +526,7 @@
   "patientPortal": {
     "portalUrl": "http://localhost:5175",
     "tokenDuration": "24h",
-    "loginTokenDurationMinutes": "20",
-    "registerTokenDurationMinutes": "1440"
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 1440
   }
 }

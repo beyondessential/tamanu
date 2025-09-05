@@ -6,7 +6,6 @@ import {
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
-import { describe } from 'node:test';
 
 const TEST_PATIENT_EMAIL = 'register@test.com';
 const REGISTRATION_URL = '/api/portal/verify-registration';
