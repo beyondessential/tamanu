@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
@@ -23,7 +24,9 @@ describe('Patient Portal Auth', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser } = store.models;
+    const { Patient, PortalUser, Setting } = store.models;
+
+    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
 
     // Create a test patient
     testPatient = await Patient.create(
