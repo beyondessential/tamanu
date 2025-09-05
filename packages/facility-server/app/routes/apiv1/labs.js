@@ -45,7 +45,7 @@ labRequest.get(
 
     await req.audit.access({
       recordId: labRequestRecord.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: LabRequest,
     });
 
@@ -469,7 +469,7 @@ labTest.get(
 
     await req.audit.access({
       recordId: response.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: models.LabTest,
       facilityId,
     });

@@ -79,7 +79,7 @@ patientRoute.get(
 
     await req.audit.access({
       recordId: params.id,
-      params,
+      frontEndContext: params,
       model: Patient,
     });
 
@@ -219,7 +219,7 @@ patientRoute.get(
     if (currentEncounter) {
       await req.audit.access({
         recordId: currentEncounter.id,
-        params,
+        frontEndContext: params,
         model: Encounter,
         facilityId,
       });

@@ -67,7 +67,7 @@ export const simpleGet = (modelName, options = {}) =>
     if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
-        params,
+        frontEndContext: params,
         model: models[modelName],
         facilityId: query.facilityId,
       });
@@ -91,7 +91,7 @@ export const simpleGetHasOne = (modelName, foreignKey, options = {}, transform =
     if (auditAccess && object) {
       await req.audit.access({
         recordId: object.id,
-        params,
+        frontEndContext: params,
         model: models[modelName],
       });
     }
