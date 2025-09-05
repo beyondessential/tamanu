@@ -14,7 +14,7 @@ RUN apk add --no-cache \
   jq \
   make \
   python3 \
-  py3-distutils-extra
+  py3-setuptools
 COPY common.* ./
 COPY scripts/ scripts/
 
