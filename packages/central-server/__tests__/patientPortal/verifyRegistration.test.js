@@ -115,7 +115,9 @@ describe('Patient Portal Registration Verification Endpoint', () => {
   it('Should reject registration with non-existent user id', async () => {
     // Create a token with non-existent user ID
     const nonExistentId = '00000000-0000-0000-0000-000000000000';
-    const response = await baseApp.post(REGISTRATION_URL).send({ token: `${nonExistentId}.sometoken` });
+    const response = await baseApp
+      .post(REGISTRATION_URL)
+      .send({ token: `${nonExistentId}.sometoken` });
 
     expect(response).toHaveRequestError();
     expect(response.body).toHaveProperty('error');
