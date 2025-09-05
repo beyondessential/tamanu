@@ -133,9 +133,9 @@ export class EncounterPausePrescription extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: await buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([
         this.tableName,
         'encounter_prescriptions',
