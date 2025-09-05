@@ -15,6 +15,7 @@ RUN apk add --no-cache \
   make \
   python3 \
   py3-setuptools
+RUN npm install -g node-gyp
 COPY common.* ./
 COPY scripts/ scripts/
 
