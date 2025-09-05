@@ -1,5 +1,6 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
+import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
 
@@ -32,7 +33,10 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       Location,
       Department,
       User,
+      Setting,
     } = store.models;
+
+    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
 
     // Create a test village
     testVillage = await ReferenceData.create(
