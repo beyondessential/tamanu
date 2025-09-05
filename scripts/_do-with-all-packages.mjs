@@ -16,7 +16,7 @@ function extractDependencyTree(workspaceTree, workspaces) {
   Object.entries(workspaceTree.dependencies).forEach(([workspace, info]) => {
     let dependencies = [];
     if (info.dependencies) {
-      dependencies = Object.keys(info.dependencies).filter((dependency) =>
+      dependencies = Object.keys(info.dependencies).filter(dependency =>
         workspaces.has(dependency),
       );
     }
@@ -34,7 +34,9 @@ function extractLocation(resolvedPath) {
 export function doWithAllPackages(fn) {
   const workspaceTree = JSON.parse(
     cleanupLeadingGarbage(
-      execFileSync('npm', ['ls', '--workspaces', '--json'], { encoding: 'utf8' }),
+      execFileSync('npm', ['ls', '--workspaces', '--legacy-peer-deps', '--json'], {
+        encoding: 'utf8',
+      }),
     ),
   );
 
@@ -55,7 +57,7 @@ export function doWithAllPackages(fn) {
       const location = extractLocation(resolved);
       const workspaceDependencies = dependencyTree[workspace];
 
-      if (workspaceDependencies.every((dep) => processed.has(dep))) {
+      if (workspaceDependencies.every(dep => processed.has(dep))) {
         processed.add(workspace);
 
         const pkgPath = `./${location}/package.json`;
@@ -63,7 +65,7 @@ export function doWithAllPackages(fn) {
         try {
           pkg = JSON.parse(readFileSync(pkgPath));
         } catch (err) {
-          console.log(`Skipping ${workspace} as we can't read its package.json...`);
+          console.error(`Skipping ${workspace} as we can't read its package.json...`);
           continue;
         }
 
