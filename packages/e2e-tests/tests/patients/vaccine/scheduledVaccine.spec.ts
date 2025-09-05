@@ -121,6 +121,20 @@ test.describe('Scheduled vaccines', () => {
     });
   
     test('Vaccines scheduled years from birth display', async ({ page, api, patientDetailsPage }) => {
+    // Log timezone information for debugging
+         console.log('Test environment timezone info:', {
+        nodeTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        currentTime: new Date().toString(),
+        currentDateISO: patientDetailsPage.getCurrentBrowserDateISOFormat(),
+        currentDateISOFull: new Date(patientDetailsPage.getCurrentBrowserDateISOFormat()).toLocaleString(),
+        browserTimezone: await page.evaluate(() => {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+          }),   
+        browserDate: await page.evaluate(() => {
+            return new Date().toLocaleString();
+          }),
+    });
+
       const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
       const birthDateTenYearsAgo = subYears(currentDate, 10);
       const vaccine = 'Td Booster';
