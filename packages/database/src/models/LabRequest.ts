@@ -290,9 +290,9 @@ export class LabRequest extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'encounters.patient_id',
         encounterId: `${this.tableName}.encounter_id`,
         isLabRequestValue: 'TRUE',

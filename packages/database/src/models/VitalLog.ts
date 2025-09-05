@@ -101,9 +101,9 @@ export class VitalLog extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: await buildEncounterPatientIdSelect(this),
       joins: `
         INNER JOIN survey_response_answers ON vital_logs.answer_id = survey_response_answers.id
         INNER JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id

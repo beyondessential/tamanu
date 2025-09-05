@@ -127,6 +127,8 @@ describe('Sync Lookup data', () => {
       PharmacyOrder,
       PharmacyOrderPrescription,
       Prescription,
+      MedicationAdministrationRecord,
+      MedicationAdministrationRecordDose,
       ImagingRequest,
       ImagingRequestArea,
       ImagingResult,
@@ -322,6 +324,21 @@ describe('Sync Lookup data', () => {
       fake(PharmacyOrderPrescription, {
         pharmacyOrderId: pharmacyOrder.id,
         prescriptionId: prescription.id,
+      }),
+    );
+
+    const mar = await MedicationAdministrationRecord.create(
+      fake(MedicationAdministrationRecord, {
+        prescriptionId: prescription.id,
+        recordedByUserId: examiner.id,
+      }),
+    );
+
+    await MedicationAdministrationRecordDose.create(
+      fake(MedicationAdministrationRecordDose, {
+        marId: mar.id,
+        givenByUserId: examiner.id,
+        recordedByUserId: examiner.id,
       }),
     );
 
