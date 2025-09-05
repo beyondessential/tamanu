@@ -65,7 +65,7 @@ export function doWithAllPackages(fn) {
         try {
           pkg = JSON.parse(readFileSync(pkgPath));
         } catch (err) {
-          console.log(`Skipping ${workspace} as we can't read its package.json...`);
+          console.error(`Skipping ${workspace} as we can't read its package.json...`);
           continue;
         }
 
