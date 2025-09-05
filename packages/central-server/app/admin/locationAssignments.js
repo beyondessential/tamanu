@@ -1,12 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
-import { Sequelize, Op } from 'sequelize';
+import { Op } from 'sequelize';
 import { parseISO, isBefore, differenceInMonths, addMonths, isAfter } from 'date-fns';
 import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
 import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
-import { toDateString } from '@tamanu/utils/dateTime';
-import { dateCustomValidation, timeCustomValidation } from '@tamanu/utils/dateTime';
+import { toDateString, dateCustomValidation, timeCustomValidation } from '@tamanu/utils/dateTime';
 export const locationAssignmentsRouter = express.Router();
 
 import {
@@ -118,6 +117,7 @@ locationAssignmentsRouter.get(
 const createLocationAssignmentSchema = z.object({
   userId: z.string(),
   locationId: z.string(),
+  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -132,16 +132,11 @@ locationAssignmentsRouter.post(
 
     const body = await createLocationAssignmentSchema.parseAsync(req.body);
 
-    const { User, Location } = req.models;
+    const { User } = req.models;
 
     const clinician = await User.findByPk(body.userId);
     if (!clinician) {
       throw new NotFoundError(`User not found`);
-    }
-
-    const location = await Location.findByPk(body.locationId);
-    if (!location) {
-      throw new NotFoundError(`Location not found`);
     }
 
     const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
@@ -154,6 +149,8 @@ locationAssignmentsRouter.post(
     if (body.repeatEndDate && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
+
+    await checkUserBelongToFacility(req.models, body.userId, body.locationId, body.facilityId);
 
     const overlapAssignments = await findOverlappingAssignments(req.models, body);
     
@@ -180,6 +177,7 @@ locationAssignmentsRouter.post(
 
 const updateLocationAssignmentSchema = z.object({
   locationId: z.string(),
+  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -196,17 +194,14 @@ locationAssignmentsRouter.put(
     const { id } = req.params;
     const body = await updateLocationAssignmentSchema.parseAsync(req.body);
 
-    const { LocationAssignment, Location } = req.models;
+    const { LocationAssignment } = req.models;
 
     const assignment = await LocationAssignment.findByPk(id);
     if (!assignment) {
       throw new InvalidOperationError('Location assignment not found');
     }
 
-    const location = await Location.findByPk(body.locationId);
-    if (!location) {
-      throw new InvalidOperationError('Location not found');
-    }
+    await checkUserBelongToFacility(req.models, assignment.userId, body.locationId, body.facilityId);
 
     const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
     const maxAssignmentDate = addMonths(new Date(), maxFutureMonths);
@@ -566,23 +561,19 @@ async function findOverlappingAssignments(models, body, options = {}) {
       [Op.in]: assignmentDates,
     }
   }
-  const assignmentFilter = {
-    locationId,
-    startTime: { [Op.lt]: endTime },
-    endTime: { [Op.gt]: startTime },
-    date: dateFilter,
-    ...(options.excludeAssignmentId && { id: { [Op.ne]: options.excludeAssignmentId } }),
-  }
 
-  const overlappingNonRepeatingAssignments = await LocationAssignment.findAll({
+  const overlappingAssignments = await LocationAssignment.findAll({
     include: [{
       model: User,
       as: 'user',
       attributes: ['id', 'displayName', 'email'],
     }],
     where: {
-      ...assignmentFilter,
-      templateId: null,
+      locationId,
+      startTime: { [Op.lt]: endTime },
+      endTime: { [Op.gt]: startTime },
+      date: dateFilter,
+      ...(options.excludeAssignmentId && { id: { [Op.ne]: options.excludeAssignmentId } }),
     },
     attributes: [
       'id',
@@ -591,24 +582,13 @@ async function findOverlappingAssignments(models, body, options = {}) {
       'startTime',
       'endTime',
     ],
-    limit: 10,
+    limit: 20,
+    order: [['date', 'ASC']],
   });
 
-  const overlappingRepeatingAssignments = await LocationAssignment.findAll({
-    include: [{
-      model: User,
-      as: 'user',
-      attributes: ['id', 'displayName', 'email'],
-    }],
-    where: {
-      ...assignmentFilter,
-      templateId: { [Op.ne]: null },
-    },
-    attributes: ['templateId', [Sequelize.fn('MIN', Sequelize.col('date')), 'date'], 'startTime', 'endTime', 'locationId'],
-    group: ['templateId', 'startTime', 'endTime', 'locationId', 'user.id', 'user.display_name', 'user.email'],
-  });
 
-  return [...overlappingRepeatingAssignments, ...overlappingNonRepeatingAssignments].map((assignment) => ({
+  return overlappingAssignments.map((assignment) => ({
+    id: assignment.id,
     date: assignment.date,
     startTime: assignment.startTime,
     endTime: assignment.endTime,
@@ -634,4 +614,42 @@ async function checkUserLeaveStatus(models, userId, date) {
   if (userLeave) {
     throw new InvalidOperationError(`User is on leave!`);
   }
+}
+
+async function checkUserBelongToFacility(models, userId, locationId, facilityId) {
+  const { UserFacility, Location, LocationGroup } = models;
+  
+  const location = await Location.findOne({
+    include: [
+      {
+        model: LocationGroup,
+        as: 'locationGroup',
+        attributes: ['id', 'name', 'facilityId'],
+      },
+    ],
+    where: {
+      id: locationId,
+    },
+  });
+
+  if (!location) {
+    throw new NotFoundError(`Location not found`);
+  }
+
+  if (location.facilityId !== facilityId && location.locationGroup?.facilityId !== facilityId) {
+    throw new InvalidOperationError(`Location does not belong to facility`);
+  }
+
+  const userFacility = await UserFacility.findOne({
+    where: {
+      userId,
+      facilityId,
+    },
+  });
+
+  if (!userFacility) {
+    throw new InvalidOperationError(`User does not belong to facility`);
+  }
+
+  return true;
 }

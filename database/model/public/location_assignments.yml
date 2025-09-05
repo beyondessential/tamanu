@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__location_assignments') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_location_assignments_changed
+              - record_location_assignments_changelog
+              - set_location_assignments_updated_at
+              - set_location_assignments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

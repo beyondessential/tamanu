@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
