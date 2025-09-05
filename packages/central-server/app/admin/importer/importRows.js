@@ -80,7 +80,7 @@ function checkForChanges(existing, normalizedValues, model) {
       const normalizedValue = normalizedValues[key];
 
       if (typeof existingValue === 'number') {
-        return Number(normalizedValue) !== existingValue;
+        return isNaN(normalizedValue) ? false : Number(normalizedValue) !== existingValue;
       }
       return existing.changed(key);
     });
