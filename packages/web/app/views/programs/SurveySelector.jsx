@@ -23,7 +23,7 @@ const StyledButtonRow = styled(ButtonRow)`
 export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
   const [open, setOpen] = useState(false);
   const { getSetting } = useSettings();
-  const patientPortalEnabled = getSetting('features.patientPortal');
+  const isPatientPortalEnabled = getSetting('features.patientPortal');
 
   const handleChange = event => {
     const surveyId = event.target.value;
@@ -44,7 +44,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        {patientPortalEnabled && (
+        {isPatientPortalEnabled && (
           <TextButton onClick={() => setOpen(true)} disabled={!value}>
             <SendIcon width={12} height={12} />
             <TranslatedText
