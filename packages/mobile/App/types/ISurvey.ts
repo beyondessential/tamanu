@@ -110,6 +110,7 @@ export const DataElementType = {
   Radio: 'Radio',
   Result: 'Result',
   Select: 'Select',
+  Signature: 'Signature',
   SubmissionDate: 'SubmissionDate',
   YearsSince: 'YearsSince',
   SurveyAnswer: 'SurveyAnswer',
