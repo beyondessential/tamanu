@@ -81,7 +81,7 @@ patientDeath.get(
     if (deathData) {
       await req.audit.access({
         recordId: deathData.id,
-        params,
+        frontEndContext: params,
         model: PatientDeathData,
         facilityId,
       });
