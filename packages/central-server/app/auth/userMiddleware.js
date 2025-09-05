@@ -7,8 +7,10 @@ import { log } from '@tamanu/shared/services/logging';
 import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -63,25 +65,12 @@ export const userMiddleware = ({ secret }) =>
     const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
     // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        });
-      },
-    };
+    req.audit = initAuditActions(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId,
+      version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL },
+    });
 
     const spanAttributes = user
       ? {
