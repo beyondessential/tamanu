@@ -53,9 +53,9 @@ export class InvoiceItemDiscount extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
+      select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['invoice_items', 'invoices', 'encounters']),
     };
   }
