@@ -9,7 +9,7 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`
@@ -50,9 +50,13 @@ export const MedicationSummary = ({ medication }) => {
           />
         </DarkestText>
         <DarkestText>
-          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(medication.frequency, getTranslation)},{' '}
-          <TranslatedEnum value={medication.route} enumValues={DRUG_ROUTE_LABELS} />
+          {[
+            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+            getTranslatedFrequency(medication.frequency, getTranslation),
+            getEnumTranslation(DRUG_ROUTE_LABELS, medication.route),
+          ]
+            .filter(Boolean)
+            .join(', ')}
         </DarkestText>
         {medication.notes && <MidText>{medication.notes}</MidText>}
       </Box>
