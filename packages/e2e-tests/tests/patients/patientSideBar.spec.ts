@@ -7,7 +7,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
@@ -44,18 +44,9 @@ test.describe('Patient Side Bar', () => {
       patientDetailsPage.submitNewOngoingConditionAddButton,
     );
 
-    await expect(patientDetailsPage.warningModalTitle).toContainText(
-      'Please fix below errors to continue',
-    );
-    await expect(patientDetailsPage.warningModalContent).toContainText(
-      'The Condition field is required',
-    );
-
-    await patientDetailsPage.warningModalDismissButton.click();
-
     await expect(
-      patientDetailsPage.onGoingConditionForm.filter({
-        hasText: 'The Condition field is required',
+      patientDetailsPage.ongoingConditionNameWrapper.filter({
+        hasText: 'Required',
       }),
     ).toBeVisible();
   });
@@ -118,7 +109,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
@@ -177,7 +168,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
@@ -247,7 +238,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.initiateNewOtherPatientIssuesAddButton.click();
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
@@ -327,7 +318,7 @@ test.describe('Patient Side Bar', () => {
   test('Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     const defaultDate = await newCarePlanModal.carePlanDate.inputValue();
     await expect(defaultDate).toContain(currentBrowserDate);
 

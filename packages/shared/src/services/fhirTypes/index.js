@@ -12,3 +12,7 @@ export { FhirImmunizationProtocolApplied } from './immunizationProtocolApplied';
 export { FhirPatientLink } from './patientLink';
 export { FhirPeriod } from './period';
 export { FhirReference } from './reference';
+export { FhirDosageInstruction } from './dosageInstruction';
+export { FhirDoseAndRate } from './doseAndRate';
+export { FhirQuantity } from './quantity';
+export { FhirTiming } from './timing';

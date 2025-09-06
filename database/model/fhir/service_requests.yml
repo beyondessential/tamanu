@@ -8,6 +8,10 @@ sources:
         description: "{{ doc('fhir__table__service_requests') }}"
         config:
           tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid
@@ -40,21 +44,23 @@ sources:
             description: "{{ doc('fhir__service_requests__status') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - draft
-                    - active
-                    - on-hold
-                    - revoked
-                    - completed
-                    - entered-in-error
-                    - unknown
+                  arguments:
+                    values:
+                      - draft
+                      - active
+                      - on-hold
+                      - revoked
+                      - completed
+                      - entered-in-error
+                      - unknown
           - name: intent
             data_type: text
             description: "{{ doc('fhir__service_requests__intent') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - order
+                  arguments:
+                    values:
+                      - order
           - name: category
             data_type: jsonb
             description: "{{ doc('fhir__service_requests__category') }}"
@@ -65,11 +71,12 @@ sources:
             description: "{{ doc('fhir__service_requests__priority') }}"
             data_tests:
               - accepted_values:
-                  values:
-                    - routine
-                    - urgent
-                    - asap
-                    - stat
+                  arguments:
+                    values:
+                      - routine
+                      - urgent
+                      - asap
+                      - stat
           - name: order_detail
             data_type: jsonb
             description: "{{ doc('fhir__service_requests__order_detail') }}"

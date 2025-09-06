@@ -21,7 +21,3 @@ End time of the assignment period.
 {% docs location_assignments__template_id %}
 Reference to the [location assignment template](#!/source/source.tamanu.tamanu.location_assignment_templates) that generated this assignment.
 {% enddocs %}
-
-{% docs location_assignments__created_by %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this assignment.
-{% enddocs %}

@@ -363,7 +363,7 @@ Disabling the scheduled task is the most straightforward way.
 
 ```bash
 cd \tamanu\release-v2.x.y\packages\central-server
-node dist shell
+npx node dist shell
 ```
 
 1. Get report from ID:

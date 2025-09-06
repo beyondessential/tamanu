@@ -70,19 +70,20 @@ export const SurveyScreenPaginator = ({
   errors,
   status,
   setStatus,
+  showCancelButton,
 }) => {
   const { components } = survey;
   const currentComponents = components.filter(
-    (c) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
 
   const maxIndex = currentComponents
-    .map((x) => x.screenIndex)
+    .map(x => x.screenIndex)
     .reduce((max, current) => Math.max(max, current), 0);
 
   if (screenIndex <= maxIndex) {
-    const screenComponents = currentComponents.filter((x) => x.screenIndex === screenIndex);
+    const screenComponents = currentComponents.filter(x => x.screenIndex === screenIndex);
 
     return (
       <SurveyScreen
@@ -93,11 +94,13 @@ export const SurveyScreenPaginator = ({
         screenComponents={screenComponents}
         onStepForward={onStepForward}
         onStepBack={screenIndex > 0 ? onStepBack : onCancel}
+        onCancel={onCancel}
         validateForm={validateForm}
         setErrors={setErrors}
         errors={errors}
         status={status}
         setStatus={setStatus}
+        showCancelButton={showCancelButton}
         data-testid="surveyscreen-2tj0"
       />
     );
