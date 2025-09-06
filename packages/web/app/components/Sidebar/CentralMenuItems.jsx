@@ -7,6 +7,7 @@ import {
   Cloud as CloudIcon,
   Group as GroupIcon,
   Language as LanguageIcon,
+  Person as PersonIcon,
   Settings as SettingsIcon,
   Translate as TranslateIcon,
 } from '@material-ui/icons';
@@ -62,6 +63,18 @@ export const CENTRAL_MENU_ITEMS = [
     label: 'Survey Responses',
     path: '/admin/surveyResponses',
     icon: <AssignmentIcon color="secondary" data-testid="assignmenticon-retb" />,
+  },
+  {
+    key: 'users',
+    label: (
+      <TranslatedText
+        stringId="adminSidebar.users"
+        fallback="Users"
+        data-testid="translatedtext-users"
+      />
+    ),
+    path: '/admin/users',
+    icon: <PersonIcon color="secondary" data-testid="peopleicon-users" />,
   },
   {
     key: 'patientMerge',
