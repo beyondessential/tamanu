@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - administration
+          meta:
+            triggers:
+              - notify_templates_changed
+              - record_templates_changelog
+              - set_templates_updated_at
+              - set_templates_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -47,8 +53,9 @@ sources:
             description: "{{ doc('templates__created_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in templates."

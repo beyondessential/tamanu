@@ -16,6 +16,7 @@ import {
 import { useUserLeavesQuery } from '../../../api/queries/useUserLeaveQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { useAuth } from '../../../contexts/Auth';
 
 const SectionSubtitle = styled(Box)`
   font-size: 14px;
@@ -90,6 +91,13 @@ const validationSchema = yup.object().shape({
 });
 
 export const UserLeaveSection = ({ user }) => {
+  const { ability } = useAuth();
+  const canUpdateUser = ability.can(
+    'write',
+    new (function User() {
+      this.id = user.id;
+    })(),
+  );
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const [leaveToDelete, setLeaveToDelete] = useState(null);
@@ -166,60 +174,77 @@ export const UserLeaveSection = ({ user }) => {
       <Heading3 mt="20px" mb="10px">
         <TranslatedText stringId="admin.users.leave.title" fallback="Schedule leave" />
       </Heading3>
-      <SectionSubtitle>
-        <TranslatedText
-          stringId="admin.users.leave.subtitle"
-          fallback="Schedule leave for user using the fields below. These dates will be reflected in the location assignment schedule by removing the user from any assigned locations on these dates if applicable."
-        />
-      </SectionSubtitle>
+      {canUpdateUser && (
+        <>
+          <SectionSubtitle>
+            <TranslatedText
+              stringId="admin.users.leave.subtitle"
+              fallback="Schedule leave for user using the fields below. These dates will be reflected in the location assignment schedule by removing the user from any assigned locations on these dates if applicable."
+            />
+          </SectionSubtitle>
 
-      <Form
-        suppressErrorDialog
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        formType={FORM_TYPES.CREATE_FORM}
-        render={({ submitForm, dirty, values }) => {
-          return (
-            <DateFieldsContainer>
-              <Field
-                name="startDate"
-                label={
-                  <TranslatedText
-                    stringId="admin.users.leave.startDate.label"
-                    fallback="Start date"
+          <Form
+            suppressErrorDialog
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+            formType={FORM_TYPES.CREATE_FORM}
+            render={({ submitForm, values, resetForm }) => {
+              const { startDate, endDate } = values;
+              return (
+                <DateFieldsContainer>
+                  <Field
+                    name="startDate"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.leave.startDate.label"
+                        fallback="Start date"
+                      />
+                    }
+                    component={DateField}
+                    saveDateAsString
+                    required
                   />
-                }
-                component={DateField}
-                saveDateAsString
-                required
-              />
-              <Field
-                name="endDate"
-                label={
-                  <TranslatedText stringId="admin.users.leave.endDate.label" fallback="End date" />
-                }
-                component={DateField}
-                saveDateAsString
-                min={values.startDate}
-                required
-              />
-              <StyledButton
-                onClick={submitForm}
-                disabled={!dirty || isCreatingLeave}
-                isSubmitting={isCreatingLeave}
-              >
-                <TranslatedText stringId="admin.users.leave.schedule" fallback="Schedule leave" />
-              </StyledButton>
-            </DateFieldsContainer>
-          );
-        }}
-      />
+                  <Field
+                    name="endDate"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.leave.endDate.label"
+                        fallback="End date"
+                      />
+                    }
+                    component={DateField}
+                    saveDateAsString
+                    min={values.startDate}
+                    required
+                  />
+                  <StyledButton
+                    onClick={async e => {
+                      await submitForm(e);
+                      resetForm();
+                    }}
+                    disabled={!startDate || !endDate || isCreatingLeave}
+                    isSubmitting={isCreatingLeave}
+                  >
+                    <TranslatedText
+                      stringId="admin.users.leave.schedule"
+                      fallback="Schedule leave"
+                    />
+                  </StyledButton>
+                </DateFieldsContainer>
+              );
+            }}
+          />
+        </>
+      )}
+
       {leaves.length > 0 && (
         <>
-          <Box mt="20px" mb="20px">
-            <Divider sx={{ borderColor: Colors.outline }} />
-          </Box>
+          {canUpdateUser && (
+            <Box mt="20px" mb="20px">
+              <Divider sx={{ borderColor: Colors.outline }} />
+            </Box>
+          )}
           <BodyText mb="4px" fontWeight="500" color={Colors.darkText}>
             <TranslatedText
               stringId="admin.users.leave.upcoming.title"
@@ -228,16 +253,17 @@ export const UserLeaveSection = ({ user }) => {
           </BodyText>
           <LeaveListContainer>
             {leaves
-              .filter(leave => !leave.removedAt)
               .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
               .map(leave => (
                 <LeaveItem key={leave.id}>
                   <LeaveDates>
                     {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
                   </LeaveDates>
-                  <RemoveLink onClick={() => handleDeleteLeave(leave)}>
-                    <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                  </RemoveLink>
+                  {canUpdateUser && (
+                    <RemoveLink onClick={() => handleDeleteLeave(leave)}>
+                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                    </RemoveLink>
+                  )}
                 </LeaveItem>
               ))}
           </LeaveListContainer>

@@ -34,7 +34,7 @@ jobs:
 
     - uses: actions/setup-node@v4
       with:
-        node-version-file: '.nvmrc'
+        node-version-file: '.node-version'
 
     - name: Push tag for current version
       id: tagged
@@ -50,7 +50,9 @@ jobs:
         git push --follow-tags
 
     - name: Bump version on branch
-      run: node scripts/version.mjs '${{ inputs.version }}'
+      run: |
+        node scripts/version.mjs '${{ inputs.version }}'
+        npm install
 
     - name: Commit and push
       id: nextv

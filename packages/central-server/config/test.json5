@@ -2,6 +2,9 @@
 {
   "db": {
     "name": "tamanu-central-test",
+    "pool": {
+      "acquire": 5000,
+    },
     "reportSchemas": {
       "enabled": false,
       "connections": {
@@ -108,7 +111,7 @@
           "Encounter": true,
           "Immunization": true,
           "Practitioner": true,
-          "MediciReport": false,
+          "MediciReport": true,
           "Specimen": true,
           "Organization": true
         }

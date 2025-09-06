@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_patient_field_definition_categories_changed
+              - record_patient_field_definition_categories_changelog
+              - set_patient_field_definition_categories_updated_at
+              - set_patient_field_definition_categories_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

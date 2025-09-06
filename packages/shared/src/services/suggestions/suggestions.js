@@ -16,6 +16,7 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -378,9 +379,9 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         type: typeName,
       };
 
-      const canListSensitiveMedication = req.ability.can('list', 'SensitiveMedication');
+      const canCreateSensitiveMedication = req.ability.can('create', 'SensitiveMedication');
 
-      if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canListSensitiveMedication) {
+      if (typeName === REFERENCE_TYPES.MEDICATION_SET && !canCreateSensitiveMedication) {
         baseWhere.id = {
           [Op.notIn]: Sequelize.literal(`
             (SELECT DISTINCT(rdr.reference_data_parent_id)
@@ -396,7 +397,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         };
       }
 
-      if (typeName === REFERENCE_TYPES.DRUG && !canListSensitiveMedication) {
+      if (typeName === REFERENCE_TYPES.DRUG && !canCreateSensitiveMedication) {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
@@ -573,7 +574,9 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
     modelName,
     query: { ...query, filterByFacility: !!query.facilityId },
   }),
-  isBookable: true,
+  isBookable: {
+    [Op.ne]: LOCATION_BOOKABLE_VIEW.NO,
+  },
 }));
 
 createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({

@@ -46,6 +46,7 @@ describe('Appointments', () => {
       startTime: add(new Date(), { days: 1 }), // create a date in the future
       clinicianId: userApp.user.dataValues.id,
       appointmentTypeId: 'appointmentType-standard',
+      facilityId,
     });
     expect(result).toHaveSucceeded();
     appointment = result.body;
@@ -80,7 +81,7 @@ describe('Appointments', () => {
       patientId: patient.id,
     });
 
-    const searchPatientNameOrId = (query) =>
+    const searchPatientNameOrId = query =>
       userApp.get(`/api/appointments?patientNameOrId=${query}`);
 
     // Valid searches
@@ -298,7 +299,7 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
       if (!expected) return appointmentsInSchedule;
-      expect(appointmentsInSchedule.map((a) => a.startTime)).toEqual(expected);
+      expect(appointmentsInSchedule.map(a => a.startTime)).toEqual(expected);
     };
 
     it('should generate repeating weekly appointments on Wednesday', async () => {
@@ -462,7 +463,7 @@ describe('Appointments', () => {
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
           '2024-10-30 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -489,7 +490,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be updated
-      expect(appointmentsInSchedule.map((a) => a.appointmentTypeId)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.appointmentTypeId)).toEqual([
         'appointmentType-standard',
         'appointmentType-standard',
         'appointmentType-specialist',
@@ -515,7 +516,7 @@ describe('Appointments', () => {
 
       // All appointments should be updated
       expect(
-        appointmentsInSchedule.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        appointmentsInSchedule.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -553,13 +554,13 @@ describe('Appointments', () => {
       });
 
       expect(updatedExistingSchedule.cancelledAtDate).toEqual('2024-10-09');
-      expect(updatedExistingScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(updatedExistingScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-09 12:00:00',
       ]);
       expect(
         updatedExistingScheduleAppointments.every(
-          (a) => a.appointmentTypeId === 'appointmentType-standard',
+          a => a.appointmentTypeId === 'appointmentType-standard',
         ),
       ).toBeTruthy();
 
@@ -568,14 +569,14 @@ describe('Appointments', () => {
         order: [['startTime', 'ASC']],
       });
 
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-16 12:00:00',
         '2024-10-23 12:00:00',
         '2024-10-30 12:00:00',
         '2024-11-06 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
 
@@ -627,12 +628,12 @@ describe('Appointments', () => {
         where: { scheduleId: result.body.schedule.id },
         order: [['startTime', 'ASC']],
       });
-      expect(newScheduleAppointments.map((a) => a.startTime)).toEqual([
+      expect(newScheduleAppointments.map(a => a.startTime)).toEqual([
         '2024-10-02 12:00:00',
         '2024-10-16 12:00:00',
       ]);
       expect(
-        newScheduleAppointments.every((a) => a.appointmentTypeId === 'appointmentType-specialist'),
+        newScheduleAppointments.every(a => a.appointmentTypeId === 'appointmentType-specialist'),
       ).toBeTruthy();
     });
   });
@@ -653,7 +654,7 @@ describe('Appointments', () => {
           '2024-10-09 12:00:00',
           '2024-10-16 12:00:00',
           '2024-10-23 12:00:00',
-        ].map((startTime) => ({
+        ].map(startTime => ({
           patientId: patient.id,
           startTime,
           clinicianId: userApp.user.dataValues.id,
@@ -678,7 +679,7 @@ describe('Appointments', () => {
       });
 
       // 3rd and 4th appointments should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,
@@ -708,7 +709,7 @@ describe('Appointments', () => {
       });
 
       // 3rd appointment should be cancelled
-      expect(appointmentsInSchedule.map((a) => a.status)).toEqual([
+      expect(appointmentsInSchedule.map(a => a.status)).toEqual([
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CONFIRMED,
         APPOINTMENT_STATUSES.CANCELLED,

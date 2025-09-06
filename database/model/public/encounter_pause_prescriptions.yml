@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__encounter_pause_prescriptions') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_encounter_pause_prescriptions_changed
+              - record_encounter_pause_prescriptions_changelog
+              - set_encounter_pause_prescriptions_updated_at
+              - set_encounter_pause_prescriptions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -35,14 +41,23 @@ sources:
             description: "{{ doc('encounter_pause_prescriptions__pause_start_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: pause_end_date
             data_type: character(19)
             description: "{{ doc('encounter_pause_prescriptions__pause_end_date') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: notes
             data_type: text
             description: "{{ doc('encounter_pause_prescriptions__notes') }}"
+            config:
+              meta:
+                masking: text
           - name: pausing_clinician_id
             data_type: character varying(255)
             description: "{{ doc('encounter_pause_prescriptions__pausing_clinician_id') }}"

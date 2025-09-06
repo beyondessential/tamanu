@@ -139,7 +139,7 @@ export const TextInput = ({
   };
 
   return (
-    <OuterLabelFieldWrapper label={label} {...props}>
+    <OuterLabelFieldWrapper label={label} data-testid={dataTestId} {...props}>
       <StyledTextField
         value={value}
         variant="outlined"

@@ -3,7 +3,7 @@ export function dbRecordToResponse(patientRecord, facilityId) {
     ...patientRecord.get({
       plain: true,
     }),
-    markedForSync: !!patientRecord.markedForSyncFacilities?.find(f => f.id === facilityId),
+    markedForSync: !!patientRecord.markedForSyncFacilities?.find((f) => f.id === facilityId),
   };
 }
 

@@ -60,9 +60,9 @@ export const PERMISSION_NOUNS = [
   'ProgramRegistry',
   'ProgramRegistryClinicalStatus',
   'ProgramRegistryCondition',
+  'ProgramRegistryConditionCategory',
   'ReferenceData',
   'Referral',
-  'Report',
   'ReportDbSchema',
   'ReportDefinition',
   'ReportDefinitionVersion',
@@ -84,10 +84,10 @@ export const PERMISSION_NOUNS = [
   'User',
   'Vitals',
   'SensitiveMedication',
+  'LocationSchedule',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [
-  'SurveyResponse',
   'Survey',
   'StaticReport',
   'ReportDefinition',

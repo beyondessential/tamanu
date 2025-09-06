@@ -6,7 +6,7 @@ import { useAdvancedFields } from './useAdvancedFields';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSuggester } from '../../api';
 
-const ADVANCED_FIELDS = ['designation', 'excludeDeactivated'];
+const ADVANCED_FIELDS = ['designation', 'includeDeactivated'];
 
 const CheckboxContainer = styled.div`
   display: flex;
@@ -31,7 +31,7 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
       isExpanded={showAdvancedFields}
       setIsExpanded={setShowAdvancedFields}
       onSearch={onSearch}
-      initialValues={searchParameters}
+      initialValues={{ includeDeactivated: true, ...searchParameters }}
       hiddenFields={
         <>
           <Field
@@ -47,18 +47,18 @@ export const UserSearchBar = React.memo(({ onSearch, searchParameters }) => {
             data-testid="field-designation-search"
             suggester={designationSuggester}
           />
-          <CheckboxContainer data-testid="checkbox-container-exclude-deactivated">
+          <CheckboxContainer data-testid="checkbox-container-include-deactivated">
             <Field
-              name="excludeDeactivated"
+              name="includeDeactivated"
               label={
                 <TranslatedText
-                  stringId="admin.users.excludeDeactivated.label"
-                  fallback="Exclude deactivated users from search"
-                  data-testid="translatedtext-exclude-deactivated"
+                  stringId="admin.users.includeDeactivated.label"
+                  fallback="Include deactivated users"
+                  data-testid="translatedtext-include-deactivated"
                 />
               }
               component={CheckField}
-              data-testid="field-exclude-deactivated"
+              data-testid="field-include-deactivated"
             />
           </CheckboxContainer>
         </>

@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__location_assignments') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_location_assignments_changed
+              - record_location_assignments_changelog
+              - set_location_assignments_updated_at
+              - set_location_assignments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -48,19 +54,9 @@ sources:
             description: "{{ doc('generic__created_at') }} in location_assignments."
             data_tests:
               - not_null
-          - name: created_by
-            data_type: character varying(255)
-            description: "{{ doc('location_assignments__created_by') }}"
-            data_tests:
-              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__updated_at') }} in location_assignments."
-            data_tests:
-              - not_null
-          - name: updated_by
-            data_type: character varying(255)
-            description: "{{ doc('generic__updated_by') }} in location_assignments."
             data_tests:
               - not_null
           - name: deleted_at

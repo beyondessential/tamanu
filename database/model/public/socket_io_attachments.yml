@@ -9,6 +9,13 @@ sources:
         config:
           tags:
             - system
+          meta:
+            masking: truncate
+            triggers:
+              - notify_socket_io_attachments_changed
+              - record_socket_io_attachments_changelog
+              - set_socket_io_attachments_updated_at
+              - set_socket_io_attachments_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

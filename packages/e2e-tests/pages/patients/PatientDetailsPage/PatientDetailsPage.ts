@@ -5,6 +5,7 @@ import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
+import { format } from 'date-fns';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
@@ -13,6 +14,7 @@ export class PatientDetailsPage extends BasePatientPage {
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
+  readonly ongoingConditionNameWrapper: Locator;
   readonly ongoingConditionDateRecordedField: Locator;
   readonly ongoingConditionClinicianField: Locator;
   readonly savedOnGoingConditionName: Locator;
@@ -20,7 +22,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionDate: Locator;
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
-  readonly onGoingConditionForm: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -97,7 +98,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
+    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -359,17 +360,12 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-/**
-  * Gets current browser date in the YYYY-MM-DD format in the browser timezone
-  */
-async getCurrentBrowserDateISOFormat() {
-  const currentDate = new Date();
-  const year = currentDate.getFullYear();
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const day = String(currentDate.getDate()).padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
-}
+  /**
+   * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+   */
+  getCurrentBrowserDateISOFormat() {
+    return format(new Date(), 'yyyy-MM-dd');
+  }
 
   // Helper methods for handling multiple buttons with the same test ID
   getSubmitEditsButton() {

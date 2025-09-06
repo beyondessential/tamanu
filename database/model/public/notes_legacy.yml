@@ -8,6 +8,12 @@ sources:
         description: "{{ doc('table__notes_legacy') }}"
         config:
           tags: []
+          meta:
+            triggers:
+              - notify_notes_legacy_changed
+              - record_notes_legacy_changelog
+              - set_notes_legacy_updated_at
+              - set_notes_legacy_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -43,6 +49,9 @@ sources:
             description: "{{ doc('generic__date') }} in notes_legacy."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: note_type
             data_type: character varying(255)
             description: "{{ doc('notes_legacy__note_type') }}"
@@ -51,6 +60,9 @@ sources:
             description: "{{ doc('notes_legacy__content') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: text
           - name: author_id
             data_type: character varying(255)
             description: "{{ doc('notes_legacy__author_id') }}"

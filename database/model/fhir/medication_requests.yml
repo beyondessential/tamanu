@@ -1,0 +1,92 @@
+version: 2
+sources:
+  - name: fhir__tamanu
+    schema: fhir
+    description: "{{ doc('fhir__generic__schema') }}"
+    tables:
+      - name: medication_requests
+        description: "{{ doc('fhir__table__medication_requests') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - versioning
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__id') }} in medication_requests."
+            data_tests:
+              - unique
+              - not_null
+          - name: version_id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__version_id') }} in medication_requests."
+            data_tests:
+              - not_null
+          - name: upstream_id
+            data_type: uuid
+            description: "{{ doc('fhir__generic__upstream_id') }} in medication_requests."
+            data_tests:
+              - unique
+              - not_null
+          - name: last_updated
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__generic__last_updated') }} in medication_requests."
+            data_tests:
+              - not_null
+          - name: identifier
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__identifier') }}"
+          - name: status
+            data_type: text
+            description: "{{ doc('fhir__medication_requests__status') }}"
+            data_tests:
+              - not_null
+          - name: intent
+            data_type: text
+            description: "{{ doc('fhir__medication_requests__intent') }}"
+            data_tests:
+              - not_null
+          - name: group_identifier
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__group_identifier') }}"
+          - name: subject
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__subject') }}"
+          - name: encounter
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__encounter') }}"
+          - name: medication
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__medication') }}"
+          - name: authored_on
+            data_type: timestamp with time zone
+            description: "{{ doc('fhir__medication_requests__authored_on') }}"
+          - name: requester
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__requester') }}"
+          - name: recorder
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__recorder') }}"
+          - name: note
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__note') }}"
+          - name: dosage_instruction
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__dosage_instruction') }}"
+          - name: dispense_request
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__dispense_request') }}"
+          - name: resolved
+            data_type: boolean
+            description: "{{ doc('fhir__generic__resolved') }} in medication_requests."
+            data_tests:
+              - not_null
+          - name: is_live
+            data_type: boolean
+            description: "{{ doc('fhir__generic__is_live') }} in medication_requests."
+            data_tests:
+              - not_null
+          - name: category
+            data_type: jsonb
+            description: "{{ doc('fhir__medication_requests__category') }}"

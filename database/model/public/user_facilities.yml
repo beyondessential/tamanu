@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - system
+          meta:
+            triggers:
+              - notify_user_facilities_changed
+              - record_user_facilities_changelog
+              - set_user_facilities_updated_at
+              - set_user_facilities_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)

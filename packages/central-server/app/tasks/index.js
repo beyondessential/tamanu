@@ -52,7 +52,7 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingTasks,
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
-    MedicationDiscontinuer, 
+    MedicationDiscontinuer,
     SendStatusToMetaServer,
   ];
 

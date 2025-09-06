@@ -1,4 +1,4 @@
-import React, { useCallback, isValidElement } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Select, { components } from 'react-select';
@@ -13,6 +13,7 @@ import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 import { ExpandMoreIcon } from './FieldCommonComponents';
+import { extractTranslationFromComponent } from '../Translation/utils';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -102,6 +103,7 @@ export const SelectInput = ({
   inputRef,
   inputProps = {},
   isClearable = true,
+  clearValue = undefined,
   customStyleObject,
   ['data-testid']: dataTestId,
   ...props
@@ -115,12 +117,12 @@ export const SelectInput = ({
     changedOption => {
       const userClickedClear = !changedOption;
       if (userClickedClear) {
-        onChange({ target: { value: undefined, name } });
+        onChange({ target: { value: clearValue, name } });
         return;
       }
       onChange({ target: { value: changedOption.value, name } });
     },
-    [onChange, name],
+    [onChange, name, clearValue],
   );
 
   const defaultStyles = {
@@ -181,11 +183,8 @@ export const SelectInput = ({
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const selectedOptionLabel = ((options || []).find(o => o.value === value) || {}).label || '';
-    const valueText =
-      isValidElement(selectedOptionLabel) &&
-      ['TranslatedText', 'TranslatedReferenceData'].includes(selectedOptionLabel.type.name)
-        ? selectedOptionLabel.props.fallback // TODO temporary workaround to stop [object Object] from being displayed
-        : selectedOptionLabel;
+    const valueText = extractTranslationFromComponent(selectedOptionLabel, getTranslation);
+
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField

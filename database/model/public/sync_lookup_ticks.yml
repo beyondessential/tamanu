@@ -8,6 +8,8 @@ sources:
         description: "{{ doc('table__sync_lookup_ticks') }}"
         config:
           tags: []
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: bigint

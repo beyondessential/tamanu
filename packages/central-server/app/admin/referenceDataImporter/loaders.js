@@ -226,10 +226,12 @@ async function validateObjectId(item, models, pushError) {
 
 export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
-
+  
   const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
-
-  await validateObjectId({ ...item, objectId: normalizedObjectId }, models, pushError);
+  const normalizedVerb = verb.trim();
+  const normalizedNoun = noun.trim();
+  
+  await validateObjectId({ ...item, noun: normalizedNoun, objectId: normalizedObjectId }, models, pushError);
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
@@ -237,7 +239,7 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${verb}-${noun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id = `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -247,8 +249,8 @@ export async function permissionLoader(item, { models, pushError }) {
         values: {
           _yCell: yCell,
           id,
-          verb,
-          noun,
+          verb: normalizedVerb,
+          noun: normalizedNoun,
           objectId: normalizedObjectId,
           role,
           deletedAt,
@@ -609,5 +611,72 @@ export async function medicationSetLoader(item, { models, pushError }) {
       },
     });
   }
+
+  return rows;
+}
+
+export async function procedureTypeLoader(item, { models, pushError }) {
+  const { id, formLink } = item;
+  const rows = [];
+
+  const surveyIdList = formLink ? formLink.split(',').map(s => s.trim()) : [];
+
+  // Validate that all surveys exist before creating relationships
+  if (surveyIdList.length > 0) {
+    const existingSurveys = await models.Survey.findAll({
+      where: { id: { [Op.in]: surveyIdList } },
+    });
+    const existingSurveyIds = existingSurveys.map(({ id }) => id);
+    const nonExistentSurveyIds = surveyIdList.filter(
+      surveyId => !existingSurveyIds.includes(surveyId),
+    );
+    if (nonExistentSurveyIds.length > 0) {
+      pushError(
+        `Linked survey${nonExistentSurveyIds.length > 1 ? 's' : ''} "${nonExistentSurveyIds.join(', ')}" for procedure type "${id}" not found.`,
+      );
+    }
+
+    // Check if any of the existing surveys have survey_type !== 'programs'
+    const nonProgramSurveys = existingSurveys.filter(survey => survey.surveyType !== 'programs');
+    if (nonProgramSurveys.length > 0) {
+      pushError(
+        `Survey${nonProgramSurveys.length > 1 ? 's' : ''} "${nonProgramSurveys.map(s => s.id).join(', ')}" for procedure type "${id}" must have survey_type of 'programs'.`,
+      );
+    }
+  }
+
+  const existingProcedureType = await models.ReferenceData.findByPk(id, {
+    include: [{ model: models.Survey, as: 'surveys' }],
+  });
+
+  if (existingProcedureType) {
+    const idsToBeDeleted = existingProcedureType.surveys
+      .map(s => s.id)
+      .filter(surveyId => !surveyIdList.includes(surveyId));
+
+    if (idsToBeDeleted.length > 0) {
+      idsToBeDeleted.forEach(surveyId => {
+        rows.push({
+          model: 'ProcedureTypeSurvey',
+          values: {
+            procedureTypeId: id,
+            surveyId: surveyId,
+            deletedAt: new Date(),
+          },
+        });
+      });
+    }
+  }
+
+  surveyIdList.forEach(surveyId => {
+    rows.push({
+      model: 'ProcedureTypeSurvey',
+      values: {
+        procedureTypeId: id,
+        surveyId: surveyId,
+      },
+    });
+  });
+
   return rows;
 }

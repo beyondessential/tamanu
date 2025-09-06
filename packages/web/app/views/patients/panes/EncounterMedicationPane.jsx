@@ -157,9 +157,11 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="medicationmodal-s2hv"
         />
         <PharmacyOrderModal
+          key={pharmacyOrderModalOpen}
           encounter={encounter}
           open={pharmacyOrderModalOpen}
           onClose={() => setPharmacyOrderModalOpen(false)}
+          onSubmit={() => setRefreshEncounterMedications(prev => prev + 1)}
         />
         <PrintMultipleMedicationSelectionModal
           encounter={encounter}
@@ -279,7 +281,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
                   title={
                     <TranslatedText
                       stringId="medication.action.newPrescription.tooltip"
-                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab.'"
+                      fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
                     />
                   }
                 >
@@ -308,6 +310,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           data-testid="encountermedicationtable-gs0p"
           canImportOngoingPrescriptions={canImportOngoingPrescriptions}
           onImportOngoingPrescriptions={() => setMedicationImportModalOpen(true)}
+          isPharmacyOrdersEnabled={pharmacyOrderEnabled}
         />
       </TableContainer>
     </TabPane>

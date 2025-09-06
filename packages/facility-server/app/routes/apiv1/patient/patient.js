@@ -3,6 +3,10 @@ import asyncHandler from 'express-async-handler';
 import { literal, QueryTypes, Op } from 'sequelize';
 import { snakeCase } from 'lodash';
 
+import {
+  createPatientSchema,
+  updatePatientSchema,
+} from '@tamanu/shared/schemas/facility/requests/createPatient.schema';
 import { NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
 import {
   PATIENT_REGISTRY_TYPES,
@@ -28,6 +32,7 @@ import {
 import { dbRecordToResponse, pickPatientBirthData, requestBodyToRecord } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
+import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
 
 const patientRoute = express.Router();
@@ -99,9 +104,11 @@ patientRoute.put(
 
     req.checkPermission('write', patient);
 
+    const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
+
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
-      if (body.displayId && body.displayId !== patient.displayId) {
+      if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
@@ -113,7 +120,7 @@ patientRoute.put(
         });
       }
 
-      await patient.update(requestBodyToRecord(body));
+      await patient.update(requestBodyToRecord(validatedBody));
 
       const patientAdditionalData = await PatientAdditionalData.findOne({
         where: { patientId: patient.id },
@@ -121,24 +128,24 @@ patientRoute.put(
 
       if (!patientAdditionalData) {
         await PatientAdditionalData.create({
-          ...requestBodyToRecord(body),
+          ...requestBodyToRecord(validatedBody),
           patientId: patient.id,
         });
       } else {
-        await patientAdditionalData.update(requestBodyToRecord(body));
+        await patientAdditionalData.update(requestBodyToRecord(validatedBody));
       }
 
       const patientBirth = await PatientBirthData.findOne({
         where: { patientId: patient.id },
       });
-      const recordData = requestBodyToRecord(req.body);
+      const recordData = requestBodyToRecord(validatedBody);
       const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
       if (patientBirth) {
         await patientBirth.update(patientBirthRecordData);
       }
 
-      await patient.writeFieldValues(req.body.patientFields);
+      await patient.writeFieldValues(validatedBody.patientFields);
     });
 
     res.send(dbRecordToResponse(patient, facilityId));
@@ -151,7 +158,10 @@ patientRoute.post(
     const { db, models, body } = req;
     const { Patient, PatientAdditionalData, PatientBirthData, PatientFacility } = models;
     req.checkPermission('create', 'Patient');
-    const requestData = requestBodyToRecord(body);
+
+    const validatedBody = validate(createPatientSchema, body);
+
+    const requestData = requestBodyToRecord(validatedBody);
     const { patientRegistryType, facilityId, ...patientData } = requestData;
 
     const patientRecord = await db.transaction(async () => {
@@ -166,7 +176,7 @@ patientRoute.post(
         ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
-      await createdPatient.writeFieldValues(req.body.patientFields);
+      await createdPatient.writeFieldValues(validatedBody.patientFields);
 
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({
@@ -544,9 +554,9 @@ patientRoute.get(
         orderBy === 'route'
           ? [
               literal(
-                `CASE "route" ${Object.entries(DRUG_ROUTE_LABELS)
-                  .map(([value, label]) => `WHEN '${value}' THEN '${label}'`)
-                  .join(' ')} ELSE "route" END`,
+                `CASE "Prescription"."route" ${Object.entries(DRUG_ROUTE_LABELS)
+                  .map(([value, label]) => `WHEN '${value}' THEN '${label.replace(/'/g, "''")}'`)
+                  .join(' ')} ELSE "Prescription"."route" END`,
               ),
               order.toUpperCase(),
             ]

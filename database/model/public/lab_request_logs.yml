@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - clinical
+          meta:
+            triggers:
+              - notify_lab_request_logs_changed
+              - record_lab_request_logs_changelog
+              - set_lab_request_logs_updated_at
+              - set_lab_request_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -35,15 +41,17 @@ sources:
             description: "{{ doc('lab_request_logs__lab_request_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_requests')
+                    field: id
           - name: updated_by_id
             data_type: character varying(255)
             description: "{{ doc('lab_request_logs__updated_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in lab_request_logs."

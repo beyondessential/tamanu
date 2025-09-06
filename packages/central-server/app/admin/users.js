@@ -1,10 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { getCurrentDateTimeString, getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
   ResourceConflictError,
   NotFoundError,
@@ -16,6 +16,7 @@ import { isBefore, startOfDay } from 'date-fns';
 export const usersRouter = express.Router();
 
 const createUserFilters = (filterParams, models) => {
+  const includeDeactivated = filterParams.includeDeactivated !== 'false';
   const filters = [
     // Text search filters
     filterParams.displayName && {
@@ -42,9 +43,13 @@ const createUserFilters = (filterParams, models) => {
         )`),
       },
     },
-    // Exclude deactivated users filter
-    filterParams.excludeDeactivated === true && {
+    // Include deactivated users filter
+    !includeDeactivated && {
       visibilityStatus: 'current',
+    },
+    // Exclude system user
+    {
+      id: { [Op.ne]: SYSTEM_USER_UUID },
     },
   ];
 
@@ -206,11 +211,11 @@ const userLeaveSchema = yup.object().shape({
 usersRouter.post(
   '/:id/leaves',
   asyncHandler(async (req, res) => {
-    const { models, params, body, user: currentUser } = req;
+    const { models, params, body, user: currentUser, db } = req;
     const { id: userId } = params;
-    const { UserLeave } = models;
+    const { UserLeave, LocationAssignment } = models;
 
-    req.checkPermission('write', 'User');
+    req.checkPermission('write', currentUser);
 
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
@@ -226,26 +231,34 @@ usersRouter.post(
       throw new InvalidOperationError('startDate must be before or equal to endDate');
     }
 
-    // Check for overlapping leaves
-    const overlap = await UserLeave.findOne({
-      where: {
+    const leave = await db.transaction(async () => {
+      // Check for overlapping leaves
+      const overlap = await UserLeave.findOne({
+        where: {
+          userId,
+          endDate: { [Op.gte]: startDate },
+          startDate: { [Op.lte]: endDate },
+        },
+      });
+
+      if (overlap) {
+        throw new InvalidOperationError('Leave overlaps with an existing leave');
+      }
+
+      const leave = await UserLeave.create({
         userId,
-        removedAt: null,
-        endDate: { [Op.gte]: startDate },
-        startDate: { [Op.lte]: endDate },
-      },
-    });
+        startDate,
+        endDate,
+      });
 
-    if (overlap) {
-      throw new InvalidOperationError('Leave overlaps with an existing leave');
-    }
+      await LocationAssignment.destroy({
+        where: {
+          userId,
+          date: { [Op.between]: [startDate, endDate] },
+        },
+      });
 
-    const leave = await UserLeave.create({
-      userId,
-      startDate,
-      endDate,
-      scheduledBy: currentUser.id,
-      scheduledAt: getCurrentDateTimeString(),
+      return leave;
     });
 
     res.send(leave);
@@ -262,11 +275,11 @@ usersRouter.get(
     const { models, params, query } = req;
     const { id: userId } = params;
 
-    req.checkPermission('list', 'User');
+    const user = await models.User.findByPk(userId);
+    req.checkPermission('read', user);
 
     let where = {
       userId,
-      removedAt: null,
     };
 
     if (query.all !== 'true') {
@@ -287,10 +300,12 @@ usersRouter.get(
 usersRouter.delete(
   '/:id/leaves/:leaveId',
   asyncHandler(async (req, res) => {
-    const { models, params, user: currentUser } = req;
+    const { models, params } = req;
     const { id: userId, leaveId } = params;
 
-    req.checkPermission('write', 'User');
+    const user = await models.User.findByPk(userId);
+
+    req.checkPermission('write', user);
 
     const leave = await models.UserLeave.findOne({
       where: { id: leaveId, userId },
@@ -300,13 +315,8 @@ usersRouter.delete(
       throw new NotFoundError('Leave not found');
     }
 
-    if (leave.removedAt) {
-      throw new InvalidOperationError('Leave already removed');
-    }
-
-    leave.removedBy = currentUser.id;
-    leave.removedAt = getCurrentDateTimeString();
-    await leave.save();
+    // Delete the leave instead of marking it as removed
+    await leave.destroy();
 
     res.send(leave);
   }),
@@ -351,14 +361,13 @@ usersRouter.put(
       db,
     } = req;
 
-    req.checkPermission('write', 'User');
-
     const fields = await UPDATE_VALIDATION.validate(req.body);
 
     const user = await User.findByPk(id);
     if (!user) {
       throw new NotFoundError('User not found');
     }
+    req.checkPermission('write', user);
 
     const role = await Role.findByPk(fields.role);
     if (!role) {

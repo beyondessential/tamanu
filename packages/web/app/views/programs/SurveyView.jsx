@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -21,7 +21,17 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-export const SurveyView = ({
+const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {
+  useEffect(() => {
+    if (onFormDirtyChange) {
+      onFormDirtyChange(dirty);
+    }
+  }, [dirty, onFormDirtyChange]);
+
+  return null;
+};
+
+export const SurveyViewForm = ({
   survey,
   onSubmit,
   onCancel,
@@ -29,6 +39,8 @@ export const SurveyView = ({
   patientAdditionalData,
   currentUser,
   patientProgramRegistration,
+  showCancelButton,
+  onFormDirtyChange,
 }) => {
   const { getTranslation } = useTranslation();
   const { components } = survey;
@@ -58,6 +70,7 @@ export const SurveyView = ({
       errors,
       setStatus,
       status,
+      dirty,
     } = props;
 
     // 1. get a list of visible fields
@@ -80,23 +93,42 @@ export const SurveyView = ({
     };
 
     return (
-      <SurveyScreenPaginator
-        survey={survey}
-        patient={patient}
-        values={values}
-        setFieldValue={setFieldValue}
-        onSurveyComplete={submitVisibleValues}
-        onCancel={onCancel}
-        validateForm={validateForm}
-        setErrors={setErrors}
-        errors={errors}
-        setStatus={setStatus}
-        status={status}
-        data-testid="surveyscreenpaginator-8wns"
-      />
+      <>
+        <DirtyStateTracker dirty={dirty} onFormDirtyChange={onFormDirtyChange} />
+        <SurveyScreenPaginator
+          survey={survey}
+          patient={patient}
+          values={values}
+          setFieldValue={setFieldValue}
+          onSurveyComplete={submitVisibleValues}
+          onCancel={onCancel}
+          validateForm={validateForm}
+          setErrors={setErrors}
+          errors={errors}
+          setStatus={setStatus}
+          status={status}
+          showCancelButton={showCancelButton}
+          data-testid="surveyscreenpaginator-8wns"
+        />
+      </>
     );
   };
 
+  return (
+    <Form
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      render={renderSurvey}
+      validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
+      data-testid="form-12o2"
+    />
+  );
+};
+
+export const SurveyView = props => {
+  const { survey } = props;
   return (
     <ProgramsPane data-testid="programspane-s83l">
       <SurveyPaneHeader data-testid="surveypaneheader-q0w3">
@@ -104,15 +136,7 @@ export const SurveyView = ({
           <TranslatedReferenceData category="survey" value={survey.id} fallback={survey.name} />
         </SurveyPaneHeading>
       </SurveyPaneHeader>
-      <Form
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        render={renderSurvey}
-        validationSchema={validationSchema}
-        validateOnChange
-        validateOnBlur
-        data-testid="form-12o2"
-      />
+      <SurveyViewForm {...props} />
     </ProgramsPane>
   );
 };

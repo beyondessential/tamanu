@@ -8,6 +8,10 @@ sources:
         description: "{{ doc('fhir__table__encounters') }}"
         config:
           tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid
@@ -36,9 +40,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - in-progress
-                    - discharged
+                  arguments:
+                    values:
+                      - in-progress
+                      - discharged
           - name: class
             data_type: jsonb
             description: "{{ doc('fhir__encounters__class') }}"

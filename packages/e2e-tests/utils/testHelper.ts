@@ -1,4 +1,7 @@
-import { Locator } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { subYears, addYears, format } from 'date-fns';
+
+export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
@@ -30,7 +33,7 @@ export async function SelectingFromSearchBox(
   searchBox: Locator,
   suggestionList: Locator,
   searchText: string,
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<void> {
   try {
     await searchBox.fill(searchText);
@@ -41,4 +44,62 @@ export async function SelectingFromSearchBox(
   } catch (error) {
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
+}
+
+export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
+  const items: string[] = [];
+  for (let i = 0; i < tableRowCount; i++) {
+    const itemLocator = page.getByTestId(`${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
+    const itemText = await itemLocator.textContent();
+    if (itemText) {
+      items.push(itemText);
+    }
+  }
+  return items;
+}
+
+/**
+ * Utility function for sorting alphabetically
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two strings alphabetically
+ */
+export function compareAlphabetically(order: 'asc' | 'desc') {
+  return (a: string, b: string) =>
+    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+}
+
+/**
+ * Utility function for sorting by date
+ * @param order - The order to sort by, e.g. "asc" or "desc"
+ * @returns A function that compares two dates
+ */
+export function compareByDate(order: 'asc' | 'desc') {
+  return (a: { dateGiven: string }, b: { dateGiven: string }) => {
+    const dateA = new Date(a.dateGiven).getTime();
+    const dateB = new Date(b.dateGiven).getTime();
+    return order === 'asc' ? dateA - dateB : dateB - dateA;
+  };
+}
+
+/**
+ * Utility method to offset a date by a given amount of years and return in YYYY-MM-DD format
+ * @param dateToOffset - The date to offset
+ * @param offset - The offset to apply ('increase' or 'decrease')
+ * @param amountToOffset - The amount of years to offset
+ * @returns The date with the offset applied in YYYY-MM-DD format
+ */
+export function offsetYear(
+  dateToOffset: string,
+  offset: 'increase' | 'decrease',
+  amountToOffset: number
+): string {
+  //Convert to date format so utility functions can be used
+  const formattedDateToOffset = new Date(dateToOffset);
+  let newDate = undefined;
+
+  if (offset === 'increase') newDate = addYears(formattedDateToOffset, amountToOffset);
+  else if (offset === 'decrease') newDate = subYears(formattedDateToOffset, amountToOffset);
+  else throw new Error('Invalid offset');
+
+  return format(newDate, 'yyyy-MM-dd');
 }

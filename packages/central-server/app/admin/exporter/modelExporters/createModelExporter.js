@@ -13,6 +13,8 @@ import { TaskTemplateExporter } from './TaskTemplateExporter';
 import { DrugExporter } from './DrugExporter';
 import { MedicationTemplateExporter } from './MedicationTemplateExporter';
 import { MedicationSetExporter } from './MedicationSetExporter';
+import { ProcedureTypeExporter } from './ProcedureTypeExporter';
+
 const CustomExportersByDataType = {
   permission: PermissionExporter,
   patient: PatientExporter,
@@ -26,6 +28,7 @@ const CustomExportersByDataType = {
   [REFERENCE_TYPES.DRUG]: DrugExporter,
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: MedicationTemplateExporter,
   [REFERENCE_TYPES.MEDICATION_SET]: MedicationSetExporter,
+  [REFERENCE_TYPES.PROCEDURE_TYPE]: ProcedureTypeExporter,
 };
 
 export const createModelExporter = (context, dataType) => {

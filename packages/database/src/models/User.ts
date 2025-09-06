@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
 import { DataTypes, Sequelize } from 'sequelize';
+import { unionBy } from 'lodash';
 
 import {
   CAN_ACCESS_ALL_FACILITIES,
@@ -283,29 +284,40 @@ export class User extends Model {
     return false;
   }
 
-  async checkCanAccessAllFacilities() {
-    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToFacilities',
-    );
-    if (!restrictUsersToFacilities) return true;
-    if (this.isSuperUser()) return true;
-    // Allow for roles that have access to all facilities configured via permissions
-    // (e.g. a custom "AdminICT" role)
-    if (await this.hasPermission('login', 'Facility')) return true;
-    return false;
-  }
-
   async allowedFacilities() {
-    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
-    if (canAccessAllFacilities) {
-      return CAN_ACCESS_ALL_FACILITIES;
-    }
+    const { Facility, Setting } = this.sequelize.models;
 
+    if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
+
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    const hasLoginPermission = await this.hasPermission('login', 'Facility');
+    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
+
+    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
+      return CAN_ACCESS_ALL_FACILITIES;
+
+    // Get user's linked facilities
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
+    const explicitlyAllowedFacilities =
+      this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
 
-    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+    if (hasAllNonSensitiveFacilityAccess) {
+      // Combine any explicitly linked facilities with all non-sensitive facilities
+      const nonSensitiveFacilities = await Facility.findAll({
+        where: { isSensitive: false },
+        attributes: ['id', 'name'],
+        raw: true,
+      });
+
+      const combinedFacilities = unionBy(explicitlyAllowedFacilities, nonSensitiveFacilities, 'id');
+      return combinedFacilities;
+    }
+
+    // Otherwise return only the facilities the user is linked to (including sensitive ones)
+    return explicitlyAllowedFacilities;
   }
 
   async allowedFacilityIds() {
@@ -317,10 +329,9 @@ export class User extends Model {
   }
 
   async canAccessFacility(id: string) {
-    const allowed = await this.allowedFacilityIds();
-    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
-
-    return allowed?.includes(id) ?? false;
+    const allowedFacilityIds = await this.allowedFacilityIds();
+    if (allowedFacilityIds === CAN_ACCESS_ALL_FACILITIES) return true;
+    return allowedFacilityIds.includes(id);
   }
 
   static async filterAllowedFacilities(
