@@ -1,17 +1,12 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { dateType, type InitOptions, type Models } from '../types/model';
 
 export class UserLeave extends Model {
   declare id: string;
   declare startDate: string;
   declare endDate: string;
   declare userId: string;
-  declare scheduledBy: string;
-  declare scheduledAt: string;
-  declare removedBy?: string;
-  declare removedAt?: string;
   declare createdAt: Date;
   declare updatedAt: Date;
   declare deletedAt?: Date;
@@ -26,13 +21,6 @@ export class UserLeave extends Model {
         endDate: dateType('endDate', {
           allowNull: false,
         }),
-        scheduledAt: dateTimeType('scheduledAt', {
-          allowNull: false,
-          defaultValue: getCurrentDateTimeString,
-        }),
-        removedAt: dateTimeType('removedAt', {
-          allowNull: true,
-        }),
       },
       {
         ...options,
@@ -45,14 +33,6 @@ export class UserLeave extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
-    });
-    this.belongsTo(models.User, {
-      foreignKey: 'scheduledBy',
-      as: 'scheduledByUser',
-    });
-    this.belongsTo(models.User, {
-      foreignKey: 'removedBy',
-      as: 'removedByUser',
     });
   }
 
