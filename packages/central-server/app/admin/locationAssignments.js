@@ -109,7 +109,7 @@ locationAssignmentsRouter.get(
 
     res.send({
       count,
-      data: rows
+      data: rows,
     });
   }),
 );
