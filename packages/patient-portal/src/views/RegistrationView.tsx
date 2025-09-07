@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
@@ -28,7 +28,7 @@ const useVerifyRegistration = () => {
 };
 
 export const RegistrationView = () => {
-  const navigate = useNavigate();
+  const history = useHistory();
   const { token } = useParams();
   const { mutate: verify, error, isPending } = useVerifyRegistration();
 
@@ -67,7 +67,7 @@ export const RegistrationView = () => {
           <Typography variant="body1" mb={3} color="text.secondary">
             Continue to log in to access the Patient Portal.
           </Typography>
-          <Button onClick={() => navigate('/login')} fullWidth variant="contained">
+          <Button onClick={() => history.push('/login')} fullWidth variant="contained">
             Continue to log in
           </Button>
         </>
