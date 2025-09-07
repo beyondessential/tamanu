@@ -103,13 +103,17 @@ export const login = ({ secret, refreshSecret }) =>
       deviceId,
     });
     if (isUserLockedOut) {
+      // TODO: Create locked out login attempt?
       throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
+      // TODO: Create failed login attempt and check if user should be locked out?
       throw new BadAuthenticationError('Invalid credentials');
     }
+
+    // TODO: Create successful login attempt?
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
