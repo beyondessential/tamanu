@@ -9,5 +9,4 @@ export const PortalCreateSurveyResponseRequestSchema = z.object({
   departmentId: foreignKey.optional(),
 });
 
-export const CreateSurveyResponseRequestSchema = PortalCreateSurveyResponseRequestSchema;
-
+export type PortalCreateSurveyResponseRequest = z.infer<typeof PortalCreateSurveyResponseRequestSchema>;
