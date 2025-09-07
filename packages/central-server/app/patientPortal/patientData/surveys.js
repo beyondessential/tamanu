@@ -50,9 +50,10 @@ export const createDesignatedSurveyResponse = asyncHandler(async (req, res) => {
   });
  
   if (!assignedForm) {
-    log.warn('Patient attempted to submit response for invalid assigned form', {
+    log.warn('Patient attempted to submit response for invalid designated form', {
       designationId,
       patientId: patient.id,
+      surveyId: body.surveyId,
     });
     throw new NotFoundError('Form was not assigned to the patient');
   }
