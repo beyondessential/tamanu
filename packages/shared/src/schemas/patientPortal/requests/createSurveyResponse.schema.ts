@@ -14,3 +14,12 @@ export const CreateSurveyResponseRequestSchema = z.object({
 export type CreateSurveyResponseRequest = z.infer<
   typeof CreateSurveyResponseRequestSchema
 >;
+
+// Portal-specific: patientId comes from authenticated session; times may be omitted
+export const PortalCreateSurveyResponseRequestSchema = CreateSurveyResponseRequestSchema.omit({
+  patientId: true,
+}).partial({ startTime: true, endTime: true });
+
+export type PortalCreateSurveyResponseRequest = z.infer<
+  typeof PortalCreateSurveyResponseRequestSchema
+>;

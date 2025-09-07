@@ -4,6 +4,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
+import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const getOutstandingForms = asyncHandler(async (req, res) => {
@@ -36,9 +37,12 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
 });
 
 export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
-  const { patient, body, settings, params } = req;
+  const { patient, settings, params } = req;
   const { models } = req.store;
   const { designationId } = params;
+
+  // Validate request body with portal-specific schema (no patientId from client)
+  const body = PortalCreateSurveyResponseRequestSchema.parse(req.body);
 
   const assignedForm = await models.PortalSurveyAssignment.findOne({
     where: {
