@@ -274,6 +274,8 @@ describe('Patient Portal Forms Endpoints', () => {
   describe('POST /api/portal/me/forms/:designationId', () => {
     let testLocationId;
     let testDepartmentId;
+    let baseSurvey;
+    let baseDataElement;
 
     beforeAll(async () => {
       const { Location, Department, Facility } = store.models;
@@ -293,10 +295,9 @@ describe('Patient Portal Forms Endpoints', () => {
       testLocationId = location.id;
       testDepartmentId = department.id;
     });
-    it('Should create a survey response and mark assignment submitted (happy path)', async () => {
-      const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment } =
-        store.models;
 
+    const createSurveySetup = async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent } = store.models;
       const program = await Program.create(fake(Program));
       const survey = await Survey.create(
         fake(Survey, {
@@ -304,13 +305,11 @@ describe('Patient Portal Forms Endpoints', () => {
           status: 'active',
         }),
       );
-
       const dataElement = await ProgramDataElement.create(
         fake(ProgramDataElement, {
           type: 'Number',
         }),
       );
-
       await SurveyScreenComponent.create(
         fake(SurveyScreenComponent, {
           dataElementId: dataElement.id,
@@ -318,21 +317,38 @@ describe('Patient Portal Forms Endpoints', () => {
           config: JSON.stringify({}),
         }),
       );
+      return { survey, dataElement };
+    };
 
-      const assignment = await PortalSurveyAssignment.create({
-        patientId: testPatient.id,
-        surveyId: survey.id,
-        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+    const createAssignment = async ({ patientId, surveyId, status }) => {
+      const assignedById = (await store.models.User.create(fake(store.models.User))).id;
+      return store.models.PortalSurveyAssignment.create({
+        patientId,
+        surveyId,
+        status,
         assignedAt: new Date().toISOString(),
-        assignedById: (await store.models.User.create(fake(store.models.User))).id,
+        assignedById,
+      });
+    };
+
+    beforeEach(async () => {
+      const setup = await createSurveySetup();
+      baseSurvey = setup.survey;
+      baseDataElement = setup.dataElement;
+    });
+    it('Should create a survey response and mark assignment submitted (happy path)', async () => {
+      const assignment = await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       });
 
       const payload = {
-        surveyId: survey.id,
+        surveyId: baseSurvey.id,
         locationId: testLocationId,
         departmentId: testDepartmentId,
         answers: {
-          [dataElement.id]: 5,
+          [baseDataElement.id]: 5,
         },
       };
 
@@ -352,41 +368,22 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
-      const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment } =
-        store.models;
-
-      const program = await Program.create(fake(Program));
-      const survey = await Survey.create(
-        fake(Survey, {
-          programId: program.id,
-          status: 'active',
-        }),
-      );
-      const dataElement = await ProgramDataElement.create(fake(ProgramDataElement, { type: 'Number' }));
-      await SurveyScreenComponent.create(
-        fake(SurveyScreenComponent, {
-          dataElementId: dataElement.id,
-          surveyId: survey.id,
-          config: JSON.stringify({}),
-        }),
-      );
+      const { Survey } = store.models;
 
       // Create an assignment for another patient
       const otherPatient = await store.models.Patient.create(fake(store.models.Patient));
-      const otherAssignment = await PortalSurveyAssignment.create({
+      const otherAssignment = await createAssignment({
         patientId: otherPatient.id,
-        surveyId: survey.id,
+        surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
-        assignedAt: new Date().toISOString(),
-        assignedById: (await store.models.User.create(fake(store.models.User))).id,
       });
 
       const payload = {
-        surveyId: survey.id,
+        surveyId: baseSurvey.id,
         locationId: testLocationId,
         departmentId: testDepartmentId,
         answers: {
-          [dataElement.id]: 1,
+          [baseDataElement.id]: 1,
         },
       };
 
@@ -397,12 +394,10 @@ describe('Patient Portal Forms Endpoints', () => {
       expect(resWrongPatient).toHaveRequestError(404);
 
       // Create an assignment for correct patient but already submitted
-      const submittedAssignment = await PortalSurveyAssignment.create({
+      const submittedAssignment = await createAssignment({
         patientId: testPatient.id,
-        surveyId: survey.id,
+        surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
-        assignedAt: new Date().toISOString(),
-        assignedById: (await store.models.User.create(fake(store.models.User))).id,
       });
 
       const resSubmitted = await baseApp
@@ -412,15 +407,13 @@ describe('Patient Portal Forms Endpoints', () => {
       expect(resSubmitted).toHaveRequestError(404);
 
       // Correct patient and outstanding, but mismatched surveyId in body
-      const assignment = await PortalSurveyAssignment.create({
+      const assignment = await createAssignment({
         patientId: testPatient.id,
-        surveyId: survey.id,
+        surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
-        assignedAt: new Date().toISOString(),
-        assignedById: (await store.models.User.create(fake(store.models.User))).id,
       });
 
-      const anotherSurvey = await Survey.create(fake(Survey, { programId: program.id, status: 'active' }));
+      const anotherSurvey = await Survey.create(fake(Survey, { status: 'active' }));
 
       const resWrongSurvey = await baseApp
         .post(`/api/portal/me/forms/${assignment.id}`)
@@ -429,7 +422,7 @@ describe('Patient Portal Forms Endpoints', () => {
           surveyId: anotherSurvey.id,
           locationId: testLocationId,
           departmentId: testDepartmentId,
-          answers: { [dataElement.id]: 2 },
+          answers: { [baseDataElement.id]: 2 },
         });
       expect(resWrongSurvey).toHaveRequestError(404);
     });
