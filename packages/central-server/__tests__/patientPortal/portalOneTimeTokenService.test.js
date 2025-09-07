@@ -1,14 +1,14 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
-import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
+import { PORTAL_ONE_TIME_TOKEN_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
+import bcrypt from 'bcrypt';
 import { createTestContext } from '../utilities';
 import {
   PortalOneTimeTokenService,
   hashPortalToken,
 } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
-import bcrypt from 'bcrypt';
 
 describe('PortalOneTimeTokenService', () => {
   let ctx;
@@ -21,6 +21,8 @@ describe('PortalOneTimeTokenService', () => {
     ctx = await createTestContext();
     store = ctx.store;
     models = store.models;
+
+    await models.Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
 
     // Create a test patient
     const testPatient = await models.Patient.create(
@@ -75,16 +77,14 @@ describe('PortalOneTimeTokenService', () => {
     });
 
     it('should create a token that expires in the configured time', async () => {
-      const customExpiryMinutes = 15;
-      const customService = new PortalOneTimeTokenService(models, {
-        expiryMinutes: customExpiryMinutes,
-      });
+      const customService = new PortalOneTimeTokenService(models);
 
       const now = new Date();
       const result = await customService.createLoginToken(testPortalUser.id);
 
-      // Verify expiry time is correct (to closest minute to avoid false negatvies)
-      const expectedExpiry = addMinutes(now, customExpiryMinutes);
+      // Verify expiry time is correct (to closest minute to avoid false negatives)
+      const defaultExpiryTime = 20;
+      const expectedExpiry = addMinutes(now, defaultExpiryTime);
 
       const expiry = parseISO(result.expiresAt);
       expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
@@ -136,16 +136,14 @@ describe('PortalOneTimeTokenService', () => {
     });
 
     it('should create a register token that expires in the configured time', async () => {
-      const customExpiryMinutes = 20;
-      const customService = new PortalOneTimeTokenService(models, {
-        expiryMinutes: customExpiryMinutes,
-      });
+      const customService = new PortalOneTimeTokenService(models);
 
       const now = new Date();
       const result = await customService.createRegisterToken(testPortalUser.id);
 
-      // Verify expiry time is correct (to closest minute to avoid false negatvies)
-      const expectedExpiry = addMinutes(now, customExpiryMinutes);
+      // Verify expiry time is correct (to closest minute to avoid false negatives)
+      const defaultExpiryMinutes = 1440;
+      const expectedExpiry = addMinutes(now, defaultExpiryMinutes);
 
       const expiry = parseISO(result.expiresAt);
       expect(Math.abs(differenceInMinutes(expectedExpiry, expiry))).toBe(0);

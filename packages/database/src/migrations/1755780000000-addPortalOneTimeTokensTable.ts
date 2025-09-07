@@ -55,5 +55,5 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.removeIndex(TABLE_NAME, `idx_${TABLE_NAME}_portal_user_id`);
-  await query.dropTable(TABLE_NAME);
+  await query.dropTable(TABLE_NAME, {});
 }

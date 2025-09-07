@@ -153,6 +153,7 @@ const PRINT_OPTIONS = {
     ),
     icon: PatientPortalIcon,
     component: SendToPatientModal,
+    condition: getSetting => getSetting('features.patientPortal'),
   },
 };
 
@@ -227,22 +228,26 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
           />
         )}
       </StyledPrintOptionsRow>
-      <StyledDivider data-testid="styleddivider-ds12" />
-      <Header data-testid="header-kf7c">
-        <TranslatedText
-          stringId="patientDetails.resources.patientPortal.header"
-          fallback="Patient portal"
-        />
-      </Header>
-      <StyledPrintOptionsRow data-testid="styledprintoptionsrow-wp1y">
-        <PrintOption
-          label={PRINT_OPTIONS.patientPortalRegistration.label}
-          caption={PRINT_OPTIONS.patientPortalRegistration.caption}
-          onPress={() => setCurrentlyPrinting('patientPortalRegistration')}
-          icon={PRINT_OPTIONS.patientPortalRegistration.icon}
-          data-testid="printoption-8fsa"
-        />
-      </StyledPrintOptionsRow>
+      {isVisible(PRINT_OPTIONS.patientPortalRegistration.condition) && (
+        <>
+          <StyledDivider data-testid="styleddivider-ds12" />
+          <Header data-testid="header-kf7c">
+            <TranslatedText
+              stringId="patientDetails.resources.patientPortal.header"
+              fallback="Patient portal"
+            />
+          </Header>
+          <StyledPrintOptionsRow data-testid="styledprintoptionsrow-wp1y">
+            <PrintOption
+              label={PRINT_OPTIONS.patientPortalRegistration.label}
+              caption={PRINT_OPTIONS.patientPortalRegistration.caption}
+              onPress={() => setCurrentlyPrinting('patientPortalRegistration')}
+              icon={PRINT_OPTIONS.patientPortalRegistration.icon}
+              data-testid="printoption-8fsa"
+            />
+          </StyledPrintOptionsRow>
+        </>
+      )}
     </div>
   );
 };
