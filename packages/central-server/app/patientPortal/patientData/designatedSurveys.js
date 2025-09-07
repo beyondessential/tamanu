@@ -58,7 +58,7 @@ export const createDesignatedSurveyResponse = asyncHandler(async (req, res) => {
     throw new NotFoundError('Form was not assigned to the patient');
   }
 
-  const responseRecord = await req.db.transaction(async () => {
+  const responseRecord = await req.store.sequelize.transaction(async () => {
     const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
     const { locationId, departmentId, ...payload } = body;
     const updatedBody = {
