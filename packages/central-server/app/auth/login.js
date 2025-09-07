@@ -3,7 +3,7 @@ import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { SERVER_TYPES } from '@tamanu/constants';
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';
@@ -15,6 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
+import { checkIsUserLockedOut } from './checkIsUserLockedOut';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -92,6 +93,17 @@ export const login = ({ secret, refreshSecret }) =>
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
       throw new BadAuthenticationError('No such user');
+    }
+
+    // Check if user is locked out
+    const isUserLockedOut = await checkIsUserLockedOut({
+      models,
+      settings,
+      userId: user.id,
+      deviceId,
+    });
+    if (isUserLockedOut) {
+      throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
     }
 
     const hashedPassword = user?.password || '';
