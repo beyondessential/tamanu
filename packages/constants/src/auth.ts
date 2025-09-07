@@ -24,3 +24,11 @@ export const DEVICE_SCOPES = {
 export type DeviceScope = (typeof DEVICE_SCOPES)[keyof typeof DEVICE_SCOPES];
 
 export const DEVICE_SCOPES_SUBJECT_TO_QUOTA: DeviceScope[] = [DEVICE_SCOPES.SYNC_CLIENT] as const;
+
+export const LOGIN_ATTEMPT_OUTCOMES = {
+  SUCCEEDED: 'succeeded',
+  FAILED: 'failed',
+  LOCKED: 'locked',
+};
+
+export const LOCKED_OUT_ERROR_MESSAGE = 'User is locked out';
