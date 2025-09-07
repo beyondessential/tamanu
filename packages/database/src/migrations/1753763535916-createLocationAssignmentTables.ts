@@ -56,30 +56,10 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: Sequelize.fn('now'),
     },
-    created_by: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn('now'),
-    },
-    updated_by: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
     },
     deleted_at: {
       type: DataTypes.DATE,
@@ -138,30 +118,10 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
       defaultValue: Sequelize.fn('now'),
     },
-    created_by: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
-    },
     updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: Sequelize.fn('now'),
-    },
-    updated_by: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      onUpdate: 'CASCADE',
-      onDelete: 'SET NULL',
     },
     deleted_at: {
       type: DataTypes.DATE,

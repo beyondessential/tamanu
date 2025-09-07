@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
+import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
 
 export class LocationAssignment extends Model {
@@ -11,8 +12,6 @@ export class LocationAssignment extends Model {
   declare startTime: string;
   declare endTime: string;
   declare templateId?: string;
-  declare createdBy: string;
-  declare updatedBy?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -53,24 +52,26 @@ export class LocationAssignment extends Model {
       foreignKey: 'locationId',
       as: 'location',
     });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'createdBy',
-      as: 'createdByUser',
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'updatedBy',
-      as: 'updatedByUser',
-    });
-    
   }
 
   static buildSyncFilter() {
-    return null; // syncs everywhere
+    return `
+      LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+      LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
+      WHERE COALESCE(location_groups.facility_id, locations.facility_id) IN (:facilityIds)
+      AND ${this.tableName}.updated_at_sync_tick > :since
+    `;
   }
 
   static buildSyncLookupQueryDetails() {
-    return null; // syncs everywhere
+    return {
+      select: buildSyncLookupSelect(this, {
+        facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
+      }),
+      joins: `
+        LEFT JOIN locations ON ${this.tableName}.location_id = locations.id
+        LEFT JOIN location_groups ON locations.location_group_id = location_groups.id
+      `,
+    };
   }
 }

@@ -1,0 +1,51 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: procedure_assistant_clinicians
+        description: "{{ doc('table__procedure_assistant_clinicians') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_procedure_assistant_clinicians_changed
+              - record_procedure_assistant_clinicians_changelog
+              - set_procedure_assistant_clinicians_updated_at
+              - set_procedure_assistant_clinicians_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in procedure_assistant_clinicians."
+            data_tests:
+              - unique
+              - not_null
+          - name: procedure_id
+            data_type: character varying(255)
+            description: "{{ doc('procedure_assistant_clinicians__procedure_id') }}"
+            data_tests:
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('procedure_assistant_clinicians__user_id') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in procedure_assistant_clinicians."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in procedure_assistant_clinicians."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in procedure_assistant_clinicians."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in procedure_assistant_clinicians."
+            data_tests:
+              - not_null

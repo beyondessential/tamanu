@@ -13,12 +13,33 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
   });
 
   const encounterMedications = openEncounter
-    ? await models.EncounterMedication.findAll({
-      where: {
-        encounterId: openEncounter.id,
-      },
-      include: ['Medication'],
-    })
+    ? await models.Prescription.findAll({
+        include: [
+          {
+            model: models.ReferenceData,
+            as: 'medication',
+            include: [
+              {
+                model: models.ReferenceDrug,
+                as: 'referenceDrug',
+                where: {
+                  isSensitive: false,
+                },
+                required: true,
+              },
+            ],
+            required: true,
+          },
+          {
+            model: models.EncounterPrescription,
+            as: 'encounterPrescription',
+            where: {
+              encounterId: openEncounter.id,
+            },
+            required: true,
+          },
+        ],
+      })
     : [];
 
   const medicationStatementsHeader = {
@@ -57,14 +78,14 @@ export const getMedicationStatements = async ({ patient, models, dataDictionarie
       coding: [
         {
           system: dataDictionariesIps.medicationEncoding,
-          code: encounterMedication.Medication.code,
-          display: encounterMedication.Medication.name,
+          code: encounterMedication.medication.code,
+          display: encounterMedication.medication.name,
         },
       ],
     },
     text: {
       status: 'generated',
-      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.Medication.name}. Please review the data for more detail.</div>`,
+      div: `<div xmlns="http://www.w3.org/1999/xhtml">These are the Medication Statement details for ${patient.displayName} for ${encounterMedication.medication.name}. Please review the data for more detail.</div>`,
     },
     effectivePeriod: {
       start: formatFhirDate(encounterMedication.date),
