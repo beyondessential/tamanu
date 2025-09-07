@@ -6,7 +6,7 @@ import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPort
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { NotFoundError } from '@tamanu/shared/errors';
 
-export const getDesignatedSurveys = asyncHandler(async (req, res) => {
+export const getOutstandingForms = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { models } = req.store;
 
@@ -35,7 +35,7 @@ export const getDesignatedSurveys = asyncHandler(async (req, res) => {
   });
 });
 
-export const createDesignatedSurveyResponse = asyncHandler(async (req, res) => {
+export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
   const { patient, body, settings, params } = req;
   const { models } = req.store;
   const { designationId } = params;
