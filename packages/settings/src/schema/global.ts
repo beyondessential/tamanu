@@ -196,6 +196,13 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        patientPortal: {
+          description:
+            'Enable patient portal. When turned off, the patient portal api is disconnected and the UI in tamanu web to register portal users and assign them forms is hidden',
+          type: yup.boolean(),
+          defaultValue: false,
+          highRisk: true,
+        },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
           type: yup.boolean(),

@@ -13,7 +13,8 @@ import {
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
-import { Colors } from '../../../constants/index.js';
+import { Colors } from '../../../constants/index';
+import { useSettings } from '../../../contexts/Settings';
 
 const TableWrapper = styled.div`
   margin-bottom: 1.5rem;
@@ -38,6 +39,8 @@ const TableHeader = () => (
 export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const dispatch = useDispatch();
   const params = useParams();
+  const { getSetting } = useSettings();
+  const isPatientPortalEnabled = getSetting('features.patientPortal');
 
   const handleNewSurvey = () =>
     dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
@@ -64,7 +67,7 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
           data-testid="datafetchingprogramstable-uytn"
         />
       </TableWrapper>
-      <PortalSurveyAssignmentsTable patient={patient} />
+      {isPatientPortalEnabled && <PortalSurveyAssignmentsTable patient={patient} />}
     </ContentPane>
   );
 });

@@ -115,7 +115,10 @@ export async function createApi(ctx) {
   });
 
   // Patient Portal - must go before main API to avoid main authentication
-  express.use('/api/portal', patientPortalModule);
+  express.use('/api/portal', async (req, res, next) => {
+    const patientPortalEnabled = await req.settings.get('features.patientPortal');
+    return patientPortalEnabled ? patientPortalModule(req, res, next) : res.status(501).end();
+  });
 
   // API
   express.use('/api', api(ctx));

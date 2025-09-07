@@ -3,7 +3,6 @@ export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
 export * from './PortalUser';
-export * from './PortalOneTimeToken';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
