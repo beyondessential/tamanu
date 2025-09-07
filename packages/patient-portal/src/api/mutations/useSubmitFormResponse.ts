@@ -12,7 +12,7 @@ export const useSubmitFormResponse = (
   return useMutation<any, Error, PortalCreateSurveyResponseRequest>({
     mutationKey: ['submitFormResponse', designationId],
     mutationFn: async (payload) => {
-      return api.post(`/me/forms/${designationId}`, payload);
+      return api.post(`/me/forms/${designationId}`, payload as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outstandingForms'] });
