@@ -72,7 +72,7 @@ export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
     await assignedForm.update({
       surveyResponseId: surveyResponse.id,
-      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.SUBMITTED,
+      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
     });
 
     return surveyResponse;

@@ -271,8 +271,29 @@ describe('Patient Portal Forms Endpoints', () => {
     });
   });
 
-  describe('POST /api/portal/me/surveys/:designationId', () => {
-    it('creates a survey response and marks assignment submitted (happy path)', async () => {
+  describe('POST /api/portal/me/forms/:designationId', () => {
+    let testLocationId;
+    let testDepartmentId;
+
+    beforeAll(async () => {
+      const { Location, Department, Facility } = store.models;
+      const facility = await Facility.create(fake(Facility, { code: 'TEST_FAC' }));
+      const location = await Location.create(
+        fake(Location, {
+          code: 'TEST_LOC',
+          facilityId: facility.id,
+        }),
+      );
+      const department = await Department.create(
+        fake(Department, {
+          code: 'TEST_DEPT',
+          facilityId: facility.id,
+        }),
+      );
+      testLocationId = location.id;
+      testDepartmentId = department.id;
+    });
+    it('Should create a survey response and mark assignment submitted (happy path)', async () => {
       const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment } =
         store.models;
 
@@ -308,13 +329,15 @@ describe('Patient Portal Forms Endpoints', () => {
 
       const payload = {
         surveyId: survey.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
         answers: {
           [dataElement.id]: 5,
         },
       };
 
       const response = await baseApp
-        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .post(`/api/portal/me/forms/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
 
@@ -323,12 +346,12 @@ describe('Patient Portal Forms Endpoints', () => {
 
       const refreshedAssignment = await store.models.PortalSurveyAssignment.findByPk(assignment.id);
       expect(refreshedAssignment.status).toBe(
-        PORTAL_SURVEY_ASSIGNMENTS_STATUSES.SUBMITTED,
+        PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
       );
       expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
     });
 
-    it('returns 404 when assignment does not match patient/survey or is not outstanding', async () => {
+    it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
       const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment } =
         store.models;
 
@@ -360,13 +383,15 @@ describe('Patient Portal Forms Endpoints', () => {
 
       const payload = {
         surveyId: survey.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
         answers: {
           [dataElement.id]: 1,
         },
       };
 
       const resWrongPatient = await baseApp
-        .post(`/api/portal/me/surveys/${otherAssignment.id}`)
+        .post(`/api/portal/me/forms/${otherAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resWrongPatient).toHaveRequestError(404);
@@ -375,13 +400,13 @@ describe('Patient Portal Forms Endpoints', () => {
       const submittedAssignment = await PortalSurveyAssignment.create({
         patientId: testPatient.id,
         surveyId: survey.id,
-        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.SUBMITTED,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
         assignedAt: new Date().toISOString(),
         assignedById: (await store.models.User.create(fake(store.models.User))).id,
       });
 
       const resSubmitted = await baseApp
-        .post(`/api/portal/me/surveys/${submittedAssignment.id}`)
+        .post(`/api/portal/me/forms/${submittedAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resSubmitted).toHaveRequestError(404);
@@ -398,14 +423,19 @@ describe('Patient Portal Forms Endpoints', () => {
       const anotherSurvey = await Survey.create(fake(Survey, { programId: program.id, status: 'active' }));
 
       const resWrongSurvey = await baseApp
-        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .post(`/api/portal/me/forms/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ surveyId: anotherSurvey.id, answers: { [dataElement.id]: 2 } });
+        .send({
+          surveyId: anotherSurvey.id,
+          locationId: testLocationId,
+          departmentId: testDepartmentId,
+          answers: { [dataElement.id]: 2 },
+        });
       expect(resWrongSurvey).toHaveRequestError(404);
     });
 
-    it('rejects unauthorized requests', async () => {
-      const response = await baseApp.post('/api/portal/me/surveys/not-a-real-id');
+    it('Should reject unauthorized requests', async () => {
+      const response = await baseApp.post('/api/portal/me/forms/not-a-real-id');
       expect(response).toHaveRequestError();
     });
   });
