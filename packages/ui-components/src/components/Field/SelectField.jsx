@@ -11,7 +11,7 @@ import { TAMANU_COLORS } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { useTranslation } from '../../contexts/useTranslations';
+import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 import { extractTranslationFromComponent } from '../Translation/utils';
 

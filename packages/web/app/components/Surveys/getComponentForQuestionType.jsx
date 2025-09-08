@@ -6,7 +6,6 @@ import {
   MultilineTextField,
   ReadOnlyTextField,
   BaseSelectField,
-  SurveyFormContext,
 } from '@tamanu/ui-components';
 import {
   DateField,
@@ -19,7 +18,7 @@ import {
   PhotoField,
   ChartInstanceNameField,
   SurveyAnswerField,
-} from '../components/Field';
+} from '../Field';
 
 const InstructionField = ({ label, helperText }) => (
   <p>
@@ -62,7 +61,7 @@ const QUESTION_COMPONENTS = {
   ),
 };
 
-function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
+export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
     if (fieldType) {
@@ -79,11 +78,3 @@ function getComponentForQuestionType(type, { source, writeToPatient: { fieldType
   }
   return component;
 }
-
-export const SurveyFormProvider = ({ children }) => {
-  return (
-    <SurveyFormContext.Provider value={{ getComponentForQuestionType }}>
-      {children}
-    </SurveyFormContext.Provider>
-  );
-};

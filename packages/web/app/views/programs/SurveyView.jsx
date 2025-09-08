@@ -1,12 +1,16 @@
 import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { checkVisibility, getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
-
+import {
+  checkVisibility,
+  getFormInitialValues,
+  getValidationSchema,
+  SurveyFormContext,
+} from '@tamanu/ui-components';
 import { Form } from '../../components/Field';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyScreenPaginator } from '../../components/Surveys';
+import { SurveyScreenPaginator, getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedReferenceData } from '../../components';
 
@@ -115,15 +119,17 @@ export const SurveyViewForm = ({
   };
 
   return (
-    <Form
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      render={renderSurvey}
-      validationSchema={validationSchema}
-      validateOnChange
-      validateOnBlur
-      data-testid="form-12o2"
-    />
+    <SurveyFormContext.Provider value={{ getComponentForQuestionType }}>
+      <Form
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        render={renderSurvey}
+        validationSchema={validationSchema}
+        validateOnChange
+        validateOnBlur
+        data-testid="form-12o2"
+      />
+    </SurveyFormContext.Provider>
   );
 };
 

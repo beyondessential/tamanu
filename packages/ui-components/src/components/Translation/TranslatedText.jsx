@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
-import { useTranslation } from '../../contexts/useTranslations';
+import { useTranslation } from '../../contexts/TranslationContext';
 import { DebugTooltip } from './DebugTooltip';
 
 // Set DEBUG_TRANSLATION to true in localstorage if you want to highlight all translated strings in red (except suggester results)

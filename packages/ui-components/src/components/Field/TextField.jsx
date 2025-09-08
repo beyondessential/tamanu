@@ -4,8 +4,7 @@ import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TAMANU_COLORS } from '../../constants';
-import { useSettings } from '../../contexts/useSettings';
-import { useTranslation } from '../../contexts/useTranslations';
+import { useSettings, useTranslation } from '../../contexts';
 
 const JoinedFieldStyles = css`
   position: relative;
