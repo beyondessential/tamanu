@@ -20,7 +20,7 @@ export const isTranslatedText = element => {
     'LocationCell',
     'SexCell',
     'ClinicalStatusCell',
-  ].includes(element.type);
+  ];
 
   return TRANSLATED_COMPONENT_NAMES.includes(element.type?.displayName || element.type?.name);
 };

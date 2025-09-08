@@ -8,7 +8,6 @@ import { Box, Typography } from '@material-ui/core';
 import { TAMANU_COLORS } from '../constants';
 import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { useTranslation } from '../contexts/TranslationContext';
-import { useSurveyForm } from '../contexts/index.js';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -88,10 +87,15 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
   return null;
 };
 
-export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
-  console.log('component', component);
+export const SurveyQuestion = ({
+  component,
+  patient,
+  inputRef,
+  disabled,
+  encounterType,
+  getComponentForQuestionType,
+}) => {
   const { getTranslation } = useTranslation();
-  const { getComponentForQuestionType } = useSurveyForm();
 
   const {
     id: componentId,

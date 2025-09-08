@@ -17,6 +17,7 @@ import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedOption } from '../components/Translation/TranslatedOptions';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -197,6 +198,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
+              getComponentForQuestionType={getComponentForQuestionType}
               disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
             />
