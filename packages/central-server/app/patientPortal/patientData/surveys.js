@@ -4,7 +4,10 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { SurveySchema, SurveyWithComponentsSchema } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
+import {
+  SurveySchema,
+  SurveyWithComponentsSchema,
+} from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
@@ -33,7 +36,9 @@ export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   });
 
   return res.send({
-    data: outstandingSurveys.map(survey => PortalSurveyAssignmentSchema.parse(survey.forResponse())),
+    data: outstandingSurveys.map(survey =>
+      PortalSurveyAssignmentSchema.parse(survey.forResponse()),
+    ),
   });
 });
 
@@ -51,7 +56,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
   });
 
   if (!assignedSurvey) {
-    log.warn('Patient attempted to fetch survey for invalid assigned survey', {
+    log.error('Patient attempted to fetch survey for invalid assigned survey', {
       assignmentId,
       patientId: patient.id,
     });
@@ -63,18 +68,16 @@ export const getSurvey = asyncHandler(async (req, res) => {
   });
 
   if (!surveyRecord) {
-    log.warn('Unexpected survey not found, assignment has invalid surveyId', {
+    log.error('Unexpected survey not found, assignment has invalid surveyId', {
       assignmentId,
-      patientId: patient.id,
       surveyId: assignedSurvey.surveyId,
     });
     throw new NotFoundError('Survey was not found');
   }
 
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(
-    surveyRecord.id,
-    { includeAllVitals: true },
-  );
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id, {
+    includeAllVitals: true,
+  });
 
   const payload = {
     ...surveyRecord.forResponse(),
@@ -82,7 +85,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
   };
 
   return res.send(SurveyWithComponentsSchema.parse(payload));
-}); 
+});
 
 export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
@@ -98,10 +101,10 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       surveyId: body.surveyId,
     },
-  }); 
- 
-    if (!assignedSurvey) {
-    log.warn('Patient attempted to submit response for invalid assigned survey', {
+  });
+
+  if (!assignedSurvey) {
+    log.error('Patient attempted to submit response for invalid assigned survey', {
       assignmentId,
       patientId: patient.id,
       surveyId: body.surveyId,
