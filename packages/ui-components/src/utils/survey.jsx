@@ -17,9 +17,12 @@ import {
   ageInYears,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { joinNames } from './user';
-import { notifyError } from './utils';
-import { TranslatedText } from '../components/Translation/TranslatedText';
+import { TranslatedText } from '../components';
+import { notify } from '@tamanu/web-frontend/app/utils/index.js';
+
+const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
+
+const joinNames = data => [data.firstName ?? '', data.lastName ?? ''].join(' ').trim();
 
 const isNullOrUndefined = value => isNull(value) || isUndefined(value);
 

@@ -5,7 +5,7 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-
+import { TranslationContext, useTranslation } from '@tamanu/ui-components';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -21,7 +21,6 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedEnum, TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
-import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 
@@ -182,10 +181,9 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+const getType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 const getReasonForEncounter = ({ reasonForEncounter }) => (
   <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
     {reasonForEncounter}

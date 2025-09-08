@@ -4,7 +4,6 @@ export * from './CheckField';
 export * from './DateField';
 export * from './Field';
 export * from './LocalisedField';
-export * from './MultiselectField';
 export * from './NumberField';
 export * from './NullableBooleanField';
 export * from './TimeWithUnitField';

@@ -2,16 +2,10 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
-import {
-  checkMandatory,
-  getComponentForQuestionType,
-  getConfigObject,
-  getTooltip,
-  mapOptionsToValues,
-} from '../utils';
+import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../utils';
 import { Field, FieldWithTooltip } from './Field';
 import { Box, Typography } from '@material-ui/core';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '../constants';
 import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { useTranslation } from '../contexts/useTranslations';
 
@@ -24,7 +18,7 @@ export const FullWidthCol = styled.div`
 `;
 
 const OuterLabelRequired = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   padding-left: 3px;
 `;
 
@@ -32,7 +26,7 @@ const GeolocateQuestion = ({ text, component, required }) => {
   return (
     <Box data-testid="box-m234">
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}
+        style={{ fontSize: '14px', color: TAMANU_COLORS.darkestText, fontWeight: 500 }}
         data-testid="typography-7mxf"
       >
         {text}
@@ -41,13 +35,18 @@ const GeolocateQuestion = ({ text, component, required }) => {
         )}
       </Typography>
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkText }}
+        style={{ fontSize: '14px', color: TAMANU_COLORS.darkText }}
         data-testid="typography-kjjb"
       >
         {component.detail}
       </Typography>
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
+        style={{
+          fontSize: '14px',
+          color: TAMANU_COLORS.darkestText,
+          fontStyle: 'italic',
+          marginTop: 8,
+        }}
         data-testid="typography-x1r4"
       >
         <TranslatedText

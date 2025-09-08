@@ -206,15 +206,15 @@ export const BaseMultiselectField = ({ field, ...props }) => (
   />
 );
 
-export const TranslatedMultiSelectField = props => {
-  return (
-    <TranslatedEnumField
-      {...props}
-      component={MultiselectInput}
-      data-testid="translatedenumfield-oi43"
-    />
-  );
-};
+// export const TranslatedMultiSelectField = props => {
+//   return (
+//     <TranslatedEnumField
+//       {...props}
+//       component={MultiselectInput}
+//       data-testid="translatedenumfield-oi43"
+//     />
+//   );
+// };
 
 MultiselectInput.propTypes = {
   name: PropTypes.string.isRequired,

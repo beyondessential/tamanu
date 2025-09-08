@@ -10,8 +10,11 @@ import MuiBox from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
-import { FORM_STATUSES } from '../../constants';
 import { FormTooltip } from '../FormTooltip';
+
+const FORM_STATUSES = {
+  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
+};
 
 export const Field = formikConnect(
   ({

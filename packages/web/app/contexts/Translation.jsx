@@ -1,25 +1,12 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
+import { TranslationContext, useTranslation } from '@tamanu/ui-components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { useTranslationsQuery } from '../api/queries/useTranslationsQuery';
 import { translationFactory } from '@tamanu/shared/utils/translation/translationFactory';
 import { getCurrentLanguageCode } from '../utils/translation';
 import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
-/**
- * @typedef {Object} TranslationOptions
- * @property {Object} replacements - Object containing key-value pairs to replace in the translation string
- * @property {'lower' | 'upper' | 'sentence'} casing - Casing to apply to the translation string
- */
-
-export const TranslationContext = React.createContext(null);
-
-export const useTranslation = () => {
-  const context = useContext(TranslationContext);
-  if (!context) {
-    throw new Error('useTranslation has been called outside a TranslationProvider.');
-  }
-  return context;
-};
+export { useTranslation };
 
 export const TranslationProvider = ({ children }) => {
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
@@ -46,7 +33,7 @@ export const TranslationProvider = ({ children }) => {
     return value;
   };
 
-  const updateStoredLanguage = (newLanguage) => {
+  const updateStoredLanguage = newLanguage => {
     // Save the language in local state so that it updates the react component tree on change
     setStoredLanguage(newLanguage);
     // Save the language in local storage so that it persists between sessions

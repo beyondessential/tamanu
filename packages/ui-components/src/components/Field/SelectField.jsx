@@ -267,9 +267,9 @@ export const SelectField = ({ field, value, name, ...props }) => (
   <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
 );
 
-export const TranslatedSelectField = props => {
-  return <TranslatedEnumField {...props} component={SelectInput} />;
-};
+// export const TranslatedSelectField = props => {
+//   return <TranslatedEnumField {...props} component={SelectInput} />;
+// };
 
 SelectField.propTypes = {
   options: PropTypes.oneOfType([PropTypes.object, PropTypes.arrayOf(PropTypes.object)]).isRequired,
