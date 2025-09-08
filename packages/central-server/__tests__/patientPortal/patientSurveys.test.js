@@ -54,7 +54,7 @@ describe('Patient Portal Surveys Endpoints', () => {
 
   afterAll(async () => close());
 
-  describe('GET /api/portal/me/surveys/outstanding', () => {
+  describe('GET /api/portal/me/surveys', () => {
     beforeAll(async () => {
       const { Survey } = store.models;
 
@@ -71,7 +71,7 @@ describe('Patient Portal Surveys Endpoints', () => {
 
     it('Should return outstanding forms for authenticated request', async () => {
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
@@ -108,7 +108,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -145,7 +145,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -181,7 +181,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -227,7 +227,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -256,7 +256,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/surveys/outstanding')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -266,12 +266,60 @@ describe('Patient Portal Surveys Endpoints', () => {
     });
 
     it('Should reject request without authorization header', async () => {
-      const response = await baseApp.get('/api/portal/me/surveys/outstanding');
+      const response = await baseApp.get('/api/portal/me/surveys');
       expect(response).toHaveRequestError();
     });
   });
+  
+  describe('GET /api/portal/me/surveys/:assignmentId', () => {
+    it('Should return survey with components for a valid assignment', async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment, User } = store.models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(
+        fake(Survey, {
+          programId: program.id,
+          status: 'active',
+        }),
+      );
+      const pde = await ProgramDataElement.create(
+        fake(ProgramDataElement, {
+          type: 'Number',
+        }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: pde.id,
+          surveyId: survey.id,
+          config: JSON.stringify({}),
+        }),
+      );
+      const assignedById = (await User.create(fake(User))).id;
+      const assignment = await PortalSurveyAssignment.create({
+        patientId: testPatient.id,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+        assignedAt: new Date().toISOString(),
+        assignedById,
+      });
 
-  describe('POST /api/portal/me/surveys/:designationId', () => {
+      const response = await baseApp
+        .get(`/api/portal/me/surveys/${assignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toMatchObject({ id: survey.id, components: expect.any(Array) });
+      expect(response.body.components.length).toBeGreaterThan(0);
+    });
+
+    it('Should return 404 for invalid/mismatched assignment', async () => {
+      const res = await baseApp
+        .get('/api/portal/me/surveys/not-a-real-id')
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(res).toHaveRequestError(404);
+    });
+  });
+
+  describe('POST /api/portal/me/surveys/:assignmentId', () => {
     let testLocationId;
     let testDepartmentId;
     let baseSurvey;

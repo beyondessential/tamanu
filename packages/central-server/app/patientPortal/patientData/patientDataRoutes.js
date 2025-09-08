@@ -25,5 +25,5 @@ patientDataRoutes.get('/vaccinations/administered', getAdministeredVaccines);
 patientDataRoutes.get('/appointments/upcoming', getUpcomingAppointments);
 
 patientDataRoutes.get('/surveys', getOutstandingSurveys);
-patientDataRoutes.get('/surveys/:designationId', getSurvey);
-patientDataRoutes.post('/surveys/:designationId', createSurveyResponse);
+patientDataRoutes.get('/surveys/:assignmentId', getSurvey);
+patientDataRoutes.post('/surveys/:assignmentId', createSurveyResponse);

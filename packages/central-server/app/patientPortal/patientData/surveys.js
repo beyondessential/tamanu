@@ -40,11 +40,11 @@ export const getOutstandingSurveys = asyncHandler(async (req, res) => {
 export const getSurvey = asyncHandler(async (req, res) => {
   const { patient, params } = req;
   const { models } = req.store;
-  const { designationId } = params;
+  const { assignmentId } = params;
 
   const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
-      id: designationId,
+      id: assignmentId,
       patientId: patient.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
     },
@@ -52,7 +52,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
 
   if (!assignedSurvey) {
     log.warn('Patient attempted to fetch survey for invalid assigned survey', {
-      designationId,
+      assignmentId,
       patientId: patient.id,
     });
     throw new NotFoundError('Survey was not assigned to the patient');
@@ -90,7 +90,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       surveyId: body.surveyId,
     },
-  });
+  }); 
  
     if (!assignedSurvey) {
     log.warn('Patient attempted to submit response for invalid assigned survey', {
