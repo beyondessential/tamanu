@@ -4,6 +4,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
+import { DesignatedFormSchema } from '@tamanu/shared/schemas/patientPortal/responses/designatedForm.schema';
 import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
@@ -67,10 +68,12 @@ export const getDesignatedForm = asyncHandler(async (req, res) => {
     { includeAllVitals: true },
   );
 
-  return res.send({
+  const payload = {
     ...surveyRecord.forResponse(),
     components,
-  });
+  };
+
+  return res.send(DesignatedFormSchema.parse(payload));
 });
 
 export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
