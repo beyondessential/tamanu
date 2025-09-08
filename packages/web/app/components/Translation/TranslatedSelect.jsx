@@ -1,6 +1,7 @@
 import React from 'react';
 import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
-import { MultiselectInput, SelectInput } from '../Field';
+import { MultiselectInput } from '../Field';
+import { SelectInput } from '@tamanu/ui-components';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
 

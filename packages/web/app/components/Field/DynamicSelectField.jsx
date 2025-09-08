@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { SelectInput } from './SelectField';
+import { SelectInput } from '@tamanu/ui-components';
 import { AutocompleteInput } from './AutocompleteField';
 
 const SELECT_OPTIONS_LIMIT = 7;

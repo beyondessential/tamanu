@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { SelectInput } from './SelectField';
+import { SelectInput } from '@tamanu/ui-components';
 import { MultiselectInput } from './MultiselectField';
 import { useSuggesterOptions } from '../../hooks';
 
