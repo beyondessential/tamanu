@@ -42,6 +42,7 @@ export const SurveyWithComponentsSchema = SurveySchema.extend({
 });
 
 export type Survey = z.infer<typeof SurveySchema>;
+export type SurveyWithComponents = z.infer<typeof SurveyWithComponentsSchema>;
 export type ProgramDataElement = z.infer<typeof ProgramDataElementSchema>;
 export type SurveyScreenComponent = z.infer<typeof SurveyScreenComponentSchema>;
-export type SurveyWithComponents = z.infer<typeof SurveyWithComponentsSchema>;
+
