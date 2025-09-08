@@ -54,7 +54,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
   afterAll(async () => close());
 
-  describe('GET /api/portal/me/forms', () => {
+  describe('GET /api/portal/me/surveys', () => {
     beforeAll(async () => {
       const { Survey } = store.models;
 
@@ -71,7 +71,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
     it('Should return outstanding forms for authenticated request', async () => {
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
@@ -108,7 +108,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -145,7 +145,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -181,7 +181,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -227,7 +227,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -256,7 +256,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms')
+        .get('/api/portal/me/surveys')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -266,12 +266,12 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     it('Should reject request without authorization header', async () => {
-      const response = await baseApp.get('/api/portal/me/forms');
+      const response = await baseApp.get('/api/portal/me/surveys');
       expect(response).toHaveRequestError();
     });
   });
 
-  describe('POST /api/portal/me/forms/:designationId', () => {
+  describe('POST /api/portal/me/surveys/:designationId', () => {
     let testLocationId;
     let testDepartmentId;
     let baseSurvey;
@@ -353,7 +353,7 @@ describe('Patient Portal Forms Endpoints', () => {
       };
 
       const response = await baseApp
-        .post(`/api/portal/me/forms/${assignment.id}`)
+        .post(`/api/portal/me/surveys/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
 
@@ -388,7 +388,7 @@ describe('Patient Portal Forms Endpoints', () => {
       };
 
       const resWrongPatient = await baseApp
-        .post(`/api/portal/me/forms/${otherAssignment.id}`)
+        .post(`/api/portal/me/surveys/${otherAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resWrongPatient).toHaveRequestError(404);
@@ -401,7 +401,7 @@ describe('Patient Portal Forms Endpoints', () => {
       });
 
       const resSubmitted = await baseApp
-        .post(`/api/portal/me/forms/${submittedAssignment.id}`)
+        .post(`/api/portal/me/surveys/${submittedAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resSubmitted).toHaveRequestError(404);
@@ -416,7 +416,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const anotherSurvey = await Survey.create(fake(Survey, { status: 'active' }));
 
       const resWrongSurvey = await baseApp
-        .post(`/api/portal/me/forms/${assignment.id}`)
+        .post(`/api/portal/me/surveys/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
@@ -428,7 +428,7 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     it('Should reject unauthorized requests', async () => {
-      const response = await baseApp.post('/api/portal/me/forms/not-a-real-id');
+      const response = await baseApp.post('/api/portal/me/surveys/not-a-real-id');
       expect(response).toHaveRequestError();
     });
   });

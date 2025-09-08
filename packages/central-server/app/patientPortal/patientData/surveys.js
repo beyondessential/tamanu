@@ -4,11 +4,11 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { DesignatedFormSchema } from '@tamanu/shared/schemas/patientPortal/responses/designatedForm.schema';
+import { FullSurveySchema } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
-export const getDesignatedForms = asyncHandler(async (req, res) => {
+export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { models } = req.store;
 
@@ -37,7 +37,7 @@ export const getDesignatedForms = asyncHandler(async (req, res) => {
   });
 });
 
-export const getDesignatedForm = asyncHandler(async (req, res) => {
+export const getSurvey = asyncHandler(async (req, res) => {
   const { patient, params } = req;
   const { models } = req.store;
   const { designationId } = params;
@@ -73,10 +73,10 @@ export const getDesignatedForm = asyncHandler(async (req, res) => {
     components,
   };
 
-  return res.send(DesignatedFormSchema.parse(payload));
-});
+  return res.send(FullSurveySchema.parse(payload));
+}); 
 
-export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
+export const submitSurveyResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
   const { models } = req.store;
   const { designationId } = params;
