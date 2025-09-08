@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 
 import { useTranslation } from '../contexts/Translation';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, TextField } from '../components/Field';
+import { TextField } from '@tamanu/ui-components';
+import { Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 

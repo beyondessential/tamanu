@@ -7,7 +7,7 @@ import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/co
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
-import { StyledTextField } from './TextField';
+import { StyledTextField } from '@tamanu/ui-components';
 import { FormFieldTag } from '../Tag';
 import { TranslationContext } from '../../contexts/Translation';
 import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';

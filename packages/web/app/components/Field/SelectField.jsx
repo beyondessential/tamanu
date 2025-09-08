@@ -8,7 +8,7 @@ import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { StyledTextField } from './TextField';
+import { StyledTextField } from '@tamanu/ui-components';
 import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';

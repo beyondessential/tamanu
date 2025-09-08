@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { AutocompleteField, DateField, Field, Form, TextField } from '../components/Field';
+import { TextField } from '@tamanu/ui-components';
+import { AutocompleteField, DateField, Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 

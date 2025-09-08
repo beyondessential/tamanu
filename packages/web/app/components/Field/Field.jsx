@@ -9,7 +9,7 @@ import {
 import MuiBox from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { ThemedTooltip } from '../Tooltip';
-import { TextField } from './TextField';
+import { TextField } from '@tamanu/ui-components';
 import { FORM_STATUSES } from '../../constants';
 import { FormTooltip } from '../FormTooltip';
 

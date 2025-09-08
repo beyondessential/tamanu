@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { Colors } from '../../constants';
 import { ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
-import { TextInput } from './TextField';
+import { TextInput } from '@tamanu/ui-components';
 
 const getMaxDate = () => {
   return endOfYear(add(new Date(), { years: 4 }));
@@ -126,7 +126,7 @@ export const MonthPicker = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleMonthChange = (monthString) => {
+  const handleMonthChange = monthString => {
     const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
     if (isValid(parsedDateString)) onChange?.(parsedDateString);
   };
@@ -146,8 +146,8 @@ export const MonthPicker = ({
       }}
       slotProps={{
         textField: {
-          onBlur: (e) => handleMonthChange(e.target.value),
-          onKeyDown: (e) => {
+          onBlur: e => handleMonthChange(e.target.value),
+          onKeyDown: e => {
             if (e.key === 'Enter') {
               handleMonthChange(e.target.value);
             }
@@ -155,7 +155,7 @@ export const MonthPicker = ({
           ...props,
         },
       }}
-      onAccept={(date) => {
+      onAccept={date => {
         if (isValid(date)) onChange?.(date);
       }}
       minDate={minDate}
