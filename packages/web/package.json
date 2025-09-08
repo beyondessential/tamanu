@@ -78,7 +78,7 @@
     "cronstrue": "^2.50.0",
     "date-fns": "^2.25.0",
     "deep-equal": "^1.0.1",
-    " "^2.2.9",
+    "formik": "^2.2.9",
     "history": "^4.7.2",
     "identity-obj-proxy": "^3.0.0",
     "inflection": "^3.0.2",
