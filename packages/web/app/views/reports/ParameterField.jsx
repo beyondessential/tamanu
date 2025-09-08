@@ -11,10 +11,10 @@ import { useSuggester } from '../../api';
 import {
   AutocompleteField,
   Field,
-  BaseSelectField,
   BaseMultiselectField,
   SuggesterSelectField,
 } from '../../components';
+import { BaseSelectField } from '@tamanu/ui-components';
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
