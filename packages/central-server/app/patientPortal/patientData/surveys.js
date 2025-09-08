@@ -59,9 +59,6 @@ export const getSurvey = asyncHandler(async (req, res) => {
   }
 
   const surveyRecord = await models.Survey.findByPk(assignedSurvey.surveyId);
-  if (!surveyRecord) {
-    throw new NotFoundError('Survey not found');
-  }
 
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(
     surveyRecord.id,

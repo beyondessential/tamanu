@@ -317,6 +317,79 @@ describe('Patient Portal Surveys Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
       expect(res).toHaveRequestError(404);
     });
+
+    it('Should return 404 when assignment belongs to a different patient', async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment } = store.models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(
+        fake(Survey, {
+          programId: program.id,
+          status: 'active',
+        }),
+      );
+      const pde = await ProgramDataElement.create(
+        fake(ProgramDataElement, {
+          type: 'Number',
+        }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: pde.id,
+          surveyId: survey.id,
+          config: JSON.stringify({}),
+        }),
+      );
+
+      const otherPatient = await store.models.Patient.create(fake(store.models.Patient));
+      const otherAssignment = await PortalSurveyAssignment.create({
+        patientId: otherPatient.id,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+        assignedAt: new Date().toISOString(),
+        assignedById: (await store.models.User.create(fake(store.models.User))).id,
+      });
+
+      const res = await baseApp
+        .get(`/api/portal/me/surveys/${otherAssignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(res).toHaveRequestError(404);
+    });
+
+    it("Should return 404 when assignment isn't outstanding", async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent, PortalSurveyAssignment, User } = store.models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(
+        fake(Survey, {
+          programId: program.id,
+          status: 'active',
+        }),
+      );
+      const pde = await ProgramDataElement.create(
+        fake(ProgramDataElement, {
+          type: 'Number',
+        }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: pde.id,
+          surveyId: survey.id,
+          config: JSON.stringify({}),
+        }),
+      );
+      const assignedById = (await User.create(fake(User))).id;
+      const completedAssignment = await PortalSurveyAssignment.create({
+        patientId: testPatient.id,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
+        assignedAt: new Date().toISOString(),
+        assignedById,
+      });
+
+      const res = await baseApp
+        .get(`/api/portal/me/surveys/${completedAssignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`);
+      expect(res).toHaveRequestError(404);
+    });
   });
 
   describe('POST /api/portal/me/surveys/:assignmentId', () => {
