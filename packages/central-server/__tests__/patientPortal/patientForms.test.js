@@ -54,7 +54,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
   afterAll(async () => close());
 
-  describe('GET /api/portal/me/forms/outstanding', () => {
+  describe('GET /api/portal/me/forms', () => {
     beforeAll(async () => {
       const { Survey } = store.models;
 
@@ -71,7 +71,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
     it('Should return outstanding forms for authenticated request', async () => {
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
@@ -108,7 +108,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -145,7 +145,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -181,7 +181,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -227,7 +227,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -256,7 +256,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/forms')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -266,7 +266,7 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     it('Should reject request without authorization header', async () => {
-      const response = await baseApp.get('/api/portal/me/forms/outstanding');
+      const response = await baseApp.get('/api/portal/me/forms');
       expect(response).toHaveRequestError();
     });
   });

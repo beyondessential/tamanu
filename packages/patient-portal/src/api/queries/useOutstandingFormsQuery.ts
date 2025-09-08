@@ -11,7 +11,7 @@ export const useOutstandingFormsQuery = () => {
 
   return useQuery<unknown, Error, PortalSurveyAssignment[]>({
     queryKey: ['outstandingForms'],
-    queryFn: () => api.get('/me/forms/outstanding'),
+    queryFn: () => api.get('/me/forms'),
     select: transformArray<PortalSurveyAssignment>(PortalSurveyAssignmentSchema),
   });
 };

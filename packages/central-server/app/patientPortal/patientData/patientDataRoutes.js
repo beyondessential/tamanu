@@ -24,6 +24,6 @@ patientDataRoutes.get('/vaccinations/administered', getAdministeredVaccines);
 
 patientDataRoutes.get('/appointments/upcoming', getUpcomingAppointments);
 
-patientDataRoutes.get('/forms/outstanding', getOutstandingForms);
+patientDataRoutes.get('/forms', getDesignatedForms);
 patientDataRoutes.get('/forms/:designationId', getDesignatedForm);
 patientDataRoutes.post('/forms/:designationId', submitDesignatedFormResponse);

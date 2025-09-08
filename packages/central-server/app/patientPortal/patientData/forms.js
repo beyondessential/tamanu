@@ -7,7 +7,7 @@ import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
-export const getOutstandingForms = asyncHandler(async (req, res) => {
+export const getDesignatedForms = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { models } = req.store;
 
