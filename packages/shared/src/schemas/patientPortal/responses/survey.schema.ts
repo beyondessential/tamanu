@@ -25,8 +25,6 @@ export const SurveyScreenComponentSchema = z.object({
   options: z.string().optional().nullable(),
   calculation: z.string().optional().nullable(),
   visibilityStatus: z.string().optional().nullable(),
-  surveyId: z.string().optional().nullable(),
-  dataElementId: z.string().optional().nullable(),
   dataElement: ProgramDataElementSchema.optional().nullable(),
 });
 

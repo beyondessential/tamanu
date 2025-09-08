@@ -64,7 +64,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
   }
 
   const surveyRecord = await models.Survey.findByPk(assignedSurvey.surveyId, {
-    attributes: getAttributesFromSchema(SurveySchema.shape.survey),
+    attributes: getAttributesFromSchema(SurveySchema),
   });
 
   if (!surveyRecord) {
