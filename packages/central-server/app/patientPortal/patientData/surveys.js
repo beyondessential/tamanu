@@ -52,7 +52,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
     },
   });
  
-    if (!assignedSurvey) {
+  if (!assignedSurvey) {
     log.error('Patient attempted to submit response for invalid assigned survey', {
       assignmentId,
       patientId: patient.id,
