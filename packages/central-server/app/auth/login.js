@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { SERVER_TYPES } from '@tamanu/constants';
+import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
@@ -104,20 +104,34 @@ export const login = ({ secret, refreshSecret }) =>
       deviceId,
     });
     if (isUserLockedOut) {
-      // TODO: Create locked out login attempt?
+      await models.UserLoginAttempt.create({
+        userId: user.id,
+        deviceId,
+        outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
+      });
       throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
       // TODO: Create failed login attempt and check if user should be locked out?
+      await models.UserLoginAttempt.create({
+        userId: user.id,
+        deviceId,
+        outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
+      });
       throw new BadAuthenticationError('Invalid credentials');
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
     await ensureDeviceRegistration({ models, settings, user, deviceId, scopes });
 
-    // TODO: Create successful login attempt?
+    // Create successful login attempt
+    await models.UserLoginAttempt.create({
+      userId: user.id,
+      deviceId,
+      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
+    });
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
