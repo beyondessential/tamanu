@@ -5,14 +5,14 @@ import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPort
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { FullSurveySchema } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
-import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
+import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { models } = req.store;
 
-  const outstandingForms = await models.PortalSurveyAssignment.findAll({
+  const outstandingSurveys = await models.PortalSurveyAssignment.findAll({
     where: {
       patientId: patient.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
@@ -33,7 +33,7 @@ export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   });
 
   return res.send({
-    data: outstandingForms.map(form => PortalSurveyAssignmentSchema.parse(form.forResponse())),
+    data: outstandingSurveys.map(survey => PortalSurveyAssignmentSchema.parse(survey.forResponse())),
   });
 });
 
@@ -42,7 +42,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
   const { models } = req.store;
   const { designationId } = params;
 
-  const assignedForm = await models.PortalSurveyAssignment.findOne({
+  const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
       id: designationId,
       patientId: patient.id,
@@ -50,15 +50,15 @@ export const getSurvey = asyncHandler(async (req, res) => {
     },
   });
 
-  if (!assignedForm) {
-    log.warn('Patient attempted to fetch survey for invalid designated form', {
+  if (!assignedSurvey) {
+    log.warn('Patient attempted to fetch survey for invalid assigned survey', {
       designationId,
       patientId: patient.id,
     });
-    throw new NotFoundError('Form was not assigned to the patient');
+    throw new NotFoundError('Survey was not assigned to the patient');
   }
 
-  const surveyRecord = await models.Survey.findByPk(assignedForm.surveyId);
+  const surveyRecord = await models.Survey.findByPk(assignedSurvey.surveyId);
   if (!surveyRecord) {
     throw new NotFoundError('Survey not found');
   }
@@ -82,9 +82,9 @@ export const submitSurveyResponse = asyncHandler(async (req, res) => {
   const { designationId } = params;
 
   // Validate request body with portal-specific schema (no patientId from client)
-  const body = PortalCreateSurveyResponseRequestSchema.parse(req.body);
+  const body = CreateSurveyResponseRequestSchema.parse(req.body);
 
-  const assignedForm = await models.PortalSurveyAssignment.findOne({
+  const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
       id: designationId,
       patientId: patient.id,
@@ -93,13 +93,13 @@ export const submitSurveyResponse = asyncHandler(async (req, res) => {
     },
   });
  
-  if (!assignedForm) {
-    log.warn('Patient attempted to submit response for invalid designated form', {
+  if (!assignedSurvey) {
+    log.warn('Patient attempted to submit response for invalid assigned survey', {
       designationId,
       patientId: patient.id,
       surveyId: body.surveyId,
     });
-    throw new NotFoundError('Form was not assigned to the patient');
+    throw new NotFoundError('Survey was not assigned to the patient');
   }
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
@@ -114,7 +114,7 @@ export const submitSurveyResponse = asyncHandler(async (req, res) => {
       ...payload,
     };
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
-    await assignedForm.update({
+    await assignedSurvey.update({
       surveyResponseId: surveyResponse.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
     });
