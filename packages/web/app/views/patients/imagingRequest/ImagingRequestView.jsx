@@ -25,16 +25,14 @@ import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormGrid } from '../../../components/FormGrid';
-import { TextInput } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, TextInput } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   DateTimeInput,
   Field,
   Form,
-  TranslatedSelectField,
 } from '../../../components/Field';
-import { TextField } from '@tamanu/ui-components';
 import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';
@@ -42,7 +40,6 @@ import { TranslatedText } from '../../../components/Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAuth } from '../../../contexts/Auth';
-
 
 const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
   const { getLocalisation } = useLocalisation();
@@ -86,7 +83,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         data-testid="textinput-wgcp"
       />
       <TextInput
-        value={imagingPriorities.find((p) => p.value === imagingRequest.priority)?.label || ''}
+        value={imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''}
         label={
           <TranslatedText
             stringId="imaging.priority.label"
@@ -108,7 +105,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
         }
         component={TranslatedSelectField}
         enumValues={IMAGING_REQUEST_STATUS_LABELS}
-        transformOptions={(options) => {
+        transformOptions={options => {
           return isCancelled
             ? [
                 {
@@ -117,7 +114,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
                 },
               ]
             : options.filter(
-                (option) =>
+                option =>
                   ![
                     IMAGING_REQUEST_STATUS_TYPES.DELETED,
                     IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
@@ -163,7 +160,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
           // Either use free text area or multi-select areas data
           imagingRequest.areas?.length
             ? imagingRequest.areas
-                .map((area) =>
+                .map(area =>
                   getTranslation(getReferenceDataStringId(area.id, area.type), area.name),
                 )
                 .join(', ')
@@ -183,8 +180,8 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter((note) => note.noteType === NOTE_TYPES.OTHER)
-          .map((note) => note.content)
+          ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+          .map(note => note.content)
           .join('\n')}
         label={
           <TranslatedText
@@ -345,12 +342,12 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
   const { facilityId } = useAuth();
 
   const isCancelled = imagingRequest.status === IMAGING_REQUEST_STATUS_TYPES.CANCELLED;
-  const getCanAddResult = (values) => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
+  const getCanAddResult = values => values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED;
 
   return (
     <Form
       // Only submit specific fields for update
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         const updatedValues = pick(values, 'status', 'completedById', 'locationGroupId');
         if (getCanAddResult(values)) {
           updatedValues.newResult = values.newResult;
@@ -434,8 +431,8 @@ const ImagingRequestInfoPane = React.memo(({ imagingRequest, onSubmit }) => {
 });
 
 export const ImagingRequestView = () => {
-  const imagingRequest = useSelector((state) => state.imagingRequest);
-  const patient = useSelector((state) => state.patient);
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
 
   const dispatch = useDispatch();
   const params = useParams();

@@ -18,9 +18,8 @@ import {
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
-  TranslatedSelectField,
 } from '../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
@@ -51,7 +50,7 @@ const attendingClinicianLabel = (
 );
 
 const mannerOfDeathVisibilityCriteria = {
-  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter((x) => x !== 'Disease'),
+  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
 export const DeathForm = React.memo(
@@ -102,7 +101,10 @@ export const DeathForm = React.memo(
                 />,
               ),
           }),
-          clinicianId: yup.string().required().translatedLabel(attendingClinicianLabel),
+          clinicianId: yup
+            .string()
+            .required()
+            .translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
             .max(
@@ -157,7 +159,7 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-x1yy"
               />
             }
-            component={(props) => (
+            component={props => (
               <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
             )}
             saveDateAsString

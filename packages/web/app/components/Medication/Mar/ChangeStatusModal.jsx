@@ -5,14 +5,8 @@ import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import {
-  Field,
-  Form,
-  NumberField,
-  AutocompleteField,
-} from '../../Field';
-import { TranslatedSelectField } from '@tamanu/ui-components';
-import { TextField } from '@tamanu/ui-components';
+import { Field, Form, NumberField, AutocompleteField } from '../../Field';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useAuth } from '../../../contexts/Auth';
@@ -213,10 +207,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
       open={open}
       onClose={onClose}
       title={
-        <TranslatedText
-          stringId="modal.mar.changeStatusModal.title"
-          fallback="Change status"
-        />
+        <TranslatedText stringId="modal.mar.changeStatusModal.title" fallback="Change status" />
       }
     >
       <MarInfoPane medication={medication} marInfo={marInfo} />
@@ -264,7 +255,12 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />
@@ -336,14 +332,21 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                   <Field
                     name="givenByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />}
+                    label={
+                      <TranslatedText stringId="mar.details.givenBy.label" fallback="Given by" />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />
                   <Field
                     name="recordedByUserId"
                     component={AutocompleteField}
-                    label={<TranslatedText stringId="mar.details.recordedBy.label" fallback="Recorded by" />}
+                    label={
+                      <TranslatedText
+                        stringId="mar.details.recordedBy.label"
+                        fallback="Recorded by"
+                      />
+                    }
                     suggester={practitionerSuggester}
                     required
                   />

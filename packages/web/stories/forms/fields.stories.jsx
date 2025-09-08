@@ -7,20 +7,19 @@ import MuiDialog from '@material-ui/core/Dialog';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
-import { TextInput, SelectInput } from '@tamanu/ui-components';
+import { TextInput, SelectInput, MultiselectInput } from '@tamanu/ui-components';
+
 import {
   AutocompleteInput,
   DateInput,
   DateTimeInput,
   MonthPicker,
-  MultiselectInput,
   NullableBooleanInput,
   NumberInput,
   TimeInput,
   TimeWithUnitInput,
   SwitchInput,
 } from '../../app/components';
-import { SelectInput } from '@tamanu/ui-components';
 import { IdInput } from '../../app/components/Field/IdField';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';

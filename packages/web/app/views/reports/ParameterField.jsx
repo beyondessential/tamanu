@@ -8,13 +8,8 @@ import {
 } from '@tamanu/constants/suggesters';
 
 import { useSuggester } from '../../api';
-import {
-  AutocompleteField,
-  Field,
-  BaseMultiselectField,
-  SuggesterSelectField,
-} from '../../components';
-import { BaseSelectField } from '@tamanu/ui-components';
+import { AutocompleteField, Field, SuggesterSelectField } from '../../components';
+import { BaseSelectField, BaseMultiselectField } from '@tamanu/ui-components';
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';

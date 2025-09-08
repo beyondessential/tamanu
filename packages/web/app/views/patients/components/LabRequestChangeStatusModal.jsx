@@ -1,7 +1,7 @@
 import React from 'react';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants/labs';
 import * as yup from 'yup';
-
+import { TranslatedSelectField } from '@tamanu/ui-components';
 import {
   DateTimeField,
   Field,
@@ -10,7 +10,6 @@ import {
   FormModal,
   FormSubmitCancelRow,
   SuggesterSelectField,
-  TranslatedSelectField,
 } from '../../../components';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { getEnumPrefix, throwIfNotRegisteredEnum } from '@tamanu/shared/utils/enumRegistry';
-import { MultiselectInput } from '../Field';
-import { SelectInput } from '@tamanu/ui-components';
+import { SelectInput, MultiselectInput } from '@tamanu/ui-components';
 import { getTranslatedOptions } from './getTranslatedOptions';
 import { IS_DEVELOPMENT } from '../../utils/env';
 
@@ -45,7 +44,7 @@ const TranslatedSelectInput = ({
   );
 };
 
-export const TranslatedSelectField = (props) => {
+export const TranslatedSelectField = props => {
   return (
     <TranslatedSelectInput
       {...props}
@@ -55,7 +54,7 @@ export const TranslatedSelectField = (props) => {
   );
 };
 
-export const TranslatedMultiSelectField = (props) => {
+export const TranslatedMultiSelectField = props => {
   return (
     <TranslatedSelectInput
       {...props}

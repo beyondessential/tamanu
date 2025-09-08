@@ -1,10 +1,15 @@
 import React, { useContext } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-import { LimitedTextField, MultilineTextField, ReadOnlyTextField, BaseSelectField } from '@tamanu/ui-components';
+import {
+  BaseMultiselectField,
+  LimitedTextField,
+  MultilineTextField,
+  ReadOnlyTextField,
+  BaseSelectField,
+} from '@tamanu/ui-components';
 import {
   DateField,
   DateTimeField,
-  BaseMultiselectField,
   NullableBooleanField,
   NumberField,
   PatientDataDisplayField,
