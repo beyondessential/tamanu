@@ -9,7 +9,7 @@ export const useSubmitSurveyResponse = (
   const queryClient = useQueryClient();
   const api = useApi();
   return useMutation<void, Error, CreateSurveyResponseRequest>({
-    mutationKey: ['submitFormResponse', assignmentId],
+    mutationKey: ['submitSurveyResponse', assignmentId],
     mutationFn: async payload => {
       await api.post(`/me/surveys/${assignmentId}`, payload as any);
     },
