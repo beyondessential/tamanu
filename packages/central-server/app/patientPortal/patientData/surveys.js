@@ -4,7 +4,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { SurveyWithComponentsSchema } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
+import { SurveySchema, SurveyWithComponentsSchema } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
@@ -58,7 +58,18 @@ export const getSurvey = asyncHandler(async (req, res) => {
     throw new NotFoundError('Survey was not assigned to the patient');
   }
 
-  const surveyRecord = await models.Survey.findByPk(assignedSurvey.surveyId);
+  const surveyRecord = await models.Survey.findByPk(assignedSurvey.surveyId, {
+    attributes: getAttributesFromSchema(SurveySchema.shape.survey),
+  });
+
+  if (!surveyRecord) {
+    log.warn('Unexpected survey not found, assignment has invalid surveyId', {
+      assignmentId,
+      patientId: patient.id,
+      surveyId: assignedSurvey.surveyId,
+    });
+    throw new NotFoundError('Survey was not found');
+  }
 
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(
     surveyRecord.id,
