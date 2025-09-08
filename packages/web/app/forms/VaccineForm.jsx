@@ -2,10 +2,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { PropTypes } from 'prop-types';
 import * as yup from 'yup';
 
-import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES } from '@tamanu/constants';
+import { SETTING_KEYS, VACCINE_CATEGORIES, VACCINE_RECORDING_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { ISO9075_DATE_FORMAT, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { FORM_TYPES, REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
+import { REQUIRED_INLINE_ERROR_MESSAGE } from '../constants';
 import { Form } from '../components/Field';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { LoadingIndicator } from '../components/LoadingIndicator';

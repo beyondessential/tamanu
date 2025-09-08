@@ -6,9 +6,9 @@ import {
   DIAGNOSIS_CERTAINTY,
   DIAGNOSIS_CERTAINTY_VALUES,
   DIAGNOSIS_CERTAINTY_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
 import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';

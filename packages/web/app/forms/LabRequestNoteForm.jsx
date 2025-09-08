@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import NotesIcon from '@material-ui/icons/Notes';
 import { Box } from '@material-ui/core';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi } from '../api';
@@ -16,7 +16,6 @@ import {
   FormSubmitButton,
 } from '../components';
 import { TextField } from '@tamanu/ui-components';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`

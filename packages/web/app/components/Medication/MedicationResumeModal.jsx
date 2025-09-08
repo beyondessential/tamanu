@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { BaseModal, Form, FormCancelButton, FormSubmitButton, TranslatedText } from '..';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { MedicationSummary } from './MedicationSummary';
 import { useEncounter } from '../../contexts/Encounter';

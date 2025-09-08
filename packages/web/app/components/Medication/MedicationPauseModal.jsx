@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import {
   BaseModal,
@@ -15,7 +16,7 @@ import {
   TranslatedText,
 } from '..';
 import { SelectField, TextField } from '@tamanu/ui-components';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';

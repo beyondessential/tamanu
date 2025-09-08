@@ -1,5 +1,6 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Field,
   Form,
@@ -9,7 +10,6 @@ import {
   LocalisedLocationField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {

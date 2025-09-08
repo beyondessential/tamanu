@@ -11,6 +11,7 @@ import {
   REFERENCE_TYPES,
   TASK_FREQUENCY_UNIT_LABELS,
   TASK_DURATION_UNIT_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 
 import {
@@ -28,7 +29,7 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';
 import { REFERENCE_DATA_TYPE_TO_LABEL } from '../constants/task';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';

@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 import * as yup from 'yup';
 import { ASSET_NAME_LABELS } from '@tamanu/constants/importable';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import { useApi } from '../../api';
 import { Field, Form } from '../../components/Field';
@@ -11,7 +12,6 @@ import { FormGrid } from '../../components/FormGrid';
 import { ButtonRow } from '../../components/ButtonRow';
 import { LargeSubmitButton } from '../../components/Button';
 import { AdminViewContainer } from './components/AdminViewContainer';
-import { FORM_TYPES } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ResultDisplay = ({ result }) => {

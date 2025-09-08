@@ -11,10 +11,10 @@ import {
   FormSubmitCancelRow,
   TranslatedText,
 } from '../components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useMarkTaskCompleted } from '../api/mutations/useTaskMutation';
-import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';

@@ -3,6 +3,8 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { TextField, TallMultilineTextField } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+
 import { Field, Form } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import {
@@ -11,7 +13,6 @@ import {
   OutlinedButton,
   RedOutlinedButton,
 } from '../../../components';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const DeleteButton = styled(RedOutlinedButton)`

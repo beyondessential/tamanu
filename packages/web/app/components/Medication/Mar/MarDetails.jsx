@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { Colors } from '../../../constants';
 import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
@@ -14,7 +14,7 @@ import { AutocompleteField, CheckField, Field, Form, NumberField } from '../../F
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';

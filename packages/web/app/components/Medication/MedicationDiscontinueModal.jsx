@@ -2,7 +2,12 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { TextField } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants';
+
+import { Colors } from '../../constants';
 import { MedicationSummary } from './MedicationSummary';
 import {
   AutocompleteField,
@@ -14,8 +19,6 @@ import {
   FormSubmitButton,
   TranslatedText,
 } from '..';
-import { TextField } from '@tamanu/ui-components';
-import { Colors, FORM_TYPES } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { useEncounter } from '../../contexts/Encounter';

@@ -7,6 +7,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -17,7 +18,7 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { TextField } from '@tamanu/ui-components';
 import { CheckField, Field, Form } from '../Field';
 import { FormModal } from '../FormModal';

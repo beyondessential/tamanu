@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import styled from 'styled-components';
 import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
 import { SurveyQuestion, checkVisibility } from '@tamanu/ui-components';
 import { ButtonRow } from '../ButtonRow';
-import { Colors, FORM_STATUSES } from '../../constants';
+import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 
 const EmptyStateText = styled(Typography)`
@@ -106,7 +107,7 @@ export const SurveyScreen = ({
     } else {
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
 
       const firstErroredQuestion = screenComponents.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),

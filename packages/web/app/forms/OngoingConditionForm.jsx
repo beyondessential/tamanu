@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import {
@@ -17,7 +18,7 @@ import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormCancelButton, FormSubmitButton } from '../components/Button';
 import { foreignKey } from '../utils/validation';
-import { Colors, FORM_TYPES } from '../constants';
+import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';

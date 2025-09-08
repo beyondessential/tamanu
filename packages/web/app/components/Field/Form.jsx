@@ -6,9 +6,10 @@ import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 
+import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';
-import { FORM_STATUSES, FORM_TYPES } from '../../constants';
 import { useFormSubmission } from '../../contexts/FormSubmission';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -126,7 +127,7 @@ export class Form extends React.PureComponent {
 
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
 
       // avoid multiple submissions
       if (isSubmitting) {

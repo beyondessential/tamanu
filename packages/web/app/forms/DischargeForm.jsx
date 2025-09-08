@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { REPEATS_LABELS } from '@tamanu/constants';
+import { REPEATS_LABELS, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import {
@@ -13,7 +13,7 @@ import {
 } from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
+import { Colors } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -516,7 +516,7 @@ const DischargeFormScreen = props => {
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
     } else {
       onStepForward();
     }

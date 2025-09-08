@@ -12,9 +12,9 @@ import {
   TranslatedText,
 } from '../components';
 import { TextField } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
-import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';

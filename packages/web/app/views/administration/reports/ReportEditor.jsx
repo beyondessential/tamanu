@@ -18,6 +18,7 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Button, ButtonRow, Field, Form } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
@@ -26,7 +27,6 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 

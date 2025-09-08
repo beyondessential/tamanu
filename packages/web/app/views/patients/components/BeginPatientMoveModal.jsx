@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { usePatientMove } from '../../../api/mutations';
 import {
   BodyText,
@@ -13,7 +14,6 @@ import {
   RadioField,
 } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 

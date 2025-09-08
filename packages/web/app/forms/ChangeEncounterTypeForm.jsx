@@ -1,6 +1,6 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -8,7 +8,6 @@ import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { TranslatedEnum } from '../components/Translation/TranslatedEnum';
 
-import { FORM_TYPES } from '../constants';
 
 export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter, initialNewType }) => {
   return (

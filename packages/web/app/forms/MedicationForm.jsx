@@ -11,6 +11,7 @@ import {
   MEDICATION_DURATION_UNITS_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -45,7 +46,7 @@ import {
   SmallBodyText,
 } from '../components';
 import { TextField, SelectField, TranslatedSelectField } from '@tamanu/ui-components';
-import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';

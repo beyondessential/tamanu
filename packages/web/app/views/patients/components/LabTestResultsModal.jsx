@@ -8,9 +8,10 @@ import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
 import { TextField } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, Form, SuggesterSelectField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { Colors } from '../../../constants';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
@@ -78,7 +79,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       width: '120px',
-      accessor: (row) => (
+      accessor: row => (
         <TranslatedReferenceData
           fallback={row.labTestType.name}
           value={row.labTestType.id}
@@ -104,7 +105,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
             options={options}
             disabled={areLabTestResultsReadOnly}
             name={LAB_TEST_PROPERTIES.RESULT}
-            onChange={(e) => onChangeResult(e.target.value, row.id)}
+            onChange={e => onChangeResult(e.target.value, row.id)}
             id={row.id}
             labTestTypeId={labTestTypeId}
             tabIndex={tabIndex(0, i)}
@@ -123,7 +124,7 @@ const getColumns = (count, onChangeResult, areLabTestResultsReadOnly) => {
         />
       ),
       width: '80px',
-      accessor: (row) => (
+      accessor: row => (
         <BodyText color="textTertiary" data-testid="bodytext-uq3u">
           {row.labTestType.unit || 'N/A'}
         </BodyText>
@@ -250,7 +251,7 @@ const ResultsForm = ({
     (value, labTestId) => {
       const rowValues = values[labTestId];
       if (rowValues?.result || !value) return;
-      AUTOFILL_FIELD_NAMES.forEach((name) => {
+      AUTOFILL_FIELD_NAMES.forEach(name => {
         // Get unique values for this field across all rows
         const unique = Object.values(values).reduce(
           (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
@@ -264,10 +265,11 @@ const ResultsForm = ({
     [values, setFieldValue],
   );
 
-  const columns = useMemo(
-    () => getColumns(count, onChangeResult, areLabTestResultsReadOnly),
-    [count, onChangeResult, areLabTestResultsReadOnly],
-  );
+  const columns = useMemo(() => getColumns(count, onChangeResult, areLabTestResultsReadOnly), [
+    count,
+    onChangeResult,
+    areLabTestResultsReadOnly,
+  ]);
 
   if (isLoading) return <ResultsFormSkeleton data-testid="resultsformskeleton-ibqy" />;
   if (isError) return <ResultsFormError error={error} data-testid="resultsformerror-se9z" />;
@@ -319,9 +321,9 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const { displayId } = labRequest;
 
   const { mutate: updateTests, isLoading: isSavingTests } = useMutation(
-    (payload) => api.put(`labRequest/${labRequest.id}/tests`, payload),
+    payload => api.put(`labRequest/${labRequest.id}/tests`, payload),
     {
-      onSuccess: (labTestRes) => {
+      onSuccess: labTestRes => {
         toast.success(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedSuccess"
@@ -336,7 +338,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
         refreshLabTestTable();
         onClose();
       },
-      onError: (err) => {
+      onError: err => {
         toast.error(
           <TranslatedText
             stringId="patient.lab.modal.notification.testsUpdatedFailed"
@@ -353,7 +355,7 @@ export const LabTestResultsModal = ({ labRequest, refreshLabTestTable, onClose, 
   const initialData = useMemo(
     () =>
       keyBy(
-        labTestResults?.data.map((data) => pick(data, Object.values(LAB_TEST_PROPERTIES))),
+        labTestResults?.data.map(data => pick(data, Object.values(LAB_TEST_PROPERTIES))),
         LAB_TEST_PROPERTIES.ID,
       ),
     [labTestResults],

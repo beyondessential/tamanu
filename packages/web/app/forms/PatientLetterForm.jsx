@@ -12,9 +12,8 @@ import { ModalLoader } from '../components/BaseModal';
 import { Button, OutlinedButton } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TEMPLATE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, FORM_TYPES } from '@tamanu/constants';
 
 const TallMultilineTextField = props => (
   <MultilineTextField

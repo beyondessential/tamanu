@@ -10,6 +10,7 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -27,7 +28,7 @@ import {
   TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { EmailField, parseEmails } from './EmailField';

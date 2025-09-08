@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
 import {
@@ -24,7 +24,7 @@ import { useSuggester } from '../../api';
 import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 
 const RelatedConditionFieldsContainer = styled.div`
   display: flex;

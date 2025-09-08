@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Field,
@@ -15,7 +15,7 @@ import {
 import { TextField } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
-import { Colors, FORM_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { useTranslation } from '../../contexts/Translation';

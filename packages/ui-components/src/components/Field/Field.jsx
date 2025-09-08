@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import {
   connect as formikConnect,
   Field as FormikField,
@@ -11,10 +12,6 @@ import styled from 'styled-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';
 import { FormTooltip } from '../FormTooltip';
-
-const FORM_STATUSES = {
-  SUBMIT_ATTEMPTED: 'SUBMIT_ATTEMPTED',
-};
 
 export const Field = formikConnect(
   ({
@@ -31,7 +28,7 @@ export const Field = formikConnect(
     ...props
   }) => {
     // Only show error messages once the user has attempted to submit the form
-    const error = submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED && !!getIn(errors, name);
+    const error = submitStatus === SUBMIT_ATTEMPTED_STATUS && !!getIn(errors, name);
     const message = error ? getIn(errors, name) : helperText;
 
     const { setFieldTouched } = useFormikContext();
@@ -42,7 +39,7 @@ export const Field = formikConnect(
 
     // Set a flag to indicate that the form has been submitted
     useEffect(() => {
-      if (submitStatus === FORM_STATUSES.SUBMIT_ATTEMPTED) {
+      if (submitStatus === SUBMIT_ATTEMPTED_STATUS) {
         setTimeout(() => {
           isFormSubmitted.current = true;
         });

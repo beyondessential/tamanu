@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import { flattenObject } from './flattenObject';
 import { Dialog } from '../Dialog'; 
-import { FORM_STATUSES, FORM_TYPES } from '../../constants'; // Not done
+import { FORM_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { useFormSubmission } from '../../contexts/FormSubmission'; // not done
 import { IS_DEVELOPMENT } from '../../utils/env'; // Not done
 import { TranslatedText } from './Translation/TranslatedText';

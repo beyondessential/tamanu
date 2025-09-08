@@ -19,6 +19,7 @@ import {
   DAYS_OF_WEEK,
   MODIFY_REPEATING_APPOINTMENT_MODE,
   REPEAT_FREQUENCY,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -26,7 +27,7 @@ import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { Colors } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { FormSubmitCancelRow } from '../../ButtonRow';

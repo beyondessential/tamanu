@@ -4,6 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import Alert from '@material-ui/lab/Alert/Alert';
+import { TextField } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useApi } from '../../../api';
 import {
   BodyText,
@@ -14,10 +16,9 @@ import {
   Heading4,
   OutlinedButton,
 } from '../../../components';
-import { TextField } from '@tamanu/ui-components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 
