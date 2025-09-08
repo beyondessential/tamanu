@@ -36,17 +36,16 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
   });
 });
 
-export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
+export const createFormResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
   const { models } = req.store;
-  const { designationId } = params;
+  const { assignmentId } = params;
 
-  // Validate request body with portal-specific schema (no patientId from client)
   const body = PortalCreateSurveyResponseRequestSchema.parse(req.body);
 
   const assignedForm = await models.PortalSurveyAssignment.findOne({
     where: {
-      id: designationId,
+      id: assignmentId,
       patientId: patient.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       surveyId: body.surveyId,
@@ -54,8 +53,8 @@ export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
   });
  
   if (!assignedForm) {
-    log.warn('Patient attempted to submit response for invalid designated form', {
-      designationId,
+    log.warn('Patient attempted to submit response for invalid assigned form', {
+      assignmentId,
       patientId: patient.id,
       surveyId: body.surveyId,
     });
