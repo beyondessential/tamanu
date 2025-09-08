@@ -4,7 +4,7 @@ import {
   type Survey,
 } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 
-export const useAssignedSurveyQuery = (assignmentId: string) => {
+export const useSurveyQuery = (assignmentId: string) => {
   const api = useApi();
   return useQuery<unknown, Error, Survey>({
     queryKey: ['survey', assignmentId],

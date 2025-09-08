@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  type PortalSurveyAssignment,
-} from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
+import { type PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 import { useApi } from '../useApi';
 
 export const useOutstandingSurveysQuery = () => {
