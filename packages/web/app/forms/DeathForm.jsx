@@ -17,10 +17,10 @@ import {
   NumberField,
   PaginatedForm,
   RadioField,
-  TextField,
   TimeWithUnitField,
   TranslatedSelectField,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';

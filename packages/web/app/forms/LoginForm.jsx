@@ -11,8 +11,8 @@ import {
   Form,
   FormSubmitButton,
   TextButton,
-  TextField,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';

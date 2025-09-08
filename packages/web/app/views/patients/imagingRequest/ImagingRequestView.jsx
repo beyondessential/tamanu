@@ -32,9 +32,9 @@ import {
   DateTimeInput,
   Field,
   Form,
-  TextField,
   TranslatedSelectField,
 } from '../../../components/Field';
+import { TextField } from '@tamanu/ui-components';
 import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';

@@ -14,8 +14,8 @@ import {
   Form,
   FormCancelButton,
   FormSubmitButton,
-  TextField,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 

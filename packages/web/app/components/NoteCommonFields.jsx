@@ -10,10 +10,10 @@ import {
   AutocompleteInput,
   DateTimeField,
   Field,
-  TextField,
   TranslatedSelectField,
   DateTimeInput,
 } from './Field';
+import { TextField } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';

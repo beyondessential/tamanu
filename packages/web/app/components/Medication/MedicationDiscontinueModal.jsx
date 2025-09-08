@@ -12,9 +12,9 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  TextField,
   TranslatedText,
 } from '..';
+import { TextField } from '@tamanu/ui-components';
 import { Colors, FORM_TYPES } from '../../constants';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';

@@ -14,9 +14,9 @@ import {
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   SuggesterSelectField,
-  TextField,
   TranslatedSelectField,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
