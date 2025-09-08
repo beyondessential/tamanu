@@ -6,7 +6,7 @@ import { getOngoingConditions } from './ongoingConditions';
 import { getOngoingPrescriptions } from './ongoingPrescriptions';
 import { getAdministeredVaccines, getUpcomingVaccinations } from './vaccinations';
 import { getUpcomingAppointments } from './appointments';
-import { getOutstandingForms, createFormResponse } from './forms';
+import { getOutstandingSurveys, createSurveyResponse } from './surveys';
 
 export const patientDataRoutes = express.Router();
 
@@ -24,5 +24,5 @@ patientDataRoutes.get('/vaccinations/administered', getAdministeredVaccines);
 
 patientDataRoutes.get('/appointments/upcoming', getUpcomingAppointments);
 
-patientDataRoutes.get('/forms/outstanding', getOutstandingForms);
-patientDataRoutes.post('/forms/:assignmentId', createFormResponse);
+patientDataRoutes.get('/surveys/outstanding', getOutstandingSurveys);
+patientDataRoutes.post('/surveys/:assignmentId', createSurveyResponse);

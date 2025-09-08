@@ -7,11 +7,11 @@ import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
-export const getOutstandingForms = asyncHandler(async (req, res) => {
+export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
   const { models } = req.store;
 
-  const outstandingForms = await models.PortalSurveyAssignment.findAll({
+  const outstandingSurveys = await models.PortalSurveyAssignment.findAll({
     where: {
       patientId: patient.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
@@ -32,18 +32,18 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
   });
 
   return res.send({
-    data: outstandingForms.map(form => PortalSurveyAssignmentSchema.parse(form.forResponse())),
+    data: outstandingSurveys.map(survey => PortalSurveyAssignmentSchema.parse(survey.forResponse())),
   });
 });
 
-export const createFormResponse = asyncHandler(async (req, res) => {
+export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
   const { models } = req.store;
   const { assignmentId } = params;
 
   const body = PortalCreateSurveyResponseRequestSchema.parse(req.body);
 
-  const assignedForm = await models.PortalSurveyAssignment.findOne({
+  const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
       id: assignmentId,
       patientId: patient.id,
@@ -52,13 +52,13 @@ export const createFormResponse = asyncHandler(async (req, res) => {
     },
   });
  
-  if (!assignedForm) {
-    log.warn('Patient attempted to submit response for invalid assigned form', {
+    if (!assignedSurvey) {
+    log.warn('Patient attempted to submit response for invalid assigned survey', {
       assignmentId,
       patientId: patient.id,
       surveyId: body.surveyId,
     });
-    throw new NotFoundError('Form was not assigned to the patient');
+    throw new NotFoundError('Survey was not assigned to the patient');
   }
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
@@ -73,7 +73,7 @@ export const createFormResponse = asyncHandler(async (req, res) => {
       ...payload,
     };
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
-    await assignedForm.update({
+    await assignedSurvey.update({
       surveyResponseId: surveyResponse.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
     });
