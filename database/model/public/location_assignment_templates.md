@@ -33,7 +33,3 @@ One of:
 - `WEEKLY`
 - `MONTHLY`
 {% enddocs %}
-
-{% docs location_assignment_templates__created_by %}
-Reference to the [user](#!/source/source.tamanu.tamanu.users) who created this template.
-{% enddocs %}

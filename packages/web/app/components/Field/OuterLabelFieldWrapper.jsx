@@ -26,12 +26,12 @@ const IconWrapper = styled.div`
 `;
 
 export const OuterLabelFieldWrapper = React.memo(
-  React.forwardRef(({ children, required, label, infoTooltip, style, className, size }, ref) => (
-    <div style={style} className={className} ref={ref}>
+  React.forwardRef(({ children, required, label, infoTooltip, style, className, size, 'data-testid': dataTestId }, ref) => (
+    <div style={style} className={className} ref={ref} data-testid={dataTestId}>
       {label && (
         <OuterLabel className="label-field" size={size}>
           {label}
-          {required && <OuterLabelRequired>*</OuterLabelRequired>}
+          {required && <OuterLabelRequired className="required-indicator">*</OuterLabelRequired>}
         </OuterLabel>
       )}
       {infoTooltip && (

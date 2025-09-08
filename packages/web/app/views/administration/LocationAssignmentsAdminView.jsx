@@ -3,7 +3,7 @@ import { AddRounded } from '@material-ui/icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { useAdminLocationsQuery } from '../../api/queries';
+import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
 import { AssignUserDrawer } from '../../components/Appointments/LocationAssignmentForm/AssignUserDrawer';
 import { Colors } from '../../constants';
@@ -55,13 +55,24 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationAssignmentsAdminView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerInitialValues, setDrawerInitialValues] = useState({});
-  
-  const locationsQuery = useAdminLocationsQuery(
-    {
-      bookableOnly: true,
-    },
-    { keepPreviousData: true },
-  );
+  const originalLocationsQuery = useSuggestionsQuery('location/all');
+
+  // Filter and sort locations to only show those that have a location group (bookable locations)
+  const allLocations = originalLocationsQuery?.data || [];
+  const bookableLocations = allLocations
+    .filter(location => location.locationGroup)
+    .sort((a, b) => {
+      const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
+      if (locationGroupComparison !== 0) {
+        return locationGroupComparison;
+      }
+      return a.name.localeCompare(b.name);
+    });
+
+  const locationsQuery = {
+    ...originalLocationsQuery,
+    data: bookableLocations,
+  };
 
   const { data: locations } = locationsQuery;
   const hasNoLocations = locations?.length === 0;

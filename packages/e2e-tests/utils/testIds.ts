@@ -1,1 +1,0 @@
-export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-'; 
