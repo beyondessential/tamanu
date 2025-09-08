@@ -42,11 +42,10 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
-  SelectField,
   SmallBodyText,
   TranslatedSelectField,
 } from '../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, SelectField } from '@tamanu/ui-components';
 import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';

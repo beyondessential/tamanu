@@ -11,10 +11,9 @@ import {
   DefaultIconButton,
   Field,
   OuterLabelFieldWrapper,
-  SelectField,
   CheckField,
 } from '../../../../../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, SelectField } from '@tamanu/ui-components';
 import {
   FIELD_TYPES_TO_SUGGESTER_OPTIONS,
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,

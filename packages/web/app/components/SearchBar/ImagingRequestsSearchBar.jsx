@@ -12,9 +12,9 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  SelectField,
   TranslatedSelectField,
 } from '../Field';
+import { SelectField } from '@tamanu/ui-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSuggester } from '../../api';

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useApi } from '../../api';
-import { Dialog, Field, SelectField, TranslatedReferenceData } from '../../components';
+import { Dialog, Field, TranslatedReferenceData } from '../../components';
+import { SelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { uniqBy } from 'lodash';
 
