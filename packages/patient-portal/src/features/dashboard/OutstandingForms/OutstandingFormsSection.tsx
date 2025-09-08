@@ -5,10 +5,10 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { OutstandingFormCard } from './OutstandingFormCard';
-import { useDesignatedFormsQuery } from '@api/queries/useDesignatedFormsQuery';
+import { useAssignedSurveysQuery } from '@api/queries/useAssignedSurveysQuery';
 
 export const DesignatedFormsSection = () => {
-  const { data: forms, isLoading } = useDesignatedFormsQuery();
+  const { data: forms, isLoading } = useAssignedSurveysQuery();
 
   const formCount = forms?.length || 0;
   const hasOutstandingForms = formCount > 0;

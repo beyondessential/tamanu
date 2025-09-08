@@ -6,10 +6,10 @@ import {
 import { useApi } from '../useApi';
 import { transformArray } from '@utils/transformData';
 
-export const useDesignatedFormsQuery = () => {
+export const useAssignedSurveysQuery = () => {
   const api = useApi();
   return useQuery<unknown, Error, PortalSurveyAssignment[]>({
-    queryKey: ['designatedForms'],
+    queryKey: ['assignedSurveys'],
     queryFn: () => api.get('/me/forms'),
     select: transformArray<PortalSurveyAssignment>(PortalSurveyAssignmentSchema),
   });
