@@ -76,26 +76,25 @@ export const getSurvey = asyncHandler(async (req, res) => {
   return res.send(FullSurveySchema.parse(payload));
 }); 
 
-export const submitSurveyResponse = asyncHandler(async (req, res) => {
+export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
   const { models } = req.store;
-  const { designationId } = params;
+  const { assignmentId } = params;
 
-  // Validate request body with portal-specific schema (no patientId from client)
   const body = CreateSurveyResponseRequestSchema.parse(req.body);
 
   const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
-      id: designationId,
+      id: assignmentId,
       patientId: patient.id,
       status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       surveyId: body.surveyId,
     },
   });
  
-  if (!assignedSurvey) {
+    if (!assignedSurvey) {
     log.warn('Patient attempted to submit response for invalid assigned survey', {
-      designationId,
+      assignmentId,
       patientId: patient.id,
       surveyId: body.surveyId,
     });
