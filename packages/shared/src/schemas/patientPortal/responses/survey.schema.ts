@@ -43,10 +43,14 @@ export const SurveySchema = z.object({
   name: z.string(),
   code: z.string(),
   surveyType: z.enum(SURVEY_TYPES),
+});
+
+export const SurveyWithComponentsSchema = SurveySchema.extend({
   components: z.array(SurveyScreenComponentSchema).optional().nullable(),
 });
 
 export type Survey = z.infer<typeof SurveySchema>;
 export type ProgramDataElement = z.infer<typeof ProgramDataElementSchema>;
 export type SurveyScreenComponent = z.infer<typeof SurveyScreenComponentSchema>;
+export type SurveyWithComponents = z.infer<typeof SurveyWithComponentsSchema>;
 
