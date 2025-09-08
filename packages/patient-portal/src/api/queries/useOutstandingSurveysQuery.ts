@@ -10,7 +10,7 @@ export const useOutstandingSurveysQuery = () => {
   const api = useApi();
   return useQuery<unknown, Error, PortalSurveyAssignment[]>({
     queryKey: ['outstandingSurveys'],
-    queryFn: () => api.get('/me/surveys'),
+    queryFn: () => api.get('/me/surveys/outstanding'),
     select: transformArray<PortalSurveyAssignment>(PortalSurveyAssignmentSchema),
   });
 };
