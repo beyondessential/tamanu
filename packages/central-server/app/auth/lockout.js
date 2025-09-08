@@ -15,7 +15,7 @@ export async function checkIsUserLockedOut({
       deviceId,
       outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
       createdAt: {
-        [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - interval '$lockoutDuration minutes'"),
+        [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - $lockoutDuration * interval '1 minute'"),
       },
     },
     order: [['createdAt', 'DESC']],
@@ -44,7 +44,7 @@ export async function getFailedLoginAttemptOutcome({
       deviceId,
       outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
       createdAt: {
-        [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - interval '$observationWindow minutes'"),
+        [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - $observationWindow * interval '1 minute'"),
       },
     },
     order: [['createdAt', 'DESC']],
