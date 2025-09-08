@@ -271,7 +271,7 @@ describe('Patient Portal Surveys Endpoints', () => {
     });
   });
 
-  describe('POST /api/portal/me/surveys/:designationId', () => {
+  describe('POST /api/portal/me/surveys/:assignmentId', () => {
     let testLocationId;
     let testDepartmentId;
     let baseSurvey;

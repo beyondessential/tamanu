@@ -3,15 +3,15 @@ import { useApi } from '../useApi';
 import { type CreateSurveyResponseRequest } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 
 export const useSubmitSurveyResponse = (
-  designationId: string,
+  assignmentId: string,
   options?: UseMutationOptions<void, Error, CreateSurveyResponseRequest>,
 ) => {
   const queryClient = useQueryClient();
   const api = useApi();
   return useMutation<void, Error, CreateSurveyResponseRequest>({
-    mutationKey: ['submitFormResponse', designationId],
+    mutationKey: ['submitFormResponse', assignmentId],
     mutationFn: async payload => {
-      await api.post(`/me/surveys/${designationId}`, payload as any);
+      await api.post(`/me/surveys/${assignmentId}`, payload as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outstandingSurveys'] });
