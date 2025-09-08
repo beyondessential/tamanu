@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_patient_field_definitions_changed
+              - record_patient_field_definitions_changelog
+              - set_patient_field_definitions_updated_at
+              - set_patient_field_definitions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -40,10 +46,11 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - string
-                    - number
-                    - select
+                  arguments:
+                    values:
+                      - string
+                      - number
+                      - select
           - name: options
             data_type: array
             description: "{{ doc('patient_field_definitions__options') }}"
@@ -58,8 +65,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patient_field_definition_categories')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patient_field_definition_categories')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_field_definitions."

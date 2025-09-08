@@ -70,17 +70,6 @@ const StyledButton = styled(Button)`
   min-width: 0px;
 `;
 
-const ErrorMessage = ({ error }) => {
-  return (
-    <TranslatedText
-      stringId="locationAssignment.notification.create.error"
-      fallback="Failed to create assignment with error: :error"
-      replacements={{ error: error.message }}
-      data-testid="translatedtext-0s83"
-    />
-  );
-};
-
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
@@ -92,21 +81,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
 
-  const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation({
-    onError: error => {
-      if (error.response?.data?.error?.type === 'overlap_assignment_error') {
-        notifyError(
-          <TranslatedText
-            stringId="locationAssignment.notification.assignmentTimeConflict"
-            fallback="Assignment failed. Time slot conflicts with existing assignment"
-            data-testid="translatedtext-xfb0"
-          />,
-        );
-      } else {
-        notifyError(<ErrorMessage error={error} data-testid="errormessage-3jmy" />);
-      }
-    },
-  });
+  const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation();
 
   const { mutateAsync: deleteAssignment } = useLocationAssignmentDeleteMutation({
     onError: error => {
@@ -128,8 +103,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         userId,
         locationId,
         date,
-        startTime: toDateTimeString(startTime),
-        endTime: toDateTimeString(endTime),
+        startTime: toDateTimeString(startTime).split(' ')[1],
+        endTime: toDateTimeString(endTime).split(' ')[1],
       },
       {
         onSuccess: () => {

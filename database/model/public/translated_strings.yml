@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - reference
+          meta:
+            triggers:
+              - notify_translated_strings_changed
+              - record_translated_strings_changelog
+              - set_translated_strings_updated_at
+              - set_translated_strings_updated_at_sync_tick
         columns:
           - name: id
             data_type: text

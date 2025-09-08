@@ -112,7 +112,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
       startTime,
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
-      answers: getAnswersFromData(data, survey),
+      answers: await getAnswersFromData(data, survey),
       facilityId,
     });
     dispatch(reloadPatient(patient.id));

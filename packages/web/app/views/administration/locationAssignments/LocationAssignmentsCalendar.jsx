@@ -1,8 +1,7 @@
-import { endOfDay } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
@@ -64,8 +63,8 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
 
   const { data: assignmentsData } = useLocationAssignmentsQuery(
     {
-      after: toDateTimeString(displayedDates[0]),
-      before: toDateTimeString(endOfDay(displayedDates.at(-1))),
+      after: toDateString(displayedDates[0]),
+      before: toDateString(displayedDates.at(-1)),
       all: true,
     },
     { keepPreviousData: true },
