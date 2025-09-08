@@ -1,6 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
-import { LoginView, RegistrationView, DashboardView, RequestLoginTokenView } from './views';
+import {
+  LoginView,
+  RegistrationView,
+  DashboardView,
+  RequestLoginTokenView,
+  SurveyView,
+} from './views';
 import { PublicRoute } from '@routes/PublicRoute';
 import { PrivateRoute } from '@routes/PrivateRoute';
 
@@ -9,6 +15,7 @@ export const App = () => {
     <Router>
       <Switch>
         <PrivateRoute path="/" exact component={DashboardView} />
+        <PrivateRoute path="/survey" exact component={SurveyView} />
         <PublicRoute path="/login" component={RequestLoginTokenView} />
         <PublicRoute path="/login-submit" component={LoginView} />
         <PublicRoute path="/register/:token" component={RegistrationView} />

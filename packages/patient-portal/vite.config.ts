@@ -16,8 +16,16 @@ export default async () =>
           .then(JSON.parse)
           .then(({ version }) => version),
       ),
+      process: JSON.stringify({
+        env: {
+          NODE_ENV: process.env.NODE_ENV,
+        },
+        arch: 'wasm',
+        platform: 'web',
+      }),
     },
     plugins: [react()],
+
     resolve: {
       alias: {
         '@api': path.resolve(__dirname, 'src/api'),

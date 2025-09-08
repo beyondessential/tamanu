@@ -89,6 +89,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
+  console.log('component', component);
   const { getTranslation } = useTranslation();
   const { getComponentForQuestionType } = useSurveyForm();
 
