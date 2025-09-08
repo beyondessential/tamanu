@@ -5,7 +5,7 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { StyledCircularProgress } from '../../../components/StyledCircularProgress';
 import { OutstandingFormCard } from './OutstandingFormCard';
-import { useOutstandingSurveysQuery } from '@api/queries/useOutstandingSurveys';
+import { useOutstandingSurveysQuery } from '@api/queries/useOutstandingSurveysQuery';
 
 export const OutstandingFormsSection = () => {
   const { data: forms, isLoading } = useOutstandingSurveysQuery();
