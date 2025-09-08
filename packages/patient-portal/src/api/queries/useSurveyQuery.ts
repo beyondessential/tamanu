@@ -5,12 +5,12 @@ import {
   type FullSurvey,
 } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 
-export const useSurveyQuery = (designationId: string) => {
+export const useAssignedSurveyQuery = (assignmentId: string) => {
   const api = useApi();
   return useQuery<unknown, Error, FullSurvey>({
-    queryKey: ['survey', designationId],
-    queryFn: () => api.get(`/me/forms/${designationId}`),
+    queryKey: ['survey', assignmentId],
+    queryFn: () => api.get(`/me/surveys/${assignmentId}`),
     select: data => FullSurveySchema.parse(data),
-    enabled: Boolean(designationId),
+    enabled: Boolean(assignmentId),
   });
 };
