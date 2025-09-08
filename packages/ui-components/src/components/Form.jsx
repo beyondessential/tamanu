@@ -35,7 +35,7 @@ const ScrollToError = () => {
   const submitting = formik?.isSubmitting;
 
   useEffect(() => {
-    const el = document.querySelector('.Mui-error, [data-error]');
+    const el = globalThis?.document?.querySelector('.Mui-error, [data-error]');
     const element = el?.parentElement ?? el;
 
     if (element) {
@@ -143,7 +143,7 @@ export class Form extends React.PureComponent {
       delete formErrors.isCanceled;
 
       const validFormErrors = componentsToValidate
-        ? Object.keys(formErrors || {}).filter((problematicComponent) =>
+        ? Object.keys(formErrors || {}).filter(problematicComponent =>
             componentsToValidate.has(problematicComponent),
           )
         : formErrors;
@@ -260,7 +260,7 @@ export class Form extends React.PureComponent {
     const {
       onSubmit,
       validateOnChange = false,
-      validateOnBlur = false  ,
+      validateOnBlur = false,
       initialValues = {},
       formType,
       suppressErrorDialog = true,
