@@ -41,10 +41,7 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 
   await query.addIndex('user_login_attempts', {
-    fields: ['user_id'],
-  });
-  await query.addIndex('user_login_attempts', {
-    fields: ['device_id'],
+    fields: ['user_id', 'device_id'],
   });
 }
 
