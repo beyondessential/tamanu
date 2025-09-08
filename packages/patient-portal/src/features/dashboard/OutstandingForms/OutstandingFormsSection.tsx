@@ -7,7 +7,7 @@ import { StyledCircularProgress } from '../../../components/StyledCircularProgre
 import { OutstandingFormCard } from './OutstandingFormCard';
 import { useOutstandingSurveysQuery } from '@api/queries/useOutstandingSurveysQuery';
 
-export const DesignatedFormsSection = () => {
+export const OutstandingFormsSection = () => {
   const { data: forms, isLoading } = useOutstandingSurveysQuery();
 
   const formCount = forms?.length || 0;
