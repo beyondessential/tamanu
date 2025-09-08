@@ -35,6 +35,10 @@ const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
     text-align: left;
   }
+  td {
+    overflow: clip;
+    text-overflow: ellipsis;
+  }
 `;
 
 const ReservedText = styled.p`
@@ -242,7 +246,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                 </Tooltip>
               </Box>
             );
-          return stringId;
+          return <span title={stringId}>{stringId}</span>;
         },
       },
       {
