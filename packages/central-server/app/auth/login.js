@@ -15,8 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
-import { checkIsUserLockedOut } from './checkIsUserLockedOut';
-import { getFailedLoginAttemptOutcome } from './getFailedLoginAttemptOutcome';
+import { checkIsUserLockedOut, getFailedLoginAttemptOutcome } from './lockout';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
