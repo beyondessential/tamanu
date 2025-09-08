@@ -7,6 +7,7 @@ import MuiDialog from '@material-ui/core/Dialog';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+import { TextInput } from '@tamanu/ui-components';
 import {
   AutocompleteInput,
   DateInput,
@@ -16,7 +17,6 @@ import {
   NullableBooleanInput,
   NumberInput,
   SelectInput,
-  TextInput,
   TimeInput,
   TimeWithUnitInput,
   SwitchInput,

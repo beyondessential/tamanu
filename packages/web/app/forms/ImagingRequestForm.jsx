@@ -12,6 +12,7 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormCancelButton } from '../components/Button';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
+import { TextInput } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
@@ -20,7 +21,6 @@ import {
   ImagingPriorityField,
   MultiselectField,
   TextField,
-  TextInput,
   TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';

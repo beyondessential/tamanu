@@ -25,6 +25,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormGrid } from '../../../components/FormGrid';
+import { TextInput } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
@@ -32,7 +33,6 @@ import {
   Field,
   Form,
   TextField,
-  TextInput,
   TranslatedSelectField,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';

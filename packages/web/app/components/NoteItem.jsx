@@ -9,7 +9,7 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DateDisplay } from './DateDisplay';
-import { TextInput } from './Field/TextField';
+import { TextInput } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';

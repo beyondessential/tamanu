@@ -3,11 +3,11 @@ import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
+import { TextInput } from '@tamanu/ui-components';
 import {
   LargeBodyText,
   NumberInput,
   TextButton,
-  TextInput,
   TranslatedText,
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
