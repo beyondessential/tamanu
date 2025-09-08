@@ -14,9 +14,9 @@ import {
   Form,
   NoteModalActionBlocker,
   NumberField,
-  TextField,
   TranslatedText,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';

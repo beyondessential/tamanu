@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  TextField,
   Field,
   Form,
   Modal,
@@ -13,6 +12,7 @@ import {
   ModalFormActionRow,
   TranslatedReferenceData,
 } from '../../components';
+import { TextField } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { Colors, FORM_TYPES } from '../../constants';

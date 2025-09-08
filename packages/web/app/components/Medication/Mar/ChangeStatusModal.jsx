@@ -9,10 +9,10 @@ import {
   Field,
   Form,
   TranslatedSelectField,
-  TextField,
   NumberField,
   AutocompleteField,
 } from '../../Field';
+import { TextField } from '@tamanu/ui-components';
 import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useAuth } from '../../../contexts/Auth';

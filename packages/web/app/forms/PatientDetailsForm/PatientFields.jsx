@@ -3,10 +3,10 @@ import {
   Field,
   FormGrid,
   NumberField,
-  TextField,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
+import { TextField } from '@tamanu/ui-components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';

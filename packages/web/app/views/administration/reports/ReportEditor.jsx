@@ -18,10 +18,10 @@ import {
   ButtonRow,
   Field,
   Form,
-  TextField,
   TranslatedMultiSelectField,
   TranslatedSelectField,
 } from '../../../components';
+import { TextField } from '@tamanu/ui-components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,

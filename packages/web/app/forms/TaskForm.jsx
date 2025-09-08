@@ -21,9 +21,9 @@ import {
   Form,
   NumberField,
   SuggesterSelectField,
-  TextField,
   TranslatedSelectField,
 } from '../components/Field';
+import { TextField } from '@tamanu/ui-components';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 
