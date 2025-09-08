@@ -336,7 +336,7 @@ describe('Patient Portal Surveys Endpoints', () => {
       baseSurvey = setup.survey;
       baseDataElement = setup.dataElement;
     });
-    it('Should create a survey response and mark assignment submitted (happy path)', async () => {
+    it('Should create a survey response and mark assignment submitted', async () => {
       const assignment = await createAssignment({
         patientId: testPatient.id,
         surveyId: baseSurvey.id,

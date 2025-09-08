@@ -4,7 +4,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { PortalCreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
+import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const getOutstandingSurveys = asyncHandler(async (req, res) => {
@@ -41,7 +41,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { models } = req.store;
   const { assignmentId } = params;
 
-  const body = PortalCreateSurveyResponseRequestSchema.parse(req.body);
+  const body = CreateSurveyResponseRequestSchema.parse(req.body);
 
   const assignedSurvey = await models.PortalSurveyAssignment.findOne({
     where: {
