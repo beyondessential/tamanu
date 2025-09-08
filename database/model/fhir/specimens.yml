@@ -8,6 +8,10 @@ sources:
         description: "{{ doc('fhir__table__specimens') }}"
         config:
           tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid

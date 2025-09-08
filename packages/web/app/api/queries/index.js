@@ -1,6 +1,5 @@
 export { useOutpatientAppointmentsQuery, useLocationBookingsQuery } from './useAppointmentsQuery';
 export { useLocationsQuery } from './useLocationsQuery';
-export { useAdminLocationsQuery } from './useAdminLocationsQuery';
 export { useUserPreferencesQuery } from './useUserPreferencesQuery';
 export * from './useHierarchyTypesQuery';
 export * from './useVitalsSurveyQuery';
@@ -23,3 +22,4 @@ export {
 } from './usePatientProgramRegistryConditionsQuery';
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
 export { useLocationAssignmentsQuery } from './useLocationAssignmentsQuery';
+export { useSurveyQuery } from './useSurveyQuery';

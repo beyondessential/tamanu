@@ -23,6 +23,7 @@ import {
 } from '@tamanu/constants';
 import { add, format, isAfter, isEqual } from 'date-fns';
 import { Op, QueryTypes } from 'sequelize';
+import { validate } from '../../utils/validate';
 
 export const medication = express.Router();
 
@@ -45,6 +46,9 @@ medication.get(
     const object = await Prescription.findByPk(params.id, {
       include: Prescription.getFullReferenceAssociations(),
     });
+
+    await checkSensitiveMedicationPermission([object.medicationId], req, 'read');
+
     if (!object) throw new NotFoundError();
 
     if (object) {
@@ -249,19 +253,22 @@ medication.post(
 
 const importOngoingMedicationsSchema = z
   .object({
-    encounterId: z.string().uuid({ message: 'Valid encounter ID is required' }),
-    prescriptionIds: z.array(z.string().uuid({ message: 'Valid prescription ID is required' })),
+    encounterId: z.uuid({ message: 'Valid encounter ID is required' }),
+    prescriptionIds: z.array(z.uuid({ message: 'Valid prescription ID is required' })),
     prescriberId: z.string(),
   })
   .strip();
+
 medication.post(
   '/import-ongoing',
   asyncHandler(async (req, res) => {
     const { models, db } = req;
     const { Encounter, Prescription, PatientOngoingPrescription } = models;
 
-    const { prescriptionIds, prescriberId, encounterId } =
-      await importOngoingMedicationsSchema.parseAsync(req.body);
+    const { prescriptionIds, prescriberId, encounterId } = validate(
+      importOngoingMedicationsSchema,
+      req.body,
+    );
 
     req.checkPermission('create', 'Medication');
 

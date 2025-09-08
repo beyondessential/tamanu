@@ -11,7 +11,8 @@ import {
   userLoader,
   drugLoader,
   medicationTemplateLoader,
-  medicationSetLoader
+  medicationSetLoader,
+  procedureTypeLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -86,7 +87,7 @@ export default {
   referenceDataRelation: {},
 
   [REFERENCE_TYPES.TASK_TEMPLATE]: {
-    loader: taskTemplateLoader
+    loader: taskTemplateLoader,
   },
 
   [REFERENCE_TYPES.TASK_SET]: {
@@ -101,5 +102,8 @@ export default {
   },
   [REFERENCE_TYPES.MEDICATION_SET]: {
     loader: medicationSetLoader,
+  },
+  [REFERENCE_TYPES.PROCEDURE_TYPE]: {
+    loader: procedureTypeLoader,
   },
 };

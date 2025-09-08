@@ -5,7 +5,7 @@ export const useOverlappingLeavesQuery = (options = {}) => {
   const api = useApi();
 
   return useMutation(
-    (params) => api.post('admin/location-assignments/overlapping-leaves', params),
+    (params) => api.get('admin/location-assignments/overlapping-leaves', params),
     {
       ...options,
     },

@@ -9,6 +9,12 @@ sources:
         config:
           tags:
             - system
+          meta:
+            triggers:
+              - notify_report_requests_changed
+              - record_report_requests_changelog
+              - set_report_requests_updated_at
+              - set_report_requests_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -37,6 +43,9 @@ sources:
             description: "{{ doc('report_requests__recipients') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: email
           - name: parameters
             data_type: text
             description: "{{ doc('report_requests__parameters') }}"
@@ -46,48 +55,56 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Received
-                    - Processing
-                    - Processed
-                    - Error
+                  arguments:
+                    values:
+                      - Received
+                      - Processing
+                      - Processed
+                      - Error
           - name: requested_by_user_id
             data_type: character varying(255)
             description: "{{ doc('report_requests__requested_by_user_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: error
             data_type: text
             description: "{{ doc('report_requests__error') }}"
           - name: process_started_time
             data_type: timestamp with time zone
             description: "{{ doc('report_requests__process_started_time') }}"
+            config:
+              meta:
+                masking: datetime
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('report_requests__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: export_format
             data_type: character varying(255)
             description: "{{ doc('report_requests__export_format') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - xlsx
-                    - csv
+                  arguments:
+                    values:
+                      - xlsx
+                      - csv
           - name: report_definition_version_id
             data_type: character varying(255)
             description: "{{ doc('report_requests__report_definition_version_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'report_definition_versions')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'report_definition_versions')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in report_requests."
