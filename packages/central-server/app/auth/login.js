@@ -16,8 +16,7 @@ import {
   stripUser,
 } from './utils';
 import { ensureDeviceRegistration } from './ensureDeviceRegistration';
-import { checkIsUserLockedOut } from './checkIsUserLockedOut';
-import { getFailedLoginAttemptOutcome } from './getFailedLoginAttemptOutcome';
+import { checkIsUserLockedOut, getFailedLoginAttemptOutcome } from './lockout';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
