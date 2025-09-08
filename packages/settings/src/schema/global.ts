@@ -31,9 +31,9 @@ import {
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
 
-const generateFrequencyProperties = (frequencies) => {
+const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
-    frequencies.map((frequency) => [
+    frequencies.map(frequency => [
       frequency,
       {
         description: frequency,
@@ -227,7 +227,18 @@ export const globalSettings = {
             },
           },
         },
+        mandatoryChartingEditReason: {
+          description: 'Require a reason for change text field to be filled out on chart edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableChartingEdit: {
+          description: 'Allow existing charting records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         desktopCharting: {
+          description: 'Enable desktop charting module',
           properties: {
             enabled: {
               type: yup.boolean(),
@@ -303,6 +314,28 @@ export const globalSettings = {
         },
         patientDetailsLocationHierarchy: {
           description: 'Use location hierarchy in patient details',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        pharmacyOrder: {
+          description: 'Pharmacy order settings',
+          properties: {
+            enabled: {
+              description: 'Enable pharmacy orders',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            medicationAlreadyOrderedConfirmationTimeout: {
+              description:
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+          },
+        },
+        useGlobalPdfFont: {
+          description: 'Use the global PDF font for all PDFs',
           type: yup.boolean(),
           defaultValue: false,
         },
@@ -912,6 +945,11 @@ export const globalSettings = {
         },
       },
     },
+    fileChooserMbSizeLimit: {
+      description: 'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      type: yup.number().min(1),
+      defaultValue: 10,
+    },
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
@@ -1440,9 +1478,15 @@ export const globalSettings = {
         },
         defaultAdministrationTimes: {
           description: '-',
-          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
-            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
-          )),
+          properties: generateFrequencyProperties(
+            Object.values(ADMINISTRATION_FREQUENCIES).filter(
+              frequency =>
+                ![
+                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                ].includes(frequency),
+            ),
+          ),
         },
       },
     },

@@ -37,6 +37,9 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
+  @Column({ nullable: false, default: false })
+  isSensitive: boolean;
+
   @OneToMany(() => Location, ({ facility }) => facility)
   locations: Location[];
 

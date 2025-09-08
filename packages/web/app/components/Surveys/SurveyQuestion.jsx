@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import {
   checkMandatory,
   getComponentForQuestionType,
@@ -14,7 +15,7 @@ import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-import { getReferenceDataOptionStringId } from '../Translation/TranslatedReferenceData';
+
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -79,7 +80,8 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
     );
   }
 
-  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded) {
+  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded
+    || component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 

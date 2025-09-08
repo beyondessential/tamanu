@@ -373,7 +373,7 @@ export const RelatedConditionsForm = ({
                 }
               }
 
-              if (initialValue === 'recordedInError') {
+              if (isRecordedInError(initialValue)) {
                 return (
                   <ProgramRegistryConditionCategoryField
                     name={fieldName}

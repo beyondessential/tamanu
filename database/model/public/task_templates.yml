@@ -5,8 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: task_templates
-        description: '{{ doc("table__task_templates") }}'
-        tags: []
+        description: "{{ doc('table__task_templates') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_task_templates_changed
+              - record_task_templates_changelog
+              - set_task_templates_updated_at
+              - set_task_templates_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

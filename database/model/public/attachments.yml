@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: attachments
-        description: '{{ doc("table__attachments") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__attachments') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_attachments_changed
+              - record_attachments_changelog
+              - set_attachments_updated_at
+              - set_attachments_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -28,6 +35,9 @@ sources:
             description: "{{ doc('attachments__data') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: zero
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in attachments."

@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: death_revert_logs
-        description: '{{ doc("table__death_revert_logs") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__death_revert_logs') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_death_revert_logs_changed
+              - record_death_revert_logs_changelog
+              - set_death_revert_logs_updated_at
+              - set_death_revert_logs_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -33,30 +40,36 @@ sources:
             description: "{{ doc('death_revert_logs__revert_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: death_data_id
             data_type: character varying(255)
             description: "{{ doc('death_revert_logs__death_data_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patient_death_data')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patient_death_data')
+                    field: id
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('death_revert_logs__patient_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: reverted_by_id
             data_type: character varying(255)
             description: "{{ doc('death_revert_logs__reverted_by_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in death_revert_logs."

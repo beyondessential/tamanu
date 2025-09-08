@@ -12,6 +12,7 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
 } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
@@ -40,7 +41,6 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  getReferenceDataStringId,
   NumberField,
   SelectField,
   SmallBodyText,
@@ -202,6 +202,7 @@ const StyledIcon = styled.i`
   font-size: 1rem;
   line-height: 0.875rem;
   margin: 0.0625rem 0;
+  ${props => props.$color && `color: ${props.$color};`}
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -261,7 +262,7 @@ const isOneTimeFrequency = frequency =>
     frequency,
   );
 
-const MedicationAdministrationForm = () => {
+const MedicationAdministrationForm = ({ frequencyChanged }) => {
   const { getSetting } = useSettings();
   const frequenciesAdministrationIdealTimes = getSetting('medications.defaultAdministrationTimes');
 
@@ -292,10 +293,10 @@ const MedicationAdministrationForm = () => {
   }, [values.startDate, selectedTimeSlots]);
 
   useEffect(() => {
-    if (values.frequency) {
+    if (frequencyChanged) {
       handleResetToDefault();
     }
-  }, [values.frequency]);
+  }, [frequencyChanged]);
 
   const handleResetToDefault = () => {
     if (isOneTimeFrequency(values.frequency)) return setValues({ ...values, timeSlots: [] });
@@ -532,7 +533,7 @@ export const MedicationForm = ({
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
   const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
 
@@ -542,6 +543,8 @@ export const MedicationForm = ({
   const [patientWeight, setPatientWeight] = useState('');
   const [idealTimesErrorOpen, setIdealTimesErrorOpen] = useState(false);
   const [showExistingDrugWarning, setShowExistingDrugWarning] = useState(false);
+  const [isFinalizingMedication, setIsFinalizingMedication] = useState(false);
+  const [frequencyChanged, setFrequencyChanged] = useState(0);
 
   const { defaultTimeSlots } = useMedicationIdealTimes({
     frequency: editingMedication?.frequency,
@@ -575,7 +578,7 @@ export const MedicationForm = ({
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);
-      return Promise.reject({ message: 'Administration times discrepancy error' });
+      return Promise.reject();
     }
 
     const idealTimes = data.timeSlots.map(slot => slot.value);
@@ -586,6 +589,10 @@ export const MedicationForm = ({
       durationUnit: data.durationUnit || undefined,
       idealTimes,
     };
+    if (onConfirmEdit) {
+      onConfirmEdit(payload);
+      return;
+    }
     let medicationSubmission;
     try {
       medicationSubmission = await (isOngoingPrescription
@@ -610,11 +617,21 @@ export const MedicationForm = ({
   };
 
   const onFinalise = async ({ data, isPrinting, submitForm, dirty }) => {
-    setAwaitingPrint(isPrinting);
-    if (onDirtyChange) {
-      onDirtyChange(dirty);
+    if (isFinalizingMedication) {
+      return;
     }
-    await submitForm(data);
+
+    setIsFinalizingMedication(true);
+
+    try {
+      setAwaitingPrint(isPrinting);
+      if (onDirtyChange) {
+        onDirtyChange(dirty);
+      }
+      await submitForm(data);
+    } finally {
+      setIsFinalizingMedication(false);
+    }
   };
 
   const getInitialValues = () => {
@@ -624,8 +641,8 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
-      ...editingMedication,
       timeSlots: defaultTimeSlots,
+      ...editingMedication,
     };
   };
 
@@ -638,7 +655,7 @@ export const MedicationForm = ({
     <>
       <Form
         suppressErrorDialog
-        onSubmit={onConfirmEdit || onSubmit}
+        onSubmit={onSubmit}
         onSuccess={() => {
           if (isEditing) return;
           if (encounterId) {
@@ -651,7 +668,7 @@ export const MedicationForm = ({
         initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        render={({ submitForm, setValues, values, dirty }) => (
+        render={({ submitForm, setValues, values, dirty, setFieldError }) => (
           <StyledFormGrid>
             {!isEditing ? (
               <>
@@ -748,6 +765,7 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
+                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
               />
               <Field
                 name="isPrn"
@@ -772,6 +790,7 @@ export const MedicationForm = ({
                 onChange={(_, value) => {
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
+                    setFieldError('doseAmount', null);
                   }
                 }}
               />
@@ -802,6 +821,7 @@ export const MedicationForm = ({
                 if (e.target.value === ADMINISTRATION_FREQUENCIES.IMMEDIATELY) {
                   setValues({ ...values, durationValue: '', durationUnit: '' });
                 }
+                setFrequencyChanged(prev => prev + 1);
               }}
             />
             <Field
@@ -906,7 +926,7 @@ export const MedicationForm = ({
               <Divider />
             </div>
             {values.frequency ? (
-              <MedicationAdministrationForm />
+              <MedicationAdministrationForm frequencyChanged={frequencyChanged} />
             ) : (
               <div style={{ gridColumn: '1 / -1' }}>
                 <FieldLabel>
@@ -976,6 +996,8 @@ export const MedicationForm = ({
                   onClick={async data => onFinalise({ data, isPrinting: true, submitForm, dirty })}
                   variant="outlined"
                   startIcon={<PrintIcon />}
+                  disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   <TranslatedText
                     stringId="medication.action.finaliseAndPrint"
@@ -999,6 +1021,8 @@ export const MedicationForm = ({
                 <FormSubmitButton
                   color="primary"
                   onClick={async data => onFinalise({ data, isPrinting: false, submitForm, dirty })}
+                  disabled={isFinalizingMedication}
+                  showLoadingIndicator={isFinalizingMedication}
                 >
                   {isEditing ? (
                     <TranslatedText stringId="general.action.confirm" fallback="Confirm" />

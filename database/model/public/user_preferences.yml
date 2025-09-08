@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_preferences
-        description: '{{ doc("table__user_preferences") }}'
-        tags:
-          - system
+        description: "{{ doc('table__user_preferences') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers:
+              - notify_user_preferences_changed
+              - record_user_preferences_changelog
+              - set_user_preferences_updated_at
+              - set_user_preferences_updated_at_sync_tick
         columns:
           - name: id
             data_type: text

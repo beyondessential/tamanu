@@ -54,8 +54,8 @@ export const tablesWithoutTrigger = (
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      LEFT JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      LEFT JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
@@ -90,8 +90,8 @@ export const tablesWithTrigger = (
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      JOIN information_schema.triggers triggers ON 
-        t.table_name = triggers.event_object_table 
+      JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
         AND t.table_schema = triggers.event_object_schema
         AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
@@ -156,7 +156,20 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
       })
       .then(rows => (rows?.[0] as any)?.count > 0);
 
-  // add trigger: before insert or update, set updated_at (overriding any that is passed in)
+  // add trigger: before update, update updated_at when the data in the row changed
+  if (await functionExists('set_updated_at')) {
+    for (const { schema, table } of await tablesWithoutTrigger(sequelize, 'set_', '_updated_at')) {
+      log.info(`Adding updated_at trigger to ${schema}.${table}`);
+      await sequelize.query(`
+      CREATE TRIGGER set_${table}_updated_at
+      BEFORE INSERT OR UPDATE ON "${schema}"."${table}"
+      FOR EACH ROW
+      EXECUTE FUNCTION public.set_updated_at();
+    `);
+    }
+  }
+
+  // add trigger: before insert or update, set updated_at_sync_tick (overriding any that is passed in)
   if (await functionExists('set_updated_at_sync_tick')) {
     for (const { schema, table } of await tablesWithoutTrigger(
       sequelize,

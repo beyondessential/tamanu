@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: permissions
-        description: '{{ doc("table__permissions") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__permissions') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_permissions_changed
+              - record_permissions_changelog
+              - set_permissions_updated_at
+              - set_permissions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -30,8 +37,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'roles')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'roles')
+                    field: id
           - name: noun
             data_type: character varying(255)
             description: "{{ doc('permissions__noun') }}"

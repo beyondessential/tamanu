@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: imaging_results
-        description: '{{ doc("table__imaging_results") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__imaging_results') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_imaging_results_changed
+              - record_imaging_results_changelog
+              - set_imaging_results_updated_at
+              - set_imaging_results_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -44,18 +51,23 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'imaging_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'imaging_requests')
+                    field: id
           - name: completed_by_id
             data_type: character varying(255)
             description: "{{ doc('imaging_results__completed_by_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: description
             data_type: text
             description: "{{ doc('imaging_results__description') }}"
+            config:
+              meta:
+                masking: text
           - name: external_code
             data_type: text
             description: "{{ doc('imaging_results__external_code') }}"
@@ -64,6 +76,12 @@ sources:
             description: "{{ doc('imaging_results__completed_at') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: result_image_url
             data_type: text
             description: "{{ doc('imaging_results__result_image_url') }}"
+            config:
+              meta:
+                masking: url

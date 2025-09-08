@@ -26,15 +26,17 @@ export interface IAdministeredVaccine {
   notGivenReasonId?: string;
 }
 
-export enum InjectionSiteType {
-  LeftArm = 'Left arm',
-  RightArm = 'Right arm',
-  LeftThigh = 'Left thigh',
-  RightThigh = 'Right thigh',
-  Oral = 'Oral',
-  Other = 'Other',
-}
+export const InjectionSiteType = {
+  LeftArm: 'Left arm',
+  RightArm: 'Right arm',
+  LeftThigh: 'Left thigh',
+  RightThigh: 'Right thigh',
+  Oral: 'Oral',
+  Other: 'Other',
+} as const;
+
+export type InjectionSiteType = (typeof InjectionSiteType)[keyof typeof InjectionSiteType];
 
 export const INJECTION_SITE_OPTIONS = Object.keys(InjectionSiteType).map(
-  k => InjectionSiteType[k as string] as InjectionSiteType,
+  k => InjectionSiteType[k as keyof typeof InjectionSiteType],
 );

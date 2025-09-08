@@ -1,9 +1,9 @@
 import { Locator, Page } from '@playwright/test';
 import { expect } from '../../fixtures/baseFixture';
-import { convertDateFormat, SelectingFromSearchBox } from '../../utils/testHelper';
+import { convertDateFormat, SelectingFromSearchBox ,STYLED_TABLE_CELL_PREFIX} from '../../utils/testHelper';
 import { routes } from '../../config/routes';
-import { Patient } from '../../types/Patient';
-
+import { Patient } from '../../types/Patient'; 
+import { TWO_COLUMNS_FIELD_TEST_ID } from './AllPatientsPage';
 type PatientTableRow = Locator & {
   getPatientInfo(): Promise<Patient>;
 };
@@ -94,7 +94,7 @@ export class PatientTable {
       await this.loadingCell.waitFor({ state: 'detached' });
       await this.page.waitForLoadState('networkidle', { timeout: 10000 });
     } catch (error) {
-      throw new Error(`Failed to wait for table to load: ${error.message}`);
+      throw new Error(`Failed to wait for table to load: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -112,7 +112,7 @@ export class PatientTable {
       );
     } catch (error) {
       throw new Error(
-        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error.message}`,
+        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`,
       );
     }
   }
@@ -138,7 +138,7 @@ export class PatientTable {
     const lowerExpectedText = expectedText.toLowerCase();
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       const actualText = cellText || '';
@@ -168,7 +168,7 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = await this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       await expect(cellLocator).toHaveText(convertedExpectedDate);
     }
@@ -189,7 +189,7 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-${columnName}`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) Values.push(cellText);
@@ -208,7 +208,7 @@ export class PatientTable {
 
     for (let i = 0; i < rowCount; i++) {
       const row = this.rows.nth(i);
-      const locatorText = `styledtablecell-2gyy-${i}-dateOfBirth`;
+      const locatorText = `${STYLED_TABLE_CELL_PREFIX}${i}-dateOfBirth`;
       const cellLocator = row.locator(`[data-testid="${locatorText}"]`);
       const cellText = await cellLocator.textContent();
       if (cellText) dateValues.push(cellText);
@@ -269,7 +269,7 @@ export class PatientTable {
     if (searchCriteria.sex) {
       await this.sexDropDownIcon.click();
       await this.page
-        .getByTestId('twocolumnsfield-wg4x')
+        .getByTestId(TWO_COLUMNS_FIELD_TEST_ID)
         .getByText(new RegExp(`^${searchCriteria.sex}$`, 'i'))
         .click();
     }
@@ -318,7 +318,7 @@ export class PatientTable {
       await expect(this.pageRecordCount).toContainText(recordsPerPage.toString());
       
     } catch (error) {
-      throw new Error(`Failed to change page size to ${recordsPerPage}: ${error.message}`);
+      throw new Error(`Failed to change page size to ${recordsPerPage}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -378,7 +378,7 @@ export class PatientTable {
       await this.page.waitForURL(`**/*${routes.patients.patientDetails}`);
       
     } catch (error) {
-      throw new Error(`Failed to click on row ${rowIndex}: ${error.message}`);
+      throw new Error(`Failed to click on row ${rowIndex}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

@@ -30,7 +30,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
   const { facilityId } = useAuth();
   const { localisation } = useLocalisation();
   const { translations } = useTranslation();
-  const { getSetting } = useSettings();
+  const { getSetting, settings } = useSettings();
   const { data: certificateData, isFetching: isCertificateFetching } = useCertificate({
     footerAssetName: ASSET_NAMES.VACCINATION_CERTIFICATE_FOOTER,
   });
@@ -120,6 +120,7 @@ export const VaccineCertificateModal = React.memo(({ open, onClose, patient }) =
           printedBy={printedBy}
           printedDate={getCurrentDateString()}
           localisation={localisation}
+          settings={settings}
           translations={translations}
           certificateData={{ title, subTitle }}
           healthFacility={healthFacility}

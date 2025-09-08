@@ -3,8 +3,9 @@ import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { reloadPatient } from '../../store';
-import { DateDisplay, getReferenceDataStringId, MenuButton, SearchTable } from '../../components';
+import { DateDisplay, MenuButton, SearchTable } from '../../components';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
 import {
   DeleteProgramRegistryFormModal,
@@ -165,7 +166,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
           let actions = [
             {
               label: (
-                <TranslatedText stringId="general.action.changeStatus" fallback="Change status" />
+                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
               ),
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,

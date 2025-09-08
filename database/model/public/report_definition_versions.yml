@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: report_definition_versions
-        description: '{{ doc("table__report_definition_versions") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__report_definition_versions') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_report_definition_versions_changed
+              - record_report_definition_versions_changelog
+              - set_report_definition_versions_updated_at
+              - set_report_definition_versions_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -38,9 +45,10 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - draft
-                    - published
+                  arguments:
+                    values:
+                      - draft
+                      - published
           - name: query
             data_type: text
             description: "{{ doc('report_definition_versions__query') }}"
@@ -52,16 +60,18 @@ sources:
             description: "{{ doc('report_definition_versions__report_definition_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'report_definitions')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'report_definitions')
+                    field: id
           - name: user_id
             data_type: character varying(255)
             description: "{{ doc('report_definition_versions__user_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in report_definition_versions."
