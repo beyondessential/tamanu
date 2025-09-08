@@ -2,13 +2,6 @@ import { z } from 'zod';
 
 import { SURVEY_TYPES } from '@tamanu/constants';
 
-export const SurveySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  code: z.string(),
-  surveyType: z.enum(SURVEY_TYPES),
-});
-
 export const ProgramDataElementSchema = z.object({
   id: z.string(),
   code: z.string().optional().nullable(),
@@ -45,12 +38,15 @@ export const SurveyScreenComponentSchema = z.object({
   dataElement: ProgramDataElementSchema.optional().nullable(),
 });
 
-export const FullSurveySchema = SurveySchema.extend({
-  components: z.array(SurveyScreenComponentSchema),
+export const SurveySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  surveyType: z.enum(SURVEY_TYPES),
+  components: z.array(SurveyScreenComponentSchema).optional().nullable(),
 });
 
 export type Survey = z.infer<typeof SurveySchema>;
-export type FullSurvey = z.infer<typeof FullSurveySchema>;
 export type ProgramDataElement = z.infer<typeof ProgramDataElementSchema>;
 export type SurveyScreenComponent = z.infer<typeof SurveyScreenComponentSchema>;
 
