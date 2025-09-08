@@ -36,6 +36,43 @@ export const getOutstandingForms = asyncHandler(async (req, res) => {
   });
 });
 
+export const getDesignatedForm = asyncHandler(async (req, res) => {
+  const { patient, params } = req;
+  const { models } = req.store;
+  const { designationId } = params;
+
+  const assignedForm = await models.PortalSurveyAssignment.findOne({
+    where: {
+      id: designationId,
+      patientId: patient.id,
+      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+    },
+  });
+
+  if (!assignedForm) {
+    log.warn('Patient attempted to fetch survey for invalid designated form', {
+      designationId,
+      patientId: patient.id,
+    });
+    throw new NotFoundError('Form was not assigned to the patient');
+  }
+
+  const surveyRecord = await models.Survey.findByPk(assignedForm.surveyId);
+  if (!surveyRecord) {
+    throw new NotFoundError('Survey not found');
+  }
+
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(
+    surveyRecord.id,
+    { includeAllVitals: true },
+  );
+
+  return res.send({
+    ...surveyRecord.forResponse(),
+    components,
+  });
+});
+
 export const submitDesignatedFormResponse = asyncHandler(async (req, res) => {
   const { patient, settings, params } = req;
   const { models } = req.store;
