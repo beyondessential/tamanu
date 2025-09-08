@@ -8,10 +8,10 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   Field,
   Form,
-  TranslatedSelectField,
   NumberField,
   AutocompleteField,
 } from '../../Field';
+import { TranslatedSelectField } from '@tamanu/ui-components';
 import { TextField } from '@tamanu/ui-components';
 import { FormGrid } from '../../FormGrid';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';

@@ -10,9 +10,8 @@ import {
 import {
   AutocompleteField,
   TimeField,
-  TranslatedSelectField,
 } from '../../../../../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';

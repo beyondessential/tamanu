@@ -12,9 +12,8 @@ import {
 import {
   AutocompleteField,
   SuggesterSelectField,
-  TranslatedSelectField,
 } from '../../../../../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { usePatientSuggester, useSuggester } from '../../../../../api';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
