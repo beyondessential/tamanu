@@ -8,14 +8,12 @@ import {
   getConfigObject,
   getTooltip,
   mapOptionsToValues,
-} from '../../utils';
-import { Field, FieldWithTooltip } from '../Field';
-import { useEncounter } from '../../contexts/Encounter';
+} from '../utils';
+import { Field, FieldWithTooltip } from './Field';
 import { Box, Typography } from '@material-ui/core';
-import { Colors } from '../../constants';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useTranslation } from '../../contexts/Translation';
-
+import { Colors } from '../constants';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
+import { useTranslation } from '../contexts/useTranslations';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -80,8 +78,10 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
     );
   }
 
-  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded
-    || component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+  if (
+    component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+  ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 
@@ -89,7 +89,6 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
-  const { encounter } = useEncounter();
   const { getTranslation } = useTranslation();
 
   const {
@@ -136,7 +135,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
-    encounterType: encounterType || encounter?.encounterType,
+    encounterType: encounterType,
   });
   const tooltip = getTooltip(type, configObject, getTranslation);
 

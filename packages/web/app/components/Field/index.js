@@ -19,6 +19,7 @@ export * from './ImagingPriorityField';
 export * from './SearchField';
 export * from './SwitchField';
 export * from './ChartInstanceNameField';
+export * from './SurveyAnswerField';
 
 // fancy fields
 export * from './HierarchyFieldItem';
