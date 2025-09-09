@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@mui/material';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormGrid, FormSubmitButton } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
@@ -13,9 +13,6 @@ import {
   AutocompleteField,
   BaseModal,
   Field,
-  FormCancelButton,
-  FormGrid,
-  FormSubmitButton,
   TranslatedText,
 } from '..';
 import { useApi, useSuggester } from '../../api';

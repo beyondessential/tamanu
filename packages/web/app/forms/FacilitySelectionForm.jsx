@@ -3,12 +3,10 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
-import { Form, ButtonRow, FormGrid } from '@tamanu/ui-components';
+import { Form, ButtonRow, FormGrid, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import {
   BodyText,
   Field,
-  FormSubmitButton,
-  FormCancelButton,
   AutocompleteField,
 } from '../components';
 import { Colors } from '../constants';

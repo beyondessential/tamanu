@@ -5,16 +5,14 @@ import MuiDivider from '@material-ui/core/Divider';
 import { Add } from '@material-ui/icons';
 import { Colors } from '../../constants';
 import {
-  Button,
   DateDisplay,
   DateField,
   Field,
   Heading5,
-  TextButton,
   TranslatedText,
   TranslatedReferenceData,
 } from '../../components';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, Button, TextButton } from '@tamanu/ui-components';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';

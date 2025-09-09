@@ -38,13 +38,18 @@ import {
   DateTimeField,
   Dialog,
   Field,
-  FormCancelButton,
-  FormGrid,
-  FormSubmitButton,
   NumberField,
   SmallBodyText,
 } from '../components';
-import { TextField, SelectField, TranslatedSelectField, Form } from '@tamanu/ui-components';
+import {
+  TextField,
+  SelectField,
+  TranslatedSelectField,
+  Form,
+  FormCancelButton,
+  FormGrid,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';

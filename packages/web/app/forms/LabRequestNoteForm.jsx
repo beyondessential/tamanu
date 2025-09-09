@@ -6,15 +6,12 @@ import { Box } from '@material-ui/core';
 
 import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormSubmitButton, Button } from '@tamanu/ui-components';
 
 import { useApi } from '../api';
 import {
-  Button,
   DateDisplay,
   Field,
-  FormCancelButton,
-  FormSubmitButton,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
