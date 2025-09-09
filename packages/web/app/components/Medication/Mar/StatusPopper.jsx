@@ -7,6 +7,7 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form } from '@tamanu/ui-components';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
@@ -15,7 +16,7 @@ import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { Field, Form, NumberField } from '../../Field';
+import { Field, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';

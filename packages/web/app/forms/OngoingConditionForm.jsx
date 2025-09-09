@@ -11,9 +11,8 @@ import {
   CheckField,
   DateField,
   Field,
-  Form,
 } from '../components/Field';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormCancelButton, FormSubmitButton } from '../components/Button';

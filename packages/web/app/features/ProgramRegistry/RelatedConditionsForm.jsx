@@ -12,10 +12,9 @@ import {
   Heading5,
   TextButton,
   TranslatedText,
-  Form,
   TranslatedReferenceData,
 } from '../../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';

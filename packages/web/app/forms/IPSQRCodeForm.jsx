@@ -3,8 +3,8 @@ import * as Yup from 'yup';
 import styled from 'styled-components';
 
 import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { TextField } from '@tamanu/ui-components';
-import { Field, Form } from '../components/Field';
+import { TextField, Form } from '@tamanu/ui-components';
+import { Field } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';

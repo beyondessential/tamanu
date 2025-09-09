@@ -11,7 +11,6 @@ import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
@@ -22,7 +21,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, Form } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useSettings } from '../contexts/Settings';

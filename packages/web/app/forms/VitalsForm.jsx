@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
+import { getFormInitialValues, getValidationSchema, Form } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
+import { FormSubmitCancelRow, ModalLoader } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';

@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 
-import { Form, LocalisedField, SuggesterSelectField } from '../components/Field';
+import { LocalisedField, SuggesterSelectField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { ModalActionRow } from '../components';

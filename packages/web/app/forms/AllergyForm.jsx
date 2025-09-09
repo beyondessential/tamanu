@@ -8,10 +8,9 @@ import {
   AutocompleteField,
   DateField,
   Field,
-  Form,
   SuggesterSelectField,
 } from '../components/Field';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';

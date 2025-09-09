@@ -4,8 +4,9 @@ import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
-import { Field, Form } from '../components/Field';
+import { Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';

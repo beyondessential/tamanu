@@ -7,9 +7,9 @@ import {
   TallMultilineTextField,
   TextField,
   TranslatedSelectField,
+  Form,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import { Colors } from '../../../constants';
 import { Button } from '../../../components/Button';

@@ -13,8 +13,8 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { TextField } from '@tamanu/ui-components';
-import { Form, Button, SearchInput, TableFormFields } from '../../../components';
+import { TextField, Form } from '@tamanu/ui-components';
+import { Button, SearchInput, TableFormFields } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Colors } from '../../../constants';

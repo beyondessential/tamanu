@@ -5,9 +5,10 @@ import styled from 'styled-components';
 import { pluralize } from 'inflection';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
-import { Field, Form } from '../../../components/Field';
+import { Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow, TranslatedText } from '../../../components';

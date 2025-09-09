@@ -16,12 +16,12 @@ import {
   TextField,
   TranslatedSelectField,
   TextInput,
+  Form,
 } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   ImagingPriorityField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';

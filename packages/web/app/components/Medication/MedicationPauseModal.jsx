@@ -4,12 +4,11 @@ import styled from 'styled-components';
 import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES} from '@tamanu/constants';
-import { SelectField, TextField } from '@tamanu/ui-components';
+import { SelectField, TextField, Form } from '@tamanu/ui-components';
 
 import {
   BaseModal,
   Field,
-  Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,

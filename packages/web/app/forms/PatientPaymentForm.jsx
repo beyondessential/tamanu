@@ -11,12 +11,11 @@ import {
   Button,
   DateField,
   Field,
-  Form,
   NoteModalActionBlocker,
   NumberField,
   TranslatedText,
 } from '../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { Colors, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';

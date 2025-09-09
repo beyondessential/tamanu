@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { Form } from '@tamanu/ui-components';
 import {
   ButtonRow,
-  Form,
   FormGrid,
   FormSeparatorLine,
   FormSubmitCancelRow,

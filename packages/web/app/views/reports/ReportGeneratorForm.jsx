@@ -12,6 +12,7 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
@@ -21,8 +22,7 @@ import {
   Button,
   DateDisplay,
   DateField,
-  Field,
-  Form,
+  Field,  
   FormGrid,
   RadioField,
   TextButton,

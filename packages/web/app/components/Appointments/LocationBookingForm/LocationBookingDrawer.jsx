@@ -5,6 +5,7 @@ import * as yup from 'yup';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
@@ -20,7 +21,6 @@ import {
   CheckField,
   DynamicSelectField,
   Field,
-  Form,
   LocalisedLocationField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';

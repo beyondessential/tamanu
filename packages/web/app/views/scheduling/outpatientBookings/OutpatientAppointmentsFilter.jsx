@@ -4,9 +4,10 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
 import { useUserPreferencesMutation } from '../../../api/mutations';
-import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
+import { Field, SearchField, TextButton, TranslatedText } from '../../../components';
 import { FilterField } from '../../../components/Field/FilterField';
 import {
   OUTPATIENT_APPOINTMENTS_EMPTY_FILTER_STATE,

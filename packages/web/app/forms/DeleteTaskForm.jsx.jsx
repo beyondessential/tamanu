@@ -1,13 +1,14 @@
 import React from 'react';
 import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
+
 import { TASK_DELETE_BY_SYSTEM_REASON, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   FormGrid,
   FormSubmitCancelRow,
   TranslatedText,

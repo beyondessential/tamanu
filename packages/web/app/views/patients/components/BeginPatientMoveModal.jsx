@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 import { usePatientMove } from '../../../api/mutations';
 import {
   BodyText,
   Field,
-  Form,
   FormModal,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,

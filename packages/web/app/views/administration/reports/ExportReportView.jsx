@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { REPORT_VERSION_EXPORT_FORMATS } from '@tamanu/constants/reports';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 import {
   ButtonRow,
   Field,
-  Form,
   FormGrid,
   FormSubmitButton,
   RadioField,

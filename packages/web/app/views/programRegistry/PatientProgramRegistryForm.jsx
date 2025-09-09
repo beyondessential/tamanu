@@ -5,12 +5,12 @@ import * as yup from 'yup';
 import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
+import { Form } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateField,
   Field,
   FieldWithTooltip,
-  Form,
   ArrayField,
 } from '../../components/Field';
 import {

@@ -25,13 +25,12 @@ import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { FormGrid } from '../../../components/FormGrid';
-import { TextField, TranslatedSelectField, TextInput } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, TextInput, Form } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   DateTimeInput,
   Field,
-  Form,
 } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';

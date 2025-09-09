@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -19,7 +19,6 @@ import {
   CheckField,
   DateTimeField,
   Field,
-  Form,
   NumberField,
   SuggesterSelectField,
 } from '../components/Field';

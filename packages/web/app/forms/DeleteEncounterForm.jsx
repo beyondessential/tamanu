@@ -2,16 +2,17 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Field, Form } from '../components/Field';
+import { Form } from '@tamanu/ui-components';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+
+import { Field } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-
 import { Colors } from '../constants';
 import { DateDisplay } from '../components/DateDisplay';
 import { useTranslation } from '../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 const Label = styled.div`
   font-size: 14px;

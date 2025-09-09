@@ -5,9 +5,10 @@ import * as yup from 'yup';
 import { useFormikContext } from 'formik';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
-import { Field, Form } from '../../../components/Field';
+import { Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
 import { FormGrid } from '../../../components/FormGrid';

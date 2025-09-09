@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TranslatedSelectField } from '@tamanu/ui-components';
+import { TranslatedSelectField, Form } from '@tamanu/ui-components';
 import {
   DIAGNOSIS_CERTAINTY,
   DIAGNOSIS_CERTAINTY_VALUES,
@@ -11,7 +11,7 @@ import {
 import { foreignKey } from '../utils/validation';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
-import { AutocompleteField, CheckField, DateField, Field, Form } from '../components/Field';
+import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';

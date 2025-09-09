@@ -1,11 +1,11 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { SelectField } from '@tamanu/ui-components';
+import { SelectField, Form } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { Field, Form } from './Field';
+import { Field } from './Field';
 import { BodyText } from './Typography';
 import { TranslatedText } from './Translation/TranslatedText';
 

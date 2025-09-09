@@ -5,10 +5,11 @@ import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { applyDefaults, validateSettings } from '@tamanu/settings';
+import { Form } from '@tamanu/ui-components';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { Form, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';

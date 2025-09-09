@@ -2,9 +2,9 @@ import React, { memo, useCallback, useMemo } from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-
+import { Form } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
-import { AutocompleteField, Field, Form } from '../../../components/Field';
+import { AutocompleteField, Field } from '../../../components/Field';
 import { FormGrid } from '../../../components/FormGrid';
 import { ButtonRow, TranslatedText } from '../../../components';
 import { FormSubmitButton } from '../../../components/Button';

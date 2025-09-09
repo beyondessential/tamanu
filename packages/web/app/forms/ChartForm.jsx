@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { subject } from '@casl/ability';
-import { getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
 
+import { getFormInitialValues, getValidationSchema, Form } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
+import { FormSubmitCancelRow, ModalLoader } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { Modal } from '../components/Modal';

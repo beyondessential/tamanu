@@ -7,11 +7,10 @@ import {
   BodyText,
   Button,
   Field,
-  Form,
   FormSubmitButton,
   TextButton,
 } from '../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 import { TranslatedText } from '../components/Translation/TranslatedText';

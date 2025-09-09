@@ -3,11 +3,11 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 
-import { TextField } from '@tamanu/ui-components';
+import { TextField, Form } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
 import { FormGrid } from '../../FormGrid';
-import { Field, Form, NumberField } from '../../Field';
+import { Field, NumberField } from '../../Field';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3 } from '../../Typography';
 import { ConfirmCancelBackRow } from '../../ButtonRow';

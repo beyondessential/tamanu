@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { Box, Typography } from '@material-ui/core';
-import { Field, Form, LocationField } from '../../app/components';
+import { Form } from '@tamanu/ui-components';
+import { Field, LocationField } from '../../app/components';
 import { fakeLocations } from '../../.storybook/__mocks__/defaultEndpoints';
 
 /**

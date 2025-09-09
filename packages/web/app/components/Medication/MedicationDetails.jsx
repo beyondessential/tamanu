@@ -19,8 +19,8 @@ import {
 
 import { TranslatedText } from '../Translation/TranslatedText';
 import { Colors } from '../../constants';
-import { TextField } from '@tamanu/ui-components';
-import { CheckField, Field, Form } from '../Field';
+import { TextField, Form } from '@tamanu/ui-components';
+import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';
 import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';

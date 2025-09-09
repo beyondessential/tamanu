@@ -1,8 +1,8 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
-import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';

@@ -6,8 +6,8 @@ import {
   getFormInitialValues,
   getValidationSchema,
   SurveyFormContext,
+  Form,
 } from '@tamanu/ui-components';
-import { Form } from '../../components/Field';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 import { SurveyScreenPaginator, getComponentForQuestionType } from '../../components/Surveys';

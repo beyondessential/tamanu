@@ -4,8 +4,9 @@ import { useFormikContext } from 'formik';
 import styled from '@mui/system/styled';
 
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 
-import { Field, Form, SearchField, TextButton, TranslatedText } from '../../../components';
+import { Field, SearchField, TextButton, TranslatedText } from '../../../components';
 import { useTranslation } from '../../../contexts/Translation';
 import { FilterField } from '../../../components/Field/FilterField';
 import { useUserPreferencesMutation } from '../../../api/mutations';

@@ -1,9 +1,9 @@
 import React from 'react';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form } from '@tamanu/ui-components';
 import {
   Field,
-  Form,
   FormGrid,
   FormModal,
   FormSubmitCancelRow,
