@@ -1,12 +1,15 @@
 import express from 'express';
 
-import { getAllergies } from './allergies';
-import { getPatient } from './patient';
-import { getOngoingConditions } from './ongoingConditions';
-import { getOngoingPrescriptions } from './ongoingPrescriptions';
-import { getAdministeredVaccines, getUpcomingVaccinations } from './vaccinations';
-import { getUpcomingAppointments } from './appointments';
-import { getOutstandingSurveys } from './surveys';
+import {
+  getAllergies,
+  getPatient,
+  getOngoingConditions,
+  getOngoingPrescriptions,
+  getAdministeredVaccines,
+  getUpcomingVaccinations,
+  getUpcomingAppointments,
+  getOutstandingSurveys,
+} from './handlers/patientData';
 
 export const patientDataRoutes = express.Router();
 

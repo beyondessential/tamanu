@@ -1,8 +1,8 @@
 import express from 'express';
 import { authModule } from './auth';
-import { patientDataRoutes } from './patientData/patientDataRoutes';
-import { getSurvey } from './general/survey';
-import { createSurveyResponse } from './general/surveyResponse';
+import { patientDataRoutes } from './patientDataRoutes';
+
+import { getSurvey, createSurveyResponse } from './handlers';
 
 export const patientPortalModule = express.Router();
 
