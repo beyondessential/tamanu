@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext'; // TODO need to resolve
 
 export const withPermissionCheck = (Component) => {
   const PermissionCheckedComponent = ({ verb, noun, subject = null, ...props }) => {
