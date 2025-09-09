@@ -3,7 +3,7 @@ import config from 'config';
 import { chunk, omit, omitBy } from 'lodash';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { NOTE_RECORD_TYPES } from '@tamanu/constants/notes';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { refreshChildRecordsForSync } from '@tamanu/shared/utils/refreshChildRecordsForSync';
 
@@ -96,7 +96,7 @@ function getMergedFieldsForUpdate(keepRecordValues = {}, unwantedRecordValues = 
   };
 }
 
-const fieldReferencesPatient = (field) => field.references?.model === 'patients';
+const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
@@ -253,13 +253,16 @@ export async function mergePatientProgramRegistrations(models, keepPatientId, un
       });
 
       // Move conditions to the new patient program registration
-      await models.PatientProgramRegistrationCondition.update({
-        patientProgramRegistrationId: newRegistration.id,
-      }, {
-        where: {
-          patientProgramRegistrationId: unwantedRegistration.id,
+      await models.PatientProgramRegistrationCondition.update(
+        {
+          patientProgramRegistrationId: newRegistration.id,
         },
-      });
+        {
+          where: {
+            patientProgramRegistrationId: unwantedRegistration.id,
+          },
+        },
+      );
     }
 
     // Always destroy the unwanted registration
@@ -336,9 +339,9 @@ export async function reconcilePatientFacilities(models, keepPatientId, unwanted
   if (existingPatientFacilityRecords.length === 0) return [];
 
   const facilitiesTrackingPatient = [
-    ...new Set(existingPatientFacilityRecords.map((r) => r.facilityId)),
+    ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
   ];
-  const newPatientFacilities = facilitiesTrackingPatient.map((facilityId) => ({
+  const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
     patientId: keepPatientId,
     facilityId,
   }));

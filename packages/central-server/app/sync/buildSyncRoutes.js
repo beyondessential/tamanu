@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from './CentralSyncManager';
@@ -24,7 +24,7 @@ export const buildSyncRoutes = ctx => {
       } = req;
 
       const userInstance = await store.models.User.findByPk(user.id);
-      if (!await userInstance.canSync(facilityIds, req)) {
+      if (!(await userInstance.canSync(facilityIds, req))) {
         throw new ForbiddenError('User cannot sync');
       }
       if (facilityIds.some(id => !userInstance.canAccessFacility(id))) {
@@ -96,7 +96,7 @@ export const buildSyncRoutes = ctx => {
         userId: user.id,
         deviceId,
         facilityIds,
-        isMobile
+        isMobile,
       });
       res.json({ sessionId, tick });
     }),

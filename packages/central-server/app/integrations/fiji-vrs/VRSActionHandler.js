@@ -1,7 +1,7 @@
 import util from 'util';
 
 import { log } from '@tamanu/shared/services/logging';
-import { InvalidOperationError, RemoteCallFailedError } from '@tamanu/shared/errors';
+import { InvalidOperationError, RemoteCallFailedError, UnknownError } from '@tamanu/errors';
 
 import * as schema from './schema';
 
@@ -64,18 +64,15 @@ export class VRSActionHandler {
     const { Patient, PatientAdditionalData, PatientVRSData } = models;
 
     // validate action
-    const {
-      operation,
-      fetch_id: fetchId,
-    } = await schema.remoteRequest.patientCreated.validate(action, { stripUnknown: true });
+    const { operation, fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(
+      action,
+      { stripUnknown: true },
+    );
     log.debug(`VRSActionHandler: applying action (operation=${operation}, fetch_id=${fetchId})`);
 
     // fetch patient
-    const {
-      patient,
-      patientAdditionalData,
-      patientVRSData,
-    } = await this.remote.getPatientByFetchId(fetchId);
+    const { patient, patientAdditionalData, patientVRSData } =
+      await this.remote.getPatientByFetchId(fetchId);
 
     // persist
     if (operation === schema.OPERATIONS.DELETE) {
@@ -113,11 +110,12 @@ export class VRSActionHandler {
     try {
       await this.remote.acknowledge(fetchId);
     } catch (e) {
-      throw new RemoteCallFailedError(
-        `vrs: Patient import succeeded, but received an error while acknowledging: (displayId=${
-          patient.displayId
-        }, error=${util.inspect(e)}`,
-      );
+      throw new UnknownError(
+        'vrs: Patient import succeeded, but received an error while acknowledging',
+      ).withExtraData({
+        displayId: patient.displayId,
+        error: util.inspect(e),
+      });
     }
   }
 }
