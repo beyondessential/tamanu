@@ -6,4 +6,4 @@ export { isTranslatedText, extractTranslationFromComponent } from './utils';
 export { getTranslatedOptions } from './getTranslatedOptions';
 export { TranslatedEnumField } from './TranslatedEnumIInput';
 export { DebugTooltip } from './DebugTooltip';
-export { TranslatedOptionSelectField } from './TranslatedOptions';
+export { TranslatedOptionSelectField, TranslatedOption } from './TranslatedOptions';

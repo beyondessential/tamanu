@@ -1,2 +1,2 @@
-import { TranslatedOptionSelectField } from '@tamanu/ui-components';
-export { TranslatedOptionSelectField };
+import { TranslatedOptionSelectField, TranslatedOption } from '@tamanu/ui-components';
+export { TranslatedOptionSelectField, TranslatedOption };
