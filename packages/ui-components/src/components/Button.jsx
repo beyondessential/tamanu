@@ -14,10 +14,10 @@ import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { TAMANU_COLORS } from '../constants/colors';
-import { withPermissionCheck } from './withPermissionCheck'; // TODO
-import { withPermissionTooltip } from './withPermissionTooltip'; // TODO
+import { withPermissionCheck } from './withPermissionCheck';
+import { withPermissionTooltip } from './withPermissionTooltip';
 import { TranslatedText } from './Translation';
-import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting'; // TODO
+import { useFormButtonSubmitting } from './useFormButtonSubmitting';
 
 export const ButtonBase = (props) => {
   delete props.functionallyDisabled;
