@@ -9,11 +9,9 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, ConfirmCancelRow, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { AutocompleteField, Field } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
-import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

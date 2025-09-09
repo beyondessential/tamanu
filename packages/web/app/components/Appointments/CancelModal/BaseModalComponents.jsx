@@ -2,7 +2,7 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import styled from '@mui/system/styled';
 import { Colors } from '../../../constants';
-import { ConfirmCancelRow } from '../../ButtonRow';
+import { ConfirmCancelRow } from '@tamanu/ui-components';
 
 const FlexCol = styled(Box)`
   display: flex;

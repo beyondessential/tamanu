@@ -2,13 +2,11 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form } from '@tamanu/ui-components';
+import { Form, FormGrid, ConfirmCancelRow } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
-import { Field } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
 import { Colors } from '../constants';
+import { Field } from '../components/Field';
 import { DateDisplay } from '../components/DateDisplay';
 import { useTranslation } from '../contexts/Translation';
 import { TranslatedEnum, TranslatedReferenceData } from '../components';

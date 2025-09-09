@@ -2,9 +2,9 @@ import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
+import { ConfirmCancelRow } from '@tamanu/ui-components';
 
 import { useSelectableColumn } from '../../Table';
-import { ConfirmCancelRow } from '../../ButtonRow';
 import { useApi } from '../../../api';
 import { Colors } from '../../../constants';
 

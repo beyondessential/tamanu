@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { TextButton, ButtonRow, Button } from '@tamanu/ui-components';
 
-import { TextButton, ButtonRow, Button } from '../../../components';
 import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';

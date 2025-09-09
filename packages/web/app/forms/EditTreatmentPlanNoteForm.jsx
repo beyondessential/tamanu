@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '@tamanu/ui-components';
 import {
   NoteContentField,
   NoteDateTimeField,

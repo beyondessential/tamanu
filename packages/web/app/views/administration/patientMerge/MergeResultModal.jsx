@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, ButtonRow, Modal } from '../../../components';
+import { Button, ButtonRow } from '@tamanu/ui-components';
+import { Modal } from '../../../components';
 
 export const MergeResultModal = ({ result, onClose }) => {
   const { updates = {} } = result;

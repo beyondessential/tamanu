@@ -4,9 +4,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { TextField } from '@tamanu/ui-components';
+import { TextField, ConfirmCancelBackRow, ConfirmCancelRow } from '@tamanu/ui-components';
 import { AutocompleteInput, CheckInput } from '../Field';
-import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';

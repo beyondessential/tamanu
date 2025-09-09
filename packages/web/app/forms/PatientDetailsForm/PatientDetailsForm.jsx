@@ -4,11 +4,11 @@ import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
-import { Form } from '@tamanu/ui-components';
+import { Form, ButtonRow } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { getPatientDetailsValidation } from '../../validations';
-import { ButtonRow, FormSubmitButton, NoteModalActionBlocker } from '../../components';
+import { FormSubmitButton, NoteModalActionBlocker } from '../../components';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLayoutComponents } from './useLayoutComponents';
 import { usePatientFieldDefinitionQuery } from '../../api/queries/usePatientFieldDefinitionQuery';

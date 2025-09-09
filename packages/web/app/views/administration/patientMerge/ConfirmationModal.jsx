@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, ButtonRow, Modal, OutlinedButton } from '../../../components';
+import { Modal } from '../../../components';
+import { Button, ButtonRow, OutlinedButton } from '@tamanu/ui-components';
 
 import { PatientSummary } from './PatientSummary';
 

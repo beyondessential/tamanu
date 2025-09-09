@@ -2,10 +2,8 @@ import React from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { Field } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';

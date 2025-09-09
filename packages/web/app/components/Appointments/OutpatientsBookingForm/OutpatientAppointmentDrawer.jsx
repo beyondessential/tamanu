@@ -30,7 +30,6 @@ import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { Colors } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import {
@@ -40,8 +39,7 @@ import {
   Field,  
   SwitchField,
 } from '../../Field';
-import { TextField, Form } from '@tamanu/ui-components';
-import { FormGrid } from '../../FormGrid';
+import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';

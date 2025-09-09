@@ -4,7 +4,7 @@ import { BaseModal } from './BaseModal';
 import { NoteInfoSection, StyledDivider, WrittenByText } from './NoteCommonFields';
 import { TranslatedEnum, TranslatedText } from './Translation';
 import { NoteChangeLogs } from './NoteChangeLogs';
-import { ConfirmCancelRow } from './ButtonRow';
+import { ConfirmCancelRow } from '@tamanu/ui-components';
 import { NOTE_TYPE_LABELS, NOTE_TYPES } from '@tamanu/constants';
 
 const getChangelogContext = note => {

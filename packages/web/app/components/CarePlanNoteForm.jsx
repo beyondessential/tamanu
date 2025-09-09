@@ -5,10 +5,8 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from './Field';
-import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

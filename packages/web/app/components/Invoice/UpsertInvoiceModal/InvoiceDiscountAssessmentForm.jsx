@@ -3,12 +3,10 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { SETTING_KEYS } from '@tamanu/constants';
+import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3 } from '../../Typography';
-import { ConfirmCancelBackRow } from '../../ButtonRow';
 import { Field } from '../../Field';
-import { SelectField, Form } from '@tamanu/ui-components';
-import { FormGrid } from '../../FormGrid';
 import { useSettings } from '../../../contexts/Settings';
 
 const StyledDivider = styled(Divider)`

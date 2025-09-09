@@ -10,9 +10,7 @@ import {
   Field,
   SuggesterSelectField,
 } from '../components/Field';
-import { TextField, Form } from '@tamanu/ui-components';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';

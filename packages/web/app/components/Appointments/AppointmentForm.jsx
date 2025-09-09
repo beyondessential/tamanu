@@ -1,10 +1,8 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
 import { APPOINTMENT_STATUSES, FORM_TYPES } from '@tamanu/constants';
-import { Form } from '@tamanu/ui-components';
-import { FormGrid } from '../FormGrid';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field } from '../Field';
-import { FormSubmitCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 import { useApi, usePatientSuggester, useSuggester } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';

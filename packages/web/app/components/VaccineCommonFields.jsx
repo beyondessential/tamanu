@@ -19,8 +19,8 @@ import {
   SelectField,
   TextField,
   BaseSelectField,
+  FormSubmitCancelRow,
 } from '@tamanu/ui-components';
-import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { Colors } from '../constants';

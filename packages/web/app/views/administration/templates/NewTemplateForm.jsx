@@ -10,11 +10,11 @@ import {
   Form,
   Button,
   FormGrid,
+  ButtonRow,
+  SmallGridSpacer
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { SmallGridSpacer } from '../../../components/FormGrid';
 import { Colors } from '../../../constants';
-import { ButtonRow } from '../../../components/ButtonRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 
