@@ -113,11 +113,7 @@ export const login = ({ secret, refreshSecret }) =>
       deviceId,
     });
     if (isUserLockedOut) {
-      await models.UserLoginAttempt.create({
-        userId: user.id,
-        deviceId,
-        outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
-      });
+      log.info(`Trying to login with locked user account: ${email}`);
       throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
     }
 
