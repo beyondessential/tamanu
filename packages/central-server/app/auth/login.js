@@ -84,8 +84,7 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('Missing credentials');
     }
 
-    const internalClient = isInternalClient(tamanuClient);
-    if (internalClient && !deviceId) {
+    if (!deviceId) {
       throw new BadAuthenticationError('Missing deviceId');
     }
 
@@ -166,9 +165,7 @@ export const login = ({ secret, refreshSecret }) =>
             jwtid: `${accessTokenJwtId}`,
           },
         ),
-        internalClient
-          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
-          : undefined,
+        getRefreshToken(models, { refreshSecret, userId: user.id, deviceId }),
         user.allowedFacilities(),
         getLocalisation(),
         getPermissionsForRoles(models, user.role),
