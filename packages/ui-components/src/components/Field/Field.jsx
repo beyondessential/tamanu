@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import {
   connect as formikConnect,
   Field as FormikField,

@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 
-import { FormSubmissionProvider, useFormSubmission } from '../contexts/FormSubmission';
+import { FormSubmissionProvider, useFormSubmission } from '@tamanu/ui-components/contexts';
 import { BaseModal } from './BaseModal';
 import { IS_DEVELOPMENT } from '../utils/env';
 

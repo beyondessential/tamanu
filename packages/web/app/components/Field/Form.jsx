@@ -6,7 +6,7 @@ import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 
-import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 
 import { flattenObject } from '../../utils';
 import { Dialog } from '../Dialog';

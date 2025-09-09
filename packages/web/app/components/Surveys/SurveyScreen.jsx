@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
-import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import styled from 'styled-components';
 import { FormGrid } from '../FormGrid';
 import { Button, OutlinedButton } from '../Button';
