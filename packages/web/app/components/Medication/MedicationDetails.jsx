@@ -19,11 +19,10 @@ import {
 
 import { TranslatedText } from '../Translation/TranslatedText';
 import { Colors } from '../../constants';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, Button, OutlinedButton } from '@tamanu/ui-components';
 import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';
 import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal } from '../../Modal';
-import { Button } from '../../Button';
+import { Button } from '@tamanu/ui-components';
 import { useCertificate } from '../../../utils/useCertificate';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { DeathCertificatePrintout } from '@tamanu/shared/utils/patientCertificates';

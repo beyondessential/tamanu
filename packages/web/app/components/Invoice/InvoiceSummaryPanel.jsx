@@ -10,7 +10,7 @@ import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
-import { Button, DefaultIconButton } from '../Button';
+import { Button, DefaultIconButton } from '@tamanu/ui-components';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,

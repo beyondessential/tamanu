@@ -2,15 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
+import { TextButton } from '@tamanu/ui-components';
+import { WS_EVENTS } from '@tamanu/constants';
 import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
-import { TextButton } from '../Button';
 import { DataFetchingTable, Table } from '../Table';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useSocket } from '../../utils/useSocket';
-import { WS_EVENTS } from '@tamanu/constants';
 
 const StyledText = styled(Typography)`
   margin: 14px 0px 30px 0;

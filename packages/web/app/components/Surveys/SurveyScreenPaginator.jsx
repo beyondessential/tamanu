@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { FormSubmitButton, OutlinedButton, ButtonRow } from '@tamanu/ui-components';
 import { Typography } from '@material-ui/core';
 import { usePaginatedForm } from '../Field';
 import { SurveyScreen } from './SurveyScreen';
-import { FormSubmitButton, OutlinedButton } from '../Button';
-import { ButtonRow } from '../ButtonRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useEncounter } from '../../contexts/Encounter';
 

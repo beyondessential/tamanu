@@ -8,8 +8,7 @@ import * as yup from 'yup';
 import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
-import { FormCancelButton } from '../components/Button';
+import { DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   MultiselectField,
@@ -17,13 +16,10 @@ import {
   TranslatedSelectField,
   TextInput,
   Form,
+  FormCancelButton,
+  ButtonRow,
 } from '@tamanu/ui-components';
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
-  ImagingPriorityField,
-} from '../components/Field';
+import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { ENCOUNTER_OPTIONS } from '../constants';

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '../Button';
+import { OutlinedButton } from '@tamanu/ui-components';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';

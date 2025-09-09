@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
+import { OutlinedButton } from '@tamanu/ui-components';
 import { Modal } from '../../Modal';
-import { OutlinedButton } from '../../Button';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';

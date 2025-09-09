@@ -15,14 +15,13 @@ import {
   NumberField,
   TranslatedText,
 } from '../components';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, DefaultIconButton } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { Colors, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
-import { DefaultIconButton } from '../components/Button';
 
 const IconButton = styled(DefaultIconButton)`
   cursor: pointer;

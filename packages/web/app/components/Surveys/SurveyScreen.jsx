@@ -4,9 +4,7 @@ import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 import styled from 'styled-components';
 import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
-import { SurveyQuestion, checkVisibility } from '@tamanu/ui-components';
-import { ButtonRow } from '../ButtonRow';
+import { SurveyQuestion, checkVisibility, Button, OutlinedButton, ButtonRow } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 

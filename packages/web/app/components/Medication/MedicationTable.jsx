@@ -5,6 +5,7 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useHistory } from 'react-router-dom';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { Button } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
@@ -18,7 +19,6 @@ import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
 import { singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '../Button';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
 
