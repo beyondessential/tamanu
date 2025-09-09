@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -84,10 +84,10 @@ export class CertifiableVaccine extends Model {
   static async allVaccineIds(euDccOnly = false) {
     let all = await CertifiableVaccine.findAll();
     if (euDccOnly) {
-      all = all.filter((v) => v.usableForEuDcc());
+      all = all.filter(v => v.usableForEuDcc());
     }
 
-    return all.map((vc) => vc.vaccineId);
+    return all.map(vc => vc.vaccineId);
   }
 
   usableForEuDcc() {

@@ -2,7 +2,7 @@ import { upperFirst } from 'lodash';
 import { DataTypes, Op } from 'sequelize';
 import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
@@ -138,11 +138,7 @@ export class SurveyResponseAnswer extends Model {
       where: {
         id: surveyResponse.surveyId,
         surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.VITALS,
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART,
-          ],
+          [Op.in]: [SURVEY_TYPES.VITALS, SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
         },
       },
     });
@@ -189,7 +185,10 @@ export class SurveyResponseAnswer extends Model {
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.updateWithReasonForChange(newCalculatedValue, reasonForChange);
+        await existingCalculatedAnswer.updateWithReasonForChange(
+          newCalculatedValue,
+          reasonForChange,
+        );
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,

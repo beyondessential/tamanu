@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { LAB_TEST_RESULT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -10,8 +10,8 @@ function optionStringToArray(s: string) {
   if (!trimmed) return undefined;
   return trimmed
     .split(', ')
-    .map((x) => x.trim())
-    .filter((x) => x);
+    .map(x => x.trim())
+    .filter(x => x);
 }
 
 const LAB_TEST_RESULT_TYPES_VALUES = Object.values(LAB_TEST_RESULT_TYPES);
