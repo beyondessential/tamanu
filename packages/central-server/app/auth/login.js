@@ -6,6 +6,7 @@ import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
@@ -94,6 +95,15 @@ export const login = ({ secret, refreshSecret }) =>
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
       throw new BadAuthenticationError('No such user');
+    }
+
+    if (!user) {
+      // Keep track of bad requests for non-existent user accounts
+      log.info(`Trying to login with non-existent user account: ${email}`);
+      // To prevent timing attacks for discovering user accounts,
+      // we perform a fake password comparison that takes a similar amount of time.
+      await bcrypt.compare(password, '');
+      throw new BadAuthenticationError('Invalid credentials');
     }
 
     // Check if user is locked out
