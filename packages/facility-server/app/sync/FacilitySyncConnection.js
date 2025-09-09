@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { RemoteCallFailedError } from '@tamanu/shared/errors';
+import { RemoteCallError } from '@tamanu/errors';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -37,9 +37,10 @@ export class FacilitySyncConnection {
       const { error } = responseBody;
 
       const errorMessage = error ? error.message : 'no error message given';
-      const err = new RemoteCallFailedError(
-        `Faciliy Sync API responded with status code ${response.status} (${errorMessage})`,
+      const err = new RemoteCallError(
+        `Facility Sync API responded with status code ${response.status} (${errorMessage})`,
       );
+      err.status = response.status;
       throw err;
     }
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import {
   REFERENCE_TYPES,
   SYSTEM_USER_UUID,
@@ -203,7 +203,7 @@ const taskTodoInputSchema = z.object({
   taskIds: z.string().array().min(1),
   todoByUserId: z.string(),
   todoTime: datetimeCustomValidation.refine(
-    (datetime) => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
+    datetime => new Date().getTime() - new Date(datetime).getTime() < 2 * 86400000,
     'Task is older than 48 hours',
   ),
   todoNote: z.string().optional(),
@@ -238,7 +238,7 @@ taskRoutes.put(
     if (!tasks?.length) throw new NotFoundError('No tasks not found');
 
     const allowedStatuses = [TASK_STATUSES.COMPLETED, TASK_STATUSES.NON_COMPLETED];
-    if (!tasks.every((task) => allowedStatuses.includes(task.status)))
+    if (!tasks.every(task => allowedStatuses.includes(task.status)))
       throw new ForbiddenError(`Task is not in ${allowedStatuses.join(', ')} status`);
 
     const updateParentIdList = [];
@@ -257,7 +257,7 @@ taskRoutes.put(
           deletedAt: null,
         });
         await req.models.TaskDesignation.bulkCreate(
-          task.dataValues.designations.map((designation) => ({
+          task.dataValues.designations.map(designation => ({
             designationId: designation.id,
             taskId: newId,
           })),
@@ -312,8 +312,8 @@ taskRoutes.post(
     const { Task, TaskDesignation } = models;
 
     await db.transaction(async () => {
-      const tasksData = tasks.map((task) => {
-        const designations = task.designationIds.map((designation) => ({
+      const tasksData = tasks.map(task => {
+        const designations = task.designationIds.map(designation => ({
           id: designation,
         }));
 
@@ -331,8 +331,8 @@ taskRoutes.post(
 
       const createdTasks = await Task.bulkCreate(tasksData);
 
-      const taskDesignationAssociations = tasksData.flatMap((task) => {
-        return task.designations.map((designation) => ({
+      const taskDesignationAssociations = tasksData.flatMap(task => {
+        return task.designations.map(designation => ({
           taskId: task.id,
           designationId: designation.id,
         }));
@@ -340,7 +340,7 @@ taskRoutes.post(
 
       await TaskDesignation.bulkCreate(taskDesignationAssociations);
 
-      const hasRepeatedTasks = tasksData.some((task) => task.frequencyValue && task.frequencyUnit);
+      const hasRepeatedTasks = tasksData.some(task => task.frequencyValue && task.frequencyUnit);
       if (hasRepeatedTasks) {
         await Task.generateRepeatingTasks(tasksData);
       }

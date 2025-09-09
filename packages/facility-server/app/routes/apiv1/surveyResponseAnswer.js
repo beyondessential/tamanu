@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { subject } from '@casl/ability';
-import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PROGRAM_DATA_ELEMENT_TYPES,
@@ -77,18 +77,10 @@ surveyResponseAnswer.get(
 );
 
 async function putSurveyResponseAnswer(req, isVital = false) {
-  const {
-    db,
-    models,
-    user,
-    params,
-    body,
-  } = req;
+  const { db, models, user, params, body } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
   const { id } = params;
-  const surveyWhereClause = isVital
-    ? { surveyType: SURVEY_TYPES.VITALS }
-    : { id: body.surveyId };
+  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { id: body.surveyId };
   const answerObject = await SurveyResponseAnswer.findByPk(id, {
     include: [
       {
@@ -139,12 +131,7 @@ async function putSurveyResponseAnswer(req, isVital = false) {
 }
 
 async function postSurveyResponseAnswer(req, isVital = false) {
-  const {
-    db,
-    models,
-    user,
-    body,
-  } = req;
+  const { db, models, user, body } = req;
   const { SurveyResponseAnswer, SurveyResponse, Survey, VitalLog, ProgramDataElement } = models;
 
   // Ensure data element exists and it's not a calculated question
@@ -153,9 +140,7 @@ async function postSurveyResponseAnswer(req, isVital = false) {
     throw new InvalidOperationError('Invalid data element.');
   }
 
-  const surveyWhereClause = isVital
-    ? { surveyType: SURVEY_TYPES.VITALS }
-    : { id: body.surveyId };
+  const surveyWhereClause = isVital ? { surveyType: SURVEY_TYPES.VITALS } : { id: body.surveyId };
   const dateDataElementId = isVital
     ? VITALS_DATA_ELEMENT_IDS.dateRecorded
     : CHARTING_DATA_ELEMENT_IDS.dateRecorded;
@@ -260,7 +245,9 @@ surveyResponseAnswer.put(
     } = req;
     req.checkPermission('write', subject('Charting', { id: surveyId }));
 
-    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const enableChartEdit = await settings[facilityId].get(
+      SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT,
+    );
     if (!enableChartEdit) {
       throw new InvalidOperationError('Editing charts is disabled.');
     }
@@ -281,7 +268,9 @@ surveyResponseAnswer.post(
 
     // Even though this wouldn't technically be editing a chart
     // we will not allow the creation of a single chart answer if its not enabled
-    const enableChartEdit = await settings[facilityId].get(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const enableChartEdit = await settings[facilityId].get(
+      SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT,
+    );
     if (!enableChartEdit) {
       throw new InvalidOperationError('Editing charts is disabled.');
     }

@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 const deleteModel = (modelName, paramName, displayName = modelName) => {
   return asyncHandler(async (req, res) => {
@@ -18,7 +18,7 @@ const deleteModel = (modelName, paramName, displayName = modelName) => {
     await object.destroy();
     res.send({ message: `${displayName} deleted successfully` });
   });
-}
+};
 
 export const deleteEncounter = deleteModel('Encounter', 'id');
 export const deleteReferral = deleteModel('Referral', 'referralId');

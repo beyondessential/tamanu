@@ -1,15 +1,18 @@
-import { getCodeForErrorName } from '@tamanu/shared/errors';
+import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {
-  const code = getCodeForErrorName(error.name);
-  if (error.name === 'BadAuthenticationError') {
-    log.warn(`Error ${code}: ${error.message}`);
-  } else if (code >= 500) {
-    log.error(`Error ${code}: `, error);
+  const problem = (error instanceof Problem ? error : Problem.fromError(error)).includeStack(
+    process.env.NODE_ENV !== 'production',
+  );
+
+  if (problem.type.includes('auth')) {
+    log.warn(`Error ${problem.status} (${problem.type}): ${error.message}`);
+  } else if (problem.status >= 500) {
+    log.error(`Error ${problem.status} (${problem.type}): `, error);
   } else {
-    log.info(`Error ${code}: `, error);
+    log.info(`Error ${problem.status} (${problem.type}): `, error);
   }
 
   // we're past the point of permission checking; this just
@@ -19,7 +22,9 @@ export default function errorHandler(error, req, res, _) {
     req.flagPermissionChecked();
   }
 
-  res.status(code).send({
+  res.set(problem.headers);
+  res.status(problem.status).send({
+    ...problem.toJSON(),
     error: {
       message: error.message,
       ...error,

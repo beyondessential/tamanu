@@ -4,7 +4,7 @@ import { Op, literal } from 'sequelize';
 
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import {
   findRouteObject,
   permissionCheckingRouter,
@@ -76,7 +76,7 @@ survey.get(
       },
       order: [['name', 'ASC']],
     });
-    const permittedChartSurveys = chartSurveys.filter((survey) =>
+    const permittedChartSurveys = chartSurveys.filter(survey =>
       req.ability.can('list', subject('Charting', { id: survey.id })),
     );
 

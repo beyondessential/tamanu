@@ -1,9 +1,9 @@
 import { SERVER_TYPES, VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import {
-  BadAuthenticationError,
+  AuthenticationError,
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
-} from '@tamanu/shared/errors';
+} from '@tamanu/errors';
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
@@ -89,9 +89,9 @@ describe('CentralServerConnection', () => {
       expect(user).toMatchObject({ id: 'not-real' });
     });
 
-    it('throws a BadAuthenticationError if the credentials are invalid', async () => {
+    it('throws an AuthenticationError if the credentials are invalid', async () => {
       fetch.mockReturnValueOnce(authInvalid);
-      await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
+      await expect(centralServer.connect()).rejects.toThrow(AuthenticationError);
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
