@@ -8,8 +8,7 @@ import { SurveyQuestion, checkVisibility } from '@tamanu/ui-components';
 
 import { TAMANU_COLORS } from '../constants/colors';
 import { FormGrid } from './Form/FormGrid';
-import { ButtonRow } from '../ButtonRow'; // TODO
-import { Button, OutlinedButton } from './Button'; // TODO outlined button
+import { Button, OutlinedButton, ButtonRow } from './Button';
 import { TranslatedText } from './Translation';
 
 const EmptyStateText = styled(Typography)`
