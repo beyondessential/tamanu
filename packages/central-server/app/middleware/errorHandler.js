@@ -1,13 +1,16 @@
-import { getCodeForErrorName } from '@tamanu/shared/errors';
+import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export const buildErrorHandler = getResponse => (error, req, res, next) => {
-  const code = getCodeForErrorName(error.name);
-  if (code >= 500) {
-    log.error(`Error ${code}: `, error);
+  const problem = (error instanceof Problem ? error : Problem.fromError(error)).includeStack(
+    process.env.NODE_ENV !== 'production',
+  );
+
+  if (problem.status >= 500) {
+    log.error(`Error ${problem.status} (${problem.type}): `, error);
   } else {
-    log.info(`Error ${code}: `, error);
+    log.info(`Error ${problem.status} (${problem.type}): `, error);
   }
 
   // see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
@@ -16,10 +19,15 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     return;
   }
 
-  res.status(code).send(getResponse(error));
+  res.set(problem.headers);
+  res.status(problem.status).send(getResponse(error, problem.toJSON()));
 };
 
-export const defaultErrorHandler = buildErrorHandler(error => ({
+export const defaultErrorHandler = buildErrorHandler((error, problem) => ({
+  // RFC 7807 Problem Details for HTTP APIs
+  ...problem,
+
+  // legacy error format
   error: {
     message: error.message,
     ...error,
