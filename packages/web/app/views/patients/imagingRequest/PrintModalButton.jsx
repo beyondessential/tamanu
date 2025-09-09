@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEncounterDataQuery } from '../../../api/queries';
-import { Button } from '../../../components/Button';
+import { Button } from '@tamanu/ui-components';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

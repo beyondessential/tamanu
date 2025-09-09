@@ -8,11 +8,12 @@ import {
   TextField,
   TranslatedSelectField,
   Form,
+  Button,
+  FormGrid,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
+import { SmallGridSpacer } from '../../../components/FormGrid';
 import { Colors } from '../../../constants';
-import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';

@@ -3,7 +3,10 @@ import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
-import { Button } from '../../components/Button';
+
+import { Button } from '@tamanu/ui-components';
+import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
+
 import { useEncounter } from '../../contexts/Encounter';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
@@ -14,7 +17,6 @@ import {
   useReferenceDataQuery,
   usePatientConditionsQuery,
 } from '../../api/queries';
-import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
 import { useEncounterDischargeQuery } from '../../api/queries/useEncounterDischargeQuery';
 import { useSettings } from '../../contexts/Settings';

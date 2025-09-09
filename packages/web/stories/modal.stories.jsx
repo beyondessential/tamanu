@@ -2,9 +2,8 @@ import React from 'react';
 import { MemoryRouter, Route } from 'react-router-dom';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { Button, ButtonRow, ConfirmCancelRow } from '@tamanu/ui-components';
 import { Modal } from '../app/components/Modal';
-import { Button } from '../app/components/Button';
-import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 import { BeginPatientMoveModal } from '../app/views/patients/components/BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from '../app/views/patients/components/FinalisePatientMoveModal';
 

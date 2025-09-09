@@ -9,7 +9,7 @@ import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';
-import { TextButton } from '../../components/Button';
+import { TextButton } from '@tamanu/ui-components';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 import {
