@@ -269,7 +269,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
         omit(translationToFormValue(data[0]), ['stringId', DEFAULT_LANGUAGE_CODE]),
       ).map(code => ({
         key: code,
-        title: languageNames[code],
+        title: languageNames[code] || code,
         accessor: row => (
           <TranslationField code={code} {...row} data-testid={`translationfield-xrew-${code}`} />
         ),
