@@ -55,9 +55,9 @@ export class LabRequestLog extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this, {
+      select: await buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'TRUE',
       }),
       joins: buildEncounterLinkedLookupJoins(this, ['lab_requests', 'encounters']),
