@@ -4,11 +4,10 @@ import styled from 'styled-components';
 
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
-import { SurveyQuestion, checkVisibility } from '@tamanu/ui-components';
+import { SurveyQuestion, checkVisibility, Button, OutlinedButton, ButtonRow } from '@tamanu/ui-components';
 
 import { TAMANU_COLORS } from '../constants/colors';
 import { FormGrid } from './Form/FormGrid';
-import { Button, OutlinedButton, ButtonRow } from './Button';
 import { TranslatedText } from './Translation';
 
 const EmptyStateText = styled(Typography)`

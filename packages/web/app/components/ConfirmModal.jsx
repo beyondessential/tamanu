@@ -2,8 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Modal } from './Modal';
-import { OutlinedButton } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { ButtonRow, OutlinedButton } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 import { ConfirmRowDivider } from './ConfirmRowDivider';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';

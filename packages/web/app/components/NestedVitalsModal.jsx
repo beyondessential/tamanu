@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Modal } from './Modal';
-import { OutlinedButton } from './Button';
 import { VitalsForm } from '../forms';
 import { TranslatedText } from './Translation';
+
+import { OutlinedButton } from '@tamanu/ui-components';
 
 export const NestedVitalsModal = React.memo(({ field, patient, encounterType }) => {
   const [isOpen, setModalOpen] = useState(false);

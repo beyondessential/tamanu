@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 import { Modal } from './Modal';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { ButtonRow, Button } from '@tamanu/ui-components';
 
 export const Dialog = memo(
   ({

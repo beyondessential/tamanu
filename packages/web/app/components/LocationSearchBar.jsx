@@ -1,8 +1,7 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import { FormSubmitButton } from './Button';
-import { TextField, Form } from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitButton } from '@tamanu/ui-components';
 import { Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { Colors } from '../constants';

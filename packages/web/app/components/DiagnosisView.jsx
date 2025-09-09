@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 
-import { Button } from './Button';
+import { Button } from '@tamanu/ui-components';
 import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';

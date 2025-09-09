@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Form } from '@tamanu/ui-components';
+import { Form, FormSubmitButton, TextButton } from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import { DynamicSelectField, Field, SearchField } from './Field';
 import { FormGrid } from './FormGrid';
-import { FormSubmitButton, TextButton } from './Button';
 import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 

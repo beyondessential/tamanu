@@ -2,8 +2,7 @@ import React, { useCallback } from 'react';
 import { Loop } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-
-import { Button } from './Button';
+import { Button } from '@tamanu/ui-components';
 import { Colors } from '../constants';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
