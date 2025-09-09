@@ -29,6 +29,7 @@ export async function up(query: QueryInterface): Promise<void> {
     device_id: {
       type: DataTypes.TEXT,
       allowNull: false,
+      defaultValue: '',
     },
     user_id: {
       type: DataTypes.STRING,
