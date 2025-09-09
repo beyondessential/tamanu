@@ -3,14 +3,12 @@ import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  FormGrid,
-  FormSubmitCancelRow,
   TranslatedText,
 } from '../components';
 import { useSuggester } from '../api';
