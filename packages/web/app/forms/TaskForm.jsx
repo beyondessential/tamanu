@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField, Form } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -22,8 +22,6 @@ import {
   NumberField,
   SuggesterSelectField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';

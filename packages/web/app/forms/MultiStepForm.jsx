@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Form } from '@tamanu/ui-components';
+import { Form, OutlinedButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 import {
-  ButtonRow,
-  FormGrid,
   FormSeparatorLine,
   FormSubmitCancelRow,
-  OutlinedButton,
 } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
