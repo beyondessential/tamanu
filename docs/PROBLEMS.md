@@ -16,6 +16,10 @@ This is used for:
 - legacy server and application errors which have not yet been migrated to this classification;
 - bugs that result in unexpected behavior, uncaught by the normal error handling.
 
+## Unimplemented
+
+The generic error type used when an endpoint exists for a feature that does not yet.
+
 ## Not found
 
 A generic error type used when a resource is not found.
@@ -37,17 +41,6 @@ You've exceeded the rate limit for this endpoint.
 
 The `detail` field may contain more detail on which rate limit was exceeded.
 The `retry-after` field will contain the number of seconds until the rate limit resets; this is also available as the `Retry-After` HTTP header.
-
-## Remote unreachable
-
-A number of endpoints in Tamanu actually query remote services.
-In most cases, errors will be re-emitted, but if the connection cannot be established, this error happens instead.
-The `detail` field will contain a string describing the error, such as "timeout" or "connection refused".
-
-## Remote incompatible
-
-When a remote service is reachable, but is incompatible with the querying service.
-For example, this may happen during an upgrade, where different components are transitionally in a version skew.
 
 ## Client incompatible
 
@@ -87,6 +80,21 @@ This is used when a user does not have the required permissions to authenticate.
 Most permission checks apply post-authentication, for discrete actions and data visibility.
 However, there are a few permissions that restrict users access to whole (facility) servers.
 The `detail` field may differentiate which permission or configuration is restricting access.
+
+## Remote
+
+A number of endpoints in Tamanu actually query remote services.
+In most cases, errors will be re-emitted, but if there's no direct mapping, the error will be this type.
+
+### Remote: unreachable
+
+If the connection cannot be established, this error happens instead.
+The `detail` field will contain a string describing the error, such as "timeout" or "connection refused".
+
+### Remote: incompatible
+
+When a remote service is reachable, but is incompatible with the querying service.
+For example, this may happen during an upgrade, where different components are transitionally in a version skew.
 
 ## Validation
 
