@@ -1,19 +1,11 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
+import { RemoteIncompatibleError } from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
-import {
-  AuthExpiredError,
-  AuthInvalidError,
-  ForbiddenError,
-  NotFoundError,
-  ResourceConflictError,
-  ServerResponseError,
-  VersionIncompatibleError,
-  getVersionIncompatibleMessage,
-} from './errors';
-import { fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+import { RemoteProblem, extractError } from './errors';
+import { fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
 
@@ -81,10 +73,11 @@ export class TamanuApi {
 
       const serverType = response.headers.get('x-tamanu-server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new ServerResponseError(
-          `Tamanu server type '${serverType}' is not supported.`,
-          response,
+        const problem = RemoteProblem.fromError(
+          new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
         );
+        problem.response = response;
+        throw problem;
       }
 
       const {
@@ -264,54 +257,11 @@ export class TamanuApi {
       throw response;
     }
 
-    return this.extractError(endpoint, response);
-  }
-
-  /**
-   * Handle errors from the server response.
-   *
-   * Generally only used internally.
-   */
-  async extractError(endpoint, response) {
-    const { error } = await getResponseErrorSafely(response, this.logger);
-    const message = error?.message || response.status.toString();
-
-    if (response.status === 403 && error) {
-      throw new ForbiddenError(message, response);
-    }
-
-    if (response.status === 404) {
-      throw new NotFoundError(message, response);
-    }
-
-    if (response.status === 401) {
-      const errorMessage = error?.message || 'Failed authentication';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(errorMessage);
-      }
-      throw new (endpoint === 'login' ? AuthInvalidError : AuthExpiredError)(
-        errorMessage,
-        response,
-      );
-    }
-
-    // handle version incompatibility
-    if (response.status === 400 && error) {
-      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-      if (versionIncompatibleMessage) {
-        if (this.#onVersionIncompatible) {
-          this.#onVersionIncompatible(versionIncompatibleMessage);
-        }
-        throw new VersionIncompatibleError(versionIncompatibleMessage, response);
-      }
-    }
-
-    // Handle resource conflict
-    if (response.status === 409) {
-      throw new ResourceConflictError(message, response);
-    }
-
-    throw new ServerResponseError(`Server error response: ${message}`, response);
+    return await extractError({
+      response,
+      onVersionIncompatible: this.#onVersionIncompatible,
+      onAuthFailure: this.#onAuthFailure,
+    });
   }
 
   async get(endpoint, query = {}, config = {}) {

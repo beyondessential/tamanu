@@ -1,61 +1,156 @@
-import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
+import {
+  VERSION_COMPATIBILITY_ERRORS,
+  VERSION_MINIMUM_PROBLEM_KEY,
+  VERSION_MAXIMUM_PROBLEM_KEY,
+} from '@tamanu/constants';
+import {
+  BaseError,
+  ERROR_TYPE,
+  Problem,
+  RemoteUnreachableError,
+  BadAuthenticationError,
+  EditConflictError,
+  ForbiddenError,
+  NotFoundError,
+  UnknownError,
+  ClientIncompatibleError,
+} from '@tamanu/errors';
 
-export class ServerUnavailableError extends Error {}
-export class ServerResponseError extends Error {
-  constructor(message, response) {
-    super(message);
-    this.response = response;
-  }
+export class RemoteProblem extends Problem {
+  response = null;
 }
-export class NotFoundError extends ServerResponseError {}
-export class AuthError extends ServerResponseError {}
-export class AuthInvalidError extends AuthError {}
-export class AuthExpiredError extends AuthError {}
-export class ForbiddenError extends AuthError {}
-export class VersionIncompatibleError extends ServerResponseError {}
-export class ResourceConflictError extends ServerResponseError {}
 
 export function isRecoverable(error) {
-  if (error instanceof ServerUnavailableError) {
+  if (!(error instanceof BaseError)) {
+    return false;
+  }
+
+  if (error instanceof RemoteUnreachableError || error.type === ERROR_TYPE.RATE_LIMITED) {
     return true;
   }
 
-  if (!(error instanceof ServerResponseError)) {
+  if (
+    [
+      ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+      ERROR_TYPE.AUTH_CREDENTIAL_MISSING,
+      ERROR_TYPE.CLIENT_INCOMPATIBLE,
+      ERROR_TYPE.STORAGE_INSUFFICIENT,
+    ].includes(error.type)
+  ) {
     return false;
   }
 
-  if (error instanceof AuthInvalidError || error instanceof VersionIncompatibleError) {
+  if (error.status >= 400 && error.status < 500) {
     return false;
   }
 
-  if (error.response.status >= 400 && error.response.status < 500) {
-    return false;
-  }
-
-  if (error.message.includes('Insufficient') && error.message.toLowerCase().includes('storage')) {
-    return false;
-  }
-
-  if (error.message.includes('Sync session')) {
+  if (error.detail?.includes('Sync session')) {
     return false;
   }
 
   return true;
 }
 
-export function getVersionIncompatibleMessage(error, response) {
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    return 'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
+const VERSION_COMPAT_MESSAGE_LOW =
+  'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
+const VERSION_COMPAT_MESSAGE_HIGH = maxAppVersion =>
+  `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+
+/** @param {Problem} problem */
+function getVersionIncompatibleMessage(problem) {
+  if (problem.detail === VERSION_COMPATIBILITY_ERRORS.LOW) {
+    return VERSION_COMPAT_MESSAGE_LOW;
   }
 
-  if (error.message === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = response.headers
-      .get('X-Max-Client-Version')
-      .split('.', 3)
-      .slice(0, 2)
-      .join('.');
-    return `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
+  if (problem.detail === VERSION_COMPATIBILITY_ERRORS.HIGH) {
+    const maxAppVersion = problem.extra.get(VERSION_MAXIMUM_PROBLEM_KEY);
+    return VERSION_COMPAT_MESSAGE_HIGH(maxAppVersion);
   }
 
   return null;
+}
+
+async function getResponseErrorSafely(response, logger = console) {
+  try {
+    const data = await response.text();
+    if (data.length === 0) {
+      return {};
+    }
+
+    return JSON.parse(data);
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    return {
+      type: 'local:json-parse',
+      title: 'JSON parse failed',
+      detail: `Expected error to be JSON, but got something else: ${e}`,
+      status: 999,
+    };
+  }
+}
+
+function convertLegacyError(error, response) {
+  let legacyMessage = error?.message || response.status.toString();
+  let ErrorClass;
+  switch (response.status) {
+    case 400: {
+      ErrorClass =
+        response.headers.has('X-Max-Client-Version') || response.headers.has('X-Min-Client-Version')
+          ? ClientIncompatibleError
+          : UnknownError;
+      break;
+    }
+    case 401: {
+      legacyMessage = error?.message || 'Failed authentication';
+      ErrorClass = BadAuthenticationError;
+      break;
+    }
+    case 403:
+      ErrorClass = ForbiddenError;
+      break;
+    case 404:
+      ErrorClass = NotFoundError;
+      break;
+    case 409:
+      ErrorClass = EditConflictError;
+      break;
+    default:
+      ErrorClass = UnknownError;
+  }
+
+  const problem = RemoteProblem.fromError(new ErrorClass(legacyMessage));
+
+  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+    const minAppVersion = response.headers.get('X-Min-Client-Version');
+    if (minAppVersion) problem.extra.set(VERSION_MINIMUM_PROBLEM_KEY, minAppVersion);
+
+    const maxAppVersion = response.headers.get('X-Max-Client-Version');
+    if (maxAppVersion) problem.extra.set(VERSION_MAXIMUM_PROBLEM_KEY, maxAppVersion);
+  }
+
+  return problem;
+}
+
+export async function extractError({ response, onVersionIncompatible, onAuthFailure }) {
+  const { error, ...problemJSON } = await getResponseErrorSafely(response, this.logger);
+  const problem = RemoteProblem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
+
+  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
+    if (onAuthFailure) {
+      onAuthFailure(problem.detail);
+    }
+  }
+
+  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+    const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
+    if (versionIncompatibleMessage) {
+      if (onVersionIncompatible) {
+        onVersionIncompatible(versionIncompatibleMessage);
+      }
+    }
+  }
+
+  problem.response = response;
+  throw problem;
 }
