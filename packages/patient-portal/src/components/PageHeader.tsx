@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { Drawer, IconButton, Divider, Box, Button } from '@mui/material';
+import { Drawer, IconButton, Divider, Box, Button, Typography } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { styled } from '@mui/material/styles';
 
@@ -17,6 +17,20 @@ const HeaderContainer = styled('div')(({ theme }) => ({
 }));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
+  padding: theme.spacing(1.5),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  display: 'flex',
+  justifyContent: 'space-between',
+  width: 320,
+  maxWidth: '100%',
+}));
+
+const PatientName = styled(Typography)(() => ({
+  fontSize: 18,
+  fontWeight: 500,
+}));
+
+const LogoutButton = styled(Button)(({ theme }) => ({
   padding: theme.spacing(1.5),
   borderBottom: `1px solid ${theme.palette.divider}`,
   display: 'flex',
@@ -49,20 +63,25 @@ export const PageHeader = () => {
       >
         <MenuIcon />
       </IconButton>
-      <Drawer open={open} onClose={handleDrawerClose} anchor="right">
+      <Drawer open={open} onClose={handleDrawerClose} anchor="right" sx={{ padding: 10 }}>
         <DrawerHeader>
-          <Box>
+          <PatientName>
             {firstName} {lastName}
-          </Box>
+          </PatientName>
           <IconButton onClick={handleDrawerClose}>
             <CloseIcon />
           </IconButton>
         </DrawerHeader>
         <Divider />
         <Box>
-          <Button variant="contained" endIcon={<LogoutIcon />}>
+          <LogoutButton
+            variant="text"
+            color="inherit"
+            sx={{ textTransform: 'none' }}
+            startIcon={<LogoutIcon />}
+          >
             Log out
-          </Button>
+          </LogoutButton>
         </Box>
       </Drawer>
     </HeaderContainer>
