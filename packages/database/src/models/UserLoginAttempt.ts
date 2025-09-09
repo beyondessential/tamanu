@@ -21,6 +21,7 @@ export class UserLoginAttempt extends Model {
         deviceId: {
           type: DataTypes.TEXT,
           allowNull: false,
+          defaultValue: '',
         },
         outcome: {
           type: DataTypes.TEXT,

@@ -5,7 +5,7 @@ export async function checkIsUserLockedOut({
   models: { UserLoginAttempt },
   settings,
   userId,
-  deviceId,
+  deviceId = '',
 }) {
   const { lockoutDuration } = await settings.get(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS);
 
@@ -31,7 +31,7 @@ export async function getFailedLoginAttemptOutcome({
   models: { UserLoginAttempt },
   settings,
   userId,
-  deviceId,
+  deviceId = '',
 }) {
   const {
     lockoutThreshold,
