@@ -2,10 +2,10 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
+import { ToggleButton } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
-import { ToggleButton } from '../Button';
 
 const Toggle = styled(ToggleButton)`
   &&&&&& {

@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
-import { Colors, ENCOUNTER_OPTIONS } from '../constants';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { Button } from './Button';
+import { Button } from '@tamanu/ui-components';
+import { Colors, ENCOUNTER_OPTIONS } from '../constants';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedEnum } from './Translation/TranslatedEnum';

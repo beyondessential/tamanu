@@ -6,10 +6,9 @@ import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import PropTypes from 'prop-types';
-import { TextInput } from '@tamanu/ui-components';
+import { TextInput, DefaultIconButton } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
-import { DefaultIconButton } from '../Button';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //

@@ -1,10 +1,10 @@
 import React from 'react';
 import PrintIcon from '@material-ui/icons/Print';
 import styled from 'styled-components';
+import { Button } from '@tamanu/ui-components';
 
 import { Modal } from './Modal';
 import { Table } from './Table';
-import { Button } from './Button';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';

@@ -2,13 +2,14 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
+import { TextButton } from '@tamanu/ui-components';
+
 import { useAppointmentMutation } from '../../../api/mutations';
 import {
   usePatientAdditionalDataQuery,
   usePatientCurrentEncounterQuery,
 } from '../../../api/queries';
 import { Colors } from '../../../constants';
-import { TextButton } from '../../Button';
 import { EncounterModal } from '../../EncounterModal';
 import { ConditionalTooltip } from '../../Tooltip';
 import { TranslatedText } from '../../Translation';

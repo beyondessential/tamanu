@@ -3,10 +3,8 @@ import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { omit } from 'lodash';
 import { Box, Typography } from '@material-ui/core';
-import { Form } from '@tamanu/ui-components';
+import { Form, Button, OutlinedButton, ButtonRow } from '@tamanu/ui-components';
 
-import { Button, OutlinedButton } from '../Button';
-import { ButtonRow } from '../ButtonRow';
 import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
 import { TranslatedText } from '../Translation/TranslatedText';

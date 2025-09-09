@@ -11,10 +11,9 @@ import Search from '@mui/icons-material/Search';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
 import { Colors } from '../../constants';
-import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
-import { TextInput } from '@tamanu/ui-components';
+import { TextInput, TextButton } from '@tamanu/ui-components';
 
 const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {

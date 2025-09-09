@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import { toast } from 'react-toastify';
 import { Colors } from '../../constants';
-import { Button } from '../Button';
+import { Button } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
