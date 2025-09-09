@@ -1,6 +1,6 @@
-import { TranslatedText } from './TranslatedText';
 import React from 'react';
 import { toCamelCase } from '@tamanu/shared/utils/enumRegistry';
+import { TranslatedText } from './TranslatedText';
 
 export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) => {
   if (!options) return [];

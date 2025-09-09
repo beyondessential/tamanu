@@ -6,7 +6,8 @@ import { SETTING_KEYS } from '@tamanu/constants';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3 } from '../../Typography';
 import { ConfirmCancelBackRow } from '../../ButtonRow';
-import { Field, Form, SelectField } from '../../Field';
+import { Field, Form } from '../../Field';
+import { SelectField } from '@tamanu/ui-components';
 import { FormGrid } from '../../FormGrid';
 import { useSettings } from '../../../contexts/Settings';
 

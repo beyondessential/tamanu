@@ -6,10 +6,10 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '../../constants';
 import { Icon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
-import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from '../Select';
+import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from './Select';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -24,19 +24,19 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const StyledSelect = styled((props) => (
+const StyledSelect = styled(props => (
   <Select classNamePrefix="react-select" {...props} data-testid="select-zra3" />
 ))`
   .react-select__control {
     padding-right: 8px;
     min-height: 44px;
-    ${(props) => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
+    ${props => (props.$borderColor ? `border: 1px solid ${props.$borderColor};` : '')}
     &:hover {
-      border: 1px solid ${Colors.primary};
+      border: 1px solid ${TAMANU_COLORS.primary};
     }
   }
   .react-select__control--is-focused {
-    border: 1px solid ${Colors.primary};
+    border: 1px solid ${TAMANU_COLORS.primary};
     box-shadow: none;
   }
   .react-select__clear-indicator {
@@ -46,48 +46,48 @@ const StyledSelect = styled((props) => (
     display: none;
   }
   .react-select__menu {
-    border: 1px solid ${Colors.primary};
+    border: 1px solid ${TAMANU_COLORS.primary};
     overflow: overlay;
   }
   .react-select__option {
-    color: ${Colors.darkestText};
+    color: ${TAMANU_COLORS.darkestText};
     cursor: pointer;
     &:active {
-      background-color: ${Colors.background};
+      background-color: ${TAMANU_COLORS.background};
     }
   }
   .react-select__option--is-selected {
-    background-color: ${Colors.background};
-    color: ${Colors.darkestText};
+    background-color: ${TAMANU_COLORS.background};
+    color: ${TAMANU_COLORS.darkestText};
     &:active {
       background-color: transparent;
     }
   }
   .react-select__option--is-focused {
-    background-color: ${Colors.background};
-    color: ${Colors.darkestText};
+    background-color: ${TAMANU_COLORS.background};
+    color: ${TAMANU_COLORS.darkestText};
   }
   .react-select__multi-value {
     padding: 3px;
     background-color: transparent;
     border-radius: 50px;
-    border: 1px solid ${Colors.primary};
+    border: 1px solid ${TAMANU_COLORS.primary};
     max-width: 150px;
   }
   .react-select__multi-value-label {
-    color: ${Colors.darkestText};
+    color: ${TAMANU_COLORS.darkestText};
   }
   .react-select__multi-value__remove {
-    color: ${Colors.darkText};
+    color: ${TAMANU_COLORS.darkText};
     &:hover {
       background-color: transparent;
-      color: ${Colors.darkText};
+      color: ${TAMANU_COLORS.darkText};
       cursor: pointer;
     }
   }
 `;
 
-const getValues = (value) => {
+const getValues = value => {
   if (!value?.length) {
     return null;
   }
@@ -95,7 +95,7 @@ const getValues = (value) => {
   return Array.isArray(value) ? value : JSON.parse(value);
 };
 
-const getSearchBy = (option) => {
+const getSearchBy = option => {
   if (option.data.searchString) return option.data.searchString;
   if (typeof option.label === 'string') return option.label;
 
@@ -119,13 +119,13 @@ export const MultiselectInput = ({
   // If value is already set, keep that value, otherwise attempt to load any initial values
   const values = getValues(value) || getValues(initialValues[name]) || [];
 
-  const initialSelectedOptions = options.filter((option) => values.includes(option.value));
+  const initialSelectedOptions = options.filter(option => values.includes(option.value));
 
   const [selected, setSelected] = useState(initialSelectedOptions);
   const handleChange = useCallback(
-    (selectedOptions) => {
+    selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = JSON.stringify(selectedOptions.map((x) => x.value));
+      const newValue = JSON.stringify(selectedOptions.map(x => x.value));
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],
@@ -133,13 +133,13 @@ export const MultiselectInput = ({
 
   useEffect(() => {
     const newValues = getValues(value) || [];
-    const newOptions = options.filter((option) => newValues.includes(option.value));
+    const newOptions = options.filter(option => newValues.includes(option.value));
     setSelected(newOptions);
   }, [value, options]);
 
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
-    const valueText = ((options || []).find((o) => o.value === value) || {}).label || '';
+    const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
     return (
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
@@ -168,7 +168,7 @@ export const MultiselectInput = ({
           value={selected}
           isMulti
           disabled
-          $borderColor={props.error ? Colors.alert : null}
+          $borderColor={props.error ? TAMANU_COLORS.alert : null}
           $minHeight="43px"
           $borderRadius="3px"
           onChange={handleChange}
@@ -206,7 +206,7 @@ export const BaseMultiselectField = ({ field, ...props }) => (
   />
 );
 
-export const TranslatedMultiSelectField = (props) => {
+export const TranslatedMultiSelectField = props => {
   return (
     <TranslatedEnumField
       {...props}

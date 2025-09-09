@@ -6,14 +6,19 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { IconButton } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { Colors } from '../../constants';
+import { ChevronIcon } from '../Icons/ChevronIcon';
+import { TAMANU_COLORS } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { useTranslation } from '../../contexts/Translation';
+import { useTranslation } from '../../contexts/TranslationContext';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
-import { ExpandMoreIcon } from './FieldCommonComponents';
 import { extractTranslationFromComponent } from '../Translation/utils';
+
+const ExpandMoreIcon = styled(ChevronIcon)`
+  transform: rotate(0);
+  transition: transform 184ms ease-in-out;
+`;
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -44,7 +49,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const ExpandIcon = styled(ExpandMoreIcon)`
@@ -127,8 +132,8 @@ export const SelectInput = ({
 
   const defaultStyles = {
     control: (provided, state) => {
-      const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
-      const borderColor = props.error ? Colors.alert : mainBorderColor;
+      const mainBorderColor = state.isFocused ? TAMANU_COLORS.primary : TAMANU_COLORS.outline;
+      const borderColor = props.error ? TAMANU_COLORS.alert : mainBorderColor;
       const fontSize = props.size === 'small' ? '11px' : '15px';
       return {
         ...provided,
@@ -146,14 +151,14 @@ export const SelectInput = ({
       ...provided,
       padding: '4px 16px 6px 6px',
     }),
-    placeholder: provided => ({ ...provided, color: Colors.softText }),
+    placeholder: provided => ({ ...provided, color: TAMANU_COLORS.softText }),
     indicatorSeparator: () => ({ display: 'none' }),
     menu: provided => ({
       ...provided,
       marginTop: 0,
       marginBottom: 0,
       boxShadow: 'none',
-      border: `1px solid ${Colors.outline}`,
+      border: `1px solid ${TAMANU_COLORS.outline}`,
     }),
     option: (provided, state) => {
       const fontSize = props.size === 'small' ? '11px' : '14px';
@@ -162,8 +167,9 @@ export const SelectInput = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-        ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+        backgroundColor:
+          state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
+        ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
         cursor: 'pointer',
         fontSize,
       };
@@ -176,7 +182,7 @@ export const SelectInput = ({
       width: '100%',
       overflow: 'visible',
       cursor: 'text',
-      color: Colors.darkestText,
+      color: TAMANU_COLORS.darkestText,
     }),
   };
 

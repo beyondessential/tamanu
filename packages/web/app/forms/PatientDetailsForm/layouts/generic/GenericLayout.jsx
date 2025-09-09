@@ -5,13 +5,13 @@ import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 import {
   LocalisedField,
-  TextField,
   DateField,
   AutocompleteField,
   FormGrid,
   TranslatedRadioField,
   NoteModalActionBlocker,
 } from '../../../../components';
+import { TextField } from '@tamanu/ui-components';
 import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,

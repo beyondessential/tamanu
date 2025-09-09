@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
-import { SelectField } from '../Field';
+import { SelectField } from '@tamanu/ui-components';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 300px;

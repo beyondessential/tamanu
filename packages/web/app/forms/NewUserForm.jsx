@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import * as yup from 'yup';
 
-import { Field, Form, TextField } from '../components/Field';
+import { TextField } from '@tamanu/ui-components';
+import { Field, Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { FORM_TYPES } from '../constants';

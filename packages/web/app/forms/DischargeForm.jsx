@@ -5,6 +5,12 @@ import styled from 'styled-components';
 import { REPEATS_LABELS } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
+import {
+  TextField,
+  StyledTextField,
+  TranslatedSelectField,
+  TextInput,
+} from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
@@ -18,14 +24,10 @@ import {
   Field,
   LocalisedField,
   PaginatedForm,
-  StyledTextField,
-  TextField,
-  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 

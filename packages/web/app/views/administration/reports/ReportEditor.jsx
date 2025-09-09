@@ -4,6 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
 import {
+  TextField,
+  TranslatedMultiSelectField,
+  TranslatedSelectField,
+} from '@tamanu/ui-components';
+import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,
   REPORT_DEFAULT_DATE_RANGES_LABELS,
@@ -13,15 +18,7 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
-import {
-  Button,
-  ButtonRow,
-  Field,
-  Form,
-  TextField,
-  TranslatedMultiSelectField,
-  TranslatedSelectField,
-} from '../../../components';
+import { Button, ButtonRow, Field, Form } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,

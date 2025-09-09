@@ -3,7 +3,7 @@ import { Modal, ModalActionRow } from '.';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { useTranslationLanguagesQuery } from '../api/queries';
-import { SelectInput } from './Field';
+import { SelectInput } from '@tamanu/ui-components';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';

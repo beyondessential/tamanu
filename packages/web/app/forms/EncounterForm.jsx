@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -14,8 +15,6 @@ import {
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   SuggesterSelectField,
-  TextField,
-  TranslatedSelectField,
 } from '../components';
 import { ENCOUNTER_OPTIONS, FORM_TYPES, REASON_FOR_ENCOUNTER_MAX_CHARACTERS } from '../constants';
 import { useSuggester } from '../api';
@@ -240,7 +239,7 @@ export const EncounterForm = React.memo(
             ),
           encounterType: yup
             .string()
-            .oneOf(ENCOUNTER_OPTIONS.map((x) => x.value))
+            .oneOf(ENCOUNTER_OPTIONS.map(x => x.value))
             .required()
             .translatedLabel(
               <TranslatedText

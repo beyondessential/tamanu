@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, TextInput } from '../../../components';
+import { TextInput } from '@tamanu/ui-components';
+import { Button } from '../../../components';
 import { PatientSummary } from './PatientSummary';
 
 import { useApi } from '../../../api';

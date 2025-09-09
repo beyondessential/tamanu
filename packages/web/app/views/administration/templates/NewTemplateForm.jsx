@@ -2,17 +2,15 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Link } from '@material-ui/core';
-
 import {
   Field,
-  Form,
   TallMultilineTextField,
   TextField,
   TranslatedSelectField,
-} from '../../../components/Field';
+} from '@tamanu/ui-components';
+import { Form } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import { Colors, FORM_TYPES } from '../../../constants';
-
 import { Button } from '../../../components/Button';
 import { ButtonRow } from '../../../components/ButtonRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -28,7 +26,7 @@ const CenteredLink = styled(Link)`
 
 const StyledField = styled(Field)`
   .MuiFormControl-root {
-    background: ${(props) => (props.disabled ? Colors.outline : 'inherit')};
+    background: ${props => (props.disabled ? Colors.outline : 'inherit')};
   }
 `;
 

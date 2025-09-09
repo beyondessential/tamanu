@@ -12,10 +12,9 @@ import {
   FormGrid,
   FormSubmitButton,
   NumberField,
-  SelectField,
-  TextField,
   TranslatedText,
 } from '..';
+import { SelectField, TextField } from '@tamanu/ui-components';
 import { Colors, FORM_TYPES } from '../../constants';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';

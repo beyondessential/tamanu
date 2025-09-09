@@ -7,6 +7,7 @@ import { SurveyScreen } from './SurveyScreen';
 import { FormSubmitButton, OutlinedButton } from '../Button';
 import { ButtonRow } from '../ButtonRow';
 import { TranslatedText } from '../Translation/TranslatedText';
+import { useEncounter } from '../../contexts/Encounter';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -77,6 +78,7 @@ export const SurveyScreenPaginator = ({
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
+  const { encounter } = useEncounter();
 
   const maxIndex = currentComponents
     .map(x => x.screenIndex)
@@ -101,6 +103,7 @@ export const SurveyScreenPaginator = ({
         status={status}
         setStatus={setStatus}
         showCancelButton={showCancelButton}
+        encounterType={encounter?.encounterType}
         data-testid="surveyscreen-2tj0"
       />
     );

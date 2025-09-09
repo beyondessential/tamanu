@@ -7,7 +7,8 @@ import { Box, Divider, Typography } from '@material-ui/core';
 
 import { Colors } from '../../constants';
 import { FormConfirmCancelBackRow } from '../ButtonRow';
-import { Form, LocalisedField, SuggesterSelectField, TextField } from '../Field';
+import { TextField } from '@tamanu/ui-components';
+import { Form, LocalisedField, SuggesterSelectField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';

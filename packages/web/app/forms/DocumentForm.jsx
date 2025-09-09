@@ -8,7 +8,8 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
-import { AutocompleteField, Field, Form, TextField } from '../components/Field';
+import { TextField } from '@tamanu/ui-components';
+import { AutocompleteField, Field, Form } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';

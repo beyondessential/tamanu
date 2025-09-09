@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { subject } from '@casl/ability';
+import { getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
@@ -12,10 +13,10 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSurveyQuery } from '../api/queries/useSurveyQuery';
-import { getFormInitialValues, getValidationSchema } from '../utils';
 import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
 import { useTranslation } from '../contexts/Translation';
+import { useEncounter } from '../contexts/Encounter.jsx';
 
 export const ChartForm = React.memo(
   ({
@@ -33,6 +34,7 @@ export const ChartForm = React.memo(
     ),
   }) => {
     const { currentUser } = useAuth();
+    const { encounter } = useEncounter();
     const { getTranslation } = useTranslation();
     const chartSurveyQuery = useSurveyQuery(chartSurveyId);
     const patientAdditionalDataQuery = usePatientAdditionalDataQuery(patient?.id);
@@ -110,6 +112,7 @@ export const ChartForm = React.memo(
               cols={2}
               values={values}
               setFieldValue={setFieldValue}
+              encounterType={encounter?.encounterType}
               submitButton={
                 <FormSubmitCancelRow
                   confirmText={confirmText}

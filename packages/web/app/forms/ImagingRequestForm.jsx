@@ -8,26 +8,24 @@ import * as yup from 'yup';
 import { IMAGING_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-
 import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
 import { FormCancelButton } from '../components/Button';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
+import {
+  MultiselectField,
+  TextField,
+  TranslatedSelectField,
+  TextInput,
+} from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
   Form,
   ImagingPriorityField,
-  MultiselectField,
-  TextField,
-  TextInput,
-  TranslatedSelectField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import {
-  TranslatedReferenceData,
-  TranslatedText,
-} from '../components/Translation';
+import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useLocalisation } from '../contexts/Localisation';
@@ -39,7 +37,7 @@ import { foreignKey } from '../utils/validation';
 import { useAuth } from '../contexts/Auth';
 
 function getEncounterTypeLabel(type) {
-  return ENCOUNTER_OPTIONS.find((x) => x.value === type).label;
+  return ENCOUNTER_OPTIONS.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -53,12 +51,12 @@ const FormSubmitActionDropdown = React.memo(({ encounter, setOnSuccess, submitFo
   const dispatch = useDispatch();
   const { navigateToImagingRequest } = usePatientNavigation();
 
-  const finalise = async (data) => {
+  const finalise = async data => {
     setOnSuccess(() => () => loadEncounter(encounter.id));
     await submitForm(data);
   };
-  const finaliseAndPrint = async (data) => {
-    setOnSuccess(() => async (newRequest) => {
+  const finaliseAndPrint = async data => {
+    setOnSuccess(() => async newRequest => {
       const requestId = newRequest.id;
       await dispatch(reloadImagingRequest(requestId));
       navigateToImagingRequest(requestId, 'print');
@@ -128,7 +126,7 @@ export const ImagingRequestForm = React.memo(
           requestedDate: yup.date().required(requiredValidationMessage),
           imagingType: foreignKey(requiredValidationMessage),
           areas: yup.string().when('imagingType', {
-            is: (imagingType) => {
+            is: imagingType => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length > 0;
             },
@@ -138,11 +136,14 @@ export const ImagingRequestForm = React.memo(
               .required(requiredValidationMessage),
           }),
           areaNote: yup.string().when('imagingType', {
-            is: (imagingType) => {
+            is: imagingType => {
               const imagingAreas = getAreasForImagingType(imagingType);
               return imagingAreas.length === 0;
             },
-            then: yup.string().trim().required(requiredValidationMessage),
+            then: yup
+              .string()
+              .trim()
+              .required(requiredValidationMessage),
           }),
         })}
         showInlineErrorsOnly
@@ -251,11 +252,11 @@ export const ImagingRequestForm = React.memo(
                 required
                 enumValues={IMAGING_TYPES}
                 component={TranslatedSelectField}
-                transformOptions={(options) => {
+                transformOptions={options => {
                   const availableTypes = Object.keys(imagingTypes);
                   return options
-                    .filter((option) => availableTypes.includes(camelCase(option.value)))
-                    .map((option) => {
+                    .filter(option => availableTypes.includes(camelCase(option.value)))
+                    .map(option => {
                       const imagingTypeKey = camelCase(option.value);
                       const { label } = imagingTypes[imagingTypeKey];
                       return {

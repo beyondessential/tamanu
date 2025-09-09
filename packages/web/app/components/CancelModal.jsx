@@ -3,8 +3,9 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormModal } from './FormModal';
 import { FormSubmitCancelRow } from './ButtonRow';
-import { Field, Form, SelectField } from './Field';
+import { Field, Form } from './Field';
 import { BodyText } from './Typography';
+import { SelectField } from '@tamanu/ui-components';
 import { FORM_TYPES } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 

@@ -10,10 +10,9 @@ import {
   AutocompleteInput,
   DateTimeField,
   Field,
-  TextField,
-  TranslatedSelectField,
   DateTimeInput,
 } from './Field';
+import { TranslatedSelectField, TextField } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -153,7 +152,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+/* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
 const NoteContentBox = styled(Box)`
@@ -185,7 +184,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({

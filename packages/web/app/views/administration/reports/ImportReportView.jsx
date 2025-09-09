@@ -13,8 +13,8 @@ import {
   FormGrid,
   Heading4,
   OutlinedButton,
-  TextField,
 } from '../../../components';
+import { TextField } from '@tamanu/ui-components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
 import { Colors, FORM_TYPES } from '../../../constants';

@@ -18,7 +18,8 @@ import {
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
 import { Colors } from '../../../constants';
-import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';
+import { DateField, Field, NumberField } from '../../Field';
+import { TranslatedSelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
 import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';

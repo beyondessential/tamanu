@@ -38,9 +38,9 @@ import {
   DynamicSelectField,
   Field,
   Form,
-  TextField,
   SwitchField,
 } from '../../Field';
+import { TextField } from '@tamanu/ui-components';
 import { FormGrid } from '../../FormGrid';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';

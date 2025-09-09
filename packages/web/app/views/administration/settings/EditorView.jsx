@@ -9,9 +9,9 @@ import {
   Button,
   DynamicSelectField,
   OutlinedButton,
-  SelectInput,
   TranslatedText,
 } from '../../../components';
+import { SelectInput } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 

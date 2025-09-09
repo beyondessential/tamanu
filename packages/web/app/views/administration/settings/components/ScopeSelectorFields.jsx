@@ -5,7 +5,8 @@ import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../../api';
-import { DynamicSelectField, SelectInput } from '../../../../components';
+import { DynamicSelectField } from '../../../../components';
+import { SelectInput } from '@tamanu/ui-components';
 import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`

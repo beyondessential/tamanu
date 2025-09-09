@@ -6,7 +6,7 @@ import { Button, FormModal, NoteModalActionBlocker, TableButtonRow } from '../..
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
 import { VitalsForm } from '../../../forms';
-import { getAnswersFromData } from '../../../utils';
+import { getAnswersFromData } from '@tamanu/ui-components';
 import { VitalChartDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

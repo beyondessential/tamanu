@@ -9,9 +9,9 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  TextField,
   TranslatedText,
 } from '../components';
+import { TextField } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useMarkTaskTodo } from '../api/mutations/useTaskMutation';
 import { FORM_TYPES } from '../constants';

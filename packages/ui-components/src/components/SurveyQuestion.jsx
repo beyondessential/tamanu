@@ -2,20 +2,12 @@ import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
-import {
-  checkMandatory,
-  getComponentForQuestionType,
-  getConfigObject,
-  getTooltip,
-  mapOptionsToValues,
-} from '../../utils';
-import { Field, FieldWithTooltip } from '../Field';
-import { useEncounter } from '../../contexts/Encounter';
+import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../utils';
+import { Field, FieldWithTooltip } from './Field';
 import { Box, Typography } from '@material-ui/core';
-import { Colors } from '../../constants';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { useTranslation } from '../../contexts/Translation';
-
+import { TAMANU_COLORS } from '../constants';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
+import { useTranslation } from '../contexts/TranslationContext';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -26,7 +18,7 @@ export const FullWidthCol = styled.div`
 `;
 
 const OuterLabelRequired = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   padding-left: 3px;
 `;
 
@@ -34,7 +26,7 @@ const GeolocateQuestion = ({ text, component, required }) => {
   return (
     <Box data-testid="box-m234">
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkestText, fontWeight: 500 }}
+        style={{ fontSize: '14px', color: TAMANU_COLORS.darkestText, fontWeight: 500 }}
         data-testid="typography-7mxf"
       >
         {text}
@@ -43,13 +35,18 @@ const GeolocateQuestion = ({ text, component, required }) => {
         )}
       </Typography>
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkText }}
+        style={{ fontSize: '14px', color: TAMANU_COLORS.darkText }}
         data-testid="typography-kjjb"
       >
         {component.detail}
       </Typography>
       <Typography
-        style={{ fontSize: '14px', color: Colors.darkestText, fontStyle: 'italic', marginTop: 8 }}
+        style={{
+          fontSize: '14px',
+          color: TAMANU_COLORS.darkestText,
+          fontStyle: 'italic',
+          marginTop: 8,
+        }}
         data-testid="typography-x1r4"
       >
         <TranslatedText
@@ -80,16 +77,24 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
     );
   }
 
-  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded
-    || component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+  if (
+    component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+  ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 
   return null;
 };
 
-export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
-  const { encounter } = useEncounter();
+export const SurveyQuestion = ({
+  component,
+  patient,
+  inputRef,
+  disabled,
+  encounterType,
+  getComponentForQuestionType,
+}) => {
   const { getTranslation } = useTranslation();
 
   const {
@@ -136,7 +141,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   const FieldComponent = getComponentForQuestionType(type, configObject);
   const validationCriteriaObject = getConfigObject(id, validationCriteria);
   const required = checkMandatory(validationCriteriaObject?.mandatory, {
-    encounterType: encounterType || encounter?.encounterType,
+    encounterType: encounterType,
   });
   const tooltip = getTooltip(type, configObject, getTranslation);
 

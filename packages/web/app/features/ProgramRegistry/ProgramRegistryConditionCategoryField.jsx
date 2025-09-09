@@ -5,11 +5,8 @@ import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../../contexts/Translation';
-import {
-  BaseSelectField,
-  FieldWithTooltip,
-  TranslatedReferenceData,
-} from '../../components';
+import { FieldWithTooltip, TranslatedReferenceData } from '../../components';
+import { BaseSelectField } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 

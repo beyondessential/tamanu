@@ -13,11 +13,13 @@ import {
   Field,
   LocalisedLocationField,
   RadioField,
+} from './Field';
+import {
+  TranslatedSelectField,
   SelectField,
   TextField,
   BaseSelectField,
-  TranslatedSelectField,
-} from './Field';
+} from '@tamanu/ui-components';
 import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';

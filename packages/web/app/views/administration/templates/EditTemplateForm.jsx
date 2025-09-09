@@ -2,7 +2,8 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Field, Form, TallMultilineTextField, TextField } from '../../../components/Field';
+import { TextField, TallMultilineTextField } from '@tamanu/ui-components';
+import { Field, Form } from '../../../components/Field';
 import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
 import {
   Button,

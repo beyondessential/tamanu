@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { TranslatedText } from '../../app/components/Translation';
-import { TextInput, Button } from '../../app/components';
+import { TextInput } from '@tamanu/ui-components';
+import { Button } from '../../app/components';
 import { TranslationProvider } from '../../app/contexts/Translation';
 import { MockedApi } from '../utils/mockedApi';
 
