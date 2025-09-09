@@ -29,14 +29,14 @@ const useVerifyRegistration = () => {
 
 export const RegistrationView = () => {
   const history = useHistory();
-  const { token } = useParams();
+  const { token } = useParams<{ token: string }>();
   const { mutate: verify, error, isPending } = useVerifyRegistration();
 
   useEffect(() => {
     if (token) {
       verify(token);
     }
-  }, []); // just run once on page mount
+  }, [verify, token]);
 
   if (isPending) {
     return null;

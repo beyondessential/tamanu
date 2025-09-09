@@ -1,11 +1,12 @@
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
+import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
 
-describe('Patient Portal Forms Endpoints', () => {
+describe('Patient Portal Surveys Endpoints', () => {
   let baseApp;
   let store;
   let close;
@@ -53,7 +54,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
   afterAll(async () => close());
 
-  describe('GET /api/portal/me/forms/outstanding', () => {
+  describe('GET /api/portal/me/surveys/outstanding', () => {
     beforeAll(async () => {
       const { Survey } = store.models;
 
@@ -70,7 +71,7 @@ describe('Patient Portal Forms Endpoints', () => {
 
     it('Should return outstanding forms for authenticated request', async () => {
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
@@ -89,7 +90,7 @@ describe('Patient Portal Forms Endpoints', () => {
           lastName: 'Johnson',
           sex: 'male',
         }),
-      );
+      );  
 
       await store.models.PortalUser.create({
         email: 'bob@test.com',
@@ -107,7 +108,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'bob@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -144,7 +145,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'alice@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -180,7 +181,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'charlie@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -226,7 +227,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'diana@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -255,7 +256,7 @@ describe('Patient Portal Forms Endpoints', () => {
       const newAuthToken = await getPatientAuthToken(baseApp, store.models, 'eve@test.com');
 
       const response = await baseApp
-        .get('/api/portal/me/forms/outstanding')
+        .get('/api/portal/me/surveys/outstanding')
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
@@ -265,7 +266,169 @@ describe('Patient Portal Forms Endpoints', () => {
     });
 
     it('Should reject request without authorization header', async () => {
-      const response = await baseApp.get('/api/portal/me/forms/outstanding');
+      const response = await baseApp.get('/api/portal/me/surveys/outstanding');
+      expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('POST /api/portal/me/surveys/:assignmentId', () => {
+    let testLocationId;
+    let testDepartmentId;
+    let baseSurvey;
+    let baseDataElement;
+
+    beforeAll(async () => {
+      const { Location, Department, Facility } = store.models;
+      const facility = await Facility.create(fake(Facility, { code: 'TEST_FAC' }));
+      const location = await Location.create(
+        fake(Location, {
+          code: 'TEST_LOC',
+          facilityId: facility.id,
+        }),
+      );
+      const department = await Department.create(
+        fake(Department, {
+          code: 'TEST_DEPT',
+          facilityId: facility.id,
+        }),
+      );
+      testLocationId = location.id;
+      testDepartmentId = department.id;
+    });
+
+    const createSurveySetup = async () => {
+      const { Survey, Program, ProgramDataElement, SurveyScreenComponent } = store.models;
+      const program = await Program.create(fake(Program));
+      const survey = await Survey.create(
+        fake(Survey, {
+          programId: program.id,
+          status: 'active',
+        }),
+      );
+      const dataElement = await ProgramDataElement.create(
+        fake(ProgramDataElement, {
+          type: 'Number',
+        }),
+      );
+      await SurveyScreenComponent.create(
+        fake(SurveyScreenComponent, {
+          dataElementId: dataElement.id,
+          surveyId: survey.id,
+          config: JSON.stringify({}),
+        }),
+      );
+      return { survey, dataElement };
+    };
+
+    const createAssignment = async ({ patientId, surveyId, status }) => {
+      const assignedById = (await store.models.User.create(fake(store.models.User))).id;
+      return store.models.PortalSurveyAssignment.create({
+        patientId,
+        surveyId,
+        status,
+        assignedAt: new Date().toISOString(),
+        assignedById,
+      });
+    };
+
+    beforeEach(async () => {
+      const setup = await createSurveySetup();
+      baseSurvey = setup.survey;
+      baseDataElement = setup.dataElement;
+    });
+    it('Should create a survey response and mark assignment submitted', async () => {
+      const assignment = await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const payload = {
+        surveyId: baseSurvey.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+        answers: {
+          [baseDataElement.id]: 5,
+        },
+      };
+
+      const response = await baseApp
+        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(payload);
+
+      expect(response).toHaveSucceeded();
+      expect(response.body).toHaveProperty('id');
+
+      const refreshedAssignment = await store.models.PortalSurveyAssignment.findByPk(assignment.id);
+      expect(refreshedAssignment.status).toBe(
+        PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
+      );
+      expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
+    });
+
+    it('Should return 404 when assignment does not match patient/survey or is not outstanding', async () => {
+      const { Survey } = store.models;
+
+      // Create an assignment for another patient
+      const otherPatient = await store.models.Patient.create(fake(store.models.Patient));
+      const otherAssignment = await createAssignment({
+        patientId: otherPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const payload = {
+        surveyId: baseSurvey.id,
+        locationId: testLocationId,
+        departmentId: testDepartmentId,
+        answers: {
+          [baseDataElement.id]: 1,
+        },
+      };
+
+      const resWrongPatient = await baseApp
+        .post(`/api/portal/me/surveys/${otherAssignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(payload);
+      expect(resWrongPatient).toHaveRequestError(404);
+
+      // Create an assignment for correct patient but already submitted
+      const submittedAssignment = await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
+      });
+
+      const resSubmitted = await baseApp
+      .post(`/api/portal/me/surveys/${submittedAssignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(payload);
+      expect(resSubmitted).toHaveRequestError(404);
+
+      // Correct patient and outstanding, but mismatched surveyId in body
+      const assignment = await createAssignment({
+        patientId: testPatient.id,
+        surveyId: baseSurvey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      });
+
+      const anotherSurvey = await Survey.create(fake(Survey, { status: 'active' }));
+
+      const resWrongSurvey = await baseApp
+        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          surveyId: anotherSurvey.id,
+          locationId: testLocationId,
+          departmentId: testDepartmentId,
+          answers: { [baseDataElement.id]: 2 },
+        });
+      expect(resWrongSurvey).toHaveRequestError(404);
+    });
+
+    it('Should reject unauthorized requests', async () => {
+      const response = await baseApp.post('/api/portal/me/surveys/not-a-real-id');
       expect(response).toHaveRequestError();
     });
   });
