@@ -19,6 +19,8 @@ export default async () =>
       process: JSON.stringify({
         env: {
           NODE_ENV: process.env.NODE_ENV,
+          // todo: add revision
+          // REVISION: revision,
         },
         arch: 'wasm',
         platform: 'web',
