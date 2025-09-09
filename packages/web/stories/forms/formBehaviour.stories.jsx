@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
 import { TextField, Form, Button, FormGrid } from '@tamanu/ui-components';
-import { Field, } from '../../app/components';
+import { Field } from '../../app/components';
 
 async function asyncSubmit(data) {
   action('submitStart')(data);
