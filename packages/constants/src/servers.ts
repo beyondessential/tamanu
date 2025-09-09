@@ -1,3 +1,5 @@
+export const VERSION_MAXIMUM_PROBLEM_KEY = 'compatible-version-maximum';
+export const VERSION_MINIMUM_PROBLEM_KEY = 'compatible-version-minimum';
 export const VERSION_COMPATIBILITY_ERRORS = {
   LOW: 'Client version too low',
   HIGH: 'Client version too high',
