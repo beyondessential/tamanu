@@ -12,8 +12,7 @@ import {
   DateField,
   Field,
 } from '../components/Field';
-import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow } from '@tamanu/ui-components';
-import { FormGrid } from '../components/FormGrid';
+import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';

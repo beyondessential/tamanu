@@ -5,7 +5,7 @@ import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
-import { FormGrid } from '../FormGrid';
+import { FormGrid } from '@tamanu/ui-components';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;

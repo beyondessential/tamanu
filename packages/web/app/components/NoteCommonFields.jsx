@@ -12,12 +12,11 @@ import {
   Field,
   DateTimeInput,
 } from './Field';
-import { TranslatedSelectField, TextField } from '@tamanu/ui-components';
+import { TranslatedSelectField, TextField, FormGrid } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 

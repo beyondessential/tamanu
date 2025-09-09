@@ -8,7 +8,7 @@ import { Colors } from '../../../constants';
 import { MarInfoPane } from './MarInfoPane';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
-import { TextField, Form, Button, OutlinedButton } from '@tamanu/ui-components';
+import { TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
 import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
@@ -17,7 +17,6 @@ import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from 
 import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
-import { FormGrid } from '../../FormGrid';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';

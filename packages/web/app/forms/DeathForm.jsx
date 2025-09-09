@@ -12,14 +12,13 @@ import {
   DateTimeField,
   Field,
   FieldWithTooltip,
-  FormGrid,
   FormSeparatorLine,
   NumberField,
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';

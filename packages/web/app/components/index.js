@@ -5,7 +5,6 @@ export * from './Dialog';
 export * from './EditVitalCellModal';
 export * from './Field';
 export * from './FormSeparatorLine';
-export * from './FormGrid';
 export * from './Layout';
 export * from './BaseModal';
 export * from './FormModal';

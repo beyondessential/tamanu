@@ -2,9 +2,9 @@ import React from 'react';
 import { DialogTitle, Box, IconButton, DialogContent, DialogActions } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
+import { FormGrid } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
-import { FormGrid } from '../FormGrid';
 
 const StyledTitleContents = styled(Box)`
   display: flex;

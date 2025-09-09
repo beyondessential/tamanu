@@ -2,14 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, TranslatedSelectField, Form } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitButton } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  FormGrid,
-  FormSubmitButton,
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,

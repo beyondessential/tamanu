@@ -18,9 +18,9 @@ import {
   Form,
   FormCancelButton,
   ButtonRow,
+  FormGrid,
 } from '@tamanu/ui-components';
 import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
 import { ENCOUNTER_OPTIONS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
