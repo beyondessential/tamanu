@@ -12,11 +12,10 @@ import {
   Field,
   DateTimeInput,
 } from './Field';
-import { TranslatedSelectField, TextField, FormGrid } from '@tamanu/ui-components';
+import { TranslatedSelectField, TextField, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 
@@ -41,8 +40,8 @@ const StyledTooltip = styled(props => (
   z-index: 1500;
 
   & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primaryDark};
+    color: ${TAMANU_COLORS.white};
     font-weight: 400;
     font-size: 11px;
     line-height: 15px;

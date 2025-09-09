@@ -13,9 +13,8 @@ import {
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
-import { Button, FormSubmitButton } from '@tamanu/ui-components';
+import { Button, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 
@@ -120,7 +119,7 @@ const MenuList = styled(MuiMenuList)`
     white-space: initial;
 
     &:hover {
-      background: ${Colors.background};
+      background: ${TAMANU_COLORS.background};
     }
   }
 `;
@@ -162,7 +161,7 @@ export const DropdownButton = React.memo(
           color="primary"
           disableElevation
           disabled={disabled}
-          style={{ borderColor: Colors.primary }}
+          style={{ borderColor: TAMANU_COLORS.primary }}
           onClick={(event) => handleClick(event, 0)}
           data-testid="mainbuttoncomponent-xdka"
         >

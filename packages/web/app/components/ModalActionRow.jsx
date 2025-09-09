@@ -1,14 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow } from '@tamanu/ui-components';
-import { Colors } from '../constants';
+import { ButtonRow, ConfirmCancelRow, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { FullWidthRow, MODAL_PADDING_LEFT_AND_RIGHT } from './BaseModal';
 
 // TODO this is a little weird - might be better to refactor ConfirmCancelRow to allow replacing
 // the ButtonRow component it uses with a differently styled one
 export const makeModalRow = (Component, includeLeftPadding = true) => {
   const Row = styled(Component)`
-    border-top: 1px solid ${Colors.outline};
+    border-top: 1px solid ${TAMANU_COLORS.outline};
     padding: 30px ${MODAL_PADDING_LEFT_AND_RIGHT}px 0
       ${includeLeftPadding ? MODAL_PADDING_LEFT_AND_RIGHT : 0}px;
     grid-column: 1 / -1;

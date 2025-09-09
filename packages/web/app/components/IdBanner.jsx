@@ -1,21 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const IdFieldContainer = styled.div`
-  background: ${Colors.primary};
+  background: ${TAMANU_COLORS.primary};
   padding: 33px;
 
   svg,
   p {
-    color: ${Colors.white};
+    color: ${TAMANU_COLORS.white};
   }
 `;
 
 const IdFieldTitle = styled.div`
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   font-weight: 500;
   font-size: 18px;
   margin-bottom: 20px;
