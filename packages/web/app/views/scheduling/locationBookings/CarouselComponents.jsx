@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { UnstyledHtmlButton } from '../../../components';
+import { UnstyledHtmlButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const Grid = styled.div`
