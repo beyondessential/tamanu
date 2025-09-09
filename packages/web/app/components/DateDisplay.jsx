@@ -10,12 +10,14 @@ import {
   locale,
   formatLong,
 } from '@tamanu/utils/dateTime';
+import {TAMANU_COLORS} from '@tamanu/ui-components';
 import { Box, Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import { ThemedTooltip } from './Tooltip';
+
 export { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
-import { Colors } from '../constants';
+
 
 const Text = styled(Typography)`
   font-size: inherit;
@@ -24,7 +26,7 @@ const Text = styled(Typography)`
 `;
 
 const SoftText = styled(Text)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const formatShortExplicit = (date) =>

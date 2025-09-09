@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-import { Colors } from '../constants';
+import {TAMANU_COLORS} from '@tamanu/ui-components';
 import { hexToRgba } from '../utils';
 import { TranslatedText, TranslatedReferenceData } from './Translation';
 
@@ -11,7 +11,7 @@ const DiagnosisListContainer = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const DiagnosisChip = styled.div`
@@ -21,17 +21,17 @@ const DiagnosisChip = styled.div`
 `;
 
 const Category = styled.div`
-  background: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
+  background: ${(props) => (props.isPrimary ? TAMANU_COLORS.primary : TAMANU_COLORS.alert)};
   font-weight: 900;
   padding: 10px 5px;
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   border-radius: 3px 0 0 3px;
 `;
 
 const DiagnosisName = styled.span`
   background: ${(props) =>
-    props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
-  color: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
+    props.isPrimary ? `${hexToRgba(TAMANU_COLORS.primary, 0.1)}` : `${hexToRgba(TAMANU_COLORS.alert, 0.1)}`};
+  color: ${(props) => (props.isPrimary ? TAMANU_COLORS.primary : TAMANU_COLORS.alert)};
   font-weight: 500;
   padding: 10px;
   border-radius: 0 3px 3px 0;
