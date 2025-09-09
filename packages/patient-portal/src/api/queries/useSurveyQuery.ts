@@ -4,11 +4,11 @@ import {
   type SurveyWithComponents,
 } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 
-export const useSurveyQuery = (assignmentId: string) => {
+export const useSurveyQuery = (surveyId: string) => {
   const api = useApi();
   return useQuery<unknown, Error, SurveyWithComponents>({
-    queryKey: ['survey', assignmentId],
-    queryFn: () => api.get(`/me/surveys/${assignmentId}`),
-    enabled: Boolean(assignmentId),
+    queryKey: ['survey', surveyId],
+    queryFn: () => api.get(`/survey/${surveyId}`),
+    enabled: Boolean(surveyId),
   });
 };
