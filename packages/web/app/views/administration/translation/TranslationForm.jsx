@@ -20,6 +20,7 @@ import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
+import { ThemedTooltip } from '../../../components/Tooltip';
 
 const Container = styled.div`
   padding: 30px;
@@ -246,7 +247,11 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                 </Tooltip>
               </Box>
             );
-          return <span title={stringId}>{stringId}</span>;
+          return (
+            <ThemedTooltip title={stringId} data-testid="tooltip-brb2">
+              <span>{stringId}</span>
+            </ThemedTooltip>
+          );
         },
       },
       {
