@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider } from '@mui/material';
 
 import { AutocompleteInput, CheckInput, TextField } from '../Field';
 import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';

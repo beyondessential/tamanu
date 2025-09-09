@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import MuiDivider from '@material-ui/core/Divider';
-import { Add } from '@material-ui/icons';
+import MuiDivider from '@mui/material/Divider';
+import { Add } from '@mui/icons-material';
 import { Colors, FORM_TYPES } from '../../constants';
 import {
   Button,
@@ -102,23 +102,26 @@ const getGroupedData = rows => {
   const groupedData = { confirmedSection: [{}], resolvedSection: [], recordedInErrorSection: [] };
 
   // Process rows
-  rows.forEach(({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
-    const group = Object.entries(groupMapping).find(([, conditions]) =>
-      conditions.includes(programRegistryConditionCategory.code),
-    )?.[0] || 'confirmedSection';
-    if (group) {
-      groupedData[group].push({
-        id,
-        conditionId: programRegistryCondition.id,
-        name: programRegistryCondition.name,
-        date,
-        conditionCategoryId: programRegistryConditionCategory.id,
-        conditionCategoryName: programRegistryConditionCategory.name,
-        programRegistryId: programRegistryConditionCategory.programRegistryId,
-        history,
-      });
-    }
-  });
+  rows.forEach(
+    ({ id, programRegistryConditionCategory, date, programRegistryCondition, history }) => {
+      const group =
+        Object.entries(groupMapping).find(([, conditions]) =>
+          conditions.includes(programRegistryConditionCategory.code),
+        )?.[0] || 'confirmedSection';
+      if (group) {
+        groupedData[group].push({
+          id,
+          conditionId: programRegistryCondition.id,
+          name: programRegistryCondition.name,
+          date,
+          conditionCategoryId: programRegistryConditionCategory.id,
+          conditionCategoryName: programRegistryConditionCategory.name,
+          programRegistryId: programRegistryConditionCategory.programRegistryId,
+          history,
+        });
+      }
+    },
+  );
   Object.keys(groupedData).forEach(group => {
     groupedData[group].sort((a, b) => a.name?.localeCompare(b?.name));
   });
@@ -130,15 +133,17 @@ const isRecordedInError = conditionCategoryId =>
   conditionCategoryId?.includes(PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR);
 
 const getIsNewRecordedInError = conditions => {
-  return [...conditions.confirmedSection, ...conditions.resolvedSection].some(
-    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
-  );
+  return [
+    ...conditions.confirmedSection,
+    ...conditions.resolvedSection,
+  ].some(({ conditionCategoryId }) => isRecordedInError(conditionCategoryId));
 };
 
 const getNewRecordedInErrorList = conditions => {
-  return [...conditions.confirmedSection, ...conditions.resolvedSection].filter(
-    ({ conditionCategoryId }) => isRecordedInError(conditionCategoryId),
-  );
+  return [
+    ...conditions.confirmedSection,
+    ...conditions.resolvedSection,
+  ].filter(({ conditionCategoryId }) => isRecordedInError(conditionCategoryId));
 };
 
 export const RelatedConditionsForm = ({
@@ -175,9 +180,7 @@ export const RelatedConditionsForm = ({
         // 2. The category has changed
         const initialCategory = initialCondition?.conditionCategoryId;
         const newCategory = condition.conditionCategoryId;
-        return (
-          !initialCondition || initialCategory !== newCategory
-        );
+        return !initialCondition || initialCategory !== newCategory;
       });
 
     await onSubmit({ ...data, conditions: updatedConditions });
@@ -238,8 +241,9 @@ export const RelatedConditionsForm = ({
                 return (
                   <span
                     style={{
-                      textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                      textDecoration: isRecordedInError(conditionCategoryId)
+                        ? 'line-through'
+                        : 'none',
                     }}
                   >
                     <TranslatedReferenceData
@@ -318,8 +322,9 @@ export const RelatedConditionsForm = ({
                   <DateDisplay
                     date={date}
                     style={{
-                      textDecoration:
-                        isRecordedInError(conditionCategoryId) ? 'line-through' : 'none',
+                      textDecoration: isRecordedInError(conditionCategoryId)
+                        ? 'line-through'
+                        : 'none',
                     }}
                   />
                 );

@@ -129,7 +129,6 @@
     "multiparty": "^4.2.3",
     "node-schedule": "^2.0.0",
     "pg-notify": "^1.0.5",
-    "react": "^18.2.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",

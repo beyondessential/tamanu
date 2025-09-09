@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -15,11 +15,10 @@ const Container = styled.div`
   background: ${Colors.white};
   border-radius: 5px;
   display: grid;
-  grid-template-columns: ${(props) =>
-    props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)'};
+  grid-template-columns: ${props => (props.hasPanels ? 'repeat(6, 1fr)' : ' 230px repeat(4, 1fr)')};
   padding-bottom: 10px;
 
-  > div:nth-last-child(-n + ${(props) => (props.hasPanels ? '6' : '5')}) {
+  > div:nth-last-child(-n + ${props => (props.hasPanels ? '6' : '5')}) {
     border-bottom: none;
   }
 `;
@@ -118,7 +117,7 @@ export const SampleDetailsField = ({
   const [samples, setSamples] = useState({});
 
   const hasPanels = useMemo(() => {
-    return initialSamples.some((sample) => sample.panelId);
+    return initialSamples.some(sample => sample.panelId);
   }, [initialSamples]);
 
   const headers = useMemo(() => (hasPanels ? WITH_PANELS_HEADERS : HEADERS), [hasPanels]);
@@ -136,7 +135,7 @@ export const SampleDetailsField = ({
       // It's going to store in this state { category-1: { sampleTime: '2023-06-12 00:00'} }
       // Next time when it's called with the specimenType, it will be something like it: { identifier: 'category-1', 'specimenType', 'specimen-type-id'}
       // we need to store that { category-1: { sampleTime: '2023-06-12 00:00', specimenType: 'specimen-type-id'} }
-      setSamples((previousState) => {
+      setSamples(previousState => {
         const previousSample = previousState[identifier] || {};
         return {
           ...previousState,
@@ -148,8 +147,8 @@ export const SampleDetailsField = ({
   );
 
   const removeSample = useCallback(
-    (identifier) => {
-      setSamples((previousState) => {
+    identifier => {
+      setSamples(previousState => {
         const value = { ...previousState };
         delete value[identifier];
         return value;
@@ -159,7 +158,7 @@ export const SampleDetailsField = ({
   );
 
   const renderSampleDetails = useCallback(
-    (sample) => {
+    sample => {
       const identifier = hasPanels ? sample.panelId : sample.categoryId;
       const isSampleCollected = !!samples[identifier]?.sampleTime;
 
@@ -258,7 +257,7 @@ export const SampleDetailsField = ({
           {columnName}
         </HeaderCell>
       ))}
-      {initialSamples.map((request) => {
+      {initialSamples.map(request => {
         return renderSampleDetails(request);
       })}
     </Container>

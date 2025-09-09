@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
-import { Typography, CircularProgress } from '@material-ui/core';
+import { Typography, CircularProgress } from '@mui/material';
 
 import { ModalCancelRow } from '../ModalActionRow';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -48,7 +48,7 @@ const ErrorMessage = styled.div`
 
 export const ReminderContactQR = ({ contact, onClose }) => {
   const { getTranslation } = useTranslation();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { data: botInfo, isFetching, isError, error } = useTelegramBotInfoQuery();
 
   const [qrCodeURL, setQRCodeURL] = useState('');

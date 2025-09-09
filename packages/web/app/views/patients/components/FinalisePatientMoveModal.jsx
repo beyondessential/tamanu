@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import SingleBedIcon from '@material-ui/icons/SingleBed';
+import { Box } from '@mui/material';
+import SingleBedIcon from '@mui/icons-material/SingleBed';
 import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';

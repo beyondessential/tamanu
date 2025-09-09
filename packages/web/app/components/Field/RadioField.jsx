@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormHelperText from '@material-ui/core/FormHelperText';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormHelperText from '@mui/material/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';

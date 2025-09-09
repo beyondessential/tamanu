@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
-import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Grid } from '@mui/material';
 import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCE_LABELS,

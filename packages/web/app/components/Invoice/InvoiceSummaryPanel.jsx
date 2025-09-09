@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import { Box, Divider } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
@@ -390,7 +390,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
           </DescriptionText>
           {editable && (
             <NoteModalActionBlocker>
-              <IconButton onClick={handleEditDiscount}>
+              <IconButton onClick={handleEditDiscount} size="large">
                 <PencilIcon />
               </IconButton>
             </NoteModalActionBlocker>

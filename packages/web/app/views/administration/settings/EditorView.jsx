@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import { capitalize, cloneDeep, get, omitBy, pickBy, set, startCase } from 'lodash';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider } from '@mui/material';
 
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
@@ -51,7 +51,7 @@ const UNCATEGORISED_KEY = 'uncategorised';
 
 export const formatSettingName = (name, path) => name || capitalize(startCase(path));
 
-const recursiveJsonParse = (obj) => {
+const recursiveJsonParse = obj => {
   if (typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(recursiveJsonParse);
   return Object.entries(obj).reduce((acc, [key, value]) => {
@@ -69,7 +69,7 @@ const recursiveJsonParse = (obj) => {
   }, {});
 };
 
-const prepareSchema = (scope) => {
+const prepareSchema = scope => {
   const schema = getScopedSchema(scope);
   const uncategorised = pickBy(schema.properties, isSetting);
   // If there are any top-level settings, move them to an uncategorised category
@@ -109,7 +109,7 @@ const getSubCategoryOptions = (schema, category) => {
     : null;
 };
 
-const getCategoryOptions = (schema) =>
+const getCategoryOptions = schema =>
   Object.entries(schema.properties)
     .map(([key, value]) => ({
       value: key,
@@ -134,10 +134,10 @@ export const EditorView = memo(
 
     const scopedSchema = useMemo(() => prepareSchema(scope), [scope]);
     const categoryOptions = useMemo(() => getCategoryOptions(scopedSchema), [scopedSchema]);
-    const subCategoryOptions = useMemo(
-      () => getSubCategoryOptions(scopedSchema, category),
-      [category, scopedSchema],
-    );
+    const subCategoryOptions = useMemo(() => getSubCategoryOptions(scopedSchema, category), [
+      category,
+      scopedSchema,
+    ]);
     const schemaForCategory = useMemo(
       () => getSchemaForCategory(scopedSchema, category, subCategory),
       [scopedSchema, category, subCategory],
@@ -150,7 +150,7 @@ export const EditorView = memo(
 
     useEffect(handleChangeScope, [scope]);
 
-    const handleChangeCategory = async (e) => {
+    const handleChangeCategory = async e => {
       const newCategory = e.target.value;
       if (newCategory !== category && dirty) {
         const dismissChanges = await handleShowWarningModal();
@@ -161,11 +161,11 @@ export const EditorView = memo(
       setCategory(newCategory);
     };
 
-    const handleChangeSubcategory = (e) => {
+    const handleChangeSubcategory = e => {
       setSubCategory(e.target.value);
     };
 
-    const getSettingPath = (path) =>
+    const getSettingPath = path =>
       `${category === UNCATEGORISED_KEY ? '' : `${category}.`}${
         subCategory ? `${subCategory}.` : ''
       }${path}`;
@@ -176,9 +176,9 @@ export const EditorView = memo(
       setFieldValue('settings', updatedSettings);
     };
 
-    const getSettingValue = (path) => get(values.settings, getSettingPath(path));
+    const getSettingValue = path => get(values.settings, getSettingPath(path));
 
-    const saveSettings = async (event) => {
+    const saveSettings = async event => {
       // Need to parse json string objects stored in keys
       const parsedSettings = recursiveJsonParse(values.settings);
       delete parsedSettings.uncategorised;

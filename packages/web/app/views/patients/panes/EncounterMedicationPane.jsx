@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import PrintIcon from '@material-ui/icons/Print';
-import ShoppingCart from '@material-ui/icons/ShoppingCart';
+import PrintIcon from '@mui/icons-material/Print';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 

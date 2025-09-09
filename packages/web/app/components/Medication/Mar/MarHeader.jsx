@@ -1,8 +1,8 @@
 import { addDays, subDays, format, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from '@material-ui/icons';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { ButtonWithPermissionCheck, Heading3, TranslatedText } from '../..';
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';

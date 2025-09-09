@@ -1,4 +1,4 @@
-import MDivider from '@material-ui/core/Divider';
+import MDivider from '@mui/material/Divider';
 import styled from 'styled-components';
 import { Colors } from '../../../../constants';
 

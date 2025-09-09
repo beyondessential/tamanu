@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useHistory, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
-import MuiDialog from '@material-ui/core/Dialog';
+import MuiDialog from '@mui/material/Dialog';
 
 import { NOTE_RECORD_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { useApi } from '../../api';
@@ -15,7 +15,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
-import { useMediaQuery } from '@material-ui/core';
+import { useMediaQuery } from '@mui/material';
 
 const NOTE_MODAL_DIMENSIONS = {
   BREAKPOINTS: {

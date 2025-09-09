@@ -1,17 +1,17 @@
 import React from 'react';
 import { omit } from 'lodash';
 import styled from 'styled-components';
-import Timeline from '@material-ui/lab/Timeline';
-import TimelineItem from '@material-ui/lab/TimelineItem';
-import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
-import TimelineConnector from '@material-ui/lab/TimelineConnector';
-import TimelineContent from '@material-ui/lab/TimelineContent';
-import TimelineDot from '@material-ui/lab/TimelineDot';
+import Timeline from '@mui/material/Timeline';
+import TimelineItem from '@mui/material/TimelineItem';
+import TimelineSeparator from '@mui/material/TimelineSeparator';
+import TimelineConnector from '@mui/material/TimelineConnector';
+import TimelineContent from '@mui/material/TimelineContent';
+import TimelineDot from '@mui/material/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
 import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import { Heading4, TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';

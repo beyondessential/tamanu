@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { Link } from '@material-ui/core';
+import { Link } from '@mui/material';
 
 import {
   Field,
@@ -28,7 +28,7 @@ const CenteredLink = styled(Link)`
 
 const StyledField = styled(Field)`
   .MuiFormControl-root {
-    background: ${(props) => (props.disabled ? Colors.outline : 'inherit')};
+    background: ${props => (props.disabled ? Colors.outline : 'inherit')};
   }
 `;
 

@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useIdleTimer } from 'react-idle-timer';
-import Typography from '@material-ui/core/Typography';
+import Typography from '@mui/material/Typography';
 import styled from 'styled-components';
 
 import { useSettings } from '../contexts/Settings';

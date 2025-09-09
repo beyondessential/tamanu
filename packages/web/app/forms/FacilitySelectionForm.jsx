@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
@@ -98,7 +98,7 @@ const FacilitySelectionFormComponent = ({ options, errorMessage, onCancel }) => 
 
 export const FacilitySelectionForm = React.memo(
   ({ facilities, onSubmit, onCancel, errorMessage }) => {
-    const options = facilities.map((facility) => ({
+    const options = facilities.map(facility => ({
       value: facility.id,
       label: facility.name,
     }));

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
@@ -30,7 +30,7 @@ const Column = styled.div`
 const CardCell = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-bottom: 20px;
 
   &:last-child {
@@ -44,7 +44,7 @@ const CardLabel = styled.div`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const CardItem = ({ label, value, ...props }) => (

@@ -1,4 +1,4 @@
-import Divider from '@material-ui/core/Divider';
+import Divider from '@mui/material/Divider';
 import styled from 'styled-components';
 
 export const ConfirmRowDivider = styled(Divider)`

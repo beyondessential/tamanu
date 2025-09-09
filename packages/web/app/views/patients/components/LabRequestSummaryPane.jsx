@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
+import { Box } from '@mui/material';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
@@ -39,7 +39,7 @@ const CardTable = styled(Table)`
       border: none;
     }
     thead tr th {
-      color: ${(props) => props.theme.palette.text.tertiary};
+      color: ${props => props.theme.palette.text.tertiary};
     }
   }
 `;
@@ -59,7 +59,7 @@ const Actions = styled.div`
   }
 `;
 
-const getColumns = (type) => [
+const getColumns = type => [
   {
     key: 'displayId',
     title: (
@@ -160,8 +160,9 @@ export const LabRequestSummaryPane = React.memo(
     // All the lab requests were made in a batch and have the same details
     const { id, requestedDate, requestedBy, department, priority } = labRequests[0];
 
-    const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } =
-      useLabRequestNotesQuery(id);
+    const { data: { data: notes = [] } = {}, isLoading: areNotesLoading } = useLabRequestNotesQuery(
+      id,
+    );
 
     return (
       <Container data-testid="container-nnz7">
@@ -305,7 +306,7 @@ export const LabRequestSummaryPane = React.memo(
           </OutlinedButton>
           <MultipleLabRequestsPrintoutModal
             encounter={encounter}
-            labRequests={selectedRows.map((row) => ({
+            labRequests={selectedRows.map(row => ({
               ...row,
               notes,
             }))}

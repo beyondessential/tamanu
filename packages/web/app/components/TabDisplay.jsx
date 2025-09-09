@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Tab, Tabs } from '@material-ui/core';
+import { Tab, Tabs } from '@mui/material';
 import { Colors } from '../constants';
 
 const TabBar = styled.div`
@@ -31,13 +31,13 @@ const StyledTab = styled(Tab)`
 `;
 
 const Icon = styled.i`
-  color: ${(props) => props.color};
+  color: ${props => props.color};
   margin-right: 5px;
 `;
 
 export const TabDisplay = React.memo(
   ({ tabs, currentTab, onTabSelect, className, scrollable = true, ...tabProps }) => {
-    const currentTabData = tabs.find((t) => t.key === currentTab);
+    const currentTabData = tabs.find(t => t.key === currentTab);
     if (!currentTabData) {
       return null;
     }

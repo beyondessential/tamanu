@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider } from '@material-ui/core';
+import { Divider } from '@mui/material';
 import * as yup from 'yup';
 import { TASK_DELETE_BY_SYSTEM_REASON } from '@tamanu/constants';
 
@@ -28,7 +28,7 @@ export const DeleteTaskForm = ({ onClose, refreshTaskTable, taskIds }) => {
 
   const { mutate: deleteTask } = useDeleteTask();
 
-  const onSubmit = async (values) => {
+  const onSubmit = async values => {
     deleteTask(
       {
         ...values,

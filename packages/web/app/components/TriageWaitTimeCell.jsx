@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '@mui/material/Tooltip';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
-const getDuration = (startTime) => {
+const getDuration = startTime => {
   const time = new Date() - new Date(startTime);
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);

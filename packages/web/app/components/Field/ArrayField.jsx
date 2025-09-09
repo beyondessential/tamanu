@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FieldArray } from 'formik';
-import { IconButton } from '@material-ui/core';
-import { Add, Remove } from '@material-ui/icons';
+import { IconButton } from '@mui/material';
+import { Add, Remove } from '@mui/icons-material';
 import { generate } from 'shortid';
 import { Button } from '../Button';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -61,7 +61,7 @@ export const ArrayField = ({
               <RemoveButton
                 color="primary"
                 onClick={() => {
-                  setFields((currentFields) => currentFields.filter((x) => x.id !== id));
+                  setFields(currentFields => currentFields.filter(x => x.id !== id));
                   remove(index);
                 }}
                 data-testid={`removebutton-qmfs-${index}`}
@@ -80,7 +80,7 @@ export const ArrayField = ({
               type="button"
               variant="text"
               onClick={() => {
-                setFields((currentFields) => [...currentFields, { id: generate() }]);
+                setFields(currentFields => [...currentFields, { id: generate() }]);
               }}
               data-testid="addbutton-4ojv"
             >

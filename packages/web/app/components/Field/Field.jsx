@@ -6,7 +6,7 @@ import {
   useField,
   useFormikContext,
 } from 'formik';
-import MuiBox from '@material-ui/core/Box';
+import MuiBox from '@mui/material/Box';
 import styled from 'styled-components';
 import { ThemedTooltip } from '../Tooltip';
 import { TextField } from './TextField';

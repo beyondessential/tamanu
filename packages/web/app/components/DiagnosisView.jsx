@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@mui/material';
 
 import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';

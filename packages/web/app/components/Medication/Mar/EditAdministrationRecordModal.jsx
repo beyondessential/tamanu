@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ADMINISTRATION_STATUS } from '@tamanu/constants';
 import * as yup from 'yup';
-import { Box, Divider } from '@material-ui/core';
+import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';

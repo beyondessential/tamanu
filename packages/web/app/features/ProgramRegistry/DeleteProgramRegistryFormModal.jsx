@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 

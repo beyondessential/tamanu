@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BodyText, Modal, TranslatedText, Heading5, SmallBodyText } from '..';
 import { Colors, PRESCRIPTION_TYPES } from '../../constants';
 import styled from 'styled-components';
-import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
+import { Divider, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { ConfirmCancelRow } from '../ButtonRow';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
@@ -13,7 +13,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+  ${p => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;
@@ -39,7 +39,9 @@ const RadioLabel = ({ title, description }) => (
 );
 
 export const PrescriptionTypeModal = ({ open, onClose, onContinue }) => {
-  const [selectedPrescriptionType, setSelectedPrescriptionType] = useState(PRESCRIPTION_TYPES.SINGLE_MEDICATION);
+  const [selectedPrescriptionType, setSelectedPrescriptionType] = useState(
+    PRESCRIPTION_TYPES.SINGLE_MEDICATION,
+  );
 
   return (
     <Modal
@@ -62,7 +64,7 @@ export const PrescriptionTypeModal = ({ open, onClose, onContinue }) => {
       <StyledRadioGroup
         name="use-radio-group"
         value={selectedPrescriptionType}
-        onChange={(e) => setSelectedPrescriptionType(e.target.value)}
+        onChange={e => setSelectedPrescriptionType(e.target.value)}
       >
         <StyledFormControlLabel
           labelPlacement="start"
@@ -109,12 +111,7 @@ export const PrescriptionTypeModal = ({ open, onClose, onContinue }) => {
       </StyledRadioGroup>
       <StyledDivider />
       <ConfirmCancelRow
-        confirmText={
-          <TranslatedText
-            stringId="general.action.continue"
-            fallback="Continue"
-          />
-        }
+        confirmText={<TranslatedText stringId="general.action.continue" fallback="Continue" />}
         onConfirm={() => onContinue(selectedPrescriptionType)}
         onCancel={onClose}
       />

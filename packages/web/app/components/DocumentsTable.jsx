@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { extension } from 'mime-types';
 
-import GetAppIcon from '@material-ui/icons/GetApp';
-import { IconButton } from '@material-ui/core';
+import GetAppIcon from '@mui/icons-material/GetApp';
+import { IconButton } from '@mui/material';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';

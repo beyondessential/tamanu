@@ -3,8 +3,8 @@ import { customAlphabet } from 'nanoid';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import Decimal from 'decimal.js';
-import { Box } from '@material-ui/core';
-import CachedIcon from '@material-ui/icons/Cached';
+import { Box } from '@mui/material';
+import CachedIcon from '@mui/icons-material/Cached';
 import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
@@ -224,7 +224,7 @@ export const PatientPaymentForm = ({
                 <IconButton
                   onClick={() => setFieldValue('receiptNumber', generateReceiptNumber())}
                   data-testid="iconbutton-9yvq"
-                >
+                  size="large">
                   <CachedIcon data-testid="cachedicon-vghh" />
                 </IconButton>
               </NoteModalActionBlocker>

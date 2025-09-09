@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Button, Typography } from '@material-ui/core';
+import { Button, Typography } from '@mui/material';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
@@ -22,7 +22,7 @@ const PatientButton = styled(Button)`
 
 const NameHeader = styled(Typography)`
   align-self: flex-start;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   font-size: 11px;
   line-height: 15px;
   margin-bottom: 20px;
@@ -57,13 +57,13 @@ const CoreInfoCellContainer = styled.div`
 `;
 
 const CoreInfoLabel = styled(Typography)`
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   font-size: 14px;
   line-height: 18px;
 `;
 
 const CoreInfoValue = styled(Typography)`
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
@@ -82,7 +82,7 @@ const HealthIdContainer = styled.div`
 `;
 
 const HealthId = styled.div`
-  background: ${(props) => props.theme.palette.primary.main};
+  background: ${props => props.theme.palette.primary.main};
   color: ${Colors.white};
   font-weight: 600;
   display: flex;
@@ -176,7 +176,10 @@ export const CoreInfoDisplay = memo(({ patient }) => {
           data-testid="coreinfocell-0opr"
         >
           <DateDisplay date={patient.dateOfBirth} data-testid="datedisplay-ez8y" />
-          <AgeDisplay data-testid="agedisplay-gpl9">{` (${getDisplayAge(patient.dateOfBirth, ageDisplayFormat)})`}</AgeDisplay>
+          <AgeDisplay data-testid="agedisplay-gpl9">{` (${getDisplayAge(
+            patient.dateOfBirth,
+            ageDisplayFormat,
+          )})`}</AgeDisplay>
         </CoreInfoCell>
       </CoreInfoSection>
       <HealthIdDisplay displayId={patient.displayId} data-testid="healthiddisplay-su8y" />
