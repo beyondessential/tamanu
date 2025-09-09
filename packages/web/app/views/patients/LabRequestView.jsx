@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
 import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { OutlinedButton } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -15,7 +16,6 @@ import {
   Heading2,
   MenuButton,
   MODAL_TRANSITION_DURATION,
-  OutlinedButton,
   TableButtonRow,
   Tile,
   TileContainer,

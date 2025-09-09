@@ -6,12 +6,10 @@ import { Box, Divider } from '@material-ui/core';
 import { getScopedSchema, isSetting } from '@tamanu/settings';
 
 import {
-  Button,
   DynamicSelectField,
-  OutlinedButton,
   TranslatedText,
 } from '../../../components';
-import { SelectInput } from '@tamanu/ui-components';
+import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 

@@ -3,13 +3,11 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { MultilineTextField, TextField, Form } from '@tamanu/ui-components';
+import { MultilineTextField, TextField, Form, Button, OutlinedButton, FormGrid } from '@tamanu/ui-components';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
 import { AutocompleteField, DateField, Field } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { ModalLoader } from '../components/BaseModal';
-import { Button, OutlinedButton } from '../components';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
 import { TranslatedText } from '../components/Translation/TranslatedText';

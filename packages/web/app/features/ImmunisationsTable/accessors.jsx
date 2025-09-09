@@ -1,12 +1,12 @@
 import React from 'react';
 import { parseISO, startOfWeek } from 'date-fns';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
+import { OutlinedButton } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import {
   DateDisplay,
   MenuButton,
   NoteModalActionBlocker,
-  OutlinedButton,
   TableCellTag,
   TranslatedReferenceData,
   TranslatedText,

@@ -2,12 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
+import { OutlinedButton, ButtonRow } from '@tamanu/ui-components';
 import {
-  ButtonRow,
   Heading4,
   LargeBodyText,
   Modal,
-  OutlinedButton,
   Table,
   TranslatedText,
 } from '../../../components';

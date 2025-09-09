@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { OutlinedButton } from '@tamanu/ui-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
@@ -10,7 +11,7 @@ import {
   PatientProgramRegistryUpdateModal,
 } from '../../features/ProgramRegistry';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
+import { TranslatedText, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';

@@ -2,17 +2,20 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { TextField, TallMultilineTextField, Form } from '@tamanu/ui-components';
+import {
+  TextField,
+  TallMultilineTextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+  SmallGridSpacer,
+  RedOutlinedButton,
+} from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { Field } from '../../../components/Field';
-import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import {
-  Button,
-  ModalGenericButtonRow,
-  OutlinedButton,
-  RedOutlinedButton,
-} from '../../../components';
+import { ModalGenericButtonRow } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const DeleteButton = styled(RedOutlinedButton)`

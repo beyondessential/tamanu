@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal, OutlinedButton, TranslatedText } from '../../components';
+import { OutlinedButton } from '@tamanu/ui-components';
+import { Modal, TranslatedText } from '../../components';
 import { Colors } from '../../constants';
 
 const TextContainer = styled.div`
