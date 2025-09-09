@@ -31,6 +31,8 @@ import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 
 export { startFhirWorkerTasks } from './fhir';
 
+export class InvalidConfigError extends Error {}
+
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,
@@ -65,7 +67,7 @@ export async function startScheduledTasks(context) {
 
   const reportSchedulers = await getReportSchedulers(context);
   const tasks = [
-    ...taskClasses.map((TaskClass) => {
+    ...taskClasses.map(TaskClass => {
       try {
         log.debug(`Starting to initialise scheduled task ${TaskClass.name}`);
         return new TaskClass(context);
@@ -75,9 +77,9 @@ export async function startScheduledTasks(context) {
       }
     }),
     ...reportSchedulers,
-  ].filter((x) => x);
-  tasks.forEach((t) => t.beginPolling());
-  return () => tasks.forEach((t) => t.cancelPolling());
+  ].filter(x => x);
+  tasks.forEach(t => t.beginPolling());
+  return () => tasks.forEach(t => t.cancelPolling());
 }
 
 async function getReportSchedulers(context) {
