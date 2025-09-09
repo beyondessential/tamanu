@@ -24,7 +24,10 @@ describe('Translation', () => {
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
-    await models.TranslatedString.truncate();
+  });
+
+  beforeEach(async () => {
+    await models.TranslatedString.truncate({ force: true });
 
     // Create a stringId with both languages, and two stringIds with only one language
     await mockTranslatedString('login.email', 'Email', LANGUAGE_CODES.ENGLISH);
@@ -36,7 +39,7 @@ describe('Translation', () => {
   });
 
   afterAll(async () => {
-    await models.TranslatedString.truncate();
+    await models.TranslatedString.truncate({ force: true });
     await ctx.close();
   });
 
@@ -79,6 +82,7 @@ describe('Translation', () => {
         ]),
       );
     });
+
     it('should update translated strings if existing', async () => {
       await models.TranslatedString.create({
         stringId: 'general.action.back',
@@ -109,6 +113,7 @@ describe('Translation', () => {
         { stringId: 'general.action.submit', text: 'Confirm', language: LANGUAGE_CODES.ENGLISH },
       ]);
     });
+
     it('should update one language with two existing and single language in body', async () => {
       await models.TranslatedString.create({
         stringId: 'general.action.save',
@@ -138,6 +143,7 @@ describe('Translation', () => {
         { stringId: 'general.action.save', text: 'Finalise', language: LANGUAGE_CODES.ENGLISH },
       ]);
     });
+
     it('should update two languages with two existing and two languages in body', async () => {
       await models.TranslatedString.create({
         stringId: 'general.action.print',
@@ -174,6 +180,29 @@ describe('Translation', () => {
           language: LANGUAGE_CODES.ENGLISH,
         },
       ]);
+    });
+
+    it('should reset to the default language if the text is empty', async () => {
+      const originalTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'login.email' },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(originalTranslatedStrings.length).toEqual(1);
+
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'login.email': { en: '' },
+      });
+
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual({ ok: 'ok' });
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'login.email' },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(updatedTranslatedStrings.length).toEqual(0);
     });
   });
 });
