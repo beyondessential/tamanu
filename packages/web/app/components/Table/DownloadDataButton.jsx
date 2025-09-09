@@ -9,6 +9,7 @@ import { notifySuccess, renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation';
+import { ExportProvider } from '../../contexts/ExportContext';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
   const queryClient = useQueryClient();
@@ -18,13 +19,15 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
 
   const safelyRenderToText = element => {
     return renderToText(
-      <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
-        <ApiContext.Provider value={api} data-testid="provider-72ic">
-          <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
-            {element}
-          </TranslationContext.Provider>
-        </ApiContext.Provider>
-      </QueryClientProvider>,
+      <ExportProvider isExporting={true}>
+        <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
+          <ApiContext.Provider value={api} data-testid="provider-72ic">
+            <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
+              {element}
+            </TranslationContext.Provider>
+          </ApiContext.Provider>
+        </QueryClientProvider>
+      </ExportProvider>,
     );
   };
 
