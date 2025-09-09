@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { SurveyView } from '../programs/SurveyView';
 import { PatientListingView } from '..';
-import { FormGrid } from '../../components/FormGrid';
 import { usePatientAdditionalDataQuery } from '../../api/queries';
 import { ErrorMessage } from '../../components/ErrorMessage';
 import { LoadingIndicator } from '../../components/LoadingIndicator';

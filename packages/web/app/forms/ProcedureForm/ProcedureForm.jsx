@@ -10,9 +10,8 @@ import {
   LocationField,
   TimeField,
 } from '../../components/Field';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, FormGrid } from '@tamanu/ui-components';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
-import { FormGrid } from '../../components/FormGrid';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSuggester } from '../../api';
 

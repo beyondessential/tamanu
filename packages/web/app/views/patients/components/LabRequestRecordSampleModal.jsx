@@ -2,12 +2,12 @@ import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
+import { FormGrid } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
   Form,
-  FormGrid,
   FormModal,
   SuggesterSelectField,
 } from '../../../components';

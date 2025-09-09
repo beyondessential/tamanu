@@ -5,10 +5,9 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 import { convertToBase64 } from '@tamanu/utils/encodings';
 import { useApi } from '../../api';
 import { Field } from '../../components/Field';
-import { TranslatedSelectField, Form, LargeSubmitButton, ButtonRow } from '@tamanu/ui-components';
+import { TranslatedSelectField, Form, LargeSubmitButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 import { FileChooserField, FILTER_IMAGES } from '../../components/Field/FileChooserField';
 import { ContentPane } from '../../components/ContentPane';
-import { FormGrid } from '../../components/FormGrid';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 

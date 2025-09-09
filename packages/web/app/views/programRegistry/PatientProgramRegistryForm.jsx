@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
-import { Form } from '@tamanu/ui-components';
+import { Form, FormGrid } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateField,
@@ -17,7 +17,6 @@ import {
   ProgramRegistryConditionField,
   ProgramRegistryConditionCategoryField,
 } from '../../features/ProgramRegistry';
-import { FormGrid } from '../../components/FormGrid';
 import { ModalFormActionRow, TranslatedText } from '../../components';
 import { foreignKey, optionalForeignKey } from '../../utils/validation';
 import { useSuggester } from '../../api';

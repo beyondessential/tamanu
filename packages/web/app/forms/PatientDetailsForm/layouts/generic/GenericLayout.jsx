@@ -7,11 +7,10 @@ import {
   LocalisedField,
   DateField,
   AutocompleteField,
-  FormGrid,
   TranslatedRadioField,
   NoteModalActionBlocker,
 } from '../../../../components';
-import { TextField } from '@tamanu/ui-components';
+import { TextField, FormGrid } from '@tamanu/ui-components';
 import {
   PatientDetailsHeading,
   SecondaryDetailsFormGrid,

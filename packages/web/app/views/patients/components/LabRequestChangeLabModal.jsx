@@ -1,14 +1,13 @@
 import React from 'react';
 import * as yup from 'yup';
 
-import { Form } from '@tamanu/ui-components';
+import { Form, FormGrid } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { useSuggester } from '../../../api';
 import {
   AutocompleteField,
   Field,
-  FormGrid,
   FormModal,
   ModalFormActionRow,
 } from '../../../components';
