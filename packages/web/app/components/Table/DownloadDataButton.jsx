@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, isValidElement } from 'react';
+import React, { isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import * as XLSX from 'xlsx';
@@ -8,28 +8,7 @@ import { ApiContext, useApi } from '../../api';
 import { notifySuccess, renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { GreyOutlinedButton } from '../Button';
-import { isTranslatedText, TranslatedText } from '../Translation';
-
-/**
- * Recursive mapper for transforming leaf nodes in a DOM tree. Used here to explicitly wrap
- * {@link TranslatedText} elements (and its derivatives) in the context providers needed to render
- * it into a translated primitive string.
- *
- * Based on: https://github.com/tatethurston/react-itertools/blob/main/src/map/index.ts. Used under
- * MIT licence.
- */
-const normalizeRecursively = (element, normalizeFn) => {
-  if (!isValidElement(element)) return element;
-
-  const { children } = element.props;
-  if (!children) return normalizeFn(element);
-
-  return cloneElement(element, {
-    children: Array.isArray(children)
-      ? Children.map(children, child => normalizeRecursively(child, normalizeFn))
-      : normalizeRecursively(children, normalizeFn),
-  });
-};
+import { TranslatedText } from '../Translation';
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
   const queryClient = useQueryClient();
@@ -38,31 +17,15 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
   const { getTranslation } = translationContext;
 
   const safelyRenderToText = element => {
-    /**
-     * If the input is a {@link TranslatedText} element (or one of its derivatives), explicitly wraps
-     * it in a {@link TranslationProvider} (and its dependents). This is a workaround for the case
-     * where a {@link TranslatedText} is rendered into a string for export, which happens in a
-     * “headless” React root node, outside the context providers defined in `Root.jsx`.
-     *
-     * @privateRemarks Cannot use TranslationProvider convenience component, otherwise the context
-     * object isn’t guaranteed to be defined when this element is rendered by {@link renderToText},
-     * which behaves synchronously.
-     */
-    const contextualizeIfIsTranslatedText = element => {
-      if (!isTranslatedText(element)) return element;
-      return (
-        <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
-          <ApiContext.Provider value={api} data-testid="provider-72ic">
-            <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
-              {element}
-            </TranslationContext.Provider>
-          </ApiContext.Provider>
-        </QueryClientProvider>
-      );
-    };
-
-    const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
-    return renderToText(normalizedElement);
+    return renderToText(
+      <QueryClientProvider client={queryClient} data-testid="queryclientprovider-k086">
+        <ApiContext.Provider value={api} data-testid="provider-72ic">
+          <TranslationContext.Provider value={translationContext} data-testid="provider-c9xv">
+            {element}
+          </TranslationContext.Provider>
+        </ApiContext.Provider>
+      </QueryClientProvider>,
+    );
   };
 
   const getHeaderValue = ({ key, title }) => {
