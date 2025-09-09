@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation, useHistory } from 'react-router-dom';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
-
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useLogin } from '@api/mutations';
-
 import { TextField } from '@components/TextField';
 import { Card } from '@components/Card';
 import { VerificationCodeInput } from '@components/VerificationCodeInput';
@@ -47,10 +45,14 @@ const EmailSection = ({ email }: { email: string }) => {
   );
 };
 
+interface LocationState {
+  email?: string;
+}
+
 export const LoginView = () => {
   const { mutate: login, isError: isLoginError, reset: resetLogin } = useLogin();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location = useLocation<LocationState>();
+  const history = useHistory();
 
   const storedEmail = location.state?.email;
 
@@ -115,7 +117,7 @@ export const LoginView = () => {
         </Button>
       </form>
       <Divider sx={{ my: 2 }} />
-      <Button onClick={() => navigate('/login')} variant="text">
+      <Button onClick={() => history.push('/login')} variant="text">
         Back to login
       </Button>
     </Card>
