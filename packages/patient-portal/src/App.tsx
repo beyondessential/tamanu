@@ -12,7 +12,7 @@ export const App = () => {
         <PublicRoute path="/login" component={RequestLoginTokenView} />
         <PublicRoute path="/login-submit" component={LoginView} />
         <PublicRoute path="/register/:token" component={RegistrationView} />
-        <Redirect path="*" to="/" exact />
+        <Redirect to="/" />
       </Switch>
     </Router>
   );
