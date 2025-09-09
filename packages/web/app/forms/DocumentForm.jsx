@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useApi, useSuggester } from '../api';
@@ -27,12 +27,12 @@ const MessageTitle = styled(Typography)`
   font-size: 18px;
   line-height: 21px;
   margin-bottom: 10px;
-  color: ${(props) => props.theme.palette.error.main};
+  color: ${props => props.theme.palette.error.main};
 `;
 
 const Message = styled(Typography)`
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   font-size: 16px;
   line-height: 18px;
   margin-bottom: 30px;

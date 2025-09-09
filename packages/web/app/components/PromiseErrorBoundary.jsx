@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { setForbiddenError } from '../store';
 
 // This will catch all unhandled promise rejections.
@@ -10,7 +10,7 @@ export const PromiseErrorBoundary = ({ children }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const handleUnhandledRejection = (event) => {
+    const handleUnhandledRejection = event => {
       event.preventDefault();
       if (event.reason instanceof ForbiddenError) {
         dispatch(setForbiddenError());
