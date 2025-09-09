@@ -12,6 +12,7 @@ import {
   TextInput,
   FormGrid,
   FormConfirmCancelBackRow,
+  FormSubmitButton,
 } from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
@@ -36,7 +37,6 @@ import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
 import {
   BodyText,
-  FormSubmitButton,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   SmallBodyText,

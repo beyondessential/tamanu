@@ -1,7 +1,8 @@
 import { addDays, subDays, format, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@material-ui/icons';
-import { ButtonWithPermissionCheck, Heading3, TranslatedText } from '../..';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
 import { Colors } from '../../../constants';

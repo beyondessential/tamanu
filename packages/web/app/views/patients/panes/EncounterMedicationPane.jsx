@@ -4,16 +4,14 @@ import PrintIcon from '@material-ui/icons/Print';
 import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { ButtonWithPermissionCheck, Button, TextButton } from '@tamanu/ui-components';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
 import {
-  ButtonWithPermissionCheck,
   NoteModalActionBlocker,
-  Button,
-  TextButton,
 } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

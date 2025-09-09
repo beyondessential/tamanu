@@ -9,10 +9,10 @@ import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, ButtonWithPermissionCheck } from '@tamanu/ui-components';
 
 import { TabPane } from '../components';
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { useChartSurveysQuery } from '../../../api/queries';
 import { ChartsTable, EmptyChartsTable } from '../../../components/ChartsTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

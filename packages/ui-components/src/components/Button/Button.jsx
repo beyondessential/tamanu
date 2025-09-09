@@ -284,10 +284,6 @@ export const LargeSubmitButton = (props) => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const LargeOutlinedSubmitButton = (props) => (
-  <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
-);
-
 export const DefaultIconButton = styled(({ children, ...props }) => (
   <IconButton {...props} data-testid="iconbutton-zsiq">
     {children}
