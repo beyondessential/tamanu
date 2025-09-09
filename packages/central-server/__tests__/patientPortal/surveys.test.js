@@ -88,7 +88,7 @@ describe('Patient Portal Surveys GET Endpoints', () => {
       });
 
       const response = await baseApp
-        .get(`/api/portal/me/surveys/${assignment.id}`)
+        .get(`/api/portal/survey/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
@@ -98,7 +98,7 @@ describe('Patient Portal Surveys GET Endpoints', () => {
 
     it('Should return 404 for invalid/mismatched assignment', async () => {
       const res = await baseApp
-        .get('/api/portal/me/surveys/not-a-real-id')
+        .get('/api/portal/survey/not-a-real-id')
         .set('Authorization', `Bearer ${authToken}`);
       expect(res).toHaveRequestError(404);
     });
@@ -135,7 +135,7 @@ describe('Patient Portal Surveys GET Endpoints', () => {
       });
 
       const res = await baseApp
-        .get(`/api/portal/me/surveys/${otherAssignment.id}`)
+        .get(`/api/portal/survey/${otherAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`);
       expect(res).toHaveRequestError(404);
     });
@@ -171,7 +171,7 @@ describe('Patient Portal Surveys GET Endpoints', () => {
       });
 
       const res = await baseApp
-        .get(`/api/portal/me/surveys/${completedAssignment.id}`)
+        .get(`/api/portal/survey/${completedAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`);
       expect(res).toHaveRequestError(404);
     });

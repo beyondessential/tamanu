@@ -134,7 +134,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       };
 
       const response = await baseApp
-        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .post(`/api/portal/surveyResponse/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
 
@@ -169,7 +169,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       };
 
       const resWrongPatient = await baseApp
-        .post(`/api/portal/me/surveys/${otherAssignment.id}`)
+        .post(`/api/portal/surveyResponse/${otherAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resWrongPatient).toHaveRequestError(404);
@@ -182,7 +182,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       });
 
       const resSubmitted = await baseApp
-        .post(`/api/portal/me/surveys/${submittedAssignment.id}`)
+        .post(`/api/portal/surveyResponse/${submittedAssignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resSubmitted).toHaveRequestError(404);
@@ -197,7 +197,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       const anotherSurvey = await Survey.create(fake(Survey, { status: 'active' }));
 
       const resWrongSurvey = await baseApp
-        .post(`/api/portal/me/surveys/${assignment.id}`)
+        .post(`/api/portal/surveyResponse/${assignment.id}`)
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
@@ -209,7 +209,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     });
 
     it('Should reject unauthorized requests', async () => {
-      const response = await baseApp.post('/api/portal/me/surveys/not-a-real-id');
+      const response = await baseApp.post('/api/portal/surveyResponse/not-a-real-id');
       expect(response).toHaveRequestError();
     });
   });
