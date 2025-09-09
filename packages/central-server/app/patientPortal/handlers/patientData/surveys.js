@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/portalSurveyAssignment.schema';
 
-import { getAttributesFromSchema } from '../../utils/schemaUtils';
+import { getAttributesFromSchema } from '../../../utils/schemaUtils';
 
 export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
