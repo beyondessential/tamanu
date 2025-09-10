@@ -30,11 +30,11 @@ if [ -z "$data" ]; then
 fi
 
 duplicates=$(cut -d, -f1 <<< "$data" | sort | uniq -d)
-if [ ! -z "$duplicates" ]; then
-    echo "$duplicates"
-    echo
-    [[ ! -z "${CI:-}" ]] && echo -n '::error::'
-    echo -e '\x1b[1;31m!!! Duplicate stringIds found (printed above) !!!\x1b[0m'
+if [ -n "$duplicates" ]; then
+    echo "$duplicates" >&2
+    echo >&2
+    [[ -n "${CI:-}" ]] && echo -n '::error::' >&2
+    echo -e '\x1b[1;31m!!! Duplicate stringIds found (printed above) !!!\x1b[0m' >&2
     exit 2
 fi
 
