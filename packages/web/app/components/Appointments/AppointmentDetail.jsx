@@ -8,7 +8,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { Button, DeleteButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, DeleteButton, TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData, TranslatedSex } from '@tamanu/ui-components';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
@@ -17,8 +17,6 @@ import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
-import { Modal } from '../Modal';
-import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;

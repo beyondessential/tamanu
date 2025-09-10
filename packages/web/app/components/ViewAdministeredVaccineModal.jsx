@@ -5,15 +5,9 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Modal } from './Modal';
-import {
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedText,
-} from './Translation';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../contexts/Translation.jsx';

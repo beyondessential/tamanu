@@ -4,10 +4,8 @@ import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
   DateDisplay,
   FormSeparatorLine,
-  Modal,
-  TranslatedText,
 } from '../../components';
-import { TAMANU_COLORS, ConfirmCancelRow, TranslatedReferenceData } from '@tamanu/ui-components';
+import { TAMANU_COLORS, ConfirmCancelRow, TranslatedReferenceData, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { useAuth } from '../../contexts/Auth';
 

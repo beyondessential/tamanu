@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Modal } from '../../Modal';
+import { ConfirmCancelRow, TranslatedText, TAMANU_COLORS, Modal } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';

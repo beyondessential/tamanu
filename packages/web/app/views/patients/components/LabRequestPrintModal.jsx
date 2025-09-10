@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
@@ -8,8 +7,8 @@ import {
   usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
+import { TAMANU_COLORS, Modal } from '@tamanu/ui-components';
 
-import { Modal } from '../../../components';
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';

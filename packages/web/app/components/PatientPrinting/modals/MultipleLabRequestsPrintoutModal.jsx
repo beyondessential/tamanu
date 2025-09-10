@@ -1,18 +1,16 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal } from '../../Modal';
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
+
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
-
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
 import { useSettings } from '../../../contexts/Settings';
-import { MultipleLabRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {

@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -7,8 +6,7 @@ import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuer
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { useCertificate } from '../../../utils/useCertificate';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();

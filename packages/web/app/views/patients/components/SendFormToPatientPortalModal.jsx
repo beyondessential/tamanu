@@ -3,13 +3,11 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { FormSubmitCancelRow } from '@tamanu/ui-components';
+import { FormSubmitCancelRow, Modal, TranslatedText } from '@tamanu/ui-components';
 import {
   BodyText,
-  Modal,
   ModalActionRow,
   ModalGenericButtonRow,
-  TranslatedText,
 } from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';

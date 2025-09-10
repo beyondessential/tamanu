@@ -2,11 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS, Modal, TranslatedText, TranslatedEnum } from '@tamanu/ui-components';
 import { ENCOUNTER_OPTIONS } from '../constants';
-import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum';
 
 const SelectorGrid = styled.div`
   display: grid;

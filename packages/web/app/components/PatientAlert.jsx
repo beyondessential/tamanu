@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { TranslatedText } from './Translation/TranslatedText';
-import { Modal } from './Modal';
-import { ButtonRow, Button } from '@tamanu/ui-components';
+
+import { ButtonRow, Button, Modal, TranslatedText } from '@tamanu/ui-components';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
   const [alertVisible, setAlertVisible] = useState(true);

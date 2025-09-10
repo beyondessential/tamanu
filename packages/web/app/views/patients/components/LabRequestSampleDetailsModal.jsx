@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, TranslatedText, Modal } from '@tamanu/ui-components';
 import { LabRequestSampleDetailsCard } from './LabRequestSampleDetailsCard';
-import { Modal } from '../../../components';
 
 export const LabRequestSampleDetailsModal = ({ open, onClose, labRequest }) => {
   return (

@@ -1,15 +1,13 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
 import { LimitedLinesCell } from '../../FormattedTableCell';
-import { Modal } from '../../Modal';
 import { Table } from '../../Table';
 import { useTableSorting } from '../../Table/useTableSorting';
-import { TranslatedText } from '../../Translation';
 import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
 
 const StyledModal = styled(Modal)`

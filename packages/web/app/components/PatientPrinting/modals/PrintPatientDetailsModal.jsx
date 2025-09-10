@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
-import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Modal } from '../../Modal';
+import { OutlinedButton, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { BookUserIcon } from '../../Icons/BookUserIcon';
@@ -11,7 +10,6 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
 import { SendToPatientModal } from './SendToPatientModal';
 import { IdCardIcon } from '../icons/IdCardIcon';

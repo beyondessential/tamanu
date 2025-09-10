@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import {
-  Modal,
-  TranslatedText,
   Field,
   AutocompleteField,
   ModalFormActionRow,

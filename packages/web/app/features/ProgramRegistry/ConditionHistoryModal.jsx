@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import { TranslatedText, TranslatedReferenceData, Button } from '@tamanu/ui-components';
+import { TranslatedText, TranslatedReferenceData, Button, Modal } from '@tamanu/ui-components';
 import {
-  Modal,
   DateDisplay,
   ModalGenericButtonRow,
 } from '../../components';

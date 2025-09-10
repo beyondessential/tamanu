@@ -1,17 +1,16 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal } from '../../Modal';
+import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
+import { Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
+
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
-import { PrescriptionPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 
 export const MultiplePrescriptionPrintoutModal = ({

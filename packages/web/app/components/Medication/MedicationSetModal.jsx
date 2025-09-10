@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { TAMANU_COLORS, ConfirmCancelBackRow, TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS, ConfirmCancelBackRow, TranslatedText, Modal } from '@tamanu/ui-components';
 import { Box, Divider, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
 import { Print } from '@material-ui/icons';
-import { BodyText, Heading5, Modal } from '..';
+import { BodyText, Heading5 } from '..';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';

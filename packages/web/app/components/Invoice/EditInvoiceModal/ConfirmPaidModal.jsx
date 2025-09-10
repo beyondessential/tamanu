@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { ModalActionRow } from '../../ModalActionRow';
 
 const ContentText = styled.div`

@@ -1,10 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
-
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { Modal } from '../../Modal';
+
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
@@ -13,7 +12,6 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAd
 import { useLocalisation } from '../../../contexts/Localisation';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';

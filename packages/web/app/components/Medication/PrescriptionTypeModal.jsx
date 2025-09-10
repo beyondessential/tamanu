@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { BodyText, Modal, TranslatedText, Heading5, SmallBodyText } from '..';
+import { BodyText, Heading5, SmallBodyText } from '..';
 import { PRESCRIPTION_TYPES } from '../../constants';
 import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;

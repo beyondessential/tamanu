@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ConfirmCancelRow } from '@tamanu/ui-components';
-import { Modal } from '../../../components';
+import { ConfirmCancelRow, Modal } from '@tamanu/ui-components';
 import { PatientSummary } from './PatientSummary';
 
 const MainInstruction = styled.p`

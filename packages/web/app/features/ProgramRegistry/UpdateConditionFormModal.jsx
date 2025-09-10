@@ -5,13 +5,11 @@ import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/const
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Field,
-  Modal,
-  TranslatedText,
   DateDisplay,
   ModalFormActionRow,
   TranslatedReferenceData,
 } from '../../components';
-import { TextField, Form, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { FormTable } from './FormTable';

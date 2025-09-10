@@ -4,12 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
-import { Form, Button, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, Button, FormSubmitCancelRow, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
+
 import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';

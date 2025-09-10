@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal } from '../../Modal';
+import { Modal } from '@tamanu/ui-components';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDCardPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { useSettings } from '../../../contexts/Settings';

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, ModalActionRow } from '.';
+import { ModalActionRow } from '.';
 import styled from 'styled-components';
 import { useTranslationLanguagesQuery } from '../api/queries';
-import { SelectInput, TAMANU_COLORS } from '@tamanu/ui-components';
+import { SelectInput, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useTranslation } from '../contexts/Translation.jsx';
-import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
 import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
@@ -40,7 +39,7 @@ const customStyles = {
     ...(state.isSelected && { borderColor: TAMANU_COLORS.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: (provided) => ({
+  menu: provided => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
@@ -50,7 +49,8 @@ const customStyles = {
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
+    backgroundColor:
+      state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
     ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
     cursor: 'pointer',
     fontSize: '11px',
@@ -82,7 +82,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     };
   });
 
-  const handleLanguageChange = (event) => {
+  const handleLanguageChange = event => {
     setLanguage(event.target.value);
   };
 

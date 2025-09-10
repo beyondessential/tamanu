@@ -3,15 +3,14 @@ import React, { useCallback } from 'react';
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
 import { CovidVaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 
-import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { useAdministeredVaccinesQuery, usePatientAdditionalDataQuery } from '../../../api/queries';
-import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { PDFLoader, printPDF } from '../PDFLoader';
 

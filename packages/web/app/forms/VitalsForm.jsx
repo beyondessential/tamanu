@@ -7,6 +7,8 @@ import {
   Form,
   FormSubmitCancelRow,
   SurveyScreen,
+  Modal,
+  TranslatedText,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -14,11 +16,9 @@ import { ModalLoader } from '../components';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
-import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {

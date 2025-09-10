@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ASSET_NAMES, VACCINATION_CERTIFICATE } from '@tamanu/constants';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
-import { Modal } from '../../Modal';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
 import { EmailButton } from '../../Email/EmailButton';
 import { useCertificate } from '../../../utils/useCertificate';
@@ -15,7 +15,6 @@ import {
   useAdministeredVaccinesQuery,
   useReferenceDataQuery,
 } from '../../../api/queries';
-import { TranslatedText } from '../../Translation/TranslatedText';
 
 import { printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';

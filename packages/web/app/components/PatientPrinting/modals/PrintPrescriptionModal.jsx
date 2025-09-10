@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 
-import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { useApi } from '../../../api';
 
@@ -10,7 +10,6 @@ import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { useEncounter } from '../../../contexts/Encounter';
 
 export const PrintPrescriptionModal = ({ medication, patientWeight, open, onClose }) => {
