@@ -17,9 +17,11 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
   LOCATION_BOOKABLE_VIEW,
+  ENCOUNTER_TYPE_LABELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -37,13 +39,21 @@ const getTranslationPrefix = endpoint =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
 // Helper function to generate the translation subquery
-const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text"
-  FROM "translated_strings"
-  WHERE "language" = $language
-  AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-  LIMIT 1
-)`;
+const getTranslationSubquery = (endpoint, modelName) => {
+  let stringIdFilter = `"string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"`;
+
+  if (endpoint === 'encounter') {
+    stringIdFilter = `"string_id" = '${getEnumPrefix(ENCOUNTER_TYPE_LABELS)}.' || "${modelName}"."encounter_type"`;
+  }
+
+  return `(
+    SELECT "text"
+    FROM "translated_strings"
+    WHERE "language" = $language
+    AND ${stringIdFilter}
+    LIMIT 1
+  )`
+};
 
 // Get the translation label for the record, otherwise the get the untranslated searchColumn
 const translationCoalesce = (endpoint, modelName, searchColumn) =>
@@ -53,7 +63,7 @@ const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
 
 // Overwrite the default search column with translation if it exists
 const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
-  include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), searchColumn]],
+  include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), camelCase(searchColumn)]],
 });
 
 export const suggestions = express.Router();
@@ -916,6 +926,78 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
     type,
   };
 });
+
+createSuggester(
+  'encounter',
+  'Encounter',
+  ({ endpoint, modelName, query }) => {
+    const { patientId, after, before, encounterTypes } = query;
+
+    const whereConditions = {
+      [Op.or]: [
+        getTranslationWhereLiteral(endpoint, modelName, 'encounter_type'),
+        getTranslationWhereLiteral('facility', 'location->facility', 'name'),
+        {
+          startDate: {
+            [Op.iLike]: `%${query.q}%`,
+          }
+        }
+      ],
+    };
+
+    if (patientId) {
+      whereConditions.patientId = patientId;
+    }
+    
+    if (after || before) {
+      whereConditions.startDate = {};
+      if (after) whereConditions.startDate[Op.gte] = after;
+      if (before) whereConditions.startDate[Op.lte] = before;
+    }
+
+    if (encounterTypes) {
+      const includeTypes = Array.isArray(encounterTypes) 
+        ? encounterTypes
+        : encounterTypes.split(',');
+      
+      whereConditions.encounterType = {
+        [Op.in]: includeTypes,
+      };
+    }
+
+    return whereConditions;
+  },
+  {
+    mapper: encounter => ({
+      id: encounter.id,
+      patientId: encounter.patientId,
+      encounterType: encounter.encounterType,
+      startDate: encounter.startDate,
+      endDate: encounter.endDate,
+      location: encounter.location,
+    }),
+    searchColumn: 'encounter_type',
+    includeBuilder: req => {
+      return [
+        {
+          model: req.models.Location,
+          as: 'location',
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: req.models.Facility,
+              as: 'facility',
+              attributes: ['id', [translationCoalesceLiteral('facility', 'location->facility', 'name'), 'name']],
+            },
+          ],
+        },
+      ]
+    },
+    orderBuilder: () => {
+      return [['startDate', 'DESC']];
+    },
+  },
+);
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
