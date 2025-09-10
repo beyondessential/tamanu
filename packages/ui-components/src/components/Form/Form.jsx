@@ -35,7 +35,7 @@ const ScrollToError = () => {
   const submitting = formik?.isSubmitting;
 
   useEffect(() => {
-    const el = globalThis?.document?.querySelector('.Mui-error, [data-error]');
+    const el = document?.querySelector('.Mui-error, [data-error]');
     const element = el?.parentElement ?? el;
 
     if (element) {
