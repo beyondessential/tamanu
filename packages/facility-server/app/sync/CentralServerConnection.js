@@ -59,7 +59,7 @@ export class CentralServerConnection extends TamanuApi {
     try {
       return await super.fetch(endpoint, query, config);
     } catch (error) {
-      if (retryAuth && error.type.startsWith(ERROR_TYPE.AUTH)) {
+      if (retryAuth && error.type?.startsWith(ERROR_TYPE.AUTH)) {
         await this.connect();
         return await super.fetch(endpoint, query, config);
       }
