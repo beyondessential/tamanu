@@ -4,7 +4,6 @@ import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
-import { Colors } from '../../../constants';
 import { formatDateTimeRange } from '../../../utils/dateTime';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { DetailsDisplay } from './SharedComponents';

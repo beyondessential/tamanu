@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
-import { Colors } from '../../../constants';
 import { set } from 'date-fns';
 import { useEncounter } from '../../../contexts/Encounter';
 

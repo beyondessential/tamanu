@@ -7,7 +7,6 @@ import SingleBedIcon from '@material-ui/icons/SingleBed';
 import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 

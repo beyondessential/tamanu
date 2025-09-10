@@ -4,7 +4,6 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import styled from 'styled-components';
 import { Table } from '../Table';
 import { TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`

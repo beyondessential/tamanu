@@ -26,7 +26,6 @@ import {
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useSuggester } from '../api';
 import { REFERENCE_DATA_TYPE_TO_LABEL } from '../constants/task';
-import { Colors } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { preventInvalidNumber } from '../utils';
 import { TaskSetTable } from '../components/Tasks/TaskSetTable';

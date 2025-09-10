@@ -8,7 +8,6 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
 
 import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from '../../scheduling/outpatientBookings/OutpatientAppointmentsView';

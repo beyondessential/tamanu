@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../api/queries';
-import { Colors } from '../../constants';
 import { LimitedLinesCell } from '../FormattedTableCell';
 import { Modal } from '../Modal';
 import { Table } from '../Table';

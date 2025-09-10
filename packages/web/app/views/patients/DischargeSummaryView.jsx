@@ -8,7 +8,6 @@ import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 import { useEncounter } from '../../contexts/Encounter';
-import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useTranslation } from '../../contexts/Translation';

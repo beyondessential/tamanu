@@ -4,7 +4,6 @@ import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 
 const Icon = styled(InputAdornment)`

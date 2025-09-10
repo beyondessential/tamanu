@@ -13,7 +13,6 @@ import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';

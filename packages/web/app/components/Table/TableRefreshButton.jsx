@@ -5,7 +5,6 @@ import styled, { keyframes } from 'styled-components';
 import { DateDisplay } from '../DateDisplay';
 
 import { RefreshIcon } from '../Icons/RefreshIcon';
-import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 
 const spin = keyframes`

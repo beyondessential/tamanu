@@ -11,7 +11,6 @@ import {
   TranslatedText,
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`

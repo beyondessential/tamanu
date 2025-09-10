@@ -9,7 +9,6 @@ import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitC
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
 import { Field, OuterLabelFieldWrapper } from '../components/Field';
-import { Colors } from '../constants';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';

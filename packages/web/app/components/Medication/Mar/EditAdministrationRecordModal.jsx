@@ -9,7 +9,6 @@ import { TextField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components'
 import { Field, NumberField, AutocompleteField } from '../../Field';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useSuggester } from '../../../api';
-import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import {

@@ -17,7 +17,6 @@ import {
 } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
-import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { PlaceholderTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';

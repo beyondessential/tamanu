@@ -9,7 +9,6 @@ import { Heading1, Heading5, PageContainer } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';

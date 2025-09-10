@@ -9,7 +9,6 @@ import RadioGroup from '@mui/material/RadioGroup';
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
 import { TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: 0.75rem;

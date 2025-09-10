@@ -7,7 +7,6 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useTranslation } from '../../contexts/Translation';
 import { FieldWithTooltip, TranslatedReferenceData } from '../../components';
 import { BaseSelectField, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Colors } from '../../constants';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const StyledBaseSelectField = styled(BaseSelectField)`

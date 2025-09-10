@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { Table } from './Table';
-import { Colors } from '../../constants';
 
 const StyledTable = styled(Table)`
   overflow-x: auto;

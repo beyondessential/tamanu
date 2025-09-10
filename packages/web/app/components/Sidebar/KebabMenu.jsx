@@ -8,7 +8,6 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
 import { useLocalisation } from '../../contexts/Localisation';
-import { Colors } from '../../constants';
 
 const SupportDesktopLink = styled.a`
   margin-top: 4px;

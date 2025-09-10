@@ -12,7 +12,6 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { useTelegramBotInfoQuery } from '../../api/queries';
-import { Colors } from '../../constants';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;

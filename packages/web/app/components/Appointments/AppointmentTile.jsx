@@ -9,7 +9,6 @@ import styled, { css } from 'styled-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 import { UnstyledHtmlButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { ThemedTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';

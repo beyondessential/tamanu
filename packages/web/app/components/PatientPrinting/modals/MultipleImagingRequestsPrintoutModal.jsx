@@ -4,7 +4,6 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
-import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { useCertificate } from '../../../utils/useCertificate';

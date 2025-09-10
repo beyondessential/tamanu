@@ -5,7 +5,6 @@ import * as yup from 'yup';
 
 import { Box, Divider, Typography } from '@material-ui/core';
 
-import { Colors } from '../../constants';
 import { TextField, Form, FormConfirmCancelBackRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { LocalisedField, SuggesterSelectField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';

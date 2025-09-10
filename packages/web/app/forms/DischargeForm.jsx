@@ -8,7 +8,6 @@ import { isFuture, parseISO, set } from 'date-fns';
 import { TextField, StyledTextField, TranslatedSelectField, TextInput, FormGrid, FormConfirmCancelBackRow, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { Colors } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
 

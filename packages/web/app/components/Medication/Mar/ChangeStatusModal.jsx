@@ -10,7 +10,6 @@ import { TextField, TranslatedSelectField, Form, FormGrid, TAMANU_COLORS } from 
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
-import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';

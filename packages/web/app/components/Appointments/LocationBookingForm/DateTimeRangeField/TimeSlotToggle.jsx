@@ -6,7 +6,6 @@ import { parseISO, startOfToday } from 'date-fns';
 import React, { memo } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';

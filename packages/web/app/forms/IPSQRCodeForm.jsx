@@ -7,7 +7,6 @@ import { Field } from '../components/Field';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
-import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 

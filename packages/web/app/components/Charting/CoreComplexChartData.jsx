@@ -6,7 +6,6 @@ import { subject } from '@casl/ability';
 import { useAuth } from '../../contexts/Auth';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
-import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';

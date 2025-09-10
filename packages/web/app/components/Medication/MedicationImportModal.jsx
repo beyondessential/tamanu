@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { TranslatedText } from '../Translation';
 import { Modal } from '../Modal';
 import { Box } from '@mui/material';
-import { Colors } from '../../constants';
 import styled from 'styled-components';
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';

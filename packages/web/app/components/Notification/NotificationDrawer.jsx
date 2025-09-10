@@ -10,7 +10,6 @@ import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
-import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
 import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';

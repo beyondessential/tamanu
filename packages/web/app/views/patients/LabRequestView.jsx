@@ -36,7 +36,6 @@ import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
-import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';

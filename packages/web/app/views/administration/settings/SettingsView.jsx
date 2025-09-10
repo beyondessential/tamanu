@@ -15,7 +15,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
-import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';

@@ -10,7 +10,6 @@ import {
   TranslatedText,
 } from '../../../components';
 import { SelectInput, OutlinedButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`

@@ -5,7 +5,6 @@ import { REPORT_STATUSES } from '@tamanu/constants';
 import { formatTime } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../../../components';
 import { Table } from '../../../components/Table';
-import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

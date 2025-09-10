@@ -5,7 +5,6 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';

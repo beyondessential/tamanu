@@ -6,7 +6,6 @@ import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { BodyText, Heading4, SmallBodyText, TranslatedText } from '..';
-import { Colors } from '../../constants';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';

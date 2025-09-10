@@ -9,7 +9,6 @@ import {
   vaccineIcon,
   dashboardIcon,
 } from '../../constants/images';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 

@@ -16,7 +16,6 @@ import {
 import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
-import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';

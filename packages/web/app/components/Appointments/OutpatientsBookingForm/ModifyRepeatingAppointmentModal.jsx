@@ -6,7 +6,6 @@ import { ConfirmModal } from '../../ConfirmModal';
 import { TranslatedText } from '../../Translation';
 import { BodyText } from '../../Typography';
 import { ModifyModeRadioGroup } from '../ModifyModeRadioGroup';
-import { Colors } from '../../../constants';
 
 const RadioGroupWrapper = styled.div`
   background-color: ${TAMANU_COLORS.white};

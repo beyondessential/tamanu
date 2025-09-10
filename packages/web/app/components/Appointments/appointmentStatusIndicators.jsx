@@ -10,7 +10,6 @@ import {
   CircleIconOutlined,
   CrossIconFilled,
 } from '../Icons';
-import { Colors } from '../../constants';
 
 export const APPOINTMENT_STATUS_COLORS = {
   [APPOINTMENT_STATUSES.ARRIVED]: TAMANU_COLORS.purple,

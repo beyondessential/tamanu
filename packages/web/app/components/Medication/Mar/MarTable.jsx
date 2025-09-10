@@ -9,7 +9,6 @@ import {
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
 
-import { Colors } from '../../../constants';
 import { TranslatedText } from '../..';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';

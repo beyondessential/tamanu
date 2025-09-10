@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { ContentPane, PageContainer, TopBar } from '../components';
 import { TriageTable } from '../components/TriageTable';
 import { TriageDashboard } from '../components/TriageDashboard';
-import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Section = styled.div`

@@ -2,7 +2,6 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
-import { Colors } from '../../../constants';
 import { DateDisplay } from '../../DateDisplay';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedSex, TranslatedText } from '../../Translation';

@@ -5,7 +5,6 @@ import { TabDisplay } from '../../components/TabDisplay';
 import { ImporterView } from './components/ImporterView';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { ProgramExporterView } from './components/ProgramExporterView';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 
 const StyledTabDisplay = styled(TabDisplay)`

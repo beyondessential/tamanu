@@ -4,7 +4,6 @@ import { add, endOfYear, isValid, parse, startOfToday, startOfYear } from 'date-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../constants';
 import { ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
 

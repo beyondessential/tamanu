@@ -7,7 +7,6 @@ import { getAnswersFromData, TAMANU_COLORS } from '@tamanu/ui-components';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
 import { useEncounter } from '../../contexts/Encounter';

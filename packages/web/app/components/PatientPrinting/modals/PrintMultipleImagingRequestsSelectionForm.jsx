@@ -6,7 +6,6 @@ import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { useSelectableColumn } from '../../Table';
 import { useApi } from '../../../api';
-import { Colors } from '../../../constants';
 
 import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';

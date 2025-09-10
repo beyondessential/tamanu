@@ -8,7 +8,6 @@ import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSelectableColumn } from '../../Table';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
-import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';

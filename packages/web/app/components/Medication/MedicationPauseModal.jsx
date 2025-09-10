@@ -12,7 +12,6 @@ import {
   NumberField,
   TranslatedText,
 } from '..';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';

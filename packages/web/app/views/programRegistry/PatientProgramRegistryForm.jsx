@@ -23,7 +23,6 @@ import { useSuggester } from '../../api';
 import { useProgramRegistryQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
-import { Colors } from '../../constants';
 
 const RelatedConditionFieldsContainer = styled.div`
   display: flex;

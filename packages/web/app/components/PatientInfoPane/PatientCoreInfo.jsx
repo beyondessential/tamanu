@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
-import { Colors } from '../../constants';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';

@@ -21,7 +21,6 @@ import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useSettings } from '../../contexts/Settings';
-import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';

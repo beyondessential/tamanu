@@ -16,7 +16,6 @@ import {
   NoteModalFormGrid,
 } from '../components/NoteModal/NoteModalCommonComponents';
 import { TranslatedText } from '../components';
-import { Colors } from '../constants';
 
 export const EditTreatmentPlanNoteForm = ({
   note,

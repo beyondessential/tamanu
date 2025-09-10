@@ -6,7 +6,6 @@ import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResultsQuery } from '../../../api/queries/usePatientLabTestResultsQuery';
-import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 import { useAuth } from '../../../contexts/Auth';

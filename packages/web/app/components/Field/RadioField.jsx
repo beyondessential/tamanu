@@ -8,7 +8,6 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
 import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const DEFAULT_LABEL_THEME = {

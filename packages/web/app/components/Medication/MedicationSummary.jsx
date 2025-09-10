@@ -7,7 +7,6 @@ import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';

@@ -8,7 +8,6 @@ import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
-import { Colors } from '../../../constants';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';

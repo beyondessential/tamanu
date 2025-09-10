@@ -3,7 +3,6 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Launch } from '@material-ui/icons';
-import { Colors } from '../constants';
 import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';
 import { restartPasswordResetFlow } from '../store';

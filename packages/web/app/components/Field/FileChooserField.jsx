@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import { toast } from 'react-toastify';
-import { Colors } from '../../constants';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';

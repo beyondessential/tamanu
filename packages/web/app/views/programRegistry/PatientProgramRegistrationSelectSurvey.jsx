@@ -5,7 +5,6 @@ import { useQuery } from '@tanstack/react-query';
 import { REGISTRATION_STATUSES, SURVEY_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Field } from '../../components/Field';
 import { BaseSelectField, Form, Button, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';

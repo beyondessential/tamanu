@@ -11,7 +11,6 @@ import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
 import { LoadingIndicator } from '../components/LoadingIndicator';

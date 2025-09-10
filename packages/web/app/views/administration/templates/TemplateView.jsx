@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
-import { Colors } from '../../../constants';
 import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';

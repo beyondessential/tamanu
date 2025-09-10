@@ -9,7 +9,6 @@ import { push } from 'connected-react-router';
 import { getCurrentRoute } from '../../store/router';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
-import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';

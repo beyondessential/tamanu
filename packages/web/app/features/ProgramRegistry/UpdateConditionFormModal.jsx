@@ -14,7 +14,6 @@ import {
 import { TextField, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
-import { Colors } from '../../constants';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { useTranslation } from '../../contexts/Translation';

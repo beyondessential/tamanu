@@ -17,7 +17,6 @@ import {
   useSelectableColumn,
   DataFetchingTable,
 } from '../.';
-import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';

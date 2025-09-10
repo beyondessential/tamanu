@@ -10,7 +10,6 @@ import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
-import { Colors } from '../../../constants';
 import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';

@@ -17,7 +17,6 @@ import {
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
-import { Colors } from '../../../constants';
 import { DateField, Field, NumberField } from '../../Field';
 import { TranslatedSelectField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation';

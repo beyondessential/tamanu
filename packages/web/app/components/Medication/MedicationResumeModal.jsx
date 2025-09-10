@@ -5,7 +5,6 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, FormCancelButton, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { BaseModal, TranslatedText } from '..';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { MedicationSummary } from './MedicationSummary';
 import { useEncounter } from '../../contexts/Encounter';

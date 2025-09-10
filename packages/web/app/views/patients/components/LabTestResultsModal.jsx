@@ -11,7 +11,6 @@ import { TextField, Form, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-com
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
-import { Colors } from '../../../constants';
 import { useLabTestResultsQuery } from '../../../api/queries/useLabTestResultsQuery';
 import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';

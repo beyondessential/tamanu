@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { PlusIcon } from '../../assets/icons/PlusIcon';
-import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
 import { ModalCancelRow } from '../ModalActionRow';
 import { TranslatedText } from '../Translation/TranslatedText';

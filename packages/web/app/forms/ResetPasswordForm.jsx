@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { FormGrid, TextField, Form, FormSubmitButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { BodyText, Field } from '../components';
-import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

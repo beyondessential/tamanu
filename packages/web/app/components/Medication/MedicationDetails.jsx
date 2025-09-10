@@ -18,7 +18,6 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors } from '../../constants';
 import { TextField, Form, Button, OutlinedButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';

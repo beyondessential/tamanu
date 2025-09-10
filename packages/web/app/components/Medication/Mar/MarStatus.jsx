@@ -13,7 +13,6 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ConditionalTooltip } from '../../Tooltip';
 import { useTranslation } from '../../../contexts/Translation';

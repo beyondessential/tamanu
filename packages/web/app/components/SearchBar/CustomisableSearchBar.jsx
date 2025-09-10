@@ -6,7 +6,6 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 import { Form, Button, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ThemedTooltip } from '../Tooltip';
 import { withPermissionCheck } from '../withPermissionCheck';

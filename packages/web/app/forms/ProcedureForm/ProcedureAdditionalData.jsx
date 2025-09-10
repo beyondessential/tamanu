@@ -10,7 +10,6 @@ import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
-import { Colors } from '../../constants';
 import { CancelAdditionalDataModal } from './ProcedureFormModals';
 
 const Container = styled.div`

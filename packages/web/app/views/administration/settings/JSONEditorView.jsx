@@ -9,7 +9,6 @@ import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
 import { notifyError } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation';
-import { Colors } from '../../../constants';
 import { isNull } from 'lodash';
 
 const SettingsWrapper = styled.div`

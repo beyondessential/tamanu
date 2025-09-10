@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';

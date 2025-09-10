@@ -5,7 +5,6 @@ import { Button } from '@material-ui/core';
 import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
-import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
 import { BodyText, DateDisplay, TranslatedReferenceData } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';

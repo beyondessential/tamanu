@@ -6,7 +6,6 @@ import { TextField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components'
 import { Field } from '../../Field';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants';
 import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';

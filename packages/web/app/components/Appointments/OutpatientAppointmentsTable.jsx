@@ -11,7 +11,6 @@ import {
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { Table } from '../Table';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';

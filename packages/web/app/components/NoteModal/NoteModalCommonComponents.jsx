@@ -4,7 +4,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
 import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
 
 const StyledTitleContents = styled(Box)`
   display: flex;

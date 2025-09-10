@@ -6,7 +6,6 @@ import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal, TranslatedText } from '../..';
-import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';

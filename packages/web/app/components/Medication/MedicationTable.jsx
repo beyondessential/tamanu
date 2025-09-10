@@ -9,7 +9,6 @@ import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';

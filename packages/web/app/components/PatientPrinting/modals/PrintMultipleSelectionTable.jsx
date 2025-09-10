@@ -2,7 +2,6 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Table } from '../../Table';
-import { Colors } from '../../../constants';
 import { OuterLabelFieldWrapper } from '../../Field';
 
 const StyledSelectionTable = styled(Table)`

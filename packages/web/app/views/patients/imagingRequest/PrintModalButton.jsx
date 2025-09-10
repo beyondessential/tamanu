@@ -6,7 +6,6 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { Modal } from '../../../components/Modal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { MultipleImagingRequestsWrapper } from '../../../components/PatientPrinting/modals/MultipleImagingRequestsPrintoutModal';
-import { Colors } from '../../../constants';
 import { printPDF } from '../../../components/PatientPrinting/PDFLoader';
 
 const PrintModalInternals = ({ imagingRequest }) => {

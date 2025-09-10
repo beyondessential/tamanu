@@ -5,7 +5,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';

@@ -8,7 +8,6 @@ import { TextField, ConfirmCancelBackRow, ConfirmCancelRow, TAMANU_COLORS } from
 import { AutocompleteInput, CheckInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 

@@ -21,7 +21,6 @@ import {
   ReferralPane,
   VaccinesPane,
 } from './panes';
-import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';

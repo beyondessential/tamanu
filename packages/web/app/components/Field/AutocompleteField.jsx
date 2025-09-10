@@ -7,7 +7,6 @@ import { TranslationContext, StyledTextField, TAMANU_COLORS } from '@tamanu/ui-c
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
 import { FormFieldTag } from '../Tag';
 import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedText } from '../Translation/TranslatedText';

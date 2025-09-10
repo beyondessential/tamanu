@@ -14,7 +14,6 @@ import {
 } from '../components/Field';
 import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
-import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
 import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/DeleteOngoingConditionModal';

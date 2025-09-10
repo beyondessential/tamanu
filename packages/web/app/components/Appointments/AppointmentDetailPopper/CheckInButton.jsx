@@ -9,7 +9,6 @@ import {
   usePatientAdditionalDataQuery,
   usePatientCurrentEncounterQuery,
 } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { EncounterModal } from '../../EncounterModal';
 import { ConditionalTooltip } from '../../Tooltip';
 import { TranslatedText } from '../../Translation';

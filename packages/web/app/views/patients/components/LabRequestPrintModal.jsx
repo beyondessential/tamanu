@@ -10,7 +10,6 @@ import {
 import { useCertificate } from '../../../utils/useCertificate';
 
 import { Modal } from '../../../components';
-import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';

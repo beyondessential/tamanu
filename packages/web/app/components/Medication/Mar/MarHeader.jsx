@@ -5,7 +5,6 @@ import { ButtonWithPermissionCheck, TAMANU_COLORS } from '@tamanu/ui-components'
 import { Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';

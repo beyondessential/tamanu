@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay } from '../../../components';
-import { Colors } from '../../../constants';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`

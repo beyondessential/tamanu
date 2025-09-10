@@ -27,7 +27,6 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
-import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';

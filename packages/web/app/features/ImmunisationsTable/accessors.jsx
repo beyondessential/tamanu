@@ -11,7 +11,6 @@ import {
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
-import { Colors } from '../../constants';
 
 export const getVaccineName = record =>
   record.vaccineName || (

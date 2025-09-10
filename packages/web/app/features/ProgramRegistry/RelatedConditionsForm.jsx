@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import MuiDivider from '@material-ui/core/Divider';
 import { Add } from '@material-ui/icons';
-import { Colors } from '../../constants';
 import {
   DateDisplay,
   DateField,

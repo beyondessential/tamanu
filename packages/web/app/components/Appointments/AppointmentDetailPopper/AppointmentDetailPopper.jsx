@@ -8,7 +8,6 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { reloadPatient } from '../../../store';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';

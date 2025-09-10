@@ -15,7 +15,6 @@ import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box } from '@material-ui/core';
 
 import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator,

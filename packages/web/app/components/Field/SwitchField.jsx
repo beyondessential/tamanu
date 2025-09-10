@@ -3,7 +3,6 @@ import React from 'react';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
-import { Colors } from '../../constants';
 
 const StyledSwitch = styled(Switch)`
   padding: 0;

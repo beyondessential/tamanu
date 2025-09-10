@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Button, OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Colors } from '../../../constants';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
   BodyText,

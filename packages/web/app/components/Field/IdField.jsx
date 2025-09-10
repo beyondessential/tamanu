@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { Autorenew } from '@material-ui/icons';
-import { Colors } from '../../constants';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { TranslatedText } from '../Translation/TranslatedText';
 

@@ -2,7 +2,6 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
-import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
 const xAxisTickTimeY = 23;

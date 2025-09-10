@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { Colors } from '../../../constants';
 import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
 import { CreateReportView } from './CreateReportView';

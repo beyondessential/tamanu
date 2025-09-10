@@ -27,7 +27,6 @@ import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
-import { Colors } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
 import { ConfirmModal } from '../../ConfirmModal';

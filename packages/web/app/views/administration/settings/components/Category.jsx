@@ -6,7 +6,6 @@ import LockIcon from '@material-ui/icons/Lock';
 import { isSetting } from '@tamanu/settings';
 
 import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
-import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';

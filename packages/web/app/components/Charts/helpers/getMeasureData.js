@@ -1,6 +1,5 @@
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Colors } from '../../../constants';
 
 const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {
   let color = useInwardArrowVector ? TAMANU_COLORS.darkestText : TAMANU_COLORS.blue;

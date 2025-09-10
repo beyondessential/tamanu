@@ -7,7 +7,6 @@ import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared
 
 import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
-import { Colors } from '../../constants';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';

@@ -4,7 +4,6 @@ import { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { ToggleButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
 const Toggle = styled(ToggleButton)`

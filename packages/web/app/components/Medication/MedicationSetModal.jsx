@@ -5,7 +5,6 @@ import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
 import { Print } from '@material-ui/icons';
 import { BodyText, ConfirmCancelBackRow, Heading5, Modal, TranslatedText } from '..';
-import { Colors } from '../../constants';
 import { usePatientAllergiesQuery } from '../../api/queries/usePatientAllergiesQuery';
 import { useEncounter } from '../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';

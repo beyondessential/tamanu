@@ -11,7 +11,6 @@ import {
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
-import { Colors } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

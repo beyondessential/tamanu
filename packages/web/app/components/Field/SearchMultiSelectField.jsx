@@ -10,7 +10,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Search from '@mui/icons-material/Search';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
-import { Colors } from '../../constants';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
 import { TextInput, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';

@@ -4,7 +4,6 @@ import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
 import { FormHelperText } from '@material-ui/core';

@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 
-import { Colors } from '../../constants';
 import { DateDisplay } from '../../components/DateDisplay';
 import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';

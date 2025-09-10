@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
 
