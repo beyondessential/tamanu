@@ -5,7 +5,6 @@ import {
   checkVisibility,
   getFormInitialValues,
   getValidationSchema,
-  SurveyFormContext,
   Form,
   TAMANU_COLORS,
 } from '@tamanu/ui-components';
@@ -112,6 +111,7 @@ export const SurveyViewForm = ({
           setStatus={setStatus}
           status={status}
           showCancelButton={showCancelButton}
+          getComponentForQuestionType={getComponentForQuestionType}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -119,7 +119,6 @@ export const SurveyViewForm = ({
   };
 
   return (
-    <SurveyFormContext.Provider value={{ getComponentForQuestionType }}>
       <Form
         initialValues={initialValues}
         onSubmit={onSubmit}
@@ -129,7 +128,6 @@ export const SurveyViewForm = ({
         validateOnBlur
         data-testid="form-12o2"
       />
-    </SurveyFormContext.Provider>
   );
 };
 
