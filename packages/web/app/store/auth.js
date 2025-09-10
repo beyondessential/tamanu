@@ -45,7 +45,7 @@ export const login =
         )} minutes.`;
       } else if (error.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && error.extra.has('lockout-attempts')) {
         const attemptsLeft = error.extra.get('lockout-attempts');
-        const lockoutDuration = Math.ceil(error.extra.get('lockout-duration') ?? 0 / 60);
+        const lockoutDuration = Math.ceil((error.extra.get('lockout-duration') ?? 0) / 60);
         const lockoutWarning = lockoutDuration > 0 ? ` before you are locked out for ${lockoutDuration} minutes` : '';
         message = `${error.title}, please try again.\n\nYou have ${attemptsLeft} more log in attempts${lockoutWarning}.`;
       }
