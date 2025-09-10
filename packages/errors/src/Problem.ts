@@ -12,15 +12,11 @@ import {
   WELL_KNOWN_PROBLEM_KEYS,
 } from './constants';
 
-const LINK = (ref: string) =>
-  `https://github.com/beyondessential/tamanu/blob/${ref}/docs/PROBLEMS.md#`;
+const LINK = '/problems/';
 const IANA = 'https://iana.org/assignments/http-problem-types#';
 
 /** Implementation of RFC 9457 Problem Details for HTTP APIs <https://datatracker.ietf.org/doc/html/rfc9457> */
 export class Problem {
-  // set to the version tag e.g. `v1.2.3` to specialise the URL
-  static LINK_REF = 'main';
-
   public type: ErrorType | string;
   public title: string;
   public status: number;
@@ -87,7 +83,7 @@ export class Problem {
       type: isKnownErrorType(this.type)
         ? IANA_TYPES.includes(this.type)
           ? `${IANA}${this.type}`
-          : `${LINK(Problem.LINK_REF)}${this.type}`
+          : `${LINK}${this.type}`
         : this.type,
       title: this.title,
       status: this.status,

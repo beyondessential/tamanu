@@ -4,16 +4,11 @@
 import { version } from './serverInfo';
 
 import { program } from 'commander';
-import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 import * as cmd from './subCommands';
 import { setupEnv } from './env';
 import { closeDatabase } from './database';
-
-if (process.env.NODE_ENV === 'production') {
-  Problem.LINK_REF = `v${version}`;
-}
 
 // allow commands to be hidden if e.g. they're deprecated
 const hiddenCommands = [
