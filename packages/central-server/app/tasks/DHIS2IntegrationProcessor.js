@@ -4,6 +4,7 @@ import { fetch } from 'undici';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const RETRY_STATUS_CODES = [408, 500, 502, 503, 504];
 const RETRY_TIMES = 3;
@@ -47,6 +48,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       log.warn(
         `DHIS2 ${dryRun ? 'dry run' : 'post'} failed (${response.status}), retrying... (${attempt}/${RETRY_TIMES})`,
       );
+      await sleepAsync(1000 * attempt);
       return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
     }
 
