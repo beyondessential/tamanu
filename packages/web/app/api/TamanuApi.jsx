@@ -93,7 +93,7 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (!status || typeof status !== 'number') {
     return true;
   }
@@ -102,7 +102,7 @@ export function isErrorUnknownDefault(error) {
 }
 
 export function isErrorUnknownAllow404s(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (status === 404) {
     return false;
   }
@@ -219,8 +219,6 @@ export class TamanuApi extends ApiClient {
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      const message = err?.message || err?.status;
-
       if (err.type.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
@@ -245,14 +243,14 @@ export class TamanuApi extends ApiClient {
                   key="general.api.notification.message"
                   stringId="general.api.notification.message"
                   fallback="Message: :message"
-                  replacements={{ message }}
+                  replacements={{ message: err?.title }}
                 />,
               ]
             : []),
         ]);
       }
 
-      throw new Error(message);
+      throw err;
     }
   }
 
