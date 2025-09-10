@@ -1,5 +1,5 @@
 import { BaseError as SequelizeError } from 'sequelize';
-import { convertDatabaseError } from '@tamanu/database/utils';
+import { convertDatabaseError } from '@tamanu/database';
 import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
