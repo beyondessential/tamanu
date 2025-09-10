@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { BaseModal } from './BaseModal';
-import { useFormSubmission } from '../contexts/FormSubmission';
+import { useFormSubmission } from '@tamanu/ui-components';
 import { IS_DEVELOPMENT } from '../utils/env';
 
 export const Modal = memo(({ children, disableDevWarning, ...props }) => {

@@ -13,7 +13,7 @@ import { ChevronLeft, Lock } from '@material-ui/icons';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
-import { TAMANU_COLORS } from '../constants/colors';
+import { TAMANU_COLORS } from '../../constants';
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 import { TranslatedText } from './Translation';
