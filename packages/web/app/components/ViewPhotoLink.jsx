@@ -89,12 +89,6 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
 
 export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }) => {
   const { isExporting } = useExport();
-
-  // Return nothing when exporting
-  if (isExporting) {
-    return null;
-  }
-
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);
@@ -102,6 +96,7 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
   const api = useApi();
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
+
   const openModalCallback = useCallback(async () => {
     setIsPhotoModalOpen(true);
     if (!navigator.onLine) {
@@ -127,6 +122,11 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
       setErrorMessage(genericErrorMessage);
     }
   }, [api, imageId, getTranslation]);
+
+  // Return nothing when exporting
+  if (isExporting) {
+    return null;
+  }
   const isChartView = !!chartTitle;
   const viewImageText = getTranslation('program.modal.view.title.viewImage', 'View image');
   const imageText = getTranslation('program.modal.view.title.image', 'Image');

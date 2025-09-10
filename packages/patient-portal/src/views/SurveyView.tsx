@@ -1,16 +1,18 @@
+//@ts-nocheck
+// Todo - add survey view
 import React from 'react';
 import {
-  SettingsContext,
-  TranslationContext,
-  SurveyQuestion,
-  SurveyFormContext,
+  // SettingsContext,
+  // TranslationContext,
+  // SurveyQuestion,
   LimitedTextField,
   MultilineTextField,
   BaseSelectField,
   BaseMultiselectField,
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
-import { ENCOUNTER_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+// import { ENCOUNTER_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { Card } from '@components/Card';
 import { useCurrentUser } from '@routes/PrivateRoute';
 

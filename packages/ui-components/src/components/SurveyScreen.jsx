@@ -11,7 +11,6 @@ import { checkVisibility } from '../utils/survey';
 import { TAMANU_COLORS } from '../constants/colors';
 import { FormGrid } from './Form/FormGrid';
 import { TranslatedText } from './Translation';
-import { getComponentForQuestionType } from './getComponentForQuestionType.jsx';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
@@ -88,6 +87,7 @@ export const SurveyScreen = ({
   encounterType,
   onCancel,
   showCancelButton = false,
+  getComponentForQuestionType, // TODO Fix this
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);

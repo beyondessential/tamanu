@@ -4,7 +4,6 @@ export * from './DateDisplay';
 export * from './EditVitalCellModal';
 export * from './Field';
 export * from './FormSeparatorLine';
-export * from './FormGrid';
 export * from './Layout';
 export * from './FormModal';
 export * from './ModalActionRow';

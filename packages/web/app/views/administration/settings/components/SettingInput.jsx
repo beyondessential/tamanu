@@ -4,10 +4,7 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
 import { TextInput, TAMANU_COLORS, TextButton, TranslatedText } from '@tamanu/ui-components';
-import {
-  LargeBodyText,
-  NumberInput,
-} from '../../../../components';
+import { LargeBodyText, NumberInput } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 

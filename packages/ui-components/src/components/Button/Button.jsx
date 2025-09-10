@@ -125,7 +125,7 @@ const BaseButton = ({
   );
 };
 
-export const Button = ({ isSubmitting, ...props }) => (
+export const Button = ({ isSubmitting = false, ...props }) => (
   <BaseButton
     isSubmitting={isSubmitting}
     functionallyDisabled={isSubmitting}
