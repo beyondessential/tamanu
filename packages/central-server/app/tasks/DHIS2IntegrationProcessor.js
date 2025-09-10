@@ -101,6 +101,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       if (checkIfImportCountHasData(dryRunImportCount)) {
         const response = await this.postToDHIS2({ reportData });
         const { importCount } = await response.json();
+        // TODO: LOG SUCCESS
         log.info(`Report ${reportString} sent to DHIS2`, importCount);
       } else {
         log.warn(`Report ${reportString} dry run successful but no data was imported`);
@@ -110,6 +111,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         status: dryRunResponse.status,
         statusText: dryRunResponse.statusText,
       });
+      // TODO: LOG FAILURE
     }
   }
 
