@@ -6,3 +6,6 @@ export * from './Tag';
 export * from './Tooltip';
 export * from './Translation';
 export * from './Form';
+export * from './Dialog';
+export * from './Modal';
+export * from './BaseModal';
