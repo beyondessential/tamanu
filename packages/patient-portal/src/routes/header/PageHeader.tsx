@@ -8,7 +8,7 @@ import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';
 
 const HeaderContainer = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  padding: '10px 20px 10px 20px',
+  padding: '10px 20px',
   borderBottom: `1px solid ${theme.palette.divider}`,
   display: 'flex',
   justifyContent: 'space-between',

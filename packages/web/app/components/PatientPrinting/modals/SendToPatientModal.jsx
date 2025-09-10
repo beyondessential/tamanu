@@ -31,7 +31,6 @@ const StyledAlert = styled(Alert)`
 
 export const SendToPatientModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
-  console.log('patient', patient);
   const isRegistered = patient?.portalUser?.status === 'registered';
 
   const onClose = () => setOpen(false);
@@ -72,7 +71,7 @@ export const SendToPatientModal = ({ patient }) => {
           <Text>
             <TranslatedText
               stringId="patientDetails.resources.patientPortalRegistration.modal.registeredText"
-              fallback="To resend Patient Portal registration link, enter the patients email address below."
+              fallback="To resend Patient Portal registration link, enter the patient's email address below."
             />
           </Text>
         </>
@@ -80,7 +79,7 @@ export const SendToPatientModal = ({ patient }) => {
         <Text>
           <TranslatedText
             stringId="patientDetails.resources.patientPortalRegistration.modal.text"
-            fallback="Enter the patients email address below to email the link to the Patient Portal registration."
+            fallback="Enter the patient's email address below to email the link to the Patient Portal registration."
           />
         </Text>
       )}
