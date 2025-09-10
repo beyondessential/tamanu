@@ -94,7 +94,7 @@ export const LocationBookingsCalendar = ({
   const displayedDates = getDisplayableDates(monthOf);
 
   const {
-    filters: { bookingTypeId, clinicianId, patientNameOrId },
+    filters: { bookingTypeId, clinicianId, patientNameOrId }, viewType
   } = useLocationBookingsContext();
   // When filtering only by location, don’t hide locations that contain no appointments
   const areNonLocationFiltersActive =
@@ -109,6 +109,7 @@ export const LocationBookingsCalendar = ({
       clinicianId,
       bookingTypeId,
       patientNameOrId,
+      view: viewType,
     },
     { keepPreviousData: true },
   );

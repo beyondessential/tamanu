@@ -1,13 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
+import { VIEW_TYPES } from '@tamanu/constants';
 
 import { TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 
 const Wrapper = styled(Box)`
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
   display: flex;
   align-items: center;
   block-size: 2.4rem;
@@ -22,7 +24,7 @@ const Wrapper = styled(Box)`
 `;
 
 const ToggleButton = styled('button')`
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
   position: relative;
   appearance: none;
   color: ${Colors.primary};
@@ -43,7 +45,7 @@ ToggleButton.defaultProps = { role: 'radio' };
 const AnimatedBackground = styled('div')`
   position: absolute;
   width: 6.6rem;
-  left: 0.2rem;
+  left: 0.18rem;
   height: 2rem;
   border-radius: 50px;
   background-color: ${Colors.primary};
@@ -52,22 +54,23 @@ const AnimatedBackground = styled('div')`
 `;
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
-
-export const VIEW_TYPES = {
-  WEEKLY: 'weekly',
-  DAILY: 'daily',
-};
-
-export const ViewTypeToggle = (props) => {
+export const ViewTypeToggle = props => {
+  const { disabled } = props;
   const { viewType = VIEW_TYPES.DAILY, setViewType } = useLocationBookingsContext();
 
   const handleViewChange = () => {
+    if (disabled) return;
     const newViewType = viewType === VIEW_TYPES.WEEKLY ? VIEW_TYPES.DAILY : VIEW_TYPES.WEEKLY;
     setViewType(newViewType);
   };
 
   return (
-    <Wrapper onClick={handleViewChange} role="radiogroup" {...props} data-testid="viewtypetoggle-main">
+    <Wrapper
+      onClick={handleViewChange}
+      role="radiogroup"
+      {...props}
+      data-testid="viewtypetoggle-main"
+    >
       <AnimatedBackground
         $toggled={viewType === VIEW_TYPES.DAILY}
         data-testid="animatedbackground-viewtype"
@@ -75,6 +78,7 @@ export const ViewTypeToggle = (props) => {
       <ToggleButton
         aria-checked={viewType === VIEW_TYPES.DAILY}
         data-testid="daily-view-button"
+        disabled={disabled}
       >
         <TranslatedText
           stringId="locationBooking.calendar.view.daily"
@@ -85,6 +89,7 @@ export const ViewTypeToggle = (props) => {
       <ToggleButton
         aria-checked={viewType === VIEW_TYPES.WEEKLY}
         data-testid="weekly-view-button"
+        disabled={disabled}
       >
         <TranslatedText
           stringId="locationBooking.calendar.view.weekly"

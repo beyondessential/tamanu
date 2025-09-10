@@ -30,3 +30,13 @@ export const useValidateUserMutation = (options = {}) => {
     ...options,
   });
 };
+
+export const useCheckOnLeaveMutation = (options = {}) => {
+  const api = useApi();
+
+  return useMutation({
+    mutationKey: ['user', 'check-on-leave'],
+    mutationFn: ({ userId, payload }) => api.post(`user/${userId}/check-on-leave`, payload),
+    ...options,
+  });
+};

@@ -3,6 +3,7 @@ import { AddRounded } from '@material-ui/icons';
 import { parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { VIEW_TYPES } from '@tamanu/constants';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
@@ -14,7 +15,7 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
 import { LocationBookingsDailyCalendar } from './LocationBookingsDailyCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
-import { ViewTypeToggle, VIEW_TYPES } from './ViewTypeToggle';
+import { ViewTypeToggle } from './ViewTypeToggle';
 import { appointmentToFormValues } from './utils';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
 import { DateSelector } from '../outpatientBookings/DateSelector';
@@ -36,8 +37,12 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     />
   ),
 })`
-  h3 { min-width: 78px; }
-  .MuiToolbar-root { padding-inline: 20px; }
+  h3 {
+    min-width: 78px;
+  }
+  .MuiToolbar-root {
+    padding-inline: 20px;
+  }
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;
 
@@ -91,13 +96,19 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { ability, facilityId } = useAuth();
 
-  const { filters, updateSelectedCell, viewType, selectedDate, setSelectedDate } = useLocationBookingsContext();
+  const {
+    filters,
+    updateSelectedCell,
+    viewType,
+    selectedDate,
+    setSelectedDate,
+  } = useLocationBookingsContext();
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async (appointment) => {
+  const openBookingForm = async appointment => {
     // “Useless” await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
@@ -109,7 +120,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const openCancelModal = (appointment) => {
+  const openCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
@@ -121,14 +132,14 @@ export const LocationBookingsView = () => {
     openBookingForm({});
   };
 
-  const handleDateChange = (event) => {
+  const handleDateChange = event => {
     setSelectedDate(event.target.value);
   };
 
   const locationsQuery = useLocationsQuery(
     {
       facilityId,
-      bookableOnly: true,
+      isBookable: viewType,
       locationGroupIds: filters.locationGroupIds,
     },
     { keepPreviousData: true },
@@ -147,7 +158,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationBookingsTopBar data-testid="locationbookingstopbar-0w60">
-        <ViewTypeToggle data-testid="viewtypetoggle-main" />
+        <ViewTypeToggle data-testid="viewtypetoggle-main" disabled={isDrawerOpen} />
         <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
           <NewBookingButton onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
