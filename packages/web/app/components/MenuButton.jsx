@@ -125,5 +125,5 @@ MenuButton.propTypes = {
 
 MenuButton.defaultProps = {
   iconDirection: 'vertical',
-  iconColor: Colors.midText,
+  iconColor: TAMANU_COLORS.midText,
 };

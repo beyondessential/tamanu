@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { Colors, PATIENT_STATUS_COLORS } from '../../../constants';
+import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
 import {

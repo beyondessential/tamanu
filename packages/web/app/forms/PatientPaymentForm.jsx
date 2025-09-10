@@ -17,7 +17,7 @@ import {
 } from '../components';
 import { TextField, Form, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
-import { Colors, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
+import { CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';

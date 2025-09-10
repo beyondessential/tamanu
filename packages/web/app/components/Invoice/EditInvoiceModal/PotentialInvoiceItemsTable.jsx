@@ -9,7 +9,7 @@ import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
-import { Colors, denseTableStyle } from '../../../constants';
+import { denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`

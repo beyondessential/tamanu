@@ -4,7 +4,6 @@ import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { Colors } from '../constants';
 import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';

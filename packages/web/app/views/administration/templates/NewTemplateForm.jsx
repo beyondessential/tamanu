@@ -2,9 +2,20 @@ import React, { memo } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Link } from '@material-ui/core';
-import { Field, TallMultilineTextField, TextField, TranslatedSelectField, Form, Button, FormGrid, ButtonRow, SmallGridSpacer, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  Field,
+  TallMultilineTextField,
+  TextField,
+  TranslatedSelectField,
+  Form,
+  Button,
+  FormGrid,
+  ButtonRow,
+  SmallGridSpacer,
+  TAMANU_COLORS,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 
 const ConfirmButton = styled(Button)`

@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Tab, Tabs } from '@material-ui/core';
-import { Colors } from '../constants';
 
 const TabBar = styled.div`
   display: flex;

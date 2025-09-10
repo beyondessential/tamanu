@@ -8,7 +8,7 @@ import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/uti
 
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
+import { denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';

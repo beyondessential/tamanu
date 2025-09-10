@@ -11,7 +11,7 @@ import {
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 
-import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
+import { INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';

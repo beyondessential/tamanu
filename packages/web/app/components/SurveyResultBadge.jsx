@@ -31,7 +31,7 @@ function separateColorText(resultText) {
     }
   }
   return {
-    color: Colors.white,
+    color: TAMANU_COLORS.white,
     strippedResultText: resultText,
   };
 }

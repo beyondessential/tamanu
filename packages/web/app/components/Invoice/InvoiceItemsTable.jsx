@@ -7,7 +7,7 @@ import {
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
 
-import { Colors, denseTableStyle } from '../../constants';
+import { denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
 import { TranslatedText } from '../Translation';

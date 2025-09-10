@@ -24,7 +24,7 @@ import {
   ChartsPane,
   TasksPane,
 } from './panes';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceDataQuery } from '../../api/queries';

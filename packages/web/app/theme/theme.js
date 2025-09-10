@@ -1,6 +1,6 @@
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { createTheme } from '@material-ui/core/styles';
-import { Colors, MUI_SPACING_UNIT } from '../constants';
+import { MUI_SPACING_UNIT } from '../constants';
 
 const themeConfig = {
   themeName: 'Tamanu',

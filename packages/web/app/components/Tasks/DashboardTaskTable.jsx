@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
 import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
-import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';

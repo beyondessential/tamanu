@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
 import {
   DeleteProgramRegistryFormModal,

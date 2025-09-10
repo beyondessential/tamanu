@@ -7,7 +7,7 @@ import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { Colors, denseTableStyle } from '../../../constants';
+import { denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 

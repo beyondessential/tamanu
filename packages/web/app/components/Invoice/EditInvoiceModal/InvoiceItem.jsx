@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
 import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
 import { useSuggester } from '../../../api';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';

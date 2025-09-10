@@ -15,7 +15,7 @@ import {
 } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
+import { PRESCRIPTION_TYPES } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
 import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';

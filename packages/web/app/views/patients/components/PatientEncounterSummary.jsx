@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { ButtonWithPermissionCheck, Button, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';

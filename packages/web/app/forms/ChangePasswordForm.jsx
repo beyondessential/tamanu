@@ -6,8 +6,7 @@ import {
   BodyText,
   Field,
 } from '../components';
-import { TextField, Form, Button, TextButton, FormSubmitButton, FormGrid } from '@tamanu/ui-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, Button, TextButton, FormSubmitButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';

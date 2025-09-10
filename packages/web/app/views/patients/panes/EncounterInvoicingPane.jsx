@@ -6,7 +6,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
 import { ContentPane } from '../../../components/ContentPane';
-import { Colors, INVOICE_MODAL_TYPES } from '../../../constants';
+import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';

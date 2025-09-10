@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
 import { InvoiceItemCard } from './InvoiceItemCard';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { TextField, SelectField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Field, NumberField } from '../../Field';
 import { useTranslation } from '../../../contexts/Translation';

@@ -48,7 +48,7 @@ export const TabDisplay = React.memo(
         icon={
           <Icon
             className={icon}
-            color={currentTabData.key === key ? Colors.primary : Colors.softText}
+            color={currentTabData.key === key ? TAMANU_COLORS.primary : TAMANU_COLORS.softText}
             data-testid={`icon-r0ru-${key}`}
           />
         }

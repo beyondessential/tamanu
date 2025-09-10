@@ -45,11 +45,11 @@ const Dot = styled.span`
 
 export const TopBar = React.memo(({ title, subTitle, children, className, encounterType }) => {
   const dotColors = {
-    [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
+    [ENCOUNTER_TYPES.ADMISSION]: TAMANU_COLORS.safe,
     [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B',
-    [ENCOUNTER_TYPES.TRIAGE]: Colors.orange,
-    [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange,
-    [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,
+    [ENCOUNTER_TYPES.TRIAGE]: TAMANU_COLORS.orange,
+    [ENCOUNTER_TYPES.OBSERVATION]: TAMANU_COLORS.orange,
+    [ENCOUNTER_TYPES.EMERGENCY]: TAMANU_COLORS.orange,
   };
 
   return (

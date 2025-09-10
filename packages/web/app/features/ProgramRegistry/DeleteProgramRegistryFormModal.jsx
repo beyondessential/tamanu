@@ -7,9 +7,10 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { Modal, ModalCancelRow, TranslatedText } from '../../components/index.js';
 import { useApi } from '../../api/index.js';
-import { Colors } from '../../constants/index.js';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
+
 const Body = styled.div`
   padding: 40px 20px 50px;
 

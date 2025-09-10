@@ -14,7 +14,6 @@ import {
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
-import { Colors } from '../../../constants/index';
 import { useSettings } from '../../../contexts/Settings';
 
 const TableWrapper = styled.div`
