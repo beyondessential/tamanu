@@ -21,7 +21,9 @@
     "clean:deps": "rimraf node_modules"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "yup": "^0.32.9",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@types/node": "^18.14.6",

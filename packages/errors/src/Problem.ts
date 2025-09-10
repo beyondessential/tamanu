@@ -1,5 +1,9 @@
 import { kebabCase } from 'lodash';
+import { ValidationError as YupValidationError } from 'yup';
+import { $ZodError } from 'zod/v4/core';
+
 import { BaseError } from './BaseError';
+import { ValidationError } from './errors';
 import { ERROR_TYPE, ErrorType, IANA_TYPES, isKnownErrorType } from './types';
 
 const LINK = (ref: string) =>
@@ -37,6 +41,10 @@ export class Problem {
     const problem = new Problem(ERROR_TYPE.UNKNOWN, error.name, 500, error.message, {
       stack: error.stack,
     });
+
+    if (error instanceof YupValidationError || error instanceof $ZodError) {
+      error = new ValidationError(error.message).withCause(error);
+    }
 
     if (error instanceof BaseError) {
       problem.type = error.type;
