@@ -1,4 +1,5 @@
 export { ClientIncompatibleError } from './ClientIncompatibleError';
+export { DatabaseError } from './DatabaseError';
 export { EditConflictError } from './EditConflictError';
 export { ForbiddenError } from './ForbiddenError';
 export { InsufficientStorageError } from './InsufficientStorageError';

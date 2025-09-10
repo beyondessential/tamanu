@@ -1,8 +1,14 @@
+import { BaseError as SequelizeError } from 'sequelize';
+import { convertDatabaseError } from '@tamanu/database/utils';
 import { Problem } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {
+  if (error instanceof SequelizeError) {
+    error = convertDatabaseError(error);
+  }
+
   const problem = (error instanceof Problem ? error : Problem.fromError(error)).includeStack(
     process.env.NODE_ENV !== 'production',
   );

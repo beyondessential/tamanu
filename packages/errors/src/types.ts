@@ -7,6 +7,7 @@ export const ERROR_TYPE = {
   AUTH_PERMISSION_REQUIRED: 'auth-permission-required',
   AUTH_TOKEN_INVALID: 'auth-token-invalid',
   CLIENT_INCOMPATIBLE: 'client-incompatible',
+  DATABASE: 'database',
   EDIT_CONFLICT: 'conflict',
   FORBIDDEN: 'forbidden',
   NOT_FOUND: 'not-found',

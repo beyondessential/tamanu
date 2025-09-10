@@ -18,6 +18,11 @@ export class BaseError extends Error {
     this.detail = detail;
   }
 
+  withCause(error: Error): this {
+    this.cause = error;
+    return this;
+  }
+
   withExtraData(extraData: Record<string, any>): this {
     if (Object.keys(extraData).some(key => [...WELL_KNOWN_PROBLEM_KEYS, 'stack'].includes(key))) {
       throw new Error('BUG: reserved extra data key');
