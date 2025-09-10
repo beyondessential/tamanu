@@ -4,13 +4,17 @@ import { $ZodError } from 'zod/v4/core';
 
 import { BaseError } from './BaseError';
 import { ValidationError } from './errors';
-import { ERROR_TYPE, ErrorType, IANA_TYPES, isKnownErrorType } from './types';
+import {
+  ERROR_TYPE,
+  ErrorType,
+  IANA_TYPES,
+  isKnownErrorType,
+  WELL_KNOWN_PROBLEM_KEYS,
+} from './constants';
 
 const LINK = (ref: string) =>
   `https://github.com/beyondessential/tamanu/blob/${ref}/docs/PROBLEMS.md#`;
 const IANA = 'https://iana.org/assignments/http-problem-types#';
-
-export const WELL_KNOWN_PROBLEM_KEYS = ['type', 'title', 'status', 'detail', 'instance'];
 
 /** Implementation of RFC 9457 Problem Details for HTTP APIs <https://datatracker.ietf.org/doc/html/rfc9457> */
 export class Problem {

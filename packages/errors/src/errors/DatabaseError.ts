@@ -1,5 +1,5 @@
 import { BaseError } from '../BaseError';
-import { ERROR_TYPE } from '../types';
+import { ERROR_TYPE } from '../constants';
 
 /**
  * Generic database error. Also consider the more specific `DatabaseConstraintError`,

@@ -1,4 +1,4 @@
-import { ERROR_TYPE } from '../types';
+import { ERROR_TYPE } from '../constants';
 import { BaseRemoteError } from './RemoteError';
 
 export class RemoteIncompatibleError extends BaseRemoteError {

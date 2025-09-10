@@ -1,5 +1,5 @@
 import { BaseError } from '../BaseError';
-import { ERROR_TYPE } from '../types';
+import { ERROR_TYPE } from '../constants';
 
 export class RateLimitedError extends BaseError {
   constructor(retryAfterSec: number, detail?: string) {

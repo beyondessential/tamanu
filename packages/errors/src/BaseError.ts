@@ -1,5 +1,4 @@
-import { WELL_KNOWN_PROBLEM_KEYS } from './Problem';
-import type { ErrorType } from './types';
+import { type ErrorType, WELL_KNOWN_PROBLEM_KEYS } from './constants';
 
 export class BaseError extends Error {
   readonly name: string;

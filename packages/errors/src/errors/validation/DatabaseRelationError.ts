@@ -1,5 +1,5 @@
 import { BaseValidationError } from '../ValidationError';
-import { ERROR_TYPE } from '../../types';
+import { ERROR_TYPE } from '../../constants';
 
 export class DatabaseRelationError extends BaseValidationError {
   constructor(detail?: string) {

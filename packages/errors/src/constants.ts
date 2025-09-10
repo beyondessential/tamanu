@@ -38,3 +38,5 @@ export const IANA_TYPES: ErrorType[] = [];
 export function isKnownErrorType(type: string): type is ErrorType {
   return Object.values(ERROR_TYPE).includes(type as ErrorType);
 }
+
+export const WELL_KNOWN_PROBLEM_KEYS = ['type', 'title', 'status', 'detail', 'instance'];

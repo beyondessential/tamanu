@@ -5,6 +5,14 @@ import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export const buildErrorHandler = getResponse => (error, req, res, next) => {
+  console.log('handle error', error);
+
+  // see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
+  if (res.headersSent) {
+    next(error);
+    return;
+  }
+
   if (error instanceof SequelizeError) {
     error = convertDatabaseError(error);
   }
@@ -17,12 +25,6 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     log.error(`Error ${problem.status} (${problem.type}): `, error);
   } else {
     log.info(`Error ${problem.status} (${problem.type}): `, error);
-  }
-
-  // see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
-  if (res.headersSent) {
-    next(error);
-    return;
   }
 
   res.set(problem.headers);

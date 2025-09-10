@@ -1,5 +1,5 @@
 import { BaseError } from '../BaseError';
-import { ERROR_TYPE, type ErrorType } from '../types';
+import { ERROR_TYPE, type ErrorType } from '../constants';
 
 /** Do not construct outside of the errors package, use only for instanceof checks. */
 export class BaseValidationError extends BaseError {
