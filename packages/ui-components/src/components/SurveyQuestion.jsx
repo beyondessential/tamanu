@@ -8,7 +8,7 @@ import { Box, Typography } from '@material-ui/core';
 import { TAMANU_COLORS } from '../constants';
 import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { useTranslation } from '../contexts/TranslationContext';
-import { useSurveyForm } from '../contexts/index.js';
+import { useSurveyForm } from '../contexts/SurveyFormContext'; // todo
 
 const Text = styled.div`
   margin-bottom: 10px;
