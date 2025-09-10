@@ -165,14 +165,11 @@ surveyResponse.get(
       return;
     }
 
-    const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
-
-    if (!modelName) {
-      res.json({
-        data: value,
-      });
-      return;
+    if (!PATIENT_DATA_FIELD_LOCATIONS[column]) {
+      throw new InvalidParameterError('Invalid column');
     }
+
+    const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[column];
 
     const { data, targetModel } = await getPatientDataFieldAssociationData({
       models,

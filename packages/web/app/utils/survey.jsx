@@ -479,36 +479,40 @@ export const getPatientDataDisplayValue = async ({
     return translation || value;
   } else {
     // If the field is a standard field without options, we need to query the display value
-    const { data, model } = await api.get(
-      `surveyResponse/patient-data-field-association-data/${config.column}`,
-      {
-        value,
-      },
-    );
-    if (!model) return value;
+    try {
+      const { data, model } = await api.get(
+        `surveyResponse/patient-data-field-association-data/${config.column}`,
+        {
+          value,
+        },
+      );
+      if (!model) return value;
 
-    switch (model) {
-      case 'ReferenceData':
-        return getReferenceDataTranslation({
-          value: data.id,
-          category: data.type,
-          fallback: data.name,
-        });
-      case 'User':
-        return data?.displayName;
-      case 'Patient':
-        return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
-          SEX_LABELS,
-          data.sex,
-        )} - ${DateDisplay.stringFormat(data.dateOfBirth)}`;
-      default: {
-        const category = camelCase(model);
-        return getReferenceDataTranslation({
-          value: data.id,
-          category,
-          fallback: data.name || value,
-        });
+      switch (model) {
+        case 'ReferenceData':
+          return getReferenceDataTranslation({
+            value: data.id,
+            category: data.type,
+            fallback: data.name,
+          });
+        case 'User':
+          return data?.displayName;
+        case 'Patient':
+          return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
+            SEX_LABELS,
+            data.sex,
+          )} - ${DateDisplay.stringFormat(data.dateOfBirth)}`;
+        default: {
+          const category = camelCase(model);
+          return getReferenceDataTranslation({
+            value: data.id,
+            category,
+            fallback: data.name || value,
+          });
+        }
       }
+    } catch (error) {
+      return value;
     }
   }
 };
