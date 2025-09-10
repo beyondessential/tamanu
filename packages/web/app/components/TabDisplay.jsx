@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Tab, Tabs } from '@material-ui/core';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const TabBar = styled.div`
   display: flex;
@@ -11,10 +11,10 @@ const TabBar = styled.div`
 `;
 
 const TabContainer = styled(Tabs)`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
 
   .MuiTabs-indicator {
-    background-color: ${Colors.primary};
+    background-color: ${TAMANU_COLORS.primary};
   }
 `;
 

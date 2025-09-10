@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import { Box } from '@mui/material';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormCancelButton, FormGrid, FormSubmitButton } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormGrid, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
-import { Colors } from '../../constants';
+
 import { MedicationSummary } from './MedicationSummary';
 import {
   AutocompleteField,
@@ -28,7 +28,7 @@ const StyledBaseModal = styled(BaseModal)`
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const validationSchema = yup.object().shape({
@@ -133,7 +133,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
               mb={-1.5}
               px={5}
               pt={2.5}
-              borderTop={`1px solid ${Colors.outline}`}
+              borderTop={`1px solid ${TAMANU_COLORS.outline}`}
               display={'flex'}
               justifyContent={'flex-end'}
               gap={2}

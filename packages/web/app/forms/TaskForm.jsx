@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import * as yup from 'yup';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
@@ -63,7 +63,7 @@ const StyledCheckField = styled(Field)`
 `;
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 16px;
   vertical-align: sub;
 `;

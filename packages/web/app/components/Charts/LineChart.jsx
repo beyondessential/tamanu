@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import {
   CartesianGrid,
@@ -70,14 +71,14 @@ export const LineChart = (props) => {
         {yAxisConfigs.normalRange.min !== yAxisConfigs.graphRange.min && (
           <ReferenceLine
             y={yAxisConfigs.normalRange.min}
-            stroke={Colors.alert}
+            stroke={TAMANU_COLORS.alert}
             data-testid="referenceline-e2y7"
           />
         )}
         {yAxisConfigs.normalRange.max !== yAxisConfigs.graphRange.max && (
           <ReferenceLine
             y={yAxisConfigs.normalRange.max}
-            stroke={Colors.alert}
+            stroke={TAMANU_COLORS.alert}
             data-testid="referenceline-6uf9"
           />
         )}
@@ -97,7 +98,7 @@ export const LineChart = (props) => {
         />
         <Tooltip
           wrapperStyle={{
-            backgroundColor: Colors.white,
+            backgroundColor: TAMANU_COLORS.white,
             boxShadow: `0px 4px 20px rgba(0, 0, 0, 0.1)`,
             borderRadius: '5px',
           }}
@@ -112,7 +113,7 @@ export const LineChart = (props) => {
         <Line
           type="linear"
           dataKey={DISPLAY_VALUE_KEY}
-          stroke={Colors.blue}
+          stroke={TAMANU_COLORS.blue}
           strokeWidth={2}
           dot={<DotComponent tableHeight={tableHeight} data-testid="dotcomponent-y4cv" />}
           activeDot={

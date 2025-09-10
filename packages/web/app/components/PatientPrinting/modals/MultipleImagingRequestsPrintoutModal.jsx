@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
@@ -51,7 +52,7 @@ export const MultipleImagingRequestsPrintoutModal = ({
       width="md"
       open={open}
       onClose={onClose}
-      color={Colors.white}
+      color={TAMANU_COLORS.white}
       printable
       onPrint={() => printPDF('imaging-request-printout')}
       data-testid="modal-9574"

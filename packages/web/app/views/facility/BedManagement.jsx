@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
@@ -43,9 +44,9 @@ const DashboardItemContainer = styled.div`
   justify-content: flex-end;
   padding: 0px 15px 10px 10px;
   margin-left: 1%;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: 5px;
-  border-left: 4px solid ${(props) => props.color || Colors.primaryDark};
+  border-left: 4px solid ${(props) => props.color || TAMANU_COLORS.primaryDark};
   &:first-child {
     margin-left: 0;
   }
@@ -55,13 +56,13 @@ const DashboardItemContainer = styled.div`
 const DashboardItemTitle = styled(Typography)`
   font-size: 24px;
   font-weight: 500;
-  color: ${(props) => props.color || Colors.primaryDark};
+  color: ${(props) => props.color || TAMANU_COLORS.primaryDark};
 `;
 
 const DashboardItemDescription = styled(Typography)`
   white-space: pre-wrap;
   font-size: 14px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const DetailedDashboardItemContainer = styled(DashboardItemContainer)`
@@ -83,7 +84,7 @@ const DetailedDashboardItemTextContainer = styled.div`
 const DetailedDashboardItemTitle = styled(Typography)`
   font-size: 15px;
   font-weight: 500;
-  color: ${(props) => props.color || Colors.brightBlue};
+  color: ${(props) => props.color || TAMANU_COLORS.brightBlue};
   line-height: 26px;
 `;
 
@@ -147,7 +148,7 @@ const DetailedDashboardItem = ({ api, facilityId }) => {
 
   return (
     <DetailedDashboardItemContainer
-      color={Colors.brightBlue}
+      color={TAMANU_COLORS.brightBlue}
       data-testid="detaileddashboarditemcontainer-vscx"
     >
       <DetailedDashboardItemTextContainer data-testid="detaileddashboarditemtextcontainer-22iu">
@@ -297,7 +298,7 @@ export const BedManagement = () => {
               data-testid="dashboarditem-kqp6"
             />
             <DashboardItem
-              color={Colors.green}
+              color={TAMANU_COLORS.green}
               title={currentInpatientsCount || 0}
               loading={currentInpatientsCountLoading}
               description={
@@ -310,7 +311,7 @@ export const BedManagement = () => {
               data-testid="dashboarditem-mcfd"
             />
             <DashboardItem
-              color={Colors.purple}
+              color={TAMANU_COLORS.purple}
               title={`${Math.round((alos || 0) * 10) / 10} days`}
               loading={alosLoading}
               description={
@@ -323,7 +324,7 @@ export const BedManagement = () => {
               data-testid="dashboarditem-imw5"
             />
             <DashboardItem
-              color={Colors.pink}
+              color={TAMANU_COLORS.pink}
               title={`${Math.round((currentOccupancy || 0) * 10) / 10}%`}
               loading={currentOccupancyLoading}
               description={
@@ -336,7 +337,7 @@ export const BedManagement = () => {
               data-testid="dashboarditem-cwa5"
             />
             <DashboardItem
-              color={Colors.metallicYellow}
+              color={TAMANU_COLORS.metallicYellow}
               title={readmissionsCount || 0}
               loading={readmissionsCountLoading}
               description={

@@ -1,8 +1,9 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { Fragment } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../constants';
+
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistrationQuery } from '../../api/queries/usePatientProgramRegistrationQuery';
@@ -16,8 +17,8 @@ import { PatientNavigation } from '../../components/PatientNavigation';
 import { usePatientRoutes } from '../../routes/PatientRoutes';
 
 const ViewHeader = styled.div`
-  background-color: ${Colors.white};
-  border-bottom: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding: 15px 28px;
   display: flex;
   flex-direction: row;
@@ -36,8 +37,8 @@ const Container = styled.div`
 `;
 
 const MainSection = styled.div`
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 10px 20px;
 `;

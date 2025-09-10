@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@material-ui/lab';
@@ -69,7 +70,7 @@ const ItemSkeleton = styled(Skeleton)`
   padding: 16px 14px;
   margin-right: 14px;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   width: 247px;
   height: 88px;
 `;

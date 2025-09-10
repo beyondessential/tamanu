@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -22,7 +23,7 @@ const TableWrapper = styled.div`
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   h4 {
     margin: 0;
   }

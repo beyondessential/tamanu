@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
@@ -31,7 +32,7 @@ import {
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
-  border: max(0.0625rem, 1px) solid ${({ error }) => (error ? Colors.alert : Colors.outline)};
+  border: max(0.0625rem, 1px) solid ${({ error }) => (error ? TAMANU_COLORS.alert : TAMANU_COLORS.outline)};
   padding-block: 0.75rem;
   padding-inline: 0.85rem;
 

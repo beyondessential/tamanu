@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Box } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BodyText } from '../Typography';
@@ -13,7 +14,7 @@ const SmallText = styled(BodyText)`
 `;
 
 const SoftText = styled(SmallText)`
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const ErrorText = styled(SmallText)`

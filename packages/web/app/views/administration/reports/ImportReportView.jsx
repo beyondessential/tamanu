@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import Alert from '@material-ui/lab/Alert/Alert';
-import { TextField, Form, OutlinedButton, FormGrid } from '@tamanu/ui-components';
+import { TextField, Form, OutlinedButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { useApi } from '../../../api';
 import {
@@ -29,13 +29,13 @@ const FormContainer = styled(FormGrid)`
 `;
 
 const StyledButton = styled(OutlinedButton)`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   margin-bottom: 20px;
 `;
 
 const StyledFileChooserField = styled(FileChooserField)`
   .MuiButton-outlinedPrimary {
-    background: ${Colors.white};
+    background: ${TAMANU_COLORS.white};
   }
 `;
 

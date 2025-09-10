@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -9,7 +10,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 
 const IdControl = styled.div`
   display: flex;
-  color: ${Colors.primaryDark};
+  color: ${TAMANU_COLORS.primaryDark};
 `;
 
 const Id = styled(InvertedDisplayIdLabel)`
@@ -27,7 +28,7 @@ const RegenerateId = styled.div`
   cursor: pointer;
 
   svg {
-    color: ${Colors.primaryDark};
+    color: ${TAMANU_COLORS.primaryDark};
     padding: 0;
     margin-right: 5px;
   }

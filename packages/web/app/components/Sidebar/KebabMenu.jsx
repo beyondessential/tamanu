@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { keyBy, mapValues } from 'lodash';
@@ -15,14 +16,14 @@ const SupportDesktopLink = styled.a`
   font-size: 11px;
   line-height: 15px;
   text-decoration: underline;
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
 `;
 
 const KebabMenuItem = styled.div`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   padding: 4px;
   cursor: pointer;
   border-radius: 4px;
@@ -40,8 +41,8 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledMenu = styled(Menu)`
   & .MuiPaper-root {
-    border: 1px solid ${Colors.outline};
-    background: ${Colors.primaryDark};
+    border: 1px solid ${TAMANU_COLORS.outline};
+    background: ${TAMANU_COLORS.primaryDark};
     width: 124px;
   }
   & .MuiList-padding {

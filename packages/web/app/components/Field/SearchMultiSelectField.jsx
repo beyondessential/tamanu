@@ -13,7 +13,7 @@ import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIco
 import { Colors } from '../../constants';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
-import { TextInput, TextButton } from '@tamanu/ui-components';
+import { TextInput, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {
@@ -23,7 +23,7 @@ const StyledTextInput = styled(TextInput)`
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     font-size: 0.9375rem;
   }
 
@@ -44,19 +44,19 @@ const OptionsContainer = styled(Box)`
   overflow-y: auto;
   padding-block: 0.5rem;
   padding-inline: 0;
-  border-block-start: 1px solid ${Colors.outline};
+  border-block-start: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const StyledInputButton = styled(Button)`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 0.875rem;
   line-height: 1.125rem;
   padding-inline: 0.9375rem;
   text-transform: none;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   :hover {
-    background-color: ${Colors.veryLightBlue};
-    border-color: ${Colors.outline};
+    background-color: ${TAMANU_COLORS.veryLightBlue};
+    border-color: ${TAMANU_COLORS.outline};
   }
 
   ${({ $highlight }) => {
@@ -64,8 +64,8 @@ const StyledInputButton = styled(Button)`
       $highlight &&
       `
         background-color: #cfe3f6;
-        border-color: ${Colors.outline};
-        color: ${Colors.darkestText};
+        border-color: ${TAMANU_COLORS.outline};
+        color: ${TAMANU_COLORS.darkestText};
       `
     );
   }}
@@ -73,7 +73,7 @@ const StyledInputButton = styled(Button)`
   ${({ $open }) =>
     $open &&
     `
-      border-color: ${Colors.primary};
+      border-color: ${TAMANU_COLORS.primary};
     `}
 `;
 

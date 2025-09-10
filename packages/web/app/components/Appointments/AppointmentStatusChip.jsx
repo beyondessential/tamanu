@@ -2,7 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
-import { ToggleButton } from '@tamanu/ui-components';
+import { ToggleButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { Colors } from '../../constants';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
@@ -22,7 +22,7 @@ const Toggle = styled(ToggleButton)`
         .${toggleButtonClasses.selected}, :disabled,
         .${toggleButtonGroupClasses.disabled}
       ) {
-      background-color: ${Colors.veryLightBlue};
+      background-color: ${TAMANU_COLORS.veryLightBlue};
     }
 
     &:disabled,
@@ -44,7 +44,7 @@ const Toggle = styled(ToggleButton)`
   }
 `;
 
-const Chip = ({ color = Colors.blue, children, selected, ...props }) => (
+const Chip = ({ color = TAMANU_COLORS.blue, children, selected, ...props }) => (
   <Toggle $color={color} $selected={selected} {...props} data-testid="toggle-mzt4">
     {children}
   </Toggle>

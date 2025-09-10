@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
-import { OutlinedButton } from '@tamanu/ui-components';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Modal } from '../../Modal';
 import { Colors } from '../../../constants';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
@@ -254,7 +254,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
 
 const StyledDivider = styled.div`
   height: 1px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   margin-top: 16px;
   margin-bottom: 22px;
 `;
@@ -271,7 +271,7 @@ const Header = styled.span`
   line-height: 21px;
   letter-spacing: 0px;
   text-align: left;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const StyledPrintOptionsRow = styled.div`
@@ -288,13 +288,13 @@ const StyledHeading = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
   line-height: 21px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const StyledSubHeading = styled(Typography)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const PrintOptionButton = styled(ButtonBase)`
@@ -306,10 +306,10 @@ const PrintOptionButton = styled(ButtonBase)`
   margin: 14px 0;
   align-items: center;
   text-align: left;
-  background: ${Colors.white};
-  border: 2px solid ${Colors.outline};
+  background: ${TAMANU_COLORS.white};
+  border: 2px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 
   svg {
     width: 45px;
@@ -317,7 +317,7 @@ const PrintOptionButton = styled(ButtonBase)`
   }
 
   &:hover {
-    background: ${Colors.veryLightBlue};
+    background: ${TAMANU_COLORS.veryLightBlue};
   }
 `;
 
@@ -440,7 +440,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
     <>
       <OutlinedButton onClick={openModal} data-testid="button-kdtv">
         <BookUserIcon
-          htmlColor={Colors.primary}
+          htmlColor={TAMANU_COLORS.primary}
           width={20}
           height={20}
           style={{ marginRight: 8 }}

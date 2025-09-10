@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
@@ -24,12 +25,12 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 
 const NotifyBanner = styled(Box)`
   padding: 13px 22px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   font-size: 14px;
   font-weight: 400;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   position: relative;
   margin-top: 10px;
   margin-bottom: -10px;
@@ -46,9 +47,9 @@ const NotifyBanner = styled(Box)`
 `;
 
 const TableContainer = styled(Box)`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   margin-top: 20px;
 `;
 
@@ -56,35 +57,35 @@ const TableTitle = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const TableTitleText = styled(Box)`
   font-size: 16px;
   font-weight: 500;
   line-height: 21px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const TableTitleNote = styled(Box)`
   font-size: 16px;
   font-weight: 400;
   line-height: 21px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   font-weight: 400;
   line-height: 18px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const DarkText = styled(Box)`
   font-size: 14px;
   font-weight: 400;
   line-height: 18px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const StyledConditionalTooltip = styled(ConditionalTooltip)`
@@ -106,8 +107,8 @@ const NoDataContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.hoverGrey};
-  color: ${Colors.primary};
+  background: ${TAMANU_COLORS.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const CellText = styled.div`
@@ -126,15 +127,15 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
       &:first-child {
         padding-left: 10px;
       }
-      background-color: ${Colors.white};
+      background-color: ${TAMANU_COLORS.white};
       padding-top: 8px;
       padding-bottom: 8px;
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
       position: sticky;
       top: 0;
       & .MuiTableSortLabel-root {
-        color: ${Colors.midText};
+        color: ${TAMANU_COLORS.midText};
       }
     }
   }
@@ -151,20 +152,20 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     .MuiTableRow-root {
       cursor: ${props => (props.$noData ? 'default' : 'pointer')};
       &:hover {
-        background-color: ${props => (props.$noData ? 'transparent' : Colors.veryLightBlue)};
+        background-color: ${props => (props.$noData ? 'transparent' : TAMANU_COLORS.veryLightBlue)};
       }
     }
   }
   .MuiTableFooter-root {
     position: sticky;
     bottom: 0;
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     .MuiPagination-root {
       padding-top: 10px;
       padding-bottom: 10px;
     }
     td {
-      border-top: 1px solid ${Colors.outline};
+      border-top: 1px solid ${TAMANU_COLORS.outline};
     }
   }
 `;

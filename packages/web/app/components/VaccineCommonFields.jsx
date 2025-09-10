@@ -23,7 +23,7 @@ import {
 } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const FullWidthCol = styled.div`

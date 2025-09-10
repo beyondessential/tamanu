@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import { Box } from '@material-ui/core';
 import styled from 'styled-components';
@@ -7,7 +8,7 @@ import {
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { Colors } from '../../../constants';
+
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
@@ -34,13 +35,13 @@ const mapRecordsToWindows = medicationAdministrationRecords => {
 const MarRowContainer = styled.div`
   padding: 8px 12px;
   font-size: 14px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   ${props => props.discontinued && `text-decoration: line-through;`}
-  ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
+  ${props => props.isPausing && `color: ${TAMANU_COLORS.softText}; font-style: italic;`}
   cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
   &:hover {
-    background-color: ${props => (props.$disabled ? 'transparent' : Colors.veryLightBlue)};
+    background-color: ${props => (props.$disabled ? 'transparent' : TAMANU_COLORS.veryLightBlue)};
   }
 `;
 
@@ -115,7 +116,7 @@ export const MarTableRow = ({
           {getTranslatedFrequency(frequency, getTranslation)},{' '}
           {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
         </Box>
-        <Box color={!isPausing ? Colors.midText : undefined}>
+        <Box color={!isPausing ? TAMANU_COLORS.midText : undefined}>
           <span>{notes}</span>
           {displayPharmacyNotesInMar && pharmacyNotes && (
             <span>

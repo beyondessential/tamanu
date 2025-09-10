@@ -1,9 +1,10 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { Box } from '@material-ui/core';
 import { TASK_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../../constants';
+
 import { AutocompleteInput, Button, CheckInput, TranslatedText } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TasksTable } from '../../../components/Tasks/TasksTable';
@@ -13,7 +14,7 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
   padding: 6px 12px;
   min-height: 460px;

@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -39,7 +40,7 @@ const StyledDisplayTabs = styled(TabDisplay)`
     z-index: 9;
     position: sticky;
     top: ${NAVIGATION_CONTAINER_HEIGHT};
-    border-bottom: 1px solid ${Colors.softOutline};
+    border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   }
 `;
 

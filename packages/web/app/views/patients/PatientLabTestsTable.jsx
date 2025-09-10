@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
@@ -22,12 +23,12 @@ const StyledTable = styled(Table)`
     tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
       position: sticky;
       z-index: 1;
-      border-right: 1px solid ${Colors.outline};
+      border-right: 1px solid ${TAMANU_COLORS.outline};
     }
 
     thead tr th:nth-child(${props => props.$stickyColumns}),
     tbody tr td:nth-child(${props => props.$stickyColumns}) {
-      border-right: 2px solid ${Colors.outline};
+      border-right: 2px solid ${TAMANU_COLORS.outline};
     }
 
     ${props =>
@@ -61,7 +62,7 @@ const StyledTable = styled(Table)`
 
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
-      background: ${Colors.background};
+      background: ${TAMANU_COLORS.background};
       white-space: break-spaces;
     }
 
@@ -70,7 +71,7 @@ const StyledTable = styled(Table)`
     }
 
     tbody tr td.MuiTableCell-body {
-      background: ${Colors.white};
+      background: ${TAMANU_COLORS.white};
       padding: 7px 15px;
 
       &:first-child {
@@ -87,7 +88,7 @@ const StyledTable = styled(Table)`
 
 const CategoryCell = styled.div`
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const StyledButton = styled(Button)`

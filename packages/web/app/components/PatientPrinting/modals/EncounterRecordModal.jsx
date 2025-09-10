@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 
 import { NOTE_TYPES } from '@tamanu/constants/notes';
@@ -163,7 +164,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         data-testid="translatedtext-9czu"
       />
     ),
-    color: Colors.white,
+    color: TAMANU_COLORS.white,
     open,
     onClose,
     maxWidth: 'md',

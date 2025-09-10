@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 // Web/Mobile duplicated
 const COLORS = {

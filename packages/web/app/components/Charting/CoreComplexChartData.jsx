@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
@@ -27,12 +28,12 @@ const CoreComplexChartInfoWrapper = styled.div`
 const CoreComplexChartInfoHeader = styled.span`
   font-weight: 500;
   margin-right: 5px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const CoreComplexChartSingleInfoWrapper = styled.span`
   margin-right: 20px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 export const CoreComplexChartData = ({

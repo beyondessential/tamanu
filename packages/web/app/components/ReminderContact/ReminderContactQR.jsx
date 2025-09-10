@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -43,7 +44,7 @@ const StyledQrContainer = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 export const ReminderContactQR = ({ contact, onClose }) => {

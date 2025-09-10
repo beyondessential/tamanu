@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -36,7 +37,7 @@ const CardItem = styled.div`
 const BorderSection = styled(CardItem)`
   margin-left: 45px;
   padding: 0 10px;
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const CardLabel = styled.span`

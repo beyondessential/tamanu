@@ -7,7 +7,7 @@ import {
   Field,
 } from '../components';
 import { TextField, Form, Button, TextButton, FormSubmitButton, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
@@ -17,14 +17,14 @@ const FormTitleSection = styled.div`
 `;
 
 const FormHeading = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
 `;
 
 const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding-top: 10px;
 `;
 
@@ -71,7 +71,7 @@ const ResendCodeButton = styled(TextButton)`
   color: black;
   font-weight: 400;
   :hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     font-weight: 500;
     text-decoration: underline;
   }

@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -13,8 +14,8 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
   padding: 30px;
-  background: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
 `;
 
@@ -24,15 +25,15 @@ const MessageInner = styled.div`
   justify-content: center;
   height: 100%;
   border-radius: 3px;
-  background: ${Colors.background};
-  color: ${Colors.primary};
+  background: ${TAMANU_COLORS.background};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   text-align: center;
   padding: 70px 190px;
 `;
 
 const WrongPermissionInner = styled(MessageInner)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const NoResultsMessage = () => (

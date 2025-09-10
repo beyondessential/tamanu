@@ -5,7 +5,7 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput } from '@tamanu/ui-components';
+import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Colors } from '../../constants';
 import { Table } from '../Table';
@@ -29,7 +29,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-head {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 12px;
     padding-bottom: 12px;
     span,
@@ -38,7 +38,7 @@ const StyledTable = styled(Table)`
     }
     span:not(.required-indicator),
     div {
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     padding-left: 10px;
     padding-right: 10px;
@@ -62,7 +62,7 @@ const StyledTable = styled(Table)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${Colors.veryLightBlue};
+      background-color: ${TAMANU_COLORS.veryLightBlue};
     }
   }
   .MuiTableBody-root {
@@ -208,7 +208,7 @@ const getColumns = (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
               {formatShortest(orderDate)}
-              <Box fontSize="12px" color={Colors.softText}>
+              <Box fontSize="12px" color={TAMANU_COLORS.softText}>
                 {format(orderDate, 'h:mma').toLowerCase()}
               </Box>
             </Box>
@@ -292,7 +292,7 @@ export const PharmacyOrderMedicationTable = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   return (
     <StyledTable
-      headerColor={Colors.white}
+      headerColor={TAMANU_COLORS.white}
       columns={getColumns(
         getTranslation,
         getEnumTranslation,

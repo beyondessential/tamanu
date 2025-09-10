@@ -3,17 +3,17 @@ import { BodyText, Modal, TranslatedText, Heading5, SmallBodyText } from '..';
 import { Colors, PRESCRIPTION_TYPES } from '../../constants';
 import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { ConfirmCancelRow } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
-  background: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+  ${(p) => (p.checked ? `border: 1px solid ${TAMANU_COLORS.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;
@@ -53,7 +53,7 @@ export const PrescriptionTypeModal = ({ open, onClose, onContinue }) => {
         />
       }
     >
-      <BodyText color={Colors.darkText} pt="22px" pb="24px">
+      <BodyText color={TAMANU_COLORS.darkText} pt="22px" pb="24px">
         <TranslatedText
           stringId="medication.modal.prescriptionType.description"
           fallback="Please select whether you would like to create a single medication prescription or multiple prescriptions using a medication set."

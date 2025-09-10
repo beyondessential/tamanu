@@ -7,7 +7,7 @@ import queryString from 'query-string';
 import { isStartOfThisWeek, formatShort, formatWeekdayShort } from '@tamanu/utils/dateTime';
 
 import { Button, MonthPicker } from '../../../components';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { scrollToThisWeek } from './utils';
 
@@ -45,7 +45,7 @@ const GoToThisWeekButton = styled(Button).attrs({ variant: 'text' })`
 
 const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
   --base-font-weight: 400;
-  color: ${({ $dim = false }) => ($dim ? Colors.midText : Colors.darkestText)};
+  color: ${({ $dim = false }) => ($dim ? TAMANU_COLORS.midText : TAMANU_COLORS.darkestText)};
   font-size: 1rem;
   font-weight: var(--base-font-weight);
   line-height: 1.3;
@@ -54,13 +54,13 @@ const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
     $isToday &&
     css`
       --base-font-weight: 500;
-      background-color: ${Colors.primary};
-      color: ${Colors.white};
+      background-color: ${TAMANU_COLORS.primary};
+      color: ${TAMANU_COLORS.white};
     `}
 `;
 
 const Weekday = styled.p`
-  color: ${({ $isToday = false }) => ($isToday ? Colors.white : Colors.midText)};
+  color: ${({ $isToday = false }) => ($isToday ? TAMANU_COLORS.white : TAMANU_COLORS.midText)};
   font-variant-caps: all-small-caps;
   font-weight: calc(var(--base-font-weight) + 100);
   letter-spacing: 0.1em;

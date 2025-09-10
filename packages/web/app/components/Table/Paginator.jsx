@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
@@ -21,14 +22,14 @@ const StyledPagination = styled(Pagination)`
   ul {
     li {
       .MuiPaginationItem-page {
-        border: 1px solid ${Colors.outline};
+        border: 1px solid ${TAMANU_COLORS.outline};
         font-size: 13px;
         margin: 0 3px;
       }
       .MuiPaginationItem-page.Mui-selected {
-        background: ${Colors.primary};
+        background: ${TAMANU_COLORS.primary};
         border: none;
-        color: ${Colors.white};
+        color: ${TAMANU_COLORS.white};
       }
       &:first-child,
       &:last-child {
@@ -46,7 +47,7 @@ const PageRecordCount = styled.span`
 `;
 
 const StyledSelectField = styled(Select)`
-  border: 1px ${Colors.outline} solid;
+  border: 1px ${TAMANU_COLORS.outline} solid;
   border-radius: 20px;
   width: 60px;
   height: 26px;
@@ -89,7 +90,7 @@ const useStyles = makeStyles({
   selectMenu: {
     borderRadius: 3,
     '& ul': {
-      backgroundColor: Colors.white,
+      backgroundColor: TAMANU_COLORS.white,
       padding: 0,
     },
     '& li': {
@@ -97,7 +98,7 @@ const useStyles = makeStyles({
       margin: 3,
     },
     '& li:hover': {
-      backgroundColor: Colors.veryLightBlue,
+      backgroundColor: TAMANU_COLORS.veryLightBlue,
     },
   },
 });

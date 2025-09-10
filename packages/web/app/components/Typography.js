@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Typography = styled(Box)`
   color: ${({ color }) => (color === 'textTertiary' ? Colors.midText : null)};

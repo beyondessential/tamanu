@@ -1,14 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ContentPane, PageContainer, TopBar } from '../../components';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
-  border: 1px solid ${Colors.outline};
-  background: ${Colors.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
+  background: ${TAMANU_COLORS.white};
   border-radius: 5px;
 `;
 

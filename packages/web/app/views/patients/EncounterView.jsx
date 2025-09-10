@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
@@ -246,7 +247,7 @@ const GridColumnContainer = styled.div`
 const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   background: white;
 
   .MuiTabs-root {

@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { Button } from '@tamanu/ui-components';
-import { Colors, ENCOUNTER_OPTIONS } from '../constants';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedEnum } from './Translation/TranslatedEnum';
@@ -19,7 +19,7 @@ const TypeImage = styled(Avatar)`
 `;
 
 const EncounterOptionTypeButton = styled(Button)`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   display: grid;
   justify-content: center;
   text-align: -webkit-center;

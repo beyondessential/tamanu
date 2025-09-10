@@ -6,13 +6,13 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../../contexts/Translation';
 import { FieldWithTooltip, TranslatedReferenceData } from '../../components';
-import { BaseSelectField } from '@tamanu/ui-components';
+import { BaseSelectField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Colors } from '../../constants';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const StyledBaseSelectField = styled(BaseSelectField)`
   .Mui-disabled {
-    background-color: ${Colors.hoverGrey};
+    background-color: ${TAMANU_COLORS.hoverGrey};
   }
 `;
 

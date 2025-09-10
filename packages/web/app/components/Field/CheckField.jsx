@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -5,10 +6,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { Colors } from '../../constants';
+
 
 const StyledIcon = styled.i`
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: 0.1875rem;
   font-size: 1rem;
   line-height: 0.875rem;
@@ -16,10 +17,10 @@ const StyledIcon = styled.i`
 
   &.fa-check-square,
   &.fa-minus-square {
-    color: ${({ $color }) => $color || Colors.primary};
+    color: ${({ $color }) => $color || TAMANU_COLORS.primary};
   }
   &.fa-square {
-    color: ${({ $color }) => $color || Colors.softText};
+    color: ${({ $color }) => $color || TAMANU_COLORS.softText};
   }
 `;
 
@@ -74,7 +75,7 @@ export const CheckInput = React.memo(
         }
         style={style}
         label={label}
-        $color={error ? Colors.alert : null}
+        $color={error ? TAMANU_COLORS.alert : null}
       />
       {helperText && (
         <FormHelperText data-testid="formhelpertext-2d0o">{helperText}</FormHelperText>

@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -8,9 +9,9 @@ import { ModifyModeRadioGroup } from '../ModifyModeRadioGroup';
 import { Colors } from '../../../constants';
 
 const RadioGroupWrapper = styled.div`
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 16px;
 `;
 

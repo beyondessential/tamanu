@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { TextField, ConfirmCancelBackRow, ConfirmCancelRow } from '@tamanu/ui-components';
+import { TextField, ConfirmCancelBackRow, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -27,7 +27,7 @@ const StyledModal = styled(BaseModal)`
 `;
 
 const SubmitButtonsWrapper = styled.div`
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   padding-top: 10px;
   margin-top: 20px;
 `;
@@ -71,19 +71,19 @@ const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
 
 const DischargePrescriptionMessage = styled.div`
   font-weight: 500;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
   margin-bottom: 6px;
 `;
 
 const DischargePrescriptionLabel = styled.div`
   font-size: 14px;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
 `;
 
 const DialogSecondaryText = styled.div`
   font-size: 14px;
   text-align: center;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
   line-height: 1.4;
 `;
 
@@ -462,7 +462,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         />
       </CommentsWrapper>
 
-      <HorizontalDivider color={Colors.outline} />
+      <HorizontalDivider color={TAMANU_COLORS.outline} />
 
       <DischargePrescriptionWrapper>
         <DischargePrescriptionMessage>

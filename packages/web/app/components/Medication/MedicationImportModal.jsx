@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useMemo, useState } from 'react';
 import { TranslatedText } from '../Translation';
 import { Modal } from '../Modal';
@@ -24,7 +25,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../../utils/medications';
 const DarkestText = styled(Box)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-size: 14px;
 `;
 
@@ -44,10 +45,10 @@ const StyledTable = styled(Table)`
   .MuiTableCell-root {
     &.MuiTableCell-head {
       height: 44px;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
       font-weight: 400;
       .MuiButtonBase-root {
-        color: ${Colors.midText};
+        color: ${TAMANU_COLORS.midText};
       }
     }
     &.MuiTableCell-body {
@@ -222,7 +223,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
           />
         </PrescriberWrapper>
         <StyledTable
-          headerColor={Colors.white}
+          headerColor={TAMANU_COLORS.white}
           columns={[selectableColumn, ...COLUMNS(getTranslation, getEnumTranslation)]}
           data={medications}
           elevated={false}
@@ -238,7 +239,7 @@ export const MedicationImportModal = ({ encounter, open, onClose, onSaved }) => 
           allowExport={false}
           data-testid="table-3r2b"
         />
-        <Box height={'1px'} mx={-4} backgroundColor={Colors.outline} />
+        <Box height={'1px'} mx={-4} backgroundColor={TAMANU_COLORS.outline} />
         <ConfirmCancelRow
           confirmDisabled={!selectedRows.length || !prescriberId}
           onConfirm={handleImportMedications}

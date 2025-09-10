@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormSubmitCancelRow } from '@tamanu/ui-components';
+import { FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -30,7 +30,7 @@ export const EditTreatmentPlanNoteForm = ({
   return (
     <>
       <NoteModalDialogContent>
-        <DisabledWrapper color={Colors.background}>
+        <DisabledWrapper color={TAMANU_COLORS.background}>
           <NoteModalFormGrid columns={2}>
             <NoteTypeField
               noteTypeCountByType={noteTypeCountByType}

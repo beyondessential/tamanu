@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES} from '@tamanu/constants';
-import { SelectField, TextField, Form, FormCancelButton, FormGrid, FormSubmitButton } from '@tamanu/ui-components';
+import { SelectField, TextField, Form, FormCancelButton, FormGrid, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import {
   BaseModal,
@@ -29,20 +29,20 @@ const StyledBaseModal = styled(BaseModal)`
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const StyledFormActions = styled(Box)`
   margin: 0 -32px -12px;
   padding: 20px 40px 0;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   display: flex;
   justify-content: flex-end;
   gap: 16px;
 `;
 
 const ExtendBeyondEndDateError = styled(Box)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 11px;
   line-height: 15px;
   font-weight: 500;

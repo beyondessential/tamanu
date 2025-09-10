@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -12,7 +13,7 @@ import { getDateDisplay } from '../../DateDisplay';
 const Card = styled(Box)`
   background: white;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 20px 10px;
   display: flex;
   align-items: flex-start;
@@ -24,7 +25,7 @@ const Column = styled.div`
   padding-left: 20px;
 
   :first-of-type {
-    border-right: 1px solid ${Colors.outline};
+    border-right: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 

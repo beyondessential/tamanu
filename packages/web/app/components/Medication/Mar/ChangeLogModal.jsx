@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ConfirmCancelRow, Modal, TranslatedText } from '../..';
 import styled from 'styled-components';
@@ -14,11 +15,11 @@ const LogContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 20px 40px;
   margin-top: 16px;
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   overflow-y: auto;
 `;
 
@@ -29,16 +30,16 @@ const LogItem = styled.div`
   gap: 3px;
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const NoteText = styled.span`
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
   font-size: 11px;
 `;
 
 const DoseLabel = styled.span`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 14px;
   font-weight: 500;
   position: absolute;
@@ -347,7 +348,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                 </LogItem>
               ))}
             </Box>
-            {idx < changeLogList.length - 1 && <Divider color={Colors.outline} />}
+            {idx < changeLogList.length - 1 && <Divider color={TAMANU_COLORS.outline} />}
           </Fragment>
         ))}
       </LogContainer>

@@ -12,7 +12,7 @@ import {
   TranslatedText,
   TranslatedReferenceData,
 } from '../../components';
-import { TextField, Form, Button, TextButton } from '@tamanu/ui-components';
+import { TextField, Form, Button, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
@@ -39,7 +39,7 @@ const Divider = styled(MuiDivider)`
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: ${Colors.hoverGrey};
+    background-color: ${TAMANU_COLORS.hoverGrey};
   }
 `;
 
@@ -55,7 +55,7 @@ const AddButton = styled(Button)`
 `;
 
 const ViewHistoryButton = styled(TextButton)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-size: 0.6875rem;
   text-decoration: underline;
   padding: 0.3rem 1rem;
@@ -305,7 +305,7 @@ export const RelatedConditionsForm = ({
                   stringId="programRegistry.updateConditionModal.dateAdded"
                   fallback="Date added"
                 />
-                <span style={{ color: Colors.alert }}> *</span>
+                <span style={{ color: TAMANU_COLORS.alert }}> *</span>
               </span>
             ),
             accessor: ({ date, conditionCategoryId }, groupName, index) => {
@@ -340,7 +340,7 @@ export const RelatedConditionsForm = ({
                   stringId="programRegistry.updateConditionModal.category"
                   fallback="Category"
                 />
-                <span style={{ color: Colors.alert }}> *</span>
+                <span style={{ color: TAMANU_COLORS.alert }}> *</span>
               </span>
             ),
             width: 180,

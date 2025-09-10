@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -17,16 +18,16 @@ const StyledTooltip = styled(({ className, ...props }) => (
   z-index: 1200; // make it less than the dialog, which is 1300
 
   .MuiTooltip-tooltip {
-    background-color: ${Colors.white};
-    color: ${Colors.darkestText};
+    background-color: ${TAMANU_COLORS.white};
+    color: ${TAMANU_COLORS.darkestText};
     font-size: 0.9em;
     padding: 0.75em 1em;
-    border: 1px solid ${Colors.outline};
+    border: 1px solid ${TAMANU_COLORS.outline};
     max-width: 500px;
   }
 
   .MuiTooltip-arrow {
-    color: ${Colors.outline};
+    color: ${TAMANU_COLORS.outline};
   }
 `;
 
@@ -86,7 +87,7 @@ const StyledAppointment = styled.div`
   column-gap: 1rem;
   cursor: pointer;
   padding: 10px;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   &:last-child {
     border-bottom: none;
   }
@@ -99,13 +100,13 @@ const StyledAppointment = styled.div`
   &.status-Arrived {
     background-color: #ebfff4;
     .icon {
-      color: ${Colors.safe};
+      color: ${TAMANU_COLORS.safe};
     }
   }
   &.status-No-show {
     background-color: #ffebe8;
     .icon {
-      color: ${Colors.alert};
+      color: ${TAMANU_COLORS.alert};
     }
   }
 `;

@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
@@ -5,7 +6,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Button, Collapse, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
-import { Colors } from '../../constants';
+
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
@@ -15,7 +16,7 @@ import { useApi } from '../../api';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -38,11 +39,11 @@ const AddButton = styled(Button)`
     font-size: 14px;
     line-height: 18px;
     letter-spacing: 0;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 
   .MuiSvgIcon-root {
-    color: ${Colors.secondary};
+    color: ${TAMANU_COLORS.secondary};
   }
 `;
 

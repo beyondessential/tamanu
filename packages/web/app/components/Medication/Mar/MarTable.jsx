@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
@@ -26,7 +27,7 @@ const MedicationContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 221px);
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 // Header row for the time slots
@@ -40,7 +41,7 @@ const HeaderRow = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const ScrollableContent = styled.div`
@@ -57,7 +58,7 @@ const ScrollableContent = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: ${Colors.softText};
+    background-color: ${TAMANU_COLORS.softText};
     border-radius: 4px;
   }
 `;
@@ -68,9 +69,9 @@ const HeadingCell = styled.div`
   padding: 12px;
   font-size: 16px;
   font-weight: 500;
-  color: ${Colors.darkestText};
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
+  color: ${TAMANU_COLORS.darkestText};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   height: 100%;
 `;
 
@@ -80,12 +81,12 @@ const TimeSlotHeaderContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   ${props =>
     props.isCurrentTimeSlot
-      ? `background: #EBF0F5; color: ${Colors.primary};`
-      : `color: ${Colors.midText};`}
+      ? `background: #EBF0F5; color: ${TAMANU_COLORS.primary};`
+      : `color: ${TAMANU_COLORS.midText};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -97,31 +98,31 @@ const TimeSlotText = styled.div`
 
 const TimeSlotLabel = styled.div`
   text-transform: capitalize;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const SubHeader = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding: 10px 8px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
-  border-bottom: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   grid-column: 1 / -1;
   position: sticky;
   top: 0;
   z-index: 5;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const EmptyMessage = styled.div`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-size: 14px;
   font-weight: 500;
   padding: 10px 8px;
-  border-top: 1px solid ${Colors.outline};
-  border-left: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   grid-column: 1 / -1;
 `;
 
@@ -138,7 +139,7 @@ const CurrentTimeOverlay = styled.div`
   height: ${p => p.$height || '100%'};
   z-index: 11;
   right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH + 5}px;
-  border: 1px solid ${Colors.primary};
+  border: 1px solid ${TAMANU_COLORS.primary};
   pointer-events: none;
 `;
 
@@ -147,7 +148,7 @@ const LoadingContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   height: 42px;
 `;
 

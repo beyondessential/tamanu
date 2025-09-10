@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
@@ -58,7 +59,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       open={open}
       onClose={onClose}
       width="md"
-      color={Colors.white}
+      color={TAMANU_COLORS.white}
       printable
       onPrint={() => printPDF('lab-request-printout')}
       data-testid="modal-wdy6"

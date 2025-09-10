@@ -1,7 +1,8 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
-import { Colors } from '../../constants';
 
-export const FilterIcon = ({ htmlColor = Colors.primary, width = 18, height = 12, ...props }) => {
+
+export const FilterIcon = ({ htmlColor = TAMANU_COLORS.primary, width = 18, height = 12, ...props }) => {
   return (
     <svg
       width={width}

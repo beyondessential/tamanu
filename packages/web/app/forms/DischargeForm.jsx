@@ -5,15 +5,7 @@ import styled from 'styled-components';
 import { REPEATS_LABELS, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
-import {
-  TextField,
-  StyledTextField,
-  TranslatedSelectField,
-  TextInput,
-  FormGrid,
-  FormConfirmCancelBackRow,
-  FormSubmitButton,
-} from '@tamanu/ui-components';
+import { TextField, StyledTextField, TranslatedSelectField, TextInput, FormGrid, FormConfirmCancelBackRow, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { Colors } from '../constants';
@@ -67,7 +59,7 @@ const ConfirmContent = styled.div`
   text-align: left;
   padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px ${80 - MODAL_PADDING_LEFT_AND_RIGHT}px;
   h3 {
-    color: ${Colors.alert};
+    color: ${TAMANU_COLORS.alert};
     font-size: 16px;
     font-weight: 500;
   }
@@ -92,20 +84,20 @@ const StyledDivider = styled(Divider)`
 `;
 
 const MedicationContainer = styled(Box)`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const DarkestText = styled(Box)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-size: 14px;
 `;
 
 const MedicationHeader = styled(Box)`
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   padding: 12px 20px;
   line-height: 18px;
 `;
@@ -117,14 +109,14 @@ const TableContainer = styled(Box)`
     border: none;
   }
   .MuiTableHead-root {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     .MuiTableCell-head {
       padding: 0 30px 5px 0;
       text-align: left;
       font-size: 14px;
       font-weight: 500;
       line-height: 18px;
-      color: ${Colors.darkText};
+      color: ${TAMANU_COLORS.darkText};
       &:nth-child(4) {
         padding-right: 0;
       }
@@ -270,7 +262,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
           category={medicationReferenceData.type}
         />
       </DarkestText>
-      <Box fontSize={'14px'} color={Colors.midText}>
+      <Box fontSize={'14px'} color={TAMANU_COLORS.midText}>
         {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
         {getTranslatedFrequency(medication.frequency, getTranslation)}
       </Box>
@@ -460,7 +452,7 @@ const EncounterOverview = ({
         data-testid="outerlabelfieldwrapper-2u7q"
       >
         {!currentDiagnoses.length && dischargeDiagnosisMandatory ? (
-          <BodyText color={Colors.alert} data-testid="bodytext-lhri">
+          <BodyText color={TAMANU_COLORS.alert} data-testid="bodytext-lhri">
             <TranslatedText
               stringId="discharge.diagnosis.empty"
               fallback="No diagnosis recorded. A diagnosis must be recorded in order to finalise a discharge."
@@ -893,7 +885,7 @@ export const DischargeForm = ({
             data-testid="outerlabelfieldwrapper-axm9"
           >
             <MedicationContainer>
-              <MedicationHeader borderBottom={`1px solid ${Colors.outline}`}>
+              <MedicationHeader borderBottom={`1px solid ${TAMANU_COLORS.outline}`}>
                 <TranslatedText
                   stringId="discharge.encounterMedication"
                   fallback="Encounter medication"
@@ -913,8 +905,8 @@ export const DischargeForm = ({
                 />
               </TableContainer>
               <MedicationHeader
-                borderTop={`1px solid ${Colors.outline}`}
-                borderBottom={`1px solid ${Colors.outline}`}
+                borderTop={`1px solid ${TAMANU_COLORS.outline}`}
+                borderBottom={`1px solid ${TAMANU_COLORS.outline}`}
               >
                 <TranslatedText
                   stringId="discharge.otherOngoingMedication"

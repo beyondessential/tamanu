@@ -1,5 +1,6 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
-import { Colors } from '../../../constants';
+
 import { getHeightPerYAxisInterval } from '../helpers/getHeightPerYAxisInterval';
 
 export const InwardArrowVectorDot = (props) => {
@@ -41,7 +42,7 @@ export const InwardArrowVectorDot = (props) => {
     >
       <path
         d={`M1 1L${centerPoint.x} ${centerPoint.y}L11 1M6 7V${verticalLine.bottom.y}M1 ${startAndEndPointOfBottomInwardArrow.y}L${verticalLine.bottom.x} ${verticalLine.bottom.y}L11 ${startAndEndPointOfBottomInwardArrow.y}`}
-        stroke={active ? Colors.midText : Colors.darkestText}
+        stroke={active ? TAMANU_COLORS.midText : TAMANU_COLORS.darkestText}
         strokeWidth="2"
         strokeLinecap="round"
       />

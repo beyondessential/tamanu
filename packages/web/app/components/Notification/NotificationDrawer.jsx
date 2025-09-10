@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
@@ -95,14 +96,14 @@ const ActionLink = styled.span`
   font-size: 14px;
   &:hover {
     font-weight: 500;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 `;
 
 const CloseButton = styled.div`
   cursor: pointer;
   svg {
-    fill: ${Colors.darkText};
+    fill: ${TAMANU_COLORS.darkText};
   }
 `;
 
@@ -113,7 +114,7 @@ const CardContainer = styled.div`
   gap: 10px;
   padding: 0 14px;
   &:hover {
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${TAMANU_COLORS.veryLightBlue};
   }
   position: relative;
   cursor: pointer;
@@ -127,14 +128,14 @@ const CardDatetime = styled.div`
   font-size: 11px;
   line-height: 15px;
   margin-top: 2px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   text-transform: lowercase;
 `;
 const CardIndicator = styled.div`
   width: 3px;
   height: calc(100% + 11px);
   position: absolute;
-  background-color: ${Colors.primary};
+  background-color: ${TAMANU_COLORS.primary};
   top: -6px;
   left: 0;
   border-radius: 5px;
@@ -312,7 +313,7 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
           </NotificationList>
         </>
       ) : (
-        <LoadingIndicator backgroundColor={Colors.white} data-testid="loadingindicator-36ut" />
+        <LoadingIndicator backgroundColor={TAMANU_COLORS.white} data-testid="loadingindicator-36ut" />
       )}
     </StyledDrawer>
   );

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import { toast } from 'react-toastify';
 import { Colors } from '../../constants';
-import { Button } from '@tamanu/ui-components';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
@@ -18,7 +18,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const FieldButtonRow = styled.div`
@@ -34,7 +34,7 @@ const HintText = styled.div`
 `;
 
 const ChangeSelectionButton = styled.a`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   cursor: pointer;
 `;

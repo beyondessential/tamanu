@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { TopBar } from '../../../components';
@@ -11,14 +12,14 @@ import { TranslatedText } from '../../../components/Translation';
 
 const OuterContainer = styled.div`
   position: relative;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
   min-height: 100%;
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
   .MuiTabs-root {
     padding: 0px 20px;
-    border-bottom: 1px solid ${Colors.outline};
+    border-bottom: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 

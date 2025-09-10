@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -37,13 +38,13 @@ const LabelText = styled.span`
   font-size: 14px;
   line-height: 18px;
   flex: 1;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const CategoryText = styled.span`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const RemoveIconButton = styled(IconButton)`

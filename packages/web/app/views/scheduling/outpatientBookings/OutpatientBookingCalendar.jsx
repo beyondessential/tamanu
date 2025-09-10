@@ -13,7 +13,7 @@ import {
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { ThemedTooltip } from '../../../components/Tooltip';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useOutpatientAppointmentsCalendarData } from './useOutpatientAppointmentsCalendarData';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { useSendAppointmentEmail } from '../../../api/mutations';
@@ -33,7 +33,7 @@ export const ColumnWrapper = styled(Box)`
     padding-inline: 0.5rem;
   }
 
-  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
+  --border-style: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
   &:not(:first-child) {
     border-inline-start: var(--border-style);
   }
@@ -44,7 +44,7 @@ export const ColumnWrapper = styled(Box)`
 
 const HeadCellWrapper = styled(Box)`
   align-items: center;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   display: flex;
   flex-direction: column;
   inline-size: calc(var(--column-width) - 2px);
@@ -56,8 +56,8 @@ const HeadCellWrapper = styled(Box)`
 
 const AppointmentCountLabel = styled(SmallBodyText)`
   block-size: 1.1rem;
-  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
-  color: ${Colors.midText};
+  border-block: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+  color: ${TAMANU_COLORS.midText};
   inline-size: 100%;
   letter-spacing: 0.02em;
   padding-inline: 0.8125rem;
@@ -65,7 +65,7 @@ const AppointmentCountLabel = styled(SmallBodyText)`
 `;
 
 const AppointmentCount = styled('span')`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   display: contents;
   font-weight: 500;
 `;
@@ -94,7 +94,7 @@ const AppointmentColumnWrapper = styled(Box)`
 `;
 
 const StatusText = styled(BodyText)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   inline-size: 100%;
   padding-block-start: 1rem;
@@ -102,7 +102,7 @@ const StatusText = styled(BodyText)`
 `;
 
 const ErrorText = styled(StatusText)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const LoadingSkeleton = styled(Skeleton).attrs({
@@ -110,7 +110,7 @@ const LoadingSkeleton = styled(Skeleton).attrs({
   variant: 'rectangular',
   width: '100%',
   height: '100%',
-  sx: { bgcolor: Colors.white },
+  sx: { bgcolor: TAMANU_COLORS.white },
 })`
   ::after {
     animation-duration: 1s !important;

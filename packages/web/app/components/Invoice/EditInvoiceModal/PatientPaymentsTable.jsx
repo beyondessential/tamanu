@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Decimal from 'decimal.js';
@@ -19,15 +20,15 @@ import { ThemedTooltip } from '../../Tooltip';
 const TableContainer = styled.div`
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const TooltipContainer = styled.div`
@@ -230,7 +231,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const tableProps = {
     columns: COLUMNS,
     allowExport: false,
-    headerColor: Colors.white,
+    headerColor: TAMANU_COLORS.white,
     fetchOptions: { page: undefined },
     elevated: false,
     containerStyle: denseTableStyle.container,

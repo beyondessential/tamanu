@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useMemo } from 'react';
 import { DataFetchingTable, Heading4, TranslatedText } from '../../components';
 import { getDueDate, getRecordAction, getStatusTag } from './accessors';
@@ -6,7 +7,7 @@ import { Colors } from '../../constants';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled(Heading4)`

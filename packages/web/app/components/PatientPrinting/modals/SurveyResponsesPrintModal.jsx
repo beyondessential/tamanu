@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../../../api';
@@ -76,7 +77,7 @@ export const SurveyResponsesPrintModal = React.memo(
         open={open}
         onClose={onClose}
         width="md"
-        color={Colors.white}
+        color={TAMANU_COLORS.white}
         printable
         onPrint={() => printPDF('survey-responses-printout')}
         data-testid="modal-65lj"

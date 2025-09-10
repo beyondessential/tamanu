@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -23,7 +24,7 @@ const Container = styled.div`
 `;
 
 const BedIcon = styled(SingleBedIcon)`
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
@@ -36,14 +37,14 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.darkText};
+  background: ${TAMANU_COLORS.darkText};
   border-radius: 50%;
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   font-size: 14px;
   line-height: 21px;
 

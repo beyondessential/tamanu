@@ -5,7 +5,7 @@ import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormGrid } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Field, NumberField, AutocompleteField } from '../../Field';
 import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
 import { useSuggester } from '../../../api';
@@ -29,18 +29,18 @@ const StyledFormModal = styled(FormModal)`
 `;
 
 const TimeGivenTitle = styled.div`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 3px;
 `;
 
 const RequiredMark = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 12px;
   margin: 4px 2px 2px;
   font-weight: 500;
@@ -51,13 +51,13 @@ const StyledTimePickerField = styled(Field)`
   width: 100%;
   .MuiInputBase-root {
     font-size: 14px;
-    color: ${Colors.darkestText};
-    background-color: ${Colors.white};
+    color: ${TAMANU_COLORS.darkestText};
+    background-color: ${TAMANU_COLORS.white};
     &.Mui-disabled {
       background-color: inherit;
     }
     &.Mui-disabled .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.outline};
+      border-color: ${TAMANU_COLORS.outline};
     }
     .MuiSvgIcon-root {
       font-size: 22px;
@@ -71,10 +71,10 @@ const StyledTimePickerField = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.primary} !important;
+      border-color: ${TAMANU_COLORS.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.softText};
+      border-color: ${TAMANU_COLORS.softText};
     }
   }
 `;
@@ -85,7 +85,7 @@ const StyledDivider = styled(Divider)`
 `;
 
 const DoseLabel = styled.div`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 16px;
   font-weight: 500;
   margin-top: 20px;

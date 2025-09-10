@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -13,10 +14,10 @@ const StyledTable = styled(Table)`
     tbody tr td:first-child {
       left: 0;
       position: sticky;
-      border-right: 2px solid ${Colors.outline};
+      border-right: 2px solid ${TAMANU_COLORS.outline};
     }
     thead tr th:first-child {
-      background: ${Colors.background};
+      background: ${TAMANU_COLORS.background};
       width: 160px;
       min-width: 160px;
     }
@@ -25,7 +26,7 @@ const StyledTable = styled(Table)`
       width: 115px;
     }
     tbody tr td:first-child {
-      background: ${Colors.white};
+      background: ${TAMANU_COLORS.white};
     }
     tfoot tr td button {
       position: sticky;
@@ -53,7 +54,7 @@ export const DynamicColumnTable = React.memo(({ showFooterLegend, ...props }) =>
           textAlign="end"
           marginTop="8px"
           fontSize="9px"
-          color={Colors.softText}
+          color={TAMANU_COLORS.softText}
           data-testid="box-q7pq"
         >
           *Changed record

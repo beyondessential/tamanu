@@ -14,7 +14,7 @@ const Body = styled.div`
   padding: 40px 20px 50px;
 
   h3 {
-    color: ${Colors.alert};
+    color: ${TAMANU_COLORS.alert};
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 16px;

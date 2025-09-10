@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
@@ -187,7 +188,7 @@ const PatientPaneInner = styled.div`
 const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
-  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
+  const backgroundColor = location.pathname?.endsWith('/mar/view') ? TAMANU_COLORS.white : 'initial';
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (

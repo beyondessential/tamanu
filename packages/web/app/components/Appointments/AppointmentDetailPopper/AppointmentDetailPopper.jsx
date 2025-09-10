@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
@@ -19,7 +20,7 @@ import { useAuth } from '../../../contexts/Auth';
 export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
 const StyledPaper = styled(Paper)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   display: flex;
   flex-direction: column;
   width: 16rem;

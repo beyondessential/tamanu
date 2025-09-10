@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
@@ -59,7 +60,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
         data-testid="translatedtext-hj8p"
       />
     ),
-    color: Colors.white,
+    color: TAMANU_COLORS.white,
     open,
     onClose,
     maxWidth: 'md',

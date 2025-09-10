@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
@@ -23,7 +24,7 @@ const Wrapper = styled.div`
   grid-template-columns: subgrid;
 
   &:not(:first-child) {
-    border-top: 1px solid ${Colors.outline};
+    border-top: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 

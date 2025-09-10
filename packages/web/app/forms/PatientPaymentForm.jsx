@@ -15,7 +15,7 @@ import {
   NumberField,
   TranslatedText,
 } from '../components';
-import { TextField, Form, DefaultIconButton } from '@tamanu/ui-components';
+import { TextField, Form, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { Colors, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
@@ -25,7 +25,7 @@ import { ThemedTooltip } from '../components/Tooltip';
 
 const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   position: absolute;
   top: 6px;
   right: -23px;

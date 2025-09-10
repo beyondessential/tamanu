@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
@@ -78,7 +79,7 @@ export const MultiplePrescriptionPrintoutModal = ({
       width="md"
       open={open}
       onClose={onClose}
-      color={Colors.white}
+      color={TAMANU_COLORS.white}
       printable
       onPrint={() => printPDF('prescription-printout')}
       data-testid="modal-2t67"

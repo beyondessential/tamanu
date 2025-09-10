@@ -6,7 +6,7 @@ import { Modal } from '../../Modal';
 import { TranslatedText } from '../../Translation';
 import { InvoiceItemCard } from './InvoiceItemCard';
 import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
-import { TextField, SelectField, Form, FormGrid } from '@tamanu/ui-components';
+import { TextField, SelectField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Field, NumberField } from '../../Field';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../VaccineCommonFields';
@@ -194,7 +194,7 @@ const AddNoteForm = () => {
             textAlign="right"
             fontSize="11px"
             fontWeight={400}
-            color={Colors.midText}
+            color={TAMANU_COLORS.midText}
             data-testid="box-xi3i"
           >
             <TranslatedText

@@ -8,7 +8,7 @@ import { useApi } from '../../api';
 import { Colors } from '../../constants';
 import { Heading5 } from '../../components/Typography';
 import { Field } from '../../components/Field';
-import { BaseSelectField, Form, Button, FormGrid } from '@tamanu/ui-components';
+import { BaseSelectField, Form, Button, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -18,10 +18,10 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 0 15px 20px 20px;
   border-radius: 5px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -32,12 +32,12 @@ const StyledFormGrid = styled(FormGrid)`
 
 const StyledButton = styled(Button)`
   height: 44px;
-  background-color: ${Colors.primary};
-  color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.primary};
+  color: ${TAMANU_COLORS.white};
   width: 100%;
   :disabled {
-    background-color: ${Colors.primary};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primary};
+    color: ${TAMANU_COLORS.white};
     opacity: 0.4;
   }
 `;

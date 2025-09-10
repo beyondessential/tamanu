@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -32,7 +33,7 @@ const TableTitle = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
   padding: 15px 20px;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,12 +42,12 @@ const TableTitle = styled(Typography)`
 
 const Table = styled(DataFetchingTable)`
   .MuiTableCell-head {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 8px !important;
     padding-bottom: 8px !important;
     span {
       font-weight: 400;
-      color: ${Colors.midText} !important;
+      color: ${TAMANU_COLORS.midText} !important;
     }
     padding-left: 11px;
     padding-right: 11px;
@@ -72,7 +73,7 @@ const Table = styled(DataFetchingTable)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? TAMANU_COLORS.veryLightBlue : '')};
     }
   }
 `;

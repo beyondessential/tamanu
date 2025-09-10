@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { omit } from 'lodash';
 import styled from 'styled-components';
@@ -30,10 +31,10 @@ const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
   min-width: 366px;
   min-height: 41%;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   padding-top: 15px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   display: flex;
   flex-direction: column;
 `;
@@ -42,7 +43,7 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding-bottom: 6px;
   margin: 0 20px 11px;
 `;
@@ -74,7 +75,7 @@ const StyledTimelineContent = styled(TimelineContent)`
 `;
 
 const StyledTimelineConnector = styled(TimelineConnector)`
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   width: 1px;
 `;
 
@@ -103,7 +104,7 @@ const StyledTimelineSeparator = styled(TimelineSeparator)`
 `;
 
 const Card = styled.div`
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   height: 54px;
   border-radius: 3px;
   padding: 8px 16px;
@@ -135,9 +136,9 @@ const Footer = styled.div`
   margin: 4px 20px 0;
   flex-grow: 1;
   min-height: 20px;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   position: sticky;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const NoDataContainer = styled.div`
@@ -149,8 +150,8 @@ const NoDataContainer = styled.div`
   margin: 0 20px 20px;
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.primary};
-  background-color: ${Colors.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
+  background-color: ${TAMANU_COLORS.hoverGrey};
   text-align: center;
 `;
 

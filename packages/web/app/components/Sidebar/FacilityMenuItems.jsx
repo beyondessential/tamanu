@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import {
   labsIcon,
@@ -47,7 +48,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-7oku"
           />
         ),
-        color: Colors.blue,
+        color: TAMANU_COLORS.blue,
         path: '/patients/all',
         key: 'patientsAll',
         ability: { action: 'read' },
@@ -60,7 +61,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-tjv8"
           />
         ),
-        color: Colors.green,
+        color: TAMANU_COLORS.green,
         path: '/patients/inpatient',
         key: 'patientsInpatients',
         ability: { action: 'read' },
@@ -73,7 +74,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-sn91"
           />
         ),
-        color: Colors.orange,
+        color: TAMANU_COLORS.orange,
         path: '/patients/emergency',
         key: 'patientsEmergency',
         ability: { action: 'read' },

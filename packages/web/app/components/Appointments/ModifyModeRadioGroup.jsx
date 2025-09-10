@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { typographyClasses } from '@mui/material/Typography';
@@ -16,7 +17,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     padding: 0.375rem;
   }
   & svg {
@@ -31,7 +32,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     & .${typographyClasses.root} {
       font-size: 14px;
       margin-left: 0.375rem;
-      color: ${Colors.darkestText};
+      color: ${TAMANU_COLORS.darkestText};
     }
   }
 `;

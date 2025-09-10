@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
@@ -22,7 +23,7 @@ const Container = styled.div`
 const ScrollBody = styled.div`
   flex: 1;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 5px 0;
   overflow: auto;
 `;
@@ -49,7 +50,7 @@ const ClippedConditionName = styled.span`
 `;
 
 const ConditionCategory = styled.span`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const getGroupedConditions = conditions => {

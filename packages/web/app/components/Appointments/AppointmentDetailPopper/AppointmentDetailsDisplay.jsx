@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
@@ -9,7 +10,7 @@ import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { DetailsDisplay } from './SharedComponents';
 
 const AppointmentDetailsContainer = styled('div')`
-  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -72,7 +73,7 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
         <Tag data-testid="tag-j3j7">
           <Overnight
             aria-hidden
-            htmlColor={Colors.primary}
+            htmlColor={TAMANU_COLORS.primary}
             sx={{ fontSize: 15 }}
             data-testid="overnight-ginj"
           />
@@ -114,7 +115,7 @@ const AppointmentTypeDetails = ({ appointmentType, isHighPriority }) => {
         <Tag data-testid="tag-aesu">
           <HighPriorityIcon
             aria-label="High priority"
-            htmlColor={Colors.alert}
+            htmlColor={TAMANU_COLORS.alert}
             style={{ fontSize: 15 }}
             data-testid="highpriorityicon-kkvr"
           />

@@ -9,13 +9,13 @@ import {
   DynamicSelectField,
   TranslatedText,
 } from '../../../components';
-import { SelectInput, OutlinedButton, Button } from '@tamanu/ui-components';
+import { SelectInput, OutlinedButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 import { Category } from './components/Category';
 
 const SettingsWrapper = styled.div`
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   margin-top: 1.25rem;
 `;
 

@@ -4,7 +4,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { OutlinedButton } from '@tamanu/ui-components';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
@@ -19,9 +19,9 @@ const Container = styled.div`
 `;
 
 const StyledButton = styled(OutlinedButton)`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   &.Mui-disabled {
-    border-color: ${Colors.outline};
+    border-color: ${TAMANU_COLORS.outline};
   }
 `;
 

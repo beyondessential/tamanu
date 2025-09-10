@@ -13,7 +13,7 @@ import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';
@@ -37,8 +37,8 @@ const CalendarWrapper = styled(Box)`
   flex-direction: column;
   margin: 1rem;
   border-radius: 0.25rem;
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
-  background: ${Colors.white};
+  border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+  background: ${TAMANU_COLORS.white};
 `;
 
 const CalendarInnerWrapper = styled(Box)`
@@ -46,7 +46,7 @@ const CalendarInnerWrapper = styled(Box)`
   display: flex;
   inline-size: 100%;
   overflow: auto;
-  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block-start: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
 `;
 
 const AppointmentTopBar = styled(TopBar).attrs({
@@ -58,7 +58,7 @@ const AppointmentTopBar = styled(TopBar).attrs({
     />
   ),
 })`
-  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+  border-block-end: max(0.0625rem, 1px) ${TAMANU_COLORS.outline} solid;
   flex-grow: 0;
   .MuiToolbar-root {
     justify-content: flex-start;

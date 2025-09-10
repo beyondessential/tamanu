@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
@@ -41,7 +42,7 @@ const ContentContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const LogoContainer = styled.div`
@@ -63,7 +64,7 @@ const SupportDesktopLink = styled.a`
   font-size: 9px;
   line-height: 15px;
   text-decoration: underline;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,7 +82,7 @@ const FormContainer = styled.div`
 
 const DesktopVersionText = styled(Typography)`
   font-size: 9px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   position: absolute;
   bottom: 15px;
   right: 20px;

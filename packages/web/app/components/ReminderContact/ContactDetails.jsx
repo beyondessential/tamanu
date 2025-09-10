@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { TextButton } from '@tamanu/ui-components';
+import { TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { WS_EVENTS } from '@tamanu/constants';
-import { Colors } from '../../constants';
+
 import { useAuth } from '../../contexts/Auth';
 import { DataFetchingTable, Table } from '../Table';
 import { joinNames } from '../../utils/user';
@@ -26,7 +26,7 @@ const StyledTextButton = styled(TextButton)`
   font-size: 14px;
   line-height: 18px;
   text-decoration: underline;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   .MuiButton-label {
     font-weight: 400;
   }
@@ -37,8 +37,8 @@ const StyledContactListTable = (props) => {
     display: ${(props) => (props.isEmpty ? 'none' : 'block')};
     margin-bottom: 28px;
     border-radius: 5px;
-    border: 1px solid ${Colors.outline};
-    background: ${Colors.white};
+    border: 1px solid ${TAMANU_COLORS.outline};
+    background: ${TAMANU_COLORS.white};
     box-shadow: none;
 
     table {
@@ -48,8 +48,8 @@ const StyledContactListTable = (props) => {
     }
 
     table thead th {
-      background-color: ${Colors.white} !important;
-      border-bottom: 1px solid ${Colors.outline};
+      background-color: ${TAMANU_COLORS.white} !important;
+      border-bottom: 1px solid ${TAMANU_COLORS.outline};
       padding: 13px 0 12px 2px;
       padding-left: 2px !important;
       width: 30%;
@@ -85,22 +85,22 @@ const ColoredText = styled.span`
 
 const ContactDetailTable = (props) => {
   const Component = styled(Table)`
-    border: 1px solid ${Colors.outline};
+    border: 1px solid ${TAMANU_COLORS.outline};
     box-shadow: none;
     margin: 22px 0 42px;
     border-radius: 5px;
-    background: ${Colors.white};
+    background: ${TAMANU_COLORS.white};
 
     table {
       padding-left: 23px;
       padding-right: 20px;
 
       thead tr {
-        border-bottom: 1px solid ${Colors.outline};
+        border-bottom: 1px solid ${TAMANU_COLORS.outline};
 
         th {
           font-style: normal;
-          background-color: ${Colors.white} !important;
+          background-color: ${TAMANU_COLORS.white} !important;
           padding: 13px 0 12px !important;
           font-size: 14px;
           line-height: 18px;
@@ -129,13 +129,13 @@ const ColoredCellText = ({ children, status }) => {
   switch (status) {
     case CONNECTION_STATUS.FAILED:
       return (
-        <ColoredText color={Colors.alert} data-testid="coloredtext-cjh3">
+        <ColoredText color={TAMANU_COLORS.alert} data-testid="coloredtext-cjh3">
           {children}
         </ColoredText>
       );
     case CONNECTION_STATUS.PENDING:
       return (
-        <ColoredText color={Colors.softText} data-testid="coloredtext-y6os">
+        <ColoredText color={TAMANU_COLORS.softText} data-testid="coloredtext-y6os">
           {children}
         </ColoredText>
       );

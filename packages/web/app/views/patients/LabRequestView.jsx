@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
 import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { OutlinedButton } from '@tamanu/ui-components';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -50,11 +50,11 @@ const Container = styled.div`
 
 const TopContainer = styled.div`
   padding: 18px 30px;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
 `;
 
 const BottomContainer = styled.div`
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 18px 30px;
   display: flex;
   flex-direction: column;
@@ -62,7 +62,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${(p) => p.color || Colors.darkestText};
+  color: ${(p) => p.color || TAMANU_COLORS.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -353,7 +353,7 @@ export const LabRequestView = () => {
                       <LabelContainer
                         color={
                           labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
-                          Colors.softText
+                          TAMANU_COLORS.softText
                         }
                         data-testid="labelcontainer-mjji"
                       >
@@ -393,7 +393,7 @@ export const LabRequestView = () => {
             main={
               <>
                 <DateDisplay
-                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                  color={labRequest.sampleTime ? 'unset' : TAMANU_COLORS.softText}
                   date={labRequest.sampleTime}
                   showTime
                   data-testid="datedisplay-h6el"

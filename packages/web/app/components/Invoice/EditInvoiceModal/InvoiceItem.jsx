@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -29,12 +30,12 @@ const StyledItemRow = styled(Box)`
   gap: 10px;
   font-size: 14px;
   padding: 7.5px 20px;
-  background: ${Colors.white};
-  border-left: 1px solid ${Colors.outline};
-  border-right: 1px solid ${Colors.outline};
-  border-top: 1px solid ${Colors.outline};
+  background: ${TAMANU_COLORS.white};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-right: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   &:last-child {
-    border-bottom: 1px solid ${Colors.outline};
+    border-bottom: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 
@@ -46,7 +47,7 @@ const StyledItemHeader = styled(Box)`
   padding-right: 20px;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-bottom: 0;
 `;
 
@@ -339,7 +340,7 @@ export const InvoiceItemRow = ({
             <Box
               paddingLeft={editable ? '15px' : 0}
               marginTop={editable ? '4px' : '-8px'}
-              color={Colors.darkText}
+              color={TAMANU_COLORS.darkText}
               data-testid="box-dedu"
             >
               <TranslatedText

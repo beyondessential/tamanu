@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -6,7 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
-import { Colors } from '../../constants';
+
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const ControlLabel = styled(FormLabel)`
@@ -15,7 +16,7 @@ const ControlLabel = styled(FormLabel)`
   margin-left: 0;
 
   .MuiTypography-root {
-    color: ${Colors.darkText};
+    color: ${TAMANU_COLORS.darkText};
     font-weight: 500;
     font-size: 14px;
     line-height: 16px;
@@ -32,7 +33,7 @@ const StyledFormHelperText = styled(FormHelperText)`
 `;
 
 const RequiredLabel = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   padding-left: 3px;
 `;
 

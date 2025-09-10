@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Box } from '@material-ui/core';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 import React from 'react';
@@ -56,12 +57,12 @@ const StyledTable = styled(Table)`
     top: 0;
   }
   .MuiTableCell-head {
-    border-top: 1px solid ${Colors.outline};
-    background-color: ${Colors.white};
+    border-top: 1px solid ${TAMANU_COLORS.outline};
+    background-color: ${TAMANU_COLORS.white};
     padding: 8px;
     span {
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     &:last-child {
       padding-right: 30px;
@@ -118,7 +119,7 @@ const OvernightIcon = styled.span`
   position: absolute;
   top: 17px;
   left: 146px;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const getDate = ({ startTime, endTime }) => {

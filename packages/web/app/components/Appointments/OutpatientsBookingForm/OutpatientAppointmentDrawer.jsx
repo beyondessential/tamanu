@@ -39,7 +39,7 @@ import {
   Field,  
   SwitchField,
 } from '../../Field';
-import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, FormGrid, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';
@@ -500,7 +500,7 @@ export const OutpatientAppointmentDrawer = ({ open, onClose, initialValues = {},
                 <HighPriorityIcon
                   aria-label="High priority"
                   aria-hidden={undefined}
-                  htmlColor={Colors.alert}
+                  htmlColor={TAMANU_COLORS.alert}
                   style={{ fontSize: 18 }}
                   data-testid="highpriorityicon-i0bk"
                 />

@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,7 +13,7 @@ import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './Ba
 import { TranslatedText } from './Translation/TranslatedText';
 
 const TypographyLink = styled(Typography)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;

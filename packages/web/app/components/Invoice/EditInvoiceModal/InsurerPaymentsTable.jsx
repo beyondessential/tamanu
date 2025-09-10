@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
@@ -14,22 +15,22 @@ const TableContainer = styled.div`
   margin-top: 10px;
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   flex: 2;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const getInsurerPaymentStatus = (insurerPayment) => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
     return (
-      <Box color={Colors.alert} data-testid="box-lbl5">
+      <Box color={TAMANU_COLORS.alert} data-testid="box-lbl5">
         {`${capitalize(insurerPayment?.status)}${
           insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
         }`}
@@ -134,7 +135,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
       <Table
         columns={COLUMNS}
         data={insurerPayments}
-        headerColor={Colors.white}
+        headerColor={TAMANU_COLORS.white}
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}

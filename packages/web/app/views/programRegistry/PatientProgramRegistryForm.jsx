@@ -5,7 +5,7 @@ import * as yup from 'yup';
 import { REGISTRATION_STATUSES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useSelector } from 'react-redux';
-import { Form, FormGrid } from '@tamanu/ui-components';
+import { Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateField,
@@ -30,7 +30,7 @@ const RelatedConditionFieldsContainer = styled.div`
   align-items: flex-start;
   gap: 10px;
   grid-column: 1 / -1;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   padding-top: 8px;
   margin-top: -8px;
 

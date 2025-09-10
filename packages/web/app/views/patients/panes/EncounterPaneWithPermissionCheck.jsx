@@ -1,12 +1,13 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
+
 import { TranslatedText } from '../../../components';
 import { useAuth } from '../../../contexts/Auth';
 
 const Container = styled.div`
   margin: 20px 24px 24px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 4px;
   padding: 20px 12px;
   height: 460px;
@@ -14,7 +15,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   border-radius: 4px;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
   height: 100%;
   display: flex;
   justify-content: center;
@@ -24,7 +25,7 @@ const Content = styled.div`
   font-weight: 500;
   white-space: pre;
   text-align: center;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 export const EncounterPaneWithPermissionCheck = ({ children, permissionNoun }) => {
