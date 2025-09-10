@@ -1,6 +1,7 @@
 import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '@tamanu/constants';
+import { BaseError } from '@tamanu/errors';
 
-export class FhirError extends Error {
+export class FhirError extends BaseError {
   constructor(
     message,
     {
@@ -11,8 +12,7 @@ export class FhirError extends Error {
       expression = undefined,
     } = {},
   ) {
-    super(message);
-    this.status = status;
+    super(`fhir-${code}`, `FHIR: ${code}`, status);
     this.severity = severity;
     this.code = code;
     this.diagnostics = diagnostics;
