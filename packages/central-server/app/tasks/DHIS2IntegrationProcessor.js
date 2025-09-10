@@ -76,18 +76,25 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     }
 
     const latestVersion = report.versions[0];
-    const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
+    const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
 
-    const dryRunResponse = await this.postToDHIS2({ reportData, dryRun: true });
-    if (dryRunResponse.status === DHIS2_REQUEST_STATUSES.SUCCESS) {
-      if (checkIfImportCountHasData(dryRunResponse.importCount)) {
+    const { status, statusText, importCount } = await this.postToDHIS2({
+      reportData,
+      dryRun: true,
+    });
+
+    if (status === DHIS2_REQUEST_STATUSES.SUCCESS) {
+      if (checkIfImportCountHasData(importCount)) {
         const { importCount } = await this.postToDHIS2({ reportData });
         log.info(`Report ${reportString} sent to DHIS2`, importCount);
       } else {
         log.warn(`Report ${reportString} dry run successful but no data was imported`);
       }
     } else {
-      log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, dryRunResponse);
+      log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, {
+        status,
+        statusText,
+      });
     }
   }
 
