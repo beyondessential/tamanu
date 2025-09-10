@@ -23,6 +23,7 @@
     "setup-dev": "node dist setup",
     "shell": "npm run build && node dist shell",
     "start-dev": "concurrently npm:build-watch npm:start-watch",
+    "start-dev:test": "NODE_ENV=test concurrently npm:build-watch npm:start-watch",
     "start-watch": "sleep 1 && nodemon --delay 1 \"dist/**/*.js\"",
     "start": "node dist",
     "test": "npm run test-build && NODE_ENV=test jest",

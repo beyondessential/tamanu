@@ -59,6 +59,7 @@ import { upcomingVaccinations } from './upcomingVaccinations';
 import { telegramRoutes } from './telegram/telegramRoutes';
 import { tasks } from './task/tasks';
 import { notifications } from './notifications';
+import { random } from './random';
 
 export const apiv1 = express.Router();
 const patientDataRoutes = express.Router();
@@ -181,3 +182,6 @@ referenceDataRoutes.use('/translation', translation);
 syncRoutes.use('/sync', sync);
 syncRoutes.use('/syncHealth', syncHealth);
 syncRoutes.use('/patientFacility', patientFacility);
+
+// random entities for testing
+apiv1.use('/random', random);

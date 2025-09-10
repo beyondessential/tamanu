@@ -18,9 +18,17 @@
       "import": "./dist/mjs/fake/index.js",
       "require": "./dist/cjs/fake/index.js"
     },
-    "./fake/fakeRequest/*": {
-      "import": "./dist/mjs/fake/fakeRequest/*.js",
-      "require": "./dist/cjs/fake/fakeRequest/*.js"
+    "./fake/*": {
+      "import": "./dist/mjs/fake/*.js",
+      "require": "./dist/cjs/fake/*.js"
+    },
+    "./services/*": {
+      "import": "./dist/mjs/services/*.js",
+      "require": "./dist/cjs/services/*.js"
+    },
+    "./utils/*": {
+      "import": "./dist/mjs/utils/*.js",
+      "require": "./dist/cjs/utils/*.js"
     }
   },
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
