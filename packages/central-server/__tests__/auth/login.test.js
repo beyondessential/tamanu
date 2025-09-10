@@ -2,7 +2,8 @@ import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt from 'jsonwebtoken';
 
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
+import { SETTING_KEYS } from '@tamanu/constants';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
@@ -196,6 +197,92 @@ describe('Auth - Login', () => {
     it('Should reject a deactivated user', async () => {
       const response = await baseApp.post('/api/login').send({
         email: deactivatedUser.email,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('Locked out', () => {
+    let userId;
+    beforeAll(async () => {
+      await store.models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
+        lockoutThreshold: 1,
+      });
+      const user = await store.models.User.findOne({
+        where: {
+          email: TEST_EMAIL,
+        },
+      });
+      userId = user.id;
+    });
+    beforeEach(async () => {
+      await store.models.UserLoginAttempt.destroy({ where: {}, force: true });
+    });
+
+    it('Should create a successful login attempt', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+        deviceId: TEST_DEVICE_ID,
+      });
+      const loginAttempt = await store.models.UserLoginAttempt.findOne({
+        where: {
+          userId,
+          deviceId: TEST_DEVICE_ID,
+        },
+      });
+      expect(response).toHaveSucceeded();
+      expect(loginAttempt).toHaveProperty('outcome', LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED);
+    });
+
+    it('Should create a failed login attempt', async () => {
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL,
+        password: 'wrong',
+        deviceId: TEST_DEVICE_ID,
+      });
+      const loginAttempt = await store.models.UserLoginAttempt.findOne({
+        where: {
+          userId,
+          deviceId: TEST_DEVICE_ID,
+        },
+      });
+      expect(response).toHaveRequestError();
+      expect(loginAttempt).toHaveProperty('outcome', LOGIN_ATTEMPT_OUTCOMES.FAILED);
+    });
+
+    it('Should lock out a user after the lockout threshold is reached', async () => {
+      await store.models.UserLoginAttempt.create({
+        userId,
+        deviceId: TEST_DEVICE_ID,
+        outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
+      });
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL,
+        password: 'wrong',
+        deviceId: TEST_DEVICE_ID,
+      });
+      const loginAttempt = await store.models.UserLoginAttempt.findOne({
+        where: {
+          userId,
+          deviceId: TEST_DEVICE_ID,
+        },
+        order: [['createdAt', 'DESC']],
+      });
+      expect(response).toHaveRequestError();
+      expect(loginAttempt).toHaveProperty('outcome', LOGIN_ATTEMPT_OUTCOMES.LOCKED);
+    });
+
+    it('Should reject a locked out user', async () => {
+      await store.models.UserLoginAttempt.create({
+        userId,
+        deviceId: TEST_DEVICE_ID,
+        outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
+      });
+      const response = await baseApp.post('/api/login').send({
+        email: TEST_EMAIL,
         password: TEST_PASSWORD,
         deviceId: TEST_DEVICE_ID,
       });
