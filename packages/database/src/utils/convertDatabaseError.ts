@@ -9,8 +9,6 @@ import {
 import * as sequelize from 'sequelize';
 
 export function convertDatabaseError(error: sequelize.BaseError): BaseError {
-  console.log('convert error', error);
-
   if (error instanceof sequelize.ValidationError) {
     return new DatabaseValidationError(error.message).withCause(error).withExtraData({
       validations: error.errors.map(err => err.validatorName),
