@@ -1,5 +1,5 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useMemo, useState } from 'react';
+import { TAMANU_COLORS, ConfirmCancelRow } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation';
 import { Modal } from '../Modal';
 import { Box } from '@mui/material';
@@ -8,7 +8,6 @@ import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
-  ConfirmCancelRow,
   formatShortest,
   Table,
   TranslatedEnum,

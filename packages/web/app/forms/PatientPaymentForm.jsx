@@ -8,14 +8,12 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
-  Button,
   DateField,
   Field,
   NoteModalActionBlocker,
   NumberField,
-  TranslatedText,
 } from '../components';
-import { TextField, Form, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, DefaultIconButton, TAMANU_COLORS, TranslatedText, Button } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';

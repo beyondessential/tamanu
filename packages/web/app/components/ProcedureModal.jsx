@@ -13,7 +13,7 @@ import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants/index.js';
+import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
 import { ProcedureAdditionalData } from '../forms/ProcedureForm/ProcedureAdditionalData';
 import { DataFetchingProgramsTable } from '../components/ProgramResponsesTable';

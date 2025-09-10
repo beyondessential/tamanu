@@ -1,5 +1,6 @@
 export * from './Button';
 export * from './SurveyQuestion';
+export * from './SurveyScreen';
 export * from './Field';
 export * from './Tag';
 export * from './Tooltip';
