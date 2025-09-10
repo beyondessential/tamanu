@@ -1,12 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { Box } from '@material-ui/core';
 import { formatTimeSlot } from '../../../utils/medications';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,

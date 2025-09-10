@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
@@ -9,7 +8,8 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, SmallBodyText, formatShortest, formatTime, Table } from '../.';
 import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';

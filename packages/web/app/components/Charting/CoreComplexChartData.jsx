@@ -1,10 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';

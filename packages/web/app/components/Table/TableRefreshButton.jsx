@@ -1,9 +1,7 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DateDisplay } from '../DateDisplay';
-
 import { RefreshIcon } from '../Icons/RefreshIcon';
 import { ThemedTooltip } from '../Tooltip';
 

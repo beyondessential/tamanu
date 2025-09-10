@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
-
 import { Tab, Tabs } from '@material-ui/core';
+
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const TabBar = styled.div`
   display: flex;

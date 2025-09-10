@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import ReactSelect, { components } from 'react-select';
 import styled from 'styled-components';
 
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const Select = styled(ReactSelect)`
   .react-select__clear-indicator {

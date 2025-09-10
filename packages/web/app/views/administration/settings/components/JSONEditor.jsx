@@ -1,12 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
-
-
 
 const THEMES = {
   VIEW: 'dawn',

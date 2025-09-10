@@ -1,13 +1,12 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
 import { CreateReportView } from './CreateReportView';
 import { SelectReportView } from './SelectReportView';
-import { TranslatedText } from '../../../components/Translation';
 
 const OuterContainer = styled.div`
   position: relative;

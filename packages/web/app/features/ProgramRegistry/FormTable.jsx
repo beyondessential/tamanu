@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Container = styled.div`
   border-radius: 3px;

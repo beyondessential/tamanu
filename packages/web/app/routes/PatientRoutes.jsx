@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';

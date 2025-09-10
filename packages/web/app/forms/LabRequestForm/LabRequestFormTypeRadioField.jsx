@@ -1,12 +1,11 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@material-ui/lab';
 import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
 
 const OPTIONS = {

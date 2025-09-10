@@ -1,11 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-
-
-import { CheckInput, Heading4, LocationInput, TranslatedText } from '../../components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { CheckInput, Heading4, LocationInput } from '../../components';
 import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';

@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useLayoutEffect, useRef, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
@@ -8,8 +7,8 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
-import { TranslatedText } from '../..';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { MarTableRow } from './MarTableRow';

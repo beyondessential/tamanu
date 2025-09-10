@@ -1,8 +1,6 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
-
-import { TranslatedText } from '../../../components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 
 const Container = styled.div`

@@ -1,7 +1,7 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 
 export const TableTooltip = styled(({ className, children, placement = 'top', ...props }) => (

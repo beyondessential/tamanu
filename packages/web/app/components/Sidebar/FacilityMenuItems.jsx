@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import {
   labsIcon,
@@ -9,7 +8,7 @@ import {
   vaccineIcon,
   dashboardIcon,
 } from '../../constants/images';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [

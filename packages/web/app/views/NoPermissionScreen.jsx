@@ -1,10 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import backgroundImage from '../assets/images/hospital_illustration_background.svg';
-
-import { TranslatedText } from '../components';
 
 const Container = styled.div`
   border: 1px #dedede solid;

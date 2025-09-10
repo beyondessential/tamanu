@@ -1,6 +1,6 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { MarHeader } from '../../../components/Medication/Mar/MarHeader';
 import { MarTable } from '../../../components/Medication/Mar/MarTable';
 import { set } from 'date-fns';

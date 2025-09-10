@@ -1,9 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { useParams } from 'react-router-dom';
-import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
+import { Table, DateDisplay, Heading5 } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';

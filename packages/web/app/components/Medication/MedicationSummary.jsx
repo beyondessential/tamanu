@@ -1,15 +1,19 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  TAMANU_COLORS,
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../Translation';
 import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`

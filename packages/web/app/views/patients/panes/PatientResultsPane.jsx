@@ -1,7 +1,6 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
-
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
@@ -9,7 +8,6 @@ import { usePatientLabTestResultsQuery } from '../../../api/queries/usePatientLa
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
   padding: 30px;

@@ -1,5 +1,5 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 

@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { Fragment, useEffect } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -7,8 +6,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { TAMANU_COLORS, TranslatedEnumField } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: TAMANU_COLORS.outline, selected: TAMANU_COLORS.primary },

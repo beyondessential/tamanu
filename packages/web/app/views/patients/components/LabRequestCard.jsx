@@ -1,10 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay } from '../../../components';
-import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   display: flex;

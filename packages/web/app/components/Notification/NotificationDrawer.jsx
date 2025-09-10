@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import CloseIcon from '@material-ui/icons/Close';
@@ -8,10 +7,10 @@ import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
 import { BodyText, Heading3, Heading5 } from '../Typography';
-import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';

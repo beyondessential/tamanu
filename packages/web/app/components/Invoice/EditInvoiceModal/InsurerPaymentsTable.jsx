@@ -1,11 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
 import { denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';

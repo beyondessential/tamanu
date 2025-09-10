@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import {
   CartesianGrid,
@@ -12,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
 import { ReferenceBands } from './components/ReferenceBands';

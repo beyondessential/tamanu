@@ -1,11 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
@@ -19,7 +18,6 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientSearchKeys, usePatientSearch } from '../../contexts/PatientSearch';
 import { columns } from './bedManagementColumns';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const DashboardContainer = styled.div`
   display: flex;

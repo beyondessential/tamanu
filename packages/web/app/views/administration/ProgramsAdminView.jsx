@@ -1,11 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TabDisplay } from '../../components/TabDisplay';
 import { ImporterView } from './components/ImporterView';
 import { AdminViewContainer } from './components/AdminViewContainer';
 import { ProgramExporterView } from './components/ProgramExporterView';
-import { TranslatedText } from '../../components/Translation';
 
 const StyledTabDisplay = styled(TabDisplay)`
   margin-top: 20px;

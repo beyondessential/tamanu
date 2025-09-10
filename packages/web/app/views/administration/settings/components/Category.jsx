@@ -1,11 +1,11 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
 
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { isSetting } from '@tamanu/settings';
 
-import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
+import { BodyText, Heading4, LargeBodyText } from '../../../../components';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';

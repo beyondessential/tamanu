@@ -1,10 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
@@ -13,7 +13,6 @@ import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import {
   BodyText,
   SmallBodyText,
-  TranslatedText,
   useSelectableColumn,
   DataFetchingTable,
 } from '../.';

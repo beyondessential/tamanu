@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -10,10 +9,10 @@ import {
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 
 import { INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
-import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';

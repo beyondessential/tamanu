@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
 import { NewTemplateForm } from './NewTemplateForm';
@@ -13,7 +13,6 @@ import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;

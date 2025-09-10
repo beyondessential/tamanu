@@ -1,9 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-
 import { Autorenew } from '@material-ui/icons';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { TranslatedText } from '../Translation/TranslatedText';
 

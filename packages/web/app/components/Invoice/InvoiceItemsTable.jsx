@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -6,11 +5,11 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
-import { TranslatedText } from '../Translation';
 import { ThemedTooltip } from '../Tooltip';
 
 const StyledTitleCell = ({ value }) => (

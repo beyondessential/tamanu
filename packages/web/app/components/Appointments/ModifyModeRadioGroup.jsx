@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { typographyClasses } from '@mui/material/Typography';
@@ -6,9 +5,8 @@ import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormCon
 import Radio, { radioClasses } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
-
-import { TranslatedText } from '../Translation';
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: 0.75rem;

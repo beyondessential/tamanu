@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
@@ -12,8 +11,8 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ConditionalTooltip } from '../../Tooltip';
 import { useTranslation } from '../../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';

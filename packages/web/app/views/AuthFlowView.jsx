@@ -1,18 +1,16 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Launch } from '@material-ui/icons';
+import { Typography } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';
 import { restartPasswordResetFlow } from '../store';
 import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
-import { Typography } from '@material-ui/core';
 import { getBrandId } from '../utils';
 import { FULL_VERSION } from '../utils/env';
-
-import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;

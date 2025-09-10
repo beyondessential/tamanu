@@ -1,11 +1,10 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
 import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ChevronIcon } from '../Icons/ChevronIcon';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const PaginatorWrapper = styled.td``;
 

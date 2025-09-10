@@ -1,14 +1,13 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { TranslatedText } from '../../Translation';
 import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
 import { useSuggester } from '../../../api';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../Tooltip';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,

@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { omit } from 'lodash';
 import styled from 'styled-components';
@@ -11,10 +10,11 @@ import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
-import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box } from '@material-ui/core';
+import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
-import { Heading4, TranslatedText } from '../../../components';
+import { Heading4 } from '../../../components';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator,

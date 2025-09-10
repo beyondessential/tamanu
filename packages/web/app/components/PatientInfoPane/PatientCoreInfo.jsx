@@ -1,13 +1,12 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedSex, TranslatedText } from '@tamanu/ui-components';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { getDisplayAge } from '../../utils/dateTime';
-import { TranslatedSex, TranslatedText } from '../Translation';
 
 const PatientButton = styled(Button)`
   display: block;

@@ -1,7 +1,7 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { CheckInput, DataFetchingTable, Heading4, TranslatedText } from '../../components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { CheckInput, DataFetchingTable, Heading4 } from '../../components';
 import { getActionButtons, getDate, getFacility, getGiver, getVaccineName } from './accessors';
 
 const Container = styled.div`

@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useEffect, useState } from 'react';
 import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';

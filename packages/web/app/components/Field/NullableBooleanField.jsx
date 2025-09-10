@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
@@ -8,7 +7,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import MuiButton from '@material-ui/core/Button';
 import MuiButtonGroup from '@material-ui/core/ButtonGroup';
 
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 const ControlLabel = styled(FormLabel)`
   width: max-content;

@@ -1,6 +1,5 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
-
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const PatientPortalIcon = ({ fill }) => {
   return (

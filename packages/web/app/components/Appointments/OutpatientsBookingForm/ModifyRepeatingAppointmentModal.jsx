@@ -1,9 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ConfirmModal } from '../../ConfirmModal';
-import { TranslatedText } from '../../Translation';
 import { BodyText } from '../../Typography';
 import { ModifyModeRadioGroup } from '../ModifyModeRadioGroup';
 

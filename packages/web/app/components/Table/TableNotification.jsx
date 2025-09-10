@@ -1,6 +1,6 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo } from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { ClearIcon } from '../Icons/ClearIcon';
 

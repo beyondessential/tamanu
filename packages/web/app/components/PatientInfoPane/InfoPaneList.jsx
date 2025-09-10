@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
@@ -6,6 +5,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Button, Collapse, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
 import { PATIENT_ISSUE_TYPES } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { FormModal } from '../FormModal';
 import { PatientAlert } from '../PatientAlert';
@@ -13,7 +13,6 @@ import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { PANE_SECTION_IDS } from './paneSections';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 import { useApi } from '../../api';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const TitleContainer = styled.div`
   color: ${TAMANU_COLORS.primary};

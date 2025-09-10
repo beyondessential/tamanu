@@ -1,8 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledSwitch = styled(Switch)`
   padding: 0;

@@ -1,9 +1,8 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import styled from 'styled-components';
 import { Table } from '../Table';
-import { TranslatedText } from '../Translation';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`

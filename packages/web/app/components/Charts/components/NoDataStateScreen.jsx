@@ -1,7 +1,5 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
-
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 const getTextLines = isVital => {
   if (isVital) {

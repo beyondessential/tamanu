@@ -1,13 +1,12 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { formatTime } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../../../components';
 import { Table } from '../../../components/Table';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {

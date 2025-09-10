@@ -1,6 +1,6 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 
 const TextFontSize = 11;

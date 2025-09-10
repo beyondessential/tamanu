@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,6 +8,7 @@ import {
   formatShortest,
   formatTime,
 } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';

@@ -1,10 +1,9 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { keyBy, mapValues } from 'lodash';
 import { IconButton, Menu } from '@material-ui/core';
 import { Launch, MoreVert } from '@material-ui/icons';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
 import { useLocalisation } from '../../contexts/Localisation';
