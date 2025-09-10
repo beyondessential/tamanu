@@ -10,6 +10,7 @@ import { saveFile } from '../../utils/fileSystemAccess';
 import { TranslationContext, useTranslation } from '../../contexts/Translation';
 import { GreyOutlinedButton } from '../Button';
 import { isTranslatedText, TranslatedText } from '../Translation';
+import { ViewPhotoLink } from '../ViewPhotoLink';
 
 /**
  * Recursive mapper for transforming leaf nodes in a DOM tree. Used here to explicitly wrap
@@ -31,6 +32,12 @@ const normalizeRecursively = (element, normalizeFn) => {
       : normalizeRecursively(children, normalizeFn),
   });
 };
+
+// Some elements should be ignored when exporting data because they are not
+// text-based, too complex or otherwise not suitable for export.
+function shouldIgnoreElement(element) {
+  return [ViewPhotoLink].includes(element.type);
+}
 
 export function DownloadDataButton({ exportName, columns, data, ExportButton }) {
   const queryClient = useQueryClient();
@@ -61,6 +68,8 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
         </QueryClientProvider>
       );
     };
+
+    if (shouldIgnoreElement(element)) return '';
 
     const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
     return renderToText(normalizedElement);
