@@ -1,4 +1,4 @@
-import { kebabCase } from 'lodash';
+import { escapeRegExp, kebabCase } from 'lodash';
 import { ValidationError as YupValidationError } from 'yup';
 import { $ZodError } from 'zod/v4/core';
 
@@ -23,24 +23,15 @@ export class Problem {
   public detail?: string;
   public extra: Map<string, any> = new Map();
 
-  constructor(
-    type: string,
-    title: string,
-    status: number = 500,
-    detail?: string,
-    extra: Record<string, any> = {},
-  ) {
+  constructor(type: string, title: string, status: number = 500, detail?: string) {
     this.type = type;
     this.title = title;
     this.status = status;
     this.detail = detail;
-    this.extra = new Map(Object.entries(extra));
   }
 
   public static fromError(error: Error): Problem {
-    const problem = new Problem(ERROR_TYPE.UNKNOWN, error.name, 500, error.message, {
-      stack: error.stack,
-    });
+    const problem = new Problem(ERROR_TYPE.UNKNOWN, error.name, 500, error.message);
 
     if (error instanceof YupValidationError || error instanceof $ZodError) {
       error = new ValidationError(error.message).withCause(error);
@@ -50,8 +41,19 @@ export class Problem {
       problem.type = error.type;
       problem.title = error.title;
       problem.status = error.status;
+
       for (const [key, value] of Object.entries(error.extraData)) {
         problem.extra.set(kebabCase(key), value);
+      }
+
+      if (error.stack) {
+        problem.extra.set(
+          'stack',
+          error.stack
+            ?.split('\n')
+            .slice(1)
+            .map(line => line.trim().replace(/^at /, '')),
+        );
       }
     }
 
@@ -71,6 +73,7 @@ export class Problem {
   }
 
   excludeSensitiveFields(exclude: boolean): this {
+    return this;
     if (exclude) {
       this.extra.delete('stack');
     }
@@ -98,19 +101,27 @@ export class Problem {
       return null;
     }
 
-    if (json.type.startsWith('https://')) {
-      const slug = json.type.split('#')[1];
+    if (json.type.startsWith(LINK)) {
+      const slug = json.type.replace(new RegExp(`^${escapeRegExp(LINK)}`), '');
+      if (slug && isKnownErrorType(slug)) {
+        type = slug;
+      }
+    } else if (json.type.startsWith(IANA)) {
+      const slug = json.type.replace(new RegExp(`^${escapeRegExp(IANA)}`), '');
       if (slug && isKnownErrorType(slug)) {
         type = slug;
       }
     }
 
-    return new Problem(
-      type,
-      json.title,
-      json.status,
-      json.detail,
-      Object.entries(json.extra).filter(([key]) => !WELL_KNOWN_PROBLEM_KEYS.includes(key)),
-    );
+    const problem = new Problem(type, json.title, json.status, json.detail);
+
+    if (json.extra) {
+      for (const [key, value] of Object.entries(json.extra)) {
+        if (WELL_KNOWN_PROBLEM_KEYS.includes(key)) continue;
+        problem.extra.set(kebabCase(key), value);
+      }
+    }
+
+    return problem;
   }
 }
