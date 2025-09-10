@@ -31,10 +31,11 @@ fi
 
 duplicates=$(cut -d, -f1 <<< "$data" | sort | uniq -d)
 if [ ! -z "$duplicates" ]; then
-    echo '!!! Duplicates found !!!'
-    echo "$data"
+    echo "$duplicates"
+    echo
+    echo '!!! Duplicate stringIds found (printed above) !!!'
     exit 2
 fi
 
 # Append csv header and print data
-printf "stringId,en\n"languageName","English"\n"countryCode","gb"\n%s" "$data"
+printf 'stringId,en\n"languageName","English"\n"countryCode","gb"\n%s' "$data"
