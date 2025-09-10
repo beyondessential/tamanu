@@ -90,7 +90,7 @@ export class Problem {
         : this.type,
       title: this.title,
       status: this.status,
-      detail: this.detail,
+      detail: this.detail === this.title ? undefined : this.detail,
     };
   }
 
