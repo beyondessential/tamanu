@@ -8,7 +8,6 @@ import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/ut
 import PropTypes from 'prop-types';
 import { TextInput, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
-
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
 //  - actual date, received from `value` and emitted through `onChange`

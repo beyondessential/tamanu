@@ -1,4 +1,4 @@
-import React, { Children, cloneElement, isValidElement } from 'react';
+import React, { isValidElement } from 'react';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import * as XLSX from 'xlsx';
@@ -57,11 +57,8 @@ export function DownloadDataButton({ exportName, columns, data, ExportButton }) 
             </TranslationContext.Provider>
           </ApiContext.Provider>
         </QueryClientProvider>
-      );
-    };
-
-    const normalizedElement = normalizeRecursively(element, contextualizeIfIsTranslatedText);
-    return renderToText(normalizedElement);
+      </ExportProvider>,
+    );
   };
 
   const getHeaderValue = ({ key, title }) => {

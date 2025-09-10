@@ -9,6 +9,7 @@ import { LoadingIndicator } from './LoadingIndicator';
 import { useTranslation } from '../contexts/Translation';
 import { DeletePhotoLinkModal } from '../views/patients/components/DeletePhotoLinkModal';
 import { useAuth } from '../contexts/Auth';
+import { useExport } from '../contexts/ExportContext';
 
 const Image = styled.img`
   display: block;
@@ -87,6 +88,13 @@ const ImageModalContent = ({ imageData, errorMessage }) => {
 };
 
 export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }) => {
+  const { isExporting } = useExport();
+
+  // Return nothing when exporting
+  if (isExporting) {
+    return null;
+  }
+
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [imageData, setImageData] = useState(null);

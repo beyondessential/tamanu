@@ -1,5 +1,5 @@
 import { isValidElement } from 'react';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '.';
+import { TranslatedEnum, TranslatedSex, TranslatedReferenceData, TranslatedText } from '.';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 
@@ -11,18 +11,9 @@ import { getEnumPrefix, toCamelCase } from '@tamanu/shared/utils/enumRegistry';
 export const isTranslatedText = element => {
   if (!isValidElement(element)) return false;
 
-  const TRANSLATED_COMPONENT_NAMES = [
-    'TranslatedText',
-    'TranslatedReferenceData',
-    'TranslatedEnum',
-    'TranslatedSex',
-    // Workaround so that custom table cells that have translations work with table exports
-    'LocationCell',
-    'SexCell',
-    'ClinicalStatusCell',
-  ].includes(element.type);
-
-  return TRANSLATED_COMPONENT_NAMES.includes(element.type?.displayName || element.type?.name);
+  return [TranslatedText, TranslatedReferenceData, TranslatedEnum, TranslatedSex].includes(
+    element.type,
+  );
 };
 
 /**

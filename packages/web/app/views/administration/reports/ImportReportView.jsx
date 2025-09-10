@@ -13,6 +13,7 @@ import {
   Field,
   Heading4,
 } from '../../../components';
+import { TextField } from '@tamanu/ui-components';
 import { FileChooserField } from '../../../components/Field/FileChooserField';
 import { ReportSelectField } from './ReportsSelectFields';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';

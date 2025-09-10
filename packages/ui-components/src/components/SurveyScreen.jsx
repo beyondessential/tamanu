@@ -11,6 +11,7 @@ import { checkVisibility } from '../utils/survey';
 import { TAMANU_COLORS } from '../constants/colors';
 import { FormGrid } from './Form/FormGrid';
 import { TranslatedText } from './Translation';
+import { getComponentForQuestionType } from './getComponentForQuestionType.jsx';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
@@ -124,6 +125,7 @@ export const SurveyScreen = ({
         .filter(c => checkVisibility(c, values, allComponents))
         .map((c, index) => (
           <SurveyQuestion
+            getComponentForQuestionType={getComponentForQuestionType}
             component={c}
             patient={patient}
             key={c.id}

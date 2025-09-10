@@ -1,12 +1,11 @@
 import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { SelectField, Form, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { SelectField, Form, FormSubmitCancelRow, TranslatedText } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 import { FormModal } from './FormModal';
 import { Field } from './Field';
 import { BodyText } from './Typography';
-import { TranslatedText } from './Translation/TranslatedText';
 
 const ModalBody = styled.div`
   margin-top: 30px;

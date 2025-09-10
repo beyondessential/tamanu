@@ -1,8 +1,8 @@
 // Much of this file is duplicated in `packages/mobile/App/ui/components/Forms/SurveyForm/helpers.ts`
-import React from 'react';
+import React, { isValidElement } from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { isNull, isUndefined } from 'lodash';
+import { isArray, toString, isNull, isUndefined } from 'lodash';
 import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {

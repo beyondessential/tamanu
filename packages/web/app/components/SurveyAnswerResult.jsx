@@ -7,7 +7,7 @@ import { DateDisplay } from './DateDisplay';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
+import { TranslatedOption } from './Translation/TranslatedOptions';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 
 const PatientDataCell = ({ answer, originalBody, componentConfig }) => {

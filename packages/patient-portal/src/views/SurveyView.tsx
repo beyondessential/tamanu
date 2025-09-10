@@ -13,7 +13,6 @@ import {
 import { ENCOUNTER_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { Card } from '@components/Card';
 import { useCurrentUser } from '@routes/PrivateRoute';
-import testData from '../testData.json';
 
 const PlaceholderField = ({ label, helperText }) => (
   <p>
@@ -60,24 +59,21 @@ export const SurveyView = () => {
   const patient = useCurrentUser();
   return (
     <Card sx={{ width: '425px' }}>
-      <TranslationContext.Provider value={{ getTranslation }}>
-        <SettingsContext.Provider value={{}}>
-          <SurveyFormContext.Provider value={{ getComponentForQuestionType }}>
-            {testData.map(component => {
-              console.log('testData', component);
-              return (
-                <SurveyQuestion
-                  key={component.id}
-                  component={component}
-                  patient={patient}
-                  inputRef={() => {}}
-                  encounterType={ENCOUNTER_TYPES.ADMISSION}
-                />
-              );
-            })}
-          </SurveyFormContext.Provider>
-        </SettingsContext.Provider>
-      </TranslationContext.Provider>
+      {/*<TranslationContext.Provider value={{ getTranslation }}>*/}
+      {/*  <SettingsContext.Provider value={{}}>*/}
+      {/*      {testData.map(component => {*/}
+      {/*        return (*/}
+      {/*          <SurveyQuestion*/}
+      {/*            key={component.id}*/}
+      {/*            component={component}*/}
+      {/*            patient={patient}*/}
+      {/*            inputRef={() => {}}*/}
+      {/*            encounterType={ENCOUNTER_TYPES.ADMISSION}*/}
+      {/*          />*/}
+      {/*        );*/}
+      {/*      })}*/}
+      {/*  </SettingsContext.Provider>*/}
+      {/*</TranslationContext.Provider>*/}
     </Card>
   );
 };
