@@ -116,7 +116,7 @@ export class TamanuApi {
   }
 
   async requestPasswordReset(email) {
-    return this.post('resetPassword', { email });
+    return this.post('resetPassword', { email, deviceId: this.deviceId });
   }
 
   async changePassword(args) {
