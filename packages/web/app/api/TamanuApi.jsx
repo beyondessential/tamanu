@@ -1,10 +1,11 @@
 import React from 'react';
-import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
+import { TamanuApi as ApiClient } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 const {
   TOKEN,
@@ -220,7 +221,7 @@ export class TamanuApi extends ApiClient {
     } catch (err) {
       const message = err?.message || err?.status;
 
-      if (err instanceof AuthExpiredError) {
+      if (err.type.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         const language = localStorage.getItem(LANGUAGE);
