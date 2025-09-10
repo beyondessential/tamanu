@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
@@ -18,9 +19,14 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
-  padding: 10px 0;
+const LoginAlert = styled(({ children, ...props }) => (
+  <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
+    {children}
+  </Alert>
+))`
+  border: oklch(from currentColor calc(l * 1.9) calc(c * 2) h) solid 1px;
+  border-radius: 0.5em;
+  margin-top: 1em;
 `;
 
 const LoginHeading = styled(Typography)`
@@ -141,9 +147,7 @@ const LoginFormComponent = ({
             data-testid="translatedtext-hwc1"
           />
         </LoginSubtext>
-        {!!genericMessage && (
-          <FormSubtext data-testid="formsubtext-ppw6">{genericMessage}</FormSubtext>
-        )}
+        {!!genericMessage && <LoginAlert>{genericMessage}</LoginAlert>}
       </div>
       <StyledField
         name="email"
