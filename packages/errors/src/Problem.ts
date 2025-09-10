@@ -8,6 +8,7 @@ const IANA = 'https://iana.org/assignments/http-problem-types#';
 
 export const WELL_KNOWN_PROBLEM_KEYS = ['type', 'title', 'status', 'detail', 'instance'];
 
+/** Implementation of RFC 9457 Problem Details for HTTP APIs <https://datatracker.ietf.org/doc/html/rfc9457> */
 export class Problem {
   // set to the version tag e.g. `v1.2.3` to specialise the URL
   static LINK_REF = 'main';
