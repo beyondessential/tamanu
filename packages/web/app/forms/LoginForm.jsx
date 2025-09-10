@@ -92,9 +92,6 @@ const StyledCheckboxField = styled(Field)`
   }
 `;
 
-const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Server error response: Incorrect username or password, please try again';
-
 const LoginFormComponent = ({
   errorMessage,
   onNavToResetPassword,
@@ -102,20 +99,6 @@ const LoginFormComponent = ({
   rememberEmail,
 }) => {
   const { getTranslation } = useTranslation();
-
-  const [genericMessage, setGenericMessage] = useState(null);
-
-  useEffect(() => {
-    if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
-      setFieldError('email', 'Incorrect credentials');
-      setFieldError('password', 'Incorrect credentials');
-    } else {
-      setGenericMessage(errorMessage);
-    }
-
-    // only run this logic when error message is updated
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorMessage]);
 
   const removeValidation = () => {
     setFieldError('email', '');
@@ -147,7 +130,7 @@ const LoginFormComponent = ({
             data-testid="translatedtext-hwc1"
           />
         </LoginSubtext>
-        {!!genericMessage && <LoginAlert>{genericMessage}</LoginAlert>}
+        {!!errorMessage && <LoginAlert>{errorMessage}</LoginAlert>}
       </div>
       <StyledField
         name="email"
