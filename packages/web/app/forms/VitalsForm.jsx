@@ -8,11 +8,11 @@ import {
   FormSubmitCancelRow,
   SurveyScreen,
   Modal,
+  ModalLoader,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { ModalLoader } from '../components';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';

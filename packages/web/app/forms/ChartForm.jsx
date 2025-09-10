@@ -9,10 +9,10 @@ import {
   FormSubmitCancelRow,
   SurveyScreen,
   Modal,
+  ModalLoader,
 } from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { ModalLoader } from '../components';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';

@@ -5,7 +5,18 @@ import styled from 'styled-components';
 import { REPEATS_LABELS, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
-import { TextField, StyledTextField, TranslatedSelectField, TextInput, FormGrid, FormConfirmCancelBackRow, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  StyledTextField,
+  TranslatedSelectField,
+  TextInput,
+  FormGrid,
+  FormConfirmCancelBackRow,
+  FormSubmitButton,
+  TAMANU_COLORS,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+} from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
@@ -26,12 +37,7 @@ import { TableFormFields } from '../components/Table';
 
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  BodyText,
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  SmallBodyText,
-} from '../components';
+import { BodyText, SmallBodyText } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';

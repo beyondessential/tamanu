@@ -5,9 +5,9 @@ import { Typography } from '@material-ui/core';
 
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
-import { Modal, ModalCancelRow, TranslatedText } from '../../components/index.js';
+import { ModalCancelRow } from '../../components/index.js';
 import { useApi } from '../../api/index.js';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
