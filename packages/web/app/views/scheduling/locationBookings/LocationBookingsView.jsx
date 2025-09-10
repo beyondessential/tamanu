@@ -5,10 +5,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { PageContainer, TopBar } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';

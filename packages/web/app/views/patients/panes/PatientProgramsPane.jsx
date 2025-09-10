@@ -1,18 +1,16 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
 import {
-  Button,
   ContentPane,
   Heading4,
   NoteModalActionBlocker,
   TableButtonRow,
 } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
 import { useSettings } from '../../../contexts/Settings';
 

@@ -4,14 +4,13 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
 import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { OutlinedButton, TAMANU_COLORS, Button } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
-  Button,
   DateDisplay,
   Heading2,
   MenuButton,

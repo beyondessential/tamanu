@@ -13,11 +13,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { TextField, Form, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Button, SearchInput, TableFormFields } from '../../../components';
+import { TextField, Form, TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
+import { SearchInput, TableFormFields } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
 

@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { Button, DataFetchingTable, PageContainer, TopBar } from '../../components';
+import { Button } from '@tamanu/ui-components';
+import { DataFetchingTable, PageContainer, TopBar } from '../../components';
 import { NewUserForm } from '../../forms';
 import { NewRecordModal } from './components';
 import { USERS_ENDPOINT } from './constants';

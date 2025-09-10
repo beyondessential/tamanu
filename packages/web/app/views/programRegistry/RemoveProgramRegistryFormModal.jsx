@@ -2,14 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
-  ConfirmCancelRow,
   DateDisplay,
   FormSeparatorLine,
   Modal,
   TranslatedText,
 } from '../../components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-import { TranslatedReferenceData } from '../../components/Translation';
+import { TAMANU_COLORS, ConfirmCancelRow, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { useAuth } from '../../contexts/Auth';
 

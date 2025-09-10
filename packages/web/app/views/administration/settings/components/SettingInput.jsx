@@ -3,12 +3,10 @@ import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
-import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextInput, TAMANU_COLORS, TextButton, TranslatedText } from '@tamanu/ui-components';
 import {
   LargeBodyText,
   NumberInput,
-  TextButton,
-  TranslatedText,
 } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { ConditionalTooltip } from '../../../../components/Tooltip';

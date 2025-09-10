@@ -2,18 +2,16 @@ import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, FormGrid, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 
 const validationSchema = yup.object().shape({
