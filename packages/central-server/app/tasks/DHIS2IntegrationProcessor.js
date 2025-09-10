@@ -5,7 +5,8 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES, DHIS2_REQUEST_STATUSES } from '@tamanu/constants';
 
-const importCountHasData = importCount => Object.values(importCount).some(value => value > 0);
+const checkIfImportCountHasData = importCount =>
+  Object.values(importCount).some(value => value > 0);
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -35,15 +36,64 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportData,
     });
 
-    return await response.json();
+    if (response.status !== 200) {
+      log.warn(`Failed to post to DHIS2: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  async processReport(reportId) {
+    const {
+      store: { models, sequelize },
+    } = this.context;
+
+    const report = await models.ReportDefinition.findByPk(reportId, {
+      include: [
+        {
+          model: models.ReportDefinitionVersion,
+          as: 'versions',
+          where: { status: REPORT_STATUSES.PUBLISHED },
+          order: [['createdAt', 'DESC']],
+          limit: 1,
+          separate: true,
+        },
+      ],
+    });
+
+    if (!report) {
+      log.warn(`Report ${reportId} doesn't exist, skipping`);
+      return;
+    }
+
+    const reportString = `${report.name} (${reportId})`;
+
+    log.info('Processing report', { reportString });
+
+    if (!report.versions || report.versions.length === 0) {
+      log.warn(`Report ${reportString} has no published version, skipping`);
+      return;
+    }
+
+    const latestVersion = report.versions[0];
+    const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
+
+    const dryRunResponse = await this.postToDHIS2({ reportData, dryRun: true });
+    if (dryRunResponse.status === DHIS2_REQUEST_STATUSES.SUCCESS) {
+      if (checkIfImportCountHasData(dryRunResponse.importCount)) {
+        const { importCount } = await this.postToDHIS2({ reportData });
+        log.info(`Report ${reportString} sent to DHIS2`, importCount);
+      } else {
+        log.warn(`Report ${reportString} dry run successful but no data was imported`);
+      }
+    } else {
+      log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, dryRunResponse);
+    }
   }
 
   async run() {
     try {
-      const {
-        settings,
-        store: { models, sequelize },
-      } = this.context;
+      const { settings } = this.context;
 
       const { reportIds } = await settings.get('integrations.dhis2');
       const { host, username, password } = config.integrations.dhis2;
@@ -59,49 +109,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
       log.info(`Sending ${reportIds.length} reports to DHIS2`);
 
-      for (const reportId of reportIds) {
-        const report = await models.ReportDefinition.findByPk(reportId, {
-          include: [
-            {
-              model: models.ReportDefinitionVersion,
-              as: 'versions',
-              where: { status: REPORT_STATUSES.PUBLISHED },
-              order: [['createdAt', 'DESC']],
-              limit: 1,
-              separate: true,
-            },
-          ],
-        });
-
-        if (!report) {
-          log.warn(`Report ${reportId} doesn't exist, skipping`);
-          continue;
-        }
-
-        const reportString = `${report.name} (${reportId})`;
-
-        log.info('Processing report', { reportString });
-
-        if (!report.versions || report.versions.length === 0) {
-          log.warn(`Report ${reportString} has no published version, skipping`);
-          continue;
-        }
-
-        const latestVersion = report.versions[0];
-        const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
-
-        const dryRunResponse = await this.postToDHIS2({ reportData, dryRun: true });
-        if (dryRunResponse.status === DHIS2_REQUEST_STATUSES.SUCCESS) {
-          if (importCountHasData(dryRunResponse.importCount)) {
-            const { importCount } = await this.postToDHIS2({ reportData });
-            log.info(`Report ${reportString} sent to DHIS2`, importCount);
-          } else {
-            log.warn(`Report ${reportString} dry run successful but no data was imported`);
-          }
-        } else {
-          log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, dryRunResponse);
-        }
-      }
+      await Promise.all(reportIds.map(reportId => this.processReport(reportId)));
     } catch (error) {
       log.error('Error in DHIS2 integration processing', { error: error.message });
       throw error;
