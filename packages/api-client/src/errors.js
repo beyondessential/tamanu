@@ -132,8 +132,8 @@ function convertLegacyError(error, response) {
   return problem;
 }
 
-export async function extractError({ response, onVersionIncompatible, onAuthFailure }) {
-  const { error, ...problemJSON } = await getResponseErrorSafely(response, this.logger);
+export async function extractError({ response, logger, onVersionIncompatible, onAuthFailure }) {
+  const { error, ...problemJSON } = await getResponseErrorSafely(response, logger);
   const problem = RemoteProblem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
