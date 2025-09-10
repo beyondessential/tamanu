@@ -36,12 +36,21 @@ import {
   CheckInput,
   DateField,
   DateTimeField,
-  Dialog,
   Field,
   NumberField,
   SmallBodyText,
 } from '../components';
-import { TextField, SelectField, TranslatedSelectField, Form, FormCancelButton, FormGrid, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  SelectField,
+  TranslatedSelectField,
+  Form,
+  FormCancelButton,
+  FormGrid,
+  FormSubmitButton,
+  TAMANU_COLORS,
+  Dialog,
+} from '@tamanu/ui-components';
 import { MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
@@ -435,7 +444,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       borderRadius="3px"
                       width="187px"
                       height="fit-content"
-                      border={`1px solid ${checked ? TAMANU_COLORS.primary : TAMANU_COLORS.outline}`}
+                      border={`1px solid ${
+                        checked ? TAMANU_COLORS.primary : TAMANU_COLORS.outline
+                      }`}
                     >
                       <CheckInput
                         label={
@@ -760,7 +771,9 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={TAMANU_COLORS.midText} />}
+                checkedIcon={
+                  <StyledIcon className="far fa-check-square" $color={TAMANU_COLORS.midText} />
+                }
               />
               <Field
                 name="isPrn"

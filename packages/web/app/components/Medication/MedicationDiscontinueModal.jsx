@@ -4,17 +4,20 @@ import styled from 'styled-components';
 import { Box } from '@mui/material';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, Form, FormCancelButton, FormGrid, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormCancelButton,
+  FormGrid,
+  FormSubmitButton,
+  TAMANU_COLORS,
+  BaseModal,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
-
 import { MedicationSummary } from './MedicationSummary';
-import {
-  AutocompleteField,
-  BaseModal,
-  Field,
-  TranslatedText,
-} from '..';
+import { AutocompleteField, Field } from '..';
 import { useApi, useSuggester } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { useEncounter } from '../../contexts/Encounter';

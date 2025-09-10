@@ -1,4 +1,3 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React, { memo, useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
@@ -8,8 +7,12 @@ import { useApi } from '../api';
 import { ConfirmModal } from './ConfirmModal';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
-import { MODAL_PADDING_LEFT_AND_RIGHT, MODAL_PADDING_TOP_AND_BOTTOM } from './BaseModal';
-import { TranslatedText } from './Translation/TranslatedText';
+import {
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+  TranslatedText,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
 
 const TypographyLink = styled(Typography)`
   color: ${TAMANU_COLORS.primary};

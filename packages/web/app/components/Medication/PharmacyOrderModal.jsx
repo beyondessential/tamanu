@@ -4,15 +4,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { TextField, ConfirmCancelBackRow, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  ConfirmCancelBackRow,
+  ConfirmCancelRow,
+  TAMANU_COLORS,
+  BaseModal,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { AutocompleteInput, CheckInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 
-import { TranslatedText } from '../Translation';
-import { BaseModal } from '../BaseModal';
 import { notifyError } from '../../utils';
 import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
 import { useSettings } from '../../contexts/Settings';

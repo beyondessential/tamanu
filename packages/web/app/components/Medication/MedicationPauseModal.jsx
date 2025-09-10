@@ -3,15 +3,20 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES} from '@tamanu/constants';
-import { SelectField, TextField, Form, FormCancelButton, FormGrid, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
-
+import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
+  SelectField,
+  TextField,
+  Form,
+  FormCancelButton,
+  FormGrid,
+  FormSubmitButton,
+  TAMANU_COLORS,
   BaseModal,
-  Field,
-  NumberField,
   TranslatedText,
-} from '..';
+} from '@tamanu/ui-components';
+
+import { Field, NumberField } from '..';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';

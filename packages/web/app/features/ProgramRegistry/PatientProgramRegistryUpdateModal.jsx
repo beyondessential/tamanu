@@ -10,7 +10,7 @@ import {
 import { useSuggester } from '../../api';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
-import { useAuth } from '../../contexts/Auth.js';
+import { useAuth } from '../../contexts/Auth'
 
 const StyledAutocompleteField = styled(AutocompleteField)`
   width: 300px;
