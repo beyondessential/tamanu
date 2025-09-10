@@ -62,8 +62,8 @@ export class Problem {
     return headers;
   }
 
-  includeStack(set: boolean): this {
-    if (!set) {
+  excludeSensitiveFields(exclude: boolean): this {
+    if (exclude) {
       this.extra.delete('stack');
     }
     return this;

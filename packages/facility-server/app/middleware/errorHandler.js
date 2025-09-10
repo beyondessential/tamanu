@@ -9,9 +9,9 @@ export default function errorHandler(error, req, res, _) {
     error = convertDatabaseError(error);
   }
 
-  const problem = (error instanceof Problem ? error : Problem.fromError(error)).includeStack(
-    process.env.NODE_ENV !== 'production',
-  );
+  const problem = (
+    error instanceof Problem ? error : Problem.fromError(error)
+  ).excludeSensitiveFields(process.env.NODE_ENV === 'production');
 
   if (problem.type.includes('auth')) {
     log.warn(`Error ${problem.status} (${problem.type}): ${error.message}`);

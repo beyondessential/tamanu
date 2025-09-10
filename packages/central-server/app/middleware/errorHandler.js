@@ -9,9 +9,9 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     error = convertDatabaseError(error);
   }
 
-  const problem = (error instanceof Problem ? error : Problem.fromError(error)).includeStack(
-    process.env.NODE_ENV !== 'production',
-  );
+  const problem = (
+    error instanceof Problem ? error : Problem.fromError(error)
+  ).excludeSensitiveFields(process.env.NODE_ENV === 'production');
 
   if (problem.status >= 500) {
     log.error(`Error ${problem.status} (${problem.type}): `, error);
