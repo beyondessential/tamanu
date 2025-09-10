@@ -3,7 +3,7 @@ import { fetch } from 'undici';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
-import { REPORT_STATUSES, DHIS2_REQUEST_STATUSES } from '@tamanu/constants';
+import { REPORT_STATUSES } from '@tamanu/constants';
 
 const checkIfImportCountHasData = importCount =>
   Object.values(importCount).some(value => value > 0);
@@ -36,11 +36,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportData,
     });
 
-    if (response.status !== 200) {
-      log.warn(`Failed to post to DHIS2: ${response.statusText}`);
-    }
-
-    return response.json();
+    return response;
   }
 
   async processReport(reportId) {
@@ -78,48 +74,45 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
 
-    const { status, statusText, importCount } = await this.postToDHIS2({
+    const dryRunResponse = await this.postToDHIS2({
       reportData,
       dryRun: true,
     });
 
-    if (status === DHIS2_REQUEST_STATUSES.SUCCESS) {
-      if (checkIfImportCountHasData(importCount)) {
-        const { importCount } = await this.postToDHIS2({ reportData });
+    if (dryRunResponse.status === 200) {
+      const { importCount: dryRunImportCount } = await dryRunResponse.json();
+      if (checkIfImportCountHasData(dryRunImportCount)) {
+        const response = await this.postToDHIS2({ reportData });
+        const { importCount } = await response.json();
         log.info(`Report ${reportString} sent to DHIS2`, importCount);
       } else {
         log.warn(`Report ${reportString} dry run successful but no data was imported`);
       }
     } else {
-      log.warn(`Dry run DHIS2 integration failed for report ${reportString}`, {
-        status,
-        statusText,
+      log.warn(`Dry run failed for report ${reportString}`, {
+        status: dryRunResponse.status,
+        statusText: dryRunResponse.statusText,
       });
     }
   }
 
   async run() {
-    try {
-      const { settings } = this.context;
+    const { settings } = this.context;
 
-      const { reportIds } = await settings.get('integrations.dhis2');
-      const { host, username, password } = config.integrations.dhis2;
+    const { reportIds } = await settings.get('integrations.dhis2');
+    const { host, username, password } = config.integrations.dhis2;
 
-      if (!host || !username || !password) {
-        log.warn(`DHIS2 integration not properly configured, skipping`, {
-          host: !!host,
-          username: !!username,
-          password: !!password,
-        });
-        return;
-      }
-
-      log.info(`Sending ${reportIds.length} reports to DHIS2`);
-
-      await Promise.all(reportIds.map(reportId => this.processReport(reportId)));
-    } catch (error) {
-      log.error('Error in DHIS2 integration processing', { error: error.message });
-      throw error;
+    if (!host || !username || !password) {
+      log.warn(`DHIS2 integration not properly configured, skipping`, {
+        host: !!host,
+        username: !!username,
+        password: !!password,
+      });
+      return;
     }
+
+    log.info(`Sending ${reportIds.length} reports to DHIS2`);
+
+    await Promise.all(reportIds.map(reportId => this.processReport(reportId)));
   }
 }
