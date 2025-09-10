@@ -5,6 +5,9 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 
+const RETRY_STATUS_CODES = [408, 500, 502, 503, 504];
+const RETRY_TIMES = 3;
+
 const checkIfImportCountHasData = importCount =>
   Object.values(importCount).some(value => value > 0);
 
@@ -21,7 +24,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportData, dryRun = false }) {
+  async postToDHIS2({ reportData, dryRun = false }, attempt = 1) {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
@@ -35,6 +38,17 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       },
       body: reportData,
     });
+
+    if (response.status === 200) {
+      return response;
+    }
+
+    if (RETRY_STATUS_CODES.includes(response.status) && attempt < RETRY_TIMES) {
+      log.warn(
+        `DHIS2 ${dryRun ? 'dry run' : 'post'} failed (${response.status}), retrying... (${attempt}/${RETRY_TIMES})`,
+      );
+      return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
+    }
 
     return response;
   }
