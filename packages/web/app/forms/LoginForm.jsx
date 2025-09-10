@@ -43,9 +43,10 @@ const LoginButton = styled(FormSubmitButton)`
 `;
 
 const ForgotPasswordButton = styled(TextButton)`
-  font-size: 11px;
   color: black;
+  font-size: 11px;
   font-weight: 400;
+  text-transform: none;
 
   :hover {
     color: ${Colors.primary};
@@ -214,7 +215,7 @@ const LoginFormComponent = ({
       >
         <TranslatedText
           stringId="login.forgotPassword.label"
-          fallback="Forgot your password?"
+          fallback="Forgot password?"
           data-testid="translatedtext-427q"
         />
       </ForgotPasswordButton>
