@@ -36,6 +36,6 @@ export const defaultErrorHandler = buildErrorHandler((error, problem) => ({
   // legacy error format
   error: {
     message: error.message,
-    ...error,
+    name: error.name,
   },
 }));
