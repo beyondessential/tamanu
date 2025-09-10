@@ -13,7 +13,7 @@ directory=${1-./packages}
 # Get all registered enums if no directory is specified
 teoutput=""
 if [[ "$directory" == "./packages" ]]; then
-  teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
+  teoutput=$(npx --yes tsx packages/constants/scripts/printTranslatedEnums.ts)
 fi
 
 # Get all translated string data from TranslatedText and getTranslatedString.
