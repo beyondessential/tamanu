@@ -4,21 +4,17 @@ import {
   VERSION_MAXIMUM_PROBLEM_KEY,
 } from '@tamanu/constants';
 import {
-  BaseError,
-  ERROR_TYPE,
-  Problem,
-  RemoteUnreachableError,
   BadAuthenticationError,
+  BaseError,
+  ClientIncompatibleError,
   EditConflictError,
+  ERROR_TYPE,
   ForbiddenError,
   NotFoundError,
+  Problem,
+  RemoteUnreachableError,
   UnknownError,
-  ClientIncompatibleError,
 } from '@tamanu/errors';
-
-export class RemoteProblem extends Problem {
-  response = null;
-}
 
 export function isRecoverable(error) {
   if (!(error instanceof BaseError)) {
@@ -119,7 +115,7 @@ function convertLegacyError(error, response) {
       ErrorClass = UnknownError;
   }
 
-  const problem = RemoteProblem.fromError(new ErrorClass(legacyMessage));
+  const problem = Problem.fromError(new ErrorClass(legacyMessage));
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
@@ -134,7 +130,7 @@ function convertLegacyError(error, response) {
 
 export async function extractError({ response, logger, onVersionIncompatible, onAuthFailure }) {
   const { error, ...problemJSON } = await getResponseErrorSafely(response, logger);
-  const problem = RemoteProblem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
+  const problem = Problem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
     if (onAuthFailure) {
@@ -152,5 +148,18 @@ export async function extractError({ response, logger, onVersionIncompatible, on
   }
 
   problem.response = response;
+  problem.message = messageField(problem);
   throw problem;
+}
+
+function messageField(problem) {
+  if (!problem.detail) {
+    return problem.title;
+  }
+
+  if (problem.detail === problem.title) {
+    return problem.detail;
+  }
+
+  return `${problem.title}: ${problem.detail}`;
 }

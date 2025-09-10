@@ -1,10 +1,10 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { RemoteIncompatibleError } from '@tamanu/errors';
+import { Problem, RemoteIncompatibleError } from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
-import { RemoteProblem, extractError } from './errors';
+import { extractError } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
@@ -73,7 +73,7 @@ export class TamanuApi {
 
       const serverType = response.headers.get('x-tamanu-server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        const problem = RemoteProblem.fromError(
+        const problem = Problem.fromError(
           new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
         );
         problem.response = response;
