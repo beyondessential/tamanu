@@ -2,11 +2,14 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
+import { LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
+import { SETTING_KEYS } from '@tamanu/constants';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_ROLE_EMAIL = 'testrole@bes.au';
 const TEST_ROLE_ID = 'test-role-id';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
+const TEST_DEVICE_ID = 'test-device-id';
 const TEST_FACILITY = {
   id: 'testfacilityid',
   code: 'testfacilitycode',
@@ -45,6 +48,10 @@ describe('Auth', () => {
       ...USERS.map((r) => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
+  });
+
+  beforeEach(async () => {
+    await store.models.OneTimeLogin.destroy({ where: {}, force: true });
   });
 
   afterAll(async () => close());
@@ -162,6 +169,48 @@ describe('Auth', () => {
         });
 
         expect(response).not.toHaveSucceeded();
+      });
+    });
+
+    describe('Locked out', () => {
+      beforeAll(async () => {
+        await store.models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
+          lockoutThreshold: 1,
+        });
+      });
+
+      beforeEach(async () => {
+        await store.models.UserLoginAttempt.destroy({ where: {}, force: true });
+      });
+
+      it('Should reject a reset password request if the user is locked out', async () => {
+        const user = await store.models.User.findOne({
+          where: {
+            email: TEST_EMAIL,
+          },
+        });
+        await store.models.UserLoginAttempt.create({
+          userId: user.id,
+          deviceId: TEST_DEVICE_ID,
+          outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
+        });
+  
+        const response = await baseApp.post('/api/resetPassword').send({
+          email: TEST_EMAIL,
+          deviceId: TEST_DEVICE_ID,
+        });
+  
+        const otl = await store.models.OneTimeLogin.findOne({
+          include: [
+            {
+              association: 'user',
+              where: { email: TEST_EMAIL },
+            },
+          ],
+        });
+  
+        expect(response).toHaveSucceeded();
+        expect(otl).toBeNull();
       });
     });
   });
