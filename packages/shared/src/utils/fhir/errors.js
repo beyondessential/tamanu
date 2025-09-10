@@ -1,3 +1,4 @@
+import { titleCase } from 'lodash';
 import { FHIR_ISSUE_SEVERITY, FHIR_ISSUE_TYPE } from '@tamanu/constants';
 import { BaseError } from '@tamanu/errors';
 
@@ -12,7 +13,7 @@ export class FhirError extends BaseError {
       expression = undefined,
     } = {},
   ) {
-    super(`fhir-${code}`, `FHIR: ${code}`, status);
+    super(`fhir-${code}`, `FHIR: ${titleCase(code)}`, status, message);
     this.severity = severity;
     this.code = code;
     this.diagnostics = diagnostics;
