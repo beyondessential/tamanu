@@ -6,8 +6,9 @@ import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-const RETRY_STATUS_CODES = [408, 500, 502, 503, 504];
-const RETRY_TIMES = 3;
+// 408: Request Timeout, 500: Internal Server Error, 502: Bad Gateway, 503: Service Unavailable, 504: Gateway Timeout
+const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for here
+const RETRY_TIMES = 3; // TODO: maybe configurable
 
 const checkIfImportCountHasData = importCount =>
   Object.values(importCount).some(value => value > 0);
