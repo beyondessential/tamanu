@@ -46,7 +46,7 @@ translationRouter.put(
       });
       if (isEmpty(text) && !existing) return [];
       if (isEmpty(text) && existing) return [await existing.destroy(), false];
-      if (isNull(text) || existing?.text === text) return [];
+      if (existing?.text === text) return [];
       if (existing) return [await existing.update({ text }), false];
       return [await TranslatedString.create({ stringId, language, text }), true];
     };
