@@ -181,4 +181,5 @@ export async function extractErrorFromFetchResponse(response, url, logger = cons
   problem.extra.set('request-url', url);
   problem.response = response;
   problem.message = messageField(problem);
+  return problem;
 }
