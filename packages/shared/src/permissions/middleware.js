@@ -61,7 +61,7 @@ export function ensurePermissionCheck(req, res, next) {
   };
 
   req.checkForOneOfPermissions = (actions, subject) => {
-    const permissionChecks = actions.map(action => checkIfHasPermission(req, action, subject));
+    const permissionChecks = actions.map((action) => checkIfHasPermission(req, action, subject));
     const hasPermission = permissionChecks.some(Boolean);
     if (!hasPermission) {
       const reason = `No permission to perform any of actions "${actions.join(', ')}" on "${getSubjectName(subject)}"`;
@@ -69,7 +69,7 @@ export function ensurePermissionCheck(req, res, next) {
     }
   };
 
-  req.checkListOrReadPermission = subject => {
+  req.checkListOrReadPermission = (subject) => {
     req.checkForOneOfPermissions(['list', 'read'], subject);
   };
 

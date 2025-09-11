@@ -64,15 +64,18 @@ export class VRSActionHandler {
     const { Patient, PatientAdditionalData, PatientVRSData } = models;
 
     // validate action
-    const { operation, fetch_id: fetchId } = await schema.remoteRequest.patientCreated.validate(
-      action,
-      { stripUnknown: true },
-    );
+    const {
+      operation,
+      fetch_id: fetchId,
+    } = await schema.remoteRequest.patientCreated.validate(action, { stripUnknown: true });
     log.debug(`VRSActionHandler: applying action (operation=${operation}, fetch_id=${fetchId})`);
 
     // fetch patient
-    const { patient, patientAdditionalData, patientVRSData } =
-      await this.remote.getPatientByFetchId(fetchId);
+    const {
+      patient,
+      patientAdditionalData,
+      patientVRSData,
+    } = await this.remote.getPatientByFetchId(fetchId);
 
     // persist
     if (operation === schema.OPERATIONS.DELETE) {

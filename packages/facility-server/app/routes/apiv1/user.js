@@ -179,7 +179,7 @@ const clinicianTasksQuerySchema = z.object({
     .enum(['true', 'false'])
     .optional()
     .default('false')
-    .transform(value => value === 'true'),
+    .transform((value) => value === 'true'),
   page: z.coerce.number().optional().default(0),
   rowsPerPage: z.coerce.number().max(50).min(10).optional().default(25),
   facilityId: z.string(),

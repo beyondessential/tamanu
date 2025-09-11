@@ -21,7 +21,7 @@ const MIN_CLIENT_OVERRIDE = null;
 
 export const MIN_CLIENT_VERSION = MIN_CLIENT_OVERRIDE ?? `${major}.${minor}.0`;
 export const MAX_CLIENT_VERSION = `${major}.${minor}.999`;
-// Note that currently higher patch versions will always be allowed
+// Note that .999 is only for clarity; higher patch versions will always be allowed
 
 export const versionCompatibility = (req, res, next) =>
   buildVersionCompatibilityCheck(MIN_CLIENT_VERSION, MAX_CLIENT_VERSION)(req, res, next);

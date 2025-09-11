@@ -108,7 +108,10 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z
+          .string()
+          .uuid()
+          .default(uuidv4),
         percentage: z.coerce
           .number()
           .min(0)
@@ -121,7 +124,10 @@ const updateInvoiceSchema = z
       .optional(),
     insurers: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z
+          .string()
+          .uuid()
+          .default(uuidv4),
         percentage: z.coerce
           .number()
           .min(0)
@@ -137,7 +143,10 @@ const updateInvoiceSchema = z
       ),
     items: z
       .object({
-        id: z.string().uuid().default(uuidv4),
+        id: z
+          .string()
+          .uuid()
+          .default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -147,10 +156,16 @@ const updateInvoiceSchema = z
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
-        sourceId: z.string().uuid().optional(),
+        sourceId: z
+          .string()
+          .uuid()
+          .optional(),
         discount: z
           .object({
-            id: z.string().uuid().default(uuidv4),
+            id: z
+              .string()
+              .uuid()
+              .default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().optional(),

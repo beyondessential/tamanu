@@ -683,7 +683,7 @@ describe('Patient merge', () => {
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
       expect(updatedFieldValues.length).toEqual(3);
-      updatedFieldValues.forEach(fieldValue => {
+      updatedFieldValues.forEach((fieldValue) => {
         expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
       });
     });
@@ -734,7 +734,7 @@ describe('Patient merge', () => {
 
       const postPatientFacilities = await PatientFacility.findAll({});
       expect(postPatientFacilities.length).toEqual(3);
-      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
+      expect(postPatientFacilities.map((p) => p.facilityId).sort()).toEqual(
         [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
       );
     });

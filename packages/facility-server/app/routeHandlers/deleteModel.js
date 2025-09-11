@@ -18,7 +18,7 @@ const deleteModel = (modelName, paramName, displayName = modelName) => {
     await object.destroy();
     res.send({ message: `${displayName} deleted successfully` });
   });
-};
+}
 
 export const deleteEncounter = deleteModel('Encounter', 'id');
 export const deleteReferral = deleteModel('Referral', 'referralId');

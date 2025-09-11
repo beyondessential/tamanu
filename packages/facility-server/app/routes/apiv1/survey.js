@@ -76,7 +76,7 @@ survey.get(
       },
       order: [['name', 'ASC']],
     });
-    const permittedChartSurveys = chartSurveys.filter(survey =>
+    const permittedChartSurveys = chartSurveys.filter((survey) =>
       req.ability.can('list', subject('Charting', { id: survey.id })),
     );
 
