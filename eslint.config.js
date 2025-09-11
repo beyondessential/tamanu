@@ -9,7 +9,7 @@ import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 const JS_EXTS = '{js,jsx,mjs,cjs,ts,tsx}';
 const TS_EXTS = '{ts,tsx}';
 const EXTS = `{${JS_EXTS},${TS_EXTS}}`;
-const BROWSER_PACKAGES = '(web|ui-components|patient-portal)';
+const BROWSER_PACKAGES = '{web,ui-components,patient-portal}';
 
 export default [
   {
@@ -160,7 +160,7 @@ export default [
   },
   {
     files: [
-      `packages/!${BROWSER_PACKAGES}/**/*.${JS_EXTS}`,
+      `packages/!(${BROWSER_PACKAGES})/**/*.${JS_EXTS}`,
       `packages/${BROWSER_PACKAGES}/{.storybook,stories}/**/*.${JS_EXTS}`,
       `scripts/**/*.${JS_EXTS}`,
       `**/*.config.${JS_EXTS}`,
