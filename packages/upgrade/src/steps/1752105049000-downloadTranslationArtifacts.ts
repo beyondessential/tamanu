@@ -1,5 +1,6 @@
 import config from 'config';
 import { parse } from 'csv-parse/sync';
+import { uniqBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
@@ -50,10 +51,13 @@ async function apply(artifactType: string, { toVersion, models, log }: StepArgs)
     );
   }
 
-  const translationRows = parse(await translationsResponse.text(), {
-    columns: true,
-    skip_empty_lines: true,
-  }) as unknown as Translation[];
+  const translationRows = uniqBy(
+    parse(await translationsResponse.text(), {
+      columns: true,
+      skip_empty_lines: true,
+    }) as unknown as Translation[],
+    item => item.stringId,
+  );
 
   if (translationRows.length === 0) {
     throw new Error('No valid translation rows found in CSV');
