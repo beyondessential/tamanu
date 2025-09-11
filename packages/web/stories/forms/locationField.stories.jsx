@@ -34,6 +34,7 @@ storiesOf('LocationField', module)
   .add('One Column', () => {
     return (
       <Form
+        onSubmit={() => {}}
         render={({ values }) => {
           const location = fakeLocations.find(x => x.id === values.locationId);
 
@@ -62,6 +63,7 @@ storiesOf('LocationField', module)
   .add('Two Columns', () => {
     return (
       <Form
+        onSubmit={() => {}}
         render={({ values }) => {
           const location = fakeLocations.find(x => x.id === values.locationId);
 
