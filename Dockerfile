@@ -6,14 +6,16 @@ COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
 
 FROM base AS build-base
 RUN apk add --no-cache \
-    --virtual .build-deps \
-    bash \
-    g++ \
-    gcc \
-    git \
-    jq \
-    make \
-    python3
+  --virtual .build-deps \
+  bash \
+  g++ \
+  gcc \
+  git \
+  jq \
+  make \
+  python3 \
+  py3-setuptools \
+  && npm install -g node-gyp
 COPY common.* ./
 COPY scripts/ scripts/
 
