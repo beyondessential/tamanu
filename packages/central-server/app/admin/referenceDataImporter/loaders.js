@@ -109,6 +109,10 @@ export async function translatedStringLoader(item, { models, header }) {
   const { stringId, ...languages } = stripNotes(item);
   const rows = [];
   const languagesInSheet = header.filter(h => h !== 'stringId');
+  const existingTranslations = await models.TranslatedString.findAll({
+    where: { stringId, language: languagesInSheet },
+  });
+  const existingTranslationsMap = new Map(existingTranslations.map(t => [t.language, t]));
   for (const language of languagesInSheet) {
     if (language === DEFAULT_LANGUAGE_CODE) {
       continue; // Ignore any edits to the default language
@@ -117,9 +121,7 @@ export async function translatedStringLoader(item, { models, header }) {
     const text = languages[language];
     const emptyCell = isNil(text) || isEmpty(`${text}`.trim());
     if (emptyCell) {
-      const existing = await models.TranslatedString.findOne({
-        where: { stringId, language },
-      });
+      const existing = existingTranslationsMap.get(language);
       if (existing) {
         // An empty cell means delete the translation for this language
         rows.push({
