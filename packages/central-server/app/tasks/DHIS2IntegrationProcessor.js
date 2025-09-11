@@ -82,9 +82,10 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     } = await this.postToDHIS2({
       reportCSV,
       dryRun: true,
+      // TODO: This takes a variety of settings we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     });
 
-    if (status === 200) {
+    if (httpStatusCode === 200) {
       const {
         response: { importCount },
       } = await this.postToDHIS2({ reportCSV });
@@ -96,7 +97,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         httpStatusCode,
       });
 
-      // Value is the error message returned from DHIS2 api
+      // Value is the error message returned from DHIS2 api for each errored row
       conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
