@@ -99,7 +99,6 @@ export const TimeSlotPicker = ({
     slotContaining,
     endOfSlotContaining,
   } = useBookingSlots(dayStart, type);
-  
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
