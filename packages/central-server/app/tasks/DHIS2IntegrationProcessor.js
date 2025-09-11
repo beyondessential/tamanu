@@ -5,9 +5,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 
-const reportJSONToCSV = reportData => {
-  return reportData.map(row => row.join(',')).join('\n');
-};
+const reportJSONToCSV = reportData => reportData.map(row => row.join(',')).join('\n');
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
