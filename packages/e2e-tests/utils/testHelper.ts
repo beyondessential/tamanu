@@ -103,3 +103,17 @@ export function offsetYear(
 
   return format(newDate, 'yyyy-MM-dd');
 }
+
+//TODO: optimise this to be more robust?
+/**
+ * Utility function to extract the encounter ID from a URL
+ * IMPORTANT: Only works when the encounter ID is the final segment of the URL (e.g. after you navigate directly to an encounter)
+ * @param url - The URL to extract the encounter ID from
+ * @returns The encounter ID
+ */
+export function extractEncounterIdFromUrl(url: string) {
+  //Extract the last segment of the URL
+  const encounterId = url.split('/').pop();
+
+  return encounterId;
+}

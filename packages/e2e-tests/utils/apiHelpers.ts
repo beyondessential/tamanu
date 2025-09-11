@@ -222,3 +222,39 @@ export const recordPatientDeathViaApi = async (
 
   return response.json();
 };
+
+/**
+ * Get the recorded dates for vitals for a given encounter - this is used to find locators for vitals on the vitals pane
+ * @param api - The API request context
+ * @param encounterId - The encounter ID
+ * @returns The recorded dates
+ */
+export const getVitalsRecordedDates = async (
+  api: APIRequestContext,
+  encounterId: string,
+): Promise<string[]> => {
+  const vitalsUrl = constructFacilityUrl(`/api/encounter/${encounterId}/vitals`);
+  
+  const response = await api.get(vitalsUrl);
+  
+  if (!response.ok()) {
+    const errorText = await response.text();
+    console.error('Failed to fetch vitals data:', response.status(), errorText);
+    throw new Error(`Failed to fetch vitals data: ${response.status()} ${errorText}`);
+  }
+  
+  const vitalsData = await response.json();
+  
+  // Find the date recorded data element (pde-PatientVitalsDate)
+  const dateRecord = vitalsData.data.find(
+    (record: any) => record.dataElementId === 'pde-PatientVitalsDate'
+  );
+  
+  if (dateRecord && dateRecord.records) {
+    return Object.keys(dateRecord.records);
+  }
+  else {
+    throw new Error('Date recorded not found');
+  }
+};
+
