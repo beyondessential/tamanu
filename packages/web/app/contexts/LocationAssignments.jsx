@@ -2,8 +2,8 @@ import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import {
-  scrollToBeginning,
   scrollToCell,
+  scrollToFirstDisplayedDay,
   scrollToThisWeek,
 } from '../views/administration/locationAssignments/utils';
 
@@ -21,7 +21,7 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
       if (isSameMonth(selectedCell.date, monthOf)) {
         scrollToCell(selectedCell, { behavior: 'instant' });
       } else {
-        (isThisMonth(monthOf) ? scrollToThisWeek : scrollToBeginning)({ behavior: 'instant' });
+        (isThisMonth(monthOf) ? scrollToThisWeek : scrollToFirstDisplayedDay)({ behavior: 'instant' });
       }
     },
     [monthOf],
