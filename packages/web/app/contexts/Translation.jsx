@@ -8,10 +8,16 @@ import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 export { useTranslation };
 
-export const TranslationProvider = ({ children }) => {
+export const TranslationProvider = ({ children, value }) => {
+  
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
-
+  
   const { data: translations } = useTranslationsQuery(storedLanguage);
+ 
+  // In the case of mocking the translation context, we can pass in the value directly
+  if (value) {
+    return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>;
+  }
 
   const translationFunc = translationFactory(translations);
 
