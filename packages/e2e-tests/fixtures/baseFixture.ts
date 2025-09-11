@@ -23,6 +23,7 @@ import {
   LocationBookingsPage,
   OutpatientAppointmentsPage,
 } from '../pages';
+import { VitalsPane } from '@pages/patients/encounters/vitals/panes/VitalsPane';
 
 type BaseFixtures = {
   api: APIRequestContext;
@@ -48,6 +49,7 @@ type BaseFixtures = {
   programRegistryPage: ProgramRegistryPage;
   locationBookingsPage: LocationBookingsPage;
   outpatientAppointmentsPage: OutpatientAppointmentsPage;
+  vitalsPane: VitalsPane;
 };
 export const test = base.extend<BaseFixtures>({
   api: async ({ page }: { page: Page }, use) => {
@@ -151,6 +153,10 @@ export const test = base.extend<BaseFixtures>({
 
   outpatientAppointmentsPage: async ({ page }, use) => {
     await use(new OutpatientAppointmentsPage(page));
+  },
+
+  vitalsPane: async ({ page }, use) => {
+    await use(new VitalsPane(page));
   },
 });
 
