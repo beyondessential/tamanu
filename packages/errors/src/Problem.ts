@@ -17,7 +17,8 @@ const LINK = '/problems/';
 const IANA = 'https://iana.org/assignments/http-problem-types#';
 
 /** Implementation of RFC 9457 Problem Details for HTTP APIs <https://datatracker.ietf.org/doc/html/rfc9457> */
-export class Problem {
+// we extend Error only so Problems can be used where errors are expected
+export class Problem extends Error {
   public type: ErrorType | string;
   public title: string;
   public status: number;
@@ -25,6 +26,7 @@ export class Problem {
   public extra: Map<string, any> = new Map();
 
   constructor(type: string, title: string, status: number = 500, detail?: string) {
+    super(detail ?? title);
     this.type = type;
     this.title = title;
     this.status = status;
