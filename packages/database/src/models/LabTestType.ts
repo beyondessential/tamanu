@@ -10,8 +10,8 @@ function optionStringToArray(s: string) {
   if (!trimmed) return undefined;
   return trimmed
     .split(', ')
-    .map(x => x.trim())
-    .filter(x => x);
+    .map((x) => x.trim())
+    .filter((x) => x);
 }
 
 const LAB_TEST_RESULT_TYPES_VALUES = Object.values(LAB_TEST_RESULT_TYPES);

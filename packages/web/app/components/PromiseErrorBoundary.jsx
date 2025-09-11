@@ -10,7 +10,7 @@ export const PromiseErrorBoundary = ({ children }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const handleUnhandledRejection = event => {
+    const handleUnhandledRejection = (event) => {
       event.preventDefault();
       if (event.reason instanceof ForbiddenError) {
         dispatch(setForbiddenError());

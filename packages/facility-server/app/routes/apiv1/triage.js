@@ -51,7 +51,7 @@ triage.post(
     const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
-      const getDefaultId = async type =>
+      const getDefaultId = async (type) =>
         models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
@@ -175,7 +175,7 @@ triage.get(
         },
       },
     );
-    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
 
     res.send({
       data: forResponse,

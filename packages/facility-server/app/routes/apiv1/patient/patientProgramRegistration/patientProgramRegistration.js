@@ -22,7 +22,7 @@ patientProgramRegistration.get(
       params.patientId,
     );
 
-    const filteredData = registrationData.filter(x => req.ability.can('read', x.programRegistry));
+    const filteredData = registrationData.filter((x) => req.ability.can('read', x.programRegistry));
     res.send({ data: filteredData });
   }),
 );
@@ -56,7 +56,7 @@ patientProgramRegistration.post(
     }
 
     // Run in a transaction so it either fails or succeeds together
-    const [registration, conditionsRecords] = await db.transaction(async transaction => {
+    const [registration, conditionsRecords] = await db.transaction(async (transaction) => {
       const newRegistration = await models.PatientProgramRegistration.create(
         {
           patientId,
@@ -68,8 +68,8 @@ patientProgramRegistration.post(
 
       const newConditions = await models.PatientProgramRegistrationCondition.bulkCreate(
         conditions
-          .filter(condition => condition.conditionId)
-          .map(condition => ({
+          .filter((condition) => condition.conditionId)
+          .map((condition) => ({
             patientProgramRegistrationId: newRegistration.id,
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
@@ -121,7 +121,7 @@ patientProgramRegistration.put(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    const conditionsData = conditions.map(condition => ({
+    const conditionsData = conditions.map((condition) => ({
       id: condition.id,
       patientProgramRegistrationId: existingRegistration.id,
       clinicianId: registrationData.clinicianId,
@@ -178,7 +178,7 @@ patientProgramRegistration.delete(
       throw new NotFoundError('PatientProgramRegistration not found');
     }
 
-    await db.transaction(async transaction => {
+    await db.transaction(async (transaction) => {
       // Update the status to recordedInError and soft delete the registration
       await existingRegistration.update(
         { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
@@ -283,7 +283,7 @@ patientProgramRegistration.get(
 
     // Get all unique clinical status IDs from the changes
     const clinicalStatusIds = [
-      ...new Set(changes.map(change => change.recordData.clinical_status_id).filter(Boolean)),
+      ...new Set(changes.map((change) => change.recordData.clinical_status_id).filter(Boolean)),
     ];
 
     // Fetch all clinical statuses in one query
@@ -303,7 +303,7 @@ patientProgramRegistration.get(
     }, {});
 
     const history = changes
-      .map(change => {
+      .map((change) => {
         const data = change.recordData;
         return {
           id: change.id,
@@ -317,7 +317,7 @@ patientProgramRegistration.get(
           registrationDate: data.date,
         };
       })
-      .filter(change => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE)
+      .filter((change) => change.registrationStatus !== REGISTRATION_STATUSES.INACTIVE)
       // Add this filter to remove entries with unchanged clinical status
       .filter((change, index, array) => {
         if (index === array.length - 1) return true; // Always keep the original record

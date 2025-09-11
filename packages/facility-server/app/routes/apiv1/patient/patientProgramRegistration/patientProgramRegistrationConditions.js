@@ -56,7 +56,7 @@ patientProgramRegistrationConditions.get(
     });
 
     // Get all condition IDs
-    const conditionIds = conditions.map(c => c.id);
+    const conditionIds = conditions.map((c) => c.id);
 
     // Fetch change history for all conditions
     const changes = await ChangeLog.findAll({
@@ -92,7 +92,7 @@ patientProgramRegistrationConditions.get(
     }, {});
 
     // Add history to each condition
-    const conditionsWithHistory = conditions.map(condition => ({
+    const conditionsWithHistory = conditions.map((condition) => ({
       ...condition.toJSON(),
       history: conditionHistoryMap[condition.id] || [],
     }));

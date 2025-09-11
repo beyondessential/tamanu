@@ -14,6 +14,7 @@ import {
   Problem,
   RemoteUnreachableError,
   UnknownError,
+  ValidationError,
 } from '@tamanu/errors';
 
 export function isRecoverable(error) {
@@ -52,8 +53,11 @@ const VERSION_COMPAT_MESSAGE_LOW =
 const VERSION_COMPAT_MESSAGE_HIGH = maxAppVersion =>
   `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
 
-/** @param {Problem} problem */
-function getVersionIncompatibleMessage(problem) {
+/**
+ * @internal
+ * @param {Problem} problem
+ */
+export function getVersionIncompatibleMessage(problem) {
   if (problem.detail === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return VERSION_COMPAT_MESSAGE_LOW;
   }
@@ -66,35 +70,20 @@ function getVersionIncompatibleMessage(problem) {
   return null;
 }
 
-async function getResponseErrorSafely(response, logger = console) {
-  try {
-    const data = await response.text();
-    if (data.length === 0) {
-      return {};
-    }
-
-    return JSON.parse(data);
-  } catch (e) {
-    // log json parsing errors, but still return a valid object
-    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
-    return {
-      type: 'local:json-parse',
-      title: 'JSON parse failed',
-      detail: `Expected error to be JSON, but got something else: ${e}`,
-      status: 999,
-    };
-  }
-}
-
 function convertLegacyError(error, response) {
   let legacyMessage = error?.message || response.status.toString();
   let ErrorClass;
-  switch (response.status) {
+  switch (error?.status ?? response.status) {
     case 400: {
-      ErrorClass =
-        response.headers.has('X-Max-Client-Version') || response.headers.has('X-Min-Client-Version')
-          ? ClientIncompatibleError
-          : UnknownError;
+      ErrorClass = UnknownError;
+      if (
+        response.headers.has('x-max-client-version') ||
+        response.headers.has('x-min-client-version')
+      ) {
+        ErrorClass = ClientIncompatibleError;
+      } else if (error.name) {
+        ErrorClass.name = error.name;
+      }
       break;
     }
     case 401: {
@@ -113,9 +102,18 @@ function convertLegacyError(error, response) {
       break;
     default:
       ErrorClass = UnknownError;
+      if (error.name) {
+        ErrorClass.name = error.name;
+      }
   }
 
   const problem = Problem.fromError(new ErrorClass(legacyMessage));
+  if (error.name) {
+    problem.title = problem.name = error.name;
+    problem.message = legacyMessage;
+  }
+
+  problem.extra.set('legacy-error', error);
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
@@ -128,28 +126,42 @@ function convertLegacyError(error, response) {
   return problem;
 }
 
-export async function extractError({ response, logger, onVersionIncompatible, onAuthFailure }) {
-  const { error, ...problemJSON } = await getResponseErrorSafely(response, logger);
-  const problem = Problem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
-
-  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
-    if (onAuthFailure) {
-      onAuthFailure(problem.detail);
-    }
+async function readResponse(response, logger = console) {
+  let data;
+  try {
+    data = await response.text();
+  } catch (err) {
+    logger.warn('readResponseError: Error decoding text', err);
+    return new ValidationError('Invalid text encoding in response').withCause(err);
   }
 
-  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
-    if (versionIncompatibleMessage) {
-      if (onVersionIncompatible) {
-        onVersionIncompatible(versionIncompatibleMessage);
-      }
-    }
+  if (data.length === 0) {
+    return new Problem(ERROR_TYPE.REMOTE, 'Server error', response.status, 'No response data');
   }
 
-  problem.response = response;
-  problem.message = messageField(problem);
-  throw problem;
+  let json;
+  try {
+    json = JSON.parse(data);
+  } catch (err) {
+    logger.warn('readResponseError: Error parsing JSON', err);
+    return new ValidationError('Invalid JSON in response').withCause(err);
+  }
+
+  if (json.error) {
+    return convertLegacyError(json.error, response);
+  }
+
+  const problem = Problem.fromJSON(json);
+  if (problem) return problem;
+
+  const unk = new Problem(
+    ERROR_TYPE.REMOTE,
+    'Server error',
+    response.status,
+    'Unknown response format',
+  );
+  unk.extra.set('response-data', json);
+  return unk;
 }
 
 function messageField(problem) {
@@ -162,4 +174,12 @@ function messageField(problem) {
   }
 
   return `${problem.title}: ${problem.detail}`;
+}
+
+export async function extractErrorFromFetchResponse(response, url, logger = console) {
+  const problem = await readResponse(response, logger);
+  problem.extra.set('request-url', url);
+  problem.response = response;
+  problem.message = messageField(problem);
+  return problem;
 }
