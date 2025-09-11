@@ -1,5 +1,3 @@
-// When adding a new error type, also document it in PROBLEMS.md
-
 export const ERROR_TYPE = {
   AUTH: 'auth',
   AUTH_CREDENTIAL_INVALID: 'auth-credential-invalid',
@@ -30,8 +28,6 @@ export type ErrorType = (typeof ERROR_TYPE)[keyof typeof ERROR_TYPE];
 
 // Problem types defined at the IANA registry
 // https://iana.org/assignments/http-problem-types
-//
-// These do not need to be documented in PROBLEMS.md
 export const IANA_TYPES: ErrorType[] = [];
 
 /** @internal used only within this package */
@@ -39,4 +35,5 @@ export function isKnownErrorType(type: string): type is ErrorType {
   return Object.values(ERROR_TYPE).includes(type as ErrorType);
 }
 
+/** @internal used only within this package */
 export const WELL_KNOWN_PROBLEM_KEYS = ['type', 'title', 'status', 'detail', 'instance'];
