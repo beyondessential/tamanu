@@ -35,7 +35,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportCSV,
     });
 
-    return response;
+    return await response.json();
   }
 
   async processReport(reportId) {
@@ -63,7 +63,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const reportString = `${report.name} (${reportId})`;
 
-    log.info('Processing report', { reportString });
+    log.info(`Processing report: ${reportString}`);
 
     if (!report.versions || report.versions.length === 0) {
       log.warn(`Report: ${reportString} has no published version, skipping`);
@@ -74,23 +74,20 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
     const reportCSV = reportJSONToCSV(reportData);
 
-    const dryRunResponse = await this.postToDHIS2({
-      reportCSV,
-      dryRun: true,
-    });
-
     const {
       status,
       message,
       httpStatusCode,
       response: { conflicts = [] },
-    } = await dryRunResponse.json();
+    } = await this.postToDHIS2({
+      reportCSV,
+      dryRun: true,
+    });
 
     if (status === 200) {
-      const response = await this.postToDHIS2({ reportCSV });
       const {
         response: { importCount },
-      } = await response.json();
+      } = await this.postToDHIS2({ reportCSV });
       log.info(`Report: ${reportString} sent to DHIS2`, importCount);
     } else {
       log.warn(`Dry run failed for report: ${reportString}`, {
@@ -98,6 +95,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         status,
         httpStatusCode,
       });
+
+      // Value is the error message returned from DHIS2 api
       conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
