@@ -10,8 +10,9 @@ import { sleepAsync } from '@tamanu/utils/sleepAsync';
 const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for here
 const RETRY_TIMES = 3; // TODO: maybe configurable
 
-const checkIfImportCountHasData = importCount =>
-  Object.values(importCount).some(value => value > 0);
+// TODO: this is the format
+const EXAMPLE_CSV_DATA = `dataelement,period,orgunit,categoryoptioncombo,attributeoptioncombo,value,storedby,lastupdated,comment,followup,deleted
+    fbfJHSPpUQD,202507,u3qo3VzGIbh,uX9yDetTdOp,HllvX50cXC0,2,bodata1,2010-08-18T00:00:00.000+0000,,false,null`;
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -38,7 +39,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         Accept: 'application/json',
         Authorization: `Basic ${authHeader}`,
       },
-      body: reportData,
+      body: EXAMPLE_CSV_DATA,
     });
 
     if (response.status === 200) {
@@ -75,7 +76,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     if (!report) {
-      log.warn(`Report ${reportId} doesn't exist, skipping`);
+      log.warn(`Report: ${reportId} doesn't exist, skipping`);
       return;
     }
 
@@ -84,32 +85,29 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     log.info('Processing report', { reportString });
 
     if (!report.versions || report.versions.length === 0) {
-      log.warn(`Report ${reportString} has no published version, skipping`);
+      log.warn(`Report: ${reportString} has no published version, skipping`);
       return;
     }
 
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
 
-    const dryRunResponse = await this.postToDHIS2({
+    // TODO: may need something like this
+    console.log('reportData', reportData.map(row => row.join(',')).join('\n'));
+
+    const { status, statusText } = await this.postToDHIS2({
       reportData,
       dryRun: true,
     });
 
-    if (dryRunResponse.status === 200) {
-      const { importCount: dryRunImportCount } = await dryRunResponse.json();
-      if (checkIfImportCountHasData(dryRunImportCount)) {
-        const response = await this.postToDHIS2({ reportData });
-        const { importCount } = await response.json();
-        log.info(`Report ${reportString} sent to DHIS2`, importCount);
-      } else {
-        log.warn(`Report ${reportString} dry run successful but no data was imported`);
-      }
+    if (status === 200) {
+      const response = await this.postToDHIS2({ reportData });
+      const {
+        response: { importCount },
+      } = await response.json();
+      log.info(`Report: ${reportString} sent to DHIS2`, importCount);
     } else {
-      log.warn(`Dry run failed for report ${reportString}`, {
-        status: dryRunResponse.status,
-        statusText: dryRunResponse.statusText,
-      });
+      log.warn(`Dry run failed for report: ${reportString}`, { status, statusText });
     }
   }
 
