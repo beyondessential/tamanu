@@ -14,6 +14,7 @@ import {
   Problem,
   RemoteUnreachableError,
   UnknownError,
+  ValidationError,
 } from '@tamanu/errors';
 
 export function isRecoverable(error) {
@@ -66,30 +67,10 @@ function getVersionIncompatibleMessage(problem) {
   return null;
 }
 
-async function getResponseErrorSafely(response, logger = console) {
-  try {
-    const data = await response.text();
-    if (data.length === 0) {
-      return {};
-    }
-
-    return JSON.parse(data);
-  } catch (e) {
-    // log json parsing errors, but still return a valid object
-    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
-    return {
-      type: 'local:json-parse',
-      title: 'JSON parse failed',
-      detail: `Expected error to be JSON, but got something else: ${e}`,
-      status: 999,
-    };
-  }
-}
-
 function convertLegacyError(error, response) {
   let legacyMessage = error?.message || response.status.toString();
   let ErrorClass;
-  switch (response.status) {
+  switch (error?.status ?? response.status) {
     case 400: {
       ErrorClass =
         response.headers.has('X-Max-Client-Version') || response.headers.has('X-Min-Client-Version')
@@ -116,6 +97,7 @@ function convertLegacyError(error, response) {
   }
 
   const problem = Problem.fromError(new ErrorClass(legacyMessage));
+  problem.extra.set('legacy-error', error);
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
     const minAppVersion = response.headers.get('X-Min-Client-Version');
@@ -128,9 +110,46 @@ function convertLegacyError(error, response) {
   return problem;
 }
 
+async function readResponseError(response, logger = console) {
+  let data;
+  try {
+    data = await response.text();
+  } catch (err) {
+    logger.warn('readResponseError: Error decoding text', err);
+    return new ValidationError('Invalid text encoding in response').withCause(err);
+  }
+
+  if (data.length === 0) {
+    return new Problem(ERROR_TYPE.REMOTE, 'Server error', response.status, 'No response data');
+  }
+
+  let json;
+  try {
+    json = JSON.parse(data);
+  } catch (err) {
+    logger.warn('readResponseError: Error parsing JSON', err);
+    return new ValidationError('Invalid JSON in response').withCause(err);
+  }
+
+  if (json.error) {
+    return convertLegacyError(json.error, response);
+  }
+
+  const problem = Problem.fromJSON(json);
+  if (problem) return problem;
+
+  const unk = new Problem(
+    ERROR_TYPE.REMOTE,
+    'Server error',
+    response.status,
+    'Unknown response format',
+  );
+  unk.extra.set('response-data', json);
+  return unk;
+}
+
 export async function extractError({ response, logger, onVersionIncompatible, onAuthFailure }) {
-  const { error, ...problemJSON } = await getResponseErrorSafely(response, logger);
-  const problem = Problem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
+  const problem = await readResponseError(response, logger);
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
     onAuthFailure(problem.detail);
