@@ -4,6 +4,11 @@ import { fetch } from 'undici';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
+
+// 408: Request Timeout, 500: Internal Server Error, 502: Bad Gateway, 503: Service Unavailable, 504: Gateway Timeout
+const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for here
+const RETRY_TIMES = 3; // TODO: maybe configurable
 
 // TODO: this is the format
 // const EXAMPLE_CSV_DATA = `dataelement,period,orgunit,categoryoptioncombo,attributeoptioncombo,value,storedby,lastupdated,comment,followup,deleted
@@ -22,7 +27,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportData, dryRun = false }) {
+  async postToDHIS2({ reportData, dryRun = false }, attempt = 1) {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
@@ -39,6 +44,19 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportData,
     });
 
+    if (response.status === 200) {
+      return response;
+    }
+
+    if (RETRY_STATUS_CODES.includes(response.status) && attempt < RETRY_TIMES) {
+      log.warn(
+        `DHIS2 ${dryRun ? 'dry run' : 'post'} failed (${response.status}), retrying... (${attempt}/${RETRY_TIMES})`,
+      );
+      await sleepAsync(1000 * attempt);
+      return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
+    }
+
+    // Return the error response if it has not succeeded within the retry limit
     return response;
   }
 
