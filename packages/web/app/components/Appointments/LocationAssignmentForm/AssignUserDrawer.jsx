@@ -74,7 +74,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const isViewing = Boolean(initialValues?.id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  
+
   // Reset edit mode when drawer closes or when switching to a different assignment
   useEffect(() => {
     if (!open || !initialValues?.id) {
@@ -318,7 +318,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          {isViewing ? (
+          {isViewing && !isEditMode ? (
             <StyledButtonRow>
               <StyledButton
                 variant="outlined"
