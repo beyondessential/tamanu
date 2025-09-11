@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
 

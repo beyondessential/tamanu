@@ -48,6 +48,7 @@
     "@tamanu/api-client": "*",
     "@tamanu/constants": "*",
     "@tamanu/database": "*",
+    "@tamanu/errors": "*",
     "@tamanu/shared": "*",
     "@tamanu/upgrade": "*",
     "@tamanu/utils": "*",

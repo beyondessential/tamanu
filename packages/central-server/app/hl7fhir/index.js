@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Problem } from '@tamanu/errors';
 
 import {
   diagnosticReportHandler,
@@ -29,6 +30,22 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
   routes.get('/Patient/:id', singlePatientHandler());
   routes.get('/DiagnosticReport/:id', singleDiagnosticReportHandler());
   routes.get('/Immunization/:id', singleImmunizationHandler());
+
+  routes.use((error, req, res, next) => {
+    // "mat" fhir routes are handled by matRoutes' error handler
+    if (res.headersSent) {
+      return next(error);
+    }
+
+    // legacy "fhir" routes expect this error form
+    const problem = Problem.fromError(error);
+    res.status(problem?.status ?? 500).json({
+      error: {
+        message: problem.detail,
+        ...error,
+      },
+    });
+  });
 
   return routes;
 }

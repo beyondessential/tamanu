@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { NotFound } from '@tamanu/shared/utils/fhir';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { ValidationError } from '@tamanu/shared/errors';
+import { ValidationError } from '@tamanu/errors';
 
 const UNRESOLVED_RESOURCE_AWAIT_TIMEOUT = 20 * 1000; // 20 seconds
 const UNRESOLVED_RESOURCE_AWAIT_BACKOFF = 0.5 * 1000; // 0.5 seconds

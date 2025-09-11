@@ -1,6 +1,6 @@
 import path from 'path';
 import { promises as fs } from 'fs';
-import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
+import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 
 import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
@@ -53,7 +53,7 @@ describe('UploadAttachment', () => {
         };
       }),
     }));
-    await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallFailedError);
+    await expect(uploadAttachment(mockReq)).rejects.toThrow(RemoteCallError);
     expect(CentralServerConnection.mock.calls.length).toBe(1);
     expect(CentralServerConnection).toBeCalledWith({ deviceId: 'test-device-id' });
   });

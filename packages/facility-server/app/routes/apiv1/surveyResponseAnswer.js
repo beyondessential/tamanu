@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { subject } from '@casl/ability';
-import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, InvalidParameterError, NotFoundError } from '@tamanu/errors';
 import {
   CHARTING_DATA_ELEMENT_IDS,
   PROGRAM_DATA_ELEMENT_TYPES,

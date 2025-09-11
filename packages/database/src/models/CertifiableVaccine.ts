@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 

@@ -1,0 +1,20 @@
+{
+  "extends": "../../common.tsconfig.json",
+  "include": [
+    "src/**/*.ts"
+  ],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "noEmit": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist/esm",
+    "rootDir": "./src",
+    "strict": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+}

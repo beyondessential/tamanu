@@ -1,10 +1,11 @@
 import React from 'react';
-import { TamanuApi as ApiClient, AuthExpiredError } from '@tamanu/api-client';
+import { TamanuApi as ApiClient } from '@tamanu/api-client';
 import { ENGLISH_LANGUAGE_CODE, SERVER_TYPES } from '@tamanu/constants';
 
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { getDeviceId, notifyError } from '../utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 const {
   TOKEN,
@@ -92,7 +93,7 @@ function clearLocalStorage() {
 }
 
 export function isErrorUnknownDefault(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (!status || typeof status !== 'number') {
     return true;
   }
@@ -101,7 +102,7 @@ export function isErrorUnknownDefault(error) {
 }
 
 export function isErrorUnknownAllow404s(error) {
-  const status = error?.response?.status;
+  const status = error?.status;
   if (status === 404) {
     return false;
   }
@@ -218,9 +219,7 @@ export class TamanuApi extends ApiClient {
     try {
       return await super.fetch(endpoint, query, otherConfig);
     } catch (err) {
-      const message = err?.message || err?.status;
-
-      if (err instanceof AuthExpiredError) {
+      if (err.type.startsWith(ERROR_TYPE.AUTH)) {
         clearLocalStorage();
       } else if (showUnknownErrorToast && isErrorUnknown(err)) {
         const language = localStorage.getItem(LANGUAGE);
@@ -244,14 +243,14 @@ export class TamanuApi extends ApiClient {
                   key="general.api.notification.message"
                   stringId="general.api.notification.message"
                   fallback="Message: :message"
-                  replacements={{ message }}
+                  replacements={{ message: err?.title }}
                 />,
               ]
             : []),
         ]);
       }
 
-      throw new Error(message);
+      throw err;
     }
   }
 

@@ -10,7 +10,7 @@ import {
   REPEAT_FREQUENCY_VALUES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { weekdayAtOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import type { ReadSettings } from '@tamanu/settings/reader';

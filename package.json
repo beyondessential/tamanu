@@ -61,6 +61,7 @@
       "packages/constants",
       "packages/database",
       "packages/e2e-tests",
+      "packages/errors",
       "packages/facility-server",
       "packages/fake-data",
       "packages/mobile",

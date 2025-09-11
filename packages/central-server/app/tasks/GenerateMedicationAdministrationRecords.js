@@ -3,7 +3,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { Op } from 'sequelize';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
-import { InvalidConfigError } from '@tamanu/shared/errors';
+import { InvalidConfigError } from '.';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export class GenerateMedicationAdministrationRecords extends ScheduledTask {

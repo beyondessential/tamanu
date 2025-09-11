@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 
 import { CentralSyncManager } from './CentralSyncManager';
