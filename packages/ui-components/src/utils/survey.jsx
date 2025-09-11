@@ -18,7 +18,7 @@ import {
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
 import { TranslatedText } from '../components';
-import { notify } from '@tamanu/web-frontend/app/utils/index.js';
+import { notify } from './notify'
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
