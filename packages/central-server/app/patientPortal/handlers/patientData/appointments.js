@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { getAttributesFromSchema } from '../../utils/schemaUtils';
+import { getAttributesFromSchema } from '../../../utils/schemaUtils';
 import { AppointmentSchema } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
 import { LocationGroupSchema } from '@tamanu/shared/schemas/patientPortal/responses/locationGroup.schema';
 import { FacilitySchema } from '@tamanu/shared/schemas/patientPortal/responses/facility.schema';

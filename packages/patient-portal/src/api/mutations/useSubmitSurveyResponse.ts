@@ -11,7 +11,7 @@ export const useSubmitSurveyResponse = (
   return useMutation<void, Error, CreateSurveyResponseRequest>({
     mutationKey: ['submitSurveyResponse', assignmentId],
     mutationFn: async payload => {
-      await api.post(`/me/surveys/${assignmentId}`, payload as any);
+      await api.post(`surveyResponse/${assignmentId}`, payload as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['outstandingSurveys'] });
