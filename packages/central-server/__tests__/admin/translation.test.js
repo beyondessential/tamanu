@@ -182,7 +182,7 @@ describe('Translation', () => {
       ]);
     });
 
-    it('should reset to the default language if the text is empty', async () => {
+    it('should delete the translation if the text is empty', async () => {
       const originalTranslatedStrings = await models.TranslatedString.findAll({
         where: { stringId: 'login.email' },
         order: [['stringId', 'ASC']],
