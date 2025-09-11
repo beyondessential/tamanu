@@ -7,6 +7,7 @@ import { addMinutes } from 'date-fns';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getRandomBase64String } from './utils';
+import { checkIsUserLockedOut } from './lockout';
 
 export const resetPassword = express.Router();
 
@@ -15,20 +16,27 @@ const schema = yup.object({
     .string()
     .email('Must enter a valid email')
     .required(),
+  deviceId: yup.string(),
 });
 
 resetPassword.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { store, body } = req;
+    const { store, body, settings } = req;
 
     const { models } = store;
 
     await schema.validate(body);
 
-    const { email } = body;
+    const { email, deviceId } = body;
 
     const user = await models.User.getForAuthByEmail(email);
+    const isUserLockedOut = user ? await checkIsUserLockedOut({
+      models,
+      settings,
+      userId: user.id,
+      deviceId,
+    }) : false;
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
@@ -38,6 +46,8 @@ resetPassword.post(
       // error message to figure out which emails are really in use.
       // So, we just return an "OK" response no matter what information is provided,
       // regardless of whether it's valid or not.
+    } else if (isUserLockedOut) {
+      log.info(`Trying to login with locked user account: ${email}`);
     } else {
       const token = await createOneTimeLogin(models, user);
       await sendResetEmail(req.emailService, user, token);

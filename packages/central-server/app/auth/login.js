@@ -2,10 +2,11 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { SERVER_TYPES } from '@tamanu/constants';
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
+import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
+import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
@@ -15,6 +16,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
+import { checkIsUserLockedOut, getFailedLoginAttemptOutcome } from './lockout';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -94,10 +96,49 @@ export const login = ({ secret, refreshSecret }) =>
       throw new BadAuthenticationError('No such user');
     }
 
-    const hashedPassword = user?.password || '';
-    if (!(await bcrypt.compare(password, hashedPassword))) {
+    if (!user) {
+      // Keep track of bad requests for non-existent user accounts
+      log.info(`Trying to login with non-existent user account: ${email}`);
+      // To prevent timing attacks for discovering user accounts,
+      // we perform a fake password comparison that takes a similar amount of time.
+      await bcrypt.compare(password, '');
       throw new BadAuthenticationError('Invalid credentials');
     }
+
+    // Check if user is locked out
+    const isUserLockedOut = await checkIsUserLockedOut({
+      models,
+      settings,
+      userId: user.id,
+      deviceId,
+    });
+    if (isUserLockedOut) {
+      log.info(`Trying to login with locked user account: ${email}`);
+      throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
+    }
+
+    const hashedPassword = user?.password || '';
+    if (!(await bcrypt.compare(password, hashedPassword))) {
+      const outcome = await getFailedLoginAttemptOutcome({
+        models,
+        settings,
+        userId: user.id,
+        deviceId,
+      });
+      await models.UserLoginAttempt.create({
+        userId: user.id,
+        deviceId,
+        outcome,
+      });
+      throw new BadAuthenticationError('Invalid credentials');
+    }
+
+    // Create successful login attempt
+    await models.UserLoginAttempt.create({
+      userId: user.id,
+      deviceId,
+      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
+    });
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
