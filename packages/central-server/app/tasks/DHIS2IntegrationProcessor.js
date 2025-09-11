@@ -11,8 +11,8 @@ const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for
 const RETRY_TIMES = 3; // TODO: maybe configurable
 
 // TODO: this is the format
-const EXAMPLE_CSV_DATA = `dataelement,period,orgunit,categoryoptioncombo,attributeoptioncombo,value,storedby,lastupdated,comment,followup,deleted
-    fbfJHSPpUQD,202507,u3qo3VzGIbh,uX9yDetTdOp,HllvX50cXC0,2,bodata1,2010-08-18T00:00:00.000+0000,,false,null`;
+// const EXAMPLE_CSV_DATA = `dataelement,period,orgunit,categoryoptioncombo,attributeoptioncombo,value,storedby,lastupdated,comment,followup,deleted
+//     fbfJHSPpUQD,202507,u3qo3VzGIbh,uX9yDetTdOp,HllvX50cXC0,2,bodata1,2010-08-18T00:00:00.000+0000,,false,null`;
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -31,6 +31,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
+    // TODO: Validate the report data format?
+
     const params = new URLSearchParams({ dryRun });
     const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
       method: 'POST',
@@ -39,7 +41,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         Accept: 'application/json',
         Authorization: `Basic ${authHeader}`,
       },
-      body: EXAMPLE_CSV_DATA,
+      body: reportData,
     });
 
     if (response.status === 200) {
@@ -54,6 +56,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
     }
 
+    // Return the error response if it has not succeeded within the retry limit
     return response;
   }
 
@@ -93,7 +96,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
 
     // TODO: may need something like this
-    console.log('reportData', reportData.map(row => row.join(',')).join('\n'));
+    // console.log('reportData', reportData.map(row => row.join(',')).join('\n'));
 
     const { status, statusText } = await this.postToDHIS2({
       reportData,
