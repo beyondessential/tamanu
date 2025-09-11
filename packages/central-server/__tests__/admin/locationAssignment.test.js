@@ -33,10 +33,6 @@ describe('Location Assignment API', () => {
       ...fake(models.User),
       id: uuidv4(),
     });
-    await models.UserFacility.create({
-      userId: testUser.id,
-      facilityId: testFacility.id,
-    });
   });
 
   afterEach(async () => {
@@ -57,7 +53,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '09:00:00',
         endTime: '10:00:00',
@@ -91,7 +86,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -149,7 +143,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '11:00:00',
         endTime: '12:00:00',
@@ -203,7 +196,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: nonExistentUserId,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '17:00:00',
         endTime: '18:00:00',
@@ -219,7 +211,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: nonExistentLocationId,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '09:00:00',
         endTime: '17:00:00',
@@ -242,7 +233,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -258,7 +248,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -275,7 +264,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -287,23 +275,6 @@ describe('Location Assignment API', () => {
       expect(result).toHaveRequestError(400);
     });
 
-    it('Should reject when create assignment for user not belong to facility of location', async () => {
-      const newUser = await models.User.create({
-        ...fake(models.User),
-        id: uuidv4(),
-      });
-
-      const result = await adminApp.post('/api/admin/location-assignments').send({
-        userId: newUser.id,
-        locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
-        date: toDateString(new Date()),
-        startTime: '10:00:00',
-        endTime: '11:00:00',
-      });
-
-      expect(result).toHaveRequestError(422);
-    });
   });
 
   describe('Get location assignments', () => {
@@ -316,7 +287,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -364,7 +334,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '13:00:00',
         endTime: '14:00:00',
@@ -387,7 +356,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -397,7 +365,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '13:00:00',
         endTime: '15:00:00',
@@ -410,7 +377,6 @@ describe('Location Assignment API', () => {
       const assignmentResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '12:00:00',
         endTime: '14:00:00',
@@ -424,7 +390,6 @@ describe('Location Assignment API', () => {
       const templateResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(addWeeks(new Date(), -1)),
         startTime: '12:00:00',
         endTime: '14:00:00',
@@ -443,7 +408,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -452,7 +416,6 @@ describe('Location Assignment API', () => {
       const result1 = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '08:00:00',
         endTime: '10:00:00',
@@ -462,7 +425,6 @@ describe('Location Assignment API', () => {
       const result2 = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '13:00:00',
         endTime: '15:00:00',
@@ -475,7 +437,6 @@ describe('Location Assignment API', () => {
       const result3 = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '08:00:00',
         endTime: '09:00:00',
@@ -492,7 +453,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -501,7 +461,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: anotherLocation.id,
-        facilityId: anotherLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -522,7 +481,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -535,7 +493,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: futureDates[1],
         startTime: '12:00:00',
         endTime: '14:00:00',
@@ -553,10 +510,6 @@ describe('Location Assignment API', () => {
         ...fake(User),
         id: uuidv4(),
       });
-      await models.UserFacility.create({
-        userId: testUser2.id,
-        facilityId: testLocation.facilityId,
-      });
 
       const startDate = toDateString(new Date());
       const endDate = toDateString(addDays(new Date(), 3));
@@ -570,7 +523,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -582,7 +534,6 @@ describe('Location Assignment API', () => {
       const result = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser2.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -599,7 +550,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '12:00:00',
@@ -612,7 +562,6 @@ describe('Location Assignment API', () => {
       const partialOverlapResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(addWeeks(new Date(), 4)),
         startTime: '11:00:00',
         endTime: '13:00:00',
@@ -629,7 +578,6 @@ describe('Location Assignment API', () => {
       const noOverlapResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(addWeeks(new Date(), 4)),
         startTime: '08:00:00',
         endTime: '09:00:00',
@@ -681,7 +629,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -699,7 +646,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '12:00:00',
         endTime: '13:00:00',
@@ -722,7 +668,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -735,7 +680,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '11:00:00',
         endTime: '12:00:00',
@@ -745,7 +689,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -762,7 +705,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -780,7 +722,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -806,7 +747,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -822,7 +762,6 @@ describe('Location Assignment API', () => {
       const assignment = await LocationAssignment.create({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -830,7 +769,6 @@ describe('Location Assignment API', () => {
 
       const result = await adminApp.put(`/api/admin/location-assignments/${assignment.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -839,36 +777,6 @@ describe('Location Assignment API', () => {
       expect(result).toHaveRequestError(400);
     });
 
-    it('Should reject when update assignment for user not belong to facility of location', async () => {
-      const { LocationAssignment } = models;
-      const today = toDateString(new Date());
-
-      const assignment = await LocationAssignment.create({
-        userId: testUser.id,
-        locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
-        date: today,
-        startTime: '10:00:00',
-        endTime: '11:00:00',
-      });
-
-      const newFacility = await models.Facility.create({
-        ...fake(models.Facility),
-      });
-      const newLocation = await models.Location.create({
-        ...fake(models.Location),
-        facilityId: newFacility.id,
-      });
-
-      const result = await adminApp.put(`/api/admin/location-assignments/${assignment.id}`).send({
-        locationId: newLocation.id,
-        facilityId: newFacility.id,
-        date: today,
-        startTime: '10:00:00',
-        endTime: '11:00:00',
-      });
-      expect(result).toHaveRequestError(422);
-    });
   });
 
   describe('Modify a repeating assignment', () => {
@@ -879,7 +787,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -898,7 +805,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: tomorrow,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -929,7 +835,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -941,7 +846,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '11:00:00',
         endTime: '12:00:00',
@@ -958,7 +862,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -975,7 +878,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1003,7 +905,6 @@ describe('Location Assignment API', () => {
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: startDate,
         startTime: '10:00:00',
         endTime: '13:00:00',
@@ -1021,7 +922,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1043,7 +943,6 @@ describe('Location Assignment API', () => {
       const newDate = toDateString(addWeeks(parseISO(assignmentToUpdate.date), 1));
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: newDate,
         startTime: '11:00:00',
         endTime: '12:00:00',
@@ -1103,7 +1002,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: today,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1124,7 +1022,6 @@ describe('Location Assignment API', () => {
       const assignmentToUpdate = assignments[3];
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: assignments[2].date,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1145,7 +1042,6 @@ describe('Location Assignment API', () => {
       const createResult = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: assignmentDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1159,7 +1055,6 @@ describe('Location Assignment API', () => {
       const createResult2 = await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: assignmentDate,
         startTime: '11:00:00',
         endTime: '12:00:00',
@@ -1168,7 +1063,6 @@ describe('Location Assignment API', () => {
 
       const updateResult2 = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(tomorrow),
         startTime: '10:00:00',
         endTime: '12:00:00',
@@ -1190,7 +1084,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1222,7 +1115,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '11:00:00',
@@ -1256,7 +1148,6 @@ describe('Location Assignment API', () => {
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        facilityId: testLocation.facilityId,
         date: toDateString(new Date()),
         startTime: '10:00:00',
         endTime: '11:00:00',

@@ -1,7 +1,7 @@
-import { formatISO, isEqual } from 'date-fns';
+import { formatISO, isEqual, format } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
-import { toDateString, formatTime } from '@tamanu/utils/dateTime';
+import { toDateString } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
@@ -36,6 +36,10 @@ const AssignmentTimeRange = styled.div`
 const AssignmentUser = styled.div`
   opacity: 0.9;
 `;
+
+const formatTime = (time) => {
+  return format(new Date(time), 'h:mma').toLowerCase();
+};
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
   const { user, startTime, endTime } = assignment;

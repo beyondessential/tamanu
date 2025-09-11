@@ -55,12 +55,12 @@ export const LocationInput = React.memo(
         };
       },
       baseQueryParameters: { 
-        ...(facilityId && facilityId.trim() !== '' && { filterByFacility: true, facilityId }), 
+        ...(facilityId && facilityId.trim() && { filterByFacility: true, facilityId }), 
         ...(groupId && { locationGroupId: groupId })
       },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
-      baseQueryParameters: (facilityId && facilityId.trim() !== '') ? { facilityId } : {},
+      baseQueryParameters: (facilityId && facilityId.trim()) ? { facilityId } : {},
     });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;

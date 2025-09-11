@@ -172,13 +172,15 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         title={
           <TranslatedText
             stringId="locationAssignment.form.new.heading"
-            fallback="Location assignment"
+            //fallback="Location assignment"
+            fallback="Assign user"
             data-testid="translatedtext-nugq"
           />
         }
         description={
           <TranslatedText
             stringId="locationAssignment.form.new.description"
+            //fallback="Assign a user to a location using the form below."
             fallback="View, modify or delete this assignment."
             data-testid="translatedtext-p4qw"
           />

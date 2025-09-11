@@ -74,8 +74,8 @@ export const LocationAssignmentsAdminView = () => {
     data: bookableLocations,
   };
 
-  const { data: locations } = locationsQuery;
-  const hasNoLocations = locations?.length === 0;
+  const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
+  const hasNoLocations = !isLocationsLoading && locations?.length === 0;
 
   const openAssignmentDrawer = (initialValues = {}) => {
     setDrawerInitialValues({
