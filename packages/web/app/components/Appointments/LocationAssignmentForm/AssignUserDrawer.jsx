@@ -170,20 +170,34 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         open={open}
         onClose={onClose}
         title={
-          <TranslatedText
-            stringId="locationAssignment.form.new.heading"
-            //fallback="Location assignment"
-            fallback="Assign user"
-            data-testid="translatedtext-nugq"
-          />
+          isViewing ? (
+            <TranslatedText
+              stringId="locationAssignment.form.edit.heading"
+              fallback="Location assignment"
+              data-testid="translatedtext-gykj"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationAssignment.form.new.heading"
+              fallback="Assign user"
+              data-testid="translatedtext-nugq"
+            />
+          )
         }
         description={
-          <TranslatedText
-            stringId="locationAssignment.form.new.description"
-            //fallback="Assign a user to a location using the form below."
-            fallback="View, modify or delete this assignment."
-            data-testid="translatedtext-p4qw"
-          />
+          isViewing ? (
+            <TranslatedText
+              stringId="locationAssignment.form.new.description"
+              fallback="View, modify or delete this assignment."
+              data-testid="translatedtext-p4qw"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationAssignment.form.edit.description"
+              fallback="Assign a user to a location using the form below."
+              data-testid="translatedtext-o9mp"
+            />
+          )
         }
         onEdit={isViewing ? () => setIsEditMode(!isEditMode) : undefined}
         data-testid="drawer-au2a"
@@ -248,36 +262,48 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          <StyledFormSubmitCancelRow 
-            onCancel={isViewing && !isEditMode ? undefined : isEditMode ? () => setIsEditMode(false) : onClose}
+          <StyledFormSubmitCancelRow
+            onCancel={
+              isViewing && !isEditMode
+                ? undefined
+                : isEditMode
+                ? () => setIsEditMode(false)
+                : onClose
+            }
             onConfirm={isViewing && !isEditMode ? onClose : undefined}
-            confirmText={isViewing && !isEditMode ? (
-              <TranslatedText
-                stringId="general.action.close"
-                fallback="Close"
-                data-testid="translatedtext-close"
-              />
-            ) : isEditMode ? (
-              <TranslatedText
-                stringId="general.action.confirm"
-                fallback="Confirm"
-                data-testid="translatedtext-confirm"
-              />
-            ) : (
-              <TranslatedText
-                stringId="general.action.saveChanges"
-                fallback="Save changes"
-                data-testid="translatedtext-saveChanges"
-              />
-            )}
-            cancelText={isEditMode ? (
-              <TranslatedText
-                stringId="general.action.cancel"
-                fallback="Cancel"
-                data-testid="translatedtext-cancel"
-              />
-            ) : undefined}
-            data-testid="formsubmitcancelrow-bj5z" 
+            confirmText={
+              isViewing && !isEditMode ? (
+                <TranslatedText
+                  stringId="general.action.close"
+                  fallback="Close"
+                  data-testid="translatedtext-close"
+                />
+              ) : isEditMode ? (
+                <TranslatedText
+                  stringId="general.action.confirm"
+                  fallback="Confirm"
+                  data-testid="translatedtext-confirm"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="general.action.saveChanges"
+                  fallback="Save changes"
+                  data-testid="translatedtext-saveChanges"
+                />
+              )
+            }
+            cancelText={
+              isEditMode ? (
+                <TranslatedText
+                  stringId="general.action.cancel"
+                  fallback="Cancel"
+                  data-testid="translatedtext-cancel"
+                />
+              ) : (
+                undefined
+              )
+            }
+            data-testid="formsubmitcancelrow-bj5z"
           />
         </FormGrid>
       </Drawer>
