@@ -87,7 +87,7 @@ export const SurveyScreen = ({
   encounterType,
   onCancel,
   showCancelButton = false,
-  getComponentForQuestionType, // TODO Fix this
+  getComponentForQuestionType,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
