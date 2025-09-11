@@ -445,7 +445,7 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.sort((a, b) => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
                       const timeA = getDateFromTimeString(a);
                       const timeB = getDateFromTimeString(b);
                       return timeA - timeB;
