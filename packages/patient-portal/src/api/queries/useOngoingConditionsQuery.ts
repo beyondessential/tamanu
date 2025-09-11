@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  type OngoingCondition,
-} from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
+import { type OngoingCondition } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useOngoingConditionsQuery = () => {
@@ -9,6 +7,6 @@ export const useOngoingConditionsQuery = () => {
 
   return useQuery<unknown, Error, OngoingCondition[]>({
     queryKey: ['ongoingConditions'],
-    queryFn: () => api.get('/me/ongoing-conditions')
+    queryFn: () => api.get('/me/ongoing-conditions'),
   });
 };

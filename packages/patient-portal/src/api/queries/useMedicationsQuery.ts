@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import {
-  type OngoingPrescription,
-} from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
+import { type OngoingPrescription } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useMedicationsQuery = () => {

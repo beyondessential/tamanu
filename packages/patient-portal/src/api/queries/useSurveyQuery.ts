@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { type SurveyWithComponents } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
+import { type SurveyWithComponents } from '@tamanu/shared/schemas/patientPortal';
 
 export const useSurveyQuery = (surveyId: string) => {
   const api = useApi();

@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  type Patient,
-} from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { type Patient } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useCurrentUserQuery = () => {

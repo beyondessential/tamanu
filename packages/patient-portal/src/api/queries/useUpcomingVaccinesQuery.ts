@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {  
-  type UpcomingVaccination,
-} from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
+import { type UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useUpcomingVaccinesQuery = () => {

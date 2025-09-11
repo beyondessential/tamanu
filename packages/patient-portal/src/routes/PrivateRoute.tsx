@@ -3,7 +3,7 @@ import { Route, Redirect, RouteProps } from 'react-router-dom';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from '@components/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
-import { type Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { type Patient } from '@tamanu/shared/schemas/patientPortal';
 
 const CurrentUserContext = createContext<Patient | undefined>(undefined);
 
