@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import { z } from 'zod';
 
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
@@ -52,6 +52,10 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     return res.status(200).json({
       message: 'One-time token sent successfully',
     });
+  }
+
+  if (portalUser.status !== PORTAL_USER_STATUSES.REGISTERED) {
+    throw new BadAuthenticationError('Email is not verified');
   }
 
   const oneTimeTokenService = new PortalOneTimeTokenService(models);
