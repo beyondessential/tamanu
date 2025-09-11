@@ -1226,6 +1226,7 @@ export const globalSettings = {
       },
     },
     security: {
+      highRisk: true,
       description: 'Security settings',
       properties: {
         loginAttempts: {
