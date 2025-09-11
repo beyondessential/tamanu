@@ -11,7 +11,6 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
-import { LOCATION_ASSIGNMENTS_CALENDAR_ID } from '../../../constants/locationAssignments';
 import { getDisplayableDates } from './utils';
 
 const EmptyState = styled.div`
@@ -80,7 +79,6 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
     <>
       <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
         <CarouselGrid.Root
-          id={LOCATION_ASSIGNMENTS_CALENDAR_ID}
           $dayCount={displayedDates.length}
           data-testid="root-nqxn"
         >
