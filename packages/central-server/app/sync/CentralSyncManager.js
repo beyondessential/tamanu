@@ -317,6 +317,7 @@ export class CentralSyncManager {
           : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
+          this.store.models,
           getModelsForPull(this.store.models),
           previouslyUpToTick,
           this.constructor.config,
