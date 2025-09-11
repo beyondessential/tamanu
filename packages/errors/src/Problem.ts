@@ -71,6 +71,7 @@ export class Problem extends Error {
     return this;
     if (exclude) {
       this.extra.delete('stack');
+      this.extra.delete('request-url');
     }
     return this;
   }
