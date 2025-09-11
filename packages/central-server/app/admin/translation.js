@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
-import { isEmpty, isNull } from 'lodash';
+import { isEmpty } from 'lodash';
 
 export const translationRouter = express.Router();
 
