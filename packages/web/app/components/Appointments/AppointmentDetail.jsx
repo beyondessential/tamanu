@@ -100,7 +100,7 @@ const PatientInfo = ({ patient }) => {
             <PatientInfoLabel data-testid="patientinfolabel-oa60">
               <TranslatedText
                 stringId="general.dateOfBirth.label"
-                fallback="DOB"
+                fallback="Date of Birth"
                 data-testid="translatedtext-ery9"
               />
             </PatientInfoLabel>
