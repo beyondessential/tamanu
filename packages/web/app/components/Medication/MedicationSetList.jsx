@@ -4,8 +4,8 @@ import CheckIcon from '@material-ui/icons/Check';
 import { Box, IconButton } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
-import { BodyText, Heading4, SmallBodyText, TranslatedText } from '..';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, Heading4, SmallBodyText } from '..';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../contexts/Translation';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
@@ -17,9 +17,9 @@ const ListContainer = styled(Box)`
   gap: 10px;
   padding: 6px 0px;
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   height: calc(100vh - 444px);
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   overflow-y: auto;
 `;
 
@@ -35,7 +35,7 @@ const ListItem = styled.div`
 
 const MedicationListItem = styled.div`
   padding: 16px 20px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,7 @@ const SelectOverlay = styled.div`
   position: absolute;
   left: 6px;
   top: 0;
-  border: 1px solid ${Colors.primary};
+  border: 1px solid ${TAMANU_COLORS.primary};
   border-radius: 5px;
   width: calc(100% - 12px);
   height: 100%;
@@ -69,7 +69,7 @@ const StyledIconButton = styled(IconButton)`
   svg {
     width: 18px;
     height: 18px;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 `;
 
@@ -82,7 +82,7 @@ const RemoveText = styled(BodyText)`
 `;
 
 const CheckedLabel = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   display: flex;
   align-items: center;
   gap: 4px;
@@ -182,7 +182,7 @@ export const MedicationSetMedicationsList = ({
                 {getTranslatedFrequency(frequency, getTranslation)}, {DRUG_ROUTE_LABELS[route]}
                 {durationUnit && durationValue && `, ${durationValue} ${durationUnit}`}
               </BodyText>
-              {notes && <BodyText color={Colors.midText}>{notes}</BodyText>}
+              {notes && <BodyText color={TAMANU_COLORS.midText}>{notes}</BodyText>}
               {editable && (
                 <>
                   <StyledIconButton onClick={() => onEdit(medication)}>
@@ -195,7 +195,7 @@ export const MedicationSetMedicationsList = ({
               )}
             </MedicationListItem>
             {existingDrugIds.includes(medicationRef.id) && editable && (
-              <SmallBodyText mx="16px" mt="2px" color={Colors.darkText}>
+              <SmallBodyText mx="16px" mt="2px" color={TAMANU_COLORS.darkText}>
                 <TranslatedText
                   stringId="medication.warning.existingDrug"
                   fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."

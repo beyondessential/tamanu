@@ -1,14 +1,19 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { subject } from '@casl/ability';
-import { getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
 
+import {
+  getFormInitialValues,
+  getValidationSchema,
+  Form,
+  FormSubmitCancelRow,
+  SurveyScreen,
+  Modal,
+  ModalLoader,
+} from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 
-import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
-import { SurveyScreen } from '../components/Surveys';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
-import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -17,6 +22,7 @@ import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
 import { useTranslation } from '../contexts/Translation';
 import { useEncounter } from '../contexts/Encounter.jsx';
+import { getComponentForQuestionType } from '../components/Surveys/getComponentForQuestionType.jsx';
 
 export const ChartForm = React.memo(
   ({
@@ -113,6 +119,7 @@ export const ChartForm = React.memo(
               values={values}
               setFieldValue={setFieldValue}
               encounterType={encounter?.encounterType}
+              getComponentForQuestionType={getComponentForQuestionType}
               submitButton={
                 <FormSubmitCancelRow
                   confirmText={confirmText}

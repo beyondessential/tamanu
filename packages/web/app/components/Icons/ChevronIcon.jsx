@@ -1,8 +1,9 @@
 import React from 'react';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
 
-export const ChevronIcon = ({ htmlColor = Colors.darkText, width = 10, height = 6, ...props }) => (
+
+export const ChevronIcon = ({ htmlColor = TAMANU_COLORS.darkText, width = 10, height = 6, ...props }) => (
   <svg
     width={width}
     height={height}

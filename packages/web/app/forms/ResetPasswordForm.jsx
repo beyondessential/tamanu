@@ -2,10 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
-import { TextField } from '@tamanu/ui-components';
-import { BodyText, Button, Field, Form, FormSubmitButton } from '../components';
-import { Colors } from '../constants';
+import { FormGrid, TextField, Form, FormSubmitButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { BodyText, Field } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -22,14 +20,14 @@ const BackToLoginButton = styled(Button)`
 `;
 
 const FormHeading = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
 `;
 
 const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding: 10px 0;
 `;
 

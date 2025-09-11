@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants';
+import { Form, FormGrid, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import {
@@ -19,10 +19,8 @@ import {
   CheckField,
   DynamicSelectField,
   Field,
-  Form,
   LocalisedLocationField,
 } from '../../Field';
-import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
@@ -287,7 +285,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
                 />
                 <OvernightIcon
                   aria-hidden
-                  htmlColor={Colors.primary}
+                  htmlColor={TAMANU_COLORS.primary}
                   style={{ fontSize: 18 }}
                   data-testid="overnighticon-mjii"
                 />

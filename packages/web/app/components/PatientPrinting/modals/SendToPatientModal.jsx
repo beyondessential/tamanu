@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import { FormSubmitCancelRow } from '@tamanu/ui-components';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { useRegisterPatientPortal } from '../../../api/mutations';
 
 export const SendToPatientModal = ({ patient }) => {

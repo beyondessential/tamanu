@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
@@ -26,7 +27,6 @@ import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery'
 import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
 import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
-import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
@@ -187,7 +187,7 @@ const PatientPaneInner = styled.div`
 const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
-  const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
+  const backgroundColor = location.pathname?.endsWith('/mar/view') ? TAMANU_COLORS.white : 'initial';
   const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (

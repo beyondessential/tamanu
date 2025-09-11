@@ -9,10 +9,10 @@ import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, ButtonWithPermissionCheck, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { TabPane } from '../components';
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { useChartSurveysQuery } from '../../../api/queries';
 import { ChartsTable, EmptyChartsTable } from '../../../components/ChartsTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -25,7 +25,6 @@ import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { Colors } from '../../../constants';
 import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
 import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
@@ -46,12 +45,12 @@ const StyledButtonGroup = styled(ButtonGroup)`
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   overflow-x: auto;
 `;
 
 const AddComplexChartButton = styled.span`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -66,8 +65,8 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
   }
   button&:disabled {
     opacity: 0.5;
-    background-color: ${Colors.primary};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primary};
+    color: ${TAMANU_COLORS.white};
   }
 `;
 

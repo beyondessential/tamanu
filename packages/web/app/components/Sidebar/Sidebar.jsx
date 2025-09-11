@@ -6,9 +6,9 @@ import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { getCurrentRoute } from '../../store/router';
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
-import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -17,26 +17,25 @@ import { checkAbility } from '../../utils/ability';
 import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${Colors.primaryDark};
+  background: ${TAMANU_COLORS.primaryDark};
   min-width: ${props => (props.$retracted ? '60px' : '260px')};
   max-width: ${props => (props.$retracted ? '86px' : '280px')};
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
-    color: ${Colors.white};
+    color: ${TAMANU_COLORS.white};
   }
 `;
 
@@ -51,7 +50,7 @@ const HeaderContainer = styled.div`
 
 const RetractExtendButton = styled(IconButton)`
   padding: 8px;
-  background-color: ${Colors.primaryDark};
+  background-color: ${TAMANU_COLORS.primaryDark};
 
   &.MuiIconButton-root:hover {
     background-color: #4e5f71;
@@ -119,7 +118,7 @@ const Version = styled.div`
   line-height: 15px;
   font-weight: 400;
   margin-top: 6px;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const LogoutButton = styled(Button)`
@@ -128,7 +127,7 @@ const LogoutButton = styled(Button)`
   line-height: 15px;
   text-transform: none;
   text-decoration: underline;
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   margin-left: 10px;
   min-height: 0;
   min-width: 0;

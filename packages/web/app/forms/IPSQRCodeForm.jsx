@@ -2,14 +2,17 @@ import React from 'react';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { TextField } from '@tamanu/ui-components';
-import { Field, Form } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  FormSubmitCancelRow,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
+import { Field } from '../components/Field';
 import { DateDisplay } from '../components';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { PATIENT_TABS } from '../constants/patientPaths';
-import { Colors } from '../constants';
 import { useTranslation } from '../contexts/Translation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
@@ -19,7 +22,7 @@ const StyledPatientDetailsLink = styled.span`
   text-decoration: underline;
 
   &:hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 `;
 
@@ -30,12 +33,12 @@ const StyledDateOfBirthWrapper = styled.div`
 
 const StyledDateOfBirthContainer = styled.div`
   padding: 10px 20px;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const StyledDateOfBirthText = styled.span`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }) => {

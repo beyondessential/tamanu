@@ -3,13 +3,12 @@ import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { TextInput } from '@tamanu/ui-components';
-import { Colors } from '../../constants';
+import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useTranslation } from '../../contexts/Translation';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     font-size: 18px;
   }
 `;
@@ -29,7 +28,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`

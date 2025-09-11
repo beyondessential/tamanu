@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 //@ts-nocheck
 // Todo - add survey view
 import React from 'react';

@@ -3,18 +3,22 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import { MultilineTextField, TextField } from '@tamanu/ui-components';
+import {
+  MultilineTextField,
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+  ModalLoader,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { useApi, useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { AutocompleteField, DateField, Field, Form } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { ModalLoader } from '../components/BaseModal';
-import { Button, OutlinedButton } from '../components';
+import { AutocompleteField, DateField, Field } from '../components/Field';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
-import { FORM_TYPES } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TEMPLATE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, FORM_TYPES } from '@tamanu/constants';
 
 const TallMultilineTextField = props => (
   <MultilineTextField

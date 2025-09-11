@@ -7,6 +7,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -17,12 +18,9 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors, FORM_TYPES } from '../../constants';
-import { TextField } from '@tamanu/ui-components';
-import { CheckField, Field, Form } from '../Field';
+import { TextField, Form, Button, OutlinedButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';
-import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
@@ -50,36 +48,36 @@ const Container = styled.div`
 
 const DetailsContainer = styled(Box)`
   padding: 12px 20px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const MidText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const DiscontinuedText = styled(Box)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 500;
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const PausedText = styled(Box)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 500;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 export const MedicationDetails = ({
@@ -272,7 +270,7 @@ export const MedicationDetails = ({
                       </MidText>
                       <DarkestText mt={0.5}>{medication.discontinuingReason || '-'}</DarkestText>
                     </Box>
-                    <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+                    <Box flex={1} pl={2.5} borderLeft={`1px solid ${TAMANU_COLORS.outline}`}>
                       <MidText>
                         <TranslatedText
                           stringId="medication.details.discontinueDate"
@@ -284,7 +282,7 @@ export const MedicationDetails = ({
                       )} ${formatTimeSlot(new Date(medication.discontinuedDate))}`}</DarkestText>
                     </Box>
                   </DetailsContainer>
-                  <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
+                  <Box my={2.5} height={'1px'} bgcolor={TAMANU_COLORS.outline} />
                 </>
               )}
               {isPausing && (
@@ -318,14 +316,14 @@ export const MedicationDetails = ({
                         )}`}
                       </DarkestText>
                     </Box>
-                    <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+                    <Box flex={1} pl={2.5} borderLeft={`1px solid ${TAMANU_COLORS.outline}`}>
                       <MidText>
                         <TranslatedText stringId="medication.details.notes" fallback="Notes" />
                       </MidText>
                       <DarkestText mt={0.5}>{pauseData.notes || '-'}</DarkestText>
                     </Box>
                   </DetailsContainer>
-                  <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
+                  <Box my={2.5} height={'1px'} bgcolor={TAMANU_COLORS.outline} />
                 </>
               )}
               <DetailsContainer>
@@ -333,7 +331,7 @@ export const MedicationDetails = ({
                   py={1}
                   display={'flex'}
                   justifyContent={'space-between'}
-                  borderBottom={`1px solid ${Colors.outline}`}
+                  borderBottom={`1px solid ${TAMANU_COLORS.outline}`}
                 >
                   <Box>
                     <MidText>
@@ -352,7 +350,7 @@ export const MedicationDetails = ({
                   </Box>
                   <Box display={'flex'} justifyContent={'flex-end'} height={'fit-content'}>
                     {medication.isPrn && (
-                      <Box display={'flex'} alignItems={'center'} color={Colors.primary}>
+                      <Box display={'flex'} alignItems={'center'} color={TAMANU_COLORS.primary}>
                         <CheckSharp style={{ fontSize: '18px' }} />
                         <MidText ml={0.5}>
                           <TranslatedText
@@ -363,7 +361,7 @@ export const MedicationDetails = ({
                       </Box>
                     )}
                     {medication.isOngoing && (
-                      <Box ml={'5px'} display={'flex'} alignItems={'center'} color={Colors.primary}>
+                      <Box ml={'5px'} display={'flex'} alignItems={'center'} color={TAMANU_COLORS.primary}>
                         <CheckSharp style={{ fontSize: '18px' }} />
                         <MidText ml={0.5}>
                           <TranslatedText
@@ -384,7 +382,7 @@ export const MedicationDetails = ({
                       </Box>
                     ))}
                   </Box>
-                  <Box flex={1} pl={2.5} borderLeft={`1px solid ${Colors.outline}`}>
+                  <Box flex={1} pl={2.5} borderLeft={`1px solid ${TAMANU_COLORS.outline}`}>
                     {rightDetails.map((detail, index) => (
                       <Box key={index} mb={index === rightDetails.length - 1 ? 0 : 2}>
                         <MidText>{detail.label}</MidText>
@@ -394,7 +392,7 @@ export const MedicationDetails = ({
                   </Box>
                 </Box>
               </DetailsContainer>
-              <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
+              <Box my={2.5} height={'1px'} bgcolor={TAMANU_COLORS.outline} />
               <FormGrid>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <NoteModalActionBlocker>
@@ -423,7 +421,7 @@ export const MedicationDetails = ({
                       <Field
                         name="displayPharmacyNotesInMar"
                         label={
-                          <MidText color={`${Colors.darkText} !important`}>
+                          <MidText color={`${TAMANU_COLORS.darkText} !important`}>
                             <TranslatedText
                               stringId="medication.details.displayInMarInstructions"
                               fallback="Display pharmacy notes on MAR"
@@ -438,7 +436,7 @@ export const MedicationDetails = ({
                 )}
               </FormGrid>
               <Box mt={2.5}>
-                <DarkestText color={`${Colors.darkText} !important`}>
+                <DarkestText color={`${TAMANU_COLORS.darkText} !important`}>
                   <TranslatedText
                     stringId="medication.details.medicationAdministrationSchedule"
                     fallback="Medication administration schedule"
@@ -472,7 +470,7 @@ export const MedicationDetails = ({
               mx={-4}
               px={5}
               pt={2.5}
-              borderTop={`1px solid ${Colors.outline}`}
+              borderTop={`1px solid ${TAMANU_COLORS.outline}`}
               display={'flex'}
               justifyContent={'space-between'}
             >

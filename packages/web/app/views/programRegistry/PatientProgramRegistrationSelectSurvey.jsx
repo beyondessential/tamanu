@@ -2,15 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
-import { REGISTRATION_STATUSES, SURVEY_TYPES } from '@tamanu/constants';
+import { REGISTRATION_STATUSES, SURVEY_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useApi } from '../../api';
-import { Colors, FORM_TYPES } from '../../constants';
 import { Heading5 } from '../../components/Typography';
-import { Button } from '../../components/Button';
-import { Field, Form } from '../../components/Field';
-import { BaseSelectField } from '@tamanu/ui-components';
-import { FormGrid } from '../../components/FormGrid';
+import { Field } from '../../components/Field';
+import { BaseSelectField, Form, Button, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { foreignKey } from '../../utils/validation';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -20,10 +17,10 @@ import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const DisplayContainer = styled.div`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 0 15px 20px 20px;
   border-radius: 5px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const StyledFormGrid = styled(FormGrid)`
@@ -34,12 +31,12 @@ const StyledFormGrid = styled(FormGrid)`
 
 const StyledButton = styled(Button)`
   height: 44px;
-  background-color: ${Colors.primary};
-  color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.primary};
+  color: ${TAMANU_COLORS.white};
   width: 100%;
   :disabled {
-    background-color: ${Colors.primary};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primary};
+    color: ${TAMANU_COLORS.white};
     opacity: 0.4;
   }
 `;

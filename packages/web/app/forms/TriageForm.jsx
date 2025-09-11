@@ -1,7 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { endOfDay, format } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
@@ -11,19 +11,16 @@ import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
   LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   RadioField,
   SuggesterSelectField,
 } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { getAnswersFromData } from '@tamanu/ui-components';
-import { FORM_TYPES } from '../constants';
+import { getAnswersFromData, Form, FormGrid } from '@tamanu/ui-components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { useSettings } from '../contexts/Settings';

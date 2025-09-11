@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -23,12 +24,11 @@ import {
   ChartsPane,
   TasksPane,
 } from './panes';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { EncounterActions } from './components';
 import { useReferenceDataQuery } from '../../api/queries';
 import { useAuth } from '../../contexts/Auth';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 import { useSettings } from '../../contexts/Settings';
 import { EncounterPaneWithPermissionCheck } from './panes/EncounterPaneWithPermissionCheck';
 import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
@@ -246,7 +246,7 @@ const GridColumnContainer = styled.div`
 const StyledTabDisplayDraggable = styled(TabDisplayDraggable)`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   background: white;
 
   .MuiTabs-root {

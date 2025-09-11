@@ -19,11 +19,11 @@ import {
   SelectField,
   TextField,
   BaseSelectField,
+  FormSubmitCancelRow,
+  TAMANU_COLORS,
 } from '@tamanu/ui-components';
-import { FormSubmitCancelRow } from './ButtonRow';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const FullWidthCol = styled.div`
@@ -304,7 +304,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
       schedules?.map(s => ({
         value: s.scheduledVaccineId,
         label: s.doseLabel,
-        icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
+        icon: s.administered ? <CheckCircleRounded style={{ color: TAMANU_COLORS.safe }} /> : null,
         disabled: s.administered,
       })) || [];
     setScheduledOptions(options);

@@ -3,12 +3,10 @@ import { PDFLoader, printPDF } from '../PDFLoader';
 import { MultipleImagingRequestsPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
-import { Colors } from '../../../constants';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useSettings } from '../../../contexts/Settings';
 import { useCertificate } from '../../../utils/useCertificate';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const MultipleImagingRequestsWrapper = ({ encounter, imagingRequests }) => {
   const { getLocalisation } = useLocalisation();
@@ -51,7 +49,7 @@ export const MultipleImagingRequestsPrintoutModal = ({
       width="md"
       open={open}
       onClose={onClose}
-      color={Colors.white}
+      color={TAMANU_COLORS.white}
       printable
       onPrint={() => printPDF('imaging-request-printout')}
       data-testid="modal-9574"

@@ -6,10 +6,7 @@ import { Box } from '@material-ui/core';
 import { addDays, isAfter, isBefore, parse } from 'date-fns';
 import { format as formatDate, toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import PropTypes from 'prop-types';
-import { TextInput } from '@tamanu/ui-components';
-
-import { Colors } from '../../constants';
-import { DefaultIconButton } from '../Button';
+import { TextInput, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -192,7 +189,7 @@ export const DateInput = ({
         inputProps: { max, min, ...inputProps },
         'data-testid': `${dataTestId}-input`,
       }}
-      style={isPlaceholder ? { color: Colors.softText } : undefined}
+      style={isPlaceholder ? { color: TAMANU_COLORS.softText } : undefined}
       data-testid={dataTestId}
       {...props}
     />
@@ -205,7 +202,7 @@ export const DateInput = ({
       InputProps={{
         inputProps,
       }}
-      style={{ color: Colors.softText }}
+      style={{ color: TAMANU_COLORS.softText }}
       data-testid={dataTestId}
       {...props}
     />

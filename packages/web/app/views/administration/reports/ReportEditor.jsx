@@ -7,6 +7,9 @@ import {
   TextField,
   TranslatedMultiSelectField,
   TranslatedSelectField,
+  Form,
+  ButtonRow,
+  Button,
 } from '@tamanu/ui-components';
 import {
   REPORT_DATA_SOURCE_VALUES,
@@ -18,7 +21,8 @@ import {
   REPORT_STATUSES_VALUES,
   REPORT_STATUS_LABELS,
 } from '@tamanu/constants/reports';
-import { Button, ButtonRow, Field, Form } from '../../../components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Field } from '../../../components';
 import { ParameterItem, ParameterList, SQLQueryEditor } from './components/editing';
 import {
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,
@@ -26,7 +30,6 @@ import {
 } from '../../reports/ParameterField';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 

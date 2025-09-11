@@ -8,12 +8,11 @@ import Grid from '@material-ui/core/Grid';
 import BaseDeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import {
   ArrayField,
-  DefaultIconButton,
   Field,
   OuterLabelFieldWrapper,
   CheckField,
 } from '../../../../../components';
-import { TextField, SelectField } from '@tamanu/ui-components';
+import { TextField, SelectField, DefaultIconButton } from '@tamanu/ui-components';
 import {
   FIELD_TYPES_TO_SUGGESTER_OPTIONS,
   FIELD_TYPES_WITH_PREDEFINED_OPTIONS,

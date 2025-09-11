@@ -16,6 +16,7 @@ import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { GlobalStyles } from './constants';
 import { EncounterProvider } from './contexts/Encounter';
+import { AuthProvider } from './contexts/Auth';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
@@ -40,7 +41,9 @@ const StateContextProviders = ({ children, store }) => (
                 <SyncStateProvider>
                   <TranslationProvider>
                     <LocalisationProvider store={store}>
-                      <NoteModalProvider>{children}</NoteModalProvider>
+                      <AuthProvider>
+                        <NoteModalProvider>{children}</NoteModalProvider>
+                      </AuthProvider>
                     </LocalisationProvider>
                   </TranslationProvider>
                 </SyncStateProvider>

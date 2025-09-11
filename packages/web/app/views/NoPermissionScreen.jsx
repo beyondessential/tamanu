@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import backgroundImage from '../assets/images/hospital_illustration_background.svg';
-import { Colors } from '../constants';
-import { TranslatedText } from '../components';
 
 const Container = styled.div`
   border: 1px #dedede solid;
@@ -14,7 +13,7 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   position: relative;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   background-image: url(${backgroundImage});
   background-repeat: no-repeat;
   background-position: center bottom 23px;
@@ -35,7 +34,7 @@ const Heading = styled.h1`
 const Description = styled.h4`
   font-size: 16px;
   font-weight: 400;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 export const NoPermissionScreen = () => {

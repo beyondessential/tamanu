@@ -2,7 +2,7 @@ import React, { Children } from 'react';
 import styled from 'styled-components';
 
 import { Button, FormCancelButton, FormSubmitButton, OutlinedButton } from './Button';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText } from '../Translation';
 
 const FlexSpaceBetween = styled.div`
   display: flex;

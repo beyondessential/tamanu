@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import EditIcon from '@material-ui/icons/Edit';
 import { Box, IconButton } from '@material-ui/core';
 import { subject } from '@casl/ability';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, TAMANU_COLORS } from '@tamanu/ui-components';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InfoCard, InfoCardItem } from '../InfoCard';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
-import { Colors } from '../../constants';
 import { FormModal } from '../FormModal';
 import { ChartForm } from '../../forms/ChartForm';
 import { useEncounter } from '../../contexts/Encounter';
@@ -36,7 +35,7 @@ const StyledEditIcon = styled(EditIcon)`
   float: right;
   width: 1rem;
   height: 1rem;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const isVisible = (fieldVisibility, fieldValue, isType) => {

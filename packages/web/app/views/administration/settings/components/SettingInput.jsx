@@ -3,15 +3,9 @@ import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
-import { TextInput } from '@tamanu/ui-components';
-import {
-  LargeBodyText,
-  NumberInput,
-  TextButton,
-  TranslatedText,
-} from '../../../../components';
+import { TextInput, TAMANU_COLORS, TextButton, TranslatedText } from '@tamanu/ui-components';
+import { LargeBodyText, NumberInput } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`
@@ -20,18 +14,18 @@ const Unit = styled.div`
 
 const StyledTextInput = styled(TextInput)`
   .MuiInputBase-root.Mui-disabled {
-    background: ${Colors.background};
+    background: ${TAMANU_COLORS.background};
   }
 `;
 
 const StyledNumberInput = styled(NumberInput)`
   .MuiInputBase-root.Mui-disabled {
-    background: ${Colors.background};
+    background: ${TAMANU_COLORS.background};
   }
 `;
 
 const DefaultSettingButton = styled(TextButton)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-size: 15px; // Match TextField
   font-weight: 500;
   line-height: 18px; // Match TextField
@@ -43,7 +37,7 @@ const DefaultSettingButton = styled(TextButton)`
   margin-inline-start: 0.5rem;
 
   &:hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     text-decoration-line: underline;
   }
 `;

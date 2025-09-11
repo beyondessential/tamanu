@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { endOfDay, isValid, parseISO, startOfDay } from 'date-fns';
 import { useFormikContext } from 'formik';
 import React from 'react';
@@ -6,13 +7,12 @@ import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useLocationBookingsQuery } from '../../../../api/queries';
-import { Colors } from '../../../../constants';
 import { DateField, Field } from '../../../Field';
 import { TranslatedText } from '../../../Translation';
 import { TimeSlotPicker } from './TimeSlotPicker';
 
 const ErrorSpan = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   display: contents;
 `;
 

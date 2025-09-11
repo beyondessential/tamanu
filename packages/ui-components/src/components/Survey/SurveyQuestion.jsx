@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
+import { Box, Typography } from '@material-ui/core';
 import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
-import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../utils';
-import { Field, FieldWithTooltip } from './Field';
-import { Box, Typography } from '@material-ui/core';
-import { TAMANU_COLORS } from '../constants';
-import { TranslatedReferenceData, TranslatedText } from './Translation';
-import { useTranslation } from '../contexts/TranslationContext';
+import { checkMandatory, getConfigObject, getTooltip, mapOptionsToValues } from '../../utils';
+import { Field, FieldWithTooltip } from '../Field';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
+import { useTranslation } from '../../contexts/TranslationContext';
 
 const Text = styled.div`
   margin-bottom: 10px;

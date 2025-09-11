@@ -1,21 +1,23 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Typography } from '@material-ui/core';
-import { runCalculations } from '@tamanu/shared/utils/calculations';
 import styled from 'styled-components';
-import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
-import { SurveyQuestion, checkVisibility } from '@tamanu/ui-components';
-import { ButtonRow } from '../ButtonRow';
-import { Colors, FORM_STATUSES } from '../../constants';
+
+import { runCalculations } from '@tamanu/shared/utils/calculations';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+
+import { OutlinedButton, ButtonRow, Button } from '../Button';
+import { SurveyQuestion } from './SurveyQuestion';
+import { checkVisibility } from '../../utils/survey';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { FormGrid } from '../Form/FormGrid';
 import { TranslatedText } from '../Translation';
-import { getComponentForQuestionType } from './getComponentForQuestionType.jsx';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
 `;
 
 const StyledButtonRow = styled(ButtonRow)`
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   padding-top: 20px;
   margin-block-start: 24px;
 `;
@@ -85,6 +87,7 @@ export const SurveyScreen = ({
   encounterType,
   onCancel,
   showCancelButton = false,
+  getComponentForQuestionType,
 }) => {
   const { setQuestionToRef, scrollToQuestion } = useScrollToFirstError(errors);
   useCalculatedFormValues(allComponents, values, setFieldValue);
@@ -107,7 +110,7 @@ export const SurveyScreen = ({
     } else {
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
 
       const firstErroredQuestion = screenComponents.find(({ dataElementId }) =>
         pageErrors.includes(dataElementId),
@@ -131,7 +134,7 @@ export const SurveyScreen = ({
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
-    [encounterType, patient, setQuestionToRef, values],
+    [encounterType, getComponentForQuestionType, patient, setQuestionToRef, values],
   );
 
   const visibleComponents = getVisibleComponents(screenComponents, allComponents);

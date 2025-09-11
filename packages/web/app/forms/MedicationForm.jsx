@@ -11,6 +11,7 @@ import {
   MEDICATION_DURATION_UNITS_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -35,17 +36,22 @@ import {
   CheckInput,
   DateField,
   DateTimeField,
-  Dialog,
   Field,
+  NumberField,
+  SmallBodyText,
+} from '../components';
+import {
+  TextField,
+  SelectField,
+  TranslatedSelectField,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  NumberField,
-  SmallBodyText,
-} from '../components';
-import { TextField, SelectField, TranslatedSelectField } from '@tamanu/ui-components';
-import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+  TAMANU_COLORS,
+  Dialog,
+} from '@tamanu/ui-components';
+import { MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
@@ -131,7 +137,7 @@ const CheckboxGroup = styled.div`
   flex-direction: column;
   gap: 20px;
   padding-bottom: 1.2rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   > div {
     max-width: fit-content;
   }
@@ -145,13 +151,13 @@ const ButtonRow = styled.div`
 `;
 
 const FieldLabel = styled(Box)`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-weight: 500;
   font-size: 14px;
 `;
 
 const FieldContent = styled(Box)`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-weight: 400;
   font-size: 14px;
 `;
@@ -227,13 +233,13 @@ const StyledOngoingTooltip = styled(ThemedTooltip)`
 const StyledTimePicker = styled(TimePicker)`
   .MuiInputBase-root {
     font-size: 14px;
-    color: ${Colors.darkestText};
-    background-color: ${Colors.white};
+    color: ${TAMANU_COLORS.darkestText};
+    background-color: ${TAMANU_COLORS.white};
     &.Mui-disabled {
       background-color: inherit;
     }
     &.Mui-disabled .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.outline};
+      border-color: ${TAMANU_COLORS.outline};
     }
     .MuiSvgIcon-root {
       font-size: 22px;
@@ -247,10 +253,10 @@ const StyledTimePicker = styled(TimePicker)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.primary} !important;
+      border-color: ${TAMANU_COLORS.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.softText};
+      border-color: ${TAMANU_COLORS.softText};
     }
   }
 `;
@@ -393,7 +399,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                 key={index}
                 {...(slot.periodLabel && {
                   p: 1,
-                  border: `1px solid ${Colors.outline}`,
+                  border: `1px solid ${TAMANU_COLORS.outline}`,
                   borderRadius: '3px',
                   width: 'fit-content',
                 })}
@@ -434,11 +440,13 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                     <Box
                       px={1.5}
                       py={1.25}
-                      bgcolor={isDisabled ? undefined : Colors.white}
+                      bgcolor={isDisabled ? undefined : TAMANU_COLORS.white}
                       borderRadius="3px"
                       width="187px"
                       height="fit-content"
-                      border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
+                      border={`1px solid ${
+                        checked ? TAMANU_COLORS.primary : TAMANU_COLORS.outline
+                      }`}
                     >
                       <CheckInput
                         label={
@@ -498,10 +506,10 @@ const MedicationBox = styled.div`
   display: flex;
   flex-direction: column;
   gap: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   padding: 12px 20px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   grid-column: 1 / -1;
 `;
 
@@ -706,7 +714,7 @@ export const MedicationForm = ({
                     }}
                   />
                   {showExistingDrugWarning && (
-                    <SmallBodyText mt="2px" color={Colors.midText}>
+                    <SmallBodyText mt="2px" color={TAMANU_COLORS.midText}>
                       <TranslatedText
                         stringId="medication.warning.existingDrug"
                         fallback="Please be aware that this medicine has already been prescribed for this encounter. Double check that this is clinically appropriate."
@@ -717,10 +725,10 @@ export const MedicationForm = ({
               </>
             ) : (
               <MedicationBox>
-                <BodyText color={Colors.midText}>
+                <BodyText color={TAMANU_COLORS.midText}>
                   <TranslatedText stringId="medication.medication.label" fallback="Medication" />
                 </BodyText>
-                <BodyText color={Colors.darkestText} fontWeight={500}>
+                <BodyText color={TAMANU_COLORS.darkestText} fontWeight={500}>
                   {editingMedication.medication.name}
                 </BodyText>
               </MedicationBox>
@@ -763,7 +771,9 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                checkedIcon={
+                  <StyledIcon className="far fa-check-square" $color={TAMANU_COLORS.midText} />
+                }
               />
               <Field
                 name="isPrn"
@@ -1066,7 +1076,7 @@ export const MedicationForm = ({
                   fallback="There are less administration times than expected for the selected frequency. Please resolve this issue before finalising the prescription."
                 />
               </FieldContent>
-              <Box pb={2.5} mx={-4} borderTop={`1px solid ${Colors.outline}`} />
+              <Box pb={2.5} mx={-4} borderTop={`1px solid ${TAMANU_COLORS.outline}`} />
             </>
           }
           okText={

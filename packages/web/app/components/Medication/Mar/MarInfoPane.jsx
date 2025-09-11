@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { Box } from '@material-ui/core';
 import { formatTimeSlot } from '../../../utils/medications';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -18,28 +17,28 @@ import { ChangeLogModal } from './ChangeLogModal';
 
 const Container = styled.div`
   padding: 12px 16px;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   font-size: 14px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const Value = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const Label = styled(Value)`
   font-weight: 400;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   margin-bottom: 3px;
 `;
 
 const Separator = styled.hr`
   border: none;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   margin: 6px 0 16px;
 `;
 
@@ -49,7 +48,7 @@ const DateTimeContainer = styled.div`
 `;
 
 const ChangeLogLink = styled.a`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -68,7 +67,7 @@ const MedicationInfoContainer = styled.div`
 
 const VerticalDivider = styled.div`
   width: 1px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   margin: 0 20px;
 `;
 
@@ -104,7 +103,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
       <Container>
         <MedicationInfoContainer>
           <Box flex={0.9}>
-            <Box color={Colors.midText} mb={'3px'}>
+            <Box color={TAMANU_COLORS.midText} mb={'3px'}>
               <TranslatedText stringId="medication.mar.medication.label" fallback="Medication" />
             </Box>
             <Box fontWeight={500} mb={'3px'}>
@@ -119,7 +118,7 @@ export const MarInfoPane = ({ medication, marInfo }) => {
               {getTranslatedFrequency(frequency, getTranslation)},{' '}
               {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
             </Box>
-            <Box color={Colors.midText} mb={'3px'}>
+            <Box color={TAMANU_COLORS.midText} mb={'3px'}>
               <span>{notes}</span>
               {displayPharmacyNotesInMar && pharmacyNotes && (
                 <span>

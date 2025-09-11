@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, PLACE_OF_DEATHS } from '@tamanu/constants';
+import { MANNER_OF_DEATHS, PLACE_OF_DEATHS, FORM_TYPES } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
@@ -12,18 +12,17 @@ import {
   DateTimeField,
   Field,
   FieldWithTooltip,
-  FormGrid,
   FormSeparatorLine,
   NumberField,
   PaginatedForm,
   RadioField,
   TimeWithUnitField,
 } from '../components';
-import { TextField, TranslatedSelectField } from '@tamanu/ui-components';
+import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
+import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

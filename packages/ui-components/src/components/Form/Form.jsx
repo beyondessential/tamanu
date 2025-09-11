@@ -1,17 +1,16 @@
 import React, { isValidElement, useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik';
-import PropTypes from 'prop-types';
-import { ValidationError } from 'yup';
+import { Formik, useFormikContext } from 'formik'; 
+import { ValidationError } from 'yup'; 
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import styled from 'styled-components';
+import styled from 'styled-components'; 
 
-import { flattenObject } from '../../utils';
-import { Dialog } from '../Dialog';
-import { FORM_STATUSES, FORM_TYPES } from '../../constants';
-import { useFormSubmission } from '../../contexts/FormSubmission';
+import { flattenObject } from './flattenObject';
+import { Dialog } from '../Dialog'; 
+import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+import { useFormSubmission } from '../../contexts/FormSubmissionContext'; 
 import { IS_DEVELOPMENT } from '../../utils/env';
-import { TranslatedText } from '../Translation/TranslatedText';
+import { TranslatedText } from '../Translation';
 
 const ErrorMessage = ({ error }) => {
   if (isValidElement(error)) return error;
@@ -36,7 +35,7 @@ const ScrollToError = () => {
   const submitting = formik?.isSubmitting;
 
   useEffect(() => {
-    const el = document.querySelector('.Mui-error, [data-error]');
+    const el = document?.querySelector('.Mui-error, [data-error]');
     const element = el?.parentElement ?? el;
 
     if (element) {
@@ -93,7 +92,7 @@ export class Form extends React.PureComponent {
   }
 
   setErrors = validationErrors => {
-    const { onError, showInlineErrorsOnly } = this.props;
+    const { onError = null, showInlineErrorsOnly = false } = this.props;
     if (onError) {
       onError(validationErrors);
     }
@@ -126,7 +125,7 @@ export class Form extends React.PureComponent {
 
       // Use formik status prop to track if the user has attempted to submit the form. This is used in
       // Field.js to only show error messages once the user has attempted to submit the form
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
 
       // avoid multiple submissions
       if (isSubmitting) {
@@ -144,7 +143,7 @@ export class Form extends React.PureComponent {
       delete formErrors.isCanceled;
 
       const validFormErrors = componentsToValidate
-        ? Object.keys(formErrors || {}).filter((problematicComponent) =>
+        ? Object.keys(formErrors || {}).filter(problematicComponent =>
             componentsToValidate.has(problematicComponent),
           )
         : formErrors;
@@ -158,7 +157,7 @@ export class Form extends React.PureComponent {
       }
 
       // submission phase
-      const { onSubmit, onSuccess, formType } = this.props;
+      const { onSubmit, onSuccess = null, formType } = this.props;
       const { touched } = rest;
       const newValues = { ...values };
 
@@ -260,11 +259,11 @@ export class Form extends React.PureComponent {
   render() {
     const {
       onSubmit,
-      validateOnChange,
-      validateOnBlur,
-      initialValues,
+      validateOnChange = false,
+      validateOnBlur = false,
+      initialValues = {},
       formType,
-      suppressErrorDialog,
+      suppressErrorDialog = true,
       suppressErrorDialogCondition = () => true,
       ...props
     } = this.props;
@@ -319,25 +318,3 @@ export class Form extends React.PureComponent {
     );
   }
 }
-
-Form.propTypes = {
-  onError: PropTypes.func,
-  onSuccess: PropTypes.func,
-  onSubmit: PropTypes.func.isRequired,
-  render: PropTypes.func.isRequired,
-  formType: PropTypes.oneOf(Object.values(FORM_TYPES)),
-  showInlineErrorsOnly: PropTypes.bool,
-  initialValues: PropTypes.shape({}),
-  validateOnChange: PropTypes.bool,
-  validateOnBlur: PropTypes.bool,
-};
-
-Form.defaultProps = {
-  showInlineErrorsOnly: false,
-  onError: null,
-  onSuccess: null,
-  initialValues: {},
-  validateOnChange: false,
-  validateOnBlur: false,
-  suppressErrorDialog: true,
-};

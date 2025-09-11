@@ -1,26 +1,23 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
+import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
 import {
-  DateDisplay,
-  Heading5,
+  TAMANU_COLORS,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
-} from '../../components';
-import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
-import {
-  useProgramRegistryConditionCategoriesQuery,
-} from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+} from '@tamanu/ui-components';
+import { DateDisplay, Heading5 } from '../../components';
+import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
 
 const HistorySection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 1rem;
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   margin-bottom: 2rem;
 `;
 
@@ -35,17 +32,17 @@ const HistoryItemRow = styled.div`
 `;
 
 const HistoryItemLabel = styled.div`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   margin-right: 1ch;
 `;
 
 const HistoryItemValue = styled.div`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
 `;
 
 const SmallText = styled.div`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   font-size: 11px;
   span {
     margin-right: 1ch;
@@ -67,12 +64,7 @@ const ConditionCategoryDisplay = ({ data, conditionCategories }) => {
   }
 
   // For backwards compatibility with the old enum values
-  return (
-    <TranslatedEnum
-      value={data.conditionCategory}
-      enumValues={DEPRECATED_PRCC_LABELS}
-    />
-  );
+  return <TranslatedEnum value={data.conditionCategory} enumValues={DEPRECATED_PRCC_LABELS} />;
 };
 
 export const ConditionHistoryTable = ({ historyData = [], programRegistryId = '' }) => {

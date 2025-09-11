@@ -7,13 +7,15 @@ import {
   TallMultilineTextField,
   TextField,
   TranslatedSelectField,
+  Form,
+  Button,
+  FormGrid,
+  ButtonRow,
+  SmallGridSpacer,
+  TAMANU_COLORS,
+  TranslatedText,
 } from '@tamanu/ui-components';
-import { Form } from '../../../components/Field';
-import { FormGrid, SmallGridSpacer } from '../../../components/FormGrid';
-import { Colors, FORM_TYPES } from '../../../constants';
-import { Button } from '../../../components/Button';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 
 const ConfirmButton = styled(Button)`
@@ -26,7 +28,7 @@ const CenteredLink = styled(Link)`
 
 const StyledField = styled(Field)`
   .MuiFormControl-root {
-    background: ${props => (props.disabled ? Colors.outline : 'inherit')};
+    background: ${props => (props.disabled ? TAMANU_COLORS.outline : 'inherit')};
   }
 `;
 

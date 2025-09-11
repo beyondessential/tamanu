@@ -4,21 +4,17 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
+import { Form, Button, FormSubmitCancelRow, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
-import { Form } from '../../Field';
-import { Colors } from '../../../constants';
-import { FormSubmitCancelRow } from '../../ButtonRow';
+
 import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
-import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
@@ -28,7 +24,7 @@ const LinkText = styled.div`
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   cursor: pointer;
   width: fit-content;
 `;
@@ -428,7 +424,7 @@ export const EditInvoiceModal = ({
                         ) : (
                           <CircularProgress
                             size={14}
-                            color={Colors.white}
+                            color={TAMANU_COLORS.white}
                             data-testid="circularprogress-b1j8"
                           />
                         )
@@ -438,8 +434,8 @@ export const EditInvoiceModal = ({
                       confirmDisabled={isUpdatingInvoice}
                       confirmStyle={css`
                         &.Mui-disabled {
-                          color: ${Colors.white};
-                          background-color: ${Colors.primary};
+                          color: ${TAMANU_COLORS.white};
+                          background-color: ${TAMANU_COLORS.primary};
                           opacity: 0.3;
                         }
                       `}

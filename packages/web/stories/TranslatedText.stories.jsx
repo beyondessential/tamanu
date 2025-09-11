@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedText } from '../app/components/Translation/TranslatedText';
-import { TextInput } from '@tamanu/ui-components';
-import { Button } from '../app/components';
+import { TextInput, TranslatedText, Button } from '@tamanu/ui-components';
 
 const Container = styled.div`
   padding: 1rem;

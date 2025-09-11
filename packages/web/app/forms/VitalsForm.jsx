@@ -1,20 +1,26 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getFormInitialValues, getValidationSchema } from '@tamanu/ui-components';
+import {
+  getFormInitialValues,
+  getValidationSchema,
+  Form,
+  FormSubmitCancelRow,
+  SurveyScreen,
+  Modal,
+  ModalLoader,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { VISIBILITY_STATUSES, VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, FormSubmitCancelRow, ModalLoader } from '../components';
-import { SurveyScreen } from '../components/Surveys';
 import { combineQueries } from '../api/combineQueries';
 import { usePatientAdditionalDataQuery, useVitalsSurveyQuery } from '../api/queries';
 import { ForbiddenErrorModalContents } from '../components/ForbiddenErrorModal';
-import { Modal } from '../components/Modal';
 import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
@@ -114,6 +120,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           cols={2}
           values={values}
           setFieldValue={setFieldValue}
+          getComponentForQuestionType={getComponentForQuestionType}
           submitButton={
             <FormSubmitCancelRow
               confirmText={

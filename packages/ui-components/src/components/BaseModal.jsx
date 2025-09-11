@@ -7,9 +7,9 @@ import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
 import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
-import { Colors } from '../constants';
 import { Button } from './Button';
-import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedText } from './Translation';
+import { TAMANU_COLORS } from '../constants';
 
 export const MODAL_PADDING_TOP_AND_BOTTOM = 18;
 export const MODAL_PADDING_LEFT_AND_RIGHT = 32;
@@ -60,7 +60,7 @@ export const FullWidthRow = styled.div`
 
 const ModalTitle = styled(DialogTitle)`
   padding: 14px 14px 14px 32px;
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
 
   h2 {
     display: flex;
@@ -95,7 +95,7 @@ export const BaseModal = memo(
     printable = false,
     onPrint = null,
     additionalActions,
-    color = Colors.background,
+    color = TAMANU_COLORS.background,
     overrideContentPadding = false,
     cornerExitButton = true,
     isClosable = true,
@@ -109,6 +109,7 @@ export const BaseModal = memo(
       if (onPrint) {
         onPrint();
       } else {
+        // eslint-disable-next-line no-undef
         print();
       }
     };

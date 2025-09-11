@@ -17,21 +17,20 @@ import {
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
-import { Colors } from '../../../constants';
 import { DateField, Field, NumberField } from '../../Field';
-import { TranslatedSelectField } from '@tamanu/ui-components';
+import { TranslatedSelectField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from '../../Translation';
 import { SmallBodyText } from '../../Typography';
 import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
 
 const Container = styled('div')`
   width: 100%;
-  background: ${({ readonly }) => (readonly ? Colors.background : Colors.white)};
+  background: ${({ readonly }) => (readonly ? TAMANU_COLORS.background : TAMANU_COLORS.white)};
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 0.5rem;
-  border: 0.063rem solid ${Colors.outline};
+  border: 0.063rem solid ${TAMANU_COLORS.outline};
 `;
 
 const StyledNumberField = styled(NumberField)`
@@ -45,7 +44,7 @@ const StyledNumberField = styled(NumberField)`
     padding-inline: 13px 10px;
   }
   & .Mui-disabled {
-    background-color: ${Colors.background};
+    background-color: ${TAMANU_COLORS.background};
   }
 `;
 
@@ -63,7 +62,7 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
       padding-block: 11px;
       padding-inline: 13px 10px;
       &.Mui-disabled {
-        background-color: ${Colors.background};
+        background-color: ${TAMANU_COLORS.background};
       }
     }
   }
@@ -71,12 +70,12 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
 
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
-    color: ${Colors.outline};
+    color: ${TAMANU_COLORS.outline};
     padding: 2px;
   }
 
   &.${radioClasses.checked} {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     &.${radioClasses.disabled} {
       opacity: 30%;
     }
@@ -96,7 +95,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
       width: 40px;
       margin-left: 0.5rem;
       font-size: 12px;
-      color: ${Colors.darkText};
+      color: ${TAMANU_COLORS.darkText};
     }
   }
 `;
@@ -107,7 +106,7 @@ const StyledDateField = styled(DateField)`
     padding-inline: 13px 10px;
     font-size: 12px;
     &.Mui-disabled {
-      background-color: ${Colors.background};
+      background-color: ${TAMANU_COLORS.background};
     }
   }
 `;
@@ -115,9 +114,9 @@ const StyledDateField = styled(DateField)`
 const StyledFormLabel = styled(FormLabel)`
   font-size: 12px;
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   :focus {
-    color: ${Colors.darkText};
+    color: ${TAMANU_COLORS.darkText};
   }
 `;
 

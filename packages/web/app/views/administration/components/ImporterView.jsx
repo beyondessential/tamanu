@@ -2,18 +2,17 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 import { startCase, sum } from 'lodash';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { useFormikContext } from 'formik';
+
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormSubmitButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
-import { Field, Form } from '../../../components/Field';
+import { Field } from '../../../components/Field';
 import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow } from '../../../components/ButtonRow';
 import { Table } from '../../../components/Table';
-import { FormSubmitButton } from '../../../components/Button';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useFormikContext } from 'formik';
 
 const ColorText = styled.span`
   color: ${(props) => props.color};

@@ -10,29 +10,29 @@ import {
   IMAGING_REQUEST_STATUS_LABELS,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_TYPES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
+import {
+  TextField,
+  TranslatedSelectField,
+  TextInput,
+  Form,
+  ButtonRow,
+  FormGrid,
+  Button,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 
-import { FORM_TYPES } from '../../../constants';
 import { ENCOUNTER_TAB_NAMES } from '../../../constants/encounterTabNames';
 
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useApi, useSuggester } from '../../../api';
 
-import { Button, FormSubmitButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { ButtonRow } from '../../../components/ButtonRow';
-import { FormGrid } from '../../../components/FormGrid';
-import { TextField, TranslatedSelectField, TextInput } from '@tamanu/ui-components';
-import {
-  AutocompleteField,
-  DateTimeField,
-  DateTimeInput,
-  Field,
-  Form,
-} from '../../../components/Field';
+import { AutocompleteField, DateTimeField, DateTimeInput, Field } from '../../../components/Field';
 import { SimpleTopBar } from '../../../components';
 import { CancelModalButton } from './CancelModalButton';
 import { PrintModalButton } from './PrintModalButton';

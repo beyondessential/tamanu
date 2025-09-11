@@ -4,13 +4,11 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
-import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';
-import { SurveyQuestion, getValidationSchema, BaseSelectField } from '@tamanu/ui-components';
+import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
+import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
-import { Field, Form, OuterLabelFieldWrapper } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { Colors, FORM_TYPES } from '../constants';
+import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
+import { Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
@@ -74,7 +72,7 @@ const LogTextSmall = styled(Typography)`
   line-height: 15px;
   font-weight: 500;
   letter-spacing: 0;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {

@@ -4,13 +4,12 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import MuiDivider from '@material-ui/core/Divider';
-import { getAnswersFromData, SelectInput } from '@tamanu/ui-components';
+import { getAnswersFromData, SelectInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from '../../components';
 import { useApi } from '../../api';
 import { SurveyViewForm } from '../../views/programs/SurveyView';
 import { useAuth } from '../../contexts/Auth';
 import { usePatientAdditionalDataQuery, useSurveyQuery } from '../../api/queries';
-import { Colors } from '../../constants';
 import { CancelAdditionalDataModal } from './ProcedureFormModals';
 
 const Container = styled.div`
@@ -35,11 +34,11 @@ const LeadText = styled(Typography)`
 `;
 
 const SurveyBox = styled.div`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   padding: 20px;
   margin: 20px 0;
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Divider = styled(MuiDivider)`

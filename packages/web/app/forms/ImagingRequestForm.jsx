@@ -5,28 +5,24 @@ import { useDispatch } from 'react-redux';
 import shortid from 'shortid';
 import * as yup from 'yup';
 
-import { IMAGING_TYPES } from '@tamanu/constants';
+import { IMAGING_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
-import { ButtonRow, DateDisplay, FormSeparatorLine } from '../components';
-import { FormCancelButton } from '../components/Button';
+import { DateDisplay, FormSeparatorLine } from '../components';
 import { FormSubmitDropdownButton } from '../components/DropdownButton';
 import {
   MultiselectField,
   TextField,
   TranslatedSelectField,
   TextInput,
-} from '@tamanu/ui-components';
-import {
-  AutocompleteField,
-  DateTimeField,
-  Field,
   Form,
-  ImagingPriorityField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+  FormCancelButton,
+  ButtonRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { AutocompleteField, DateTimeField, Field, ImagingPriorityField } from '../components/Field';
 import { TranslatedReferenceData, TranslatedText } from '../components/Translation';
-import { ENCOUNTER_OPTIONS, FORM_TYPES } from '../constants';
+import { ENCOUNTER_OPTIONS } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
 import { useLocalisation } from '../contexts/Localisation';
 import { useTranslation } from '../contexts/Translation';

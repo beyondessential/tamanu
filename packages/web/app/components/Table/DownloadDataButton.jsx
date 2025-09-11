@@ -3,11 +3,10 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import * as XLSX from 'xlsx';
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
-import { TranslationContext, useTranslation } from '@tamanu/ui-components';
+import { TranslationContext, useTranslation, GreyOutlinedButton } from '@tamanu/ui-components';
 import { ApiContext, useApi } from '../../api';
 import { notifySuccess, renderToText } from '../../utils';
 import { saveFile } from '../../utils/fileSystemAccess';
-import { GreyOutlinedButton } from '../Button';
 import { TranslatedText } from '../Translation';
 import { ExportProvider } from '../../contexts/ExportContext';
 

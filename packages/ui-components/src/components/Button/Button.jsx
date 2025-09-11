@@ -1,5 +1,4 @@
 import React, { forwardRef } from 'react';
-import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 import { Link } from 'react-router-dom';
@@ -14,11 +13,11 @@ import { ChevronLeft, Lock } from '@material-ui/icons';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
-import { Colors } from '../constants';
-import { withPermissionCheck } from './withPermissionCheck';
-import { withPermissionTooltip } from './withPermissionTooltip';
-import { TranslatedText } from './Translation/TranslatedText';
-import { useFormButtonSubmitting } from '../hooks/useFormButtonSubmitting';
+import { TAMANU_COLORS } from '../../constants';
+import { withPermissionCheck } from '../withPermissionCheck';
+import { withPermissionTooltip } from '../withPermissionTooltip';
+import { TranslatedText } from '../Translation';
+import { useFormButtonSubmitting } from '../useFormButtonSubmitting';
 
 export const ButtonBase = (props) => {
   delete props.functionallyDisabled;
@@ -59,14 +58,14 @@ const StyledButton = styled(({ ...props }) => {
   }
 
   &.MuiButton-containedPrimary.Mui-disabled {
-    color: ${Colors.white};
+    color: ${TAMANU_COLORS.white};
     box-shadow: none;
-    background-color: ${Colors.primary30};
+    background-color: ${TAMANU_COLORS.primary30};
   }
 
   &.MuiButton-outlinedPrimary.Mui-disabled {
-    color: ${Colors.primary30};
-    border-color: ${Colors.primary30};
+    color: ${TAMANU_COLORS.primary30};
+    border-color: ${TAMANU_COLORS.primary30};
   }
 
   ${props => props.confirmStyle ?? ''}
@@ -78,13 +77,15 @@ const StyledCircularProgress = styled(CircularProgress)`
 
 const BaseButton = ({
   children,
-  isSubmitting,
-  disabled,
+  variant = 'contained',
+  color = 'primary',
+  type = 'button',
+  disabled = false,
+  isSubmitting = false,
   functionallyDisabled = false, // for disable the function of button, but still keep the visual the same
   hasPermission = true,
-  loadingColor = Colors.white,
+  loadingColor = TAMANU_COLORS.white,
   showLoadingIndicator,
-  type,
   ...props
 }) => {
   const locationsProps = getLocationProps(props);
@@ -102,11 +103,13 @@ const BaseButton = ({
 
   return (
     <StyledButton
+      variant={variant}
+      color={color}
+      type={type}
+      disabled={disabled || !hasPermission}
+      functionallyDisabled={functionallyDisabled}
       {...props}
       {...locationsProps}
-      disabled={disabled || !hasPermission}
-      type={type}
-      functionallyDisabled={functionallyDisabled}
       {...(buttonComponent && { component: buttonComponent })}
     >
       {displayLock && <Lock data-testid="lock-zz2l" />}
@@ -131,26 +134,11 @@ export const Button = ({ isSubmitting = false, ...props }) => (
   />
 );
 
-BaseButton.propTypes = {
-  isSubmitting: PropTypes.bool,
-  disabled: PropTypes.bool,
-  variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
-  color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
-  type: PropTypes.PropTypes.oneOf(['button', 'submit', 'reset']),
-};
-
-BaseButton.defaultProps = {
-  isSubmitting: false,
-  disabled: false,
-  variant: 'contained',
-  color: 'primary',
-  type: 'button',
-};
 
 const StyledOutlinedButton = styled(StyledButton)`
   border-color: ${(props) => props.theme.palette.primary.main};
   :disabled {
-    border-color: ${Colors.softText};
+    border-color: ${TAMANU_COLORS.softText};
   }
 `;
 
@@ -164,8 +152,8 @@ export const GreyOutlinedButton = styled((props) => <StyledButton {...props} />)
 `;
 
 export const RedOutlinedButton = styled((props) => <StyledButton {...props} />)`
-  border: 1px solid ${Colors.alert};
-  color: ${Colors.alert};
+  border: 1px solid ${TAMANU_COLORS.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const StyledLargeButton = styled(StyledButton)`
@@ -185,7 +173,7 @@ export const LargeOutlineButton = (props) => (
 
 const StyledDeleteButton = styled(Button)`
   background: ${red[600]};
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
 
   :hover {
     background: ${red[800]};
@@ -222,7 +210,7 @@ export const TextButton = ({ children, ...props }) => (
 );
 
 const StyledNavButton = styled(TextButton)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   padding-right: 8px;
   font-size: 12px;
   & svg {
@@ -296,10 +284,6 @@ export const LargeSubmitButton = (props) => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
-export const LargeOutlinedSubmitButton = (props) => (
-  <StyledLargeSubmitButton variant="outlined" color="primary" {...props} />
-);
-
 export const DefaultIconButton = styled(({ children, ...props }) => (
   <IconButton {...props} data-testid="iconbutton-zsiq">
     {children}
@@ -350,12 +334,12 @@ export const ToggleButton = styled(MuiToggleButton)`
    .${toggleButtonGroupClasses.lastButton}
  ) {
     appearance: none;
-    background-color: ${Colors.white};
-    border-color: ${Colors.softText};
+    background-color: ${TAMANU_COLORS.white};
+    border-color: ${TAMANU_COLORS.softText};
     border-radius: calc(infinity * 1px);
     border-style: solid;
     border-width: max(0.0625rem, 1px);
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     cursor: pointer;
     display: initial;
     font-family: inherit;
@@ -373,9 +357,9 @@ export const ToggleButton = styled(MuiToggleButton)`
 
     &:disabled,
     &.${toggleButtonClasses.disabled} {
-      background-color: ${Colors.softOutline};
-      border-color: ${Colors.softText};
-      color: ${Colors.softText};
+      background-color: ${TAMANU_COLORS.softOutline};
+      border-color: ${TAMANU_COLORS.softText};
+      color: ${TAMANU_COLORS.softText};
       cursor: not-allowed;
     }
   }

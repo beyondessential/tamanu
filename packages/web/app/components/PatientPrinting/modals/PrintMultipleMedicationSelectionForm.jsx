@@ -4,14 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { intersectionBy } from 'lodash';
-import { OuterLabelFieldWrapper, TextField, TextInput } from '@tamanu/ui-components';
+import { OuterLabelFieldWrapper, TextField, TextInput, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Table, useSelectableColumn } from '../../Table';
 import { AutocompleteInput, NumberInput } from '../../Field';
-import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';
@@ -280,7 +279,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         data-testid="outerlabelfieldwrapper-r5kq"
       >
         <StyledTable
-          headerColor={Colors.white}
+          headerColor={TAMANU_COLORS.white}
           columns={[selectableColumn, ...COLUMNS]}
           data={medicationData || []}
           elevated={false}
@@ -298,7 +297,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           data-testid="table-3r2b"
         />
       </OuterLabelFieldWrapper>
-      <HorizontalDivider color={Colors.outline} />
+      <HorizontalDivider color={TAMANU_COLORS.outline} />
       <ConfirmCancelRow
         cancelText={
           <TranslatedText

@@ -8,8 +8,9 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { TAMANU_COLORS } from '../../constants';
 import { Icon, ExpandMoreIcon } from './FieldCommonComponents';
-import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
+
 import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from './Select';
+import { TranslatedEnumField } from '../Translation';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;

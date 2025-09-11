@@ -2,10 +2,9 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { useSuggester } from '../../api';
-import { Colors } from '../../constants';
 import { HandoverNotesIcon } from '../../assets/icons/HandoverNotesIcon';
 import { AutocompleteField, LocalisedField } from '../Field';
-import { TranslatedSelectField } from '@tamanu/ui-components';
+import { TranslatedSelectField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { HandoverNotesModal } from '../BedManagement/HandoverNotesModal';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { ThemedTooltip } from '../Tooltip';
@@ -17,7 +16,7 @@ const HandoverNotesButton = styled(Button)`
   font-weight: 500;
   text-transform: none;
   text-decoration: underline;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
@@ -69,7 +68,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           disabled={handoverNotesButtonDisabled}
           startIcon={
             <HandoverNotesIcon
-              color={searchParameters?.area ? Colors.primary : Colors.softText}
+              color={searchParameters?.area ? TAMANU_COLORS.primary : TAMANU_COLORS.softText}
               data-testid="handovernotesicon-d4ts"
             />
           }
