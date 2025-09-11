@@ -8,9 +8,23 @@ import {
   SurveyScreenPaginator,
   useTranslation,
 } from '@tamanu/ui-components';
+import { type SurveyScreenComponent, type Survey } from '@tamanu/shared/schemas/patientPortal';
+import { type Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { type User } from '@tamanu/shared/schemas/patientPortal/responses/user.schema';
 import { getComponentForQuestionType } from './getComponentForQuestionType';
 
-export const SurveyForm = ({
+interface SurveyFormProps {
+  survey: Survey;
+  onSubmit: (values: any) => void;
+  onCancel: () => void;
+  patient: Patient;
+  patientAdditionalData?: any;
+  currentUser: User;
+  patientProgramRegistration?: any;
+  encounterType?: string;
+}
+
+export const SurveyForm: React.FC<SurveyFormProps> = ({
   survey,
   onSubmit,
   onCancel,
@@ -21,9 +35,9 @@ export const SurveyForm = ({
   encounterType,
 }) => {
   const { getTranslation } = useTranslation();
-  const { components } = survey;
+  const { components = [] } = survey;
   const currentComponents = components.filter(
-    c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+    (c: SurveyScreenComponent) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const initialValues = getFormInitialValues(
     currentComponents,
@@ -55,13 +69,13 @@ export const SurveyForm = ({
         errors,
         setStatus,
         status,
-      }) => {
+      }: any) => {
         // 1. get a list of visible fields
-        const submitVisibleValues = event => {
+        const submitVisibleValues = (event?: React.FormEvent) => {
           const visibleFields = new Set(
             currentComponents
-              .filter(c => checkVisibility(c, values, currentComponents))
-              .map(x => x.dataElementId),
+              .filter((c: SurveyScreenComponent) => checkVisibility(c, values, currentComponents))
+              .map((x: SurveyScreenComponent) => x.dataElementId),
           );
 
           // 2. Filter the form values to only include visible fields

@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled, Typography, Box } from '@mui/material';
 import { useCurrentUser } from '@routes/PrivateRoute';
-import { SurveyForm } from '@features/survey/SurveyForm';
+import { SurveyForm } from '../features/survey/SurveyForm';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 
@@ -35,8 +35,9 @@ export const SurveyView = () => {
   console.log('patientAdditionalData?', patient);
 
   const onSubmit = async () => {};
+  const onCancel = async () => {};
 
-  if (isPending) {
+  if (isPending || !survey) {
     return 'loading...';
   }
 
@@ -53,6 +54,7 @@ export const SurveyView = () => {
           currentUser={currentUser}
           survey={survey}
           onSubmit={onSubmit}
+          onCancel={onCancel}
         />
       </Box>
     </Container>

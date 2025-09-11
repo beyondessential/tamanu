@@ -26,6 +26,7 @@ export const SurveyScreenComponentSchema = z.object({
   calculation: z.string().optional().nullable(),
   visibilityStatus: z.string().optional().nullable(),
   dataElement: ProgramDataElementSchema.optional().nullable(),
+  dataElementId: z.string().optional().nullable(),
 });
 
 export const SurveySchema = z.object({
@@ -33,6 +34,7 @@ export const SurveySchema = z.object({
   name: z.string(),
   code: z.string(),
   surveyType: z.enum(SURVEY_TYPES),
+  components: z.array(SurveyScreenComponentSchema).optional(),
 });
 
 export const SurveyWithComponentsSchema = SurveySchema.extend({
@@ -43,4 +45,3 @@ export type Survey = z.infer<typeof SurveySchema>;
 export type SurveyWithComponents = z.infer<typeof SurveyWithComponentsSchema>;
 export type ProgramDataElement = z.infer<typeof ProgramDataElementSchema>;
 export type SurveyScreenComponent = z.infer<typeof SurveyScreenComponentSchema>;
-

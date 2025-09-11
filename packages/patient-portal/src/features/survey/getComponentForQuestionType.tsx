@@ -9,7 +9,7 @@ import {
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
 
-const PlaceholderField = ({ label, type }) => {
+const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   return (
     <Box>
       {label}
