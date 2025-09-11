@@ -40,7 +40,10 @@ export function fhirRoutes(ctx, { requireClientHeaders } = {}) {
     // legacy "fhir" routes expect this error form
     const problem = Problem.fromError(error);
     res.status(problem?.status ?? 500).json({
-      error,
+      error: {
+        message: problem.detail,
+        ...error,
+      },
     });
   });
 
