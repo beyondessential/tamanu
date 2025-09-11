@@ -143,7 +143,7 @@ export default [
   {
     files: [
       `packages/web/!({.storybook,stories})/**/*.${EXTS}`,
-      `packages/web/*.${EXTS}`,
+      `packages/(web|patient-portal|ui-components)/*.${EXTS}`,
     ],
     languageOptions: {
       globals: {
