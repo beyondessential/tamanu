@@ -1,5 +1,6 @@
 import React from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { Box } from '@mui/material';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -8,11 +9,14 @@ import {
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
 
-const PlaceholderField = ({ label, helperText }) => (
-  <p>
-    {label} {helperText}
-  </p>
-);
+const PlaceholderField = ({ label, type }) => {
+  return (
+    <Box>
+      {label}
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field</Box>
+    </Box>
+  );
+};
 
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
@@ -44,5 +48,6 @@ const QUESTION_COMPONENTS = {
 };
 
 export function getComponentForQuestionType(type) {
-  return QUESTION_COMPONENTS[type];
+  const Component = QUESTION_COMPONENTS[type];
+  return props => <Component {...props} type={type} />;
 }

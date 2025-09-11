@@ -8,7 +8,9 @@ export const TranslationProvider = ({ children }) => {
   return (
     <TranslationContext.Provider
       value={{
-        getTranslation: () => null,
+        getTranslation: (stringId, fallback) => {
+          return fallback;
+        },
         getEnumTranslation: () => null,
         updateStoredLanguage: () => null,
         storedLanguage: '',
