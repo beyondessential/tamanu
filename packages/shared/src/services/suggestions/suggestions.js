@@ -542,7 +542,7 @@ createSuggester(
       const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
-      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id, isBookable: lg.isBookable };
       return {
         name: name,
         code,
