@@ -1,9 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { toDateString } from '@tamanu/utils/dateTime';
+
+import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
@@ -51,12 +55,26 @@ const Carousel = styled.div`
   }
 `;
 
-export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
+export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDrawer, ...props }) => {
   const { monthOf, setMonthOf } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
   const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
+
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } = useLocationAssignmentsQuery(
+    {
+      after: toDateString(displayedDates[0]),
+      before: toDateString(displayedDates.at(-1)),
+      all: true,
+    },
+    { keepPreviousData: true },
+  );
+  const assignments = assignmentsData?.data ?? [];
+
+  if (isLocationsLoading || isAssignmentsLoading) {
+    return <LoadingIndicator />;
+  }
 
   return (
     <>
@@ -76,6 +94,8 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, ...props }) => {
             displayedDates={displayedDates}
             locations={locations}
             isLocationsLoading={isLocationsLoading}
+            assignments={assignments}
+            openAssignmentDrawer={openAssignmentDrawer}
             data-testid="locationassignmentscalendarbody-4f9q"
           />
         </CarouselGrid.Root>
