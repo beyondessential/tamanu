@@ -5,12 +5,12 @@ import styled from 'styled-components';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
 
-import { OutlinedButton, ButtonRow, Button } from './Button';
+import { OutlinedButton, ButtonRow, Button } from '../Button';
 import { SurveyQuestion } from './SurveyQuestion';
-import { checkVisibility } from '../utils/survey';
-import { TAMANU_COLORS } from '../constants/colors';
-import { FormGrid } from './Form/FormGrid';
-import { TranslatedText } from './Translation';
+import { checkVisibility } from '../../utils/survey';
+import { TAMANU_COLORS } from '../../constants/colors';
+import { FormGrid } from '../Form/FormGrid';
+import { TranslatedText } from '../Translation';
 
 const EmptyStateText = styled(Typography)`
   color: ${({ theme }) => theme.palette.text.secondary};
@@ -134,7 +134,7 @@ export const SurveyScreen = ({
             data-testid={`surveyquestion-vmee-${index}`}
           />
         )),
-    [encounterType, patient, setQuestionToRef, values],
+    [encounterType, getComponentForQuestionType, patient, setQuestionToRef, values],
   );
 
   const visibleComponents = getVisibleComponents(screenComponents, allComponents);

@@ -22,6 +22,7 @@ import { usePatientAdditionalDataQuery } from '../api/queries';
 import { combineQueries } from '../api';
 import { useTranslation } from '../contexts/Translation';
 import { useEncounter } from '../contexts/Encounter.jsx';
+import { getComponentForQuestionType } from '../components/Surveys/getComponentForQuestionType.jsx';
 
 export const ChartForm = React.memo(
   ({
@@ -118,6 +119,7 @@ export const ChartForm = React.memo(
               values={values}
               setFieldValue={setFieldValue}
               encounterType={encounter?.encounterType}
+              getComponentForQuestionType={getComponentForQuestionType}
               submitButton={
                 <FormSubmitCancelRow
                   confirmText={confirmText}

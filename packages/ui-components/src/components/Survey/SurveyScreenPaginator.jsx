@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { FormSubmitButton, OutlinedButton, ButtonRow, SurveyScreen } from '@tamanu/ui-components';
 import { Typography } from '@material-ui/core';
-import { usePaginatedForm } from '../Field';
+import { FormSubmitButton, OutlinedButton, ButtonRow } from '../Button';
+import { SurveyScreen } from './SurveyScreen';
 import { TranslatedText } from '../Translation/TranslatedText';
-import { useEncounter } from '../../contexts/Encounter';
+import { usePaginatedForm } from './usePaginatedForm';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -70,6 +70,7 @@ export const SurveyScreenPaginator = ({
   status,
   setStatus,
   showCancelButton,
+  encounter,
   getComponentForQuestionType,
 }) => {
   const { components } = survey;
@@ -77,7 +78,6 @@ export const SurveyScreenPaginator = ({
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );
   const { onStepBack, onStepForward, screenIndex } = usePaginatedForm(currentComponents);
-  const { encounter } = useEncounter();
 
   const maxIndex = currentComponents
     .map(x => x.screenIndex)

@@ -20,6 +20,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import { useAuth } from '../contexts/Auth';
 import { useEncounter } from '../contexts/Encounter';
 import { useTranslation } from '../contexts/Translation';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterType }) => {
   const { getTranslation } = useTranslation();
@@ -119,6 +120,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, encounterTyp
           cols={2}
           values={values}
           setFieldValue={setFieldValue}
+          getComponentForQuestionType={getComponentForQuestionType}
           submitButton={
             <FormSubmitCancelRow
               confirmText={

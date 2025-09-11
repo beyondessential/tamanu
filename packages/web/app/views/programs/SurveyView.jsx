@@ -3,15 +3,17 @@ import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   checkVisibility,
+  Form,
   getFormInitialValues,
   getValidationSchema,
-  Form,
+  SurveyScreenPaginator,
   TAMANU_COLORS,
+  TranslatedReferenceData,
 } from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { SurveyScreenPaginator, getComponentForQuestionType } from '../../components/Surveys';
+import { getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedReferenceData } from '../../components';
+import { useEncounter } from '../../contexts/Encounter';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -46,6 +48,7 @@ export const SurveyViewForm = ({
   onFormDirtyChange,
 }) => {
   const { getTranslation } = useTranslation();
+  const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -112,6 +115,7 @@ export const SurveyViewForm = ({
           status={status}
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
+          encounter={encounter}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
