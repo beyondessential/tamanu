@@ -147,12 +147,13 @@ async function readResponse(response, logger = console) {
     return new ValidationError('Invalid JSON in response').withCause(err);
   }
 
+  const problem = Problem.fromJSON(json);
+  if (problem) {
+    return problem;
+  }
   if (json.error) {
     return convertLegacyError(json.error, response);
   }
-
-  const problem = Problem.fromJSON(json);
-  if (problem) return problem;
 
   const unk = new Problem(
     ERROR_TYPE.REMOTE,
