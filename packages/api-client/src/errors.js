@@ -133,17 +133,13 @@ export async function extractError({ response, logger, onVersionIncompatible, on
   const problem = Problem.fromJSON(problemJSON) ?? convertLegacyError(error, response);
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
-    if (onAuthFailure) {
-      onAuthFailure(problem.detail);
-    }
+    onAuthFailure(problem.detail);
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
     const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
     if (versionIncompatibleMessage) {
-      if (onVersionIncompatible) {
-        onVersionIncompatible(versionIncompatibleMessage);
-      }
+      onVersionIncompatible(versionIncompatibleMessage);
     }
   }
 

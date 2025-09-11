@@ -260,8 +260,8 @@ export class TamanuApi {
     return await extractError({
       response,
       logger: this.logger,
-      onVersionIncompatible: (...args) => this.#onVersionIncompatible(...args),
-      onAuthFailure: (...args) => this.#onAuthFailure(...args),
+      onVersionIncompatible: (...args) => this.#onVersionIncompatible?.(...args),
+      onAuthFailure: (...args) => this.#onAuthFailure?.(...args),
     });
   }
 
