@@ -39,4 +39,4 @@ if [ -n "$duplicates" ]; then
 fi
 
 # Append csv header and print data
-printf 'stringId,en\n"languageName","English"\n"countryCode","gb"\n%s' "$data"
+printf 'stringId,default\n"languageName","English"\n"countryCode","gb"\n%s' "$data"
