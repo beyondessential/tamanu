@@ -72,10 +72,15 @@ function convertLegacyError(error, response) {
   let ErrorClass;
   switch (error?.status ?? response.status) {
     case 400: {
-      ErrorClass =
-        response.headers.has('X-Max-Client-Version') || response.headers.has('X-Min-Client-Version')
-          ? ClientIncompatibleError
-          : UnknownError;
+      ErrorClass = UnknownError;
+      if (
+        response.headers.has('x-max-client-version') ||
+        response.headers.has('x-min-client-version')
+      ) {
+        ErrorClass = ClientIncompatibleError;
+      } else if (error.name) {
+        ErrorClass.name = error.name;
+      }
       break;
     }
     case 401: {
@@ -94,9 +99,17 @@ function convertLegacyError(error, response) {
       break;
     default:
       ErrorClass = UnknownError;
+      if (error.name) {
+        ErrorClass.name = error.name;
+      }
   }
 
   const problem = Problem.fromError(new ErrorClass(legacyMessage));
+  if (error.name) {
+    problem.title = problem.name = error.name;
+    problem.message = legacyMessage;
+  }
+
   problem.extra.set('legacy-error', error);
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
