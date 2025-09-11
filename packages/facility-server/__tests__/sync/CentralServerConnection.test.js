@@ -15,10 +15,11 @@ const fakeResponse = (response, body, headers = {}) => {
     text: () => Promise.resolve(JSON.stringify(validBody)),
     headers: {
       get: key =>
-        headers[key] ??
+        headers[key.toLowerCase()] ??
         {
           'x-tamanu-server': SERVER_TYPES.CENTRAL,
-        }[key],
+        }[key.toLowerCase()],
+      has: key => key.toLowerCase() in headers,
     },
   });
 };
