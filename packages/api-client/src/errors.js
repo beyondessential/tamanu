@@ -148,8 +148,15 @@ async function readResponseError(response, logger = console) {
   return unk;
 }
 
-export async function extractError({ response, logger, onVersionIncompatible, onAuthFailure }) {
+export async function extractError({
+  url,
+  response,
+  logger,
+  onVersionIncompatible,
+  onAuthFailure,
+}) {
   const problem = await readResponseError(response, logger);
+  problem.extra.set('request-url', url);
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
     onAuthFailure(problem.detail);
