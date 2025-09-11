@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton } from '../Button';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
@@ -16,7 +16,6 @@ import {
 import { PatientProgramRegistryForm } from '../../views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../../views/programRegistry/ProgramRegistryListItem';
 import { DeathModal } from '../DeathModal';
-import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useApi } from '../../api';
 import { PANE_SECTION_IDS } from './paneSections';
@@ -223,7 +222,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
   z-index: 10;
   overflow: auto;

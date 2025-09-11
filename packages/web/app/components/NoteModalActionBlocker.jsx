@@ -3,7 +3,7 @@ import React from 'react';
 import { useNoteModal } from '../contexts/NoteModal';
 import { ConditionalTooltip } from './Tooltip';
 import { TranslatedText } from './Translation/TranslatedText';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) => {
   const { isNoteModalOpen } = useNoteModal();
@@ -18,7 +18,7 @@ export const NoteModalActionBlocker = ({ children, isNavigationBlock = false }) 
     return (
       <ConditionalTooltip
         visible
-        $border={isNavigationBlock ? `1px solid ${Colors.outline}` : 'none'}
+        $border={isNavigationBlock ? `1px solid ${TAMANU_COLORS.outline}` : 'none'}
         title={
           isNavigationBlock ? (
             <TranslatedText

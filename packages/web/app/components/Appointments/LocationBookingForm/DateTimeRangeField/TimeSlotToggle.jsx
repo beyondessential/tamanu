@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import Skeleton, { skeletonClasses } from '@mui/material/Skeleton';
 import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
@@ -5,7 +6,6 @@ import { parseISO, startOfToday } from 'date-fns';
 import React, { memo } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { TimeRangeDisplay } from '../../../DateDisplay';
 import { ConditionalTooltip, ThemedTooltip } from '../../../Tooltip';
@@ -29,8 +29,8 @@ const Toggle = styled(ToggleButton)`
   &&&&& {
     block-size: 1.875rem;
     border-radius: calc(infinity * 1px);
-    border: max(0.0625rem, 1px) solid ${Colors.outline};
-    color: ${Colors.darkestText};
+    border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+    color: ${TAMANU_COLORS.darkestText};
     font-size: 0.75rem;
     font-variant-numeric: lining-nums tabular-nums;
     font-weight: 400;
@@ -46,14 +46,14 @@ const Toggle = styled(ToggleButton)`
       color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
-      background-color: oklch(from ${Colors.primary} l c h / 10%);
+      background-color: oklch(from ${TAMANU_COLORS.primary} l c h / 10%);
       @supports not (color: oklch(from black l c h)) {
-        background-color: ${Colors.primary}1a;
+        background-color: ${TAMANU_COLORS.primary}1a;
       }
 
       :is(&, & + &) {
         //   ^~~~~ Override another stubborn MUI style
-        border: max(0.0625rem, 1px) solid ${Colors.primary};
+        border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.primary};
       }
     }
 
@@ -66,15 +66,15 @@ const Toggle = styled(ToggleButton)`
     &:disabled,
     &[aria-disabled='true'],
     &.${toggleButtonGroupClasses.disabled} {
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
       background-color: transparent;
       cursor: not-allowed;
     }
 
     .MuiTouchRipple-child {
-      background-color: oklch(from ${Colors.primary} l c h / 50%);
+      background-color: oklch(from ${TAMANU_COLORS.primary} l c h / 50%);
       @supports not (color: oklch(from black l c h)) {
-        background-color: ${Colors.primary}80;
+        background-color: ${TAMANU_COLORS.primary}80;
       }
     }
   }
@@ -86,7 +86,7 @@ const AvailableToggle = styled(Toggle)`
     css`
       &&,
       &&&&&:hover {
-        background-color: ${Colors.veryLightBlue};
+        background-color: ${TAMANU_COLORS.veryLightBlue};
       }
     `};
 
@@ -104,9 +104,9 @@ const BookedToggle = styled(Toggle).attrs({
 })`
   // (0,6,0) to override styling of disabled Toggle
   &&&&&& {
-    background-color: oklch(from ${Colors.alert} l c h / 10%);
+    background-color: oklch(from ${TAMANU_COLORS.alert} l c h / 10%);
     @supports not (color: oklch(from black l c h)) {
-      background-color: ${Colors.alert}1a;
+      background-color: ${TAMANU_COLORS.alert}1a;
     }
   }
 `;

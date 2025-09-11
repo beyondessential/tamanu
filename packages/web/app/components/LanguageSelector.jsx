@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../constants';
 import { useTranslationLanguagesQuery } from '../api/queries';
-import { SelectInput } from './Field';
+import { SelectInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
@@ -13,13 +12,13 @@ const LanguageSelectorContainer = styled.div`
   position: absolute;
   bottom: 35px;
   right: 17px;
-  border-bottom: 0.1px solid ${Colors.primary};
+  border-bottom: 0.1px solid ${TAMANU_COLORS.primary};
   width: 143px;
   .label-field {
     font-size: 11px;
     font-weight: 400;
     line-height: 15px;
-    color: ${Colors.midText};
+    color: ${TAMANU_COLORS.midText};
   }
 `;
 
@@ -48,12 +47,12 @@ const customStyles = {
     marginBottom: 0,
     boxShadow: 'none',
     borderWidth: '1px',
-    border: `1px solid ${Colors.primary}`,
+    border: `1px solid ${TAMANU_COLORS.primary}`,
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-    ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+    backgroundColor: state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
+    ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
     cursor: 'pointer',
     fontSize: '11px',
   }),

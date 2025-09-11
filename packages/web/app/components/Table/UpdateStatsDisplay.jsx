@@ -1,9 +1,9 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Box } from '@material-ui/core';
 import React, { useCallback, useEffect, useState } from 'react';
 import { BodyText } from '../Typography';
 import { TranslatedText } from '../Translation';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 import { useParsedCronExpression } from '../../utils/useParsedCronExpression';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from '../../contexts/Translation';
@@ -13,7 +13,7 @@ const SmallText = styled(BodyText)`
 `;
 
 const SoftText = styled(SmallText)`
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const ErrorText = styled(SmallText)`

@@ -7,15 +7,14 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import * as yup from 'yup';
-import { Colors } from '../../../constants';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
-import { Button } from '../../Button';
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
 import { useGivenMarMutation, useNotGivenMarMutation } from '../../../api/mutations/useMarMutation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
-import { Field, Form, NumberField } from '../../Field';
+import { Field, NumberField } from '../../Field';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { WarningModal } from '../WarningModal';
@@ -97,7 +96,7 @@ const DoseButton = styled(IconButton)`
   padding: 5px;
   margin: -5px;
   svg {
-    color: ${p => (p.disabled ? Colors.softText : Colors.primary)};
+    color: ${p => (p.disabled ? TAMANU_COLORS.softText : TAMANU_COLORS.primary)};
     width: 14px;
     height: 14px;
   }
@@ -105,14 +104,14 @@ const DoseButton = styled(IconButton)`
 `;
 
 const TimeGivenTitle = styled.div`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 3px;
 `;
 
 const RequiredMark = styled.span`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 const ConfirmButton = styled(Button)`
@@ -150,7 +149,7 @@ const InputSuffix = styled.span`
   position: absolute;
   right: 3px;
   top: 1.7px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const StyledTimePicker = styled(Field)`
@@ -159,8 +158,8 @@ const StyledTimePicker = styled(Field)`
     font-size: 12px;
     height: 32px;
     width: 100%;
-    color: ${Colors.darkestText};
-    background-color: ${Colors.white};
+    color: ${TAMANU_COLORS.darkestText};
+    background-color: ${TAMANU_COLORS.white};
     .MuiButtonBase-root {
       padding: 5px;
     }
@@ -174,16 +173,16 @@ const StyledTimePicker = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.primary} !important;
+      border-color: ${TAMANU_COLORS.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${Colors.softText};
+      border-color: ${TAMANU_COLORS.softText};
     }
   }
 
   /* Add error message styling */
   .error-message {
-    color: ${Colors.alert};
+    color: ${TAMANU_COLORS.alert};
     font-size: 10px;
     margin-top: 2px;
   }
@@ -195,7 +194,7 @@ const FormContainer = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 12px;
   margin: 4px 2px 2px;
   font-weight: 500;
@@ -206,13 +205,13 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
     <PopperContent>
       <NoteModalActionBlocker>
-        <StyledButton onClick={onGivenClick} variant="outlined" $color={Colors.green}>
+        <StyledButton onClick={onGivenClick} variant="outlined" $color={TAMANU_COLORS.green}>
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
-      <Divider color={Colors.outline} />
+      <Divider color={TAMANU_COLORS.outline} />
       <NoteModalActionBlocker>
-        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
+        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={TAMANU_COLORS.alert}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
         </StyledButton>
       </NoteModalActionBlocker>

@@ -1,9 +1,11 @@
-import React from 'react';
-import { Navigate, Outlet, useOutletContext } from 'react-router';
+import React, { createContext, useContext } from 'react';
+import { Route, Redirect, RouteProps } from 'react-router-dom';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from '@components/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import { type Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+
+const CurrentUserContext = createContext<Patient | undefined>(undefined);
 
 const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -16,24 +18,36 @@ const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const PrivateRoute = () => {
-  const currentUserQuery = useCurrentUserQuery();
-
-  if (currentUserQuery.isPending) {
-    return <CircularProgress />;
-  }
-
-  if (currentUserQuery.isError || !currentUserQuery.data) {
-    return <Navigate to="/login" replace />;
-  }
+export const PrivateRoute = (props: RouteProps) => {
+  const { component: Component, ...restProps } = props;
+  const { data: user, isError, isPending } = useCurrentUserQuery();
 
   return (
-    <PrivatePageLayout>
-      <Outlet context={currentUserQuery.data} />
-    </PrivatePageLayout>
+    <Route
+      {...restProps}
+      render={routeProps => {
+        if (isPending) {
+          return <CircularProgress />;
+        }
+
+        if (isError || !user) {
+          return <Redirect to="/login" />;
+        }
+
+        return (
+          <CurrentUserContext.Provider value={user}>
+            <PrivatePageLayout>{Component && <Component {...routeProps} />}</PrivatePageLayout>
+          </CurrentUserContext.Provider>
+        );
+      }}
+    />
   );
 };
 
 export function useCurrentUser() {
-  return useOutletContext<Patient>();
+  const context = useContext(CurrentUserContext);
+  if (context === undefined) {
+    throw new Error('useCurrentUser must be used within a PrivateRoute');
+  }
+  return context;
 }

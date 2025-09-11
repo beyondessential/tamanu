@@ -4,11 +4,10 @@ import { Box, IconButton } from '@material-ui/core';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useQuery } from '@tanstack/react-query';
 
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { Heading1, Heading5, PageContainer } from '../../components';
 import { RecentlyViewedPatientsList } from '../../components/RecentlyViewedPatientsList';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 import { NotificationIcon } from '../../assets/icons/NotificationIcon';
 import { NotificationDrawer } from '../../components/Notification/NotificationDrawer';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
@@ -25,7 +24,7 @@ const TopBarContainer = styled.div`
   height: 90px;
   top: 0;
   padding: 20px 28px 20px 18px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   display: flex;
   justify-content: space-between;
   position: relative;
@@ -36,7 +35,7 @@ const NotificationIndicator = styled.div`
   position: absolute;
   top: 10px;
   right: 16px;
-  background-color: ${Colors.alert};
+  background-color: ${TAMANU_COLORS.alert};
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -70,12 +69,12 @@ const SchedulePanesContainer = styled.div`
 
 const WelcomeSection = styled.div`
   display: flex;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 0 50px;
   justify-content: space-between;
   flex-direction: column;
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   flex-grow: 1;
 `;
 
@@ -212,7 +211,7 @@ const WelcomePane = ({ patientPerPage }) => {
                 data-testid="translatedtext-yd6a"
               />
             </WelcomeText>
-            <WelcomeText mt={4} color={Colors.darkText} data-testid="welcometext-f8pf">
+            <WelcomeText mt={4} color={TAMANU_COLORS.darkText} data-testid="welcometext-f8pf">
               <TranslatedText
                 stringId="view.dashboard.welcome.description"
                 fallback="This is the Tamanu Dashboard. At the moment you do not have permission to view appointments, bookings or tasks, so there is nothing to see here. Please speak to your System Administrator if you think this is incorrect."

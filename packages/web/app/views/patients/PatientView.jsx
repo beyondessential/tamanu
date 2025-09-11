@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -20,12 +21,10 @@ import {
   ReferralPane,
   VaccinesPane,
 } from './panes';
-import { Colors } from '../../constants';
 import { PATIENT_TABS } from '../../constants/patientPaths';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { PatientSearchParametersProvider } from '../../contexts/PatientViewSearchParameters';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { invalidatePatientDataQueries } from '../../utils';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useSyncState } from '../../contexts/SyncState';
@@ -39,7 +38,7 @@ const StyledDisplayTabs = styled(TabDisplay)`
     z-index: 9;
     position: sticky;
     top: ${NAVIGATION_CONTAINER_HEIGHT};
-    border-bottom: 1px solid ${Colors.softOutline};
+    border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   }
 `;
 

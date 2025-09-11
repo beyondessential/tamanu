@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { ToastContainer } from 'react-toastify';
-import { Colors } from './constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const CustomToastContainer = styled(ToastContainer)`
   &&&.Toastify__toast-container {
@@ -11,17 +11,17 @@ export const CustomToastContainer = styled(ToastContainer)`
 
   .Toastify__toast--success {
     background-color: #e9f5ee;
-    color: ${Colors.green};
+    color: ${TAMANU_COLORS.green};
   }
 
   .Toastify__toast--error {
     background-color: #fff0ee;
-    color: ${Colors.alert};
+    color: ${TAMANU_COLORS.alert};
   }
 
   .Toastify__toast--info {
     background-color: #ebf0f5;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 
   .Toastify__toast {

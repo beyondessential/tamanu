@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, COVID_19_CLEARANCE_CERTIFICATE } from '@tamanu/constants';
 
-import { Modal } from '../../Modal';
+import { Modal } from '@tamanu/ui-components';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';

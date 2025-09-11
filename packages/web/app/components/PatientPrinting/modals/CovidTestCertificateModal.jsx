@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
+import { Modal } from '@tamanu/ui-components';
 
-import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';

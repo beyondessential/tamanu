@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { TextInput } from './TextField';
+import { TextInput } from '@tamanu/ui-components';
 
 export const NumberInput = ({ min, max, step, inputProps = {}, ...props }) => (
   <TextInput

@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import styled from 'styled-components';
 import { DropdownButton } from '../../app/components/DropdownButton';
-import { Button, ButtonRow } from '../../app/components';
+import { Button, ButtonRow } from '@tamanu/ui-components';
 
 const actions = [
   { label: 'button', onClick: () => {} },

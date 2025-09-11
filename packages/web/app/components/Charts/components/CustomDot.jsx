@@ -1,5 +1,6 @@
 import React from 'react';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
 
 export const CustomDot = (props) => {
   // cx, cy is the position of the current dot
@@ -27,7 +28,7 @@ export const CustomDot = (props) => {
         cx={size / 2 + 0.5}
         cy={size / 2 + 0.5}
         r={size / 2 - 0.5}
-        fill={active ? color : Colors.white}
+        fill={active ? color : TAMANU_COLORS.white}
         stroke={color}
       />
     </svg>

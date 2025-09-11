@@ -1,6 +1,6 @@
 import React from 'react';
+import { Route, Redirect, RouteProps } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
-import { Navigate, Outlet } from 'react-router';
 import { CircularProgress, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import tamanuLogoBlue from '../assets/images/tamanu_logo_blue.svg';
@@ -48,20 +48,24 @@ const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
   </PageContainer>
 );
 
-export const PublicRoute = () => {
+export const PublicRoute = (props: RouteProps) => {
+  const { component: Component, ...restProps } = props;
   const { data: user, isPending } = useCurrentUserQuery();
 
-  if (isPending) {
-    return <CircularProgress />;
-  }
-
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
-
   return (
-    <PublicPageLayout>
-      <Outlet />
-    </PublicPageLayout>
+    <Route
+      {...restProps}
+      render={routeProps => {
+        if (isPending) {
+          return <CircularProgress />;
+        }
+
+        if (user) {
+          return <Redirect to="/" />;
+        }
+
+        return <PublicPageLayout>{Component && <Component {...routeProps} />}</PublicPageLayout>;
+      }}
+    />
   );
 };

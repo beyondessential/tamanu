@@ -8,8 +8,9 @@ import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 
-import { BodyText, SmallBodyText, formatShortest, formatTime, TranslatedText, Table } from '../.';
-import { Colors, ROWS_PER_PAGE_OPTIONS } from '../../constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { BodyText, SmallBodyText, formatShortest, formatTime, Table } from '../.';
+import { ROWS_PER_PAGE_OPTIONS } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { useAuth } from '../../contexts/Auth';
 import { useAutoUpdatingQuery } from '../../api/queries/useAutoUpdatingQuery';
@@ -26,7 +27,7 @@ const Container = styled.div`
 `;
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 16px;
   position: absolute;
   left: -6px;
@@ -40,12 +41,12 @@ const StyledTable = styled(Table)`
   box-shadow: none;
   margin-top: 5px;
   .MuiTableCell-head {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     padding-left: 11px;
     padding-right: 11px;
@@ -86,7 +87,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableFooter-root {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     .MuiPagination-root {
       padding-top: 6px;
       padding-bottom: 6px;
@@ -101,19 +102,19 @@ const StyledTable = styled(Table)`
 const StatusTodo = styled.div`
   width: 15px;
   height: 15px;
-  border: 1px dashed ${Colors.blue};
+  border: 1px dashed ${TAMANU_COLORS.blue};
   border-radius: 50%;
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
   font-size: 18px;
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   vertical-align: middle;
 `;
 
 const StyledCheckCircleIcon = styled(CheckCircleIcon)`
   font-size: 18px;
-  color: ${Colors.green};
+  color: ${TAMANU_COLORS.green};
   vertical-align: middle;
 `;
 
@@ -133,8 +134,8 @@ const NoDataContainer = styled.div`
   align-items: center;
   justify-content: center;
   white-space: normal;
-  background: ${Colors.hoverGrey};
-  color: ${Colors.primary};
+  background: ${TAMANU_COLORS.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const StyledToolTip = styled(ThemedTooltip)`
@@ -153,7 +154,7 @@ const PaginatorContainer = styled.div`
 
 const StyledDivider = styled(Divider)`
   margin-top: 5px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
 `;
 
 const DateWrapper = styled.div`
@@ -183,7 +184,7 @@ const getDueTime = ({ dueTime }) => {
   return (
     <DateWrapper data-testid="datewrapper-hd7h">
       <BodyText data-testid="bodytext-fq9o">{formatTime(dueTime)}</BodyText>
-      <SmallBodyText color={Colors.midText} data-testid="smallbodytext-grca">
+      <SmallBodyText color={TAMANU_COLORS.midText} data-testid="smallbodytext-grca">
         {formatShortest(dueTime)}
       </SmallBodyText>
     </DateWrapper>
@@ -193,7 +194,7 @@ const getDueTime = ({ dueTime }) => {
 const getLocation = ({ encounter }) => (
   <div>
     <BodyText data-testid="bodytext-pajw">{encounter.location.locationGroup?.name}</BodyText>
-    <SmallBodyText color={Colors.midText} data-testid="smallbodytext-087a">
+    <SmallBodyText color={TAMANU_COLORS.midText} data-testid="smallbodytext-087a">
       {encounter.location.name}
     </SmallBodyText>
   </div>
@@ -295,7 +296,7 @@ const COLUMNS = [
             {patient.firstName} {patient.lastName}
           </BodyText>
           {patient.culturalName && (
-            <SmallBodyText color={Colors.midText} data-testid="smallbodytext-patient-cultural">
+            <SmallBodyText color={TAMANU_COLORS.midText} data-testid="smallbodytext-patient-cultural">
               {patient.culturalName}
             </SmallBodyText>
           )}

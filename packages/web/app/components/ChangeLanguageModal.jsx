@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { Modal, ModalActionRow } from '.';
+import { ModalActionRow } from '.';
 import styled from 'styled-components';
-import { Colors } from '../constants';
 import { useTranslationLanguagesQuery } from '../api/queries';
-import { SelectInput } from './Field';
+import { SelectInput, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useTranslation } from '../contexts/Translation.jsx';
-import { TranslatedText } from './Translation/TranslatedText.jsx';
 import { mapValues, keyBy } from 'lodash';
 import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
@@ -17,7 +15,7 @@ const LanguageSelectorContainer = styled.div`
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
-    color: ${Colors.midText};
+    color: ${TAMANU_COLORS.midText};
   }
 `;
 
@@ -31,28 +29,29 @@ const customStyles = {
   control: (provided, state) => ({
     ...provided,
     '&:hover': {
-      borderColor: Colors.primary,
+      borderColor: TAMANU_COLORS.primary,
     },
-    border: `1px solid ${Colors.outline}`,
+    border: `1px solid ${TAMANU_COLORS.outline}`,
     borderRadius: '4px',
     boxShadow: 'none',
     cursor: 'pointer',
     fontSize: '14px',
-    ...(state.isSelected && { borderColor: Colors.primary }),
+    ...(state.isSelected && { borderColor: TAMANU_COLORS.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: (provided) => ({
+  menu: provided => ({
     ...provided,
     marginTop: 5,
     marginBottom: 0,
     boxShadow: 'none',
     borderWidth: '1px',
-    border: `1px solid ${Colors.primary}`,
+    border: `1px solid ${TAMANU_COLORS.primary}`,
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-    ...(state.isDisabled ? {} : { color: Colors.darkestText }),
+    backgroundColor:
+      state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
+    ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
     cursor: 'pointer',
     fontSize: '11px',
   }),
@@ -83,7 +82,7 @@ export const ChangeLanguageModal = ({ open, onClose, ...props }) => {
     };
   });
 
-  const handleLanguageChange = (event) => {
+  const handleLanguageChange = event => {
     setLanguage(event.target.value);
   };
 

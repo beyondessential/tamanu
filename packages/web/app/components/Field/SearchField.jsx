@@ -3,13 +3,12 @@ import Search from '@material-ui/icons/Search';
 import { IconButton, InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
 import { ClearIcon } from '../Icons/ClearIcon';
-import { TextInput } from './TextField';
-import { Colors } from '../../constants';
+import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useTranslation } from '../../contexts/Translation';
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     font-size: 18px;
   }
 `;
@@ -29,12 +28,12 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 // N.B. this is specifically for use within forms, you may also want to use the `SearchInput`
 // component for standalone search fields
-export const SearchField = (props) => {
+export const SearchField = props => {
   const {
     field: { value, name, onChange },
     form: { setFieldValue } = {},
@@ -62,7 +61,7 @@ export const SearchField = (props) => {
 };
 
 // N.B. this is for standalone use, if you want a search field within a form, use SearchField.jsx
-export const SearchInput = (props) => {
+export const SearchInput = props => {
   const { getTranslation } = useTranslation();
 
   const { label, placeholder, value, onChange, onClear } = props;

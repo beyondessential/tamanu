@@ -1,26 +1,25 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { formatTime } from '@tamanu/utils/dateTime';
 import { DateDisplay } from '../../../components';
 import { Table } from '../../../components/Table';
-import { Colors } from '../../../constants';
 import { StatusTag } from '../../../components/Tag';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const STATUS_CONFIG = {
   [REPORT_STATUSES.DRAFT]: {
-    background: Colors.background,
-    color: Colors.darkGrey,
+    background: TAMANU_COLORS.background,
+    color: TAMANU_COLORS.darkGrey,
   },
   [REPORT_STATUSES.PUBLISHED]: {
-    color: Colors.green,
+    color: TAMANU_COLORS.green,
     background: '#DEF0EE',
   },
   active: {
-    color: Colors.white,
-    background: Colors.green,
+    color: TAMANU_COLORS.white,
+    background: TAMANU_COLORS.green,
   },
 };
 
@@ -33,7 +32,7 @@ const StyledTable = styled(Table)`
       position: sticky;
       top: 0;
       z-index: 1;
-      background-color: ${Colors.offWhite};
+      background-color: ${TAMANU_COLORS.offWhite};
     }
   }
 `;
@@ -65,7 +64,7 @@ export const ReportTable = React.memo(({ data, selected, onRowClick, loading, er
     <StyledTable
       onRowClick={onRowClick}
       rowStyle={({ id }) => ({
-        backgroundColor: selected === id ? Colors.veryLightBlue : Colors.white,
+        backgroundColor: selected === id ? TAMANU_COLORS.veryLightBlue : TAMANU_COLORS.white,
       })}
       columns={[
         {

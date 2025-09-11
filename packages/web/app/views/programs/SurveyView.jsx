@@ -1,14 +1,19 @@
 import React, { useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-
-import { Form } from '../../components/Field';
-import { checkVisibility, getFormInitialValues, getValidationSchema } from '../../utils';
+import {
+  checkVisibility,
+  Form,
+  getFormInitialValues,
+  getValidationSchema,
+  SurveyScreenPaginator,
+  TAMANU_COLORS,
+  TranslatedReferenceData,
+} from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { Colors } from '../../constants';
-import { SurveyScreenPaginator } from '../../components/Surveys';
+import { getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
-import { TranslatedReferenceData } from '../../components';
+import { useEncounter } from '../../contexts/Encounter';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -18,7 +23,7 @@ export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
 `;
 
 const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {
@@ -43,6 +48,7 @@ export const SurveyViewForm = ({
   onFormDirtyChange,
 }) => {
   const { getTranslation } = useTranslation();
+  const { encounter } = useEncounter();
   const { components } = survey;
   const currentComponents = components.filter(
     c => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
@@ -108,6 +114,8 @@ export const SurveyViewForm = ({
           setStatus={setStatus}
           status={status}
           showCancelButton={showCancelButton}
+          getComponentForQuestionType={getComponentForQuestionType}
+          encounter={encounter}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -115,15 +123,15 @@ export const SurveyViewForm = ({
   };
 
   return (
-    <Form
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      render={renderSurvey}
-      validationSchema={validationSchema}
-      validateOnChange
-      validateOnBlur
-      data-testid="form-12o2"
-    />
+      <Form
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        render={renderSurvey}
+        validationSchema={validationSchema}
+        validateOnChange
+        validateOnBlur
+        data-testid="form-12o2"
+      />
   );
 };
 

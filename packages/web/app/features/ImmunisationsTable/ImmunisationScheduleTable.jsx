@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react';
-import { DataFetchingTable, Heading4, TranslatedText } from '../../components';
-import { getDueDate, getRecordAction, getStatusTag } from './accessors';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { DataFetchingTable, Heading4 } from '../../components';
+import { getDueDate, getRecordAction, getStatusTag } from './accessors';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled(Heading4)`

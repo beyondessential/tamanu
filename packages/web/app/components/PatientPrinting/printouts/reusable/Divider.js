@@ -1,9 +1,10 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import MDivider from '@material-ui/core/Divider';
 import styled from 'styled-components';
-import { Colors } from '../../../../constants';
+
 
 export const Divider = styled(MDivider)`
   margin-top: 20px;
   margin-bottom: 20px;
-  background-color: ${Colors.darkestText};
+  background-color: ${TAMANU_COLORS.darkestText};
 `;

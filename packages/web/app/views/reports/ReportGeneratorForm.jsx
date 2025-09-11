@@ -10,24 +10,21 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_DATA_SOURCES,
   REPORT_EXPORT_FORMATS,
+  FORM_TYPES,
 } from '@tamanu/constants';
+import { Form, FormGrid, TextButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  Button,
   DateDisplay,
   DateField,
-  Field,
-  Form,
-  FormGrid,
+  Field,  
   RadioField,
-  TextButton,
 } from '../../components';
 import { FormSubmitDropdownButton } from '../../components/DropdownButton';
-import { Colors, FORM_TYPES } from '../../constants';
 import { prepareExcelFile } from '../../utils/saveExcelFile';
 import { saveFile } from '../../utils/fileSystemAccess';
 import { EmailField, parseEmails } from './EmailField';
@@ -45,7 +42,7 @@ const DateRangeLabel = styled(Typography)`
   font-weight: 500;
   margin-bottom: 5px;
   padding-top: 30px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const EmailInputContainer = styled.div`
@@ -58,13 +55,13 @@ const AboutReportButton = styled(TextButton)`
   font-size: 15px;
   justify-content: start;
   font-weight: normal;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   width: fit-content;
   text-transform: none;
 
   :hover {
     font-weight: 500;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     cursor: pointer;
     text-decoration: underline;
   }

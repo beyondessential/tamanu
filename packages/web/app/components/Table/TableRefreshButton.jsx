@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DateDisplay } from '../DateDisplay';
-
 import { RefreshIcon } from '../Icons/RefreshIcon';
-import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 
 const spin = keyframes`
@@ -25,7 +23,7 @@ const RefreshButton = styled.div`
   cursor: pointer;
   border-radius: 3px;
   &:hover {
-    background-color: ${Colors.softOutline};
+    background-color: ${TAMANU_COLORS.softOutline};
   }
   height: 25px;
   width: 25px;
@@ -38,7 +36,7 @@ const LastUpdatedBadge = styled.div`
   position: absolute;
   right: 0;
   top: -12px;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
   font-size: 11px;
   display: flex;
   align-items: center;

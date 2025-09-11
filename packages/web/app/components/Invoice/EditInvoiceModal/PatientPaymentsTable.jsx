@@ -4,10 +4,10 @@ import Decimal from 'decimal.js';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
-import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
+import { denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 import { useAuth } from '../../../contexts/Auth';
@@ -19,15 +19,15 @@ import { ThemedTooltip } from '../../Tooltip';
 const TableContainer = styled.div`
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const TooltipContainer = styled.div`
@@ -230,7 +230,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const tableProps = {
     columns: COLUMNS,
     allowExport: false,
-    headerColor: Colors.white,
+    headerColor: TAMANU_COLORS.white,
     fetchOptions: { page: undefined },
     elevated: false,
     containerStyle: denseTableStyle.container,

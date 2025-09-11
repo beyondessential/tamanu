@@ -10,15 +10,12 @@ import {
   AutocompleteInput,
   DateTimeField,
   Field,
-  TextField,
-  TranslatedSelectField,
   DateTimeInput,
 } from './Field';
+import { TranslatedSelectField, TextField, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors } from '../constants';
-import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 
@@ -43,8 +40,8 @@ const StyledTooltip = styled(props => (
   z-index: 1500;
 
   & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primaryDark};
+    color: ${TAMANU_COLORS.white};
     font-weight: 400;
     font-size: 11px;
     line-height: 15px;
@@ -153,7 +150,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+/* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
 const NoteContentBox = styled(Box)`
@@ -185,7 +182,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({

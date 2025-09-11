@@ -1,5 +1,6 @@
 import React from 'react';
-import { AutocompleteField, HierarchyFields, TextField } from '../../../../../components';
+import { TextField } from '@tamanu/ui-components';
+import { AutocompleteField, HierarchyFields } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
 import { useSuggester } from '../../../../../api';

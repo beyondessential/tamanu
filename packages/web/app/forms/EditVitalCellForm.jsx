@@ -4,20 +4,18 @@ import { Box, IconButton, Typography } from '@material-ui/core';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
 import { useQueryClient } from '@tanstack/react-query';
 import { subject } from '@casl/ability';
-import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
+import { SurveyQuestion, getValidationSchema, BaseSelectField, Form, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { DateDisplay, FormSeparatorLine, FormSubmitCancelRow, TranslatedText } from '../components';
-import { BaseSelectField, Field, Form, OuterLabelFieldWrapper } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { SurveyQuestion } from '../components/Surveys';
-import { getValidationSchema } from '../utils';
-import { Colors, FORM_TYPES } from '../constants';
+import { DateDisplay, FormSeparatorLine, TranslatedText } from '../components';
+import { Field, OuterLabelFieldWrapper } from '../components/Field';
 import { useApi } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { useSettings } from '../contexts/Settings';
 import { useTranslation } from '../contexts/Translation';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedOption } from '../components/Translation/TranslatedOptions';
+import { getComponentForQuestionType } from '../components/Surveys';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -74,7 +72,7 @@ const LogTextSmall = styled(Typography)`
   line-height: 15px;
   font-weight: 500;
   letter-spacing: 0;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
@@ -198,6 +196,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
           <Box style={{ gridColumn: '1 / 3' }}>
             <SurveyQuestion
               component={dataPoint.component}
+              getComponentForQuestionType={getComponentForQuestionType}
               disabled={isDeleted || !hasPermission}
               data-testid="surveyquestion-2f43"
             />

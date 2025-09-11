@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES, PROGRAM_REGISTRATION_STATUS_LABELS } from '@tamanu/constants';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedEnum } from '../../components';
 import { ThemedTooltip } from '../../components/Tooltip';
 
@@ -12,14 +12,14 @@ const StatusDiv = styled.div`
   align-items: center;
 `;
 const StatusActiveDot = styled.div`
-  background-color: ${Colors.safe};
+  background-color: ${TAMANU_COLORS.safe};
   height: 7px;
   width: 7px;
   border-radius: 10px;
   margin: 0px 5px;
 `;
 const StatusInactiveDot = styled.div`
-  background-color: ${Colors.softText};
+  background-color: ${TAMANU_COLORS.softText};
   height: 7px;
   width: 7px;
   border-radius: 10px;

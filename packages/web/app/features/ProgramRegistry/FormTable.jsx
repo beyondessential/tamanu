@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled, { css } from 'styled-components';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@material-ui/core';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Container = styled.div`
   border-radius: 3px;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   table-layout: fixed;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 0 20px;
 `;
 
@@ -73,7 +73,7 @@ const StyledTableRow = styled(TableRow)`
   ${props =>
     props.$sectionEnd &&
     css`
-      border-bottom: 1px solid ${Colors.outline};
+      border-bottom: 1px solid ${TAMANU_COLORS.outline};
       td {
         padding-bottom: 20px;
       }

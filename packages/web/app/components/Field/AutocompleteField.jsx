@@ -3,13 +3,11 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce, groupBy, map } from 'lodash';
+import { TranslationContext, StyledTextField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
-import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
-import { TranslationContext } from '../../contexts/Translation';
 import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { notifyError } from '../../utils';
@@ -25,14 +23,14 @@ const SuggestionsContainer = styled(Popper)`
   .react-autosuggest__suggestions-container {
     max-height: 210px;
     overflow-y: auto;
-    border-color: ${Colors.primary};
+    border-color: ${TAMANU_COLORS.primary};
   }
 `;
 
 const SuggestionsList = styled(Paper)`
   margin-top: 1px;
   box-shadow: none;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
 
   .react-autosuggest__suggestions-list {
@@ -51,7 +49,7 @@ const SuggestionsList = styled(Paper)`
       }
 
       &:hover {
-        background: ${Colors.hoverGrey};
+        background: ${TAMANU_COLORS.hoverGrey};
       }
     }
   }
@@ -62,14 +60,14 @@ const SuggestionsList = styled(Paper)`
     li:last-child {
       position: sticky;
       bottom: 0;
-      background: ${Colors.white};
+      background: ${TAMANU_COLORS.white};
       z-index: 1;
       ${!props.$onlyOneItem &&
         `&::before {
         content: '';
         display: block;
         border-top: 1px solid;
-        border-color: ${Colors.outline};
+        border-color: ${TAMANU_COLORS.outline};
         margin: 2px 10px;
       }`}
     }
@@ -115,7 +113,7 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledClearIcon = styled(ClearIcon)`
   cursor: pointer;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const SectionTitle = styled.div`

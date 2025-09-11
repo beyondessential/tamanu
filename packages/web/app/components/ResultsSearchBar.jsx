@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../api';
 import { AutocompleteInput } from './Field';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Heading3 } from './Typography';
 import { TranslatedText } from './Translation/TranslatedText';
 
@@ -10,7 +10,7 @@ const Container = styled.div`
   padding: 24px 30px 30px;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Fields = styled.div`
@@ -24,15 +24,15 @@ const Fields = styled.div`
 
 const StyledAutoCompleteInput = styled(AutocompleteInput)`
   .MuiInputBase-root.Mui-disabled {
-    background: ${Colors.background};
+    background: ${TAMANU_COLORS.background};
   }
 
   .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
+    border-color: ${TAMANU_COLORS.softOutline};
   }
 
   .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
+    border-color: ${TAMANU_COLORS.softOutline};
   }
 `;
 

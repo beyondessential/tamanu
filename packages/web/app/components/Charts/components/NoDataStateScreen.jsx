@@ -1,6 +1,5 @@
 import React from 'react';
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../../Translation/TranslatedText';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 const getTextLines = isVital => {
   if (isVital) {
@@ -60,7 +59,7 @@ export const NoDataStateScreen = props => {
   const textProps = {
     x: offsetWidth / 2 + offsetLeft,
     y: offsetHeight / 2 + offsetTop,
-    style: { fontSize: 14, fontWeight: 400, fill: Colors.darkestText },
+    style: { fontSize: 14, fontWeight: 400, fill: TAMANU_COLORS.darkestText },
     textAnchor: 'middle',
   };
   const lineHeight = 18;
@@ -78,8 +77,8 @@ export const NoDataStateScreen = props => {
     <svg width={width} height={height}>
       <path
         d={`M${startPointX},${startPointY} h${screenWidth} a3,3 0 0 1 3,3 v${screenHeight} a3,3 0 0 1 -3,3 h-${screenWidth} a3,3 0 0 1 -3,-3 v-${screenHeight} a3,3 0 0 1 3,-3 z`}
-        fill={Colors.white}
-        stroke={Colors.outline}
+        fill={TAMANU_COLORS.white}
+        stroke={TAMANU_COLORS.outline}
         strokeWidth="1"
       />
       {isLoading ? (

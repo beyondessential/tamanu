@@ -1,9 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import {
+  Form,
+  FormCancelButton,
+  FormSubmitButton,
+  TAMANU_COLORS,
+  BaseModal,
+  TranslatedText,
+} from '@tamanu/ui-components';
 
-import { BaseModal, Form, FormCancelButton, FormSubmitButton, TranslatedText } from '..';
-import { Colors, FORM_TYPES } from '../../constants';
 import { useApi } from '../../api';
 import { MedicationSummary } from './MedicationSummary';
 import { useEncounter } from '../../contexts/Encounter';
@@ -17,13 +24,13 @@ const StyledBaseModal = styled(BaseModal)`
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const StyledFormActions = styled(Box)`
   margin: 0 -32px -12px;
   padding: 20px 40px 0;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   display: flex;
   justify-content: flex-end;
   gap: 16px;
