@@ -53,8 +53,11 @@ const VERSION_COMPAT_MESSAGE_LOW =
 const VERSION_COMPAT_MESSAGE_HIGH = maxAppVersion =>
   `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
 
-/** @param {Problem} problem */
-function getVersionIncompatibleMessage(problem) {
+/**
+ * @internal
+ * @param {Problem} problem
+ */
+export function getVersionIncompatibleMessage(problem) {
   if (problem.detail === VERSION_COMPATIBILITY_ERRORS.LOW) {
     return VERSION_COMPAT_MESSAGE_LOW;
   }
@@ -123,7 +126,7 @@ function convertLegacyError(error, response) {
   return problem;
 }
 
-async function readResponseError(response, logger = console) {
+async function readResponse(response, logger = console) {
   let data;
   try {
     data = await response.text();
@@ -161,32 +164,6 @@ async function readResponseError(response, logger = console) {
   return unk;
 }
 
-export async function extractError({
-  url,
-  response,
-  logger,
-  onVersionIncompatible,
-  onAuthFailure,
-}) {
-  const problem = await readResponseError(response, logger);
-  problem.extra.set('request-url', url);
-
-  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
-    onAuthFailure(problem.detail);
-  }
-
-  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
-    if (versionIncompatibleMessage) {
-      onVersionIncompatible(versionIncompatibleMessage);
-    }
-  }
-
-  problem.response = response;
-  problem.message = messageField(problem);
-  throw problem;
-}
-
 function messageField(problem) {
   if (!problem.detail) {
     return problem.title;
@@ -197,4 +174,11 @@ function messageField(problem) {
   }
 
   return `${problem.title}: ${problem.detail}`;
+}
+
+export async function extractErrorFromFetchResponse(response, url, logger = console) {
+  const problem = await readResponse(response, logger);
+  problem.extra.set('request-url', url);
+  problem.response = response;
+  problem.message = messageField(problem);
 }

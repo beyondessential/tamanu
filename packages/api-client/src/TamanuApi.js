@@ -1,10 +1,10 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { Problem, RemoteIncompatibleError } from '@tamanu/errors';
+import { ERROR_TYPE, Problem, RemoteIncompatibleError } from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
-import { extractError } from './errors';
+import { extractErrorFromFetchResponse, getVersionIncompatibleMessage } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';
@@ -257,13 +257,20 @@ export class TamanuApi {
       throw response;
     }
 
-    return await extractError({
-      url,
-      response,
-      logger: this.logger,
-      onVersionIncompatible: (...args) => this.#onVersionIncompatible?.(...args),
-      onAuthFailure: (...args) => this.#onAuthFailure?.(...args),
-    });
+    const problem = await extractErrorFromFetchResponse(response, url, this.logger);
+
+    if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
+      this.#onAuthFailure?.(problem.detail);
+    }
+
+    if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
+      if (versionIncompatibleMessage) {
+        this.#onVersionIncompatible?.(versionIncompatibleMessage);
+      }
+    }
+
+    throw problem;
   }
 
   async get(endpoint, query = {}, config = {}) {
