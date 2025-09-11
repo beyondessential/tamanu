@@ -92,7 +92,7 @@ function convertLegacyError(error, response) {
   switch (response.status) {
     case 400: {
       ErrorClass =
-        response.headers.get('X-Max-Client-Version') || response.headers.get('X-Min-Client-Version')
+        response.headers.has('X-Max-Client-Version') || response.headers.has('X-Min-Client-Version')
           ? ClientIncompatibleError
           : UnknownError;
       break;
