@@ -8,9 +8,12 @@ import {
   SurveyScreenPaginator,
   useTranslation,
 } from '@tamanu/ui-components';
-import { type SurveyScreenComponent, type Survey } from '@tamanu/shared/schemas/patientPortal';
-import { type Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
-import { type User } from '@tamanu/shared/schemas/patientPortal/responses/user.schema';
+import {
+  type SurveyScreenComponent,
+  type Survey,
+  type Patient,
+  type User,
+} from '@tamanu/shared/schemas/patientPortal';
 import { getComponentForQuestionType } from './getComponentForQuestionType';
 
 interface SurveyFormProps {
