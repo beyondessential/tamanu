@@ -24,8 +24,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-    // TODO: Validate the report data format?
-
     const params = new URLSearchParams({ dryRun });
     const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
       method: 'POST',
