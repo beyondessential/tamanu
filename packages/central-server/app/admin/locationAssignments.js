@@ -144,7 +144,6 @@ locationAssignmentsRouter.post(
     if (isAfter(parseISO(body.date), maxAssignmentDate)) {
       throw new InvalidOperationError(`Date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
-
     if (body.repeatEndDate && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
@@ -161,7 +160,6 @@ locationAssignmentsRouter.post(
       });
       return;
     }
-
     if (body.repeatFrequency) {
       await createRepeatingLocationAssignment(req, body);
     } else {
@@ -203,7 +201,6 @@ locationAssignmentsRouter.put(
     if (isAfter(parseISO(body.date), maxAssignmentDate)) {
       throw new InvalidOperationError(`Date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
-
     if (body.repeatEndDate && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
@@ -414,7 +411,6 @@ async function updateSingleRepeatingAssignment(req, body, assignment) {
   const { models, db } = req;
   const { LocationAssignment } = models;
   let overlapAssignments = [];
-
   try {
     await db.transaction(async () => {
       await assignment.destroy();
@@ -463,7 +459,6 @@ async function updateFutureAssignments(req, body, assignment) {
       const template = await LocationAssignmentTemplate.findByPk(assignment.templateId);
 
       await deleteSelectedAndFutureAssignments(models, template.id, assignment.date);
-
       overlapAssignments = await findOverlappingAssignments(models, body);
 
       if (overlapAssignments?.length > 0) {
@@ -480,7 +475,6 @@ async function updateFutureAssignments(req, body, assignment) {
         repeatFrequency: body.repeatFrequency,
         repeatUnit: body.repeatUnit,
       });
-
       await newTemplate.generateRepeatingLocationAssignments();
     });
 
@@ -595,7 +589,6 @@ async function findOverlappingAssignments(models, body, options = {}) {
 
 async function checkUserLeaveStatus(models, userId, date) {
   const { UserLeave } = models;
-
   const userLeave = await UserLeave.findOne({
     where: {
       userId,
