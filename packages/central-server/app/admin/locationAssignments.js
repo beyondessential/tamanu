@@ -117,7 +117,6 @@ locationAssignmentsRouter.get(
 const createLocationAssignmentSchema = z.object({
   userId: z.string(),
   locationId: z.string(),
-  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -150,8 +149,6 @@ locationAssignmentsRouter.post(
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
 
-    await checkUserBelongToFacility(req.models, body.userId, body.locationId, body.facilityId);
-
     const overlapAssignments = await findOverlappingAssignments(req.models, body);
     
     if (overlapAssignments?.length > 0) {
@@ -177,7 +174,6 @@ locationAssignmentsRouter.post(
 
 const updateLocationAssignmentSchema = z.object({
   locationId: z.string(),
-  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -200,8 +196,6 @@ locationAssignmentsRouter.put(
     if (!assignment) {
       throw new InvalidOperationError('Location assignment not found');
     }
-
-    await checkUserBelongToFacility(req.models, assignment.userId, body.locationId, body.facilityId);
 
     const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
     const maxAssignmentDate = addMonths(new Date(), maxFutureMonths);
@@ -614,42 +608,4 @@ async function checkUserLeaveStatus(models, userId, date) {
   if (userLeave) {
     throw new InvalidOperationError(`User is on leave!`);
   }
-}
-
-async function checkUserBelongToFacility(models, userId, locationId, facilityId) {
-  const { UserFacility, Location, LocationGroup } = models;
-  
-  const location = await Location.findOne({
-    include: [
-      {
-        model: LocationGroup,
-        as: 'locationGroup',
-        attributes: ['id', 'name', 'facilityId'],
-      },
-    ],
-    where: {
-      id: locationId,
-    },
-  });
-
-  if (!location) {
-    throw new NotFoundError(`Location not found`);
-  }
-
-  if (location.facilityId !== facilityId && location.locationGroup?.facilityId !== facilityId) {
-    throw new InvalidOperationError(`Location does not belong to facility`);
-  }
-
-  const userFacility = await UserFacility.findOne({
-    where: {
-      userId,
-      facilityId,
-    },
-  });
-
-  if (!userFacility) {
-    throw new InvalidOperationError(`User does not belong to facility`);
-  }
-
-  return true;
 }
