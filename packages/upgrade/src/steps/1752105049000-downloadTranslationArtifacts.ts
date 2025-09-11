@@ -2,6 +2,7 @@ import config from 'config';
 import { parse } from 'csv-parse/sync';
 import { uniqBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
+import * as xlsx from 'xlsx';
 import type { Steps, StepArgs } from '../step.ts';
 import { END } from '../step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
@@ -90,7 +91,17 @@ async function csvExtractor(resp: Response): Promise<Translation[]> {
   );
 }
 
-async function xlsxExtractor(resp: Response): Promise<Translation[]> {}
+async function xlsxExtractor(resp: Response): Promise<Translation[]> {
+  const data = await resp.arrayBuffer();
+  const workbook = xlsx.read(data, { type: 'buffer' });
+  const sheet = workbook.Sheets[0];
+  if (!sheet) {
+    throw new Error('No sheet found in the XLSX file');
+  }
+
+  const rows: Translation[] = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+  return uniqBy(rows, item => item.stringId);
+}
 
 export const STEPS: Steps = [
   {
