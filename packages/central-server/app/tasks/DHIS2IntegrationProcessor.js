@@ -1,11 +1,12 @@
 import config from 'config';
 import { fetch } from 'undici';
+import { utils } from 'xlsx';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 
-const reportJSONToCSV = reportData => reportData.map(row => row.join(',')).join('\n');
+const reportJSONToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -89,7 +90,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       const {
         response: { importCount },
       } = await this.postToDHIS2({ reportCSV });
-      log.info(`Report: ${reportString} sent to DHIS2`, importCount);
+      log.info(`Report: ${reportString} sent to DHIS2 successfully`, importCount);
     } else {
       log.warn(`Dry run failed for report: ${reportString}`, {
         message,
