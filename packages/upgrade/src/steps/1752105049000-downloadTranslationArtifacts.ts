@@ -18,7 +18,11 @@ interface Translation {
   fallback?: string; // legacy
 }
 
-async function apply(artifactType: string, { toVersion, models, log }: StepArgs) {
+async function apply(
+  artifactType: string,
+  extractor: (resp: Response) => Promise<Translation[]>,
+  { toVersion, models, log }: StepArgs,
+) {
   const url = `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`;
   log.info('Downloading translation artifacts', { version: toVersion, url });
 
@@ -51,14 +55,7 @@ async function apply(artifactType: string, { toVersion, models, log }: StepArgs)
     );
   }
 
-  const translationRows = uniqBy(
-    parse(await translationsResponse.text(), {
-      columns: true,
-      skip_empty_lines: true,
-    }) as unknown as Translation[],
-    item => item.stringId,
-  );
-
+  const translationRows = await extractor(translationsResponse);
   if (translationRows.length === 0) {
     throw new Error('No valid translation rows found in CSV');
   }
@@ -83,6 +80,18 @@ async function apply(artifactType: string, { toVersion, models, log }: StepArgs)
   }
 }
 
+async function csvExtractor(resp: Response): Promise<Translation[]> {
+  return uniqBy(
+    parse(await resp.text(), {
+      columns: true,
+      skip_empty_lines: true,
+    }) as unknown as Translation[],
+    item => item.stringId,
+  );
+}
+
+async function xlsxExtractor(resp: Response): Promise<Translation[]> {}
+
 export const STEPS: Steps = [
   {
     at: END,
@@ -94,14 +103,14 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        await apply('translations', args);
+        await apply('translations', csvExtractor, args);
         args.log.info('Successfully imported default translations');
       } catch (error) {
         try {
           args.log.info('Trying to import default translations from release head instead', {
             version: zeroPatch,
           });
-          await apply('translations', { ...args, toVersion: zeroPatch });
+          await apply('translations', csvExtractor, { ...args, toVersion: zeroPatch });
           args.log.info('Successfully imported default translations', {
             version: zeroPatch,
           });
@@ -118,7 +127,7 @@ export const STEPS: Steps = [
       }
 
       try {
-        await apply('report-translations', { ...args, toVersion: zeroPatch });
+        await apply('report-translations', xlsxExtractor, { ...args, toVersion: zeroPatch });
         args.log.info('Successfully imported default report translations');
       } catch (error) {
         args.log.error(
