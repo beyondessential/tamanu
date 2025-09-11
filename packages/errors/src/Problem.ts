@@ -68,7 +68,6 @@ export class Problem extends Error {
   }
 
   excludeSensitiveFields(exclude: boolean): this {
-    return this;
     if (exclude) {
       this.extra.delete('stack');
       this.extra.delete('request-url');
