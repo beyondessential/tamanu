@@ -29,12 +29,11 @@ const registerPatient = async ({ patientId, email, models }) => {
     where: { patientId },
   });
 
-  if (!portalUser) {
-    // Check if the email is already in use by another portal user
-    const existingEmailUser = await models.PortalUser.findOne({
-      where: { email },
-    });
+  const existingEmailUser = await models.PortalUser.findOne({
+    where: { email },
+  });
 
+  if (!portalUser) {
     if (existingEmailUser) {
       throw new ValidationError(`Email ${email} is already registered to another patient`);
     }
@@ -43,6 +42,16 @@ const registerPatient = async ({ patientId, email, models }) => {
       patientId,
       email,
     });
+  } else {
+    // Portal user exists, update email if provided and different
+    if (portalUser.email !== email) {
+      if (existingEmailUser && existingEmailUser.patientId !== patientId) {
+        throw new ValidationError(`Email ${email} is already registered to another patient`);
+      }
+
+      portalUser.email = email;
+      await portalUser.save();
+    }
   }
 
   return [portalUser];

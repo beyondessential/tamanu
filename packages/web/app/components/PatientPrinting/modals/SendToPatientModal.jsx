@@ -45,6 +45,9 @@ export const SendToPatientModal = ({ patient }) => {
       );
       onClose();
     },
+    onError: error => {
+      toast.error(error.message);
+    },
   });
 
   const handleSubmit = async ({ email }) => {
