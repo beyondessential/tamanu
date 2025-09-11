@@ -461,7 +461,7 @@ export const MedicationDetails = ({
                     })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.sort((a, b) => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
                       const timeA = getDateFromTimeString(a);
                       const timeB = getDateFromTimeString(b);
                       return timeA - timeB;
