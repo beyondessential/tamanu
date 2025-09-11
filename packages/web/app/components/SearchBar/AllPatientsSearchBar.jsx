@@ -56,7 +56,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) 
             label={
               <TranslatedText
                 stringId="general.localisedField.culturalName.label.short"
-                fallback="Cultural name"
+                fallback="Cultural/traditional name"
                 data-testid="translatedtext-bcz1"
               />
             }

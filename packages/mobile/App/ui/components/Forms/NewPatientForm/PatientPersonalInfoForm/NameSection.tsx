@@ -41,7 +41,7 @@ export const NameSection = (): ReactElement => {
         label={
           <TranslatedText
             stringId="general.localisedField.culturalName.label"
-            fallback="Cultural name"
+            fallback="Cultural/traditional name"
           />
         }
         component={TextField}
