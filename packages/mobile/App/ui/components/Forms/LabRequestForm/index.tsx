@@ -111,7 +111,17 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         label={
           <TranslatedText
             stringId="lab.requestingClinician.label"
-            fallback="Requesting clinician"
+            fallback="Requesting :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  casing="lower"
+                  data-testid="translatedtext-9ywm"
+                />
+              ),
+            }}
           />
         }
         name="requestedById"
