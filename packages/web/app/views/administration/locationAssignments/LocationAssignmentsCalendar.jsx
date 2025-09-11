@@ -7,6 +7,7 @@ import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
@@ -61,7 +62,7 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
 
   const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
 
-  const { data: assignmentsData } = useLocationAssignmentsQuery(
+  const { data: assignmentsData, isLoading: isAssignmentsLoading } = useLocationAssignmentsQuery(
     {
       after: toDateString(displayedDates[0]),
       before: toDateString(displayedDates.at(-1)),
@@ -70,6 +71,10 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
     { keepPreviousData: true },
   );
   const assignments = assignmentsData?.data ?? [];
+
+  if (isLocationsLoading || isAssignmentsLoading) {
+    return <LoadingIndicator />;
+  }
 
   return (
     <>
