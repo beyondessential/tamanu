@@ -68,7 +68,6 @@ export class Problem extends Error {
   }
 
   excludeSensitiveFields(exclude: boolean): this {
-    return this;
     if (exclude) {
       this.extra.delete('stack');
       this.extra.delete('request-url');
@@ -78,7 +77,7 @@ export class Problem extends Error {
 
   toJSON(): Record<string, any> {
     return {
-      ...this.extra.entries(),
+      ...Object.fromEntries(this.extra.entries()),
       type: isKnownErrorType(this.type)
         ? IANA_TYPES.includes(this.type)
           ? `${IANA}${this.type}`
