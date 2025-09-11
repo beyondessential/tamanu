@@ -60,7 +60,7 @@ export const LocationInput = React.memo(
       },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
-      baseQueryParameters: (facilityId && facilityId.trim() !== '') ? { facilityId } : {},
+      baseQueryParameters: (facilityId && facilityId.trim()) ? { facilityId } : {},
     });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;
