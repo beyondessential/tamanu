@@ -12,7 +12,7 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 import { FormFieldTag } from '../Tag';
 import { useTranslation } from '../../contexts/TranslationContext';
-// import { TranslatedEnumField } from '../Transla  tion/TranslatedEnumIInput';
+import { TranslatedEnumField } from '../Transla  tion/TranslatedEnumIInput';
 import { extractTranslationFromComponent } from '../Translation/utils';
 
 const ExpandMoreIcon = styled(ChevronIcon)`
@@ -267,9 +267,9 @@ export const SelectField = ({ field, value, name, ...props }) => (
   <SelectInput value={field ? field.value : value} name={field ? field.name : name} {...props} />
 );
 
-// export const TranslatedSelectField = props => {
-//   return <TranslatedEnumField {...props} component={SelectInput} />;
-// };
+export const TranslatedSelectField = props => {
+  return <TranslatedEnumField {...props} component={SelectInput} />;
+};
 
 SelectField.propTypes = {
   options: PropTypes.oneOfType([PropTypes.object, PropTypes.arrayOf(PropTypes.object)]).isRequired,

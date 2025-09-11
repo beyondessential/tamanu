@@ -10,6 +10,7 @@ import { TAMANU_COLORS } from '../../constants';
 import { Icon, ExpandMoreIcon } from './FieldCommonComponents';
 
 import { Select, SelectDropdownIndicator, SelectMultiValueRemove } from './Select';
+import { TranslatedEnumField } from '../Translation';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -206,15 +207,15 @@ export const BaseMultiselectField = ({ field, ...props }) => (
   />
 );
 
-// export const TranslatedMultiSelectField = props => {
-//   return (
-//     <TranslatedEnumField
-//       {...props}
-//       component={MultiselectInput}
-//       data-testid="translatedenumfield-oi43"
-//     />
-//   );
-// };
+export const TranslatedMultiSelectField = props => {
+  return (
+    <TranslatedEnumField
+      {...props}
+      component={MultiselectInput}
+      data-testid="translatedenumfield-oi43"
+    />
+  );
+};
 
 MultiselectInput.propTypes = {
   name: PropTypes.string.isRequired,
