@@ -253,7 +253,6 @@ export const UserLeaveSection = ({ user }) => {
           </BodyText>
           <LeaveListContainer>
             {leaves
-              .sort((a, b) => new Date(b.startDate) - new Date(a.startDate))
               .map(leave => (
                 <LeaveItem key={leave.id}>
                   <LeaveDates>

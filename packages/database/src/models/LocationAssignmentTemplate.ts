@@ -100,19 +100,12 @@ export class LocationAssignmentTemplate extends Model {
    */
   async generateRepeatingLocationAssignments() {
     const { models } = this.sequelize;
-    const { UserLeave, LocationAssignment } = models;
+    const { UserLeave } = models;
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error(
         'LocationAssignmentTemplate.generateRepeatingLocationAssignments must always run inside a transaction',
       );
     }
-
-    const latestAssignment = await LocationAssignment.findOne({
-      where: {
-        templateId: this.id,
-      },
-      order: [['date', 'DESC']]
-    });
 
     const {
       repeatFrequency,
@@ -124,14 +117,10 @@ export class LocationAssignmentTemplate extends Model {
       repeatEndDate,
     } = this;
 
-    const startDate = latestAssignment?.date || this.date;
+    const startDate = this.date;
     const nextAssignmentDates = generateFrequencyDates(
       startDate, repeatEndDate, repeatFrequency, repeatUnit
-    ).filter(date => date !== null);
-
-    if (latestAssignment) {
-      nextAssignmentDates.shift();
-    }
+    ).filter(Boolean);
 
     if (!nextAssignmentDates.length) return;
 

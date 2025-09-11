@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-
+import { DeleteOutlined } from '@material-ui/icons';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
@@ -15,7 +15,6 @@ import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
 import { Button } from '../../Button';
-import { DeleteOutlined } from '@material-ui/icons';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
@@ -74,6 +73,14 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Reset edit mode when drawer closes or when switching to a different assignment
+  useEffect(() => {
+    if (!open || !initialValues?.id) {
+      setIsEditMode(false);
+    }
+  }, [open, initialValues?.id]);
 
   const userSuggester = useSuggester('practitioner', {
     baseQueryParameters: { filterByFacility: true },
@@ -219,31 +226,36 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         open={open}
         onClose={onClose}
         title={
-          <TranslatedText
-            stringId={
-              initialValues.id
-                ? 'locationAssignment.form.edit.heading'
-                : 'locationAssignment.form.new.heading'
-            }
-            fallback={initialValues.id ? 'Edit assignment' : 'Assign user'}
-            data-testid="translatedtext-nugq"
-          />
+          isViewing ? (
+            <TranslatedText
+              stringId="locationAssignment.form.edit.heading"
+              fallback="Location assignment"
+              data-testid="translatedtext-gykj"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationAssignment.form.new.heading"
+              fallback="Assign user"
+              data-testid="translatedtext-nugq"
+            />
+          )
         }
         description={
-          <TranslatedText
-            stringId={
-              initialValues.id
-                ? 'locationAssignment.form.edit.description'
-                : 'locationAssignment.form.new.description'
-            }
-            fallback={
-              initialValues.id
-                ? 'Edit the assignment details below.'
-                : 'Assign a user to a location using the form below.'
-            }
-            data-testid="translatedtext-p4qw"
-          />
+          isViewing ? (
+            <TranslatedText
+              stringId="locationAssignment.form.new.description"
+              fallback="View, modify or delete this assignment."
+              data-testid="translatedtext-p4qw"
+            />
+          ) : (
+            <TranslatedText
+              stringId="locationAssignment.form.edit.description"
+              fallback="Assign a user to a location using the form below."
+              data-testid="translatedtext-o9mp"
+            />
+          )
         }
+        onEdit={isViewing ? () => setIsEditMode(!isEditMode) : undefined}
         data-testid="drawer-au2a"
       >
         <FormGrid nested columns={1} data-testid="formgrid-71fd">
@@ -272,7 +284,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={LocalisedLocationField}
             required
             locationGroupSuggesterType="bookableLocationGroup"
-            disabled={isViewing}
+            disabled={isViewing && !isEditMode}
             data-testid="field-lmrx"
             showAllLocations
           />
@@ -288,12 +300,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             component={DateField}
             required
             saveDateAsString
-            disabled={isViewing}
+            disabled={isViewing && !isEditMode}
             data-testid="field-date"
           />
           <TimeSlotPicker
             date={values.date}
-            disabled={isViewing || !values.locationId || !values.date}
+            disabled={(isViewing && !isEditMode) || !values.locationId || !values.date}
             label={
               <TranslatedText
                 stringId="locationAssignment.form.allocatedTime.label"

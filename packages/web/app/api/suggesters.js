@@ -14,7 +14,7 @@ export const useSuggester = (type, options) => {
       new Suggester(api, type, {
         ...options,
         baseQueryParameters: { 
-          ...(facilityId && facilityId.trim() !== '' && { facilityId }), 
+          ...(facilityId && facilityId.trim() && { facilityId }), 
           ...options?.baseQueryParameters 
         },
       }),

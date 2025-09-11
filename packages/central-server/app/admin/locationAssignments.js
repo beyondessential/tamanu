@@ -52,7 +52,7 @@ locationAssignmentsRouter.get(
 
     const query = await getLocationAssignmentsSchema.parseAsync(req.query);
 
-    const { 
+    const {
       after,
       before,
       locationId,
@@ -117,7 +117,6 @@ locationAssignmentsRouter.get(
 const createLocationAssignmentSchema = z.object({
   userId: z.string(),
   locationId: z.string(),
-  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -145,15 +144,12 @@ locationAssignmentsRouter.post(
     if (isAfter(parseISO(body.date), maxAssignmentDate)) {
       throw new InvalidOperationError(`Date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
-    
     if (body.repeatEndDate && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
 
-    await checkUserBelongToFacility(req.models, body.userId, body.locationId, body.facilityId);
-
     const overlapAssignments = await findOverlappingAssignments(req.models, body);
-    
+
     if (overlapAssignments?.length > 0) {
       res.status(400).send({
         error: {
@@ -164,7 +160,6 @@ locationAssignmentsRouter.post(
       });
       return;
     }
-    
     if (body.repeatFrequency) {
       await createRepeatingLocationAssignment(req, body);
     } else {
@@ -177,7 +172,6 @@ locationAssignmentsRouter.post(
 
 const updateLocationAssignmentSchema = z.object({
   locationId: z.string(),
-  facilityId: z.string(),
   date: dateCustomValidation,
   startTime: timeCustomValidation,
   endTime: timeCustomValidation,
@@ -201,15 +195,12 @@ locationAssignmentsRouter.put(
       throw new InvalidOperationError('Location assignment not found');
     }
 
-    await checkUserBelongToFacility(req.models, assignment.userId, body.locationId, body.facilityId);
-
     const maxFutureMonths = await req.settings.get('locationAssignments.assignmentMaxFutureMonths');
     const maxAssignmentDate = addMonths(new Date(), maxFutureMonths);
 
     if (isAfter(parseISO(body.date), maxAssignmentDate)) {
       throw new InvalidOperationError(`Date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
-    
     if (body.repeatEndDate && isAfter(parseISO(body.repeatEndDate), maxAssignmentDate)) {
       throw new InvalidOperationError(`End date should not be greater than ${toDateString(maxAssignmentDate)}`);
     }
@@ -325,7 +316,7 @@ locationAssignmentsRouter.get(
     });
 
     const overlappingLeaves = userLeaves.filter((leave) => {
-      return assignmentDates.some((date) => 
+      return assignmentDates.some((date) =>
         leave.startDate <= date && date <= leave.endDate
       );
     });
@@ -345,15 +336,15 @@ async function createRepeatingLocationAssignment(req, body) {
     db,
   } = req;
 
-  const { 
+  const {
     userId,
     locationId,
     startTime,
     endTime,
     date,
     repeatEndDate,
-    repeatUnit, 
-    repeatFrequency, 
+    repeatUnit,
+    repeatFrequency,
   } = body;
 
   await db.transaction(async () => {
@@ -420,7 +411,6 @@ async function updateSingleRepeatingAssignment(req, body, assignment) {
   const { models, db } = req;
   const { LocationAssignment } = models;
   let overlapAssignments = [];
-  
   try {
     await db.transaction(async () => {
       await assignment.destroy();
@@ -469,7 +459,6 @@ async function updateFutureAssignments(req, body, assignment) {
       const template = await LocationAssignmentTemplate.findByPk(assignment.templateId);
 
       await deleteSelectedAndFutureAssignments(models, template.id, assignment.date);
-      
       overlapAssignments = await findOverlappingAssignments(models, body);
 
       if (overlapAssignments?.length > 0) {
@@ -486,7 +475,6 @@ async function updateFutureAssignments(req, body, assignment) {
         repeatFrequency: body.repeatFrequency,
         repeatUnit: body.repeatUnit,
       });
-      
       await newTemplate.generateRepeatingLocationAssignments();
     });
 
@@ -502,9 +490,9 @@ async function updateFutureAssignments(req, body, assignment) {
   }
 }
 
-async function deleteSelectedAndFutureAssignments(models, templateId, assignmentDate) { 
+async function deleteSelectedAndFutureAssignments(models, templateId, assignmentDate) {
   const { LocationAssignment, LocationAssignmentTemplate } = models;
-  
+
   // Delete selected and future assignments for repeating location assignments
   await LocationAssignment.destroy({
     where: {
@@ -532,10 +520,10 @@ async function deleteSelectedAndFutureAssignments(models, templateId, assignment
   // Update the repeat end date to the latest assignment date
   await LocationAssignmentTemplate.update({
     repeatEndDate: latestAssignment.date,
-  }, { 
-    where: { 
+  }, {
+    where: {
       id: templateId,
-    } 
+    }
   });
 }
 
@@ -601,7 +589,6 @@ async function findOverlappingAssignments(models, body, options = {}) {
 
 async function checkUserLeaveStatus(models, userId, date) {
   const { UserLeave } = models;
-  
   const userLeave = await UserLeave.findOne({
     where: {
       userId,
@@ -614,42 +601,4 @@ async function checkUserLeaveStatus(models, userId, date) {
   if (userLeave) {
     throw new InvalidOperationError(`User is on leave!`);
   }
-}
-
-async function checkUserBelongToFacility(models, userId, locationId, facilityId) {
-  const { UserFacility, Location, LocationGroup } = models;
-  
-  const location = await Location.findOne({
-    include: [
-      {
-        model: LocationGroup,
-        as: 'locationGroup',
-        attributes: ['id', 'name', 'facilityId'],
-      },
-    ],
-    where: {
-      id: locationId,
-    },
-  });
-
-  if (!location) {
-    throw new NotFoundError(`Location not found`);
-  }
-
-  if (location.facilityId !== facilityId && location.locationGroup?.facilityId !== facilityId) {
-    throw new InvalidOperationError(`Location does not belong to facility`);
-  }
-
-  const userFacility = await UserFacility.findOne({
-    where: {
-      userId,
-      facilityId,
-    },
-  });
-
-  if (!userFacility) {
-    throw new InvalidOperationError(`User does not belong to facility`);
-  }
-
-  return true;
 }
