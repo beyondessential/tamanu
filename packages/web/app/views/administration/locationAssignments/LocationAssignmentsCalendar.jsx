@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -55,7 +55,7 @@ const Carousel = styled.div`
 `;
 
 export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDrawer, ...props }) => {
-  const { monthOf, setMonthOf } = useLocationAssignmentsContext();
+  const { monthOf, setMonthOf, setIsCalendarLoaded } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
 
@@ -70,6 +70,15 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
     { keepPreviousData: true },
   );
   const assignments = assignmentsData?.data ?? [];
+
+  // Signal that calendar is ready when data is loaded
+  useEffect(() => {
+    if (!isLocationsLoading && !isAssignmentsLoading) {
+      setIsCalendarLoaded(true);
+    } else {
+      setIsCalendarLoaded(false);
+    }
+  }, [isLocationsLoading, isAssignmentsLoading, setIsCalendarLoaded]);
 
   if (isLocationsLoading || isAssignmentsLoading) {
     return <LoadingIndicator />;

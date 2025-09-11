@@ -16,15 +16,18 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
+  const [isCalendarLoaded, setIsCalendarLoaded] = useState(false);
+
   useEffect(
     () => {
+      if (!isCalendarLoaded) return;
       if (isSameMonth(selectedCell.date, monthOf)) {
         scrollToCell(selectedCell, { behavior: 'instant' });
       } else {
         (isThisMonth(monthOf) ? scrollToThisWeek : scrollToFirstDisplayedDay)({ behavior: 'instant' });
       }
     },
-    [monthOf],
+    [monthOf, isCalendarLoaded],
   );
 
   const updateSelectedCell = newCellData => {
@@ -50,6 +53,8 @@ export const LocationAssignmentsContextProvider = ({ children }) => {
         updateSelectedCell,
         monthOf,
         setMonthOf,
+        isCalendarLoaded,
+        setIsCalendarLoaded,
       }}
     >
       {children}
