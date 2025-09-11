@@ -11,6 +11,7 @@ import {
   isKnownErrorType,
   WELL_KNOWN_PROBLEM_KEYS,
 } from './constants';
+import { splitUpStack } from './splitUpStack';
 
 const LINK = '/problems/';
 const IANA = 'https://iana.org/assignments/http-problem-types#';
@@ -47,13 +48,7 @@ export class Problem {
       }
 
       if (error.stack) {
-        problem.extra.set(
-          'stack',
-          error.stack
-            ?.split('\n')
-            .slice(1)
-            .map(line => line.trim().replace(/^at /, '')),
-        );
+        problem.extra.set('stack', splitUpStack(error.stack));
       }
     }
 
