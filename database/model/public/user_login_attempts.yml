@@ -55,6 +55,10 @@ sources:
             description: "{{ doc('user_login_attempts__user_id') }}"
             data_tests:
               - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in user_login_attempts."
