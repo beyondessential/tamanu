@@ -44,14 +44,14 @@ export class FacilitySyncConnection {
       throw err;
     }
 
-    return response.json();
+    return await response.json();
   }
 
   async runSync(syncData) {
-    return this.fetch('run', { method: 'POST', body: { syncData } });
+    return await this.fetch('run', { method: 'POST', body: { syncData } });
   }
 
   async getSyncStatus() {
-    return this.fetch('status');
+    return await this.fetch('status');
   }
 }
