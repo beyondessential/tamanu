@@ -52,8 +52,7 @@ export class RecordVitalsModal extends BasePatientModal {
     this.temperatureField = this.page.locator('input[name="pde-PatientVitalsTemperature"]');
     this.spo2Field = this.page.locator('input[name="pde-PatientVitalsSPO2"]');
     this.spo2OxygenField = this.page.locator('input[name="pde-PatientVitalsSPO2onOxygen"]');
-    //TODO: add locator for dropdown below
-    this.AVPUField = this.page.locator('TODO');
+    this.AVPUField = this.page.getByTestId('formgrid-h378').locator('div').filter({ hasText: 'AVPUSelect' }).getByTestId('wrapperfieldcomponent-mkjr-expandmoreicon-h115');
     this.TEWField = this.page.locator('input[name="pde-PatientVitalsTEWScore"]');
     this.GCSField = this.page.locator('input[name="pde-PatientVitalsGCS"]');
     this.painScaleField = this.page.locator('input[name="pde-PatientVitalsPainScale"]');
@@ -61,8 +60,7 @@ export class RecordVitalsModal extends BasePatientModal {
     this.randomBGLField = this.page.locator('input[name="pde-PatientVitalsRandomBGL"]');
     this.fastingBGLField = this.page.locator('input[name="pde-PatientVitalsFastingBGL"]');
     this.ventilatorLitresPerMinuteField = this.page.locator('input[name="pde-PatientVitalsVent"]');
-    //TODO: add locator for dropdown below
-    this.ventilatorModeField = this.page.locator('TODO');
+    this.ventilatorModeField = this.page.getByTestId('formgrid-h378').locator('div').filter({ hasText: 'Ventilator ModeSelect' }).getByTestId('wrapperfieldcomponent-mkjr-expandmoreicon-h115');
     this.FIO2Field = this.page.locator('input[name="pde-PatientVitalsFiO2"]');
     this.PIPField = this.page.locator('input[name="pde-PatientVitalsPIP"]');
     this.PEEPField = this.page.locator('input[name="pde-PatientVitalsPEEP"]');
@@ -103,6 +101,7 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
         mVLitresPerMinute 
     } = fields;
 
+    // All fields that potentially need to be filled
     const fieldMappings = [
         { value: date, locator: this.dateField },
         { value: height, locator: this.heightField },
@@ -114,7 +113,6 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
         { value: temperature, locator: this.temperatureField },
         { value: spo2, locator: this.spo2Field },
         { value: spo2Oxygen, locator: this.spo2OxygenField },
-        { value: AVPU, locator: this.AVPUField },
         { value: TEW, locator: this.TEWField },
         { value: GCS, locator: this.GCSField },
         { value: painScale, locator: this.painScaleField },
@@ -122,7 +120,6 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
         { value: randomBGL, locator: this.randomBGLField },
         { value: fastingBGL, locator: this.fastingBGLField },
         { value: ventilatorLitresPerMinute, locator: this.ventilatorLitresPerMinuteField },
-        { value: ventilatorMode, locator: this.ventilatorModeField },
         { value: FIO2, locator: this.FIO2Field },
         { value: PIP, locator: this.PIPField },
         { value: PEEP, locator: this.PEEPField },
@@ -136,6 +133,19 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     for (const { value, locator } of fieldMappings) {
         if (value) {
         await locator.fill(value);
+        }
+    }
+
+    const dropdownFieldMappings = [
+        { value: ventilatorMode, locator: this.ventilatorModeField },
+        { value: AVPU, locator: this.AVPUField },
+    ]
+
+    // Select options from dropdowns if values are provided
+    for (const { value, locator } of dropdownFieldMappings) {
+        if (value) {
+            await locator.click();
+            await this.page.getByText(value).click();
         }
     }
 
