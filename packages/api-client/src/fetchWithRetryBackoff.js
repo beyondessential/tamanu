@@ -20,15 +20,15 @@ export async function fetchWithRetryBackoff(
   while (true) {
     attempt += 1;
     const attemptStartMs = Date.now();
+    const basicDebugInfo = { url, attempt, maxAttempts };
     try {
-      log.debug(`retries: started`, { attempt, maxAttempts });
+      log.debug(`retries: started`, basicDebugInfo);
       const result = await fetchOrThrowIfUnavailable(url, config);
       const now = Date.now();
       const attemptMs = now - attemptStartMs;
       const totalMs = now - overallStartMs;
       log.debug(`retries: succeeded`, {
-        attempt,
-        maxAttempts,
+        ...basicDebugInfo,
         time: `${attemptMs}ms`,
         totalTime: `${totalMs}ms`,
       });
@@ -47,8 +47,7 @@ export async function fetchWithRetryBackoff(
       // throw if we've exceeded our maximum retries
       if (attempt >= maxAttempts) {
         log.error(`retries: failed, max retries exceeded`, {
-          attempt,
-          maxAttempts,
+          ...basicDebugInfo,
           stack: e.stack,
         });
         throw e;
@@ -58,8 +57,7 @@ export async function fetchWithRetryBackoff(
       [secondLastN, lastN] = [lastN, Math.max(lastN + secondLastN, 1)];
       const delay = Math.min(lastN * multiplierMs, maxWaitMs);
       log.warn(`retries: failed, retrying`, {
-        attempt,
-        maxAttempts,
+        ...basicDebugInfo,
         retryingIn: `${delay}ms`,
         stack: e.stack,
       });
