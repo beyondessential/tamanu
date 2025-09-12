@@ -30,16 +30,4 @@ export class ChangePriorityModal {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
-  async selectPriority(priority: string) {
-    await this.prioritySelect.click();
-    await this.page.getByText(priority).click();
-  }
-
-  async clickConfirm() {
-    await this.confirmButton.click();
-  }
-
-  async clickCancel() {
-    await this.cancelButton.click();
-  }
 }

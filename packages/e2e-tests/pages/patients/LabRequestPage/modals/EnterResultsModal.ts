@@ -1,6 +1,4 @@
 import { Page, Locator } from '@playwright/test';
-import { selectFirstFromDropdown } from '@utils/testHelper';
-import { format } from 'date-fns';
 
 export class EnterResultsModal {
   readonly page: Page;
@@ -8,7 +6,6 @@ export class EnterResultsModal {
 
   // Action buttons
   readonly confirmButton: Locator;
-  readonly cancelButton: Locator;
   
   // Table constants
   readonly STYLED_TABLE_CELL_PREFIX: string;
@@ -29,7 +26,6 @@ export class EnterResultsModal {
     this.STYLED_TABLE_CELL_PREFIX = 'styledtabledatacell-bsji';
     // Action buttons
     this.confirmButton = page.getByTestId('confirmbutton-tok1');
-    this.cancelButton = page.getByTestId('outlinedbutton-95wy');
     this.resultsFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).locator('input').locator('..').locator('div');
     this.resultsFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).getByTestId('styledfield-h653-expandmoreicon-h115');  
     this.labTestMethodFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).locator('input').locator('..').locator('div');
@@ -45,21 +41,6 @@ export class EnterResultsModal {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
-  async getEnterResultsTableItems(tableRowCount: number, columnName: string) {
-    const items: string[] = [];
-    for (let i = 0; i < tableRowCount; i++) {
-      const itemLocator = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}${i}-${columnName}`);
-      const itemText = await itemLocator.textContent();
-      if (itemText) {
-        items.push(itemText);
-      }
-    }
-    return items;
-  }
-
-  async getTableRowCount() {
-    return await this.page.getByTestId('styledfixedtable-ab5k').locator('tr').count();
-  }
   async waitForModalToClose() {
     await this.form.waitFor({ state: 'detached' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });

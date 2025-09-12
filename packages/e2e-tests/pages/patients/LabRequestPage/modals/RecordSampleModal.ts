@@ -55,6 +55,11 @@ export class RecordSampleModal {
     collectedBy: collectedByText,
     specimenType: specimenTypeText,
     }
+  
+}
+async waitForSampleCollectedModalToClose() {
+  await this.form.waitFor({ state: 'detached' });
+  await this.page.waitForLoadState('networkidle', { timeout: 10000 });
 }
 }
 

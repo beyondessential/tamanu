@@ -30,8 +30,4 @@ export class ChangeLaboratoryModal {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
-  async selectLaboratory(laboratory: string) {
-    await this.laboratorySelect.click();
-    await this.page.getByText(laboratory).click();
-  }
 }

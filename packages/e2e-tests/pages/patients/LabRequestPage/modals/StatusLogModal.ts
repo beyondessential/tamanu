@@ -1,5 +1,4 @@
 import { Page, Locator } from '@playwright/test';
-import { getTableItems } from '@utils/testHelper';
 
 export class StatusLogModal {
   readonly page: Page;
@@ -20,19 +19,17 @@ export class StatusLogModal {
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
-  async getDateTime(rowCount: number, rowIndex: number): Promise<string> {
-    const tableItems = await getTableItems(this.page, rowCount, 'createdAt');
-    return tableItems[rowIndex] || '';
+  async getDateTime(rowIndex: number): Promise<string> {
+    const itemLocator = this.tableRows.nth(rowIndex).locator('[data-testid*="-createdAt"]');
+    return (await itemLocator.textContent()) || '';
   }
-
-  async getStatus(rowCount: number, rowIndex: number): Promise<string> {
-    const tableItems = await getTableItems(this.page, rowCount, 'status');
-    return tableItems[rowIndex] || '';
+  async getStatus(rowIndex: number): Promise<string> {
+    const itemLocator = this.tableRows.nth(rowIndex).locator('[data-testid*="-status"]');
+    return (await itemLocator.textContent()) || '';
   }
-
-  async getRecordedBy(rowCount: number, rowIndex: number): Promise<string> {
-    const tableItems = await getTableItems(this.page, rowCount, 'updatedByDisplayName');
-    return tableItems[rowIndex] || '';
+  async getRecordedBy(rowIndex: number): Promise<string> {
+    const itemLocator = this.tableRows.nth(rowIndex).locator('[data-testid*="-updatedByDisplayName"]');
+    return (await itemLocator.textContent()) || '';
   } 
 
   async getRowCount(): Promise<number> {
