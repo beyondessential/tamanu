@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
-
+import { Link as RouterLink } from 'react-router-dom';
 import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal';
 
 interface OutstandingFormCardProps {
@@ -10,10 +10,10 @@ interface OutstandingFormCardProps {
   onClick?: () => void;
 }
 
-export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form, onClick }) => {
+export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form }) => {
   return (
     <Card variant="outlined">
-      <CardActionArea onClick={onClick} disabled={!onClick}>
+      <CardActionArea component={RouterLink} to={`/survey/${form.survey.id}`}>
         <CardContent>
           <Stack direction="row" spacing={2} alignItems="center">
             <Stack spacing={1} sx={{ flex: 1 }}>

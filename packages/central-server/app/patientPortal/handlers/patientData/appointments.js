@@ -62,7 +62,5 @@ export const getUpcomingAppointments = asyncHandler(async (req, res) => {
     include: appointmentIncludes,
     order: [['startTime', 'ASC']],
   });
-  res.send({
-    data: appointments.map(appointment => AppointmentSchema.parse(appointment.forResponse())),
-  });
+  res.send(appointments.map(appointment => AppointmentSchema.parse(appointment.forResponse())));
 });

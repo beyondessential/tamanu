@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { SurveyForm } from '../features/survey/SurveyForm';
@@ -25,9 +26,8 @@ const Title = styled(Typography)(() => ({
   lineHeight: 2,
 }));
 
-const surveyId = 'program-demendoscopyscreen-demendoref';
-
 export const SurveyView = () => {
+  const { surveyId } = useParams<{ surveyId: string }>();
   const { isPending, data: survey } = useSurveyQuery(surveyId);
   const { additionalData, ...patient } = useCurrentUser();
   const currentUser = {} as User;
