@@ -89,8 +89,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     if (httpStatusCode === 200) {
       const { response } = await this.postToDHIS2({ reportCSV });
-      const { importCount } = response;
-      log.info(`Report: ${reportString} sent to DHIS2 successfully`, importCount);
+      log.info(`Report: ${reportString} sent to DHIS2 successfully`, response.importCount);
     } else {
       log.warn(`Dry run failed for report: ${reportString}`, {
         message,
