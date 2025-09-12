@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Link } from 'react-router-dom';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { MainMenu } from './MainMenu';
 import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';
@@ -30,7 +31,9 @@ export const PageHeader = () => {
 
   return (
     <HeaderContainer>
-      <img src={tamanuLogoBlue} alt="Tamanu Logo" />
+      <Link to="/">
+        <img src={tamanuLogoBlue} alt="Tamanu Logo" style={{ position: 'relative', top: 2 }} />
+      </Link>
       <IconButton aria-label="open drawer" edge="end" onClick={onOpen} color="primary">
         <MenuIcon />
       </IconButton>
