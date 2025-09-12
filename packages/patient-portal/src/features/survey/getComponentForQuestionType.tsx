@@ -68,6 +68,8 @@ const QUESTION_COMPONENTS = {
 
 export function getComponentForQuestionType(type: Survey['surveyType']) {
   const Component = QUESTION_COMPONENTS[type];
-  // @ts-ignore: just adding type to component props for developing the question types
-  return props => <Component {...props} type={type} />;
+  if (Component === PlaceholderField || Component === UnSupportedField) {
+    return props => <Component {...props} type={type} />;
+  }
+  return Component;
 }
