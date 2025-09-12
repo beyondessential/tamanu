@@ -75,22 +75,15 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
     const reportCSV = reportJSONToCSV(reportData);
 
-    const {
-      status,
-      message,
-      httpStatusCode,
-      response: { conflicts = [] },
-    } = await this.postToDHIS2({
+    const { status, message, httpStatusCode, response } = await this.postToDHIS2({
       reportCSV,
       dryRun: true,
       // TODO: This takes a variety of settings we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     });
 
     if (httpStatusCode === 200) {
-      const {
-        response: { importCount },
-      } = await this.postToDHIS2({ reportCSV });
-      log.info(`Report: ${reportString} sent to DHIS2 successfully`, importCount);
+      const { response } = await this.postToDHIS2({ reportCSV });
+      log.info(`Report: ${reportString} sent to DHIS2 successfully`, response.importCount);
     } else {
       log.warn(`Dry run failed for report: ${reportString}`, {
         message,
@@ -99,7 +92,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       });
 
       // Value is the error message returned from DHIS2 api for each errored row
-      conflicts.forEach(conflict => log.warn(conflict.value));
+      response.conflicts?.forEach(conflict => log.warn(conflict.value));
     }
   }
 
