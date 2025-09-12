@@ -37,8 +37,7 @@ export async function fetchWithRetryBackoff(
       // throw if the error is irrecoverable
       if (!isRecoverable(e)) {
         log.error(`retries: failed, error was irrecoverable`, {
-          attempt,
-          maxAttempts,
+          ...basicDebugInfo,
           stack: e.stack,
         });
         throw e;
