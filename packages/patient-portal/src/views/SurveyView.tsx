@@ -4,6 +4,7 @@ import { useCurrentUser } from '@routes/PrivateRoute';
 import { SurveyForm } from '../features/survey/SurveyForm';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
+import { type User } from '@tamanu/shared/schemas/patientPortal';
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -28,11 +29,9 @@ const surveyId = 'program-demendoscopyscreen-demendoref';
 
 export const SurveyView = () => {
   const { isPending, data: survey } = useSurveyQuery(surveyId);
-  const patient = useCurrentUser();
-  const currentUser = {};
-  const patientAdditionalData = {};
+  const { additionalData, ...patient } = useCurrentUser();
+  const currentUser = {} as User;
   const encounterType = ENCOUNTER_TYPES.CLINIC;
-  console.log('patientAdditionalData?', patient);
 
   const onSubmit = async () => {};
   const onCancel = async () => {};
@@ -48,7 +47,7 @@ export const SurveyView = () => {
       </Header>
       <Box sx={{ p: 2 }}>
         <SurveyForm
-          patientAdditionalData={patientAdditionalData}
+          patientAdditionalData={additionalData}
           encounterType={encounterType}
           patient={patient}
           currentUser={currentUser}

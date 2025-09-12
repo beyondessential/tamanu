@@ -10,14 +10,14 @@ import {
 } from '@tamanu/ui-components';
 import {
   type SurveyScreenComponent,
-  type Survey,
+  type SurveyWithComponents,
   type Patient,
   type User,
 } from '@tamanu/shared/schemas/patientPortal';
 import { getComponentForQuestionType } from './getComponentForQuestionType';
 
 interface SurveyFormProps {
-  survey: Survey;
+  survey: SurveyWithComponents;
   onSubmit: (values: any) => void;
   onCancel: () => void;
   patient: Patient;
@@ -38,7 +38,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   encounterType,
 }) => {
   const { getTranslation } = useTranslation();
-  const { components = [] } = survey;
+  const components = survey.components ?? [];
   const currentComponents = components.filter(
     (c: SurveyScreenComponent) => c.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
   );

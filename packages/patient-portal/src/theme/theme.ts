@@ -17,9 +17,11 @@ const themeConfig = {
     },
     error: {
       main: TAMANU_COLORS.alert,
+      light: '#FFF0EE',
     },
     success: {
       main: TAMANU_COLORS.safe,
+      light: '#EDFAF3',
     },
     text: {
       primary: TAMANU_COLORS.darkestText,
@@ -41,6 +43,52 @@ const themeConfig = {
     useNextVariants: true,
     fontSize: 15,
     fontFamily: 'Roboto',
+    h1: {
+      fontFamily: 'Roboto',
+      fontSize: '2rem', // 32px
+      fontWeight: 500,
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontFamily: 'Roboto',
+      fontSize: '1.5rem', // 24px
+      fontWeight: 600,
+      lineHeight: 1.5,
+    },
+    h3: {
+      fontFamily: 'Roboto',
+      fontSize: '1.125rem', // 18px
+      fontWeight: 600,
+      lineHeight: 1.5,
+    },
+    h4: {
+      fontFamily: 'Roboto',
+      fontSize: '1rem', // 16px
+      fontWeight: 600,
+      lineHeight: 1.5,
+    },
+    h5: {
+      fontFamily: 'Roboto',
+      fontSize: '0.875rem', // 14px
+      fontWeight: 500,
+      lineHeight: 1.5,
+    },
+    h6: {
+      fontFamily: 'Roboto',
+      fontSize: '0.75rem', // 12px
+      fontWeight: 500,
+      lineHeight: 1.6,
+    },
+    body1: {
+      fontSize: '0.875rem', // 14px - Your desired body text size
+      fontWeight: 400,
+      lineHeight: 1.5,
+    },
+    body2: {
+      fontSize: '0.75rem', // 12px
+      fontWeight: 400,
+      lineHeight: 1.4,
+    },
   },
   shape: { borderRadius: 3 },
   overrides: {
@@ -61,6 +109,20 @@ const themeConfig = {
       root: {
         borderColor: TAMANU_COLORS.outline,
       },
+      variants: [
+        {
+          props: { variant: 'secondary' as const },
+          style: {
+            backgroundColor: '#F9FAFB',
+          },
+        },
+        {
+          props: { variant: 'outlined' as const },
+          style: {
+            border: '1px solid divider',
+          },
+        },
+      ],
     },
     MuiOutlinedInput: {
       notchedOutline: {

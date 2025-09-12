@@ -8,6 +8,7 @@ import {
   BaseMultiselectField,
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
+import { type Survey } from '@tamanu/shared/schemas/patientPortal';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   return (
@@ -47,7 +48,8 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: PlaceholderField,
 };
 
-export function getComponentForQuestionType(type) {
+export function getComponentForQuestionType(type: Survey['surveyType']) {
   const Component = QUESTION_COMPONENTS[type];
+  // @ts-ignore: just adding type to component props for developing the question types
   return props => <Component {...props} type={type} />;
 }

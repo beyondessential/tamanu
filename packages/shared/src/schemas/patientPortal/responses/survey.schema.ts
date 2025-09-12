@@ -34,7 +34,6 @@ export const SurveySchema = z.object({
   name: z.string(),
   code: z.string(),
   surveyType: z.enum(SURVEY_TYPES),
-  components: z.array(SurveyScreenComponentSchema).optional(),
 });
 
 export const SurveyWithComponentsSchema = SurveySchema.extend({
