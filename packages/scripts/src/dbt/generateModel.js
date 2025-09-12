@@ -7,6 +7,26 @@ const { compact, differenceBy, intersectionBy, remove } = require('lodash');
 const { spawnSync } = require('child_process');
 const { dbConfig } = require('./dbConfig.js');
 
+const KNOWN_TABLE_MASKING_KINDS = ['truncate'];
+const KNOWN_COLUMN_MASKING_KINDS = [
+  'date',
+  'datetime',
+  'default',
+  'email',
+  'empty',
+  'float',
+  'integer',
+  'money',
+  'name',
+  'nil',
+  'phone',
+  'place',
+  'string',
+  'text',
+  'url',
+  'zero',
+];
+
 /**
  * @param {string} schemaPath The path to the dir with source model files for a schema
  * @returns A list of source model files as JS objects.
@@ -257,7 +277,7 @@ async function generateDataTests(column) {
 }
 
 /**
- * @param {object} schema
+ * @param {{ name: string; path: string }} schema
  * @param {string} kind
  * @returns {string} The prefix to use for doc keys.
  */
@@ -292,6 +312,10 @@ async function generateColumnModel(schema, tableName, column, hasGenericDoc) {
     data_type: column.data_type,
     description: generateColumnModelDescription(schema, tableName, column.name, hasGenericDoc),
     data_tests: dataTests.length === 0 ? undefined : dataTests,
+    config:
+      schema.name !== 'fhir' && column.data_type === 'text'
+        ? { meta: { masking: 'text' } }
+        : undefined,
   };
 }
 
@@ -308,7 +332,7 @@ function generateColumnDoc(column) {
 }
 
 /**
- * @param {string} schemaName
+ * @param {{ name: string; path: string }} schema
  * @param {{ name: string; oid: number; columns: object[]; triggers: string[] }} table
  * @param {string[]} genericColNames
  * @returns A table object, directly serialisable as dbt model.
@@ -328,6 +352,7 @@ async function generateTableModel(schema, table, genericColNames) {
             config: {
               tags: [],
               meta: {
+                masking: schema.name === 'fhir' ? 'truncate' : undefined,
                 triggers: table.triggers,
               },
             },
@@ -463,7 +488,7 @@ async function handleRemovedTable(schema, table) {
 /**
  * Generates the given table's source model and its document if missing. Then it writes as files.
  *
- * @param {object} schema
+ * @param {{ name: string; path: string }} schema
  * @param {object} table
  * @param {string[]} genericColNames
  */
@@ -494,6 +519,16 @@ async function handleColumn(schema, tableName, dbtColumn, sqlColumn, hasGenericD
   dbtColumn.data_tests.splice(0, 0, ...sqlDataTests);
 
   if (dbtColumn.data_tests.length === 0) delete dbtColumn.data_tests;
+
+  const masking = dbtColumn.config?.meta?.masking;
+  if (
+    (typeof masking === 'string' || typeof masking?.kind === 'string') &&
+    !KNOWN_COLUMN_MASKING_KINDS.includes(masking?.kind ?? masking)
+  ) {
+    throw new Error(
+      `On column ${tableName}.${dbtColumn.name} found unknown masking kind: ${masking?.kind ?? masking}`,
+    );
+  }
 }
 
 async function handleColumns(schema, tableName, dbtSrc, sqlColumns, genericColNames) {
@@ -551,6 +586,16 @@ async function handleTable(schema, dbtSrc, sqlTable, genericColNames) {
   table.config = table.config ?? {};
   table.config.meta = table.config.meta ?? {};
   table.config.meta.triggers = sqlTable.triggers;
+
+  const masking = table.config.meta.masking;
+  if (
+    (typeof masking === 'string' || typeof masking?.kind === 'string') &&
+    !KNOWN_TABLE_MASKING_KINDS.includes(masking?.kind ?? masking)
+  ) {
+    throw new Error(
+      `On table ${table.name} found unknown masking kind: ${masking?.kind ?? masking}`,
+    );
+  }
 
   table.description = `{{ doc('${docPrefix(schema, 'table')}__${sqlTable.name}') }}`;
   await fillMissingDoc(schema, sqlTable, genericColNames);
