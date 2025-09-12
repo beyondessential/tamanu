@@ -25,17 +25,36 @@ const getPatientOrThrow = async ({ models, patientId }) => {
 };
 
 const registerPatient = async ({ patientId, email, models }) => {
-  const [portalUser, created] = await models.PortalUser.findOrCreate({
+  let portalUser = await models.PortalUser.findOne({
     where: { patientId },
-    defaults: { email },
   });
 
-  if (!created && email && portalUser.email !== email) {
-    portalUser.email = email;
-    await portalUser.save();
+  const existingEmailUser = await models.PortalUser.findOne({
+    where: { email },
+  });
+
+  if (!portalUser) {
+    if (existingEmailUser) {
+      throw new ValidationError(`Email ${email} is already registered to another patient`);
+    }
+
+    portalUser = await models.PortalUser.create({
+      patientId,
+      email,
+    });
+  } else {
+    // Portal user exists, update email if provided and different
+    if (portalUser.email !== email) {
+      if (existingEmailUser && existingEmailUser.patientId !== patientId) {
+        throw new ValidationError(`Email ${email} is already registered to another patient`);
+      }
+
+      portalUser.email = email;
+      await portalUser.save();
+    }
   }
 
-  return [portalUser, created];
+  return [portalUser];
 };
 
 const EMAIL_TEMPLATES = {
@@ -153,12 +172,12 @@ patientPortal.post(
       where: { patientId },
     });
 
-    if (!email) {
-      throw new ValidationError('You must provide an email to send the form.');
-    }
-
     // Handle user registration and email sending
     if (!portalUser) {
+      if (!email) {
+        throw new ValidationError('You must provide an email to send the form.');
+      }
+
       await registerPatient({ patientId: patient.id, models, email });
       await sendPortalEmail({
         patient,
@@ -171,7 +190,7 @@ patientPortal.post(
     } else {
       await sendPortalEmail({
         patient,
-        email,
+        email: portalUser.email,
         models,
         settings,
         facilityId,

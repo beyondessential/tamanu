@@ -22,6 +22,9 @@ export const RequestLoginTokenView = () => {
     onSuccess: ({ email }) => {
       history.push('/login-submit', { email });
     },
+    onError: error => {
+      setError(error.message);
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {

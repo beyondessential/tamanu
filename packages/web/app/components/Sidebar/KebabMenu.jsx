@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { keyBy, mapValues } from 'lodash';
 import { IconButton, Menu } from '@material-ui/core';
 import { Launch, MoreVert } from '@material-ui/icons';
 import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
@@ -54,10 +53,9 @@ export const KebabMenu = () => {
   const open = Boolean(anchorEl);
   const { data = {} } = useTranslationLanguagesQuery();
   const { getLocalisation } = useLocalisation();
-  const { languageNames = [], languagesInDb = [] } = data;
-  const languageDisplayNames = mapValues(keyBy(languageNames, 'language'), 'text');
+  const { languageDisplayNames, languagesInDb = [] } = data;
 
-  const languageOptions = languagesInDb.map(({ language }) => {
+  const languageOptions = languagesInDb.map(language => {
     return {
       label: languageDisplayNames[language],
       value: language,
