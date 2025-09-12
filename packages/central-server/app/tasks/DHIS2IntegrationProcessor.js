@@ -59,16 +59,18 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     if (!report) {
-      log.warn(`Report: ${reportId} doesn't exist, skipping`);
+      log.warn(`DHIS2IntegrationProcessor: Report doesn't exist, skipping`, { reportId });
       return;
     }
 
     const reportString = `${report.name} (${reportId})`;
 
-    log.info(`Processing report: ${reportString}`);
+    log.info(`DHIS2IntegrationProcessor: Processing report`, { report: reportString });
 
     if (!report.versions || report.versions.length === 0) {
-      log.warn(`Report: ${reportString} has no published version, skipping`);
+      log.warn(`DHIS2IntegrationProcessor: Report has no published version, skipping`, {
+        report: reportString,
+      });
       return;
     }
 
@@ -83,10 +85,13 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     if (httpStatusCode === 200) {
       const { response } = await this.postToDHIS2({ reportCSV });
-      const { importCount } = response;
-      log.info(`Report: ${reportString} sent to DHIS2 successfully`, importCount);
+      log.info(`DHIS2IntegrationProcessor: Report sent to DHIS2 successfully`, {
+        report: reportString,
+        importCount: response.importCount,
+      });
     } else {
-      log.warn(`Dry run failed for report: ${reportString}`, {
+      log.warn(`DHIS2IntegrationProcessor: Dry run failed for report`, {
+        report: reportString,
         message,
         status,
         httpStatusCode,
@@ -105,7 +110,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { host, username, password } = config.integrations.dhis2;
 
     if (!host || !username || !password) {
-      log.warn(`DHIS2 integration not properly configured, skipping`, {
+      log.warn(`DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping`, {
         host: !!host,
         username: !!username,
         password: !!password,
@@ -113,13 +118,16 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    log.info(`Sending ${reportIds.length} reports to DHIS2`);
+    log.info(`DHIS2IntegrationProcessor: Sending ${reportIds.length} reports to DHIS2`);
 
     for (const reportId of reportIds) {
       try {
         await this.processReport(reportId);
       } catch (error) {
-        log.error(`Error processing report: ${reportId}`, { error });
+        log.error(`DHIS2IntegrationProcessor: Error processing report`, {
+          reportId,
+          error,
+        });
       }
     }
   }
