@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -euxo pipefail
+set -euo pipefail
 
 ttregex='stringId="([^"]*)"\s*?fallback="([^"]*)'
 gtregex="getTranslation\(\s*?[\"'](.*?)[\"'],.*?[\"'](.*?)[\"'].*?\)"
@@ -13,7 +13,7 @@ directory=${1-./packages}
 # Get all registered enums if no directory is specified
 teoutput=""
 if [[ "$directory" == "./packages" ]]; then
-  teoutput=$(npx tsx packages/constants/scripts/printTranslatedEnums.ts)
+  teoutput=$(npx --yes tsx packages/constants/scripts/printTranslatedEnums.ts)
 fi
 
 # Get all translated string data from TranslatedText and getTranslatedString.
@@ -29,5 +29,14 @@ if [ -z "$data" ]; then
     exit 1
 fi
 
+duplicates=$(cut -d, -f1 <<< "$data" | sort | uniq -d)
+if [ -n "$duplicates" ]; then
+    echo "$duplicates" >&2
+    echo >&2
+    [[ -n "${CI:-}" ]] && echo -n '::error::' >&2
+    echo -e '\x1b[1;31m!!! Duplicate stringIds found (printed above) !!!\x1b[0m' >&2
+    exit 2
+fi
+
 # Append csv header and print data
-printf "stringId,default\n"languageName","English"\n"countryCode","gb"\n%s" "$data"
+printf 'stringId,default\n"languageName","English"\n"countryCode","gb"\n%s' "$data"
