@@ -22,12 +22,12 @@ export async function fetchWithRetryBackoff(
     const attemptStartMs = Date.now();
     const basicDebugInfo = { url, attempt, maxAttempts };
     try {
-      log.debug(`retries: started`, basicDebugInfo);
+      log.debug(`fetchWithRetryBackoff: started`, basicDebugInfo);
       const result = await fetchOrThrowIfUnavailable(url, config);
       const now = Date.now();
       const attemptMs = now - attemptStartMs;
       const totalMs = now - overallStartMs;
-      log.debug(`retries: succeeded`, {
+      log.debug(`fetchWithRetryBackoff: succeeded`, {
         ...basicDebugInfo,
         time: `${attemptMs}ms`,
         totalTime: `${totalMs}ms`,
@@ -36,7 +36,7 @@ export async function fetchWithRetryBackoff(
     } catch (e) {
       // throw if the error is irrecoverable
       if (!isRecoverable(e)) {
-        log.error(`retries: failed, error was irrecoverable`, {
+        log.error(`fetchWithRetryBackoff: failed, error was irrecoverable`, {
           ...basicDebugInfo,
           stack: e.stack,
         });
@@ -45,7 +45,7 @@ export async function fetchWithRetryBackoff(
 
       // throw if we've exceeded our maximum retries
       if (attempt >= maxAttempts) {
-        log.error(`retries: failed, max retries exceeded`, {
+        log.error(`fetchWithRetryBackoff: failed, max retries exceeded`, {
           ...basicDebugInfo,
           stack: e.stack,
         });
@@ -55,7 +55,7 @@ export async function fetchWithRetryBackoff(
       // otherwise, calculate the next backoff delay
       [secondLastN, lastN] = [lastN, Math.max(lastN + secondLastN, 1)];
       const delay = Math.min(lastN * multiplierMs, maxWaitMs);
-      log.warn(`retries: failed, retrying`, {
+      log.warn(`fetchWithRetryBackoff: failed, retrying`, {
         ...basicDebugInfo,
         retryingIn: `${delay}ms`,
         stack: e.stack,
