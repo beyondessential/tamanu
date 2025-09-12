@@ -27,16 +27,25 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ dryRun });
-    const response = await fetchWithRetryBackoff(`${host}/api/dataValueSets?${params.toString()}`, {
-      fetch,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/csv',
-        Accept: 'application/json',
-        Authorization: `Basic ${authHeader}`,
+    const response = await fetchWithRetryBackoff(
+      `${host}/api/dataValueSets?${params.toString()}`,
+      {
+        fetch,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/csv',
+          Accept: 'application/json',
+          Authorization: `Basic ${authHeader}`,
+        },
+        body: reportCSV,
       },
-      body: reportCSV,
-    });
+      {
+        // TODO: should i alter these or make them configurable?
+        maxAttempts: 3,
+        maxWaitMs: 10000,
+        multiplierMs: 300,
+      },
+    );
 
     return await response.json();
   }
