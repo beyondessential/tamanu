@@ -19,8 +19,29 @@ test.describe('Vitals', () => {
     }
 
     const vitalRenameThisOneValues = {
-      height: '185',
-      weight: '70',
+      height: '1',
+      weight: '2',
+      SBP: '3',
+      DBP: '4',
+      heartRate: '5',
+      respiratoryRate: '6',
+      temperature: '32',
+      spo2: '8',
+      spo2Oxygen: '9',
+      TEW: '10',
+      GCS: '11',
+      painScale: '1',
+      capillaryRefillTime: '2',
+      randomBGL: '14',
+      fastingBGL: '15',
+      ventilatorLitresPerMinute: '16',
+      FIO2: '17',
+      PIP: '18',
+      PEEP: '19',
+      Rate: '20',
+      iTime: '21',
+      tVolume: '22',
+      mVLitresPerMinute: '23',
     }
 
     await vitalsPane.clickRecordVitalsButton();
