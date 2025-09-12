@@ -5,8 +5,9 @@ import { utils } from 'xlsx';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
-const reportJSONToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
+const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -22,20 +23,25 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async postToDHIS2({ reportCSV, dryRun = false }) {
-    const { host, username, password } = config.integrations.dhis2;
+    const { host, username, password, backoff } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     // TODO: This takes a variety of params we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     const params = new URLSearchParams({ dryRun });
-    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/csv',
-        Accept: 'application/json',
-        Authorization: `Basic ${authHeader}`,
+    const response = await fetchWithRetryBackoff(
+      `${host}/api/dataValueSets?${params.toString()}`,
+      {
+        fetch,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/csv',
+          Accept: 'application/json',
+          Authorization: `Basic ${authHeader}`,
+        },
+        body: reportCSV,
       },
-      body: reportCSV,
-    });
+      { ...backoff, log },
+    );
 
     return await response.json();
   }
@@ -76,7 +82,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const reportCSV = reportJSONToCSV(reportData);
+    const reportCSV = arrayOfArraysToCSV(reportData);
 
     const { status, message, httpStatusCode, response } = await this.postToDHIS2({
       reportCSV,
