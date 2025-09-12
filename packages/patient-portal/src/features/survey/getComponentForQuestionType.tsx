@@ -7,6 +7,11 @@ import {
   BaseSelectField,
   BaseMultiselectField,
   ReadOnlyTextField,
+  InstructionField,
+  NumberField,
+  DateField,
+  DateTimeField,
+  NullableBooleanField,
 } from '@tamanu/ui-components';
 import { type Survey } from '@tamanu/shared/schemas/patientPortal';
 
@@ -19,6 +24,15 @@ const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   );
 };
 
+const UnSupportedField = ({ label, type }: { label: string; type: string }) => {
+  return (
+    <Box>
+      {label}
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field is not supported</Box>
+    </Box>
+  );
+};
+
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
@@ -26,26 +40,30 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: (props: any) => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: (props: any) => (
+    <DateTimeField {...props} saveDateAsString />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: (props: any) => (
+    <DateField {...props} saveDateAsString />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
+  [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
+  [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: UnSupportedField,
 };
 
 export function getComponentForQuestionType(type: Survey['surveyType']) {

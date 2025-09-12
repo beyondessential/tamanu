@@ -6,6 +6,7 @@ import {
   MultilineTextField,
   ReadOnlyTextField,
   BaseSelectField,
+  InstructionField,
 } from '@tamanu/ui-components';
 import {
   DateField,
@@ -19,12 +20,6 @@ import {
   ChartInstanceNameField,
   SurveyAnswerField,
 } from '../Field';
-
-const InstructionField = ({ label, helperText }) => (
-  <p>
-    {label} {helperText}
-  </p>
-);
 
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
