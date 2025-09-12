@@ -5,7 +5,7 @@ import { utils } from 'xlsx';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
+import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
 // 408: Request Timeout, 500: Internal Server Error, 502: Bad Gateway, 503: Service Unavailable, 504: Gateway Timeout
 const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for here
@@ -26,13 +26,14 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportData, dryRun = false }, attempt = 1) {
+  async postToDHIS2({ reportData, dryRun = false }) {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ dryRun });
     // TODO: use fetchWithRetryBackoff?
-    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
+    const response = await fetchWithRetryBackoff(`${host}/api/dataValueSets?${params.toString()}`, {
+      fetch,
       method: 'POST',
       headers: {
         'Content-Type': 'application/csv',
@@ -42,20 +43,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportCSV,
     });
 
-    if (response.status === 200) {
-      return response;
-    }
-
-    if (RETRY_STATUS_CODES.includes(response.status) && attempt < RETRY_TIMES) {
-      log.warn(
-        `DHIS2 ${dryRun ? 'dry run' : 'post'} failed (${response.status}), retrying... (${attempt}/${RETRY_TIMES})`,
-      );
-      await sleepAsync(1000 * attempt);
-      return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
-    }
-
     // Return the error response if it has not succeeded within the retry limit
-    return response;
+    return await response.json();
   }
 
   async processReport(reportId) {
