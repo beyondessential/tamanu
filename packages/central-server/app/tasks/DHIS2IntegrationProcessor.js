@@ -23,7 +23,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async postToDHIS2({ reportCSV, dryRun = false }) {
-    const { host, username, password } = config.integrations.dhis2;
+    const { host, username, password, backoff } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ dryRun });
@@ -39,12 +39,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         },
         body: reportCSV,
       },
-      {
-        // TODO: should i alter these or make them configurable?
-        maxAttempts: 3,
-        maxWaitMs: 10000,
-        multiplierMs: 300,
-      },
+      backoff,
     );
 
     return await response.json();
