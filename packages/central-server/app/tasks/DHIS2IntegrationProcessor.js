@@ -27,7 +27,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ dryRun });
-=    const response = await fetchWithRetryBackoff(`${host}/api/dataValueSets?${params.toString()}`, {
+    const response = await fetchWithRetryBackoff(`${host}/api/dataValueSets?${params.toString()}`, {
       fetch,
       method: 'POST',
       headers: {
@@ -38,7 +38,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       body: reportCSV,
     });
 
-    // Return the error response if it has not succeeded within the retry limit
     return await response.json();
   }
 
