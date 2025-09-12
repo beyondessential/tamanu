@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { Route, Redirect, RouteProps } from 'react-router-dom';
 import { Box, Container, CircularProgress } from '@mui/material';
-import { PageHeader } from '@components/PageHeader';
+import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
 import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 
