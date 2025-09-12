@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-
+import { DeleteOutlined } from '@material-ui/icons';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
-import { useLocationAssignmentMutation } from '../../../api/mutations';
+import {
+  useLocationAssignmentMutation,
+  useLocationAssignmentDeleteMutation,
+} from '../../../api/mutations';
+import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
-import { FORM_STATUSES, FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
-import { FormSubmitCancelRow } from '../../ButtonRow';
+import { notifyError } from '../../../utils';
+import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
+import { Button } from '../../Button';
 import { Drawer } from '../../Drawer';
 import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
 import { FormGrid } from '../../FormGrid';
@@ -18,6 +23,7 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import { BOOKING_SLOT_TYPES } from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
+import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -41,9 +47,32 @@ const StyledFormSubmitCancelRow = styled(FormSubmitCancelRow)`
   }
 `;
 
+const StyledButtonRow = styled(ButtonRow)`
+  justify-content: space-between;
+  button {
+    padding: 10px 16px;
+    font-size: 12px;
+    height: 36px;
+    min-height: 36px;
+    min-width: 0px;
+    &:not(:first-child) {
+      margin-left: 8px;
+    }
+  }
+`;
+
+const StyledButton = styled(Button)`
+  padding: 10px 16px;
+  font-size: 12px;
+  height: 36px;
+  min-height: 36px;
+  min-width: 0px;
+`;
+
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
   const isViewing = Boolean(initialValues?.id);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Reset edit mode when drawer closes or when switching to a different assignment
@@ -60,6 +89,19 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
 
   const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation();
+
+  const { mutateAsync: deleteAssignment } = useLocationAssignmentDeleteMutation({
+    onError: error => {
+      notifyError(
+        <TranslatedText
+          stringId="locationAssignment.notification.delete.error"
+          fallback="Failed to delete assignment"
+          replacements={{ error: error.message }}
+          data-testid="translatedtext-delete-error"
+        />,
+      );
+    },
+  });
 
   const handleSubmit = async ({ userId, locationId, date, startTime, endTime }, { resetForm }) => {
     mutateAssignment(
@@ -78,6 +120,20 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         },
       },
     );
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async ({ deleteFuture }) => {
+    await deleteAssignment({ id: initialValues.id, deleteFuture });
+    setIsDeleteModalOpen(false);
+    onClose();
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
   };
 
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
@@ -262,49 +318,41 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
-          <StyledFormSubmitCancelRow
-            onCancel={
-              isViewing && !isEditMode
-                ? undefined
-                : isEditMode
-                ? () => setIsEditMode(false)
-                : onClose
-            }
-            onConfirm={isViewing && !isEditMode ? onClose : undefined}
-            confirmText={
-              isViewing && !isEditMode ? (
+          {isViewing && !isEditMode ? (
+            <StyledButtonRow>
+              <StyledButton
+                variant="outlined"
+                onClick={handleDeleteClick}
+                data-testid="delete-button"
+              >
+                <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
+                <TranslatedText
+                  stringId="general.action.delete"
+                  fallback="Delete"
+                  data-testid="translatedtext-delete"
+                />
+              </StyledButton>
+              <StyledButton onClick={onClose} data-testid="close-button">
                 <TranslatedText
                   stringId="general.action.close"
                   fallback="Close"
                   data-testid="translatedtext-close"
                 />
-              ) : isEditMode ? (
-                <TranslatedText
-                  stringId="general.action.confirm"
-                  fallback="Confirm"
-                  data-testid="translatedtext-confirm"
-                />
-              ) : (
+              </StyledButton>
+            </StyledButtonRow>
+          ) : (
+            <StyledFormSubmitCancelRow
+              onCancel={onClose}
+              confirmText={
                 <TranslatedText
                   stringId="general.action.saveChanges"
                   fallback="Save changes"
                   data-testid="translatedtext-saveChanges"
                 />
-              )
-            }
-            cancelText={
-              isEditMode ? (
-                <TranslatedText
-                  stringId="general.action.cancel"
-                  fallback="Cancel"
-                  data-testid="translatedtext-cancel"
-                />
-              ) : (
-                undefined
-              )
-            }
-            data-testid="formsubmitcancelrow-bj5z"
-          />
+              }
+              data-testid="formsubmitcancelrow-bj5z"
+            />
+          )}
         </FormGrid>
       </Drawer>
     );
@@ -322,6 +370,13 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         validationSchema={validationSchema}
         style={formStyles}
         data-testid="form-rwgy"
+      />
+      <DeleteLocationAssignmentModal
+        open={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        assignment={initialValues}
+        data-testid="delete-assignment-modal"
       />
     </>
   );
