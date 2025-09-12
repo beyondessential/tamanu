@@ -39,7 +39,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         },
         body: reportCSV,
       },
-      backoff,
+      { ...backoff, log },
     );
 
     return await response.json();
