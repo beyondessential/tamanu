@@ -105,7 +105,7 @@ export const usePatientRoutes = () => {
                     title: (
                       <TranslatedText
                         stringId="encounter.mar.title"
-                        fallback="Medication Admin Record"
+                        fallback="Medication admin record"
                       />
                     ),
                     subPaths: [
