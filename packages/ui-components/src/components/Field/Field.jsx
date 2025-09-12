@@ -94,7 +94,7 @@ const StyledToolTip = styled(ThemedTooltip)`
   }
 `;
 export const FieldWithTooltip = ({
-  tooltipText,
+  $tooltipText,
   disabledTooltipText,
   muiTooltipProps,
   ...props
@@ -120,11 +120,11 @@ export const FieldWithTooltip = ({
   return (
     <MuiBox position="relative" data-testid="muibox-8z4o">
       <Field {...props} data-testid="field-tybt" />
-      {tooltipText && (
+      {$tooltipText && (
         <FormTooltip
           arrow
           placement="top"
-          title={tooltipText}
+          title={$tooltipText}
           {...muiTooltipProps}
           data-testid="formtooltip-lztn"
         />

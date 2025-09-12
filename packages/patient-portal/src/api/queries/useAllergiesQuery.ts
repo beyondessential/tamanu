@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  type Allergy,
-} from '@tamanu/shared/schemas/patientPortal/responses/allergy.schema';
+import { type Allergy } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useAllergiesQuery = () => {

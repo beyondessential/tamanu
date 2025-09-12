@@ -28,9 +28,7 @@ export const getOutstandingSurveys = asyncHandler(async (req, res) => {
     ],
   });
 
-  return res.send({
-    data: outstandingSurveys.map(survey =>
-      PortalSurveyAssignmentSchema.parse(survey.forResponse()),
-    ),
-  });
+  return res.send(
+    outstandingSurveys.map(survey => PortalSurveyAssignmentSchema.parse(survey.forResponse())),
+  );
 });

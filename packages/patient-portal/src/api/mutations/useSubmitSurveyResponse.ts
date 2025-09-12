@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../useApi';
-import { type CreateSurveyResponseRequest } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
+import { type CreateSurveyResponseRequest } from '@tamanu/shared/schemas/patientPortal';
 
 export const useSubmitSurveyResponse = (
   assignmentId: string,

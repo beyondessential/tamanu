@@ -38,9 +38,7 @@ export const getOngoingPrescriptions = asyncHandler(async (req, res) => {
     ],
   });
 
-  res.send({
-    data: prescriptions.map(prescription =>
-      OngoingPrescriptionSchema.parse(prescription.forResponse()),
-    ),
-  });
+  res.send(
+    prescriptions.map(prescription => OngoingPrescriptionSchema.parse(prescription.forResponse())),
+  );
 });

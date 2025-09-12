@@ -24,7 +24,7 @@ export const getOngoingConditions = asyncHandler(async (req, res) => {
     ],
   });
 
-  res.send({
-    data: ongoingConditions.map(condition => OngoingConditionSchema.parse(condition.forResponse())),
-  });
+  res.send(
+    ongoingConditions.map(condition => OngoingConditionSchema.parse(condition.forResponse())),
+  );
 });

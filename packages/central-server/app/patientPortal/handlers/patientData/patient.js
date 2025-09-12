@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
-
-import { PatientSchema } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { PatientWithAdditionalDataSchema } from '@tamanu/shared/schemas/patientPortal';
 
 export const getPatient = asyncHandler(async (req, res) => {
   const { patient } = req;
@@ -9,7 +8,10 @@ export const getPatient = asyncHandler(async (req, res) => {
     recordId: patient.id,
     model: req.models.Patient,
   });
-  res.send({
-    data: PatientSchema.parse({ ...patient.forResponse(), village: village?.forResponse() }),
-  });
+  res.send(
+    PatientWithAdditionalDataSchema.parse({
+      ...patient.forResponse(),
+      village: village?.forResponse(),
+    }),
+  );
 });

@@ -15,7 +15,7 @@ export const App = () => {
     <Router>
       <Switch>
         <PrivateRoute path="/" exact component={DashboardView} />
-        <PrivateRoute path="/survey" exact component={SurveyView} />
+        <PrivateRoute path="/survey/:surveyId" exact component={SurveyView} />
         <PublicRoute path="/login" component={RequestLoginTokenView} />
         <PublicRoute path="/login-submit" component={LoginView} />
         <PublicRoute path="/register/:token" component={RegistrationView} />

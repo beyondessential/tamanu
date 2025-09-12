@@ -15,7 +15,7 @@ export const getUpcomingVaccinations = asyncHandler(async (req, res) => {
     SELECT
       -- Scheduled vaccine fields
       sv.id as "scheduledVaccine.id",
-      sv.category as "scheduledVaccine.category", 
+      sv.category as "scheduledVaccine.category",
       sv.label as "scheduledVaccine.label",
       sv.dose_label as "scheduledVaccine.doseLabel",
       sv.weeks_from_birth_due as "scheduledVaccine.weeksFromBirthDue",
@@ -82,7 +82,5 @@ export const getAdministeredVaccines = asyncHandler(async (req, res) => {
 
   const administeredVaccines = (await patient.getAdministeredVaccines()).data;
 
-  res.send({
-    data: administeredVaccines.map(vaccine => AdministeredVaccineSchema.parse(vaccine)),
-  });
+  res.send(administeredVaccines.map(vaccine => AdministeredVaccineSchema.parse(vaccine)));
 });
