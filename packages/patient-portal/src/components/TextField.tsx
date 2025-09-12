@@ -19,6 +19,11 @@ const StyledTextField = styled(MuiTextField)(({ theme }) => ({
   'label + &': {
     marginTop: theme.spacing(2),
   },
+  '& .MuiInputBase-input:-webkit-autofill': {
+    WebkitBoxShadow: '0 0 0 1000px white inset',
+    WebkitTextFillColor: theme.palette.text.primary,
+    caretColor: theme.palette.text.primary,
+  },
   '& .MuiInputBase-input': {
     padding: '12.5px 10px',
   },
