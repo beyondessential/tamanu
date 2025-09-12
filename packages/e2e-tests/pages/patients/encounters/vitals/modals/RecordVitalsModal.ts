@@ -6,6 +6,7 @@ import { getVitalsRecordedDates } from '@utils/apiHelpers';
 
 export class RecordVitalsModal extends BasePatientModal {
   readonly modalHeading: Locator;
+  readonly modalContent: Locator;
   readonly heightField: Locator;
   readonly confirmButton: Locator;
   readonly dateField: Locator;
@@ -39,6 +40,7 @@ export class RecordVitalsModal extends BasePatientModal {
   constructor(page: Page) {
     super(page);
     this.modalHeading = this.page.getByTestId('modaltitle-ojhf');
+    this.modalContent = this.page.getByTestId('modalcontent-bk4w');
     this.confirmButton = this.page.getByTestId('formsubmitcancelrow-vzf5-confirmButton');
     this.heightField = this.page.locator('input[name="pde-PatientVitalsHeight"]');
     this.dateField = this.page.locator('input[type="datetime-local"]');
@@ -145,7 +147,7 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     for (const { value, locator } of dropdownFieldMappings) {
         if (value) {
             await locator.click();
-            await this.page.getByText(value).click();
+            await this.modalContent.getByText(value).click();
         }
     }
 
@@ -167,7 +169,7 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     await this.confirmButton.click();
 
     //Return all the vitals associated with the encounter - the most recent one will be the vital we just recorded
-    await this.page.waitForTimeout(100);
+    await this.page.waitForTimeout(1000);
     const locatorKeys = await getVitalsRecordedDates(api, encounterId);
     const locatorKey = locatorKeys[locatorKeys.length - 1];
 

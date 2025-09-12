@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 
 export class VitalsPane extends BasePatientPage {
   recordVitalsModal?: RecordVitalsModal;
+  encounterId?: string;
   readonly recordVitalsButton: Locator;
   readonly dateColumnHeaderPrefix: string;
   constructor(page: Page) {
