@@ -1,7 +1,7 @@
 {
   "name": "@tamanu/web-frontend",
   "productName": "Tamanu",
-  "version": "2.39.0",
+  "version": "2.41.0",
   "description": "Tamanu Web application",
   "private": true,
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -40,12 +40,14 @@
     "rimraf": "^6.0.1",
     "sinon": "^6.1.4",
     "storybook": "^7.6.20",
+    "vite-plugin-svgr": "^4.3.0",
     "vitest": "^2.1.8"
   },
   "dependencies": {
     "buffer": "^6.0.3",
     "@bugsnag/js": "^8.0.0",
     "@bugsnag/plugin-react": "^8.0.0",
+    "@casl/ability": "^6.7.1",
     "@emotion/core": "^10.0.9",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",

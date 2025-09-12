@@ -19,6 +19,28 @@ env:
     packages/*/node_modules
 
 jobs:
+  node_version:
+    name: Check node version consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - name: Check package.json against .node-version
+        run: |
+          json=$(jq -r .dependencies.node package.json | cut -c2-)
+          file=$(cat .node-version | cut -c2-)
+          echo "Node.js in package.json:  $json"
+          echo "Node.js in .node-version: $file"
+          test "$json" = "$file"
+      - name: Check dockerfile against .node-version
+        run: |
+          file=$(cat .node-version | cut -c2- | cut -d. -f1)
+          dckr=$(grep -oP '(?<=^FROM node:)\d+' Dockerfile)
+          echo "Node.js major in Dockerfile:    $dckr"
+          echo "Node.js major in .node-version: $file"
+          test "$dckr" = "$file"
+
   node_modules_cache:
     name: Cache node modules
     runs-on: ubuntu-latest
@@ -28,7 +50,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         id: cache
@@ -78,7 +100,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -113,7 +135,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -133,7 +155,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -159,7 +181,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -193,7 +215,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -220,7 +242,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -242,7 +264,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -275,7 +297,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -294,7 +316,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -348,7 +370,7 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: '.node-version'
           cache: npm
       - uses: actions/cache/restore@v3
         with:
@@ -368,11 +390,26 @@ jobs:
         with:
           config: .typos.toml
 
+  translations:
+    name: Check for duplicates in translation stringIds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: ripgrep
+      - run: .github/scripts/scrape-translations.sh
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
     name: Tests pass
     needs:
+      - node_version
       - test
       - build-all
       - lint
@@ -383,6 +420,7 @@ jobs:
       - dbt-model
       - dbt-todos
       - typos
+      - translations
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1

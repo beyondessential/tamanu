@@ -65,7 +65,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
           .translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
-              fallback="clinician"
+              fallback="Clinician"
               data-testid="translatedtext-ylrt"
             />,
           ),
