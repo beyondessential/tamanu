@@ -25,6 +25,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
+    // TODO: This takes a variety of params we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     const params = new URLSearchParams({ dryRun });
     const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
       method: 'POST',
@@ -78,7 +79,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { status, message, httpStatusCode, response } = await this.postToDHIS2({
       reportCSV,
       dryRun: true,
-      // TODO: This takes a variety of settings we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     });
 
     if (httpStatusCode === 200) {
