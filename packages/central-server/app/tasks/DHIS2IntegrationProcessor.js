@@ -120,6 +120,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     log.info(`Sending ${reportIds.length} reports to DHIS2`);
 
-    await Promise.all(reportIds.map(reportId => this.processReport(reportId)));
+    for (const reportId of reportIds) {
+      try {
+        await this.processReport(reportId);
+      } catch (error) {
+        log.error(`Error processing report: ${reportId}`, { error });
+      }
+    }
   }
 }
