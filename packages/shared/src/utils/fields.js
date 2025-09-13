@@ -12,6 +12,10 @@ export function getStringValue(type, value) {
   switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
       return value.toFixed(1);
+    case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      // Both photos and signatures are stored as attachment IDs
+      return value;
     default:
       return `${value}`;
   }
