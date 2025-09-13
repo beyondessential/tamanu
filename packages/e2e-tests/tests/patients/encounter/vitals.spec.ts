@@ -127,4 +127,39 @@ test.describe('Vitals', () => {
     }
     await vitalsPane.assertVitals(vitalTwo);
   });
+
+  test('Calculated questions are disabled and can only be answered based on the answer to other questions', async ({vitalsPane, api}) => {
+    const inputData = {
+      height: '185',
+      weight: '70',
+      SBP: '20',
+      DBP: '5',
+    }
+
+    const expectedBMI = '20.5';
+    const expectedMAP = '10';
+
+    await vitalsPane.clickRecordVitalsButton();
+
+    // Calculated questions are disabled and data cannot be entered
+    await expect(vitalsPane.recordVitalsModal?.BMIField!).toBeDisabled();
+    await expect(vitalsPane.recordVitalsModal?.MAPField!).toBeDisabled();
+
+    // Answering height and weight will auto calculate the BMI
+    await vitalsPane.recordVitalsModal?.confirmBMIAutoCalculation(inputData.height, inputData.weight, expectedBMI);
+
+    // Answering SBP and DBP will auto calculate the MAP
+    await vitalsPane.recordVitalsModal?.confirmMAPAutoCalculation(inputData.SBP, inputData.DBP, expectedMAP);
+
+    // Calculated questions are not editable after auto calculation
+    await expect(vitalsPane.recordVitalsModal?.BMIField!).toBeDisabled();
+    await expect(vitalsPane.recordVitalsModal?.MAPField!).toBeDisabled();
+
+    // Create a vital with calculated questions answered and confirm they are saved in the table
+    const vital = await vitalsPane.recordVitalsModal?.recordVitals(api, vitalsPane.encounterId!, inputData);
+    if (!vital) {
+      throw new Error('Vital failed to be recorded');
+    }
+    await vitalsPane.assertVitals(vital);
+  });
 });

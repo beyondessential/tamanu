@@ -1,4 +1,4 @@
-import { APIRequestContext, Locator, Page } from '@playwright/test';
+import { APIRequestContext, Locator, Page, expect } from '@playwright/test';
 
 import { BasePatientModal } from '../../../PatientDetailsPage/modals/BasePatientModal';
 import { Vitals } from '../../../../../types/vitals/Vitals';
@@ -36,6 +36,7 @@ export class RecordVitalsModal extends BasePatientModal {
   readonly iTimeField: Locator;
   readonly tVolumeField: Locator;
   readonly mVLitresPerMinuteField: Locator;
+  readonly closeModal: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -70,6 +71,7 @@ export class RecordVitalsModal extends BasePatientModal {
     this.iTimeField = this.page.locator('input[name="pde-PatientVitalsltime"]');
     this.tVolumeField = this.page.locator('input[name="pde-PatientVitalsTVol"]');
     this.mVLitresPerMinuteField = this.page.locator('input[name="pde-PatientVitalsMV"]');
+    this.closeModal = this.page.getByTestId('iconbutton-eull');
     }
 
 async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) {
@@ -158,12 +160,18 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     let calculatedBMI: string | undefined;
     if (height && weight) {
         calculatedBMI = await this.BMIField.evaluate((el: HTMLInputElement) => el.value);
+        if (!calculatedBMI || calculatedBMI.trim() === '') {
+            throw new Error('BMI field is empty but height and weight are provided');
+        }
     }
 
     // Calculate MAP if SBP and DBP are provided
     let calculatedMAP: string | undefined;
     if (SBP && DBP) {
         calculatedMAP = await this.MAPField.evaluate((el: HTMLInputElement) => el.value);
+        if (!calculatedMAP || calculatedMAP.trim() === '') {
+            throw new Error('MAP field is empty but SBP and DBP are provided');
+        }
     }
 
     await this.confirmButton.click();
@@ -204,5 +212,25 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
         tVolume: tVolume,
         mVLitresPerMinute: mVLitresPerMinute,
     };
+}
+
+async confirmBMIAutoCalculation(height: string, weight: string, expectedBMI: string) {
+    await this.heightField.fill(height);
+    await this.weightField.fill(weight);
+    const BMI = await this.BMIField.evaluate((el: HTMLInputElement) => el.value);
+    if (!BMI) {
+      throw new Error('BMI field is empty, it should have been auto calculated');
+    }
+    expect(BMI).toBe(expectedBMI);
+}
+
+async confirmMAPAutoCalculation(SBP: string, DBP: string, expectedMAP: string) {
+    await this.SBPField.fill(SBP);
+    await this.DBPField.fill(DBP);
+    const MAP = await this.MAPField.evaluate((el: HTMLInputElement) => el.value);
+    if (!MAP) {
+    throw new Error('MAP field is empty, it should have been auto calculated');
+    }
+    expect(MAP).toBe(expectedMAP);
 }
 }
