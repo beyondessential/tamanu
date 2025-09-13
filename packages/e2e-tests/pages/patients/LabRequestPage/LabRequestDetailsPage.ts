@@ -18,7 +18,7 @@ export class LabRequestDetailsPage {
   readonly departmentValue: Locator;
   
   // Action buttons
-  readonly cancelButton: Locator;
+  readonly cancelRequestButton: Locator;
   readonly threeDotsButton: Locator;
   readonly statusThreeDotsbutton: Locator;
   readonly sampleCollectedThreeDotsbutton: Locator;
@@ -79,17 +79,17 @@ export class LabRequestDetailsPage {
     this.departmentValue = page.getByTestId('cardvalue-l8vk');
     
     // Action buttons
-    this.cancelButton = page.getByTestId('item-8ybn-1');
+    this.cancelRequestButton = page.getByTestId('item-8ybn-1').getByText('Cancel request');
     this.threeDotsButton = page.getByTestId('box-qy3e').getByTestId('openbutton-d1ec');
     this.statusThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Status' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
     this.changeStatusButton = page.getByTestId('labelcontainer-mjji');
-    this.viewStatusLogsButton = page.getByTestId('item-8ybn-1');
+    this.viewStatusLogsButton = page.getByTestId('item-8ybn-1').getByText('View status log');
     this.sampleCollectedThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Sample collected' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
     this.laboratoryThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Laboratory' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
     this.priorityThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Priority' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
-    this.changeLaboratoryButton = page.getByTestId('item-8ybn-0');
-    this.changePriorityButton = page.getByTestId('item-8ybn-0');
-    this.recordSampleButton = page.getByTestId('item-8ybn-0');
+    this.changeLaboratoryButton = page.getByTestId('item-8ybn-0').getByText('Change laboratory');
+    this.changePriorityButton = page.getByTestId('item-8ybn-0').getByText('Change priority');
+    this.recordSampleButton = page.getByTestId('item-8ybn-0').getByText('Record sample');
     this.enterResultsButton = page.getByTestId('button-oep6');
     this.backButton = page.getByTestId('backbutton-1n40');
     // Notes section

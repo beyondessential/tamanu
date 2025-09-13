@@ -466,9 +466,8 @@ test.describe('Lab Request Tests', () => {
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.waitForPageToLoad();
       await labRequestDetailsPage.threeDotsButton.click();
-      await labRequestDetailsPage.cancelButton.click();
+      await labRequestDetailsPage.cancelRequestButton.click();
       await labRequestDetailsPage.reasonForCancellationSelect.click();
-      //selecting duplicate reason by pressing arrow down and enter due not being able to inspect the options
       await page.getByText('Duplicate').click();
       await labRequestDetailsPage.cancelModalConfirmButton.click();
       const notesAfterCancel = await labRequestDetailsPage.notesList
@@ -510,6 +509,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
       await labRequestDetailsPage.recordSampleModal.recordSampleConfirmButton.click();
+      await labRequestDetailsPage.recordSampleModal.waitForSampleCollectedModalToClose();
       expect(await labRequestDetailsPage.getSampleCollectedDate()).toBe(expectedDateTime);
       expect(await labRequestDetailsPage.getStatus()).toBe(LAB_REQUEST_STATUS.RECEPTION_PENDING);
       await labRequestDetailsPage.statusThreeDotsbutton.click();
@@ -566,7 +566,6 @@ test.describe('Lab Request Tests', () => {
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.enterResultsButton.click();
       await labRequestDetailsPage.enterResultsModal.waitForModalToLoad();
-      await page.waitForTimeout(1000);
       await labRequestDetailsPage.enterResultsModal.resultsFirstRowIcon.click();
       await page.getByTestId('styledfield-h653-option').getByText('Positive').click();
       const result = await labRequestDetailsPage.enterResultsModal.resultsFirstRow.textContent();
