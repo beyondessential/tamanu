@@ -205,7 +205,8 @@ test.describe('Vaccines', () => {
       specificScheduleOption: '10 weeks',
     });
 
-    const recordVaccineModal = await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    const recordVaccineModal =
+      await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
     if (!recordVaccineModal) {
       throw new Error('Record vaccine modal failed to open');
     }

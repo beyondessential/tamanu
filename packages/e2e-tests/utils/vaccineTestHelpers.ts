@@ -252,10 +252,7 @@ export async function assertEditedVaccine(
  * @param unitsToAdd - The number of units to add to the date
  * @returns The expected due date in the format of "MM/dd/yyyy"
  */
-export async function expectedDueDateWeek(
-  date: Date,
-  weeksToAdd: number,
-) {
+export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
   const dueDate = addWeeks(date, weeksToAdd);
 
   // Extract just the date components to avoid timezone issues
