@@ -132,12 +132,12 @@ imagingRequest.get(
           association: 'notes',
         },
       ],
-    });
+    }); 
     if (!imagingRequestObject) throw new NotFoundError();
 
     await req.audit.access({
       recordId: imagingRequestObject.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: ImagingRequest,
     });
 

@@ -6,5 +6,5 @@ html {
 /* Monospaced font for sql editor */
 @font-face {
   font-family: 'Fira Code';
-  src: url(fonts/FiraCode-Medium.ttf) format('truetype');
+  src: url(shared/fonts/FiraCode-Medium.ttf) format('truetype');
 }

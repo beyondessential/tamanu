@@ -23,7 +23,7 @@ patientBirthData.get(
     if (birthDataRecord) {
       await req.audit.access({
         recordId: birthDataRecord.id,
-        params,
+        frontEndContext: params,
         model: models.PatientBirthData,
         facilityId,
       });
