@@ -11,32 +11,24 @@ interface ReferenceDataFieldProps extends BaseInputProps {
   disabled: boolean;
 }
 
-export const ReferenceDataField = React.memo(({
-  value,
-  onChange,
-  referenceDataType,
-}: ReferenceDataFieldProps): JSX.Element => {
-  const { models } = useBackend();
-  const [dropdownItems, setDropdownItems] = useState([]);
+export const ReferenceDataField = React.memo(
+  ({ value, onChange, referenceDataType }: ReferenceDataFieldProps): JSX.Element => {
+    const { models } = useBackend();
+    const [dropdownItems, setDropdownItems] = useState([]);
 
-  useEffect(() => {
-    (async (): Promise<void> => {
-      const repo = models.ReferenceData.getRepository();
-      const data = await repo.find({
-        where: {
-          type: referenceDataType,
-        },
-      });
+    useEffect(() => {
+      (async (): Promise<void> => {
+        const repo = models.ReferenceData.getRepository();
+        const data = await repo.find({
+          where: {
+            type: referenceDataType,
+          },
+        });
 
-      setDropdownItems(data.map(item => ({ label: item.name, value: item.id })));
-    })();
-  }, []);
+        setDropdownItems(data.map(item => ({ label: item.name, value: item.id })));
+      })();
+    }, [models.ReferenceData, referenceDataType]);
 
-  return (
-    <Dropdown
-      value={value}
-      onChange={onChange}
-      options={dropdownItems}
-    />
-  );
-});
+    return <Dropdown value={value} onChange={onChange} options={dropdownItems} />;
+  },
+);

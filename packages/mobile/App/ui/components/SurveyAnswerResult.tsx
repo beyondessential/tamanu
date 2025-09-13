@@ -20,7 +20,9 @@ export const SurveyAnswerResult = ({ question, answer }) => {
         setSourceQuestion(sourceDataElement.surveyScreenComponent);
       }
     })();
-  }, []);
+  }, [answer, models.ProgramDataElement, question.config]);
 
-  return <View>{sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}</View>;
+  return (
+    <View>{sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}</View>
+  );
 };

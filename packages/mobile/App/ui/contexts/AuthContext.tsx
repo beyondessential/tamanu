@@ -70,15 +70,21 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const generateAbilityForUser = (user: User): PureAbility => {
-    return buildAbility(user, backend.permissions.data);
-  };
+  const generateAbilityForUser = useCallback(
+    (user: User): PureAbility => {
+      return buildAbility(user, backend.permissions.data);
+    },
+    [backend.permissions.data],
+  );
 
-  const setContextUserAndAbility = (userData): void => {
-    setUserData(userData);
-    const abilityObject = generateAbilityForUser(userData);
-    setAbility(abilityObject);
-  };
+  const setContextUserAndAbility = useCallback(
+    (userData): void => {
+      setUserData(userData);
+      const abilityObject = generateAbilityForUser(userData);
+      setAbility(abilityObject);
+    },
+    [generateAbilityForUser],
+  );
 
   const signInAs = (authenticatedUser): void => {
     // Destructure the local password out of the user object - it only needs to be in
@@ -130,35 +136,38 @@ const Provider = ({
     }
   };
 
-  const signOut = (): void => {
+  const signOut = useCallback((): void => {
     backend.stopSyncService(); // we deliberately don't await this
     signOutUser();
     signOutClient(false);
-  };
+  }, [backend, signOutUser, signOutClient]);
 
   // Sign out UI while preserving sync service
-  const signOutClient = (signedOutFromInactivity: boolean): void => {
-    setSignedInStatus(false);
-    const currentRoute = navRef.current?.getCurrentRoute().name;
-    const signUpRoutes = [
-      Routes.SignUpStack.Index,
-      Routes.SignUpStack.Intro,
-      Routes.SignUpStack.SignIn,
-    ];
-    if (!signUpRoutes.includes(currentRoute)) {
-      navRef.current?.reset({
-        index: 0,
-        routes: [
-          {
-            name: Routes.SignUpStack.Index,
-            params: {
-              signedOutFromInactivity,
+  const signOutClient = useCallback(
+    (signedOutFromInactivity: boolean): void => {
+      setSignedInStatus(false);
+      const currentRoute = navRef.current?.getCurrentRoute().name;
+      const signUpRoutes = [
+        Routes.SignUpStack.Index,
+        Routes.SignUpStack.Intro,
+        Routes.SignUpStack.SignIn,
+      ];
+      if (!signUpRoutes.includes(currentRoute)) {
+        navRef.current?.reset({
+          index: 0,
+          routes: [
+            {
+              name: Routes.SignUpStack.Index,
+              params: {
+                signedOutFromInactivity,
+              },
             },
-          },
-        ],
-      });
-    }
-  };
+          ],
+        });
+      }
+    },
+    [navRef, setSignedInStatus],
+  );
 
   const requestResetPassword = async (params: ResetPasswordFormModel): Promise<void> => {
     await backend.auth.requestResetPassword(params);
@@ -176,14 +185,14 @@ const Provider = ({
     } else {
       backend.auth.endSession();
     }
-  }, [backend, props.token, props.user]);
+  }, [backend, props.token, props.user, props.refreshToken]);
 
   // sets state again after launching the app
   useEffect(() => {
     if (props.token && props.user) {
       setContextUserAndAbility(props.user);
     }
-  }, []);
+  }, [props.token, props.user, setContextUserAndAbility]);
 
   // Sign user out if an auth error was thrown
   // except if user is trying to reconnect with password from modal interface
@@ -201,7 +210,7 @@ const Provider = ({
     return () => {
       backend.auth.emitter.off('authError', errHandler);
     };
-  }, [backend, props.token, preventSignOutOnFailure]);
+  }, [backend, props.token, preventSignOutOnFailure, signOut]);
 
   return (
     <AuthContext.Provider

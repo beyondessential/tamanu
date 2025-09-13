@@ -108,17 +108,17 @@ export const Dropdown = React.memo(
       return Array.isArray(value) ? value : [value];
     });
 
-      useEffect(() => {
-        if (Array.isArray(value)) {
-          if (!isEqual(value, selectedItems)) {
-            setSelectedItems(value);
-          }
-        } else {
-          if (value !== selectedItems[0]) {
-            setSelectedItems([value]);
-          }
+    useEffect(() => {
+      if (Array.isArray(value)) {
+        if (!isEqual(value, selectedItems)) {
+          setSelectedItems(value);
         }
-      }, [value]);
+      } else {
+        if (value !== selectedItems[0]) {
+          setSelectedItems([value]);
+        }
+      }
+    }, [value, selectedItems]);
 
     const componentRef = useRef(null);
     const { getTranslation } = useTranslation();

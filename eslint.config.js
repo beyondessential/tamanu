@@ -73,17 +73,6 @@ export default [
     },
   },
   {
-    // mobile rule exclusions (as warnings, until we fix them)
-    files: [`packages/mobile/**/*.${TS_EXTS}`],
-    rules: {
-      'no-constructor-return': 'warn',
-      'no-promise-executor-return': 'warn',
-      'require-atomic-updates': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
-      'react/jsx-key': 'warn',
-    },
-  },
-  {
     files: [`**/*.${TS_EXTS}`],
     rules: {
       // Disable rules that are incompatible with or better handled by TypeScript

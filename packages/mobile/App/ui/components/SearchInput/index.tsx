@@ -29,11 +29,11 @@ export const SearchInput: FC<SearchInputProps> = ({
 
   const onFocus = useCallback(() => {
     setFocus(true);
-  }, [focus]);
+  }, []);
 
   const onBlur = useCallback(() => {
     setFocus(false);
-  }, [focus]);
+  }, []);
   return (
     <RowView
       background={theme.colors.WHITE}

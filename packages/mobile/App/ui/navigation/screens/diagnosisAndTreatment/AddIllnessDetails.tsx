@@ -41,7 +41,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
   const navigateToHistory = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
-  }, []);
+  }, [navigation]);
 
   const user = useSelector(authUserSelector);
 
@@ -75,7 +75,14 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
 
       navigateToHistory();
     },
-    [],
+    [
+      models.Diagnosis,
+      models.Encounter,
+      models.Note,
+      navigateToHistory,
+      selectedPatient.id,
+      user.id,
+    ],
   );
 
   const diagnosisSuggester = new Suggester({

@@ -28,34 +28,40 @@ export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePas
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
-  }, []);
+  }, [navigation]);
 
   const onNavigateToResetPassword = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
+  }, [navigation]);
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {
     setModalVisible(isVisible);
   }, []);
 
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
-    onChangeModalVisibility(true);
-  }, []);
+  const setModalError = useCallback(
+    (message: string) => {
+      setErrorMessage(message);
+      onChangeModalVisibility(true);
+    },
+    [onChangeModalVisibility],
+  );
 
-  const onSubmitForm = useCallback(async (values: ChangePasswordFormModel) => {
-    try {
-      if (!values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        setModalError('Please select a server to connect to');
-        return;
+  const onSubmitForm = useCallback(
+    async (values: ChangePasswordFormModel) => {
+      try {
+        if (!values.server) {
+          // TODO it would be better to properly respond to form validation and show the error
+          setModalError('Please select a server to connect to');
+          return;
+        }
+        await authCtx.changePassword(values);
+        setSuccess(true);
+      } catch (error) {
+        setModalError(error.message);
       }
-      await authCtx.changePassword(values);
-      setSuccess(true);
-    } catch (error) {
-      setModalError(error.message);
-    }
-  }, []);
+    },
+    [authCtx, setModalError],
+  );
 
   const renderForm = (): ReactElement => (
     <>

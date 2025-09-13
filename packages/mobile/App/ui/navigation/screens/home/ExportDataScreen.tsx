@@ -30,7 +30,7 @@ const formInitialValues = {
 export const ExportDataScreen = ({ navigation }: ExportDataScreenProps): ReactElement => {
   const navigationBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const addEmailField = useCallback(() => {
     console.log('add Field');
@@ -106,7 +106,7 @@ export const ExportDataScreen = ({ navigation }: ExportDataScreenProps): ReactEl
         </CenterView>
       </StyledSafeAreaView>
     ),
-    [],
+    [addEmailField],
   );
 
   const onSubmitForm = useCallback(values => {

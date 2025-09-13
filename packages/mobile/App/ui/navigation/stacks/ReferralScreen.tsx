@@ -20,7 +20,7 @@ export const ReferralScreen = ({ navigation }: BaseAppProps): ReactElement => {
   );
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   return (
     <ErrorBoundary>

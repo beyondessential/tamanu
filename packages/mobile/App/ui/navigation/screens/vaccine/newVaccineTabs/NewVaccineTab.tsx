@@ -51,7 +51,7 @@ export const NewVaccineTabComponent = ({
 
   const onPressCancel = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const user = useSelector(authUserSelector);
 
@@ -126,8 +126,9 @@ export const NewVaccineTabComponent = ({
         }
       }
 
-      const updatedVaccine =
-        await models.AdministeredVaccine.createAndSaveOne<AdministeredVaccine>(vaccineData);
+      const updatedVaccine = await models.AdministeredVaccine.createAndSaveOne<AdministeredVaccine>(
+        vaccineData,
+      );
 
       const notGivenReason = await models.ReferenceData.findOne({
         where: { id: notGivenReasonId },
@@ -159,7 +160,20 @@ export const NewVaccineTabComponent = ({
         navigation.goBack();
       }
     },
-    [isSubmitting],
+    [
+      administeredVaccine?.id,
+      models.AdministeredVaccine,
+      models.Department,
+      models.Encounter,
+      models.Location,
+      models.ReferenceData,
+      models.ScheduledVaccine,
+      navigation,
+      selectedPatient.id,
+      user.id,
+      vaccine,
+      isSubmitting,
+    ],
   );
 
   const vaccineObject = { ...vaccine, ...administeredVaccine };

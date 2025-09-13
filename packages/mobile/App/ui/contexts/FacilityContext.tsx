@@ -41,7 +41,7 @@ export const FacilityProvider = ({ children }) => {
         setFacilityName(facility.name);
       }
     })();
-  }, [setFacilityId]);
+  }, [setFacilityId, models.Facility]);
 
   const assignFacility = useCallback(
     (facilityId, facilityName) => {

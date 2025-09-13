@@ -4,7 +4,7 @@ import { Button } from '/components/Button';
 import { LogoV2Icon } from '/components/Icons';
 import { VisitChart } from '/components/Chart/VisitChart';
 import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP, setStatusBar } from '/helpers/screen';
+import { Orientation, screenPercentageToDP, useSetStatusBar } from '/helpers/screen';
 import { Routes } from '/helpers/routes';
 import { ReportScreenProps } from '/interfaces/Screens/HomeStack/ReportScreenProps';
 import { addHours, format, startOfToday, subDays } from 'date-fns';
@@ -155,9 +155,9 @@ export const ReportScreen = ({ navigation }: ReportScreenProps): ReactElement =>
 
   const navigateToExportData = useCallback(() => {
     navigation.navigate(Routes.HomeStack.ExportDataScreen);
-  }, []);
+  }, [navigation]);
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useSetStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   return (
     <FullView>

@@ -30,11 +30,11 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
-  }, []);
+  }, [navigation]);
 
   const onNavigateToChangePassword = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.ChangePassword);
-  }, []);
+  }, [navigation]);
 
   const onRestartFlow = useCallback(() => {
     setModalVisible(false);
@@ -47,26 +47,32 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
     setModalVisible(isVisible);
   }, []);
 
-  const setModalError = useCallback((message: string) => {
-    setErrorMessage(message);
-    onChangeModalVisibility(true);
-  }, []);
+  const setModalError = useCallback(
+    (message: string) => {
+      setErrorMessage(message);
+      onChangeModalVisibility(true);
+    },
+    [onChangeModalVisibility],
+  );
 
-  const onSubmitForm = useCallback(async (values: ResetPasswordFormModel) => {
-    try {
-      if (!values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        setModalError('Please select a server to connect to');
-        return;
+  const onSubmitForm = useCallback(
+    async (values: ResetPasswordFormModel) => {
+      try {
+        if (!values.server) {
+          // TODO it would be better to properly respond to form validation and show the error
+          setModalError('Please select a server to connect to');
+          return;
+        }
+        await authCtx.requestResetPassword(values);
+
+        setSuccess(true);
+        setResetPasswordEmail(values.email);
+      } catch (error) {
+        setModalError(error.message);
       }
-      await authCtx.requestResetPassword(values);
-
-      setSuccess(true);
-      setResetPasswordEmail(values.email);
-    } catch (error) {
-      setModalError(error.message);
-    }
-  }, []);
+    },
+    [authCtx, setModalError],
+  );
 
   const renderForm = (): ReactElement => (
     <>

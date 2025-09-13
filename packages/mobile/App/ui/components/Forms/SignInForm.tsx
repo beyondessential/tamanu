@@ -37,11 +37,12 @@ const ServerInfo = __DEV__
             <TranslatedText stringId="login.server.label" fallback="Server" />: {host}
           </StyledText>
           <StyledText color={theme.colors.WHITE}>
-            <TranslatedText stringId="general.facility.label" fallback="Facility" />: <TranslatedReferenceData
-            fallback={facilityName}
-            value={facilityId}
-            category="facility"
-          />
+            <TranslatedText stringId="general.facility.label" fallback="Facility" />:{' '}
+            <TranslatedReferenceData
+              fallback={facilityName}
+              value={facilityId}
+              category="facility"
+            />
           </StyledText>
         </StyledView>
       );
@@ -68,7 +69,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
         onError(error);
       }
     },
-    [existingHost],
+    [existingHost, onError, onSuccess, signIn],
   );
 
   useEffect(() => {
