@@ -29,6 +29,10 @@
       "require": "./dist/cjs/services/logging/*.js",
       "import": "./dist/esm/services/logging/*.js"
     },
+    "./services/suggestions/*": {
+      "require": "./dist/cjs/services/suggestions/*.js",
+      "import": "./dist/esm/services/suggestions/*.js"
+    },
     "./schemas/types": {
       "require": "./dist/cjs/schemas/types.js",
       "import": "./dist/esm/schemas/types.js"
