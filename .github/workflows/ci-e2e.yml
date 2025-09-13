@@ -65,6 +65,7 @@ jobs:
       IS_PLAYWRIGHT_TEST: true
       TEST_EMAIL: admin@tamanu.io
       TEST_PASSWORD: admin
+      TZ: Pacific/Auckland
 
     steps:
       - uses: actions/checkout@v4

@@ -24,6 +24,10 @@ export class ViewVaccineModal extends BasePatientModal {
   readonly otherBrand: Locator;
   readonly facilityLocation: Locator;
   readonly recordedBy: Locator;
+  readonly givenElsewhereReason: Locator;
+  readonly givenElsewhereCountry: Locator;
+  readonly givenElsewhereFacility: Locator;
+  readonly status: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -48,11 +52,21 @@ export class ViewVaccineModal extends BasePatientModal {
     this.otherBrand = this.page.getByTestId('displayfield-jkpx-vaccine-translatedtext-q3yc');
     this.facilityLocation = this.page.getByTestId('displayfield-jkpx-location-translatedtext-iukb');
     this.recordedBy = this.page.getByTestId('displayfield-jkpx-recorded-translatedtext-e9ru');
+    this.givenElsewhereReason = this.page.getByTestId(
+      'displayfield-jkpx-status-translatedtext-rth0',
+    );
+    this.givenElsewhereCountry = this.page.getByTestId(
+      'displayfield-jkpx-country-translatedtext-c7hy',
+    );
+    this.givenElsewhereFacility = this.page.getByTestId(
+      'displayfield-jkpx-recorded-translatedtext-iukb',
+    );
+    this.status = this.page.getByTestId('displayfield-jkpx-status-translatedtext-qgo7');
   }
 
   async waitForModalToOpen() {
     // Wait for modal content to load before progressing
-    await expect(this.area).toBeVisible();
+    await expect(this.recordedBy).toBeVisible();
   }
 
   /**
@@ -60,8 +74,23 @@ export class ViewVaccineModal extends BasePatientModal {
    * @param vaccine - Takes a vaccine object and extracts the relevant fields to run assertions against
    */
   async assertVaccineModalRequiredFields(vaccine: Partial<Vaccine>) {
-    const { vaccineName, dateGiven, area, location, department, given, category, scheduleOption } =
-      vaccine;
+    const {
+      vaccineName,
+      dateGiven,
+      area,
+      location,
+      department,
+      given,
+      category,
+      scheduleOption,
+      givenElsewhereReason,
+    } = vaccine;
+
+    //Most of the locators are custom here so it's cleaner to assert the given elsewhere fields separately
+    if (givenElsewhereReason) {
+      await this.assertGivenElsewhereVaccineModalFields(vaccine);
+      return;
+    }
 
     if (!vaccineName || !dateGiven || !area || !location || !department || !scheduleOption) {
       throw new Error('Missing required vaccine fields');
@@ -121,5 +150,26 @@ export class ViewVaccineModal extends BasePatientModal {
       await expect(this.notGivenReason).toContainText(notGivenReason!);
       await expect(this.notGivenSupervisingClinician).toContainText(notGivenClinician!);
     }
+  }
+
+  async assertGivenElsewhereVaccineModalFields(vaccine: Partial<Vaccine>) {
+    const { vaccineName, givenElsewhereReason, givenElsewhereCountry, dateGiven } = vaccine;
+
+    if (!vaccineName || !givenElsewhereReason || !givenElsewhereCountry) {
+      throw new Error('Missing required given elsewhere fields');
+    }
+
+    if (dateGiven) {
+      await expect(this.dateGiven).toContainText(convertDateFormat(dateGiven));
+    } else {
+      await expect(this.dateGiven).toContainText('--/--/----');
+    }
+
+    await expect(this.givenElsewhereReason).toContainText(givenElsewhereReason);
+    await expect(this.givenElsewhereCountry).toContainText(givenElsewhereCountry);
+    await expect(this.status).toContainText('Given elsewhere');
+    await expect(this.givenVaccineName).toContainText(vaccineName);
+    await expect(this.givenElsewhereFacility).toContainText('facility-1');
+    await expect(this.recordedBy).toContainText('Initial Admin');
   }
 }
