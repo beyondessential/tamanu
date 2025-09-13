@@ -2,6 +2,15 @@ import { Page, Locator, expect } from '@playwright/test';
 import { STYLED_TABLE_CELL_PREFIX } from '../../../../utils/testHelper';
 import { format } from 'date-fns';
 
+export interface LabRequestTestDetails {
+  labTestId: string;
+  category: string;
+  requestedDate: string;
+  requestedBy: string;
+  priority: string;
+  status: string;
+}
+
 export class LabRequestPane {
   readonly page: Page;
   readonly newLabRequestButton: Locator;
@@ -13,6 +22,8 @@ export class LabRequestPane {
   // Table row and cell locators
   readonly tableRows: Locator;
   readonly categoryHeader: Locator;
+
+
 
   constructor(page: Page) {
     this.page = page;
@@ -107,4 +118,17 @@ export class LabRequestPane {
     await this.labRequestTable.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
+
+  async getFirstRowTestDetails(): Promise<LabRequestTestDetails> {
+    // Extract details from the first row using the existing helper methods
+    const labTestId = await this.getTestIdCell(0).textContent() || '';
+    const category = await this.getTestCategoryCell(0).textContent() || '';
+    const requestedDate = await this.getRequestedDateCell(0).textContent() || '';
+    const requestedBy = await this.getRequestedByCell(0).textContent() || '';
+    const priority = await this.getPriorityCell(0).textContent() || '';
+    const status = await this.getStatusCell(0).textContent() || '';
+    
+  return { labTestId, category, requestedDate, requestedBy, priority, status };         
+  }
+
 } 

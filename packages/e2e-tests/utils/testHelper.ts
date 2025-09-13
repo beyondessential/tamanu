@@ -103,3 +103,11 @@ export function offsetYear(
 
   return format(newDate, 'yyyy-MM-dd');
 }
+
+// Reusable function to select first option from any dropdown
+export const selectFirstFromDropdown = async (page: Page, input: Locator): Promise<string> => {
+  await input.click();
+  const firstOption = page.locator('[role="listbox"] li').first();
+  await firstOption.click();
+  return await firstOption.textContent() || '';
+};

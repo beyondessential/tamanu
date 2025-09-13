@@ -67,13 +67,14 @@ export const createHospitalAdmissionEncounterViaAPI = async (
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
 
+
   const encounterData = {
-    departmentId: 'department-Cardiology',
-    encounterType: 'admission',
+    departmentId: testData.departmentID,
+    encounterType: testData.encounterType,
     examinerId: user.id,
-    locationId: 'location-EDBed1',
-    patientBillingTypeId: 'patientType-Private',
-    patientId,
+    locationId: testData.locationID,
+    patientBillingTypeId: testData.patientBillingTypeID,
+    patientId: testData.patientID || patientId  ,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
   };

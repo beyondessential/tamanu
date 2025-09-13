@@ -1,9 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test';
 import { LabRequestModalBase } from './LabRequestModalBase';
 
-
-const REMOVE_ICON_BUTTON_TEST_ID = 'removeiconbutton-iwj5';
-
 export class PanelLabRequestModal extends LabRequestModalBase {
   
   // Page 2: Panel selection
@@ -28,33 +25,6 @@ export class PanelLabRequestModal extends LabRequestModalBase {
     this.panelsList = page.getByTestId('labeltext-6stl');
   }
 
-  /**
-   * Get the title of the modal
-   * @returns The title of the modal
-   */
-  getModalTitle(): string {
-    return 'Creating a new lab request';
-  }
-
-  /**
-   * Get the description of the modal
-   * @returns The description of the modal
-   */
-  getModalDescription(): string {
-    return 'Please complete the details below and select the lab request type';
-  }
-
-  /**
-   * Remove a selected panel from the table
-   * @param panelName - The name of the panel to remove
-   */
-  async removeSelectedPanelFromTable(panelName: string) {
-    // Find the remove button for the specific panel
-    const removeButton = this.selectedPanelItems
-      .filter({ hasText: panelName }).getByTestId(REMOVE_ICON_BUTTON_TEST_ID);
-    
-    await removeButton.click();
-  }
 
   /**
    * Validate the selected panels and categories in the sample details page

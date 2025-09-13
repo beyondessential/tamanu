@@ -29,8 +29,6 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
   readonly specimenTypeExpandIcons: Locator;
   readonly siteInputs: Locator;
   readonly siteExpandIcons: Locator;
-  readonly categoryDropdown: Locator;
-  readonly categoryListItems: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -50,8 +48,6 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     this.specimenTypeExpandIcons = page.getByTestId('styledfield-8g4b-input-expandmoreicon');
     this.siteInputs = page.getByTestId('styledfield-mog8-input');
     this.siteExpandIcons = page.getByTestId('styledfield-mog8-input-expandmoreicon');
-    this.categoryDropdown = page.getByTestId('selectinput-phtg-select');  
-    this.categoryListItems = page.getByTestId('selectortable-dwrp').getByTestId('categorytext-jno3');
   }
 
   /**
@@ -67,17 +63,6 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
-  /**
-   * Validate the selected tests in the table
-   * @param selectedTests - The tests to validate
-   */
-  async validateSelectedTestsInTable(selectedTests: string[]) {
-    // Validate that the selected tests are displayed in the table
-    for (let i=0; i<selectedTests.length; i++) {
-      const testName=await this.selectedTestsLabels.nth(i).textContent();
-      await expect(testName).toBe(selectedTests[i]);
-    }
-  }
 
   /**
    * Validate the request finalised page
@@ -121,24 +106,4 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
-  /**
-   * Select a category
-   * @param category - The category to select
-   */
-  async selectCategory(category: string) {
-    await this.categoryDropdown.click();
-    await this.page.getByText(category).first().waitFor({ state: 'visible' });
-    await this.page.getByText(category).first().click();
-  }
-
-  /**
-   * Validate the tests category
-   * @param category - The category to validate
-   */
-  async validateTestsCategory(category: string) {
-    const categoryCount = await this.categoryListItems.count();
-    for (let i = 0; i < categoryCount; i++) {
-      await expect(this.categoryListItems.nth(i)).toHaveText(category);
-    }
-  }
 } 
