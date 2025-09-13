@@ -158,7 +158,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       helperText={helperText}
       required={required}
       disabled={disabled}
-      data-testid="wrapperfieldcomponent-mkjr"
+      data-testid={`wrapperfieldcomponent-${id}`}
     />
   );
 

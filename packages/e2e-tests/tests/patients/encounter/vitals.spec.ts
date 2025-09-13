@@ -5,6 +5,8 @@ import { extractEncounterIdFromUrl } from '../../../utils/testHelper';
 //search for pde-PatientVitals to find all relevant data elements then sort by validation_criteria
 //TODO: seems like above also shows where normal range is defined
 //TODO: search all TODOS, some in random places
+//TODO: test case for creating a vital for a specific date (currently theyre just using default)
+//TODO: test case to confirm default date is correct
 
 async function generateTestData() {
   const generateRandomNumber = (min: number, max: number, {useDecimal = false}: {useDecimal?: boolean} = {}) => {
@@ -27,7 +29,7 @@ async function generateTestData() {
   const temperature = generateRandomNumber(32, 44, {useDecimal: true});
   const spo2 = generateRandomNumber(97, 100);
   const spo2Oxygen = generateRandomNumber(97, 100);
-  const AVPUOptions = ['Verbal', 'Unresponsive'] as const;
+  const AVPUOptions = ['Alert', 'Verbal', 'Pain', 'Unresponsive'] as const;
   const AVPU = AVPUOptions[Math.floor(Math.random() * AVPUOptions.length)];
   const TEW = generateRandomNumber(0, 10);
   const GCS = generateRandomNumber(3, 15);
@@ -161,5 +163,22 @@ test.describe('Vitals', () => {
       throw new Error('Vital failed to be recorded');
     }
     await vitalsPane.assertVitals(vital);
+  });
+
+  test('Cannot record vitals with values outside of the defined min and max', async ({vitalsPane}) => {
+      const invalidData = {
+        temperature: {valueBelowMin: '29', valueAboveMax: '77', belowMinError: 'Temperature (°C) must be at least 32°C', aboveMaxError: 'Temperature (°C) can not exceed 44°C'},
+        GCS: {valueBelowMin: '2', valueAboveMax: '16', belowMinError: 'GCS must be at least 3', aboveMaxError: 'GCS can not exceed 15'},
+        respiratoryRate: {valueBelowMin: '0', valueAboveMax: '71', belowMinError: 'Respiratory rate (bpm) must be at least 1', aboveMaxError: 'Respiratory rate (bpm) can not exceed 70'},
+        capillaryRefillTime: {valueBelowMin: '0', valueAboveMax: '5', belowMinError: 'Capillary Refill Time must be at least 1', aboveMaxError: 'Capillary Refill Time can not exceed 4'},
+        weight: {valueBelowMin: '-1', valueAboveMax: '251', belowMinError: 'Weight (kg) must be at least 0kg', aboveMaxError: 'Weight (kg) can not exceed 250kg'},
+      }
+
+      await vitalsPane.clickRecordVitalsButton();
+
+      // Iterate through test data and assert the expected validation errors appear
+      for (const [fieldName, data] of Object.entries(invalidData)) {
+        await vitalsPane.recordVitalsModal?.assertValidationError(fieldName, data);
+      }
   });
 });

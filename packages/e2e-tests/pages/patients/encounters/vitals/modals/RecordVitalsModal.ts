@@ -3,6 +3,7 @@ import { APIRequestContext, Locator, Page, expect } from '@playwright/test';
 import { BasePatientModal } from '../../../PatientDetailsPage/modals/BasePatientModal';
 import { Vitals } from '../../../../../types/vitals/Vitals';
 import { getVitalsRecordedDates } from '@utils/apiHelpers';
+import { selectFieldOption } from '@utils/fieldHelpers';
 
 export class RecordVitalsModal extends BasePatientModal {
   readonly modalHeading: Locator;
@@ -11,20 +12,25 @@ export class RecordVitalsModal extends BasePatientModal {
   readonly confirmButton: Locator;
   readonly dateField: Locator;
   readonly weightField: Locator;
+  readonly weightFieldWrapper: Locator;
   readonly BMIField: Locator;
   readonly SBPField: Locator;
   readonly DBPField: Locator;
   readonly MAPField: Locator;
   readonly heartRateField: Locator;
   readonly respiratoryRateField: Locator;
+  readonly respiratoryRateFieldWrapper: Locator;
   readonly temperatureField: Locator;
+  readonly temperatureFieldWrapper: Locator;
   readonly spo2Field: Locator;
   readonly spo2OxygenField: Locator;
   readonly AVPUField: Locator;
   readonly TEWField: Locator;
   readonly GCSField: Locator;
+  readonly GCSFieldWrapper: Locator;
   readonly painScaleField: Locator;
   readonly capillaryRefillTimeField: Locator;
+  readonly capillaryRefillTimeFieldWrapper: Locator;
   readonly randomBGLField: Locator;
   readonly fastingBGLField: Locator;
   readonly ventilatorLitresPerMinuteField: Locator;
@@ -46,24 +52,29 @@ export class RecordVitalsModal extends BasePatientModal {
     this.heightField = this.page.locator('input[name="pde-PatientVitalsHeight"]');
     this.dateField = this.page.locator('input[type="datetime-local"]');
     this.weightField = this.page.locator('input[name="pde-PatientVitalsWeight"]');
+    this.weightFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsWeight');
     this.BMIField = this.page.locator('input[name="pde-PatientVitalsBMI"]');
     this.SBPField = this.page.locator('input[name="pde-PatientVitalsSBP"]');
     this.DBPField = this.page.locator('input[name="pde-PatientVitalsDBP"]');
     this.MAPField = this.page.locator('input[name="pde-PatientVitalsMAP"]');
     this.heartRateField = this.page.locator('input[name="pde-PatientVitalsHeartRate"]');
     this.respiratoryRateField = this.page.locator('input[name="pde-PatientVitalsRespiratoryRate"]');
+    this.respiratoryRateFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsRespiratoryRate');
     this.temperatureField = this.page.locator('input[name="pde-PatientVitalsTemperature"]');
+    this.temperatureFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsTemperature');
     this.spo2Field = this.page.locator('input[name="pde-PatientVitalsSPO2"]');
     this.spo2OxygenField = this.page.locator('input[name="pde-PatientVitalsSPO2onOxygen"]');
-    this.AVPUField = this.page.getByTestId('formgrid-h378').locator('div').filter({ hasText: 'AVPUSelect' }).getByTestId('wrapperfieldcomponent-mkjr-expandmoreicon-h115');
+    this.AVPUField = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsAVPU-select');
     this.TEWField = this.page.locator('input[name="pde-PatientVitalsTEWScore"]');
     this.GCSField = this.page.locator('input[name="pde-PatientVitalsGCS"]');
+    this.GCSFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsGCS');
     this.painScaleField = this.page.locator('input[name="pde-PatientVitalsPainScale"]');
     this.capillaryRefillTimeField = this.page.locator('input[name="pde-PatientVitalsCapillaryRefillTime"]');
+    this.capillaryRefillTimeFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsCapillaryRefillTime');
     this.randomBGLField = this.page.locator('input[name="pde-PatientVitalsRandomBGL"]');
     this.fastingBGLField = this.page.locator('input[name="pde-PatientVitalsFastingBGL"]');
     this.ventilatorLitresPerMinuteField = this.page.locator('input[name="pde-PatientVitalsVent"]');
-    this.ventilatorModeField = this.page.getByTestId('formgrid-h378').locator('div').filter({ hasText: 'Ventilator ModeSelect' }).getByTestId('wrapperfieldcomponent-mkjr-expandmoreicon-h115');
+    this.ventilatorModeField = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsMode-select');
     this.FIO2Field = this.page.locator('input[name="pde-PatientVitalsFiO2"]');
     this.PIPField = this.page.locator('input[name="pde-PatientVitalsPIP"]');
     this.PEEPField = this.page.locator('input[name="pde-PatientVitalsPEEP"]');
@@ -148,8 +159,7 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     // Select options from dropdowns if values are provided
     for (const { value, locator } of dropdownFieldMappings) {
         if (value) {
-            await locator.click();
-            await this.modalContent.getByText(value).click();
+            await selectFieldOption(this.page, locator, { optionToSelect: value });
         }
     }
 
@@ -232,5 +242,43 @@ async confirmMAPAutoCalculation(SBP: string, DBP: string, expectedMAP: string) {
     throw new Error('MAP field is empty, it should have been auto calculated');
     }
     expect(MAP).toBe(expectedMAP);
+}
+
+async assertValidationError(fieldName: string, data: {valueBelowMin: string, valueAboveMax: string, belowMinError: string, aboveMaxError: string}) {
+    let field: Locator;
+    let wrapper: Locator;
+    
+    if (fieldName === 'temperature') {
+        field = this.temperatureField;
+        wrapper = this.temperatureFieldWrapper;
+    }
+    else if (fieldName === 'GCS') {
+        field = this.GCSField;
+        wrapper = this.GCSFieldWrapper;
+    }
+    else if (fieldName === 'respiratoryRate') {
+        field = this.respiratoryRateField;
+        wrapper = this.respiratoryRateFieldWrapper;
+    }
+    else if (fieldName === 'capillaryRefillTime') {
+        field = this.capillaryRefillTimeField;
+        wrapper = this.capillaryRefillTimeFieldWrapper;
+    }
+    else if (fieldName === 'weight') {
+        field = this.weightField;
+        wrapper = this.weightFieldWrapper;
+    }
+    else {
+        throw new Error('Unknown field');
+    }
+    // Assert value below min throws the expected error
+    await field.fill(data.valueBelowMin);
+    await this.confirmButton.click();
+    await expect(wrapper).toContainText(data.belowMinError);
+          
+    // Assert value above max throws the expected error
+    await field.fill(data.valueAboveMax);
+    await this.confirmButton.click();
+    await expect(wrapper).toContainText(data.aboveMaxError);
 }
 }
