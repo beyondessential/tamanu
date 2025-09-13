@@ -52,16 +52,22 @@ export class RecordVitalsModal extends BasePatientModal {
     this.heightField = this.page.locator('input[name="pde-PatientVitalsHeight"]');
     this.dateField = this.page.locator('input[type="datetime-local"]');
     this.weightField = this.page.locator('input[name="pde-PatientVitalsWeight"]');
-    this.weightFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsWeight');
+    this.weightFieldWrapper = this.page.getByTestId(
+      'wrapperfieldcomponent-pde-PatientVitalsWeight',
+    );
     this.BMIField = this.page.locator('input[name="pde-PatientVitalsBMI"]');
     this.SBPField = this.page.locator('input[name="pde-PatientVitalsSBP"]');
     this.DBPField = this.page.locator('input[name="pde-PatientVitalsDBP"]');
     this.MAPField = this.page.locator('input[name="pde-PatientVitalsMAP"]');
     this.heartRateField = this.page.locator('input[name="pde-PatientVitalsHeartRate"]');
     this.respiratoryRateField = this.page.locator('input[name="pde-PatientVitalsRespiratoryRate"]');
-    this.respiratoryRateFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsRespiratoryRate');
+    this.respiratoryRateFieldWrapper = this.page.getByTestId(
+      'wrapperfieldcomponent-pde-PatientVitalsRespiratoryRate',
+    );
     this.temperatureField = this.page.locator('input[name="pde-PatientVitalsTemperature"]');
-    this.temperatureFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsTemperature');
+    this.temperatureFieldWrapper = this.page.getByTestId(
+      'wrapperfieldcomponent-pde-PatientVitalsTemperature',
+    );
     this.spo2Field = this.page.locator('input[name="pde-PatientVitalsSPO2"]');
     this.spo2OxygenField = this.page.locator('input[name="pde-PatientVitalsSPO2onOxygen"]');
     this.AVPUField = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsAVPU-select');
@@ -69,12 +75,18 @@ export class RecordVitalsModal extends BasePatientModal {
     this.GCSField = this.page.locator('input[name="pde-PatientVitalsGCS"]');
     this.GCSFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsGCS');
     this.painScaleField = this.page.locator('input[name="pde-PatientVitalsPainScale"]');
-    this.capillaryRefillTimeField = this.page.locator('input[name="pde-PatientVitalsCapillaryRefillTime"]');
-    this.capillaryRefillTimeFieldWrapper = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsCapillaryRefillTime');
+    this.capillaryRefillTimeField = this.page.locator(
+      'input[name="pde-PatientVitalsCapillaryRefillTime"]',
+    );
+    this.capillaryRefillTimeFieldWrapper = this.page.getByTestId(
+      'wrapperfieldcomponent-pde-PatientVitalsCapillaryRefillTime',
+    );
     this.randomBGLField = this.page.locator('input[name="pde-PatientVitalsRandomBGL"]');
     this.fastingBGLField = this.page.locator('input[name="pde-PatientVitalsFastingBGL"]');
     this.ventilatorLitresPerMinuteField = this.page.locator('input[name="pde-PatientVitalsVent"]');
-    this.ventilatorModeField = this.page.getByTestId('wrapperfieldcomponent-pde-PatientVitalsMode-select');
+    this.ventilatorModeField = this.page.getByTestId(
+      'wrapperfieldcomponent-pde-PatientVitalsMode-select',
+    );
     this.FIO2Field = this.page.locator('input[name="pde-PatientVitalsFiO2"]');
     this.PIPField = this.page.locator('input[name="pde-PatientVitalsPIP"]');
     this.PEEPField = this.page.locator('input[name="pde-PatientVitalsPEEP"]');
@@ -83,84 +95,83 @@ export class RecordVitalsModal extends BasePatientModal {
     this.tVolumeField = this.page.locator('input[name="pde-PatientVitalsTVol"]');
     this.mVLitresPerMinuteField = this.page.locator('input[name="pde-PatientVitalsMV"]');
     this.closeModal = this.page.getByTestId('iconbutton-eull');
-    }
+  }
 
-async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) {
-
-    const { 
-        date, 
-        height, 
-        weight, 
-        SBP, 
-        DBP, 
-        heartRate, 
-        respiratoryRate, 
-        temperature, 
-        spo2, 
-        spo2Oxygen,
-        AVPU,
-        TEW, 
-        GCS, 
-        painScale, 
-        capillaryRefillTime, 
-        randomBGL, 
-        fastingBGL, 
-        ventilatorLitresPerMinute, 
-        ventilatorMode,
-        FIO2, 
-        PIP, 
-        PEEP, 
-        Rate, 
-        iTime, 
-        tVolume, 
-        mVLitresPerMinute 
+  async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) {
+    const {
+      date,
+      height,
+      weight,
+      SBP,
+      DBP,
+      heartRate,
+      respiratoryRate,
+      temperature,
+      spo2,
+      spo2Oxygen,
+      AVPU,
+      TEW,
+      GCS,
+      painScale,
+      capillaryRefillTime,
+      randomBGL,
+      fastingBGL,
+      ventilatorLitresPerMinute,
+      ventilatorMode,
+      FIO2,
+      PIP,
+      PEEP,
+      Rate,
+      iTime,
+      tVolume,
+      mVLitresPerMinute,
     } = fields;
 
     // All fields that potentially need to be filled
     const fieldMappings = [
-        { value: date, locator: this.dateField },
-        { value: height, locator: this.heightField },
-        { value: weight, locator: this.weightField },
-        { value: SBP, locator: this.SBPField },
-        { value: DBP, locator: this.DBPField },
-        { value: heartRate, locator: this.heartRateField },
-        { value: respiratoryRate, locator: this.respiratoryRateField },
-        { value: temperature, locator: this.temperatureField },
-        { value: spo2, locator: this.spo2Field },
-        { value: spo2Oxygen, locator: this.spo2OxygenField },
-        { value: TEW, locator: this.TEWField },
-        { value: GCS, locator: this.GCSField },
-        { value: painScale, locator: this.painScaleField },
-        { value: capillaryRefillTime, locator: this.capillaryRefillTimeField },
-        { value: randomBGL, locator: this.randomBGLField },
-        { value: fastingBGL, locator: this.fastingBGLField },
-        { value: ventilatorLitresPerMinute, locator: this.ventilatorLitresPerMinuteField },
-        { value: FIO2, locator: this.FIO2Field },
-        { value: PIP, locator: this.PIPField },
-        { value: PEEP, locator: this.PEEPField },
-        { value: Rate, locator: this.RateField },
-        { value: iTime, locator: this.iTimeField },
-        { value: tVolume, locator: this.tVolumeField },
-        { value: mVLitresPerMinute, locator: this.mVLitresPerMinuteField },
-      ];
+      { value: date, locator: this.dateField },
+      { value: height, locator: this.heightField },
+      { value: weight, locator: this.weightField },
+      { value: SBP, locator: this.SBPField },
+      { value: DBP, locator: this.DBPField },
+      { value: heartRate, locator: this.heartRateField },
+      { value: respiratoryRate, locator: this.respiratoryRateField },
+      { value: temperature, locator: this.temperatureField },
+      { value: spo2, locator: this.spo2Field },
+      { value: spo2Oxygen, locator: this.spo2OxygenField },
+      { value: TEW, locator: this.TEWField },
+      { value: GCS, locator: this.GCSField },
+      { value: painScale, locator: this.painScaleField },
+      { value: capillaryRefillTime, locator: this.capillaryRefillTimeField },
+      { value: randomBGL, locator: this.randomBGLField },
+      { value: fastingBGL, locator: this.fastingBGLField },
+      { value: ventilatorLitresPerMinute, locator: this.ventilatorLitresPerMinuteField },
+      { value: FIO2, locator: this.FIO2Field },
+      { value: PIP, locator: this.PIPField },
+      { value: PEEP, locator: this.PEEPField },
+      { value: Rate, locator: this.RateField },
+      { value: iTime, locator: this.iTimeField },
+      { value: tVolume, locator: this.tVolumeField },
+      { value: mVLitresPerMinute, locator: this.mVLitresPerMinuteField },
+    ];
 
     // Fill fields if values are provided
     for (const { value, locator } of fieldMappings) {
-        if (value) {
+      if (value) {
         await locator.fill(value);
-        }
+      }
     }
 
     const dropdownFieldMappings = [
-        { value: ventilatorMode, locator: this.ventilatorModeField },
-        { value: AVPU, locator: this.AVPUField },
-    ]
+      { value: ventilatorMode, locator: this.ventilatorModeField },
+      { value: AVPU, locator: this.AVPUField },
+    ];
 
     // Select options from dropdowns if values are provided
     for (const { value, locator } of dropdownFieldMappings) {
-        if (value) {
-            await selectFieldOption(this.page, locator, { optionToSelect: value });
-        }
+      if (value) {
+        await selectFieldOption(this.page, locator, { optionToSelect: value });
+      }
     }
 
     // Read date value after fields are filled so the default will be used if no date was provided
@@ -169,19 +180,19 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     // Calculate BMI if both height and weight are provided
     let calculatedBMI: string | undefined;
     if (height && weight) {
-        calculatedBMI = await this.BMIField.evaluate((el: HTMLInputElement) => el.value);
-        if (!calculatedBMI || calculatedBMI.trim() === '') {
-            throw new Error('BMI field is empty but height and weight are provided');
-        }
+      calculatedBMI = await this.BMIField.evaluate((el: HTMLInputElement) => el.value);
+      if (!calculatedBMI || calculatedBMI.trim() === '') {
+        throw new Error('BMI field is empty but height and weight are provided');
+      }
     }
 
     // Calculate MAP if SBP and DBP are provided
     let calculatedMAP: string | undefined;
     if (SBP && DBP) {
-        calculatedMAP = await this.MAPField.evaluate((el: HTMLInputElement) => el.value);
-        if (!calculatedMAP || calculatedMAP.trim() === '') {
-            throw new Error('MAP field is empty but SBP and DBP are provided');
-        }
+      calculatedMAP = await this.MAPField.evaluate((el: HTMLInputElement) => el.value);
+      if (!calculatedMAP || calculatedMAP.trim() === '') {
+        throw new Error('MAP field is empty but SBP and DBP are provided');
+      }
     }
 
     await this.confirmButton.click();
@@ -192,39 +203,39 @@ async recordVitals(api: APIRequestContext, encounterId: string, fields: Vitals) 
     const locatorKey = locatorKeys[locatorKeys.length - 1];
 
     return {
-        date: dateFieldValue,
-        locatorKey: locatorKey,
-        height: height,
-        weight: weight,
-        SBP: SBP, 
-        DBP: DBP, 
-        BMI: calculatedBMI,
-        MAP: calculatedMAP,
-        heartRate: heartRate,
-        respiratoryRate: respiratoryRate,
-        temperature: temperature,
-        spo2: spo2,
-        spo2Oxygen: spo2Oxygen,
-        AVPU: AVPU,
-        TEW: TEW,
-        GCS: GCS,
-        painScale: painScale,
-        capillaryRefillTime: capillaryRefillTime,
-        randomBGL: randomBGL,
-        fastingBGL: fastingBGL,
-        ventilatorLitresPerMinute: ventilatorLitresPerMinute,
-        ventilatorMode: ventilatorMode,
-        FIO2: FIO2,
-        PIP: PIP,
-        PEEP: PEEP,
-        Rate: Rate,
-        iTime: iTime,
-        tVolume: tVolume,
-        mVLitresPerMinute: mVLitresPerMinute,
+      date: dateFieldValue,
+      locatorKey: locatorKey,
+      height: height,
+      weight: weight,
+      SBP: SBP,
+      DBP: DBP,
+      BMI: calculatedBMI,
+      MAP: calculatedMAP,
+      heartRate: heartRate,
+      respiratoryRate: respiratoryRate,
+      temperature: temperature,
+      spo2: spo2,
+      spo2Oxygen: spo2Oxygen,
+      AVPU: AVPU,
+      TEW: TEW,
+      GCS: GCS,
+      painScale: painScale,
+      capillaryRefillTime: capillaryRefillTime,
+      randomBGL: randomBGL,
+      fastingBGL: fastingBGL,
+      ventilatorLitresPerMinute: ventilatorLitresPerMinute,
+      ventilatorMode: ventilatorMode,
+      FIO2: FIO2,
+      PIP: PIP,
+      PEEP: PEEP,
+      Rate: Rate,
+      iTime: iTime,
+      tVolume: tVolume,
+      mVLitresPerMinute: mVLitresPerMinute,
     };
-}
+  }
 
-async confirmBMIAutoCalculation(height: string, weight: string, expectedBMI: string) {
+  async confirmBMIAutoCalculation(height: string, weight: string, expectedBMI: string) {
     await this.heightField.fill(height);
     await this.weightField.fill(weight);
     const BMI = await this.BMIField.evaluate((el: HTMLInputElement) => el.value);
@@ -232,53 +243,56 @@ async confirmBMIAutoCalculation(height: string, weight: string, expectedBMI: str
       throw new Error('BMI field is empty, it should have been auto calculated');
     }
     expect(BMI).toBe(expectedBMI);
-}
+  }
 
-async confirmMAPAutoCalculation(SBP: string, DBP: string, expectedMAP: string) {
+  async confirmMAPAutoCalculation(SBP: string, DBP: string, expectedMAP: string) {
     await this.SBPField.fill(SBP);
     await this.DBPField.fill(DBP);
     const MAP = await this.MAPField.evaluate((el: HTMLInputElement) => el.value);
     if (!MAP) {
-    throw new Error('MAP field is empty, it should have been auto calculated');
+      throw new Error('MAP field is empty, it should have been auto calculated');
     }
     expect(MAP).toBe(expectedMAP);
-}
+  }
 
-async assertValidationError(fieldName: string, data: {valueBelowMin: string, valueAboveMax: string, belowMinError: string, aboveMaxError: string}) {
+  async assertValidationError(
+    fieldName: string,
+    data: {
+      valueBelowMin: string;
+      valueAboveMax: string;
+      belowMinError: string;
+      aboveMaxError: string;
+    },
+  ) {
     let field: Locator;
     let wrapper: Locator;
-    
+
     if (fieldName === 'temperature') {
-        field = this.temperatureField;
-        wrapper = this.temperatureFieldWrapper;
-    }
-    else if (fieldName === 'GCS') {
-        field = this.GCSField;
-        wrapper = this.GCSFieldWrapper;
-    }
-    else if (fieldName === 'respiratoryRate') {
-        field = this.respiratoryRateField;
-        wrapper = this.respiratoryRateFieldWrapper;
-    }
-    else if (fieldName === 'capillaryRefillTime') {
-        field = this.capillaryRefillTimeField;
-        wrapper = this.capillaryRefillTimeFieldWrapper;
-    }
-    else if (fieldName === 'weight') {
-        field = this.weightField;
-        wrapper = this.weightFieldWrapper;
-    }
-    else {
-        throw new Error('Unknown field');
+      field = this.temperatureField;
+      wrapper = this.temperatureFieldWrapper;
+    } else if (fieldName === 'GCS') {
+      field = this.GCSField;
+      wrapper = this.GCSFieldWrapper;
+    } else if (fieldName === 'respiratoryRate') {
+      field = this.respiratoryRateField;
+      wrapper = this.respiratoryRateFieldWrapper;
+    } else if (fieldName === 'capillaryRefillTime') {
+      field = this.capillaryRefillTimeField;
+      wrapper = this.capillaryRefillTimeFieldWrapper;
+    } else if (fieldName === 'weight') {
+      field = this.weightField;
+      wrapper = this.weightFieldWrapper;
+    } else {
+      throw new Error('Unknown field');
     }
     // Assert value below min throws the expected error
     await field.fill(data.valueBelowMin);
     await this.confirmButton.click();
     await expect(wrapper).toContainText(data.belowMinError);
-          
+
     // Assert value above max throws the expected error
     await field.fill(data.valueAboveMax);
     await this.confirmButton.click();
     await expect(wrapper).toContainText(data.aboveMaxError);
-}
+  }
 }

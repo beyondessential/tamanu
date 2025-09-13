@@ -1,6 +1,10 @@
 import { test as base, APIRequestContext, Page } from '@playwright/test';
 
-import { createPatient, createApiContext, createHospitalAdmissionEncounterViaAPI } from '../utils/apiHelpers';
+import {
+  createPatient,
+  createApiContext,
+  createHospitalAdmissionEncounterViaAPI,
+} from '../utils/apiHelpers';
 import {
   DashboardPage,
   LoginPage,

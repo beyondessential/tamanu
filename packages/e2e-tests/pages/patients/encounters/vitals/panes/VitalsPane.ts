@@ -24,67 +24,67 @@ export class VitalsPane extends BasePatientPage {
   }
 
   async assertVitals(vitals: Vitals) {
-    const { 
+    const {
       date,
       locatorKey,
-      height, 
-      weight, 
-      SBP, 
+      height,
+      weight,
+      SBP,
       DBP,
       BMI,
       MAP,
-      heartRate, 
-      respiratoryRate, 
-      temperature, 
-      spo2, 
-      spo2Oxygen, 
+      heartRate,
+      respiratoryRate,
+      temperature,
+      spo2,
+      spo2Oxygen,
       AVPU,
-      TEW, 
-      GCS, 
-      painScale, 
-      capillaryRefillTime, 
-      randomBGL, 
-      fastingBGL, 
-      ventilatorLitresPerMinute, 
+      TEW,
+      GCS,
+      painScale,
+      capillaryRefillTime,
+      randomBGL,
+      fastingBGL,
+      ventilatorLitresPerMinute,
       ventilatorMode,
-      FIO2, 
-      PIP, 
-      PEEP, 
-      Rate, 
-      iTime, 
-      tVolume, 
-      mVLitresPerMinute 
-  } = vitals;
+      FIO2,
+      PIP,
+      PEEP,
+      Rate,
+      iTime,
+      tVolume,
+      mVLitresPerMinute,
+    } = vitals;
 
-  const fieldMappings = [
-    {value: this.appendUnit(height, 'cm'), row: '0'},
-    {value: this.appendUnit(weight, 'kg'), row: '1'},
-    {value: this.roundToOneDecimalPlace(BMI), row: '2'},
-    {value: SBP, row: '3'},
-    {value: DBP, row: '4'},
-    {value: this.roundMAPValue(MAP), row: '5'},
-    {value: heartRate, row: '6'},
-    {value: respiratoryRate, row: '7'},
-    {value: this.appendUnit(this.roundToOneDecimalPlace(temperature), '°C'), row: '8'},
-    {value: this.appendUnit(spo2, '%'), row: '9'},
-    {value: this.appendUnit(spo2Oxygen, '%'), row: '10'},
-    {value: AVPU, row: '11'},
-    {value: TEW, row: '12'},
-    {value: GCS, row: '13'},
-    {value: painScale, row: '14'},
-    {value: capillaryRefillTime, row: '15'},
-    {value: randomBGL, row: '16'},
-    {value: fastingBGL, row: '17'},
-    {value: ventilatorLitresPerMinute, row: '18'},
-    {value: ventilatorMode, row: '19'},
-    {value: this.appendUnit(FIO2, '%'), row: '20'},
-    {value: PIP, row: '21'},
-    {value: PEEP, row: '22'},
-    {value: Rate, row: '23'},
-    {value: iTime, row: '24'},
-    {value: tVolume, row: '25'},
-    {value: mVLitresPerMinute, row: '26'}
-  ]
+    const fieldMappings = [
+      { value: this.appendUnit(height, 'cm'), row: '0' },
+      { value: this.appendUnit(weight, 'kg'), row: '1' },
+      { value: this.roundToOneDecimalPlace(BMI), row: '2' },
+      { value: SBP, row: '3' },
+      { value: DBP, row: '4' },
+      { value: this.roundMAPValue(MAP), row: '5' },
+      { value: heartRate, row: '6' },
+      { value: respiratoryRate, row: '7' },
+      { value: this.appendUnit(this.roundToOneDecimalPlace(temperature), '°C'), row: '8' },
+      { value: this.appendUnit(spo2, '%'), row: '9' },
+      { value: this.appendUnit(spo2Oxygen, '%'), row: '10' },
+      { value: AVPU, row: '11' },
+      { value: TEW, row: '12' },
+      { value: GCS, row: '13' },
+      { value: painScale, row: '14' },
+      { value: capillaryRefillTime, row: '15' },
+      { value: randomBGL, row: '16' },
+      { value: fastingBGL, row: '17' },
+      { value: ventilatorLitresPerMinute, row: '18' },
+      { value: ventilatorMode, row: '19' },
+      { value: this.appendUnit(FIO2, '%'), row: '20' },
+      { value: PIP, row: '21' },
+      { value: PEEP, row: '22' },
+      { value: Rate, row: '23' },
+      { value: iTime, row: '24' },
+      { value: tVolume, row: '25' },
+      { value: mVLitresPerMinute, row: '26' },
+    ];
 
     if (!date || !locatorKey) {
       throw new Error('Date and locator key are required to assert vitals');
@@ -100,11 +100,10 @@ export class VitalsPane extends BasePatientPage {
       const cellLocator = this.page.getByTestId(`styledtablecell-2gyy-${row}-${locatorKey}`);
       if (value) {
         await expect(cellLocator).toContainText(value);
-      }
-      else if (value === undefined) {
+      } else if (value === undefined) {
         await expect(cellLocator).toContainText('—');
       }
-  }
+    }
   }
 
   /**

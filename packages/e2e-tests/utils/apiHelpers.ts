@@ -234,27 +234,25 @@ export const getVitalsRecordedDates = async (
   encounterId: string,
 ): Promise<string[]> => {
   const vitalsUrl = constructFacilityUrl(`/api/encounter/${encounterId}/vitals`);
-  
+
   const response = await api.get(vitalsUrl);
-  
+
   if (!response.ok()) {
     const errorText = await response.text();
     console.error('Failed to fetch vitals data:', response.status(), errorText);
     throw new Error(`Failed to fetch vitals data: ${response.status()} ${errorText}`);
   }
-  
+
   const vitalsData = await response.json();
-  
+
   // Find the date recorded data element (pde-PatientVitalsDate)
   const dateRecord = vitalsData.data.find(
-    (record: any) => record.dataElementId === 'pde-PatientVitalsDate'
+    (record: any) => record.dataElementId === 'pde-PatientVitalsDate',
   );
-  
+
   if (dateRecord && dateRecord.records) {
     return Object.keys(dateRecord.records);
-  }
-  else {
+  } else {
     throw new Error('Date recorded not found');
   }
 };
-

@@ -101,7 +101,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
+    this.ongoingConditionNameWrapper = this.page.getByTestId(
+      'field-j30y-input-outerlabelfieldwrapper',
+    );
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -207,8 +209,12 @@ export class PatientDetailsPage extends BasePatientPage {
       .first();
     this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
     this.vitalsTab = this.page.getByTestId('styledtab-ccs8-vitals');
-    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Department' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -219,9 +225,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientVaccinePane;
   }
 
- 
-
-    async navigateToLabsTab(): Promise<LabRequestPane> {
+  async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();

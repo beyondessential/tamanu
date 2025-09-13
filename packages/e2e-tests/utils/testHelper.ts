@@ -6,17 +6,17 @@ export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 // Utility method to convert YYYY-MM-DD to MM/DD/YYYY format
 export const convertDateFormat = (dateInput: string | Date | undefined): string => {
   if (!dateInput) return '';
-  
+
   let dateString: string;
-  
+
   if (dateInput instanceof Date) {
     dateString = dateInput.toISOString().split('T')[0]; // Convert to YYYY-MM-DD format
   } else {
     dateString = dateInput;
   }
-  
+
   if (!dateString) return '';
-  
+
   const [year, month, day] = dateString.split('-');
   return `${month}/${day}/${year}`;
 };
@@ -64,8 +64,7 @@ export async function getTableItems(page: Page, tableRowCount: number, columnNam
  * @returns A function that compares two strings alphabetically
  */
 export function compareAlphabetically(order: 'asc' | 'desc') {
-  return (a: string, b: string) =>
-    order === 'asc' ? a.localeCompare(b) : b.localeCompare(a);
+  return (a: string, b: string) => (order === 'asc' ? a.localeCompare(b) : b.localeCompare(a));
 }
 
 /**
@@ -91,7 +90,7 @@ export function compareByDate(order: 'asc' | 'desc') {
 export function offsetYear(
   dateToOffset: string,
   offset: 'increase' | 'decrease',
-  amountToOffset: number
+  amountToOffset: number,
 ): string {
   //Convert to date format so utility functions can be used
   const formattedDateToOffset = new Date(dateToOffset);
