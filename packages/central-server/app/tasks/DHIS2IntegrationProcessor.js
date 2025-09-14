@@ -21,13 +21,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportCSV, dryRun = false }) {
+  async postToDHIS2(reportCSV) {
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     // TODO: This takes a variety of params we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
-    const params = new URLSearchParams({ dryRun });
-    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
+    const response = await fetch(`${host}/api/dataValueSets`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/csv',
@@ -78,19 +77,15 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
     const reportCSV = reportJSONToCSV(reportData);
 
-    const { status, message, httpStatusCode, response } = await this.postToDHIS2({
-      reportCSV,
-      dryRun: true,
-    });
+    const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
 
     if (httpStatusCode === 200) {
-      const { response } = await this.postToDHIS2({ reportCSV });
       log.info(`DHIS2IntegrationProcessor: Report sent to DHIS2 successfully`, {
         report: reportString,
         importCount: response.importCount,
       });
     } else {
-      log.warn(`DHIS2IntegrationProcessor: Dry run failed for report`, {
+      log.warn(`DHIS2IntegrationProcessor: Failed to send report to DHIS2`, {
         report: reportString,
         message,
         status,
