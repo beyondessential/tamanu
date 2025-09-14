@@ -46,7 +46,10 @@ sources:
             data_type: text
             description: "{{ doc('user_login_attempts__device_id') }}"
             data_tests:
-              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'devices')
+                    field: id
             config:
               meta:
                 masking: text

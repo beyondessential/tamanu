@@ -7,7 +7,7 @@ A string specifying the outcome of the login attempt.
 {% enddocs %}
 
 {% docs user_login_attempts__device_id %}
-A string with the device ID used on the login request.
+The [device](#!/source/source.tamanu.tamanu.devices).
 {% enddocs %}
 
 {% docs user_login_attempts__user_id %}
