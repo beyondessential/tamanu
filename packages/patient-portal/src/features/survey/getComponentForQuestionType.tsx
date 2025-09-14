@@ -32,6 +32,10 @@ const UnSupportedField = ({ label, type }: { label: string; type: string }) => {
   );
 };
 
+const withSaveDateAsString = (Component: React.ComponentType<any>) => (props: any) => (
+  <Component {...props} saveDateAsString />
+);
+
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
@@ -39,13 +43,9 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: (props: any) => <DateField {...props} saveDateAsString />,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: (props: any) => (
-    <DateTimeField {...props} saveDateAsString />
-  ),
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: (props: any) => (
-    <DateField {...props} saveDateAsString />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: withSaveDateAsString(DateField),
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: withSaveDateAsString(DateTimeField),
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: withSaveDateAsString(DateField),
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
@@ -68,7 +68,7 @@ const QUESTION_COMPONENTS = {
 export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
   if (Component === PlaceholderField || Component === UnSupportedField) {
-    return props => <Component {...props} type={type} />;
+    return (props: any) => <Component {...props} type={type} />;
   }
   return Component;
 }
