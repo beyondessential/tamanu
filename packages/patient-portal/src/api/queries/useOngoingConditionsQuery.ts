@@ -7,6 +7,6 @@ export const useOngoingConditionsQuery = () => {
 
   return useQuery<unknown, Error, OngoingCondition[]>({
     queryKey: ['ongoingConditions'],
-    queryFn: () => api.get('/me/ongoing-conditions'),
+    queryFn: () => api.get('me/ongoing-conditions'),
   });
 };

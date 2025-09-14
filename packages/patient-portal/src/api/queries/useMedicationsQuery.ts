@@ -8,6 +8,6 @@ export const useMedicationsQuery = () => {
 
   return useQuery<unknown, Error, OngoingPrescription[]>({
     queryKey: ['ongoingPrescriptions'],
-    queryFn: () => api.get('/me/ongoing-prescriptions'),
+    queryFn: () => api.get('me/ongoing-prescriptions'),
   });
 };
