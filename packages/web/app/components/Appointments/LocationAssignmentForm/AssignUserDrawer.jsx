@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { DeleteOutlined } from '@material-ui/icons';
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { useSuggester } from '../../../api';
 import {
@@ -16,14 +16,36 @@ import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
 import { Button } from '../../Button';
 import { Drawer } from '../../Drawer';
-import { AutocompleteField, DateField, Field, Form, LocalisedLocationField } from '../../Field';
+import {
+  AutocompleteField,
+  DateField,
+  Field,
+  Form,
+  LocalisedLocationField,
+  SwitchField,
+} from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
-import { BOOKING_SLOT_TYPES } from '../../../constants/locationAssignments';
+import {
+  ASSIGNMENT_SCHEDULE_INITIAL_VALUES,
+  BOOKING_SLOT_TYPES,
+  INITIAL_UNTIL_DATE_MONTHS_INCREMENT,
+  MODIFY_REPEATING_ASSIGNMENT_MODE,
+} from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
 import { TIME_SLOT_PICKER_VARIANTS } from '../LocationBookingForm/DateTimeRangeField/constants';
 import { DeleteLocationAssignmentModal } from './DeleteLocationAssignmentModal';
+import { RepeatingFields } from '../RepeatingFields';
+import { add, format, parseISO } from 'date-fns';
+import {
+  getLastFrequencyDate,
+  getWeekdayOrdinalPosition,
+} from '@tamanu/utils/appointmentScheduling';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { isNumber } from 'lodash';
+import { toast } from 'react-toastify';
+import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -74,12 +96,30 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const isViewing = Boolean(initialValues?.id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [
+    isConfirmModifyRepeatingAssignmentModalOpen,
+    setIsConfirmModifyRepeatingAssignmentModalOpen,
+  ] = useState(false);
+  const [
+    selectedModifyRepeatingAssignmentMode,
+    setSelectedModifyRepeatingAssignmentMode,
+  ] = useState();
+  const isEditingSingleRepeatingAssignment =
+    isEditMode &&
+    initialValues.isRepeatingAssignment &&
+    selectedModifyRepeatingAssignmentMode === MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_ASSIGNMENT;
+  const isEditingMultipleRepeatingAssignments =
+    isEditMode &&
+    initialValues.isRepeatingAssignment &&
+    selectedModifyRepeatingAssignmentMode ===
+      MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_AND_FUTURE_ASSIGNMENTS;
+  const hideRepeatingFields =
+    (isEditMode || isViewing) &&
+    (!initialValues?.isRepeatingAssignment || isEditingSingleRepeatingAssignment);
 
   // Reset edit mode when drawer closes or when switching to a different assignment
   useEffect(() => {
-    if (!open || !initialValues?.id) {
-      setIsEditMode(false);
-    }
+    setIsEditMode(false);
   }, [open, initialValues?.id]);
 
   const userSuggester = useSuggester('practitioner', {
@@ -103,23 +143,42 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     },
   });
 
-  const handleSubmit = async ({ userId, locationId, date, startTime, endTime }, { resetForm }) => {
-    mutateAssignment(
-      {
-        id: initialValues.id,
-        userId,
-        locationId,
-        date,
-        startTime: toDateTimeString(startTime).split(' ')[1],
-        endTime: toDateTimeString(endTime).split(' ')[1],
+  const handleSubmit = async (
+    { userId, locationId, date, startTime, endTime, isRepeatingAssignment, schedule },
+    { resetForm },
+  ) => {
+    const payload = {
+      id: initialValues.id,
+      userId,
+      locationId,
+      date,
+      startTime: toDateTimeString(startTime).split(' ')[1],
+      endTime: toDateTimeString(endTime).split(' ')[1],
+    };
+    if ((isRepeatingAssignment && !isViewing) || isEditingMultipleRepeatingAssignments) {
+      payload.repeatFrequency = schedule.interval;
+      payload.repeatUnit = schedule.frequency;
+      payload.repeatEndDate = schedule.occurrenceCount
+        ? getLastFrequencyDate(
+            date,
+            schedule.interval,
+            schedule.frequency,
+            schedule.occurrenceCount,
+          )
+        : toDateString(schedule.untilDate);
+      if (isEditingMultipleRepeatingAssignments) {
+        payload.updateAllNextRecords = true;
+      }
+    }
+    mutateAssignment(payload, {
+      onSuccess: () => {
+        onClose();
+        resetForm();
       },
-      {
-        onSuccess: () => {
-          onClose();
-          resetForm();
-        },
+      onError: error => {
+        toast.error(error.message);
       },
-    );
+    });
   };
 
   const handleDeleteClick = () => {
@@ -134,6 +193,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
 
   const handleDeleteCancel = () => {
     setIsDeleteModalOpen(false);
+  };
+
+  const handleConfirmModifyRepeatingAssignment = mode => {
+    setSelectedModifyRepeatingAssignmentMode(mode);
+    setIsEditMode(true);
+    setIsConfirmModifyRepeatingAssignmentModalOpen(false);
   };
 
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
@@ -204,9 +269,56 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       .date()
       .nullable()
       .required(requiredMessage),
+    schedule: yup.object().when('isRepeatingAssignment', {
+      is: true,
+      then: yup.object().shape(
+        {
+          interval: yup
+            .number()
+            .positive()
+            .required(requiredMessage)
+            .translatedLabel(
+              <TranslatedText
+                stringId="locationAssignment.form.repeating.interval.label"
+                fallback="Interval"
+              />,
+            ),
+          frequency: yup.string().required(requiredMessage),
+          occurrenceCount: yup.mixed().when('untilDate', {
+            is: val => !val,
+            then: yup
+              .number()
+              .required(requiredMessage)
+              .min(
+                2,
+                getTranslation('validation.rule.atLeastN', 'Must be at least :n', {
+                  replacements: { n: 2 },
+                }),
+              ),
+            otherwise: yup.number().nullable(),
+          }),
+          untilDate: yup.mixed().when('occurrenceCount', {
+            is: val => !isNumber(val),
+            then: yup.string().required(requiredMessage),
+            otherwise: yup.string().nullable(),
+          }),
+          daysOfWeek: yup
+            .array()
+            .of(yup.string().oneOf(DAYS_OF_WEEK))
+            // Note: currently supports a single day of the week
+            .length(1),
+          nthWeekday: yup
+            .number()
+            .nullable()
+            .min(-1)
+            .max(4),
+        },
+        ['untilDate', 'occurrenceCount'],
+      ),
+    }),
   });
 
-  const renderForm = ({ values, setFieldError, setStatus }) => {
+  const renderForm = ({ values, setFieldError, setStatus, setFieldValue, setFieldTouched }) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
       checkLeaveOverlap(values.userId, values.date, setFieldError, setStatus);
@@ -220,6 +332,61 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         setFieldError('endTime', '');
       }
     }, [values.startTime, values.endTime, setFieldError]);
+
+    const handleChangeIsRepeatingAssignment = e => {
+      if (e.target.checked) {
+        setFieldValue('schedule', ASSIGNMENT_SCHEDULE_INITIAL_VALUES);
+        handleUpdateScheduleToStartTime(parseISO(values.date));
+      } else {
+        setFieldError('schedule', undefined);
+        setFieldTouched('schedule', false);
+        setFieldValue('schedule', {});
+      }
+    };
+
+    const handleUpdateScheduleToStartTime = startTimeDate => {
+      if (!values.schedule) return;
+      const { frequency } = values.schedule;
+      // Update the ordinal positioning of the new date
+      setFieldValue(
+        'schedule.nthWeekday',
+        frequency === REPEAT_FREQUENCY.MONTHLY ? getWeekdayOrdinalPosition(startTimeDate) : null,
+      );
+      // Note: currently supports a single day of the week
+      setFieldValue('schedule.daysOfWeek', [format(startTimeDate, 'iiiiii').toUpperCase()]);
+
+      // Don't update the until date if occurrence count is set
+      if (!values.schedule.occurrenceCount) {
+        handleResetRepeatUntilDate(startTimeDate);
+      }
+    };
+
+    const handleResetRepeatUntilDate = startTimeDate => {
+      const { untilDate: initialUntilDate } = initialValues.schedule || {};
+      setFieldValue(
+        'schedule.untilDate',
+        initialUntilDate ||
+          toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
+      );
+    };
+
+    const handleUpdateDate = event => {
+      if (event.target.value) {
+        handleUpdateScheduleToStartTime(parseISO(event.target.value));
+      }
+    };
+
+    const onEdit = () => {
+      if (isEditMode) {
+        setIsEditMode(false);
+      } else {
+        if (initialValues.isRepeatingAssignment) {
+          setIsConfirmModifyRepeatingAssignmentModalOpen(true);
+        } else {
+          setIsEditMode(true);
+        }
+      }
+    };
 
     return (
       <Drawer
@@ -255,7 +422,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             />
           )
         }
-        onEdit={isViewing ? () => setIsEditMode(!isEditMode) : undefined}
+        onEdit={isViewing ? onEdit : undefined}
         data-testid="drawer-au2a"
       >
         <FormGrid nested columns={1} data-testid="formgrid-71fd">
@@ -298,6 +465,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
               />
             }
             component={DateField}
+            onChange={handleUpdateDate}
             required
             saveDateAsString
             disabled={isViewing && !isEditMode}
@@ -318,6 +486,31 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
           />
+          {!hideRepeatingFields && (
+            <Field
+              name="isRepeatingAssignment"
+              onChange={handleChangeIsRepeatingAssignment}
+              disabled={!values.date || isEditMode || isViewing}
+              label={
+                <TranslatedText
+                  stringId="locationAssignment.form.isRepeatingAssignment.label"
+                  fallback="Repeating assignment"
+                />
+              }
+              component={SwitchField}
+            />
+          )}
+          {values.isRepeatingAssignment && !hideRepeatingFields && (
+            <RepeatingFields
+              schedule={values.schedule}
+              startTime={values.date}
+              setFieldValue={setFieldValue}
+              setFieldError={setFieldError}
+              handleResetRepeatUntilDate={handleResetRepeatUntilDate}
+              readonly={isViewing && !isEditingMultipleRepeatingAssignments}
+              data-testid="repeatingappointmentfields-xd2i"
+            />
+          )}
           {isViewing && !isEditMode ? (
             <StyledButtonRow>
               <StyledButton
@@ -377,6 +570,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         onConfirm={handleDeleteConfirm}
         assignment={initialValues}
         data-testid="delete-assignment-modal"
+      />
+      <ModifyRepeatingAssignmentModal
+        open={isConfirmModifyRepeatingAssignmentModalOpen}
+        onClose={() => setIsConfirmModifyRepeatingAssignmentModalOpen(false)}
+        onConfirm={handleConfirmModifyRepeatingAssignment}
       />
     </>
   );

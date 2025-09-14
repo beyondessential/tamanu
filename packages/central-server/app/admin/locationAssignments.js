@@ -71,7 +71,7 @@ locationAssignmentsRouter.get(
       {
         model: LocationAssignmentTemplate,
         as: 'template',
-        attributes: ['id', 'date', 'startTime', 'endTime', 'repeatFrequency', 'repeatUnit'],
+        attributes: ['id', 'date', 'startTime', 'endTime', 'repeatFrequency', 'repeatUnit', 'repeatEndDate'],
       },
       {
         model: Location,
