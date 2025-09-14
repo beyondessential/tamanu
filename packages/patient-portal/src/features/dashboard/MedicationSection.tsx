@@ -2,7 +2,6 @@ import React from 'react';
 import { AccordionSection } from '../../components/AccordionSection';
 import { Box, styled, Typography, Card, CardContent } from '@mui/material';
 import { Pill } from 'lucide-react';
-
 import { useMedicationsQuery } from '@api/queries/useMedicationsQuery';
 import { LabelValueList } from '../../components/LabelValueList';
 import { StyledCircularProgress } from '../../components/StyledCircularProgress';
@@ -30,7 +29,7 @@ export const MedicationsSection = () => {
       ) : medications && medications.length > 0 ? (
         <MedicationContainer>
           {medications.map(medication => (
-            <Card key={medication.id} variant="secondary">
+            <Card key={medication.id}>
               <CardContent>
                 <LabelValueList>
                   <LabelValueList.ListItem
