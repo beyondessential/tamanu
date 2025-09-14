@@ -8,13 +8,21 @@ import {
   BaseMultiselectField,
   ReadOnlyTextField,
 } from '@tamanu/ui-components';
-import { type Survey } from '@tamanu/shared/schemas/patientPortal';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   return (
     <Box>
       {label}
       <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field</Box>
+    </Box>
+  );
+};
+
+const UnSupportedField = ({ label, type }: { label: string; type: string }) => {
+  return (
+    <Box>
+      {label}
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field is not supported</Box>
     </Box>
   );
 };
@@ -42,14 +50,16 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: UnSupportedField,
 };
 
-export function getComponentForQuestionType(type: Survey['surveyType']) {
+export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
-  // @ts-ignore: just adding type to component props for developing the question types
-  return props => <Component {...props} type={type} />;
+  if (Component === PlaceholderField || Component === UnSupportedField) {
+    return (props: any) => <Component {...props} type={type} />;
+  }
+  return Component;
 }
