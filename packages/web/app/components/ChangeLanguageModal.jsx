@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Modal, ModalActionRow } from '.';
+import { ModalActionRow } from '.';
 import styled from 'styled-components';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS, TranslatedText, Modal, SelectInput } from '@tamanu/ui-components';
 import { useTranslationLanguagesQuery } from '../api/queries';
-import { SelectInput } from './Field';
 import { useTranslation } from '../contexts/Translation.jsx';
 import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
