@@ -26,16 +26,19 @@ export async function up(query: QueryInterface): Promise<void> {
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    device_id: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      defaultValue: '',
-    },
     user_id: {
       type: DataTypes.STRING,
       allowNull: false,
       references: {
         model: 'users',
+        key: 'id',
+      },
+    },
+    device_id: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      references: {
+        model: 'devices',
         key: 'id',
       },
     },

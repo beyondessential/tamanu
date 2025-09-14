@@ -13,9 +13,9 @@ interface UserLoginAttemptMethodParams {
 
 export class UserLoginAttempt extends Model {
   declare id: string;
-  declare deviceId: string;
   declare outcome: string;
   declare userId: string;
+  declare deviceId: string | null;
 
   static initModel(options: InitOptions) {
     super.init(
@@ -25,11 +25,6 @@ export class UserLoginAttempt extends Model {
           allowNull: false,
           primaryKey: true,
           defaultValue: Sequelize.fn('gen_random_uuid'),
-        },
-        deviceId: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-          defaultValue: '',
         },
         outcome: {
           type: DataTypes.TEXT,
@@ -47,6 +42,10 @@ export class UserLoginAttempt extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'userId',
       as: 'user',
+    });
+    this.belongsTo(models.Device, {
+      foreignKey: 'deviceId',
+      as: 'device',
     });
   }
 
