@@ -2,9 +2,8 @@ import { Sequelize } from 'sequelize';
 import { SETTING_KEYS, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { checkIsUserLockedOut, getFailedLoginAttemptOutcome } from '../../app/auth/lockout';
 
-describe('lockout', () => {
+describe('UserLoginAttempt', () => {
   const deviceId = 'lockout-test-device-id';
   let ctx;
   let models;
@@ -36,8 +35,7 @@ describe('lockout', () => {
 
   describe('checkIsUserLockedOut', () => {
     it('should return false if the user has no locked login attempts', async () => {
-      const isUserLockedOut = await checkIsUserLockedOut({
-        models,
+      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -52,8 +50,7 @@ describe('lockout', () => {
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         createdAt: Sequelize.literal("CURRENT_TIMESTAMP - interval '3 minutes'"),
       });
-      const isUserLockedOut = await checkIsUserLockedOut({
-        models,
+      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -67,8 +64,7 @@ describe('lockout', () => {
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
       });
-      const isUserLockedOut = await checkIsUserLockedOut({
-        models,
+      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -77,36 +73,34 @@ describe('lockout', () => {
     });
   });
 
-  describe('getFailedLoginAttemptOutcome', () => {
-    it('should return FAILED if the user has failed less than the lockoutThreshold login attempts in the last observationWindow minutes', async () => {
+  describe('createFailedLoginAttempt', () => {
+    it('should create a failed login attempt if the user has failed less than the lockoutThreshold login attempts in the last observationWindow minutes', async () => {
       await models.UserLoginAttempt.create({
         userId,
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
         createdAt: Sequelize.literal("CURRENT_TIMESTAMP - interval '3 minutes'"),
       });
-      const loginAttemptOutcome = await getFailedLoginAttemptOutcome({
-        models,
+      const loginAttempt = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId,
         deviceId,
       });
-      expect(loginAttemptOutcome).toBe(LOGIN_ATTEMPT_OUTCOMES.FAILED);
+      expect(loginAttempt.outcome).toBe(LOGIN_ATTEMPT_OUTCOMES.FAILED);
     });
 
-    it('should return LOCKED if the user has failed more than the lockoutThreshold login attempts in the last observationWindow minutes', async () => {
+    it('should create a locked login attempt if the user has failed more than the lockoutThreshold login attempts in the last observationWindow minutes', async () => {
       await models.UserLoginAttempt.create({
         userId,
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
       });
-      const loginAttemptOutcome = await getFailedLoginAttemptOutcome({
-        models,
+      const loginAttempt = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId,
         deviceId,
       });
-      expect(loginAttemptOutcome).toBe(LOGIN_ATTEMPT_OUTCOMES.LOCKED);
+      expect(loginAttempt.outcome).toBe(LOGIN_ATTEMPT_OUTCOMES.LOCKED);
     });
   });
 });

@@ -7,7 +7,6 @@ import { addMinutes } from 'date-fns';
 import { COMMUNICATION_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getRandomBase64String } from './utils';
-import { checkIsUserLockedOut } from './lockout';
 
 export const resetPassword = express.Router();
 
@@ -31,7 +30,7 @@ resetPassword.post(
     const { email, deviceId } = body;
 
     const user = await models.User.getForAuthByEmail(email);
-    const isUserLockedOut = user ? await checkIsUserLockedOut({
+    const isUserLockedOut = user ? await models.UserLoginAttempt.checkIsUserLockedOut({
       models,
       settings,
       userId: user.id,

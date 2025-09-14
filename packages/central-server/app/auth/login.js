@@ -17,7 +17,6 @@ import {
   stripUser,
 } from './utils';
 import { ensureDeviceRegistration } from './ensureDeviceRegistration';
-import { checkIsUserLockedOut, getFailedLoginAttemptOutcome } from './lockout';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -107,8 +106,7 @@ export const login = ({ secret, refreshSecret }) =>
     }
 
     // Check if user is locked out
-    const isUserLockedOut = await checkIsUserLockedOut({
-      models,
+    const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
       settings,
       userId: user.id,
       deviceId,
@@ -120,16 +118,10 @@ export const login = ({ secret, refreshSecret }) =>
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      const outcome = await getFailedLoginAttemptOutcome({
-        models,
+      await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId: user.id,
         deviceId,
-      });
-      await models.UserLoginAttempt.create({
-        userId: user.id,
-        deviceId,
-        outcome,
       });
       throw new BadAuthenticationError('Invalid credentials');
     }
