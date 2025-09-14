@@ -52,11 +52,14 @@ export const userMiddleware = ({ secret }) =>
       throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
     }
 
+    const device = deviceId && (await store.models.Device.findByPk(deviceId));
+
     /* eslint-disable require-atomic-updates */
     // in this case we don't care if we're overwriting the user/deviceId
     // and express also guarantees execution order for middlewares
     req.user = user;
     req.deviceId = deviceId;
+    req.device = device;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
