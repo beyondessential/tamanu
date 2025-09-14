@@ -5,7 +5,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
-import { TranslatedText, getEnumTranslation } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
@@ -39,7 +39,7 @@ const PlaceholderStatusSelector = () => (
 );
 
 export const AppointmentStatusSelector = ({ appointment, disabled = false, ...props }) => {
-  const { getTranslation } = useTranslation();
+  const { getEnumTranslation } = useTranslation();
   const { mutateAsync: updateAppointment } = useAppointmentMutation(appointment.id, {
     onSuccess: () =>
       toast.success(
