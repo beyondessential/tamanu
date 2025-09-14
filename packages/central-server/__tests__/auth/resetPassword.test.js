@@ -35,6 +35,7 @@ describe('Auth', () => {
   let store;
   let close;
   let emailService;
+  let userId;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -42,12 +43,17 @@ describe('Auth', () => {
     close = ctx.close;
     store = ctx.store;
     emailService = ctx.emailService;
-    const { Role, User, Facility } = store.models;
-    await Promise.all([
+    const { Role, User, Facility, Device } = store.models;
+    const [, user] = await Promise.all([
       Role.create(fake(Role, { id: TEST_ROLE_ID })),
       ...USERS.map((r) => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
+    userId = user.id;
+    await Device.create(fake(Device, {
+      id: TEST_DEVICE_ID,
+      registeredById: user.id,
+    }));
   });
 
   beforeEach(async () => {
@@ -184,13 +190,8 @@ describe('Auth', () => {
       });
 
       it('Should reject a reset password request if the user is locked out', async () => {
-        const user = await store.models.User.findOne({
-          where: {
-            email: TEST_EMAIL,
-          },
-        });
         await store.models.UserLoginAttempt.create({
-          userId: user.id,
+          userId,
           deviceId: TEST_DEVICE_ID,
           outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         });

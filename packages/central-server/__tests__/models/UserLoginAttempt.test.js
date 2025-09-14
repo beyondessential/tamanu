@@ -25,6 +25,10 @@ describe('UserLoginAttempt', () => {
       lockoutThreshold: 1,
       observationWindow: 1,
     });
+    await models.Device.create(fake(models.Device, {
+      id: deviceId,
+      registeredById: userId,
+    }));
   });
 
   beforeEach(async () => {
