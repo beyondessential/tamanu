@@ -6,6 +6,6 @@ export const useAllergiesQuery = () => {
   const api = useApi();
   return useQuery<unknown, Error, Allergy[]>({
     queryKey: ['allergies'],
-    queryFn: () => api.get('/me/allergies'),
+    queryFn: () => api.get('me/allergies'),
   });
 };

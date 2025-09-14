@@ -6,6 +6,6 @@ export const useOutstandingSurveysQuery = () => {
   const api = useApi();
   return useQuery<unknown, Error, PortalSurveyAssignment[]>({
     queryKey: ['outstandingSurveys'],
-    queryFn: () => api.get('/me/surveys/outstanding'),
+    queryFn: () => api.get('me/surveys/outstanding'),
   });
 };

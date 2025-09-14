@@ -42,10 +42,10 @@ export const SurveyView = () => {
 
   return (
     <Container>
-      <Header sx={{ p: 2 }}>
+      <Header p={2}>
         <Title variant="h2">{survey.name}</Title>
       </Header>
-      <Box sx={{ p: 2 }}>
+      <Box p={2}>
         <SurveyForm
           patientAdditionalData={additionalData}
           encounterType={encounterType}

@@ -13,7 +13,6 @@ import {
   DateTimeField,
   NullableBooleanField,
 } from '@tamanu/ui-components';
-import { type Survey } from '@tamanu/shared/schemas/patientPortal';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   return (
@@ -66,7 +65,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: UnSupportedField,
 };
 
-export function getComponentForQuestionType(type: Survey['surveyType']) {
+export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
   if (Component === PlaceholderField || Component === UnSupportedField) {
     return props => <Component {...props} type={type} />;

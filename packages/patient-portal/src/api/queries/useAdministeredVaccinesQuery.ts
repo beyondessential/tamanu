@@ -7,6 +7,6 @@ export const useAdministeredVaccinesQuery = () => {
 
   return useQuery<unknown, Error, AdministeredVaccine[]>({
     queryKey: ['administeredVaccines'],
-    queryFn: () => api.get('/me/vaccinations/administered'),
+    queryFn: () => api.get('me/vaccinations/administered'),
   });
 };

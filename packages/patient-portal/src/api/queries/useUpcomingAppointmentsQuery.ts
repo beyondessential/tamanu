@@ -7,6 +7,6 @@ export const useUpcomingAppointmentsQuery = () => {
 
   return useQuery<unknown, Error, Appointment[]>({
     queryKey: ['upcomingAppointments'],
-    queryFn: () => api.get('/me/appointments/upcoming'),
+    queryFn: () => api.get('me/appointments/upcoming'),
   });
 };
