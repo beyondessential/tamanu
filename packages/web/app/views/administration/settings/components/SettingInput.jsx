@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
 import {
+  AutocompleteInput,
   LargeBodyText,
   NumberInput,
   TextButton,
@@ -13,6 +14,8 @@ import {
 import { JSONEditor } from './JSONEditor';
 import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
+import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
+import { useSuggester } from '../../../../api';
 
 const Unit = styled.div`
   font-size: 15px; // Match TextField
@@ -67,6 +70,8 @@ const TYPE_OVERRIDES_BY_KEY = {
   ['body']: SETTING_TYPES.LONG_TEXT,
 };
 
+const normalize = val => (val === null || val === '' ? '' : val);
+
 export const SettingInput = ({
   path,
   value,
@@ -75,14 +80,25 @@ export const SettingInput = ({
   unit,
   typeSchema,
   disabled,
+  suggesterEndpoint,
 }) => {
   const { type } = typeSchema;
+  const key = path.split('.').pop();
+  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+
   const [error, setError] = useState(null);
-  const normalize = val => (val === null || val === '' ? '' : val);
+
+  const suggester = useSuggester(suggesterEndpoint);
+  const displayValue = isUndefined(value) ? defaultValue : value;
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
     value,
     defaultValue,
   ]);
+
+  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
+  const handleChangeText = e => handleChangeSetting(path, e.target.value);
+  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
+  const handleChangeJSON = e => handleChangeSetting(path, e);
 
   useEffect(() => {
     try {
@@ -130,15 +146,20 @@ export const SettingInput = ({
     );
   };
 
-  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeText = e => handleChangeSetting(path, e.target.value);
-  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
-  const handleChangeJSON = e => handleChangeSetting(path, e);
-
-  const displayValue = isUndefined(value) ? defaultValue : value;
-
-  const key = path.split('.').pop();
-  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
+  const JSONInput = (
+    <Flexbox data-testid="flexbox-bpq4">
+      <JSONEditor
+        height="156px"
+        width="353px"
+        editMode={!disabled}
+        value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
+        onChange={handleChangeJSON}
+        error={error}
+        data-testid="jsoneditor-6t9w"
+      />
+      <DefaultButton data-testid="defaultbutton-qsdq" />
+    </Flexbox>
+  );
 
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
@@ -155,7 +176,17 @@ export const SettingInput = ({
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
-      return (
+      return suggesterEndpoint ? (
+        <Flexbox data-testid="flexbox-bpq4">
+          <AutocompleteInput
+            onChange={handleChangeText}
+            disabled={disabled}
+            suggester={suggester}
+            value={displayValue}
+          />
+          <DefaultButton data-testid="defaultbutton-qsdq" />
+        </Flexbox>
+      ) : (
         <Flexbox data-testid="flexbox-wwbe">
           <StyledTextInput
             value={displayValue ?? ''}
@@ -201,22 +232,22 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-5efq" />
         </Flexbox>
       );
-    case SETTING_TYPES.OBJECT:
     case SETTING_TYPES.ARRAY:
-      return (
+      return suggesterEndpoint ? (
         <Flexbox data-testid="flexbox-bpq4">
-          <JSONEditor
-            height="156px"
-            width="353px"
-            editMode={!disabled}
-            value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
-            onChange={handleChangeJSON}
-            error={error}
-            data-testid="jsoneditor-6t9w"
+          <MultiAutocompleteInput
+            onChange={handleChangeText}
+            disabled={disabled}
+            suggester={suggester}
+            value={displayValue}
           />
           <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
+      ) : (
+        <JSONInput />
       );
+    case SETTING_TYPES.OBJECT:
+      return <JSONInput />;
     default:
       return (
         <LargeBodyText data-testid="largebodytext-e29s">
