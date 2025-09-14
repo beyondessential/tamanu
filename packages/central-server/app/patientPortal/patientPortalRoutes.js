@@ -15,7 +15,7 @@ patientPortalModule.use('/me', patientDataRoutes);
 patientPortalModule.use('/survey/:surveyId', getSurvey);
 patientPortalModule.use('/surveyResponse/:assignmentId', createSurveyResponse);
 
-const allowedSuggesters = config?.patientPortal?.suggesters?.allowList || [];
+const allowedSuggesters = [];
 if (Array.isArray(allowedSuggesters) && allowedSuggesters.length > 0) {
   const allowListMiddleware = names => (req, res, next) => {
     const firstSegment = (req.path || '').replace(/^\//, '').split('/')[0];
