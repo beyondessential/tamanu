@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {  
-  type UpcomingVaccination,
-} from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
+import { type UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
 
 export const useUpcomingVaccinesQuery = () => {
@@ -9,6 +7,6 @@ export const useUpcomingVaccinesQuery = () => {
 
   return useQuery<unknown, Error, UpcomingVaccination[]>({
     queryKey: ['upcomingVaccines'],
-    queryFn: () => api.get('/me/vaccinations/upcoming'),
+    queryFn: () => api.get('me/vaccinations/upcoming'),
   });
 };

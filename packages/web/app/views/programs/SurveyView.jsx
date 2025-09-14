@@ -115,7 +115,7 @@ export const SurveyViewForm = ({
           status={status}
           showCancelButton={showCancelButton}
           getComponentForQuestionType={getComponentForQuestionType}
-          encounter={encounter}
+          encounterType={encounter?.type}
           data-testid="surveyscreenpaginator-8wns"
         />
       </>
@@ -123,15 +123,15 @@ export const SurveyViewForm = ({
   };
 
   return (
-      <Form
-        initialValues={initialValues}
-        onSubmit={onSubmit}
-        render={renderSurvey}
-        validationSchema={validationSchema}
-        validateOnChange
-        validateOnBlur
-        data-testid="form-12o2"
-      />
+    <Form
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      render={renderSurvey}
+      validationSchema={validationSchema}
+      validateOnChange
+      validateOnBlur
+      data-testid="form-12o2"
+    />
   );
 };
 

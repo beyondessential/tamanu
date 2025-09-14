@@ -70,7 +70,7 @@ export const SurveyScreenPaginator = ({
   status,
   setStatus,
   showCancelButton,
-  encounter,
+  encounterType,
   getComponentForQuestionType,
 }) => {
   const { components } = survey;
@@ -102,7 +102,7 @@ export const SurveyScreenPaginator = ({
         status={status}
         setStatus={setStatus}
         showCancelButton={showCancelButton}
-        encounterType={encounter?.encounterType}
+        encounterType={encounterType}
         getComponentForQuestionType={getComponentForQuestionType}
         data-testid="surveyscreen-2tj0"
       />

@@ -152,7 +152,7 @@ export const SurveyQuestion = ({
   const WrapperFieldComponent = tooltip ? FieldWithTooltip : Field;
   const fieldComponent = (
     <WrapperFieldComponent
-      tooltipText={tooltip}
+      $tooltipText={tooltip}
       inputRef={inputRef}
       label={text}
       component={FieldComponent}

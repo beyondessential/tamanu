@@ -2,7 +2,7 @@ import { VACCINE_STATUS } from '@tamanu/constants';
 
 import React from 'react';
 import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
-import type { UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
+import type { UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal';
 import { formatWeekOf, getVaccineStatusColor } from '@utils/format';
 
 interface UpcomingVaccineCardProps {
