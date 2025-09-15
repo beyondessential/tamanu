@@ -45,6 +45,7 @@ const HeadCellWrapper = styled(Box)`
   justify-content: center;
   position: sticky;
   text-align: center;
+  border-block-end: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const HeadCellTextWrapper = styled(Box)`
@@ -64,22 +65,6 @@ const HeadCellText = styled.div`
   font-size: 0.875rem;
 `;
 
-const AppointmentCountLabel = styled.div`
-  block-size: 1.1rem;
-  border-block: max(0.0625rem, 1px) solid ${Colors.outline};
-  color: ${Colors.midText};
-  inline-size: 100%;
-  letter-spacing: 0.02em;
-  padding-inline: 0.8125rem;
-  text-align: end;
-  font-size: 0.75rem;
-`;
-
-const AppointmentCount = styled('span')`
-  color: ${Colors.darkestText};
-  display: contents;
-  font-weight: 500;
-`;
 
 const AppointmentColumnWrapper = styled(Box)`
   display: flex;
@@ -98,27 +83,50 @@ const StatusText = styled.div`
 `;
 
 const AssignmentSection = styled.div`
-  background: ${Colors.veryLightBlue};
   border-block-end: max(0.0625rem, 1px) solid ${Colors.outline};
   padding: 0.5rem;
   font-size: 0.75rem;
+  height: 84px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
 `;
 
 const AssignmentItem = styled.div`
-  margin-block-end: 0.25rem;
+  display: grid;
+  grid-template-columns: 55px 1px 1fr;
+  align-items: center;
   &:last-child {
     margin-block-end: 0;
   }
 `;
 
-const AssignmentName = styled.span`
-  font-weight: 500;
-  color: ${Colors.darkestText};
+const AssignmentTime = styled.div`
+  color: ${Colors.midText};
+  font-size: 0.75rem;
+  padding-inline-end: 0.5rem;
 `;
 
-const AssignmentTime = styled.span`
-  color: ${Colors.midText};
-  margin-inline-start: 0.25rem;
+const AssignmentDivider = styled.div`
+  width: 1px;
+  height: 100%;
+  background-color: ${Colors.outline};
+  min-height: 2rem;
+`;
+
+const AssignmentName = styled.div`
+  color: ${Colors.darkestText};
+  font-size: 11px;
+  padding-inline-start: 4px;
+`;
+
+const NoAssignmentText = styled.div`
+  font-size: 11px;
+  text-align: center;
+  width: 100%;
 `;
 
 const ErrorText = styled(StatusText)`
@@ -141,8 +149,34 @@ const formatTime = (time) => {
   return format(new Date(time), 'h:mma').toLowerCase();
 };
 
-const HeadCell = ({ location, count, assignments = [] }) => (
+const HeadCell = ({ location, assignments = [] }) => (
   <>
+    <AssignmentSection data-testid="assignment-section">
+      {assignments.length > 0 ? (
+        assignments.map((assignment, index) => (
+          <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
+            <AssignmentTime data-testid="assignment-time">
+              {formatTime(assignment.startTime)}-
+              <br />
+              {formatTime(assignment.endTime)}
+            </AssignmentTime>
+            <AssignmentDivider data-testid="assignment-divider" />
+            <AssignmentName data-testid="assignment-name">
+              {assignment.user?.displayName || 'Unknown User'}
+            </AssignmentName>
+          </AssignmentItem>
+        ))
+      ) : (
+        <NoAssignmentText data-testid="no-assignment-text">
+          <TranslatedText
+            stringId="locationBooking.calendar.noClinicianAssigned"
+            fallback="No clinician assigned"
+            data-testid="no-clinician-assigned-text"
+          />
+        </NoAssignmentText>
+      )}
+    </AssignmentSection>
+    
     <HeadCellWrapper data-testid="headcellwrapper-daily">
       <HeadCellTextWrapper data-testid="headcelltextwrapper-daily">
         <HeadCellText data-testid="headcelltext-daily">
@@ -162,42 +196,6 @@ const HeadCell = ({ location, count, assignments = [] }) => (
         </HeadCellText>
       </HeadCellTextWrapper>
     </HeadCellWrapper>
-    
-    {assignments.length > 0 && (
-      <AssignmentSection data-testid="assignment-section">
-        {assignments.map((assignment, index) => (
-          <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
-            <AssignmentName data-testid="assignment-name">
-              {assignment.user?.displayName || 'Unknown User'}
-            </AssignmentName>
-            <AssignmentTime data-testid="assignment-time">
-              {formatTime(assignment.startTime)}-{formatTime(assignment.endTime)}
-            </AssignmentTime>
-          </AssignmentItem>
-        ))}
-      </AssignmentSection>
-    )}
-    
-    <AppointmentCountLabel data-testid="appointmentcountlabel-daily">
-      {Number.isInteger(count) && (
-        <>
-          <AppointmentCount data-testid="appointmentcount-daily">{count}</AppointmentCount>&nbsp;
-          {count === 1 ? (
-            <TranslatedText
-              stringId="appointments.outpatientCalendar.appointmentAbbreviation"
-              fallback="appt"
-              data-testid="appointment-singular"
-            />
-          ) : (
-            <TranslatedText
-              stringId="appointments.outpatientCalendar.appointmentAbbreviation.plural"
-              fallback="appts"
-              data-testid="appointment-plural"
-            />
-          )}
-        </>
-      )}
-    </AppointmentCountLabel>
   </>
 );
 
@@ -260,10 +258,8 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
   
-  // Always filter out locations without bookings
-  const locationsWithBookings = filteredLocations.filter(location => 
-    appointmentsByLocation[location.id]?.length > 0
-  );
+  // For daily view, show all locations (even without bookings)
+  const locationsToShow = filteredLocations;
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
@@ -295,13 +291,13 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
 
-  if (locationsWithBookings.length === 0) {
+  if (locationsToShow.length === 0) {
     return (
-      <StatusText data-testid="statustext-daily-no-bookings">
+      <StatusText data-testid="statustext-daily-no-locations">
         <TranslatedText
-          stringId="locationBooking.calendar.noBookingsToDisplay"
-          fallback="No bookings to display. Please try adjusting the search filters."
-          data-testid="no-bookings-message"
+          stringId="locationBooking.calendar.noBookableLocations"
+          fallback="No bookable locations to display. Please try adjusting the search filters."
+          data-testid="no-locations-message"
         />
       </StatusText>
     );
@@ -317,7 +313,7 @@ export const LocationBookingsDailyCalendar = ({
       data-testid="daily-calendar-container"
       {...props}
     >
-      {locationsWithBookings.map((location, locationIndex) => {
+      {locationsToShow.map((location, locationIndex) => {
         const locationAppointments = appointmentsByLocation[location.id] || [];
         
         return (
@@ -327,8 +323,7 @@ export const LocationBookingsDailyCalendar = ({
             data-testid={`column-wrapper-${locationIndex}`}
           >
             <HeadCell 
-              location={location} 
-              count={locationAppointments.length}
+              location={location}
               assignments={assignmentsByLocation[location.id] || []}
               data-testid={`head-cell-${locationIndex}`}
             />
