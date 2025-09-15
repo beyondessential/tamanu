@@ -152,10 +152,9 @@ const getIsDiscontinued = ({
   return new Date(discontinuedDate) < endDateOfSlot;
 };
 
-const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMarInfo }) => {
+const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt }) => {
   if (!pauseRecords?.length) return false;
 
-  const startDateOfSlot = getDateFromTimeString(timeSlot.startTime, selectedDate);
   const endDateOfSlot = getDateFromTimeString(timeSlot.endTime, selectedDate);
 
   return pauseRecords.some(pauseRecord => {
@@ -164,24 +163,6 @@ const getIsPaused = ({ pauseRecords, timeSlot, selectedDate, recordedAt, nextMar
 
     if (recordedAt && new Date(recordedAt) <= pauseStartDate) {
       return false;
-    }
-
-    // special case: when user records a dose in the future, then pauses the medication on the current slot, this slot will not be marked as paused
-    if (nextMarInfo?.recordedAt) {
-      if (
-        pauseStartDate >= startDateOfSlot &&
-        pauseStartDate < endDateOfSlot &&
-        pauseEndDate > endDateOfSlot &&
-        !getIsPaused({
-          pauseRecords,
-          timeSlot,
-          selectedDate,
-          recordedAt: nextMarInfo.recordedAt,
-          nextMarInfo: null,
-        })
-      ) {
-        return false;
-      }
     }
 
     return pauseStartDate < endDateOfSlot && pauseEndDate >= endDateOfSlot;
@@ -246,7 +227,6 @@ export const MarStatus = ({
     timeSlot,
     selectedDate,
     recordedAt,
-    nextMarInfo,
   });
 
   const previousTimeSlot = MEDICATION_ADMINISTRATION_TIME_SLOTS.find(
@@ -259,7 +239,6 @@ export const MarStatus = ({
       timeSlot: previousTimeSlot,
       selectedDate,
       recordedAt: previousMarInfo?.recordedAt,
-      nextMarInfo: marInfo,
     });
 
   const isPausedThenDiscontinued = getIsPausedThenDiscontinued({

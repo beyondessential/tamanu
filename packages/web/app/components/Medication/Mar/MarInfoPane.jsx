@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useTranslation } from '../../../contexts/Translation';
 import { Box } from '@material-ui/core';
 import { formatTimeSlot } from '../../../utils/medications';
-import { TAMANU_COLORS, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   findAdministrationTimeSlotFromIdealTime,
@@ -114,9 +114,13 @@ export const MarInfoPane = ({ medication, marInfo }) => {
               />
             </Box>
             <Box mb={'3px'}>
-              {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-              {getTranslatedFrequency(frequency, getTranslation)},{' '}
-              {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
+              {[
+                getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+                getTranslatedFrequency(frequency, getTranslation),
+                getEnumTranslation(DRUG_ROUTE_LABELS, route),
+              ]
+                .filter(Boolean)
+                .join(', ')}
             </Box>
             <Box color={TAMANU_COLORS.midText} mb={'3px'}>
               <span>{notes}</span>

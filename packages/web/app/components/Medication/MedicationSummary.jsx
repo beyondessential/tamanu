@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
 import {
   TAMANU_COLORS,
-  TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
 } from '@tamanu/ui-components';
@@ -54,9 +53,13 @@ export const MedicationSummary = ({ medication }) => {
           />
         </DarkestText>
         <DarkestText>
-          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(medication.frequency, getTranslation)},{' '}
-          <TranslatedEnum value={medication.route} enumValues={DRUG_ROUTE_LABELS} />
+          {[
+            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+            getTranslatedFrequency(medication.frequency, getTranslation),
+            getEnumTranslation(DRUG_ROUTE_LABELS, medication.route),
+          ]
+            .filter(Boolean)
+            .join(', ')}
         </DarkestText>
         {medication.notes && <MidText>{medication.notes}</MidText>}
       </Box>

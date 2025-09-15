@@ -366,7 +366,7 @@ export const ChangeStatusModal = ({ open, onClose, medication, marInfo, timeSlot
                 onConfirm={submitForm}
                 confirmDisabled={!(isChangingToGiven || isChangingToNotGiven)}
                 confirmText={
-                  <TranslatedText stringId="general.action.saveChanges" fallback="Save Changes" />
+                  <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />

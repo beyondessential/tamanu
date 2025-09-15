@@ -106,7 +106,7 @@ const SelectScreen = ({
         <Box flex={1}>
           <BodyText color={TAMANU_COLORS.darkText}>
             <TranslatedText
-              stringId="medication.modal.medicationSet.description"
+              stringId="medication.modal.medicationSet.question"
               fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
             />
           </BodyText>
