@@ -259,8 +259,8 @@ export const SettingInput = ({
           <DefaultButton data-testid="defaultbutton-5efq" />
         </Flexbox>
       );
-    case SETTING_TYPES.ARRAY:
     case SETTING_TYPES.OBJECT:
+    case SETTING_TYPES.ARRAY:
       return (
         <Flexbox data-testid="flexbox-bpq4">
           <JSONEditor
