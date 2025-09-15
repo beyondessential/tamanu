@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TranslatedText } from './TranslatedText';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import {
@@ -8,11 +7,15 @@ import {
   toCamelCase,
 } from '@tamanu/shared/utils/enumRegistry';
 
+export const getEnumStringId = (value, enumValues) => {
+  const prefix = getEnumPrefix(enumValues);
+  return `${prefix}.${toCamelCase(value)}`;
+};
+
 export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ...restProps }) => {
   if (IS_DEVELOPMENT) {
     throwIfNotRegisteredEnum(enumValues);
   }
-  const prefix = getEnumPrefix(enumValues);
   if (!enumValues[value]) {
     return (
       <TranslatedText
@@ -25,9 +28,7 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
   }
 
   const fallback = enumValues[value];
-  // convert the enum value to a string id
-  const camelCaseValue = toCamelCase(value);
-  const stringId = `${prefix}.${camelCaseValue}`;
+  const stringId = getEnumStringId(value, enumValues);
   return (
     <TranslatedText
       stringId={stringId}
@@ -36,9 +37,4 @@ export const TranslatedEnum = ({ value, enumValues, enumFallback = 'Unknown', ..
       data-testid="translatedtext-buer"
     />
   );
-};
-
-TranslatedEnum.propTypes = {
-  value: PropTypes.string.isRequired,
-  enumValues: PropTypes.object.isRequired,
 };

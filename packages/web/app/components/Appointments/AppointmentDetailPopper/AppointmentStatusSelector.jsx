@@ -3,13 +3,12 @@ import { styled } from '@mui/material/styles';
 import { debounce } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
-
+import { useTranslation } from '@tamanu/ui-components';
 import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
-import { useTranslation } from '../../../contexts/Translation';
 import { getEnumStringId } from '../../Translation/TranslatedEnum';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(

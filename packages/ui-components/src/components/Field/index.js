@@ -1,6 +1,9 @@
-// simple fields
+export * from './DateField';
 export * from './Field';
-export * from './SelectField';
+export * from './InstructionField';
 export * from './MultiselectField';
-export * from './TextField';
+export * from './NullableBooleanField';
+export * from './NumberField';
 export * from './OuterLabelFieldWrapper';
+export * from './SelectField';
+export * from './TextField';
