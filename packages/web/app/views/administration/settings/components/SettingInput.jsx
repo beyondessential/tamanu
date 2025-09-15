@@ -183,6 +183,8 @@ export const SettingInput = ({
             disabled={disabled}
             suggester={suggester}
             value={displayValue}
+            error={error}
+            helperText={error?.message}
           />
           <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
@@ -240,6 +242,8 @@ export const SettingInput = ({
             disabled={disabled}
             suggester={suggester}
             value={displayValue}
+            error={error}
+            helperText={error?.message}
           />
           <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
