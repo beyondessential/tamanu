@@ -1,4 +1,13 @@
-import { endOfDay, startOfDay, format, addHours, differenceInMinutes, parseISO, setHours, setMinutes } from 'date-fns';
+import {
+  endOfDay,
+  startOfDay,
+  format,
+  addHours,
+  differenceInMinutes,
+  parseISO,
+  setHours,
+  setMinutes,
+} from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
@@ -6,7 +15,10 @@ import Skeleton from '@mui/material/Skeleton';
 
 import { toDateTimeString, toDateString } from '@tamanu/utils/dateTime';
 
-import { useLocationBookingsQuery, useFacilityLocationAssignmentsQuery } from '../../../api/queries';
+import {
+  useLocationBookingsQuery,
+  useFacilityLocationAssignmentsQuery,
+} from '../../../api/queries';
 import { TranslatedText, TranslatedReferenceData } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
@@ -75,19 +87,19 @@ const AppointmentWrapper = styled.div`
   left: 4px;
   right: 4px;
   z-index: 1;
-  
+
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 1px;
     background: ${Colors.white};
     z-index: 1;
     pointer-events: none;
   }
-  
+
   .appointment-tile {
     height: calc(100% - 4px);
     margin-top: 2px;
@@ -172,7 +184,7 @@ const LoadingSkeleton = styled(Skeleton).attrs({
   }
 `;
 
-const formatTime = (time) => {
+const formatTime = time => {
   return format(new Date(time), 'h:mma').toLowerCase();
 };
 
@@ -203,23 +215,28 @@ const LocationHeaderContent = ({ location, assignments = [] }) => (
         </NoAssignmentText>
       )}
     </AssignmentSection>
-    
-    <div style={{ padding: '0.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2px' }} data-testid="location-title">
-      <div style={{ fontSize: '11px', color: Colors.midText }} data-testid="locationgroup-name">
+
+    <Box
+      sx={{
+        padding: '0.5rem',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+      }}
+      data-testid="location-title"
+    >
+      <Box sx={{ fontSize: '11px', color: Colors.midText }} data-testid="locationgroup-name">
         <TranslatedReferenceData
           category="locationGroup"
           value={location.locationGroup.id}
           fallback={location.locationGroup.name}
         />
-      </div>
-      <div style={{ fontSize: '14px', color: Colors.darkestText }} data-testid="location-name">
-        <TranslatedReferenceData
-          category="location"
-          value={location.id}
-          fallback={location.name}
-        />
-      </div>
-    </div>
+      </Box>
+      <Box sx={{ fontSize: '14px', color: Colors.darkestText }} data-testid="location-name">
+        <TranslatedReferenceData category="location" value={location.id} fallback={location.name} />
+      </Box>
+    </Box>
   </LocationHeader>
 );
 
@@ -249,7 +266,10 @@ export const LocationBookingsDailyCalendar = ({
     { keepPreviousData: true },
   );
 
-  const { data: assignmentsData, isLoading: isAssignmentsLoading } = useFacilityLocationAssignmentsQuery(
+  const {
+    data: assignmentsData,
+    isLoading: isAssignmentsLoading,
+  } = useFacilityLocationAssignmentsQuery(
     {
       after: toDateString(selectedDate),
       before: toDateString(selectedDate),
@@ -261,10 +281,10 @@ export const LocationBookingsDailyCalendar = ({
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
   const assignments = assignmentsData?.data ?? [];
-  
+
   // Partition assignments by location
   const assignmentsByLocation = {};
-  assignments.forEach((assignment) => {
+  assignments.forEach(assignment => {
     const locationId = assignment.locationId;
     if (!assignmentsByLocation[locationId]) {
       assignmentsByLocation[locationId] = [];
@@ -274,11 +294,11 @@ export const LocationBookingsDailyCalendar = ({
 
   // Filter locations based on location group filter
   let filteredLocations = locations || [];
-  
+
   // Apply location group filter if set
   if (locationGroupIds?.length > 0) {
-    filteredLocations = filteredLocations.filter(location => 
-      locationGroupIds.includes(location.locationGroup?.id)
+    filteredLocations = filteredLocations.filter(location =>
+      locationGroupIds.includes(location.locationGroup?.id),
     );
   }
 
@@ -295,22 +315,22 @@ export const LocationBookingsDailyCalendar = ({
     }
     return slots;
   }, [selectedDate]);
-  
+
   const hourCount = timeSlots.length;
 
   // Helper function to calculate appointment position and height
-  const getAppointmentStyle = (appointment) => {
+  const getAppointmentStyle = appointment => {
     const startTime = parseISO(appointment.startTime);
     const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
     const dayStart = setMinutes(setHours(selectedDate, 0), 0); // Start at 12:00 AM
-    
+
     const startOffset = differenceInMinutes(startTime, dayStart);
     const duration = differenceInMinutes(endTime, startTime);
-    
+
     const pixelsPerMinute = 70 / 60; // 70px per hour
     const top = Math.max(0, startOffset * pixelsPerMinute);
     const height = Math.max(30, duration * pixelsPerMinute); // Minimum 30px height
-    
+
     return { top, height };
   };
 
@@ -338,19 +358,11 @@ export const LocationBookingsDailyCalendar = ({
   );
 
   if (filteredLocations.length === 0) {
-    return (
-      <StatusText data-testid="statustext-daily">
-        {noLocationsText}
-      </StatusText>
-    );
+    return <StatusText data-testid="statustext-daily">{noLocationsText}</StatusText>;
   }
 
   if (locationsToShow.length === 0) {
-    return (
-      <StatusText data-testid="statustext-daily-no-locations">
-        {noLocationsText}
-      </StatusText>
-    );
+    return <StatusText data-testid="statustext-daily-no-locations">{noLocationsText}</StatusText>;
   }
 
   return (
@@ -368,8 +380,8 @@ export const LocationBookingsDailyCalendar = ({
         {/* Time column */}
         <TimeColumn>
           {/* Empty header space */}
-          <div style={{ height: '140px', background: Colors.white }} />
-          
+          <Box sx={{ height: '140px', background: Colors.white }} />
+
           {/* Time slots */}
           {timeSlots.map((slot, index) => (
             <TimeSlot key={index} data-testid={`time-slot-${index}`}>
@@ -381,40 +393,43 @@ export const LocationBookingsDailyCalendar = ({
         {/* Location columns */}
         {locationsToShow.map((location, locationIndex) => {
           const locationAppointments = appointmentsByLocation[location.id] || [];
-          
+
           return (
             <LocationColumn key={location.id} data-testid={`location-column-${locationIndex}`}>
-              <LocationHeaderContent 
+              <LocationHeaderContent
                 location={location}
                 assignments={assignmentsByLocation[location.id] || []}
               />
-              
+
               <LocationSchedule>
                 {/* Time slot background grid */}
                 {timeSlots.map((_, slotIndex) => (
-                  <div
+                  <Box
                     key={slotIndex}
-                    style={{
+                    sx={{
                       position: 'absolute',
                       top: slotIndex * 70,
                       left: 0,
                       right: 0,
                       height: 70,
-                      borderBlockEnd: slotIndex < timeSlots.length - 1 ? `max(0.0625rem, 1px) solid ${Colors.outline}` : 'none',
+                      borderBlockEnd:
+                        slotIndex < timeSlots.length - 1
+                          ? `max(0.0625rem, 1px) solid ${Colors.outline}`
+                          : 'none',
                     }}
                     data-testid={`time-grid-${locationIndex}-${slotIndex}`}
                   />
                 ))}
-                
+
                 {/* Appointments positioned by time */}
                 {locationAppointments.map((appointment, appointmentIndex) => {
                   const style = getAppointmentStyle(appointment);
                   return (
                     <AppointmentWrapper
                       key={appointment.id}
-                      style={{ 
-                        top: `${style.top}px`, 
-                        height: `${style.height}px` 
+                      style={{
+                        top: `${style.top}px`,
+                        height: `${style.height}px`,
                       }}
                       data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
                     >
@@ -435,10 +450,11 @@ export const LocationBookingsDailyCalendar = ({
                                       data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
                                     />
                                   ),
-                                  action: () => openBookingForm({
-                                    locationId: location.id,
-                                    startDate: selectedDate,
-                                  }),
+                                  action: () =>
+                                    openBookingForm({
+                                      locationId: location.id,
+                                      startDate: selectedDate,
+                                    }),
                                 },
                               ]
                             : []
