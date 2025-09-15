@@ -36,7 +36,7 @@ const getHeadersWithToken = (token: string): any => ({
 });
 
 describe('CentralServerConnection', () => {
-  let centralServerConnection;
+  let centralServerConnection: CentralServerConnection;
 
   beforeEach(() => {
     centralServerConnection = new CentralServerConnection();
@@ -51,7 +51,7 @@ describe('CentralServerConnection', () => {
     it('should call delete with correct parameters', async () => {
       const deleteSpy = jest.spyOn(centralServerConnection, 'delete').mockResolvedValue(null);
       await centralServerConnection.endSyncSession(mockSessionId);
-      expect(deleteSpy).toBeCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(deleteSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
     });
   });
   describe('startSyncSession', () => {
@@ -69,9 +69,9 @@ describe('CentralServerConnection', () => {
         urgent: false,
         lastSyncedTick: -1,
       });
-      expect(postSpy).toBeCalled();
-      expect(pollUntilTrueSpy).toBeCalledWith(expect.stringContaining(mockSessionId));
-      expect(getSpy).toBeCalledWith(expect.stringContaining(mockSessionId), {});
+      expect(postSpy).toHaveBeenCalled();
+      expect(pollUntilTrueSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId));
+      expect(getSpy).toHaveBeenCalledWith(expect.stringContaining(mockSessionId), {});
       expect(startSyncSessionRes).toEqual({ sessionId: mockSessionId, startedAtTick: 1 });
     });
   });
@@ -79,7 +79,7 @@ describe('CentralServerConnection', () => {
     it('should call get with correct parameters', async () => {
       const getSpy = jest.spyOn(centralServerConnection, 'get').mockResolvedValue(null);
       await centralServerConnection.pull(mockSessionId, 1, 'test-from-id');
-      expect(getSpy).toBeCalledWith(
+      expect(getSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {
           fromId: 'test-from-id',
@@ -101,7 +101,7 @@ describe('CentralServerConnection', () => {
         },
       ];
       await centralServerConnection.push(mockSessionId, mockChanges);
-      expect(postSpy).toBeCalledWith(
+      expect(postSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {},
         {
@@ -120,7 +120,7 @@ describe('CentralServerConnection', () => {
       const mockTablesToInclude = ['test-table-1', 'test-table-2'];
       const postSpy = jest.spyOn(centralServerConnection, 'post').mockResolvedValue(null);
       await centralServerConnection.completePush(mockSessionId, mockTablesToInclude);
-      expect(postSpy).toBeCalledWith(
+      expect(postSpy).toHaveBeenCalledWith(
         expect.stringContaining(mockSessionId),
         {},
         { tablesToInclude: mockTablesToInclude, deviceId: 'mobile-test-device-id' },
@@ -142,7 +142,7 @@ describe('CentralServerConnection', () => {
       const mockPassword = 'test-password';
 
       const loginRes = await centralServerConnection.login(mockEmail, mockPassword);
-      expect(postSpy).toBeCalledWith(
+      expect(postSpy).toHaveBeenCalledWith(
         'login',
         {},
         {
@@ -172,7 +172,7 @@ describe('CentralServerConnection', () => {
       const mockEmail = 'test@testemail.com';
       const mockPassword = 'test-password';
 
-      await expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrowError(
+      await expect(centralServerConnection.login(mockEmail, mockPassword)).rejects.toThrow(
         new AuthenticationError(generalErrorMessage),
       );
     });
@@ -194,7 +194,7 @@ describe('CentralServerConnection', () => {
 
       await centralServerConnection.refresh();
 
-      expect(postSpy).toBeCalledWith(
+      expect(postSpy).toHaveBeenCalledWith(
         'refresh',
         {},
         { refreshToken: mockRefreshToken, deviceId: 'mobile-test-device-id' },
@@ -205,12 +205,12 @@ describe('CentralServerConnection', () => {
           skipAttemptRefresh: true,
         },
       );
-      expect(centralServerConnection.emitter.emit).toBeCalledWith(
+      expect(centralServerConnection.emitter.emit).toHaveBeenCalledWith(
         'statusChange',
         CentralConnectionStatus.Connected,
       );
-      expect(setTokenSpy).toBeCalledWith(mockToken);
-      expect(setRefreshTokenSpy).toBeCalledWith(mockNewRefreshToken);
+      expect(setTokenSpy).toHaveBeenCalledWith(mockToken);
+      expect(setRefreshTokenSpy).toHaveBeenCalledWith(mockNewRefreshToken);
     });
     it('should throw an error if token or refreshToken are not defined', async () => {
       const mockRefreshToken = 'test-refresh-token';
@@ -218,7 +218,7 @@ describe('CentralServerConnection', () => {
         refreshToken: mockRefreshToken,
       });
 
-      await expect(centralServerConnection.refresh()).rejects.toThrowError(
+      await expect(centralServerConnection.refresh()).rejects.toThrow(
         new AuthenticationError(generalErrorMessage),
       );
     });
@@ -236,7 +236,7 @@ describe('CentralServerConnection', () => {
       centralServerConnection.setToken(mockToken);
 
       const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
-      expect(fetchWithTimeout).toBeCalledWith(
+      expect(fetchWithTimeout).toHaveBeenCalledWith(
         `${mockHost}/api/${mockPath}?test=${mockQuery.test}`,
         {
           headers: mockHeaders,
@@ -339,7 +339,7 @@ describe('CentralServerConnection', () => {
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       await expect(
         centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
-      ).rejects.toThrowError(new AuthenticationError(invalidTokenMessage));
+      ).rejects.toThrow(new AuthenticationError(invalidTokenMessage));
       expect(refreshSpy).not.toHaveBeenCalled();
     });
     it('should throw an error with updateUrl if version is outdated', async () => {
@@ -353,7 +353,7 @@ describe('CentralServerConnection', () => {
           },
         }),
       });
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrow(
         new OutdatedVersionError(mockUpdateUrl),
       );
     });
