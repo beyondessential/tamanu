@@ -117,16 +117,22 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       let rows: Translation[] = [];
-      try {
-        rows = await download('translations', csvExtractor, args);
-      } catch (error) {
-        args.log.error(
-          'Failed to download default translations for exact version, trying from release head',
-          {
-            error,
-            version: zeroPatch,
-          },
-        );
+
+      if (rows.length === 0) {
+        try {
+          rows = await download('translations', csvExtractor, args);
+        } catch (error) {
+          args.log.error(
+            'Failed to download default translations for exact version, trying from release head',
+            {
+              error,
+              version: zeroPatch,
+            },
+          );
+        }
+      }
+
+      if (rows.length === 0) {
         try {
           rows = await download('translations', csvExtractor, { ...args, toVersion: zeroPatch });
         } catch (error) {
