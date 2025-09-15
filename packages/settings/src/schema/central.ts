@@ -108,6 +108,7 @@ export const centralSettings = {
               type: yup.array(yup.string().min(1)),
               defaultValue: [],
             },
+            // Descriptions and allowed values taken from https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_data_values_import_parameters
             idSchemes: {
               description: 'The ID schemes to use for the reports',
               properties: {
