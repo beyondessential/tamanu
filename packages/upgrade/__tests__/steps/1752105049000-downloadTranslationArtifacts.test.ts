@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryTypes } from 'sequelize';
 import { STEPS } from '../../src/steps/1752105049000-downloadTranslationArtifacts.js';
-import { END } from '../../src/step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 // Mock dependencies
