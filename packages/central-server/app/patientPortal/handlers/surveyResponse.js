@@ -35,7 +35,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       locationId: locationId || (await getDefaultId('location')),
       departmentId: departmentId || (await getDefaultId('department')),
       userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
-      // facilityId, // Get from form assignment
+      facilityId: assignedSurvey.facilityId,
       ...payload,
     };
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);

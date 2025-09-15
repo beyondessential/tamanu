@@ -201,6 +201,7 @@ patientPortal.post(
     const portalSurveyAssignment = await models.PortalSurveyAssignment.create({
       patientId: patient.id,
       surveyId: survey.id,
+      facilityId,
       assignedById: user.id,
       assignedAt: assignedAt,
     });
