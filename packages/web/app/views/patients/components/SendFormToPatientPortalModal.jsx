@@ -64,7 +64,7 @@ const SendFormModal = ({ open, onClose, onSubmit }) => (
     <ModalBody>
       <BodyText>
         <TranslatedText
-          stringId="program.modal.sendToPatientPortal.description"
+          stringId="program.modal.sendToPatientPortal.notAssigned.description"
           fallback="This form will be sent to the patient's portal. Ensure the patient has portal access so they can complete the form once received."
         />
       </BodyText>
@@ -105,7 +105,7 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
       <br />
       <BodyText>
         <TranslatedText
-          stringId="program.modal.sendToPatientPortal.description"
+          stringId="program.modal.sendToPatientPortal.alreadyAssigned.description"
           fallback="If so, please ensure the patient has portal access so they can complete the form once received."
         />
       </BodyText>

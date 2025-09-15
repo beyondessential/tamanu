@@ -6,12 +6,11 @@ import {
   REPEAT_FREQUENCY_LABELS,
   REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
 } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedText, useTranslation } from '@tamanu/ui-components';
 
-import { TranslatedEnum, TranslatedText } from '../../Translation';
-import { useTranslation } from '../../../contexts/Translation';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { Box } from '@material-ui/core';
-import { TAMANU_COLORS } from '../../../constants';
+
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();

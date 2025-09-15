@@ -60,15 +60,14 @@ describe('Patient Portal Profile Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', testPatient.id);
-      expect(response.body.data).toHaveProperty('displayId', 'TEST001');
-      expect(response.body.data).toHaveProperty('firstName', 'John');
-      expect(response.body.data).toHaveProperty('lastName', 'Doe');
-      expect(response.body.data).toHaveProperty('sex', 'male');
-      expect(response.body.data).toHaveProperty('village');
-      expect(response.body.data.village).toHaveProperty('id', testVillage.id);
-      expect(response.body.data.village).toHaveProperty('name', 'Test Village');
+      expect(response.body).toHaveProperty('id', testPatient.id);
+      expect(response.body).toHaveProperty('displayId', 'TEST001');
+      expect(response.body).toHaveProperty('firstName', 'John');
+      expect(response.body).toHaveProperty('lastName', 'Doe');
+      expect(response.body).toHaveProperty('sex', 'male');
+      expect(response.body).toHaveProperty('village');
+      expect(response.body.village).toHaveProperty('id', testVillage.id);
+      expect(response.body.village).toHaveProperty('name', 'Test Village');
     });
 
     it('Should handle patient without village gracefully', async () => {
@@ -95,14 +94,13 @@ describe('Patient Portal Profile Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', newPatient.id);
-      expect(response.body.data).toHaveProperty('displayId', 'TEST002');
-      expect(response.body.data).toHaveProperty('firstName', 'Jane');
-      expect(response.body.data).toHaveProperty('lastName', 'Smith');
-      expect(response.body.data).toHaveProperty('sex', 'female');
+      expect(response.body).toHaveProperty('id', newPatient.id);
+      expect(response.body).toHaveProperty('displayId', 'TEST002');
+      expect(response.body).toHaveProperty('firstName', 'Jane');
+      expect(response.body).toHaveProperty('lastName', 'Smith');
+      expect(response.body).toHaveProperty('sex', 'female');
       // Village should be null or undefined when patient has no village
-      expect(response.body.data.village).toBeUndefined();
+      expect(response.body.village).toBeUndefined();
     });
 
     it('Should handle patient with null middleName', async () => {
@@ -131,13 +129,12 @@ describe('Patient Portal Profile Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', patientWithNullMiddleName.id);
-      expect(response.body.data).toHaveProperty('firstName', 'Bob');
-      expect(response.body.data).toHaveProperty('lastName', 'Johnson');
-      expect(response.body.data).toHaveProperty('sex', 'male');
+      expect(response.body).toHaveProperty('id', patientWithNullMiddleName.id);
+      expect(response.body).toHaveProperty('firstName', 'Bob');
+      expect(response.body).toHaveProperty('lastName', 'Johnson');
+      expect(response.body).toHaveProperty('sex', 'male');
       // middleName should be null
-      expect(response.body.data.middleName).toBeUndefined();
+      expect(response.body.middleName).toBeUndefined();
     });
 
     it('Should handle patient with undefined middleName', async () => {
@@ -166,13 +163,12 @@ describe('Patient Portal Profile Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', patientWithUndefinedMiddleName.id);
-      expect(response.body.data).toHaveProperty('firstName', 'Alice');
-      expect(response.body.data).toHaveProperty('lastName', 'Brown');
-      expect(response.body.data).toHaveProperty('sex', 'female');
+      expect(response.body).toHaveProperty('id', patientWithUndefinedMiddleName.id);
+      expect(response.body).toHaveProperty('firstName', 'Alice');
+      expect(response.body).toHaveProperty('lastName', 'Brown');
+      expect(response.body).toHaveProperty('sex', 'female');
       // middleName should be null
-      expect(response.body.data.middleName).toBeUndefined();
+      expect(response.body.middleName).toBeUndefined();
     });
 
     it('Should reject request without authorization header', async () => {
