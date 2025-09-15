@@ -77,8 +77,9 @@ const AppointmentWrapper = styled.div`
   z-index: 1;
   
   .appointment-tile {
-    height: 100%;
-    margin: 0;
+    height: calc(100% - 4px);
+    margin-top: 2px;
+    margin-bottom: 2px;
     width: 100%;
     font-size: 11px;
     padding-inline: 5px;
