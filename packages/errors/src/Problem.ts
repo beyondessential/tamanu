@@ -70,6 +70,17 @@ export class Problem extends Error {
     return headers;
   }
 
+  /** Mostly for test mocks, converts a Problem into a fetch Response. */
+  intoResponse(): Response {
+    const body = JSON.stringify(this.toJSON());
+    const headers = this.headers;
+
+    return new Response(body, {
+      status: this.status,
+      headers,
+    });
+  }
+
   excludeSensitiveFields(exclude: boolean): this {
     if (exclude) {
       this.extra.delete('stack');

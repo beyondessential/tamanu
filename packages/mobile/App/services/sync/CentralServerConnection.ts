@@ -39,11 +39,7 @@ const fetchAndParse = async (
     throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
 
-  if (
-    (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE ||
-      problem.type === ERROR_TYPE.REMOTE_INCOMPATIBLE) &&
-    problem.extra.has('updateUrl')
-  ) {
+  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
     throw new OutdatedVersionError(problem.extra.get('updateUrl'));
   }
 

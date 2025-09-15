@@ -7,6 +7,7 @@ import {
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout, sleepAsync } from './utils';
+import { Problem, ClientIncompatibleError } from '@tamanu/errors';
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
@@ -347,18 +348,9 @@ describe('CentralServerConnection', () => {
     it('should throw an error with updateUrl if version is outdated', async () => {
       const mockUpdateUrl = 'test-update-url';
       mockFetchWithTimeout.mockResolvedValueOnce(
-        new Response(
-          JSON.stringify({
-            error: {
-              name: 'InvalidClientVersion',
-              updateUrl: 'test-update-url',
-            },
-          }),
-          {
-            status: 400,
-            statusText: 'Bad Request',
-          },
-        ),
+        Problem.fromError(
+          new ClientIncompatibleError().withExtraData({ updateUrl: 'test-update-url' }),
+        ).intoResponse(),
       );
       await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrow(
         new OutdatedVersionError(mockUpdateUrl),
