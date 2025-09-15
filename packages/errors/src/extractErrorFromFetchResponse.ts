@@ -54,6 +54,7 @@ interface LegacyError {
 
 function convertLegacyError(error: LegacyError, response: Response): Problem {
   let legacyMessage = error?.message || response.status.toString();
+  let errorName: undefined | string;
   let ErrorClass;
   switch (error?.status ?? response.status) {
     case 400: {
@@ -64,8 +65,7 @@ function convertLegacyError(error: LegacyError, response: Response): Problem {
       ) {
         ErrorClass = ClientIncompatibleError;
       } else if (error.name) {
-        // a bit obnoxious, but typescript doesn't allow us to write to `name` directly
-        Object.assign(ErrorClass, { name: error.name });
+        errorName = error.name;
       }
       break;
     }
@@ -86,13 +86,14 @@ function convertLegacyError(error: LegacyError, response: Response): Problem {
     default:
       ErrorClass = UnknownError;
       if (error.name) {
-        Object.assign(ErrorClass, { name: error.name });
+        errorName = error.name;
       }
   }
 
   const problem = Problem.fromError(new ErrorClass(legacyMessage));
-  if (error.name) {
-    problem.title = problem.name = error.name;
+  if (error.name || errorName) {
+    // ! -> we know from the condition that at least one of error.name or errorName is defined
+    problem.title = errorName ?? error.name!;
     problem.message = legacyMessage;
   }
 
