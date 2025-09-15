@@ -27,13 +27,20 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { partitionAppointmentsByLocation } from './utils';
 import { useAuth } from '../../../contexts/Auth';
 
+const ScrollWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  direction: rtl;
+`;
+
 const CalendarGrid = styled.div`
   display: grid;
   grid-template-columns: 80px repeat(${props => props.$locationCount || 1}, 158px);
   min-height: 100%;
-  overflow: auto;
   width: max-content;
   min-width: 100%;
+  direction: ltr;
 `;
 
 const TimeColumn = styled.div`
@@ -373,99 +380,102 @@ export const LocationBookingsDailyCalendar = ({
       data-testid="daily-calendar-container"
       {...props}
     >
-      <CalendarGrid $locationCount={locationsToShow.length} style={{ '--hour-count': hourCount }}>
-        {/* Time column */}
-        <TimeColumn>
-          {/* Empty header space */}
-          <Box sx={{ height: '140px', background: Colors.white }} />
+      <ScrollWrapper>
+        <CalendarGrid $locationCount={locationsToShow.length} style={{ '--hour-count': hourCount }}>
+          {/* Time column */}
+          <TimeColumn>
+            {/* Empty header space */}
+            <Box sx={{ height: '140px', background: Colors.white }} />
 
-          {/* Time slots */}
-          {timeSlots.map((slot, index) => (
-            <TimeSlot key={index} data-testid={`time-slot-${index}`}>
-              {format(slot, 'h:mm a')}
-            </TimeSlot>
-          ))}
-        </TimeColumn>
+            {/* Time slots */}
+            {timeSlots.map((slot, index) => (
+              <TimeSlot key={index} data-testid={`time-slot-${index}`}>
+                {format(slot, 'h:mm a')}
+              </TimeSlot>
+            ))}
+          </TimeColumn>
 
-        {/* Location columns */}
-        {locationsToShow.map((location, locationIndex) => {
-          const locationAppointments = appointmentsByLocation[location.id] || [];
+          {/* Location columns */}
+          {locationsToShow.map((location, locationIndex) => {
+            const locationAppointments = appointmentsByLocation[location.id] || [];
 
-          return (
-            <LocationColumn key={location.id} data-testid={`location-column-${locationIndex}`}>
-              <LocationHeaderContent
-                location={location}
-                assignments={assignmentsByLocation[location.id] || []}
-              />
+            return (
+              <LocationColumn key={location.id} data-testid={`location-column-${locationIndex}`}>
+                <LocationHeaderContent
+                  location={location}
+                  assignments={assignmentsByLocation[location.id] || []}
+                />
 
-              <LocationSchedule>
-                {/* Time slot background grid */}
-                {timeSlots.map((_, slotIndex) => (
-                  <Box
-                    key={slotIndex}
-                    sx={{
-                      position: 'absolute',
-                      top: slotIndex * 70,
-                      left: 0,
-                      right: 0,
-                      height: 70,
-                      borderBlockEnd:
-                        slotIndex < timeSlots.length - 1
-                          ? `max(0.0625rem, 1px) solid ${Colors.outline}`
-                          : 'none',
-                    }}
-                    data-testid={`time-grid-${locationIndex}-${slotIndex}`}
-                  />
-                ))}
-
-                {/* Appointments positioned by time */}
-                {locationAppointments.map((appointment, appointmentIndex) => {
-                  const style = getAppointmentStyle(appointment);
-                  return (
-                    <AppointmentWrapper
-                      key={appointment.id}
-                      style={{
-                        top: `${style.top}px`,
-                        height: `${style.height}px`,
+                <LocationSchedule>
+                  {/* Time slot background grid */}
+                  {timeSlots.map((_, slotIndex) => (
+                    <Box
+                      key={slotIndex}
+                      sx={{
+                        position: 'absolute',
+                        top: slotIndex * 70,
+                        left: 0,
+                        right: 0,
+                        height: 70,
+                        background: Colors.white,
+                        borderBlockEnd:
+                          slotIndex < timeSlots.length - 1
+                            ? `max(0.0625rem, 1px) solid ${Colors.outline}`
+                            : 'none',
                       }}
-                      data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
-                    >
-                      <AppointmentTile
-                        appointment={appointment}
-                        hideTime={false}
-                        className="appointment-tile"
-                        onEdit={() => openBookingForm(appointment)}
-                        onCancel={() => openCancelModal(appointment)}
-                        actions={
-                          canCreateAppointment
-                            ? [
-                                {
-                                  label: (
-                                    <TranslatedText
-                                      stringId="appointments.action.newAppointment"
-                                      fallback="New appointment"
-                                      data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
-                                    />
-                                  ),
-                                  action: () =>
-                                    openBookingForm({
-                                      locationId: location.id,
-                                      startDate: selectedDate,
-                                    }),
-                                },
-                              ]
-                            : []
-                        }
-                        testIdPrefix={`${locationIndex}-${appointmentIndex}`}
-                      />
-                    </AppointmentWrapper>
-                  );
-                })}
-              </LocationSchedule>
-            </LocationColumn>
-          );
-        })}
-      </CalendarGrid>
+                      data-testid={`time-grid-${locationIndex}-${slotIndex}`}
+                    />
+                  ))}
+
+                  {/* Appointments positioned by time */}
+                  {locationAppointments.map((appointment, appointmentIndex) => {
+                    const style = getAppointmentStyle(appointment);
+                    return (
+                      <AppointmentWrapper
+                        key={appointment.id}
+                        style={{
+                          top: `${style.top}px`,
+                          height: `${style.height}px`,
+                        }}
+                        data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
+                      >
+                        <AppointmentTile
+                          appointment={appointment}
+                          hideTime={false}
+                          className="appointment-tile"
+                          onEdit={() => openBookingForm(appointment)}
+                          onCancel={() => openCancelModal(appointment)}
+                          actions={
+                            canCreateAppointment
+                              ? [
+                                  {
+                                    label: (
+                                      <TranslatedText
+                                        stringId="appointments.action.newAppointment"
+                                        fallback="New appointment"
+                                        data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
+                                      />
+                                    ),
+                                    action: () =>
+                                      openBookingForm({
+                                        locationId: location.id,
+                                        startDate: selectedDate,
+                                      }),
+                                  },
+                                ]
+                              : []
+                          }
+                          testIdPrefix={`${locationIndex}-${appointmentIndex}`}
+                        />
+                      </AppointmentWrapper>
+                    );
+                  })}
+                </LocationSchedule>
+              </LocationColumn>
+            );
+          })}
+        </CalendarGrid>
+      </ScrollWrapper>
     </Box>
   );
 };
