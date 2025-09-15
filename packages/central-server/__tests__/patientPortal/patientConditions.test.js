@@ -82,10 +82,11 @@ describe('Patient Portal Conditions Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
 
-      const condition = response.body[0];
+      const condition = data[0];
       expect(condition).toHaveProperty('id');
       expect(condition).toHaveProperty('note', 'Type 2 diabetes diagnosed in 2020');
       // The resolved property might not be present in the response
@@ -138,10 +139,11 @@ describe('Patient Portal Conditions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
 
-      const condition = response.body[0];
+      const condition = data[0];
       expect(condition).toHaveProperty('id');
       expect(condition).toHaveProperty('condition');
       expect(condition.condition).toHaveProperty('name', 'Hypertension');
@@ -191,10 +193,11 @@ describe('Patient Portal Conditions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
 
-      const condition = response.body[0];
+      const condition = data[0];
       expect(condition).toHaveProperty('id');
       expect(condition).toHaveProperty('note', 'Mild asthma');
       expect(condition).toHaveProperty('condition');
@@ -261,10 +264,11 @@ describe('Patient Portal Conditions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(1); // Should only return ongoing condition
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(1); // Should only return ongoing condition
 
-      const condition = response.body[0];
+      const condition = data[0];
       expect(condition).toHaveProperty('condition');
       expect(condition.condition).toHaveProperty('name', 'Ongoing Condition');
     });
@@ -293,8 +297,9 @@ describe('Patient Portal Conditions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {
