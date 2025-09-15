@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { extractErrorFromFetchResponse } from '@tamanu/api-client';
+import { extractErrorFromFetchResponse } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 /**
