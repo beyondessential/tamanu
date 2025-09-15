@@ -126,6 +126,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   // Reset edit mode when drawer closes or when switching to a different assignment
   useEffect(() => {
     setIsEditMode(false);
+    setSelectedModifyRepeatingAssignmentMode(undefined);
   }, [open, initialValues?.id]);
 
   const userSuggester = useSuggester('practitioner', {

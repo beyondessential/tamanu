@@ -171,9 +171,9 @@ export const RepeatingFields = ({
   const validateKeyboardEnteredNumber = (name, min = 1, max = 99) => {
     const inputValue = get(schedule, name);
     if (inputValue > max) {
-      setFieldValue(name, max);
+      setFieldValue(`schedule.${name}`, max);
     } else if (inputValue < min || inputValue === '') {
-      setFieldValue(name, min);
+      setFieldValue(`schedule.${name}`, min);
     }
   };
 
