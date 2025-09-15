@@ -96,9 +96,9 @@ export class DocumentMetadata extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
       }),
       joins: `
