@@ -5,7 +5,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const createSurveyResponse = asyncHandler(async (req, res) => {
-  const { patient, settings } = req;
+  const { patient } = req;
   const { models } = req.store;
 
   const body = CreateSurveyResponseRequestSchema.parse(req.body);
@@ -28,12 +28,15 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { locationId, departmentId, ...payload } = body;
-    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
+    // const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
 
     const updatedBody = {
       patientId: patient.id,
-      locationId: locationId || (await getDefaultId('location')),
-      departmentId: departmentId || (await getDefaultId('department')),
+      // Todo: get location and department from settings
+      // locationId: locationId || (await getDefaultId('location')),
+      // departmentId: departmentId || (await getDefaultId('department')),
+      locationId: locationId || 'location-GeneralClinic',
+      departmentId: departmentId || 'department-GeneralClinic',
       userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
       facilityId: assignedSurvey.facilityId,
       ...payload,
