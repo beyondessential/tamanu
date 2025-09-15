@@ -349,20 +349,17 @@ export const LocationBookingsDailyCalendar = ({
       </ErrorText>
     );
   }
-  const noLocationsText = (
-    <TranslatedText
-      stringId="locationBooking.calendar.noLocationsToShow"
-      fallback="No bookable locations to display. Please try adjusting the search filters."
-      data-testid="no-locations-message"
-    />
-  );
-
-  if (filteredLocations.length === 0) {
-    return <StatusText data-testid="statustext-daily">{noLocationsText}</StatusText>;
-  }
 
   if (locationsToShow.length === 0) {
-    return <StatusText data-testid="statustext-daily-no-locations">{noLocationsText}</StatusText>;
+    return (
+      <StatusText data-testid="statustext-daily-no-locations">
+        <TranslatedText
+          stringId="locationBooking.calendar.noLocationsToShow"
+          fallback="No bookable locations to display. Please try adjusting the search filters."
+          data-testid="no-locations-message"
+        />
+      </StatusText>
+    );
   }
 
   return (
