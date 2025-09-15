@@ -69,7 +69,7 @@ const DefaultSuccessScreen = ({ onClose }) => (
       <Button variant="contained" color="primary" onClick={onClose} data-testid="button-swbr">
         <TranslatedText
           stringId="general.action.ok"
-          fallback="Ok"
+          fallback="OK"
           data-testid="translatedtext-xxgi"
         />
       </Button>

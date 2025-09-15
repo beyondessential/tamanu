@@ -1,11 +1,17 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import {
+  CAN_ACCESS_ALL_FACILITIES,
+  DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
+  DEVICE_SCOPES,
+} from '@tamanu/constants';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
+  invalidDeviceMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
@@ -14,7 +20,6 @@ import {
 import { version } from '/root/package.json';
 import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 const API_PREFIX = 'api';
 
@@ -25,7 +30,11 @@ const fetchAndParse = async (
 ): Promise<Record<string, unknown>> => {
   const response = await fetchWithTimeout(url, config);
   if (response.status === 401) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+    const { error } = await getResponseJsonSafely(response);
+    const loginErrorMessage = error?.message === DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR
+      ? invalidDeviceMessage
+      : invalidUserCredentialsMessage;
+    throw new AuthenticationError(isLogin ? loginErrorMessage : invalidTokenMessage);
   }
 
   if (response.status === 400) {
@@ -295,7 +304,7 @@ export class CentralServerConnection {
       const data = await this.post(
         'login',
         {},
-        { email, password, deviceId: this.deviceId },
+        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPES.SYNC_CLIENT] },
         { backoff: { maxAttempts: 1 } },
       );
 

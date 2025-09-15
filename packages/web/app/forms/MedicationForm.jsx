@@ -979,7 +979,7 @@ export const MedicationForm = ({
                   name="patientWeight"
                   label={
                     <TranslatedText
-                      stringId="medication.patientWeight.label"
+                      stringId="medication.patientWeightIfPrinting.label"
                       fallback="Patient weight if printing (:unit)"
                       replacements={{ unit: weightUnit }}
                     />

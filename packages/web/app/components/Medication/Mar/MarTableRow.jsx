@@ -7,7 +7,7 @@ import {
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
-import { TAMANU_COLORS, TranslatedEnum, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS, TranslatedReferenceData, TranslatedText } from '@tamanu/ui-components';
 
 import { useTranslation } from '../../../contexts/Translation';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
@@ -111,9 +111,13 @@ export const MarTableRow = ({
           )}
         </Box>
         <Box>
-          {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(frequency, getTranslation)},{' '}
-          {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
+          {[
+            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+            getTranslatedFrequency(frequency, getTranslation),
+            getEnumTranslation(DRUG_ROUTE_LABELS, route),
+          ]
+            .filter(Boolean)
+            .join(', ')}
         </Box>
         <Box color={!isPausing ? TAMANU_COLORS.midText : undefined}>
           <span>{notes}</span>

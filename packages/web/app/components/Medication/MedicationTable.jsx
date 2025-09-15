@@ -416,7 +416,7 @@ export const EncounterMedicationTable = ({
                 alignItems="center"
               >
                 <TranslatedText
-                  stringId="medication.table.noMedications"
+                  stringId="medication.table.noMedicationsQuestion"
                   fallback="This patient has existing ongoing medications. Would you like to add these to this encounter?"
                 />
                 <StyledButton

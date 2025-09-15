@@ -211,7 +211,7 @@ export const NewPatientForm = memo(
           confirmText={
             <TranslatedText
               stringId="patient.register.action.createNewPatient"
-              fallback="Add new patient"
+              fallback="Create new patient"
               data-testid="translatedtext-add-new-patient"
             />
           }

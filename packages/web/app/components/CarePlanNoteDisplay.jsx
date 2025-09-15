@@ -57,7 +57,7 @@ const NoteContent = styled.p`
 
 export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
   const api = useApi();
-  const deleteNote = async (noteId) => api.delete(`notes/${noteId}`);
+  const deleteNote = async noteId => api.delete(`notes/${noteId}`);
   return (
     <NoteContainer data-testid="notecontainer-6fi4">
       <NoteHeaderContainer data-testid="noteheadercontainer-yyig">
@@ -70,7 +70,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
               &nbsp;&nbsp;|&nbsp;&nbsp;
               <TranslatedText
                 stringId="note.table.onBehalfOfText"
-                fallback="On behalf of :changeOnBehalfOfName"
+                fallback="on behalf of :changeOnBehalfOfName"
                 replacements={{ changeOnBehalfOfName: note.onBehalfOf.displayName }}
                 data-testid="translatedtext-g90i"
               />

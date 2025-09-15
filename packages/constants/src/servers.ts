@@ -22,4 +22,5 @@ export const SERVER_TYPES = {
   WEBAPP: 'Tamanu Desktop',
 
   MOBILE: 'Tamanu Mobile',
-};
+} as const;
+export type ServerType = (typeof SERVER_TYPES)[keyof typeof SERVER_TYPES];

@@ -444,7 +444,11 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                       return (
                         <DarkestText key={time}>
@@ -456,7 +460,11 @@ export const MedicationDetails = ({
                     })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       return (
                         <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
                       );
