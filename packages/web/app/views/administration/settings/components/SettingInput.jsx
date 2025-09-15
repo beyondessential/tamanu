@@ -91,8 +91,6 @@ export const SettingInput = ({
   suggesterEndpoint,
 }) => {
   const { type } = typeSchema;
-  const key = path.split('.').pop();
-  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
 
   const [error, setError] = useState(null);
 
@@ -154,6 +152,10 @@ export const SettingInput = ({
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
+  const displayValue = isUndefined(value) ? defaultValue : value;
+
+  const key = path.split('.').pop();
+  const typeKey = TYPE_OVERRIDES_BY_KEY[key] || type;
   if (suggesterEndpoint) {
     switch (typeKey) {
       case SETTING_TYPES.ARRAY:
