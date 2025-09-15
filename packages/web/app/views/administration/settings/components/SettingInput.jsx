@@ -155,31 +155,46 @@ export const SettingInput = ({
   };
 
   if (suggesterEndpoint) {
-    if (typeKey === SETTING_TYPES.ARRAY) {
-      return (
-        <Flexbox data-testid="flexbox-bpq4">
-          <StyledMultiAutocompleteInput
-            onChange={defaultHandleChange}
-            disabled={disabled}
-            suggester={suggester}
-            value={displayValue}
-          />
-          <DefaultButton data-testid="defaultbutton-qsdq" />
-        </Flexbox>
-      );
-    }
-    if (typeKey === SETTING_TYPES.STRING) {
-      <Flexbox data-testid="flexbox-bpq4">
-        <AutocompleteInput
-          onChange={defaultHandleChange}
-          disabled={disabled}
-          suggester={suggester}
-          value={displayValue}
-          error={error}
-          helperText={error?.message}
-        />
-        <DefaultButton data-testid="defaultbutton-qsdq" />
-      </Flexbox>;
+    switch (typeKey) {
+      case SETTING_TYPES.ARRAY:
+        return (
+          <Flexbox data-testid="flexbox-bpq4">
+            <StyledMultiAutocompleteInput
+              onChange={defaultHandleChange}
+              disabled={disabled}
+              suggester={suggester}
+              value={displayValue}
+              error={error}
+              helperText={error?.message}
+            />
+            <DefaultButton data-testid="defaultbutton-qsdq" />
+          </Flexbox>
+        );
+      case SETTING_TYPES.STRING:
+        return (
+          <Flexbox data-testid="flexbox-bpq4">
+            <AutocompleteInput
+              onChange={defaultHandleChange}
+              disabled={disabled}
+              suggester={suggester}
+              value={displayValue}
+              error={error}
+              helperText={error?.message}
+            />
+            <DefaultButton data-testid="defaultbutton-qsdq" />
+          </Flexbox>
+        );
+      default:
+        return (
+          <LargeBodyText data-testid="largebodytext-e29s">
+            <TranslatedText
+              stringId="admin.settings.error.noComponent"
+              fallback="No suggester component for this type: :type (default: :defaultValue)"
+              replacements={{ type, defaultValue }}
+              data-testid="translatedtext-ah4n"
+            />
+          </LargeBodyText>
+        );
     }
   }
 
