@@ -92,7 +92,6 @@ export const SettingInput = ({
 }) => {
   const { type } = typeSchema;
   const [error, setError] = useState(null);
-
   const suggester = useSuggester(suggesterEndpoint);
   const isUnchangedFromDefault = useMemo(() => isEqual(normalize(value), normalize(defaultValue)), [
     value,
