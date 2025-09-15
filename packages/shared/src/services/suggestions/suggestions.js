@@ -921,3 +921,7 @@ rootElements.forEach(endpoint => {
     throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
   }
 });
+
+createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
+  name: { [Op.iLike]: search },
+}));
