@@ -11,7 +11,7 @@ const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const ScopeDynamicSelectInput = styled(Field)`
+const ScopeField = styled(Field)`
   width: 300px;
   margin-top: 0.5rem;
 `;
@@ -52,7 +52,7 @@ export const ScopeSelectorFields = React.memo(({ scope, onScopeChange, onFacilit
         data-testid="scopeselectinput-zxel"
       />
       {scope === SETTINGS_SCOPES.FACILITY && (
-        <ScopeDynamicSelectInput
+        <ScopeField
           name="facilityId"
           component={AutocompleteField}
           suggester={facilitySuggester}
