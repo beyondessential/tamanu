@@ -33,6 +33,14 @@ const StyledNumberInput = styled(NumberInput)`
   }
 `;
 
+const StyledMultiAutocompleteInput = styled(MultiAutocompleteInput)`
+  width: 353px;
+
+  .MuiInputBase-root.Mui-disabled {
+    background: ${Colors.background};
+  }
+`;
+
 const DefaultSettingButton = styled(TextButton)`
   color: ${Colors.darkestText};
   font-size: 15px; // Match TextField
@@ -237,7 +245,7 @@ export const SettingInput = ({
     case SETTING_TYPES.ARRAY:
       return suggesterEndpoint ? (
         <Flexbox data-testid="flexbox-bpq4">
-          <MultiAutocompleteInput
+          <StyledMultiAutocompleteInput
             onChange={defaultHandleChange}
             disabled={disabled}
             suggester={suggester}
