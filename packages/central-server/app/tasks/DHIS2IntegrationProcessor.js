@@ -28,7 +28,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     // TODO: This takes a variety of params we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
     const response = await fetchWithRetryBackoff(
-      "${host}/api/dataValueSets",
+      `${host}/api/dataValueSets`,
       {
         fetch,
         method: 'POST',
