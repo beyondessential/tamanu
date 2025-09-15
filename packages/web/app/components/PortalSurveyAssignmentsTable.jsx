@@ -28,7 +28,7 @@ const TableHeader = () => (
   <Container>
     <Heading4>
       <TranslatedText
-        stringId="vaccine.table.schedule.label"
+        stringId="program.table.outstandingPatientForms.header"
         fallback="Outstanding patient program forms"
       />
     </Heading4>
