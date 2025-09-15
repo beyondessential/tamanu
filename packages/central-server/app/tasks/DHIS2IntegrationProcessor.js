@@ -22,11 +22,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async postToDHIS2(reportCSV) {
+    const { idSchemes } = await this.context.settings.get('integrations.dhis2');
     const { host, username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-    // TODO: This takes a variety of params we should check if we need like importStrategy, mergeMode, mergeDataValues, etc
-    const response = await fetch(`${host}/api/dataValueSets`, {
+    const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
+    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/csv',

@@ -108,6 +108,42 @@ export const centralSettings = {
               type: yup.array(yup.string().min(1)),
               defaultValue: [],
             },
+            idSchemes: {
+              description: 'The ID schemes to use for the reports',
+              properties: {
+                dataElementIdScheme: {
+                  name: 'Data element ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  defaultValue: 'uid',
+                },
+                orgUnitIdScheme: {
+                  name: 'Organisation unit ID scheme',
+                  description: 'Property of the org unit object to use to map the data values.',
+                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  defaultValue: 'uid',
+                },
+                categoryOptionComboIdScheme: {
+                  name: 'Category option combo ID scheme',
+                  description:
+                    'Property of the category option combo and attribute option combo objects to use to map the data values.',
+                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  defaultValue: 'uid',
+                },
+                dataSetIdScheme: {
+                  name: 'Data set ID scheme',
+                  description: 'Property of the data set object to use to map the data values.',
+                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  defaultValue: 'uid',
+                },
+                idScheme: {
+                  name: 'ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  defaultValue: 'uid',
+                },
+              },
+            },
           },
         },
       },
