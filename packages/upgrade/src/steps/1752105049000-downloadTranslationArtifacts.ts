@@ -19,11 +19,11 @@ interface Translation {
   fallback?: string; // legacy
 }
 
-async function apply(
+async function download(
   artifactType: string,
   extractor: (resp: Response) => Promise<Translation[]>,
-  { toVersion, models, log }: StepArgs,
-) {
+  { toVersion, log }: StepArgs,
+): Promise<Translation[]> {
   const url = `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`;
   log.info('Downloading translation artifacts', { version: toVersion, url });
 
@@ -56,22 +56,25 @@ async function apply(
     );
   }
 
-  const translationRows = await extractor(translationsResponse);
-  if (translationRows.length === 0) {
-    throw new Error('No valid translation rows found in CSV');
+  return await extractor(translationsResponse);
+}
+
+async function apply(artifactType: string, rows: Translation[], { models, log }: StepArgs) {
+  if (rows.length === 0) {
+    throw new Error('No valid translation rows found');
   }
 
-  log.info(`Importing ${artifactType}`, { count: translationRows.length });
+  log.info(`Importing ${artifactType}`, { count: rows.length });
 
-  if (translationRows.length > 0) {
+  if (rows.length > 0) {
     await models.TranslatedString.sequelize.query(
       `
           INSERT INTO translated_strings (string_id, text, language)
-          VALUES ${translationRows.map(() => `(?, ?, '${DEFAULT_LANGUAGE_CODE}')`).join(', ')}
+          VALUES ${rows.map(() => `(?, ?, '${DEFAULT_LANGUAGE_CODE}')`).join(', ')}
           ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
         `,
       {
-        replacements: translationRows.flatMap(row => {
+        replacements: rows.flatMap(row => {
           const text = row[DEFAULT_LANGUAGE_CODE] ?? row[ENGLISH_LANGUAGE_CODE] ?? row.fallback;
           return text ? [row.stringId, text] : [];
         }),
@@ -94,12 +97,12 @@ async function csvExtractor(resp: Response): Promise<Translation[]> {
 async function xlsxExtractor(resp: Response): Promise<Translation[]> {
   const data = await resp.arrayBuffer();
   const workbook = xlsx.read(data, { type: 'buffer' });
-  const sheet = workbook.Sheets[0];
+  const sheet = Object.values(workbook.Sheets)[0];
   if (!sheet) {
     throw new Error('No sheet found in the XLSX file');
   }
 
-  const rows: Translation[] = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+  const rows: Translation[] = xlsx.utils.sheet_to_json(sheet);
   return uniqBy(rows, item => item.stringId);
 }
 
@@ -113,18 +116,34 @@ export const STEPS: Steps = [
     async run(args: StepArgs) {
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
+      let rows: Translation[] = [];
       try {
-        await apply('translations', csvExtractor, args);
-        args.log.info('Successfully imported default translations');
+        rows = await download('translations', csvExtractor, args);
       } catch (error) {
+        args.log.error(
+          'Failed to download default translations for exact version, trying from release head',
+          {
+            error,
+            version: zeroPatch,
+          },
+        );
         try {
-          args.log.info('Trying to import default translations from release head instead', {
-            version: zeroPatch,
-          });
-          await apply('translations', csvExtractor, { ...args, toVersion: zeroPatch });
-          args.log.info('Successfully imported default translations', {
-            version: zeroPatch,
-          });
+          rows = await download('translations', csvExtractor, { ...args, toVersion: zeroPatch });
+        } catch (error) {
+          args.log.error(
+            'Failed to download default translations, you will need to manually import them',
+            {
+              error,
+              version: zeroPatch,
+            },
+          );
+        }
+      }
+
+      if (rows.length > 0) {
+        try {
+          await apply('translations', rows, args);
+          args.log.info('Successfully imported default translations');
         } catch (error) {
           // Failing to import translations is not world-ending... for now
           // We may want to make this more strict in the future
@@ -138,7 +157,11 @@ export const STEPS: Steps = [
       }
 
       try {
-        await apply('report-translations', xlsxExtractor, { ...args, toVersion: zeroPatch });
+        const rows = await download('report-translations', xlsxExtractor, {
+          ...args,
+          toVersion: zeroPatch,
+        });
+        await apply('report-translations', rows, { ...args, toVersion: zeroPatch });
         args.log.info('Successfully imported default report translations');
       } catch (error) {
         args.log.error(
