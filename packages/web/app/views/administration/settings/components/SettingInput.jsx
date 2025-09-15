@@ -154,20 +154,34 @@ export const SettingInput = ({
     );
   };
 
-  const JSONInput = (
-    <Flexbox data-testid="flexbox-bpq4">
-      <JSONEditor
-        height="156px"
-        width="353px"
-        editMode={!disabled}
-        value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
-        onChange={handleChangeJSON}
-        error={error}
-        data-testid="jsoneditor-6t9w"
-      />
-      <DefaultButton data-testid="defaultbutton-qsdq" />
-    </Flexbox>
-  );
+  if (suggesterEndpoint) {
+    if (typeKey === SETTING_TYPES.ARRAY) {
+      return (
+        <Flexbox data-testid="flexbox-bpq4">
+          <StyledMultiAutocompleteInput
+            onChange={defaultHandleChange}
+            disabled={disabled}
+            suggester={suggester}
+            value={displayValue}
+          />
+          <DefaultButton data-testid="defaultbutton-qsdq" />
+        </Flexbox>
+      );
+    }
+    if (typeKey === SETTING_TYPES.STRING) {
+      <Flexbox data-testid="flexbox-bpq4">
+        <AutocompleteInput
+          onChange={defaultHandleChange}
+          disabled={disabled}
+          suggester={suggester}
+          value={displayValue}
+          error={error}
+          helperText={error?.message}
+        />
+        <DefaultButton data-testid="defaultbutton-qsdq" />
+      </Flexbox>;
+    }
+  }
 
   switch (typeKey) {
     case SETTING_TYPES.BOOLEAN:
@@ -184,19 +198,7 @@ export const SettingInput = ({
         </Flexbox>
       );
     case SETTING_TYPES.STRING:
-      return suggesterEndpoint ? (
-        <Flexbox data-testid="flexbox-bpq4">
-          <AutocompleteInput
-            onChange={defaultHandleChange}
-            disabled={disabled}
-            suggester={suggester}
-            value={displayValue}
-            error={error}
-            helperText={error?.message}
-          />
-          <DefaultButton data-testid="defaultbutton-qsdq" />
-        </Flexbox>
-      ) : (
+      return (
         <Flexbox data-testid="flexbox-wwbe">
           <StyledTextInput
             value={displayValue ?? ''}
@@ -243,23 +245,21 @@ export const SettingInput = ({
         </Flexbox>
       );
     case SETTING_TYPES.ARRAY:
-      return suggesterEndpoint ? (
+    case SETTING_TYPES.OBJECT:
+      return (
         <Flexbox data-testid="flexbox-bpq4">
-          <StyledMultiAutocompleteInput
-            onChange={defaultHandleChange}
-            disabled={disabled}
-            suggester={suggester}
-            value={displayValue}
+          <JSONEditor
+            height="156px"
+            width="353px"
+            editMode={!disabled}
+            value={isString(displayValue) ? displayValue : JSON.stringify(displayValue, null, 2)}
+            onChange={handleChangeJSON}
             error={error}
-            helperText={error?.message}
+            data-testid="jsoneditor-6t9w"
           />
           <DefaultButton data-testid="defaultbutton-qsdq" />
         </Flexbox>
-      ) : (
-        <JSONInput />
       );
-    case SETTING_TYPES.OBJECT:
-      return <JSONInput />;
     default:
       return (
         <LargeBodyText data-testid="largebodytext-e29s">
