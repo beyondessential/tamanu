@@ -32,7 +32,7 @@ export class PatientOngoingPrescription extends Model {
     });
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

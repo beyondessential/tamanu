@@ -235,9 +235,9 @@ export class SurveyResponse extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
+      select: await buildEncounterPatientIdSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
     };
   }
