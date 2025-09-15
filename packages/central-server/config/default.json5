@@ -527,9 +527,6 @@
     "portalUrl": "http://localhost:5175",
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
-    "registerTokenDurationMinutes": 1440,
-    // Allowed suggester root endpoints for patient portal routes
-    // Values must match entries in SUGGESTER_ENDPOINTS (e.g. 'drug', 'location', ...)
-    "allowedSuggesters": ["drug"]
+    "registerTokenDurationMinutes": 1440
   }
 }
