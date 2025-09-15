@@ -3,10 +3,8 @@ import { suggestions } from '@tamanu/shared/services/suggestions';
 import { allowListMiddleware } from './allowListMiddleware';
 import { REFERENCE_TYPES } from '@tamanu/constants';
 
+const SUGGESTER_ALLOW_LIST = [REFERENCE_TYPES.DRUG];
+
 export const suggestionRoutes = express.Router();
 
-const allowedSuggesters = [REFERENCE_TYPES.DRUG]
-
-if (Array.isArray(allowedSuggesters) && allowedSuggesters.length > 0) {
-  suggestionRoutes.use('/', allowListMiddleware(allowedSuggesters), suggestions);
-}
+suggestionRoutes.use('/', allowListMiddleware(SUGGESTER_ALLOW_LIST), suggestions);
