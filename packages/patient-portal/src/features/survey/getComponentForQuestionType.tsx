@@ -53,8 +53,8 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: UnSupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
@@ -67,6 +67,7 @@ const QUESTION_COMPONENTS = {
 
 export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
+  console.log('getComponentForQuestionType', type);
   if (Component === PlaceholderField || Component === UnSupportedField) {
     return (props: any) => <Component {...props} type={type} />;
   }

@@ -5,7 +5,7 @@ import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/co
 import { NotFoundError } from '@tamanu/shared/errors';
 
 export const createSurveyResponse = asyncHandler(async (req, res) => {
-  const { patient } = req;
+  const { patient, settings } = req;
   const { models } = req.store;
 
   const body = CreateSurveyResponseRequestSchema.parse(req.body);
@@ -28,15 +28,16 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { locationId, departmentId, ...payload } = body;
+    const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
+
     const updatedBody = {
       patientId: patient.id,
-      locationId: locationId || 'department-GeneralClinic',
-      departmentId: departmentId || 'location-GeneralClinic',
-      userId: SYSTEM_USER_UUID,
-      // facilityId, // TODO: add to form assignment ?
+      locationId: locationId || (await getDefaultId('location')),
+      departmentId: departmentId || (await getDefaultId('department')),
+      userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
+      // facilityId, // Get from form assignment
       ...payload,
     };
-    console.log('CREATE WITH ANSWERS');
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
     await assignedSurvey.update({
       surveyResponseId: surveyResponse.id,
