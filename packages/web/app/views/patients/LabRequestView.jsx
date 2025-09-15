@@ -3,8 +3,20 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { AssignmentLate, Business, Timelapse } from '@material-ui/icons';
-import { LAB_REQUEST_STATUS_CONFIG, LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { OutlinedButton, TAMANU_COLORS, Button, MODAL_TRANSITION_DURATION } from '@tamanu/ui-components';
+import {
+  LAB_REQUEST_STATUS_CONFIG,
+  LAB_REQUEST_STATUS_LABELS,
+  LAB_REQUEST_STATUSES,
+} from '@tamanu/constants';
+import {
+  OutlinedButton,
+  TAMANU_COLORS,
+  Button,
+  MODAL_TRANSITION_DURATION,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
@@ -34,7 +46,6 @@ import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
-import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 
@@ -59,7 +70,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${(p) => p.color || TAMANU_COLORS.darkestText};
+  color: ${p => p.color || TAMANU_COLORS.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -171,18 +182,18 @@ export const LabRequestView = () => {
     }, MODAL_TRANSITION_DURATION);
   };
 
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
 
   const handleRefreshLabTestTable = () => {
-    setLabTestTableRefreshCount((oldVal) => oldVal + 1);
+    setLabTestTableRefreshCount(oldVal => oldVal + 1);
   };
 
-  const updateLabReq = async (data) => {
+  const updateLabReq = async data => {
     await updateLabRequest(labRequest.id, data);
     navigateToLabRequest(labRequest.id);
   };
 
-  const handleChangeModalId = (id) => {
+  const handleChangeModalId = id => {
     setModalId(id);
     setModalOpen(true);
   };
@@ -297,7 +308,7 @@ export const LabRequestView = () => {
             text={
               <TranslatedText
                 stringId="lab.testCategory.label"
-                fallback="Test Category"
+                fallback="Test category"
                 data-testid="translatedtext-4nhr"
               />
             }
@@ -329,7 +340,11 @@ export const LabRequestView = () => {
                 $color={LAB_REQUEST_STATUS_CONFIG[displayStatus]?.color}
                 data-testid="tiletag-zdg8"
               >
-                <TranslatedEnum enumValues={LAB_REQUEST_STATUS_LABELS} value={displayStatus} data-testid="translatedenum-lab-request-status" />
+                <TranslatedEnum
+                  enumValues={LAB_REQUEST_STATUS_LABELS}
+                  value={displayStatus}
+                  data-testid="translatedenum-lab-request-status"
+                />
               </TileTag>
             }
             actions={[

@@ -242,7 +242,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           label={
                             <TranslatedText
                               stringId="programRegistry.relatedConditions.label"
-                              fallback="Related condition"
+                              fallback="Related conditions"
                             />
                           }
                         />

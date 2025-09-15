@@ -346,6 +346,16 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
       },
     },
     customisations: {

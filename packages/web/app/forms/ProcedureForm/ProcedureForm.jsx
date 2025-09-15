@@ -72,7 +72,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           name="physicianId"
           label={
             <TranslatedText
-              stringId="general.localisedField.clinician.label.short"
+              stringId="general.localisedField.leadClinician.label"
               fallback="Lead clinician"
             />
           }

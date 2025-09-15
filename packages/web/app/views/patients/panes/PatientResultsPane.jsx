@@ -38,8 +38,7 @@ const NoResultsMessage = () => (
     <MessageInner data-testid="messageinner-mmlt">
       <TranslatedText
         stringId="patient.lab.results.table.noData"
-        fallback="This patient has no lab results to display. Once lab results are available they will be
-      displayed here."
+        fallback="This patient has no lab results to display. Once lab results are available they will be displayed here."
         data-testid="translatedtext-rj1j"
       />
     </MessageInner>
@@ -60,8 +59,10 @@ const WrongPermissionMessage = () => (
 
 export const PatientResultsPane = React.memo(({ patient }) => {
   const { ability } = useAuth();
-  const { labResultParameters: searchParameters, setLabResultParameters: setSearchParameters } =
-    usePatientSearchParameters();
+  const {
+    labResultParameters: searchParameters,
+    setLabResultParameters: setSearchParameters,
+  } = usePatientSearchParameters();
 
   const { data, isLoading } = usePatientLabTestResultsQuery(patient.id, {
     ...searchParameters,

@@ -91,7 +91,7 @@ export const NewUserForm = memo(({ onSubmit, onCancel }) => {
         confirmText={
           <TranslatedText
             stringId="general.action.confirm"
-            fallback="confirm"
+            fallback="Confirm"
             data-testid="translatedtext-ucfr"
           />
         }
