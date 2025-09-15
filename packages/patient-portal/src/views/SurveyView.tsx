@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -32,16 +32,12 @@ type SurveyData = Record<string, any>;
 
 export const SurveyView = () => {
   const { surveyId } = useParams<{ surveyId: string }>();
-  const [startTime, setStartTime] = useState<string | null>(null);
+  const [startTime] = useState<string>(getCurrentDateTimeString());
   const { isPending, data: survey } = useSurveyQuery(surveyId);
   const { mutate: submitSurveyResponse } = useSubmitSurveyResponse();
   const { additionalData, ...patient } = useCurrentUser();
   const history = useHistory();
   const encounterType = ENCOUNTER_TYPES.CLINIC;
-
-  useEffect(() => {
-    setStartTime(getCurrentDateTimeString());
-  }, []);
 
   const onSubmit = async (data: SurveyData) => {
     submitSurveyResponse({
