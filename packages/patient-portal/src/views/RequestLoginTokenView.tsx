@@ -39,7 +39,7 @@ export const RequestLoginTokenView = () => {
     }
     const { success: emailValid } = z.email().safeParse(email);
     if (!emailValid) {
-      setError('Please enter a valid email');
+      setError('Please enter a valid email address');
       return;
     }
 
