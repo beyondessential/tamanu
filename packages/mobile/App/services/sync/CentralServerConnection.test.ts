@@ -225,11 +225,9 @@ describe('CentralServerConnection', () => {
   });
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce({
-        json: async () => 'test-result',
-        status: 200,
-        ok: true,
-      });
+      mockFetchWithTimeout.mockResolvedValueOnce(
+        new Response(JSON.stringify('test-result'), { status: 200, statusText: 'OK' }),
+      );
       const mockPath = 'test-path';
       const mockQuery = { test: 'test-query' };
       const mockConfig = { test: 'test-config-key' };
@@ -264,22 +262,19 @@ describe('CentralServerConnection', () => {
        * 3. Third call to fetchWithTimeout will be the original fetch call with new token
        */
       mockFetchWithTimeout
-        .mockResolvedValueOnce({
-          status: 401,
-        })
-        .mockResolvedValueOnce({
-          json: () => ({
-            token: mockNewToken,
-            refreshToken: mockNewRefreshToken,
-          }),
-          status: 200,
-          ok: true,
-        })
-        .mockResolvedValueOnce({
-          json: () => 'test-result',
-          status: 200,
-          ok: true,
-        });
+        .mockResolvedValueOnce(new Response('', { status: 401, statusText: 'Unauthorized' }))
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              token: mockNewToken,
+              refreshToken: mockNewRefreshToken,
+            }),
+            { status: 200, statusText: 'OK' },
+          ),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify('test-result'), { status: 200, statusText: 'OK' }),
+        );
       const mockPath = 'test-path';
       await centralServerConnection.fetch(mockPath, {}, {});
       expect(refreshSpy).toHaveBeenCalledTimes(1);
