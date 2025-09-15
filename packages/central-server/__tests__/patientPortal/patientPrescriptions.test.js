@@ -103,9 +103,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
       const prescription = response.body.data[0];
       expect(prescription).toHaveProperty('id');
@@ -168,9 +167,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
       const prescription = response.body.data[0];
       expect(prescription).toHaveProperty('id');
@@ -260,11 +258,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should only return ongoing prescription
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should only return ongoing prescription
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Ongoing Medication');
     });
@@ -323,11 +320,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should return the prescription with null discontinued
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should return the prescription with null discontinued
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Null Discontinued Medication');
       expect(prescription).not.toHaveProperty('discontinued');
@@ -527,11 +523,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0]
       expect(prescription).toHaveProperty('id');
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Test Medication');
@@ -562,9 +557,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {
