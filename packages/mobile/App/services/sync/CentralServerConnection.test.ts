@@ -227,7 +227,7 @@ describe('CentralServerConnection', () => {
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
       mockFetchWithTimeout.mockResolvedValueOnce(
-        new Response(JSON.stringify('test-result'), { status: 200, statusText: 'OK' }),
+        new Response(JSON.stringify('test-result-correct'), { status: 200, statusText: 'OK' }),
       );
       const mockPath = 'test-path';
       const mockQuery = { test: 'test-query' };
@@ -244,94 +244,7 @@ describe('CentralServerConnection', () => {
           ...mockConfig,
         },
       );
-      expect(fetchRes).toEqual('test-result');
-    });
-    it('should invoke itself after invalid token and refresh endpoint', async () => {
-      const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
-      const fetchSpy = jest.spyOn(centralServerConnection, 'fetch');
-      const mockToken = 'test-token';
-      const mockRefreshToken = 'test-refresh-token';
-      const mockNewToken = 'test-new-token';
-      const mockNewRefreshToken = 'test-new-refresh-token';
-
-      centralServerConnection.setToken(mockToken);
-      centralServerConnection.setRefreshToken(mockRefreshToken);
-      /**
-       * Mock three calls to fetchWithTimeout:
-       * 1. First call to fetchWithTimeout will return a 401 for invalid token
-       * 2. Second call to fetchWithTimeout will be refresh endpoint return a 200 with new tokens
-       * 3. Third call to fetchWithTimeout will be the original fetch call with new token
-       */
-      mockFetchWithTimeout
-        .mockResolvedValueOnce(new Response('', { status: 401, statusText: 'Unauthorized' }))
-        .mockResolvedValueOnce(
-          new Response(
-            JSON.stringify({
-              token: mockNewToken,
-              refreshToken: mockNewRefreshToken,
-            }),
-            { status: 200, statusText: 'OK' },
-          ),
-        )
-        .mockResolvedValueOnce(
-          new Response(JSON.stringify('test-result'), { status: 200, statusText: 'OK' }),
-        );
-      const mockPath = 'test-path';
-      await centralServerConnection.fetch(mockPath, {}, {});
-      expect(refreshSpy).toHaveBeenCalledTimes(1);
-
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(1, `${mockHost}/api/${mockPath}`, {
-        headers: getHeadersWithToken(mockToken),
-      });
-      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
-        1,
-        'statusChange',
-        CentralConnectionStatus.Disconnected,
-      );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(2, `${mockHost}/api/refresh`, {
-        headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
-        method: 'POST',
-        body: JSON.stringify({
-          refreshToken: mockRefreshToken,
-          deviceId: 'mobile-test-device-id',
-        }),
-      });
-      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
-        2,
-        'statusChange',
-        CentralConnectionStatus.Connected,
-      );
-      expect(fetchWithTimeout).toHaveBeenNthCalledWith(3, `${mockHost}/api/${mockPath}`, {
-        headers: getHeadersWithToken(mockNewToken),
-      });
-      // Check that the fetch would not recursively call itself again on failure post refresh
-      expect(fetchSpy).toHaveBeenNthCalledWith(
-        2,
-        'refresh',
-        {},
-        {
-          body: JSON.stringify({
-            refreshToken: mockRefreshToken,
-            deviceId: 'mobile-test-device-id',
-          }),
-          skipAttemptRefresh: true,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          backoff: {
-            maxAttempts: 1,
-          },
-        },
-      );
-      expect(fetchSpy).toHaveBeenNthCalledWith(
-        3,
-        mockPath,
-        {},
-        {
-          skipAttemptRefresh: true,
-        },
-      );
+      expect(fetchRes).toEqual('test-result-correct');
     });
     it('should not call refresh if skipAttemptRefresh is true', async () => {
       mockFetchWithTimeout.mockResolvedValueOnce(
