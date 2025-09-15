@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { Typography } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';
 import { useRegisterPatientPortal } from '../../../api/mutations';
