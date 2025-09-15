@@ -105,11 +105,10 @@ export class SurveyScreenComponent extends Model {
   }
 
   forResponse() {
-    const { options, dataElement, ...values } = this.dataValues;
+    const { options, ...values } = this.dataValues;
     return {
       ...values,
       options: safeJsonParse(options),
-      dataElement: dataElement ? dataElement.forResponse() : dataElement,
     };
   }
 
@@ -117,7 +116,7 @@ export class SurveyScreenComponent extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }
