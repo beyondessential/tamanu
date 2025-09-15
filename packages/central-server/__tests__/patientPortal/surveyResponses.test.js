@@ -17,6 +17,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
   let testDepartmentId;
   let baseSurvey;
   let baseDataElement;
+  let testFacility;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -24,6 +25,13 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     close = ctx.close;
     store = ctx.store;
     const { Patient, PortalUser, ReferenceData, Location, Department, Facility } = store.models;
+
+    testFacility = await Facility.create(
+      fake(Facility, {
+        name: 'Test Facility',
+        code: 'TESTFACILITY',
+      }),
+    );
 
     // Create a test village
     testVillage = await ReferenceData.create(
@@ -107,6 +115,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       status,
       assignedAt: new Date().toISOString(),
       assignedById,
+      facilityId: testFacility.id,
     });
   };
 
@@ -116,7 +125,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     baseDataElement = setup.dataElement;
   });
 
-  describe('POST /api/portal/me/surveys/:assignmentId', () => {
+  describe('POST /api/portal/me/surveys', () => {
     it('Should create a survey response and mark assignment submitted', async () => {
       const assignment = await createAssignment({
         patientId: testPatient.id,
@@ -128,6 +137,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         surveyId: baseSurvey.id,
         locationId: testLocationId,
         departmentId: testDepartmentId,
+        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 5,
         },
@@ -151,7 +161,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
 
       // Create an assignment for another patient
       const otherPatient = await store.models.Patient.create(fake(store.models.Patient));
-      const otherAssignment = await createAssignment({
+      await createAssignment({
         patientId: otherPatient.id,
         surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
@@ -161,6 +171,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         surveyId: baseSurvey.id,
         locationId: testLocationId,
         departmentId: testDepartmentId,
+        patientId: testPatient.id,
         answers: {
           [baseDataElement.id]: 1,
         },
@@ -173,7 +184,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(resWrongPatient).toHaveRequestError(404);
 
       // Create an assignment for correct patient but already submitted
-      const submittedAssignment = await createAssignment({
+      await createAssignment({
         patientId: testPatient.id,
         surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
@@ -186,7 +197,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(resSubmitted).toHaveRequestError(404);
 
       // Correct patient and outstanding, but mismatched surveyId in body
-      const assignment = await createAssignment({
+      await createAssignment({
         patientId: testPatient.id,
         surveyId: baseSurvey.id,
         status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
@@ -199,6 +210,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
+          patientId: testPatient.id,
           locationId: testLocationId,
           departmentId: testDepartmentId,
           answers: { [baseDataElement.id]: 2 },
