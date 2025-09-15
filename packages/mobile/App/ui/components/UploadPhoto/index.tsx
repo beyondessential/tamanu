@@ -114,21 +114,24 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
   const [imagePath, setImagePath] = useState(null);
   const { models, centralServer } = useBackend();
 
-  const removeAttachment = useCallback(async (value, imagePath) => {
-    if (value) {
-      await models.Attachment.delete(value);
-    }
-    if (imagePath) {
-      await deleteFileInDocuments(imagePath);
-      setImagePath(null);
-    }
-  }, []);
+  const removeAttachment = useCallback(
+    async (value, imagePath) => {
+      if (value) {
+        await models.Attachment.delete(value);
+      }
+      if (imagePath) {
+        await deleteFileInDocuments(imagePath);
+        setImagePath(null);
+      }
+    },
+    [models.Attachment],
+  );
 
   const removePhotoCallback = useCallback(async () => {
     onChange(null);
     setImageData(null);
     await removeAttachment(value, imagePath);
-  }, [value, imagePath]);
+  }, [onChange, removeAttachment, value, imagePath]);
 
   const addPhotoCallback = useCallback(
     async imageType => {
@@ -187,7 +190,15 @@ export const UploadPhoto = React.memo(({ onChange, value }: PhotoProps) => {
       setImageData(image.base64);
       setLoading(false);
     },
-    [value, imagePath],
+    [
+      centralServer,
+      models.Attachment,
+      onChange,
+      removeAttachment,
+      removePhotoCallback,
+      value,
+      imagePath,
+    ],
   );
 
   return (

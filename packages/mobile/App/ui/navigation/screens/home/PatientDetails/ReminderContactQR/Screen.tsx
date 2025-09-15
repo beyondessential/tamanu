@@ -39,7 +39,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
     return () => {
       socket.off(WS_EVENTS.TELEGRAM_BOT_INFO, handleBotInfo);
     };
-  }, [socket]);
+  }, [socket, handleBotInfo]);
 
   const handleBotInfo = useCallback(
     botInfo => {
@@ -53,7 +53,7 @@ const Screen = ({ navigation, route, selectedPatient }: IReminderContactQR) => {
   const onNavigateBack = useCallback(() => {
     fetchReminderContactList();
     navigation.navigate(Routes.HomeStack.PatientDetailsStack.ReminderContacts);
-  }, [navigation]);
+  }, [navigation, fetchReminderContactList]);
 
   const description = getTranslation(
     'patient.details.reminderContactQr.description',

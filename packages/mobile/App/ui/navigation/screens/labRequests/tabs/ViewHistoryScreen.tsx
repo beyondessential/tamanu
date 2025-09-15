@@ -112,7 +112,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     if (data.length === 0) {
       navigateAfterTimeout(navigation, Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest);
     }
-  }, [data]);
+  }, [data, navigation]);
 
   if (error) return <ErrorScreen error={error} />;
   if (!data || !lastSuccessfulPushTick) return <LoadingScreen />;

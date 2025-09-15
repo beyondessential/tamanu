@@ -55,7 +55,7 @@ const Screen = ({ selectedPatient, route }: SurveyListScreenProps): ReactElement
 
   const goBack = useCallback(() => {
     navigation.goBack();
-  }, []);
+  }, [navigation]);
 
   const onNavigateToSurvey = (survey: Survey): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.SurveyTabs.AddDetails, {

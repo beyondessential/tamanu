@@ -27,7 +27,7 @@ export const LanguageSelectButton = ({ navigation }: LanguageSelectButtonProps):
 
   const onNavigateToLanguageSelect = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.LanguageSelect);
-  }, []);
+  }, [navigation]);
 
   if (!languageOptions || languageOptions.length <= 1) {
     return null;

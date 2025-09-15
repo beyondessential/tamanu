@@ -123,7 +123,7 @@ export const ServerSelector = ({ onChange, label, value, error }): ReactElement 
         setOptions(servers);
       }
     })();
-  }, [netInfo.isInternetReachable]);
+  }, [netInfo.isInternetReachable, value]);
 
   if (!netInfo.isInternetReachable) {
     return <StyledText color={theme.colors.ALERT}>No internet connection available.</StyledText>;

@@ -37,7 +37,7 @@ export const RadioButtonGroup = ({
     if (initialValue && !value) {
       onChange(initialValue);
     }
-  }, []);
+  }, [initialValue, onChange, value]);
 
   return (
     <>

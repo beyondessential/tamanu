@@ -34,10 +34,18 @@ export const SurveyAnswerField = ({ patient, name, config }): JSX.Element => {
         setAnswer(answer?.body);
       }
     })();
-  }, []);
+  }, [
+    config.source,
+    config.Source,
+    models.ProgramDataElement,
+    models.SurveyResponseAnswer,
+    name,
+    patient.id,
+    setFieldValue,
+  ]);
 
   return (
-    <StyledView alignItems='flex-start'>
+    <StyledView alignItems="flex-start">
       {sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}
     </StyledView>
   );

@@ -44,7 +44,7 @@ const AuthenticationModal = ({ open, onClose }: AuthenticationModelProps): JSX.E
     if (errorMessage) {
       setErrorMessage(null);
     }
-  }, [open]);
+  }, [open, errorMessage]);
 
   return (
     <Modal isVisible={open} onBackdropPress={onClose}>
@@ -158,29 +158,29 @@ export const SyncInactiveAlert = (): JSX.Element => {
   const netInfo = useNetInfo();
   const { centralServer } = useBackend();
 
-  const handleClose = (): void => setOpen(false);
-  const handleOpen = (): void => setOpen(true);
+  const handleClose = useCallback((): void => setOpen(false), []);
+  const handleOpen = useCallback((): void => setOpen(true), []);
   const handleOpenModal = (): void => setOpenAuthenticationModel(true);
   const handleCloseModal = (): void => setOpenAuthenticationModel(false);
 
-  const handleStatusChange = (
-    status: CentralConnectionStatus,
-    isInternetReachable: boolean,
-  ): void => {
-    if (
-      status === CentralConnectionStatus.Disconnected
-      // Reconnection with central is not possible if there is no internet connection
-    ) {
-      if (isInternetReachable) {
-        handleOpen();
-      } else if (open) {
+  const handleStatusChange = useCallback(
+    (status: CentralConnectionStatus, isInternetReachable: boolean): void => {
+      if (
+        status === CentralConnectionStatus.Disconnected
+        // Reconnection with central is not possible if there is no internet connection
+      ) {
+        if (isInternetReachable) {
+          handleOpen();
+        } else if (open) {
+          handleClose();
+        }
+      }
+      if (status === CentralConnectionStatus.Connected && open) {
         handleClose();
       }
-    }
-    if (status === CentralConnectionStatus.Connected && open) {
-      handleClose();
-    }
-  };
+    },
+    [handleOpen, handleClose, open],
+  );
 
   useEffect(() => {
     const handler = (status: CentralConnectionStatus): void => {
@@ -190,7 +190,7 @@ export const SyncInactiveAlert = (): JSX.Element => {
     return () => {
       centralServer.emitter.off('statusChange', handler);
     };
-  }, [netInfo.isInternetReachable, open]);
+  }, [centralServer.emitter, handleStatusChange, netInfo.isInternetReachable, open]);
 
   return (
     <>

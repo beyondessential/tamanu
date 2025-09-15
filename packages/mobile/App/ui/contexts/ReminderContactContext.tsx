@@ -69,7 +69,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
       socket.off(WS_EVENTS.TELEGRAM_SUBSCRIBE, handleTelegramSubscribe);
       socket.off(WS_EVENTS.TELEGRAM_UNSUBSCRIBE, handleTelegramUnsubscribe);
     };
-  }, [socket]);
+  }, [handleTelegramSubscribe, handleTelegramUnsubscribe, socket]);
 
   const handleTelegramSubscribe = useCallback(async data => {
     const contact = await PatientContact.findOne({
@@ -103,9 +103,7 @@ const Provider = ({ children, selectedPatient }: BaseAppProps & { children: Reac
       deletedAt: new Date(),
     });
 
-    setReminderContactList(prev =>
-      prev.filter(c => c.id !== contact.id),
-    );
+    setReminderContactList(prev => prev.filter(c => c.id !== contact.id));
   }, []);
 
   const afterAddContact = (contact: IPatientContact, addedNew?: boolean) => {

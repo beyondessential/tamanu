@@ -25,34 +25,35 @@ export const ModalInfo = ({
 }: ModalInfoProps): ReactElement | null => {
   const dismissModal = useCallback(() => {
     onVisibilityChange(false);
-  }, []);
+  }, [onVisibilityChange]);
 
   if (!isVisible) return null;
 
-  const action = (buttonPrompt && onFollowPrompt) ? (
-    <>
-      <Button
-        backgroundColor="green"
-        onPress={onFollowPrompt}
-        textColor={theme.colors.WHITE}
-        buttonText={buttonPrompt}
-        marginTop={5}
-      />
+  const action =
+    buttonPrompt && onFollowPrompt ? (
+      <>
+        <Button
+          backgroundColor="green"
+          onPress={onFollowPrompt}
+          textColor={theme.colors.WHITE}
+          buttonText={buttonPrompt}
+          marginTop={5}
+        />
+        <Button
+          backgroundColor="transparent"
+          onPress={dismissModal}
+          textColor={theme.colors.TEXT_DARK}
+          buttonText="Dismiss"
+        />
+      </>
+    ) : (
       <Button
         backgroundColor="transparent"
         onPress={dismissModal}
         textColor={theme.colors.TEXT_DARK}
-        buttonText="Dismiss"
+        buttonText="OK"
       />
-    </>
-  ) : (
-    <Button
-      backgroundColor="transparent"
-      onPress={dismissModal}
-      textColor={theme.colors.TEXT_DARK}
-      buttonText="OK"
-    />
-  );
+    );
 
   return (
     <StyledSafeAreaView

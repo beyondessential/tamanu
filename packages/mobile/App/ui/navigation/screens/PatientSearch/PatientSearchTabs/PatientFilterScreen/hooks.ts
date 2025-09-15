@@ -10,6 +10,8 @@ export const useFilterFields = () => {
   const villageId = useField('villageId');
   const programRegistryId = useField('programRegistryId');
 
+  /* eslint-disable react-hooks/exhaustive-deps */
+  // the rule false-positives due to complexity that we do want
   const fields = useMemo(
     () => [sex, dateOfBirth, firstName, lastName, villageId, programRegistryId],
     [
@@ -21,6 +23,7 @@ export const useFilterFields = () => {
       programRegistryId[1].value,
     ],
   );
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   return fields;
 };

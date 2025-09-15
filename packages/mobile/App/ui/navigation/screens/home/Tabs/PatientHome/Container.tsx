@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { compose } from 'redux';
 import { useFocusEffect } from '@react-navigation/core';
-import { setStatusBar } from '/helpers/screen';
+import { useSetStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
 // Components
@@ -26,9 +26,7 @@ interface IPopup {
 }
 
 // TODO: declare this
-type PatientModule = {
-
-}
+type PatientModule = {};
 
 const showPopupChain = (popups: IPopup[]): void => {
   if (popups.length === 0) return;
@@ -77,10 +75,12 @@ const usePatientModules = navigation => {
     return [
       {
         key: 'diagnosisAndTreatment',
-        title:   <TranslatedText
-        stringId="patient.diagnosisAndTreatment.title"
-        fallback="Diagnosis & Treatment"
-      />,
+        title: (
+          <TranslatedText
+            stringId="patient.diagnosisAndTreatment.title"
+            fallback="Diagnosis & Treatment"
+          />
+        ),
         Icon: Icons.DiagnosisAndTreatmentIcon,
         onPress: (): void => navigation.navigate(Routes.HomeStack.DiagnosisAndTreatmentTabs.Index),
       },
@@ -122,7 +122,7 @@ const usePatientModules = navigation => {
 
 const usePatientMenuButtons = navigation => {
   const { ability } = useAuth();
-  const { getSetting } = useSettings()
+  const { getSetting } = useSettings();
   const canListRegistrations = ability.can('list', 'PatientProgramRegistration');
   const canCreateRegistration = ability.can('create', 'PatientProgramRegistration');
   const canViewProgramRegistries = canListRegistrations || canCreateRegistration;
@@ -133,17 +133,26 @@ const usePatientMenuButtons = navigation => {
       [
         {
           key: 'patientDetails',
-          title:   <TranslatedText stringId="patient.action.viewPatientDetails" fallback="View patient details" />,
+          title: (
+            <TranslatedText
+              stringId="patient.action.viewPatientDetails"
+              fallback="View patient details"
+            />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index),
         },
         {
           key: 'history',
-          title: <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />,
+          title: (
+            <TranslatedText stringId="patient.action.viewVitalHistory" fallback="View history" />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index),
         },
         {
           key: 'programRegistries',
-          title: <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />,
+          title: (
+            <TranslatedText stringId="programRegistry.header.title" fallback="Program registries" />
+          ),
           onPress: (): void => navigation.navigate(Routes.HomeStack.PatientSummaryStack.Index),
           hideFromMenu: !canViewProgramRegistries,
         },
@@ -210,7 +219,7 @@ const PatientHomeContainer = ({
     }, [models, selectedPatient.id]),
   );
 
-  setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
+  useSetStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);

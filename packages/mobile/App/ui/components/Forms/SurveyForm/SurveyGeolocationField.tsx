@@ -76,15 +76,10 @@ const buttonCommonStyles = {
 };
 
 export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, error: formError }) => {
-  const {
-    coords,
-    error,
-    isWatching,
-    cancelWatchGeolocation,
-    requestGeolocationPermission,
-  } = useGeolocation({
-    watch: true,
-  });
+  const { coords, error, isWatching, cancelWatchGeolocation, requestGeolocationPermission } =
+    useGeolocation({
+      watch: true,
+    });
   const { getTranslation } = useTranslation();
   const [showModal, setShowModal] = useState(false);
 
@@ -98,17 +93,17 @@ export const SurveyGeolocationField = ({ value, onChange, setDisableSubmit, erro
         accuracy: coords.accuracy,
       },
     }).replace('{}', '');
-  }, [coords]);
+  }, [coords, getTranslation]);
 
   useEffect(() => {
     setDisableSubmit(isWatching);
-  }, [isWatching]);
+  }, [isWatching, setDisableSubmit]);
 
   useEffect(() => {
     return () => {
       setDisableSubmit(false);
     };
-  }, []);
+  }, [setDisableSubmit]);
 
   const onOpenModal = () => setShowModal(true);
   const onCloseModal = () => setShowModal(false);

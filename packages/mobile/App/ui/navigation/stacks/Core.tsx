@@ -16,7 +16,7 @@ import { FrequencySearchModalScreen } from '~/ui/components/FrequencySearchModal
 
 const Stack = createStackNavigator();
 
-function getSignInFlowRoute(): string {
+function useSignInFlowRoute(): string {
   const { signedIn } = useAuth();
   const { facilityId } = useFacility();
   if (!signedIn) {
@@ -28,14 +28,17 @@ function getSignInFlowRoute(): string {
 }
 
 export const Core: FunctionComponent<any> = () => {
-  const initialRouteName = getSignInFlowRoute();
+  const initialRouteName = useSignInFlowRoute();
 
   return (
     <Stack.Navigator headerMode="none" initialRouteName={initialRouteName}>
       <Stack.Screen name={Routes.Forms.AutocompleteModal} component={AutocompleteModalScreen} />
       <Stack.Screen name={Routes.Forms.MultiSelectModal} component={MultiSelectModalScreen} />
       <Stack.Screen name={Routes.Forms.SelectModal} component={SelectModalScreen} />
-      <Stack.Screen name={Routes.Forms.FrequencySearchModal} component={FrequencySearchModalScreen} />
+      <Stack.Screen
+        name={Routes.Forms.FrequencySearchModal}
+        component={FrequencySearchModalScreen}
+      />
       <Stack.Screen
         name={Routes.SignUpStack.Index}
         component={SignUpStack}

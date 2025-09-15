@@ -49,7 +49,7 @@ const Screen = ({ navigation, setSelectedPatient }: RecentViewedScreenProps): Re
         Routes.HomeStack.SearchPatientStack.SearchPatientTabs.ViewAll,
       );
     }
-  }, [recentlyViewedPatients]);
+  }, [recentlyViewedPatients, navigation]);
 
   if (error) {
     return <ErrorScreen error={error} />;

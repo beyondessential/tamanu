@@ -15,7 +15,7 @@ import { useSettings } from '/contexts/SettingsContext';
 const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactElement => {
   const onNavigateToHome = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index);
-  }, []);
+  }, [navigation]);
 
   const onAddAnotherPatient = useCallback(() => {
     navigation.navigate(Routes.HomeStack.Index, {
@@ -24,13 +24,13 @@ const Screen = ({ navigation, selectedPatient }: NewPatientScreenProps): ReactEl
         screen: Routes.HomeStack.RegisterPatientStack.PatientPersonalInfo,
       },
     });
-  }, []);
+  }, [navigation]);
 
   const onStartVisit = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HomeTabs.Index, {
       screen: Routes.HomeStack.SearchPatientStack.Index,
     });
-  }, []);
+  }, [navigation]);
 
   const { getSetting } = useSettings();
   const ageDisplayFormat = getSetting('ageDisplayFormat');

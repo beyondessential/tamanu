@@ -38,7 +38,7 @@ const Container = ({
       });
       navigateToDetails();
     },
-    [selectedPatient.id, navigation],
+    [models.PatientIssue, navigateToDetails, selectedPatient.id],
   );
 
   return (

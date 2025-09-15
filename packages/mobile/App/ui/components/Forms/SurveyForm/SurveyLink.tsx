@@ -24,7 +24,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
       setSurveyResponse(responses[0]);
       setFieldValue(name, responses[0].id);
     })();
-  }, [patient, source]);
+  }, [models.SurveyResponse, name, patient, setFieldValue, source]);
 
   if (!surveyResponse) {
     return (

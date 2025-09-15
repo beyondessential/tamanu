@@ -74,7 +74,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
   const navigateToHistory = useCallback(() => {
     navigation.navigate(Routes.HomeStack.HistoryVitalsStack.Index);
-  }, []);
+  }, [navigation]);
 
   const [patientFacility] = useBackendEffect(
     async ({ models: m }) =>
@@ -107,48 +107,60 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     }
   }, [selectedPatient?.id, models.PatientAllergy]);
 
-  const onPrescribeMedication = useCallback(async (values): Promise<any> => {
-    const encounter = await models.Encounter.getOrCreateActiveEncounter(
+  const onPrescribeMedication = useCallback(
+    async (values): Promise<any> => {
+      const encounter = await models.Encounter.getOrCreateActiveEncounter(
+        selectedPatient.id,
+        user.id,
+      );
+
+      const idealTimes =
+        values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
+        values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
+          ? ''
+          : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
+      const data = {
+        ...values,
+        doseAmount: values.doseAmount || null,
+        durationValue: values.durationValue || null,
+        durationUnit: values.durationUnit || null,
+        idealTimes,
+        prescriber: values.prescriberId,
+        medication: values.medicationId,
+      };
+
+      if (values.durationValue && values.durationUnit) {
+        data.endDate = add(new Date(values.startDate), {
+          [values.durationUnit]: values.durationValue,
+        }).toISOString();
+      }
+
+      const prescription = (await models.Prescription.createAndSaveOne({
+        ...data,
+      })) as Prescription;
+
+      await models.EncounterPrescription.createAndSaveOne({
+        encounter,
+        prescription,
+      });
+
+      await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
+        prescription,
+      );
+
+      navigateToHistory();
+    },
+    [
+      frequenciesAdministrationIdealTimes,
+      models.Encounter,
+      models.EncounterPrescription,
+      models.MedicationAdministrationRecord,
+      models.Prescription,
+      navigateToHistory,
       selectedPatient.id,
       user.id,
-    );
-
-    const idealTimes =
-      values.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY ||
-      values.frequency === ADMINISTRATION_FREQUENCIES.AS_DIRECTED
-        ? ''
-        : frequenciesAdministrationIdealTimes[values.frequency]?.join(',') || '';
-    const data = {
-      ...values,
-      doseAmount: values.doseAmount || null,
-      durationValue: values.durationValue || null,
-      durationUnit: values.durationUnit || null,
-      idealTimes,
-      prescriber: values.prescriberId,
-      medication: values.medicationId,
-    };
-
-    if (values.durationValue && values.durationUnit) {
-      data.endDate = add(new Date(values.startDate), {
-        [values.durationUnit]: values.durationValue,
-      }).toISOString();
-    }
-
-    const prescription = (await models.Prescription.createAndSaveOne({
-      ...data,
-    })) as Prescription;
-
-    await models.EncounterPrescription.createAndSaveOne({
-      encounter,
-      prescription,
-    });
-
-    await models.MedicationAdministrationRecord.generateMedicationAdministrationRecords(
-      prescription,
-    );
-
-    navigateToHistory();
-  }, []);
+    ],
+  );
 
   const canCreateSensitiveMedication = ability.can('create', 'SensitiveMedication');
   const medicationSuggester = new Suggester({

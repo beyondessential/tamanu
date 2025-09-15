@@ -39,16 +39,19 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
     navigation.navigate(Routes.SignUpStack.ResetPassword);
-  }, []);
+  }, [navigation]);
 
   const onChangeModalVisibility = useCallback((isVisible: boolean) => {
     setModalVisible(isVisible);
   }, []);
 
-  const showErrorModal = useCallback((content: ModalContent) => {
-    setModalContent(content);
-    onChangeModalVisibility(true);
-  }, []);
+  const showErrorModal = useCallback(
+    (content: ModalContent) => {
+      setModalContent(content);
+      onChangeModalVisibility(true);
+    },
+    [onChangeModalVisibility],
+  );
 
   const onFollowPrompt = useCallback(() => {
     Linking.openURL(modalContent.buttonUrl);

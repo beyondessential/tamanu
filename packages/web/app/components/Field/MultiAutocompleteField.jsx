@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
@@ -205,15 +205,16 @@ export const MultiAutocompleteInput = ({
     [onChange, name],
   );
 
-  const handleLoadOption = useCallback(
-    debounce(async (search) => {
-      try {
-        const options = await suggester.fetchSuggestions(search);
-        setOptions(options);
-      } catch {
-        setOptions([]);
-      }
-    }, 200),
+  const handleLoadOption = useMemo(
+    () =>
+      debounce(async search => {
+        try {
+          const options = await suggester.fetchSuggestions(search);
+          setOptions(options);
+        } catch {
+          setOptions([]);
+        }
+      }, 200),
     [suggester],
   );
 

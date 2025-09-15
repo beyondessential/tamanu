@@ -10,7 +10,7 @@ import { Button } from '../../../components/Button';
 //helpers
 import { authUserSelector } from '../../../helpers/selectors';
 import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
-import { disableAndroidBackButton } from '../../../helpers/android';
+import { useDisableAndroidBackButton } from '../../../helpers/android';
 // Props
 import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
@@ -27,9 +27,7 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
   const { title, message, step, nextRoute } = route.params;
   const user = useSelector(authUserSelector);
 
-  if (step === 1) {
-    disableAndroidBackButton();
-  }
+  useDisableAndroidBackButton(step === 1);
 
   const Icon = useMemo(() => {
     switch (step) {
@@ -42,11 +40,11 @@ export const Intro = (props: IntroScreenProps): ReactElement => {
       default:
         return AppIntro1Icon;
     }
-  }, []);
+  }, [step]);
 
   const onPressButton = useCallback(() => {
     navigation.navigate(nextRoute);
-  }, []);
+  }, [navigation, nextRoute]);
 
   return (
     <StyledSafeAreaView flex={1} background={theme.colors.PRIMARY_MAIN} alignItems="center">

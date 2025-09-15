@@ -37,7 +37,7 @@ export const SyncErrorDisplay = (): ReactElement => {
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     };
-  }, []);
+  }, [syncManager.emitter]);
 
   if (!error) {
     return null;
