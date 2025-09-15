@@ -266,9 +266,8 @@ export const LocationBookingsDailyCalendar = ({
       locationGroupIds.includes(location.locationGroup?.id)
     );
   }
-  
-  // For daily view, show only first 3 locations (for testing purpose)
-  const locationsToShow = filteredLocations.slice(0, 4);
+
+  const locationsToShow = filteredLocations;
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
