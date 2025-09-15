@@ -95,8 +95,8 @@ export const SettingInput = ({
     defaultValue,
   ]);
 
+  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
   const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeText = e => handleChangeSetting(path, e.target.value);
   const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
   const handleChangeJSON = e => handleChangeSetting(path, e);
 
@@ -179,7 +179,7 @@ export const SettingInput = ({
       return suggesterEndpoint ? (
         <Flexbox data-testid="flexbox-bpq4">
           <AutocompleteInput
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             disabled={disabled}
             suggester={suggester}
             value={displayValue}
@@ -192,7 +192,7 @@ export const SettingInput = ({
         <Flexbox data-testid="flexbox-wwbe">
           <StyledTextInput
             value={displayValue ?? ''}
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             style={{ width: '353px' }}
             error={error}
             helperText={error?.message}
@@ -223,7 +223,7 @@ export const SettingInput = ({
         <Flexbox data-testid="flexbox-r6sr">
           <StyledTextInput
             value={displayValue}
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             style={{ width: '353px', minHeight: '156px' }}
             multiline
             error={error}
@@ -238,7 +238,7 @@ export const SettingInput = ({
       return suggesterEndpoint ? (
         <Flexbox data-testid="flexbox-bpq4">
           <MultiAutocompleteInput
-            onChange={handleChangeText}
+            onChange={defaultHandleChange}
             disabled={disabled}
             suggester={suggester}
             value={displayValue}
