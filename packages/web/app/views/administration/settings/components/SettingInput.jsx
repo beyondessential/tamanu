@@ -103,11 +103,6 @@ export const SettingInput = ({
     defaultValue,
   ]);
 
-  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
-  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
-  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
-  const handleChangeJSON = e => handleChangeSetting(path, e);
-
   useEffect(() => {
     try {
       if ((type === SETTING_TYPES.ARRAY || type === SETTING_TYPES.OBJECT) && isString(value)) {
@@ -153,6 +148,11 @@ export const SettingInput = ({
       </ConditionalTooltip>
     );
   };
+
+  const defaultHandleChange = e => handleChangeSetting(path, e.target.value);
+  const handleChangeSwitch = e => handleChangeSetting(path, e.target.checked);
+  const handleChangeNumber = e => handleChangeSetting(path, Number(e.target.value));
+  const handleChangeJSON = e => handleChangeSetting(path, e);
 
   if (suggesterEndpoint) {
     switch (typeKey) {
