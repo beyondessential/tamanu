@@ -142,11 +142,12 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
 
       // The patient might not have any upcoming vaccinations
-      if (response.body.length > 0) {
-        const vaccination = response.body[0];
+      if (data.length > 0) {
+        const vaccination = data[0];
         expect(vaccination).toHaveProperty('id');
         expect(vaccination).toHaveProperty('scheduledDate');
         expect(vaccination).toHaveProperty('status', 'scheduled');
@@ -195,7 +196,8 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
       // Should handle null category gracefully
     });
 
@@ -223,8 +225,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {
@@ -287,10 +290,11 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
 
-      const vaccination = response.body[0];
+      const vaccination = data[0];
       expect(vaccination).toHaveProperty('id');
       expect(vaccination).toHaveProperty('date');
       expect(vaccination).toHaveProperty('status', 'GIVEN');
@@ -363,10 +367,11 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThan(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBeGreaterThan(0);
 
-      const vaccination = response.body[0];
+      const vaccination = data[0];
       expect(vaccination).toHaveProperty('id');
       expect(vaccination).toHaveProperty('date');
       expect(vaccination).toHaveProperty('status', 'GIVEN');
@@ -474,8 +479,9 @@ describe('Patient Portal Vaccinations Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBe(0);
+      const data = Array.isArray(response.body) ? response.body : response.body.data;
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {
