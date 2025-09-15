@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useSuggester } from '../../../../api';
-import { SelectInput, AutocompleteInput } from '../../../../components';
+import { AutocompleteField, Field, SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const FacilityAutoCompleteInput = styled(AutocompleteInput)`
+const ScopeField = styled(Field)`
   width: 300px;
   margin-top: 0.5rem;
 `;
@@ -52,8 +52,9 @@ export const ScopeSelectorFields = React.memo(({ scope, onScopeChange, onFacilit
         data-testid="scopeselectinput-zxel"
       />
       {scope === SETTINGS_SCOPES.FACILITY && (
-        <FacilityAutoCompleteInput
+        <ScopeField
           name="facilityId"
+          component={AutocompleteField}
           suggester={facilitySuggester}
           label={
             <TranslatedText
