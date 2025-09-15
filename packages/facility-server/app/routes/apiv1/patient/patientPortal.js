@@ -170,7 +170,7 @@ patientPortal.post(
     }
 
     const portalUser = await models.PortalUser.findOne({
-      where: { patientId, status: PORTAL_USER_STATUSES.REGISTERED },
+      where: { patientId },
     });
 
     // Handle user registration and email sending
