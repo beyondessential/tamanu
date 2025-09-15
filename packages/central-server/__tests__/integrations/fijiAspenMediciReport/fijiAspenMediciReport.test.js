@@ -41,306 +41,311 @@ const createLocalDateTimeStringFromUTC = (
 };
 
 const fakeAllData = async (models, ctx) => {
-  const { id: userId } = await models.User.create(fake(models.User));
-  const { id: examinerId } = await models.User.create(fake(models.User));
-  const { id: facilityId } = await models.Facility.create(
-    fake(models.Facility, { name: 'Ba Hospital' }),
-  );
-  const { id: departmentId } = await models.Department.create(
-    fake(models.Department, { facilityId, name: 'Emergency dept.' }),
-  );
-  const { id: locationGroupId } = await models.LocationGroup.create(
-    fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
-  );
-  const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
-  );
-  const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2', locationGroupId }),
-  );
-  const { id: patientBillingTypeId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
-      name: 'Public',
-    }),
-  );
-  const { id: procedureTypeId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
-      code: '61340',
-      name: 'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
-    }),
-  );
-  const { id: medication5Id } = await models.ReferenceData.create(
-    fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
-  );
-  const { id: medication10Id } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.DRUG,
-      name: 'Glucose (hypertonic) 10%',
-    }),
-  );
-  const { id: vaccineDrugId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.DRUG,
-      name: 'Covid AZ',
-    }),
-  );
-  const { id: scheduledVaccineId } = await models.ScheduledVaccine.create(
-    fake(models.ScheduledVaccine, {
-      type: REFERENCE_TYPES.VACCINE,
-      label: 'Covid Schedule Label',
-      doseLabel: 'Dose 1',
-      vaccineId: vaccineDrugId,
-    }),
-  );
-  const { id: diagnosisId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.DIAGNOSIS,
-      name: 'Acute subdural hematoma',
-      code: 'S06.5',
-    }),
-  );
-  const { id: leftImagingAreaId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
-      name: 'Left Leg',
-      code: 'LL',
-    }),
-  );
-  const { id: rightImagingAreaId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
-      name: 'Right Leg',
-      code: 'RL',
-    }),
-  );
-  const { id: labTestCategoryId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
-  );
-  const { id: dischargeDispositionId } = await models.ReferenceData.create(
-    fake(models.ReferenceData, {
-      type: REFERENCE_TYPES.DISCHARGE_DISPOSITION,
-      code: 'TRANSFER',
-      name: 'Transfer to another facility',
-    }),
-  );
-  const { id: labTestTypeId } = await models.LabTestType.create(
-    fake(models.LabTestType, {
-      labTestCategoryId,
-      name: 'Bicarbonate',
-    }),
-  );
+  try {
+    const { id: userId } = await models.User.create(fake(models.User));
+    const { id: examinerId } = await models.User.create(fake(models.User));
+    const { id: facilityId } = await models.Facility.create(
+      fake(models.Facility, { name: 'Ba Hospital' }),
+    );
+    const { id: departmentId } = await models.Department.create(
+      fake(models.Department, { facilityId, name: 'Emergency dept.' }),
+    );
+    const { id: locationGroupId } = await models.LocationGroup.create(
+      fake(models.LocationGroup, { facilityId, name: 'Emergency Department' }),
+    );
+    const { id: location1Id } = await models.Location.create(
+      fake(models.Location, { facilityId, name: 'Emergency room 1', locationGroupId }),
+    );
+    const { id: location2Id } = await models.Location.create(
+      fake(models.Location, { facilityId, name: 'Emergency room 2', locationGroupId }),
+    );
+    const { id: patientBillingTypeId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
+        name: 'Public',
+      }),
+    );
+    const { id: procedureTypeId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
+        code: '61340',
+        name: 'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
+      }),
+    );
+    const { id: medication5Id } = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
+    );
+    const { id: medication10Id } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DRUG,
+        name: 'Glucose (hypertonic) 10%',
+      }),
+    );
+    const { id: vaccineDrugId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DRUG,
+        name: 'Covid AZ',
+      }),
+    );
+    const { id: scheduledVaccineId } = await models.ScheduledVaccine.create(
+      fake(models.ScheduledVaccine, {
+        type: REFERENCE_TYPES.VACCINE,
+        label: 'Covid Schedule Label',
+        doseLabel: 'Dose 1',
+        vaccineId: vaccineDrugId,
+      }),
+    );
+    const { id: diagnosisId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DIAGNOSIS,
+        name: 'Acute subdural hematoma',
+        code: 'S06.5',
+      }),
+    );
+    const { id: leftImagingAreaId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+        name: 'Left Leg',
+        code: 'LL',
+      }),
+    );
+    const { id: rightImagingAreaId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+        name: 'Right Leg',
+        code: 'RL',
+      }),
+    );
+    const { id: labTestCategoryId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
+    );
+    const { id: dischargeDispositionId } = await models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.DISCHARGE_DISPOSITION,
+        code: 'TRANSFER',
+        name: 'Transfer to another facility',
+      }),
+    );
+    const { id: labTestTypeId } = await models.LabTestType.create(
+      fake(models.LabTestType, {
+        labTestCategoryId,
+        name: 'Bicarbonate',
+      }),
+    );
 
-  // Data related to the encounter
-  const patient = await models.Patient.create(
-    fake(models.Patient, {
-      displayId: 'BTIO864386',
-      dateOfBirth: '1952-10-12',
-    }),
-  );
-  // open encounter
-  const { id: openEncounterId } = await models.Encounter.create(
-    fake(models.Encounter, {
-      patientId: patient.id,
-      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
-      encounterType: ENCOUNTER_TYPES.ADMISSION,
-      reasonForEncounter: 'Severe Migrane',
-      patientBillingTypeId,
-      locationId: location1Id,
-      departmentId,
-      examinerId,
-    }),
-  );
-  // closed encounter
-  const { id: encounterId } = await models.Encounter.create(
-    fake(models.Encounter, {
-      patientId: patient.id,
-      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 54, 225),
-      endDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
-      encounterType: ENCOUNTER_TYPES.ADMISSION,
-      reasonForEncounter: 'Severe Migrane',
-      patientBillingTypeId,
-      locationId: location1Id,
-      departmentId,
-      examinerId,
-    }),
-  );
-  // Call build and save to avoid custom triage.create logic
-  const triage = models.Triage.build(
-    fake(models.Triage, {
-      encounterId,
-      score: 2,
-      triageTime: '2022-06-09T02:04:54.225Z',
-      closedTime: '2022-06-09T03:07:54.225Z',
-    }),
-    {
-      options: { raw: true },
-    },
-  );
-  await triage.save();
-
-  // Data referenced by the encounter
-  await models.PatientBirthData.create(
-    fake(models.PatientBirthData, { patientId: patient.id, birthWeight: 2100 }),
-  );
-  await models.EncounterDiagnosis.create(
-    // Yes - diagnosed with the same thing twice
-    fake(models.EncounterDiagnosis, {
-      encounterId,
-      diagnosisId,
-      isPrimary: false,
-      certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
-      date: '2022-06-09T11:09:54.225+00:00',
-    }),
-  );
-  await models.EncounterDiagnosis.create(
-    fake(models.EncounterDiagnosis, {
-      encounterId,
-      diagnosisId,
-      isPrimary: true,
-      certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
-      date: '2022-06-09T11:10:54.225+00:00',
-    }),
-  );
-  const prescription = await models.Prescription.create(
-    fake(models.Prescription, {
-      medicationId: medication5Id,
-      discontinued: true,
-      date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
-      discontinuingReason: 'It was not enough',
-    }),
-  );
-  await models.EncounterPrescription.create(
-    fake(models.EncounterPrescription, {
-      encounterId,
-      prescriptionId: prescription.id,
-    }),
-  );
-  const prescription1 = await models.Prescription.create(
-    fake(models.Prescription, {
-      medicationId: medication10Id,
-      discontinued: null,
-      date: '2022-06-10T01:20:54.225+00:00',
-      discontinuedDate: null,
-      discontinuingReason: null,
-    }),
-  );
-  await models.EncounterPrescription.create(
-    fake(models.EncounterPrescription, {
-      encounterId,
-      prescriptionId: prescription1.id,
-    }),
-  );
-  await models.AdministeredVaccine.create(
-    fake(models.AdministeredVaccine, { encounterId, scheduledVaccineId }),
-  );
-  await models.Procedure.create(
-    fake(models.Procedure, {
-      encounterId,
-      procedureTypeId,
-      locationId: location1Id,
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 11, 1, 20, 54),
-      note: 'All ready for procedure here',
-      completedNote: 'Everything went smoothly, no issues',
-    }),
-  );
-  const { id: imagingRequestId } = await models.ImagingRequest.create(
-    fake(models.ImagingRequest, {
-      encounterId,
-      procedureTypeId,
-      requestedById: userId,
-      imagingType: IMAGING_TYPES.X_RAY,
-      requestedDate: '2022-06-11T01:20:54.225+00:00',
-    }),
-  );
-  await models.ImagingRequestArea.create(
-    fake(models.ImagingRequestArea, {
-      imagingRequestId,
-      areaId: leftImagingAreaId,
-    }),
-  );
-  await models.ImagingRequestArea.create(
-    fake(models.ImagingRequestArea, {
-      imagingRequestId,
-      areaId: rightImagingAreaId,
-    }),
-  );
-  const imagingRequestNote = await models.Note.create(
-    fake(models.Note, {
-      recordId: imagingRequestId,
-      noteType: NOTE_TYPES.OTHER,
-      recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-      content: 'Check for fractured knees please',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
-    }),
-  );
-
-  const { id: labRequestId } = await models.LabRequest.create(
-    fake(models.LabRequest, { encounterId }),
-  );
-  await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-  const labRequestNote = await models.Note.create(
-    fake(models.Note, {
-      recordId: labRequestId,
-      noteType: NOTE_TYPES.OTHER,
-      recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
-      content: 'Please perform this lab test very carefully',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
-    }),
-  );
-
-  await models.Discharge.create(
-    fake(models.Discharge, {
-      encounterId,
-      dischargerId: userId,
-      dispositionId: dischargeDispositionId,
-    }),
-  );
-
-  const encounterNote = await models.Note.create(
-    fake(models.Note, {
-      recordId: encounterId,
-      noteType: NOTE_TYPES.NURSING,
-      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-      content: 'A\nB\nC\nD\nE\nF\nG\n',
-      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
-    }),
-  );
-
-  // Location/departments:
-  const encounter = await models.Encounter.findByPk(encounterId);
-  await encounter.update({
-    locationId: location2Id,
-    submittedTime: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54),
-  });
-
-  await allFromUpstream(
-    {
-      payload: {
-        op: 'UPDATE',
-        table: 'public.encounters',
-        id: encounterId,
+    // Data related to the encounter
+    const patient = await models.Patient.create(
+      fake(models.Patient, {
+        displayId: 'BTIO864386',
+        dateOfBirth: '1952-10-12',
+      }),
+    );
+    // open encounter
+    const { id: openEncounterId } = await models.Encounter.create(
+      fake(models.Encounter, {
+        patientId: patient.id,
+        startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 15, 0, 2, 54, 225),
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        reasonForEncounter: 'Severe Migrane',
+        patientBillingTypeId,
+        locationId: location1Id,
+        departmentId,
+        examinerId,
+      }),
+    );
+    // closed encounter
+    const { id: encounterId } = await models.Encounter.create(
+      fake(models.Encounter, {
+        patientId: patient.id,
+        startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 54, 225),
+        endDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
+        encounterType: ENCOUNTER_TYPES.ADMISSION,
+        reasonForEncounter: 'Severe Migrane',
+        patientBillingTypeId,
+        locationId: location1Id,
+        departmentId,
+        examinerId,
+      }),
+    );
+    // Call build and save to avoid custom triage.create logic
+    const triage = models.Triage.build(
+      fake(models.Triage, {
+        encounterId,
+        score: 2,
+        triageTime: '2022-06-09T02:04:54.225Z',
+        closedTime: '2022-06-09T03:07:54.225Z',
+      }),
+      {
+        options: { raw: true },
       },
-    },
-    {
-      log,
-      sequelize: ctx.store.sequelize,
-      models: ctx.store.models,
-    },
-  );
+    );
+    await triage.save();
 
-  await models.MediciReport.materialiseFromUpstream(encounterId);
-  await models.MediciReport.materialiseFromUpstream(openEncounterId);
+    // Data referenced by the encounter
+    await models.PatientBirthData.create(
+      fake(models.PatientBirthData, { patientId: patient.id, birthWeight: 2100 }),
+    );
+    await models.EncounterDiagnosis.create(
+      // Yes - diagnosed with the same thing twice
+      fake(models.EncounterDiagnosis, {
+        encounterId,
+        diagnosisId,
+        isPrimary: false,
+        certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
+        date: '2022-06-09T11:09:54.225+00:00',
+      }),
+    );
+    await models.EncounterDiagnosis.create(
+      fake(models.EncounterDiagnosis, {
+        encounterId,
+        diagnosisId,
+        isPrimary: true,
+        certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+        date: '2022-06-09T11:10:54.225+00:00',
+      }),
+    );
+    const prescription = await models.Prescription.create(
+      fake(models.Prescription, {
+        medicationId: medication5Id,
+        discontinued: true,
+        date: '2022-06-10T01:10:54.225+00:00',
+        discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+        discontinuingReason: 'It was not enough',
+      }),
+    );
+    await models.EncounterPrescription.create(
+      fake(models.EncounterPrescription, {
+        encounterId,
+        prescriptionId: prescription.id,
+      }),
+    );
+    const prescription1 = await models.Prescription.create(
+      fake(models.Prescription, {
+        medicationId: medication10Id,
+        discontinued: null,
+        date: '2022-06-10T01:20:54.225+00:00',
+        discontinuedDate: null,
+        discontinuingReason: null,
+      }),
+    );
+    await models.EncounterPrescription.create(
+      fake(models.EncounterPrescription, {
+        encounterId,
+        prescriptionId: prescription1.id,
+      }),
+    );
+    await models.AdministeredVaccine.create(
+      fake(models.AdministeredVaccine, { encounterId, scheduledVaccineId }),
+    );
+    await models.Procedure.create(
+      fake(models.Procedure, {
+        encounterId,
+        procedureTypeId,
+        locationId: location1Id,
+        date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 11, 1, 20, 54),
+        note: 'All ready for procedure here',
+        completedNote: 'Everything went smoothly, no issues',
+      }),
+    );
+    const { id: imagingRequestId } = await models.ImagingRequest.create(
+      fake(models.ImagingRequest, {
+        encounterId,
+        procedureTypeId,
+        requestedById: userId,
+        imagingType: IMAGING_TYPES.X_RAY,
+        requestedDate: '2022-06-11T01:20:54.225+00:00',
+      }),
+    );
+    await models.ImagingRequestArea.create(
+      fake(models.ImagingRequestArea, {
+        imagingRequestId,
+        areaId: leftImagingAreaId,
+      }),
+    );
+    await models.ImagingRequestArea.create(
+      fake(models.ImagingRequestArea, {
+        imagingRequestId,
+        areaId: rightImagingAreaId,
+      }),
+    );
+    const imagingRequestNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: imagingRequestId,
+        noteType: NOTE_TYPES.OTHER,
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        content: 'Check for fractured knees please',
+        date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
+      }),
+    );
 
-  const medici = await models.MediciReport.findOne();
+    const { id: labRequestId } = await models.LabRequest.create(
+      fake(models.LabRequest, { encounterId }),
+    );
+    await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
+    const labRequestNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: labRequestId,
+        noteType: NOTE_TYPES.OTHER,
+        recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
+        content: 'Please perform this lab test very carefully',
+        date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
+      }),
+    );
 
-  await medici.update({
-    lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
-  });
+    await models.Discharge.create(
+      fake(models.Discharge, {
+        encounterId,
+        dischargerId: userId,
+        dispositionId: dischargeDispositionId,
+      }),
+    );
 
-  return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
+    const encounterNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounterId,
+        noteType: NOTE_TYPES.NURSING,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'A\nB\nC\nD\nE\nF\nG\n',
+        date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
+      }),
+    );
+
+    // Location/departments:
+    const encounter = await models.Encounter.findByPk(encounterId);
+    await encounter.update({
+      locationId: location2Id,
+      submittedTime: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54),
+    });
+
+    await allFromUpstream(
+      {
+        payload: {
+          op: 'UPDATE',
+          table: 'public.encounters',
+          id: encounterId,
+        },
+      },
+      {
+        log,
+        sequelize: ctx.store.sequelize,
+        models: ctx.store.models,
+      },
+    );
+
+    await models.MediciReport.materialiseFromUpstream(encounterId);
+    await models.MediciReport.materialiseFromUpstream(openEncounterId);
+
+    const medici = await models.MediciReport.findOne();
+
+    await medici.update({
+      lastUpdated: new Date(Date.UTC(2022, 6 - 1, 12, 0, 2, 54, 225)),
+    });
+
+    return { patient, encounterId, encounterNote, imagingRequestNote, labRequestNote };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 describe('fijiAspenMediciReport', () => {
