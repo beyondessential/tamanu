@@ -187,7 +187,7 @@ export const SettingInput = ({
         return (
           <LargeBodyText data-testid="largebodytext-e29s">
             <TranslatedText
-              stringId="admin.settings.error.noComponent"
+              stringId="admin.settings.error.noSuggesterComponent"
               fallback="No suggester component for this type: :type (default: :defaultValue)"
               replacements={{ type, defaultValue }}
               data-testid="translatedtext-ah4n"
