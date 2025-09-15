@@ -153,9 +153,9 @@ export class AppointmentSchedule extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'appointments.patient_id',
         facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),

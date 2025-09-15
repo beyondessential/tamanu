@@ -43,3 +43,4 @@ export const invalidUserCredentialsMessage =
 export const invalidTokenMessage = 'Your login has expired, please sign out and back in.';
 export const forbiddenFacilityMessage = 'You dont have access to this facility'
 export const generalErrorMessage = 'Oops, something went wrong.\n Please try again later!';
+export const invalidDeviceMessage = 'This mobile device requires sync approval before you can proceed with login. Please contact your system administrator to grant approval.';
