@@ -88,9 +88,9 @@ export class PatientProgramRegistrationCondition extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'patient_program_registrations.patient_id',
       }),
       joins: [
