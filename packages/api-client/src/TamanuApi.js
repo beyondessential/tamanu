@@ -1,10 +1,15 @@
 import qs from 'qs';
 
 import { SERVER_TYPES } from '@tamanu/constants';
-import { ERROR_TYPE, Problem, RemoteIncompatibleError } from '@tamanu/errors';
+import {
+  ERROR_TYPE,
+  extractErrorFromFetchResponse,
+  Problem,
+  RemoteIncompatibleError,
+} from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
-import { extractErrorFromFetchResponse, getVersionIncompatibleMessage } from './errors';
+import { getVersionIncompatibleMessage } from './getVersionIncompatibleMessage';
 import { fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff } from './fetchWithRetryBackoff';
 import { InterceptorManager } from './InterceptorManager';

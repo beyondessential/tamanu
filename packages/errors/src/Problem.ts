@@ -25,6 +25,9 @@ export class Problem extends Error {
   public detail?: string;
   public extra: Map<string, any> = new Map();
 
+  /** When the Problem has been obtained from an API call, this will typically have its Response object. */
+  public response?: Response;
+
   constructor(type: string, title: string, status: number = 500, detail?: string) {
     super(detail ?? title);
     this.type = type;

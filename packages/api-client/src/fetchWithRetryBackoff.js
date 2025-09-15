@@ -1,4 +1,4 @@
-import { isRecoverable } from './errors';
+import { isRecoverable } from './getVersionIncompatibleMessage';
 import { fetchOrThrowIfUnavailable } from './fetch';
 
 export async function fetchWithRetryBackoff(

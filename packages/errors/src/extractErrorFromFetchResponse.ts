@@ -1,23 +1,19 @@
-import {
-  VERSION_COMPATIBILITY_ERRORS,
-  VERSION_MINIMUM_PROBLEM_KEY,
-  VERSION_MAXIMUM_PROBLEM_KEY,
-} from '@tamanu/constants';
+import { VERSION_MINIMUM_PROBLEM_KEY, VERSION_MAXIMUM_PROBLEM_KEY } from '@tamanu/constants';
+import { BaseError } from './BaseError';
+import { ERROR_TYPE, type ErrorType } from './constants';
+import { Problem } from './Problem';
 import {
   BadAuthenticationError,
-  BaseError,
   ClientIncompatibleError,
   EditConflictError,
-  ERROR_TYPE,
   ForbiddenError,
   NotFoundError,
-  Problem,
   RemoteUnreachableError,
   UnknownError,
   ValidationError,
-} from '@tamanu/errors';
+} from './errors';
 
-export function isRecoverable(error) {
+export function isRecoverable(error: Error) {
   if (!(error instanceof BaseError)) {
     return false;
   }
@@ -27,12 +23,14 @@ export function isRecoverable(error) {
   }
 
   if (
-    [
-      ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
-      ERROR_TYPE.AUTH_CREDENTIAL_MISSING,
-      ERROR_TYPE.CLIENT_INCOMPATIBLE,
-      ERROR_TYPE.STORAGE_INSUFFICIENT,
-    ].includes(error.type)
+    (
+      [
+        ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+        ERROR_TYPE.AUTH_CREDENTIAL_MISSING,
+        ERROR_TYPE.CLIENT_INCOMPATIBLE,
+        ERROR_TYPE.STORAGE_INSUFFICIENT,
+      ] as ErrorType[]
+    ).includes(error.type)
   ) {
     return false;
   }
@@ -48,29 +46,13 @@ export function isRecoverable(error) {
   return true;
 }
 
-const VERSION_COMPAT_MESSAGE_LOW =
-  'Tamanu is out of date, reload to get the new version! If that does not work, contact your system administrator.';
-const VERSION_COMPAT_MESSAGE_HIGH = maxAppVersion =>
-  `The Tamanu Facility Server only supports up to v${maxAppVersion}, and needs to be upgraded. Please contact your system administrator.`;
-
-/**
- * @internal
- * @param {Problem} problem
- */
-export function getVersionIncompatibleMessage(problem) {
-  if (problem.detail === VERSION_COMPATIBILITY_ERRORS.LOW) {
-    return VERSION_COMPAT_MESSAGE_LOW;
-  }
-
-  if (problem.detail === VERSION_COMPATIBILITY_ERRORS.HIGH) {
-    const maxAppVersion = problem.extra.get(VERSION_MAXIMUM_PROBLEM_KEY);
-    return VERSION_COMPAT_MESSAGE_HIGH(maxAppVersion);
-  }
-
-  return null;
+interface LegacyError {
+  name?: string;
+  message?: string;
+  status?: number;
 }
 
-function convertLegacyError(error, response) {
+function convertLegacyError(error: LegacyError, response: Response): Problem {
   let legacyMessage = error?.message || response.status.toString();
   let ErrorClass;
   switch (error?.status ?? response.status) {
@@ -82,7 +64,8 @@ function convertLegacyError(error, response) {
       ) {
         ErrorClass = ClientIncompatibleError;
       } else if (error.name) {
-        ErrorClass.name = error.name;
+        // a bit obnoxious, but typescript doesn't allow us to write to `name` directly
+        Object.assign(ErrorClass, { name: error.name });
       }
       break;
     }
@@ -103,7 +86,7 @@ function convertLegacyError(error, response) {
     default:
       ErrorClass = UnknownError;
       if (error.name) {
-        ErrorClass.name = error.name;
+        Object.assign(ErrorClass, { name: error.name });
       }
   }
 
@@ -116,23 +99,33 @@ function convertLegacyError(error, response) {
   problem.extra.set('legacy-error', error);
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
-    const minAppVersion = response.headers.get('X-Min-Client-Version');
+    const minAppVersion = response.headers.get('x-min-client-version');
     if (minAppVersion) problem.extra.set(VERSION_MINIMUM_PROBLEM_KEY, minAppVersion);
 
-    const maxAppVersion = response.headers.get('X-Max-Client-Version');
+    const maxAppVersion = response.headers.get('x-max-client-version');
     if (maxAppVersion) problem.extra.set(VERSION_MAXIMUM_PROBLEM_KEY, maxAppVersion);
   }
 
   return problem;
 }
 
-async function readResponse(response, logger = console) {
+interface Logger {
+  debug: (message: string, ...args: any[]) => void;
+  error: (message: string, ...args: any[]) => void;
+  info: (message: string, ...args: any[]) => void;
+  log: (message: string, ...args: any[]) => void;
+  warn: (message: string, ...args: any[]) => void;
+}
+
+async function readResponse(response: Response, logger: Logger = console): Promise<Problem> {
   let data;
   try {
     data = await response.text();
   } catch (err) {
     logger.warn('readResponseError: Error decoding text', err);
-    return new ValidationError('Invalid text encoding in response').withCause(err);
+    return Problem.fromError(
+      new ValidationError('Invalid text encoding in response').withCause(err as Error),
+    );
   }
 
   if (data.length === 0) {
@@ -144,7 +137,9 @@ async function readResponse(response, logger = console) {
     json = JSON.parse(data);
   } catch (err) {
     logger.warn('readResponseError: Error parsing JSON', err);
-    return new ValidationError('Invalid JSON in response').withCause(err);
+    return Problem.fromError(
+      new ValidationError('Invalid JSON in response').withCause(err as Error),
+    );
   }
 
   const problem = Problem.fromJSON(json);
@@ -165,7 +160,7 @@ async function readResponse(response, logger = console) {
   return unk;
 }
 
-function messageField(problem) {
+function messageField(problem: Problem): string {
   if (!problem.detail) {
     return problem.title;
   }
@@ -177,7 +172,11 @@ function messageField(problem) {
   return `${problem.title}: ${problem.detail}`;
 }
 
-export async function extractErrorFromFetchResponse(response, url, logger = console) {
+export async function extractErrorFromFetchResponse(
+  response: Response,
+  url: string,
+  logger: Logger = console,
+): Promise<Problem> {
   const problem = await readResponse(response, logger);
   problem.extra.set('request-url', url);
   problem.response = response;
