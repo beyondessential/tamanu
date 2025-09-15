@@ -6,7 +6,7 @@ import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
 
-const reportJSONToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
+const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -75,7 +75,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
-    const reportCSV = reportJSONToCSV(reportData);
+    const reportCSV = arrayOfArraysToCSV(reportData);
 
     const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
 
