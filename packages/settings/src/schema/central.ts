@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 import {
   durationStringSchema,
+  dhis2IdSchemeSchema,
   emailSchema,
   nationalityIdSchema,
   passportSchema,
@@ -120,32 +121,32 @@ export const centralSettings = {
                 dataElementIdScheme: {
                   name: 'Data element ID scheme',
                   description: 'Property of the data element object to use to map the data values.',
-                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
                 },
                 orgUnitIdScheme: {
                   name: 'Organisation unit ID scheme',
                   description: 'Property of the org unit object to use to map the data values.',
-                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
                 },
                 categoryOptionComboIdScheme: {
                   name: 'Category option combo ID scheme',
                   description:
                     'Property of the category option combo and attribute option combo objects to use to map the data values.',
-                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
                 },
                 dataSetIdScheme: {
                   name: 'Data set ID scheme',
                   description: 'Property of the data set object to use to map the data values.',
-                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
                 },
                 idScheme: {
                   name: 'ID scheme',
                   description: 'Property of the data element object to use to map the data values.',
-                  type: yup.string().oneOf(['uid', 'name', 'code', 'attribute:ID']),
+                  type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
                 },
               },
