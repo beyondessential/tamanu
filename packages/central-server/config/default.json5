@@ -378,7 +378,6 @@
     },
     "dhis2": {
       "enabled": false,
-      "host": "",
       "username": "",
       "password": ""
     }

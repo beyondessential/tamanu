@@ -103,6 +103,11 @@ export const centralSettings = {
         dhis2: {
           description: 'DHIS2 settings',
           properties: {
+            host: {
+              description: 'The host of the DHIS2 instance',
+              type: yup.string(),
+              defaultValue: '',
+            },
             reportIds: {
               description: 'The IDs of the reports to send to DHIS2',
               type: yup.array(yup.string().min(1)),
