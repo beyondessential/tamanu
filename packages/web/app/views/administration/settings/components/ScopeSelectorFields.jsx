@@ -1,17 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
-import { useSuggester } from '../../../../api';
-import { AutocompleteField, Field, SelectInput } from '../../../../components';
+import { useApi } from '../../../../api';
+import { DynamicSelectField, SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`
   width: 300px;
 `;
 
-const ScopeDynamicSelectInput = styled(Field)`
+const ScopeDynamicSelectInput = styled(DynamicSelectField)`
   width: 300px;
   margin-top: 0.5rem;
 `;
@@ -31,44 +32,60 @@ const SCOPE_OPTIONS = [
   },
 ];
 
-export const ScopeSelectorFields = React.memo(({ scope, onScopeChange, onFacilityChange }) => {
-  const facilitySuggester = useSuggester('facility');
+export const ScopeSelectorFields = React.memo(
+  ({ scope, onScopeChange, facilityId, onFacilityChange }) => {
+    const api = useApi();
+    const { data: facilitiesArray = [], error } = useQuery(
+      ['facilitiesList'],
+      () => api.get('admin/facilities'),
+      {
+        enabled: scope === SETTINGS_SCOPES.FACILITY,
+      },
+    );
 
-  return (
-    <>
-      <ScopeSelectInput
-        name="scope"
-        label={
-          <TranslatedText
-            stringId="admin.settings.scope.label"
-            fallback="Scope"
-            data-testid="translatedtext-8bro"
-          />
-        }
-        options={SCOPE_OPTIONS}
-        value={scope}
-        onChange={onScopeChange}
-        isClearable={false}
-        data-testid="scopeselectinput-zxel"
-      />
-      {scope === SETTINGS_SCOPES.FACILITY && (
-        <ScopeDynamicSelectInput
-          name="facilityId"
-          component={AutocompleteField}
-          suggester={facilitySuggester}
+    const facilityOptions = facilitiesArray.map((facility) => ({
+      label: facility.name,
+      value: facility.id,
+    }));
+
+    return (
+      <>
+        <ScopeSelectInput
+          name="scope"
           label={
             <TranslatedText
-              stringId="general.facility.label"
-              fallback="Facility"
-              data-testid="translatedtext-yz34"
+              stringId="admin.settings.scope.label"
+              fallback="Scope"
+              data-testid="translatedtext-8bro"
             />
           }
-          onChange={onFacilityChange}
-          required
+          options={SCOPE_OPTIONS}
+          value={scope}
+          onChange={onScopeChange}
           isClearable={false}
-          data-testid="scopedynamicselectinput-z7sz"
+          error={!!error}
+          data-testid="scopeselectinput-zxel"
         />
-      )}
-    </>
-  );
-});
+        {scope === SETTINGS_SCOPES.FACILITY && (
+          <ScopeDynamicSelectInput
+            name="facilityId"
+            options={facilityOptions}
+            label={
+              <TranslatedText
+                stringId="general.facility.label"
+                fallback="Facility"
+                data-testid="translatedtext-yz34"
+              />
+            }
+            value={facilityId}
+            onChange={onFacilityChange}
+            required
+            isClearable={false}
+            error={!!error}
+            data-testid="scopedynamicselectinput-z7sz"
+          />
+        )}
+      </>
+    );
+  },
+);
