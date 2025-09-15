@@ -82,7 +82,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     if (httpStatusCode === 200) {
       log.info(`DHIS2IntegrationProcessor: Report sent to DHIS2 successfully`, {
         report: reportString,
-        importCount: response.importCount,
+        ...response.importCount,
       });
     } else {
       log.warn(`DHIS2IntegrationProcessor: Failed to send report to DHIS2`, {
