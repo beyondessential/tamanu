@@ -107,6 +107,7 @@ export const centralSettings = {
               description: 'The IDs of the reports to send to DHIS2',
               type: yup.array(yup.string().min(1)),
               defaultValue: [],
+              suggesterEndpoint: 'reportDefinition',
             },
           },
         },
