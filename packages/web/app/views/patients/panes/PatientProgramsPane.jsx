@@ -29,7 +29,7 @@ const Container = styled.div`
 const TableHeader = () => (
   <Container>
     <Heading4>
-      <TranslatedText stringId="vaccine.table.schedule.label" fallback="Program forms" />
+      <TranslatedText stringId="vaccine.table.programForms.label" fallback="Program forms" />
     </Heading4>
   </Container>
 );
