@@ -51,7 +51,6 @@ export const SurveyView = () => {
       patientId: patient.id,
       endTime: getCurrentDateTimeString(),
       answers: (await getAnswersFromData(data, survey)) as SurveyData,
-      facilityId: '',
     });
   };
   const onCancel = async () => {};

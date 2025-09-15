@@ -22,7 +22,7 @@ export const SurveyScreenComponentSchema = z.object({
   validationCriteria: z.string().optional().nullable(),
   detail: z.string().optional().nullable(),
   config: z.string().optional().nullable(),
-  options: z.array(z.any()).optional().nullable(),
+  options: z.string().optional().nullable(),
   calculation: z.string().optional().nullable(),
   visibilityStatus: z.string().optional().nullable(),
   dataElement: ProgramDataElementSchema.optional().nullable(),

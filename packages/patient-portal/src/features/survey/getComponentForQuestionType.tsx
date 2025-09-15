@@ -67,7 +67,6 @@ const QUESTION_COMPONENTS = {
 
 export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
-  console.log('getComponentForQuestionType', type);
   if (Component === PlaceholderField || Component === UnSupportedField) {
     return (props: any) => <Component {...props} type={type} />;
   }

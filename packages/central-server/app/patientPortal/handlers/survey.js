@@ -28,6 +28,5 @@ export const getSurvey = asyncHandler(async (req, res) => {
     components,
   };
 
-  SurveyWithComponentsSchema.parse(payload);
-  return res.send(payload);
+  return res.send(SurveyWithComponentsSchema.parse(payload));
 });

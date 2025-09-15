@@ -83,7 +83,7 @@ export class SurveyScreenComponent extends Model {
       paranoid: !includeAllVitals,
     });
 
-    return components.map((c) => c.forResponse());
+    return components.map(c => c.forResponse());
   }
 
   static getComponentsForSurvey(surveyId: string, options = {}) {
@@ -105,10 +105,11 @@ export class SurveyScreenComponent extends Model {
   }
 
   forResponse() {
-    const { options, ...values } = this.dataValues;
+    const { options, dataElement, ...values } = this.dataValues;
     return {
       ...values,
       options: safeJsonParse(options),
+      dataElement: dataElement ? dataElement.forResponse() : dataElement,
     };
   }
 
