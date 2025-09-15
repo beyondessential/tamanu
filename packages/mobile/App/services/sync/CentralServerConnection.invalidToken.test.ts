@@ -1,6 +1,10 @@
+//! This test is split because it is leaky: when run among other tests in a
+//! common file, it leaks its mocks and causes other tests to fail or be flaky.
+
 import { CentralConnectionStatus } from '~/types';
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout } from './utils';
+import { Problem, InvalidCredentialError } from '@tamanu/errors';
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
@@ -55,7 +59,7 @@ describe('CentralServerConnection', () => {
      * 3. Third call to fetchWithTimeout will be the original fetch call with new token
      */
     mockFetchWithTimeout
-      .mockResolvedValueOnce(new Response('{}', { status: 401, statusText: 'Unauthorized' }))
+      .mockResolvedValueOnce(Problem.fromError(new InvalidCredentialError()).intoResponse())
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({

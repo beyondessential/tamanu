@@ -7,7 +7,7 @@ import {
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
 import { fetchWithTimeout, sleepAsync } from './utils';
-import { Problem, ClientIncompatibleError } from '@tamanu/errors';
+import { Problem, ClientIncompatibleError, InvalidCredentialError } from '@tamanu/errors';
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
@@ -248,9 +248,7 @@ describe('CentralServerConnection', () => {
     });
     it('should not call refresh if skipAttemptRefresh is true', async () => {
       mockFetchWithTimeout.mockResolvedValueOnce(
-        new Response('{}', {
-          status: 401,
-        }),
+        Problem.fromError(new InvalidCredentialError()).intoResponse(),
       );
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       await expect(
