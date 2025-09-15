@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
-import { useCurrentUser } from '@routes/PrivateRoute';
-import { SurveyForm } from '../features/survey/SurveyForm';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useSurveyQuery } from '@api/queries/useSurveyQuery';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { type User } from '@tamanu/shared/schemas/patientPortal';
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { getAnswersFromData } from '@tamanu/ui-components';
+import { useCurrentUser } from '@routes/PrivateRoute';
+import { useSurveyQuery } from '@api/queries/useSurveyQuery';
+import { useSubmitSurveyResponse } from '@api/mutations';
+import { SurveyForm } from '../features/survey/SurveyForm';
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -26,14 +29,31 @@ const Title = styled(Typography)(() => ({
   lineHeight: 2,
 }));
 
+type SurveyData = Record<string, any>;
+
 export const SurveyView = () => {
   const { surveyId } = useParams<{ surveyId: string }>();
+  const [startTime, setStartTime] = useState<string | null>(null);
   const { isPending, data: survey } = useSurveyQuery(surveyId);
+  const { mutate: submitSurveyResponse } = useSubmitSurveyResponse();
   const { additionalData, ...patient } = useCurrentUser();
   const currentUser = {} as User;
   const encounterType = ENCOUNTER_TYPES.CLINIC;
 
-  const onSubmit = async () => {};
+  useEffect(() => {
+    setStartTime(getCurrentDateTimeString());
+  }, []);
+
+  const onSubmit = async (data: SurveyData) => {
+    submitSurveyResponse({
+      surveyId,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: (await getAnswersFromData(data, survey)) as SurveyData,
+      facilityId: '',
+    });
+  };
   const onCancel = async () => {};
 
   if (isPending || !survey) {

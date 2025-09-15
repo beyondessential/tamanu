@@ -134,7 +134,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       };
 
       const response = await baseApp
-        .post(`/api/portal/surveyResponse/${assignment.id}`)
+        .post(`/api/portal/surveyResponse`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
 
@@ -142,9 +142,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       expect(response.body).toHaveProperty('id');
 
       const refreshedAssignment = await store.models.PortalSurveyAssignment.findByPk(assignment.id);
-      expect(refreshedAssignment.status).toBe(
-        PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED,
-      );
+      expect(refreshedAssignment.status).toBe(PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED);
       expect(refreshedAssignment.surveyResponseId).toBe(response.body.id);
     });
 
@@ -169,7 +167,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       };
 
       const resWrongPatient = await baseApp
-        .post(`/api/portal/surveyResponse/${otherAssignment.id}`)
+        .post(`/api/portal/surveyResponse`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resWrongPatient).toHaveRequestError(404);
@@ -182,7 +180,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       });
 
       const resSubmitted = await baseApp
-        .post(`/api/portal/surveyResponse/${submittedAssignment.id}`)
+        .post(`/api/portal/surveyResponse`)
         .set('Authorization', `Bearer ${authToken}`)
         .send(payload);
       expect(resSubmitted).toHaveRequestError(404);
@@ -197,7 +195,7 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
       const anotherSurvey = await Survey.create(fake(Survey, { status: 'active' }));
 
       const resWrongSurvey = await baseApp
-        .post(`/api/portal/surveyResponse/${assignment.id}`)
+        .post(`/api/portal/surveyResponse`)
         .set('Authorization', `Bearer ${authToken}`)
         .send({
           surveyId: anotherSurvey.id,
@@ -209,10 +207,8 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     });
 
     it('Should reject unauthorized requests', async () => {
-      const response = await baseApp.post('/api/portal/surveyResponse/not-a-real-id');
+      const response = await baseApp.post('/api/portal/surveyResponse');
       expect(response).toHaveRequestError();
     });
   });
 });
-
-
