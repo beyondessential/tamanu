@@ -1,8 +1,12 @@
+import React from 'react';
 import styled from 'styled-components';
-import { ToastContainer } from 'react-toastify';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { ToastContainer, Slide } from 'react-toastify';
+import { TAMANU_COLORS } from '../constants';
+import { ClearIcon } from './Icons';
 
-export const CustomToastContainer = styled(ToastContainer)`
+import 'react-toastify/dist/ReactToastify.css';
+
+const StyledToastContainer = styled(ToastContainer)`
   &&&.Toastify__toast-container {
     min-inline-size: 20rem;
     max-inline-size: 25rem;
@@ -47,3 +51,22 @@ export const CustomToastContainer = styled(ToastContainer)`
     }
   }
 `;
+
+export const CustomToastContainer = ({ children }) => {
+  return (
+    <StyledToastContainer
+      hideProgressBar
+      transition={Slide}
+      closeOnClick
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="colored"
+      icon={false}
+      limit={5}
+      closeButton={<ClearIcon />}
+    >
+      {children}
+    </StyledToastContainer>
+  );
+};
