@@ -73,7 +73,7 @@ export const LoginView = () => {
   return (
     <Card>
       <Box display="flex" alignItems="center" justifyContent="center" gap={0.75} mb={1}>
-        <ShieldIcon fontSize="small" color="primary" />
+        <ShieldIcon fontSize="small" sx={{ color: TAMANU_COLORS.blue }} />
         <Typography variant="h3">Account authentication</Typography>
       </Box>
       <Typography variant="body1" color="text.secondary" style={{ textWrap: 'balance' }}>
