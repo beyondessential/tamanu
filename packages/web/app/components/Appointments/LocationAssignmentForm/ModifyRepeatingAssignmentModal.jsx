@@ -113,7 +113,6 @@ export const ModifyRepeatingAssignmentModal = ({ open, onClose, onConfirm }) => 
           </StyledRadioGroup>
         </Container>
       }
-      cancelButtonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
       confirmButtonText={<TranslatedText stringId="general.action.continue" fallback="Continue" />}
     />
   );

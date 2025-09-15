@@ -8,6 +8,7 @@ import { useSuggester } from '../../../api';
 import {
   useLocationAssignmentMutation,
   useLocationAssignmentDeleteMutation,
+  useLocationAssignmentOverlappingAssignmentsMutation,
 } from '../../../api/mutations';
 import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
@@ -46,6 +47,8 @@ import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
 import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
+import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
+import { OverlappingLeavesModal } from './OverlappingLeavesModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -100,6 +103,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     isConfirmModifyRepeatingAssignmentModalOpen,
     setIsConfirmModifyRepeatingAssignmentModalOpen,
   ] = useState(false);
+  const [overlappingRepeatingAssignments, setOverlappingRepeatingAssignments] = useState(null);
+  const [overlappingLeaves, setOverlappingLeaves] = useState(null);
+  const [handleConfirmOverlappingLeaves, setHandleConfirmOverlappingLeaves] = useState(null);
   const [
     selectedModifyRepeatingAssignmentMode,
     setSelectedModifyRepeatingAssignmentMode,
@@ -127,6 +133,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   });
 
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
+  const {
+    mutateAsync: checkOverlappingAssignments,
+  } = useLocationAssignmentOverlappingAssignmentsMutation();
 
   const { mutateAsync: mutateAssignment } = useLocationAssignmentMutation();
 
@@ -169,6 +178,28 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       if (isEditingMultipleRepeatingAssignments) {
         payload.updateAllNextRecords = true;
       }
+      const overlapAssignments = await checkOverlappingAssignments(payload);
+      if (overlapAssignments.length > 0) {
+        setOverlappingRepeatingAssignments(overlapAssignments);
+        return;
+      }
+      const overlappingLeaves = await checkOverlappingLeaves(payload);
+      if (overlappingLeaves.length > 0) {
+        setOverlappingLeaves(overlappingLeaves);
+        setHandleConfirmOverlappingLeaves(() => () => {
+          handleCloseOverlappingLeaves();
+          mutateAssignment(payload, {
+            onSuccess: () => {
+              onClose();
+              resetForm();
+            },
+            onError: error => {
+              toast.error(error.message);
+            },
+          });
+        });
+        return;
+      }
     }
     mutateAssignment(payload, {
       onSuccess: () => {
@@ -201,6 +232,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     setIsConfirmModifyRepeatingAssignmentModalOpen(false);
   };
 
+  const handleCloseOverlappingLeaves = () => {
+    setOverlappingLeaves(null);
+    setHandleConfirmOverlappingLeaves(null);
+  };
+
   const requiredMessage = getTranslation('validation.required.inline', '*Required');
 
   const checkLeaveOverlap = useCallback(
@@ -210,12 +246,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         return;
       }
 
-      const response = await checkOverlappingLeaves({
+      const overlappingLeaves = await checkOverlappingLeaves({
         userId,
         date,
-        isRepeating: false,
       });
-      if (response?.userLeaves?.length > 0) {
+      if (overlappingLeaves?.length > 0) {
         setFieldError(
           'date',
           <TranslatedText
@@ -241,13 +276,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       .test('leave-conflict', async function(value) {
         if (!value || !this.parent.userId || isViewing) return true;
 
-        const response = await checkOverlappingLeaves({
+        const overlappingLeaves = await checkOverlappingLeaves({
           userId: this.parent.userId,
           date: value,
-          isRepeating: false,
         });
 
-        if (response?.userLeaves?.length > 0) {
+        if (overlappingLeaves?.length > 0) {
           return this.createError({
             message: (
               <TranslatedText
@@ -575,6 +609,17 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         open={isConfirmModifyRepeatingAssignmentModalOpen}
         onClose={() => setIsConfirmModifyRepeatingAssignmentModalOpen(false)}
         onConfirm={handleConfirmModifyRepeatingAssignment}
+      />
+      <OverlappingRepeatingAssignmentModal
+        open={!!overlappingRepeatingAssignments}
+        onClose={() => setOverlappingRepeatingAssignments(null)}
+        overlappingRepeatingAssignments={overlappingRepeatingAssignments}
+      />
+      <OverlappingLeavesModal
+        open={!!overlappingLeaves}
+        onClose={handleCloseOverlappingLeaves}
+        overlappingLeaves={overlappingLeaves}
+        onConfirm={handleConfirmOverlappingLeaves}
       />
     </>
   );
