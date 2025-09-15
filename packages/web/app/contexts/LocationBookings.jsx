@@ -1,4 +1,4 @@
-import { isSameMonth, isThisMonth, startOfToday } from 'date-fns';
+import { isSameMonth, isThisMonth, startOfToday, startOfDay } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 import {
@@ -8,6 +8,7 @@ import {
 } from '../views/scheduling/locationBookings/utils';
 import { useUserPreferencesQuery } from '../api/queries';
 import { useUrlSearchParams } from '../utils/useUrlSearchParams';
+import { VIEW_TYPES } from '../views/scheduling/locationBookings/ViewTypeToggle';
 
 const LocationBookingsContext = createContext(null);
 
@@ -42,6 +43,8 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
+  const [viewType, setViewType] = useState(VIEW_TYPES.DAILY);
+  const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   useEffect(
     () => {
       if (isSameMonth(selectedCell.date, monthOf)) {
@@ -82,6 +85,10 @@ export const LocationBookingsContextProvider = ({ children }) => {
         updateSelectedCell,
         monthOf,
         setMonthOf,
+        viewType,
+        setViewType,
+        selectedDate,
+        setSelectedDate,
       }}
     >
       {children}
