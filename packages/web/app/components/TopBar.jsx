@@ -15,6 +15,7 @@ const TopBarHeading = styled(Typography)`
   line-height: 24px;
   letter-spacing: 0;
   color: ${(props) => props.theme.palette.text.primary};
+  min-width: 250px;
 `;
 
 const AppBar = styled.div`
@@ -30,7 +31,7 @@ const Bar = styled(Toolbar)`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: 20px;
+  padding-inline: 25px;
 `;
 
 const Dot = styled.span`
