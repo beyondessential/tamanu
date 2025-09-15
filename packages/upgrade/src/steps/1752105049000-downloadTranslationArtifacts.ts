@@ -39,9 +39,7 @@ async function download(
   }
 
   const artifacts = (await artifactsResponse.json()) as unknown as Artifact[];
-  const translationsArtifact = artifacts.find(
-    (artifact: any) => artifact.artifact_type === artifactType,
-  );
+  const translationsArtifact = artifacts.find(artifact => artifact.artifact_type === artifactType);
   if (!translationsArtifact) {
     throw new Error(`No ${artifactType} artifact found for version ${toVersion}`);
   }
