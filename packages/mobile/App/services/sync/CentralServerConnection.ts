@@ -1,10 +1,6 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  CAN_ACCESS_ALL_FACILITIES,
-  DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
-  DEVICE_SCOPES,
-} from '@tamanu/constants';
+import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
 import { ERROR_TYPE, extractErrorFromFetchResponse } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';

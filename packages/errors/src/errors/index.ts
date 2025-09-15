@@ -17,6 +17,7 @@ export { AuthPermissionError } from './auth/AuthPermissionError';
 export { InvalidCredentialError } from './auth/InvalidCredentialError';
 export { InvalidTokenError } from './auth/InvalidTokenError';
 export { MissingCredentialError } from './auth/MissingCredentialError';
+export { QuotaExceededError } from './auth/QuotaExceededError';
 
 export { BaseValidationError, ValidationError } from './ValidationError';
 export { DatabaseConstraintError } from './validation/DatabaseConstraintError';

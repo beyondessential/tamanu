@@ -3,6 +3,7 @@ export const ERROR_TYPE = {
   AUTH_CREDENTIAL_INVALID: 'auth-credential-invalid',
   AUTH_CREDENTIAL_MISSING: 'auth-credential-missing',
   AUTH_PERMISSION_REQUIRED: 'auth-permission-required',
+  AUTH_QUOTA_EXCEEDED: 'auth-quota-exceeded',
   AUTH_TOKEN_INVALID: 'auth-token-invalid',
   CLIENT_INCOMPATIBLE: 'client-incompatible',
   DATABASE: 'database',
