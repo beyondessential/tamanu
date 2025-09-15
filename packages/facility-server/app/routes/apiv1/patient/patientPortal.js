@@ -10,6 +10,7 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   COMMUNICATION_STATUSES,
   PORTAL_SURVEY_ASSIGNMENTS_STATUSES,
+  PORTAL_USER_STATUSES,
 } from '@tamanu/constants';
 import { PortalSurveyAssignmentsSchema } from '@tamanu/shared/schemas/facility/responses/portalSurveyAssignments.schema';
 import { SendPortalFormRequestSchema } from '@tamanu/shared/schemas/facility/requests/sendPortalForm.schema';
@@ -169,7 +170,7 @@ patientPortal.post(
     }
 
     const portalUser = await models.PortalUser.findOne({
-      where: { patientId },
+      where: { patientId, status: PORTAL_USER_STATUSES.REGISTERED },
     });
 
     // Handle user registration and email sending

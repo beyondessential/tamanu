@@ -39,7 +39,7 @@ export const RequestLoginTokenView = () => {
     }
     const { success: emailValid } = z.email().safeParse(email);
     if (!emailValid) {
-      setError('Please enter a valid email');
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -57,7 +57,7 @@ export const RequestLoginTokenView = () => {
         Log In
       </Typography>
       <Typography variant="body1" mb={3} color="text.secondary">
-        Enter your email below to log in
+        Enter your email below to log in. We will send a verification code for account authentication.
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -70,6 +70,7 @@ export const RequestLoginTokenView = () => {
           helperText={error}
           onChange={resetError}
           autoFocus
+          required
         />
         <LoginButton type="submit" fullWidth variant="contained">
           Send code
@@ -77,7 +78,7 @@ export const RequestLoginTokenView = () => {
         <Divider sx={{ my: 2 }} />
         <Typography variant="body2" color="text.secondary">
           <strong>Issue with your email?</strong> If you have forgotten or lost access to your
-          email, please contact the health facility associated with your Patient Portal.
+          email, please contact the healthcare facility associated with your Patient Portal.
         </Typography>
       </form>
     </Card>
