@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay, format } from 'date-fns';
+import { endOfDay, startOfDay, format, addHours, differenceInMinutes, parseISO, setHours, setMinutes } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
@@ -15,62 +15,74 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { partitionAppointmentsByLocation } from './utils';
 import { useAuth } from '../../../contexts/Auth';
 
-const ColumnWrapper = styled(Box)`
-  --column-width: 14rem;
-  display: flex;
-  flex-direction: column;
-  inline-size: var(--column-width);
-  min-block-size: max-content;
-
-  > * {
-    padding-inline: 0.5rem;
-  }
-
-  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
-  &:not(:first-child) {
-    border-inline-start: var(--border-style);
-  }
-  &:last-child {
-    border-inline-end: var(--border-style);
-  }
+const CalendarGrid = styled.div`
+  display: grid;
+  grid-template-columns: 80px repeat(${props => props.$locationCount || 1}, 158px);
+  min-height: 100%;
+  overflow: auto;
+  width: max-content;
+  min-width: 100%;
 `;
 
-const HeadCellWrapper = styled(Box)`
-  align-items: center;
+const TimeColumn = styled.div`
   background: ${Colors.white};
-  display: flex;
-  flex-direction: column;
-  inline-size: calc(var(--column-width) - 2px);
-  inset-block-start: 0;
-  justify-content: center;
+  border-inline-end: max(0.0625rem, 1px) solid ${Colors.outline};
   position: sticky;
-  text-align: center;
-  border-block-end: max(0.0625rem, 1px) solid ${Colors.outline};
+  left: 0;
+  z-index: 11;
 `;
 
-const HeadCellTextWrapper = styled(Box)`
-  block-size: 4rem;
+const TimeSlot = styled.div`
+  height: 70px;
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
+  padding-block-start: 0.25rem;
+  font-size: 0.75rem;
+  color: ${Colors.midText};
+  background: ${Colors.white};
+  position: relative;
+  top: -12px;
 `;
 
-const HeadCellText = styled.div`
-  -webkit-box-orient: vertical;
-  display: -webkit-box;
-  font-weight: 400;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  padding-inline: 0.5rem;
-  font-size: 0.875rem;
-`;
-
-
-const AppointmentColumnWrapper = styled(Box)`
+const LocationColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding-block: 0.5rem;
+  width: 158px;
+  min-width: 158px;
+  max-width: 158px;
+  border-inline-end: max(0.0625rem, 1px) solid ${Colors.outline};
+  position: relative;
+`;
+
+const LocationHeader = styled.div`
+  background: ${Colors.white};
+  border-block-end: max(0.0625rem, 1px) solid ${Colors.outline};
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 140px;
+`;
+
+const LocationSchedule = styled.div`
+  position: relative;
+  flex: 1;
+  min-height: calc(70px * var(--hour-count));
+`;
+
+const AppointmentWrapper = styled.div`
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  z-index: 1;
+  
+  .appointment-tile {
+    height: 100%;
+    margin: 0;
+    width: 100%;
+    font-size: 11px;
+    padding-inline: 5px;
+  }
 `;
 
 const StatusText = styled.div`
@@ -149,8 +161,8 @@ const formatTime = (time) => {
   return format(new Date(time), 'h:mma').toLowerCase();
 };
 
-const HeadCell = ({ location, assignments = [] }) => (
-  <>
+const LocationHeaderContent = ({ location, assignments = [] }) => (
+  <LocationHeader data-testid="location-header">
     <AssignmentSection data-testid="assignment-section">
       {assignments.length > 0 ? (
         assignments.map((assignment, index) => (
@@ -177,26 +189,23 @@ const HeadCell = ({ location, assignments = [] }) => (
       )}
     </AssignmentSection>
     
-    <HeadCellWrapper data-testid="headcellwrapper-daily">
-      <HeadCellTextWrapper data-testid="headcelltextwrapper-daily">
-        <HeadCellText data-testid="headcelltext-daily">
-          <TranslatedReferenceData
-            category="locationGroup"
-            value={location.locationGroup.id}
-            fallback={location.locationGroup.name}
-            data-testid="locationgroup-name"
-          />
-          {' - '}
-          <TranslatedReferenceData
-            category="location"
-            value={location.id}
-            fallback={location.name}
-            data-testid="location-name"
-          />
-        </HeadCellText>
-      </HeadCellTextWrapper>
-    </HeadCellWrapper>
-  </>
+    <div style={{ padding: '0.5rem', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '2px' }} data-testid="location-title">
+      <div style={{ fontSize: '11px', color: Colors.midText }} data-testid="locationgroup-name">
+        <TranslatedReferenceData
+          category="locationGroup"
+          value={location.locationGroup.id}
+          fallback={location.locationGroup.name}
+        />
+      </div>
+      <div style={{ fontSize: '14px', color: Colors.darkestText }} data-testid="location-name">
+        <TranslatedReferenceData
+          category="location"
+          value={location.id}
+          fallback={location.name}
+        />
+      </div>
+    </div>
+  </LocationHeader>
 );
 
 export const LocationBookingsDailyCalendar = ({
@@ -258,10 +267,38 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
   
-  // For daily view, show all locations (even without bookings)
-  const locationsToShow = filteredLocations;
+  // For daily view, show only first 3 locations (for testing purpose)
+  const locationsToShow = filteredLocations.slice(0, 4);
 
   const canCreateAppointment = ability.can('create', 'Appointment');
+
+  // Generate 24-hour time slots (12:00 AM to 11:00 PM)
+  const timeSlots = React.useMemo(() => {
+    const slots = [];
+    for (let hour = 0; hour < 24; hour++) {
+      const timeSlot = setMinutes(setHours(selectedDate, hour), 0);
+      slots.push(timeSlot);
+    }
+    return slots;
+  }, [selectedDate]);
+  
+  const hourCount = timeSlots.length;
+
+  // Helper function to calculate appointment position and height
+  const getAppointmentStyle = (appointment) => {
+    const startTime = parseISO(appointment.startTime);
+    const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
+    const dayStart = setMinutes(setHours(selectedDate, 0), 0); // Start at 12:00 AM
+    
+    const startOffset = differenceInMinutes(startTime, dayStart);
+    const duration = differenceInMinutes(endTime, startTime);
+    
+    const pixelsPerMinute = 70 / 60; // 70px per hour
+    const top = Math.max(0, startOffset * pixelsPerMinute);
+    const height = Math.max(30, duration * pixelsPerMinute); // Minimum 30px height
+    
+    return { top, height };
+  };
 
   if (isLoading || isAssignmentsLoading) {
     return <LoadingSkeleton data-testid="loadingskeleton-daily" />;
@@ -308,58 +345,101 @@ export const LocationBookingsDailyCalendar = ({
       className={APPOINTMENT_CALENDAR_CLASS}
       display="flex"
       width="100%"
-      overflow="auto"
+      height="100%"
+      overflow="hidden"
       flex={1}
       data-testid="daily-calendar-container"
       {...props}
     >
-      {locationsToShow.map((location, locationIndex) => {
-        const locationAppointments = appointmentsByLocation[location.id] || [];
-        
-        return (
-          <ColumnWrapper 
-            className="column-wrapper" 
-            key={location.id} 
-            data-testid={`column-wrapper-${locationIndex}`}
-          >
-            <HeadCell 
-              location={location}
-              assignments={assignmentsByLocation[location.id] || []}
-              data-testid={`head-cell-${locationIndex}`}
-            />
-            <AppointmentColumnWrapper data-testid={`appointment-column-${locationIndex}`}>
-              {locationAppointments.map((appointment, appointmentIndex) => (
-                <AppointmentTile
-                  key={appointment.id}
-                  appointment={appointment}
-                  onEdit={() => openBookingForm(appointment)}
-                  onCancel={() => openCancelModal(appointment)}
-                  actions={
-                    canCreateAppointment
-                      ? [
-                          {
-                            label: (
-                              <TranslatedText
-                                stringId="appointments.action.newAppointment"
-                                fallback="New appointment"
-                                data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
-                              />
-                            ),
-                            action: () => openBookingForm({
-                              locationId: location.id,
-                              startDate: selectedDate,
-                            }),
-                          },
-                        ]
-                      : []
-                  }
-                  testIdPrefix={`${locationIndex}-${appointmentIndex}`}
-                />
-              ))}
-            </AppointmentColumnWrapper>
-          </ColumnWrapper>
-        );
-      })}
+      <CalendarGrid $locationCount={locationsToShow.length} style={{ '--hour-count': hourCount }}>
+        {/* Time column */}
+        <TimeColumn>
+          {/* Empty header space */}
+          <div style={{ height: '140px', background: Colors.white }} />
+          
+          {/* Time slots */}
+          {timeSlots.map((slot, index) => (
+            <TimeSlot key={index} data-testid={`time-slot-${index}`}>
+              {format(slot, 'h:mm a')}
+            </TimeSlot>
+          ))}
+        </TimeColumn>
+
+        {/* Location columns */}
+        {locationsToShow.map((location, locationIndex) => {
+          const locationAppointments = appointmentsByLocation[location.id] || [];
+          
+          return (
+            <LocationColumn key={location.id} data-testid={`location-column-${locationIndex}`}>
+              <LocationHeaderContent 
+                location={location}
+                assignments={assignmentsByLocation[location.id] || []}
+              />
+              
+              <LocationSchedule>
+                {/* Time slot background grid */}
+                {timeSlots.map((_, slotIndex) => (
+                  <div
+                    key={slotIndex}
+                    style={{
+                      position: 'absolute',
+                      top: slotIndex * 70,
+                      left: 0,
+                      right: 0,
+                      height: 70,
+                      borderBlockEnd: slotIndex < timeSlots.length - 1 ? `max(0.0625rem, 1px) solid ${Colors.outline}` : 'none',
+                    }}
+                    data-testid={`time-grid-${locationIndex}-${slotIndex}`}
+                  />
+                ))}
+                
+                {/* Appointments positioned by time */}
+                {locationAppointments.map((appointment, appointmentIndex) => {
+                  const style = getAppointmentStyle(appointment);
+                  return (
+                    <AppointmentWrapper
+                      key={appointment.id}
+                      style={{ 
+                        top: `${style.top}px`, 
+                        height: `${style.height}px` 
+                      }}
+                      data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
+                    >
+                      <AppointmentTile
+                        appointment={appointment}
+                        hideTime={false}
+                        className="appointment-tile"
+                        onEdit={() => openBookingForm(appointment)}
+                        onCancel={() => openCancelModal(appointment)}
+                        actions={
+                          canCreateAppointment
+                            ? [
+                                {
+                                  label: (
+                                    <TranslatedText
+                                      stringId="appointments.action.newAppointment"
+                                      fallback="New appointment"
+                                      data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
+                                    />
+                                  ),
+                                  action: () => openBookingForm({
+                                    locationId: location.id,
+                                    startDate: selectedDate,
+                                  }),
+                                },
+                              ]
+                            : []
+                        }
+                        testIdPrefix={`${locationIndex}-${appointmentIndex}`}
+                      />
+                    </AppointmentWrapper>
+                  );
+                })}
+              </LocationSchedule>
+            </LocationColumn>
+          );
+        })}
+      </CalendarGrid>
     </Box>
   );
 };
