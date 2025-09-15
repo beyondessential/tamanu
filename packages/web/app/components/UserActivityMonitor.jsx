@@ -77,7 +77,7 @@ const IdleWarningModal = ({ open, remainingDuration, onStayLoggedIn, onTimeout }
         cancelText={
           <TranslatedText
             stringId="auth.action.logout"
-            fallback="Logout"
+            fallback="Log out"
             data-testid="translatedtext-logout"
           />
         }

@@ -42,6 +42,7 @@ const StyledNumberField = styled(NumberField)`
     font-size: 12px;
     padding-block: 10px;
     padding-inline: 13px 10px;
+    height: 18px;
   }
   & .Mui-disabled {
     background-color: ${TAMANU_COLORS.background};
@@ -55,9 +56,12 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
       min-height: 0;
       padding-top: 9px;
       padding-bottom: 7px;
+      > div:first-of-type {
+        height: 36px;
+      }
     }
     width: 108px;
-    margin-block-start: 20px;
+    margin-block-start: 12px;
     & .MuiInputBase-input {
       padding-block: 11px;
       padding-inline: 13px 10px;
