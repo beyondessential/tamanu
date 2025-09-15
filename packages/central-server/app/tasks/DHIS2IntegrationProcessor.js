@@ -100,16 +100,15 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async run() {
-    const { settings } = this.context;
-
-    const { reportIds, host } = await settings.get('integrations.dhis2');
+    const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
 
-    if (!host || !username || !password) {
+    if (!host || !username || !password || reportIds.length === 0) {
       log.warn(`DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping`, {
         host: !!host,
         username: !!username,
         password: !!password,
+        reportIds: reportIds.length,
       });
       return;
     }
