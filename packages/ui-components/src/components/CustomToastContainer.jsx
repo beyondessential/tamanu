@@ -52,7 +52,7 @@ const StyledToastContainer = styled(ToastContainer)`
   }
 `;
 
-export const CustomToastContainer = ({ children }) => {
+export const CustomToastContainer = () => {
   return (
     <StyledToastContainer
       hideProgressBar
@@ -65,8 +65,6 @@ export const CustomToastContainer = ({ children }) => {
       icon={false}
       limit={5}
       closeButton={<ClearIcon />}
-    >
-      {children}
-    </StyledToastContainer>
+    />
   );
 };
