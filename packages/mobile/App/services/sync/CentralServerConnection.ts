@@ -5,6 +5,7 @@ import {
   DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
   DEVICE_SCOPES,
 } from '@tamanu/constants';
+import { ERROR_TYPE, extractErrorFromFetchResponse } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -15,10 +16,9 @@ import {
   invalidTokenMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
-  RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, fetchWithTimeout, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
 
 const API_PREFIX = 'api';
@@ -29,35 +29,30 @@ const fetchAndParse = async (
   isLogin: boolean,
 ): Promise<Record<string, unknown>> => {
   const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
-    const { error } = await getResponseJsonSafely(response);
-    const loginErrorMessage = error?.message === DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR
-      ? invalidDeviceMessage
-      : invalidUserCredentialsMessage;
-    throw new AuthenticationError(isLogin ? loginErrorMessage : invalidTokenMessage);
+  if (response.ok) {
+    return await response.json();
   }
 
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
-    }
+  const problem = await extractErrorFromFetchResponse(response, url);
+
+  if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
+    throw new AuthenticationError(invalidDeviceMessage);
   }
 
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
+  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
+    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
 
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
+  if (
+    (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE ||
+      problem.type === ERROR_TYPE.REMOTE_INCOMPATIBLE) &&
+    problem.extra.has('updateUrl')
+  ) {
+    throw new OutdatedVersionError(problem.extra.get('updateUrl'));
   }
 
-  return response.json();
+  console.error('Response had non-OK value', problem);
+  throw problem;
 };
 
 export class CentralServerConnection {
@@ -69,7 +64,7 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  async connect(host: string): void {
+  async connect(host: string): Promise<void> {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
