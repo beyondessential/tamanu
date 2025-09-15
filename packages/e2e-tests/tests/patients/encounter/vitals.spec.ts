@@ -1,5 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { extractEncounterIdFromUrl } from '../../../utils/testHelper';
+import { format } from 'date-fns';
 
 //TODO: can find validationCriteria for all fields in survey_screen_components table of database
 //search for pde-PatientVitals to find all relevant data elements then sort by validation_criteria
@@ -245,5 +246,18 @@ test.describe('Vitals', () => {
     for (const [fieldName, data] of Object.entries(invalidData)) {
       await vitalsPane.recordVitalsModal?.assertValidationError(fieldName, data);
     }
+  });
+
+  //TODO: test both custom and default date
+  test('Can create vital with default date or a custom date', async ({vitalsPane, api, patientDetailsPage}) => {
+    //TODO: refactor this first step a little bit and use format to create a date that is in the same format as expected
+    const now = new Date();
+    console.log(now);
+    const nowFormatted = format(now, 'yyyy-MM-dd HH:mm:ss');
+    console.log(nowFormatted);
+
+    await vitalsPane.clickRecordVitalsButton();
+    const dateValue = await vitalsPane.recordVitalsModal?.dateField.evaluate((el: HTMLInputElement) => el.value);
+    console.log(dateValue);
   });
 });
