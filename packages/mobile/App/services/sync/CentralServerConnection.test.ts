@@ -333,9 +333,11 @@ describe('CentralServerConnection', () => {
       );
     });
     it('should not call refresh if skipAttemptRefresh is true', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce({
-        status: 401,
-      });
+      mockFetchWithTimeout.mockResolvedValueOnce(
+        new Response('{}', {
+          status: 401,
+        }),
+      );
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       await expect(
         centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
@@ -344,15 +346,20 @@ describe('CentralServerConnection', () => {
     });
     it('should throw an error with updateUrl if version is outdated', async () => {
       const mockUpdateUrl = 'test-update-url';
-      mockFetchWithTimeout.mockResolvedValueOnce({
-        status: 400,
-        json: async () => ({
-          error: {
-            name: 'InvalidClientVersion',
-            updateUrl: 'test-update-url',
+      mockFetchWithTimeout.mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              name: 'InvalidClientVersion',
+              updateUrl: 'test-update-url',
+            },
+          }),
+          {
+            status: 400,
+            statusText: 'Bad Request',
           },
-        }),
-      });
+        ),
+      );
       await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrow(
         new OutdatedVersionError(mockUpdateUrl),
       );
