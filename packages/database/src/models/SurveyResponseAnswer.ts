@@ -87,9 +87,9 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
+      select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, [
         {
           model: this.sequelize.models.SurveyResponse,
