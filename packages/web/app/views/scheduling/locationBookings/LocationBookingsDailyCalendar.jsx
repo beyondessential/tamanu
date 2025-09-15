@@ -76,6 +76,18 @@ const AppointmentWrapper = styled.div`
   right: 4px;
   z-index: 1;
   
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${Colors.white};
+    z-index: 1;
+    pointer-events: none;
+  }
+  
   .appointment-tile {
     height: calc(100% - 4px);
     margin-top: 2px;
@@ -83,6 +95,8 @@ const AppointmentWrapper = styled.div`
     width: 100%;
     font-size: 11px;
     padding-inline: 5px;
+    position: relative;
+    z-index: 2;
   }
 `;
 
@@ -315,15 +329,18 @@ export const LocationBookingsDailyCalendar = ({
       </ErrorText>
     );
   }
+  const noLocationsText = (
+    <TranslatedText
+      stringId="locationBooking.calendar.noLocationsToShow"
+      fallback="No bookable locations to display. Please try adjusting the search filters."
+      data-testid="no-locations-message"
+    />
+  );
 
   if (filteredLocations.length === 0) {
     return (
       <StatusText data-testid="statustext-daily">
-        <TranslatedText
-          stringId="locationBooking.calendar.noBookableLocations"
-          fallback="No bookable locations to display. Please try adjusting the search filters."
-          data-testid="no-locations-message"
-        />
+        {noLocationsText}
       </StatusText>
     );
   }
@@ -331,11 +348,7 @@ export const LocationBookingsDailyCalendar = ({
   if (locationsToShow.length === 0) {
     return (
       <StatusText data-testid="statustext-daily-no-locations">
-        <TranslatedText
-          stringId="locationBooking.calendar.noBookableLocations"
-          fallback="No bookable locations to display. Please try adjusting the search filters."
-          data-testid="no-locations-message"
-        />
+        {noLocationsText}
       </StatusText>
     );
   }
