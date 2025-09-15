@@ -54,7 +54,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
     &:first-child {
       padding-left: 0px;
-      ${(p) => (p.$canDoAction ? `width: 15px;` : '')}
+      ${p => (p.$canDoAction ? `width: 15px;` : '')}
     }
   }
   .MuiTableCell-body {
@@ -69,14 +69,14 @@ const StyledTable = styled(DataFetchingTable)`
       padding-left: 0px;
     }
     &:nth-child(2) {
-      ${(p) => (p.$canDoAction ? `padding-left: 0px;` : '')}
+      ${p => (p.$canDoAction ? `padding-left: 0px;` : '')}
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     transition: all 250ms;
     &:hover {
-      box-shadow: ${(props) =>
+      box-shadow: ${props =>
         props.disableHoverEffect ? 'none' : '10px 10px 15px 0px rgba(0, 0, 0, 0.1)'};
     }
     position: relative;
@@ -249,7 +249,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
   </StatusTooltip>
 );
 
-const getStatus = (row) => {
+const getStatus = row => {
   const { status } = row;
   switch (status) {
     case TASK_STATUSES.TODO:
@@ -292,7 +292,7 @@ const AssignedToCell = ({ designations }) => {
   const [ref, isOverflowing] = useOverflow();
   if (!designations?.length) return '-';
 
-  const designationNames = designations.map((assigned) => assigned.name);
+  const designationNames = designations.map(assigned => assigned.name);
 
   if (!isOverflowing) {
     return (
@@ -348,7 +348,9 @@ const getFrequency = (task, isEncounterDischarged) => {
           stringId="encounter.tasks.table.duration.endDate"
           fallback={`Ends at :time on :date`}
           replacements={{
-            time: formatTime(endDate).toLowerCase().replaceAll(' ', ''),
+            time: formatTime(endDate)
+              .toLowerCase()
+              .replaceAll(' ', ''),
             date: formatShortest(endDate),
           }}
         />
@@ -369,7 +371,7 @@ const getFrequency = (task, isEncounterDischarged) => {
 
   return <TranslatedText stringId="encounter.tasks.table.once" fallback="Once" />;
 };
-const getIsTaskOverdue = (task) => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
+const getIsTaskOverdue = task => differenceInHours(new Date(), parseISO(task.dueTime)) >= 48;
 
 const ActionsRow = ({ row, rows, handleActionModalOpen }) => {
   const status = row?.status || rows[0]?.status;
@@ -558,11 +560,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return selectedStatus && status !== selectedStatus;
     },
-    getIsTitleDisabled: (selectedKeys) => {
-      const uniqueStatuses = new Set(data.map((item) => item.status));
+    getIsTitleDisabled: selectedKeys => {
+      const uniqueStatuses = new Set(data.map(item => item.status));
       return uniqueStatuses.size > 1 && !selectedKeys.size;
     },
-    getRowsFilterer: (selectedKeys) => (row) => {
+    getRowsFilterer: selectedKeys => row => {
       const selectedStatus = data.find(({ id }) => selectedKeys.has(id))?.status;
       return !selectedStatus || row.status === selectedStatus;
     },
@@ -572,7 +574,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     resetSelection();
   }, [searchParameters, refreshCount, resetSelection]);
 
-  const selectedRowIds = useMemo(() => selectedRows.map((row) => row.id), [selectedRows]);
+  const selectedRowIds = useMemo(() => selectedRows.map(row => row.id), [selectedRows]);
 
   const COLUMNS = [
     {
@@ -597,7 +599,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
       key: 'dueTime',
       title: (
         <TranslatedText
-          stringId="encounter.tasks.table.column.task"
+          stringId="encounter.tasks.table.column.dueTime"
           fallback="Due at"
           data-testid="translatedtext-8mqq"
         />
@@ -630,7 +632,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
         />
       ),
       maxWidth: 90,
-      accessor: (task) => getFrequency(task, !!encounter?.endDate),
+      accessor: task => getFrequency(task, !!encounter?.endDate),
       sortable: false,
     },
     {
@@ -642,7 +644,7 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
           data-testid="translatedtext-hvvf"
         />
       ),
-      accessor: (row) => (
+      accessor: row => (
         <NotesCell
           row={row}
           hoveredRow={hoveredRow}
@@ -658,11 +660,11 @@ export const TasksTable = ({ encounterId, searchParameters, refreshCount, refres
     () =>
       selectedTask?.id
         ? selectedTask?.frequencyValue && selectedTask?.frequencyUnit
-        : selectedRows.some((row) => row.frequencyValue && row.frequencyUnit),
+        : selectedRows.some(row => row.frequencyValue && row.frequencyUnit),
     [selectedRows, selectedTask],
   );
 
-  const handleMouseEnterRow = (data) => {
+  const handleMouseEnterRow = data => {
     setHoveredRow(data);
   };
 

@@ -63,7 +63,7 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email, password, config = {}) {
+  async login(email, password, { scopes = [], ...config } = {}) {
     if (this.#ongoingAuth) {
       await this.#ongoingAuth;
     }
@@ -75,6 +75,7 @@ export class TamanuApi {
           email,
           password,
           deviceId: this.deviceId,
+          scopes,
         },
         { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       );

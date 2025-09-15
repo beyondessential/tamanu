@@ -269,8 +269,12 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
         />
       </DarkestText>
       <Box fontSize={'14px'} color={Colors.midText}>
-        {getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation)},{' '}
-        {getTranslatedFrequency(medication.frequency, getTranslation)}
+        {[
+          getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+          getTranslatedFrequency(medication.frequency, getTranslation),
+        ]
+          .filter(Boolean)
+          .join(', ')}
       </Box>
     </Box>
   );
