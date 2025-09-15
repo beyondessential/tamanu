@@ -178,7 +178,6 @@ patientPortal.post(
       if (!email) {
         throw new ValidationError('You must provide an email to send the form.');
       }
-
       await registerPatient({ patientId: patient.id, models, email });
       await sendPortalEmail({
         patient,
@@ -189,13 +188,17 @@ patientPortal.post(
         emailType: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM,
       });
     } else {
+      const emailType =
+        portalUser.status === PORTAL_USER_STATUSES.REGISTERED
+          ? PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM
+          : PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_UNREGISTERED_FORM;
       await sendPortalEmail({
         patient,
         email: portalUser.email,
         models,
         settings,
         facilityId,
-        emailType: PATIENT_COMMUNICATION_TYPES.PATIENT_PORTAL_REGISTERED_FORM,
+        emailType,
       });
     }
 
