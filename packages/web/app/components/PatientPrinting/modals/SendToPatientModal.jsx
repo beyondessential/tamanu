@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { TAMANU_COLORS, TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { Typography } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
+import { FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { FormModal } from '../../FormModal';
 import { ModalGenericButtonRow } from '../../ModalActionRow';

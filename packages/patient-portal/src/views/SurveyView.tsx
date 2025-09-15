@@ -37,7 +37,7 @@ export const SurveyView = () => {
   const onCancel = async () => {};
 
   if (isPending || !survey) {
-    return 'loading...';
+    return null;
   }
 
   return (

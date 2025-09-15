@@ -1,3 +1,3 @@
-import { TranslatedEnum } from '@tamanu/ui-components';
+import { TranslatedEnum, getEnumStringId } from '@tamanu/ui-components';
 
-export { TranslatedEnum };
+export { TranslatedEnum, getEnumStringId };

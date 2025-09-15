@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
-import { ModalActionRow } from '.';
 import styled from 'styled-components';
-import { TAMANU_COLORS, TranslatedText, Modal, SelectInput } from '@tamanu/ui-components';
-import { useTranslationLanguagesQuery } from '../api/queries';
-import { useTranslation } from '../contexts/Translation.jsx';
-import { ReactCountryFlag } from 'react-country-flag';
 import { isISO31661Alpha2 } from 'validator';
+import { ReactCountryFlag } from 'react-country-flag';
+import {
+  Modal,
+  SelectInput,
+  useTranslation,
+  TranslatedText,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
+import { useTranslationLanguagesQuery } from '../api/queries';
+import { ModalActionRow } from './ModalActionRow';
 
 const LanguageSelectorContainer = styled.div`
   margin: 10px auto 50px;
@@ -48,7 +53,8 @@ const customStyles = {
   }),
   option: (provided, state) => ({
     ...provided,
-    backgroundColor: state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
+    backgroundColor:
+      state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
     ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
     cursor: 'pointer',
     fontSize: '11px',
