@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
-import { InvalidCredentialError, MissingCredentialError } from '@tamanu/errors';
+import { InvalidCredentialError, MissingCredentialError, RateLimitedError } from '@tamanu/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
@@ -72,6 +72,9 @@ export const login = ({ secret, refreshSecret }) =>
     const { email, password, facilityIds, deviceId, scopes = [] } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
+    const lockoutAttempts = Number(await settings.get('security.loginAttempts.lockoutThreshold'));
+    const lockoutDuration = 60 * (await settings.get('security.loginAttempts.lockoutDuration'));
+
     const getSettingsForFrontEnd = async () => {
       // Only attach central scoped settings if login request is for central admin panel login
       if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
@@ -99,10 +102,15 @@ export const login = ({ secret, refreshSecret }) =>
     if (!user) {
       // Keep track of bad requests for non-existent user accounts
       log.info(`Trying to login with non-existent user account: ${email}`);
-      // To prevent timing attacks for discovering user accounts,
-      // we perform a fake password comparison that takes a similar amount of time.
+
+      // To mitigate timing attacks for discovering user accounts,
+      // we perform a fake password comparison that takes a similar amount of time
       await bcrypt.compare(password, '');
-      throw new BadAuthenticationError('Invalid credentials');
+      // and return the same error data as for a true password mismatch
+      throw new InvalidCredentialError().withExtraData({
+        lockoutAttempts,
+        lockoutDuration,
+      });
     }
 
     // Check if user is locked out
@@ -113,7 +121,7 @@ export const login = ({ secret, refreshSecret }) =>
     });
     if (isUserLockedOut) {
       log.info(`Trying to login with locked user account: ${email}`);
-      throw new RateLimited(20*60, LOCKED_OUT_ERROR_MESSAGE); // TODO: actual lockout duration
+      throw new RateLimitedError(lockoutDuration, LOCKED_OUT_ERROR_MESSAGE);
     }
 
     const hashedPassword = user?.password || '';
@@ -123,7 +131,10 @@ export const login = ({ secret, refreshSecret }) =>
         userId: user.id,
         deviceId,
       });
-      throw new InvalidCredentialError(); // TODO: add extraData with lockout attempts
+      throw new InvalidCredentialError().withExtraData({
+        lockoutAttempts,
+        lockoutDuration,
+      });
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
@@ -162,6 +173,7 @@ export const login = ({ secret, refreshSecret }) =>
         getPermissionsForRoles(models, user.role),
         models.Role.findByPk(user.role),
       ]);
+
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({
