@@ -39,6 +39,10 @@ export class DHIS2PushLog extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
+        message: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
         imported: {
           type: DataTypes.TEXT,
           allowNull: false,
