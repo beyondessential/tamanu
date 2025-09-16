@@ -59,7 +59,7 @@ describe('DHIS2 integration processor', () => {
 
   afterAll(() => ctx.close());
 
-  it('should skip if missing host', async () => {
+  it('should skip if missing host in settings', async () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
     await dhis2IntegrationProcessor.run();
 
@@ -71,7 +71,7 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
-  it('should skip if no reportIds', async () => {
+  it('should skip if no reportIds in settings', async () => {
     await dhis2IntegrationProcessor.run();
     expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
       host: true,
