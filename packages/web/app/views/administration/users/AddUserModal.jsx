@@ -151,8 +151,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
         validationSchema={CREATE_VALIDATION}
         onSubmit={handleSubmit}
         formType={FORM_TYPES.CREATE_FORM}
-        render={({ submitForm, isValid, dirty }) => {
-          const allowSave = isValid && dirty && canCreateUser && !isPending;
+        render={({ submitForm }) => {
           return (
             <>
               <Container>
@@ -261,7 +260,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
                 <OutlinedButton onClick={onClose} disabled={isPending}>
                   <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                 </OutlinedButton>
-                <Button onClick={submitForm} disabled={!allowSave} isSubmitting={isPending}>
+                <Button onClick={submitForm} isSubmitting={isPending}>
                   <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                 </Button>
               </Box>
