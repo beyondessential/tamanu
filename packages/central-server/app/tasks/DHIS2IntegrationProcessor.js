@@ -10,6 +10,7 @@ const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(r
 
 export const INFO_LOGS = {
   SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
+  PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Processing report',
   SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
 };
 
