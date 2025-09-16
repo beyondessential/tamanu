@@ -8,6 +8,24 @@ import { REPORT_STATUSES } from '@tamanu/constants';
 
 const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
+export const INFO_LOGS = {
+  SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
+  SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
+};
+
+export const WARNING_LOGS = {
+  INTEGRATION_NOT_CONFIGURED:
+    'DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping',
+  REPORT_DOES_NOT_EXIST: "DHIS2IntegrationProcessor: Report doesn't exist, skipping",
+  REPORT_HAS_NO_PUBLISHED_VERSION:
+    'DHIS2IntegrationProcessor: Report has no published version, skipping',
+  FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
+};
+
+export const ERROR_LOGS = {
+  ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
+};
+
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
     return 'DHIS2IntegrationProcessor';
@@ -59,16 +77,16 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     if (!report) {
-      log.warn(`DHIS2IntegrationProcessor: Report doesn't exist, skipping`, { reportId });
+      log.warn(WARNING_LOGS.REPORT_DOES_NOT_EXIST, { reportId });
       return;
     }
 
     const reportString = `${report.name} (${reportId})`;
 
-    log.info(`DHIS2IntegrationProcessor: Processing report`, { report: reportString });
+    log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
     if (!report.versions || report.versions.length === 0) {
-      log.warn(`DHIS2IntegrationProcessor: Report has no published version, skipping`, {
+      log.warn(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
         report: reportString,
       });
       return;
@@ -81,12 +99,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
 
     if (httpStatusCode === 200) {
-      log.info(`DHIS2IntegrationProcessor: Report sent to DHIS2 successfully`, {
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
         report: reportString,
         ...response.importCount,
       });
     } else {
-      log.warn(`DHIS2IntegrationProcessor: Failed to send report to DHIS2`, {
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
         report: reportString,
         message,
         status,
@@ -104,7 +122,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const { username, password } = config.integrations.dhis2;
 
     if (!host || !username || !password || reportIds.length === 0) {
-      log.warn(`DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping`, {
+      log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
         host: !!host,
         username: !!username,
         password: !!password,
@@ -113,13 +131,15 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       return;
     }
 
-    log.info(`DHIS2IntegrationProcessor: Sending ${reportIds.length} reports to DHIS2`);
+    log.info(INFO_LOGS.SENDING_REPORTS, {
+      count: reportIds.length,
+    });
 
     for (const reportId of reportIds) {
       try {
         await this.processReport(reportId);
       } catch (error) {
-        log.error(`DHIS2IntegrationProcessor: Error processing report`, {
+        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
           reportId,
           error,
         });
