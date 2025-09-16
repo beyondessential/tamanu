@@ -96,22 +96,9 @@ export class InpatientsPage extends BasePage {
    * @throws Error if the expected row count is not reached within the timeout
    */
   async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
-    try {
-      await this.page.waitForFunction(
-        (count) => {
-          const table = document.querySelector('table');
-          if (!table) return false;
-          const rows = table.querySelectorAll('tbody tr');
-          return rows.length === count;
-        },
-        expectedRowCount,
-        { timeout }
-      );
-    } catch (error) {
-      throw new Error(
-        `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`
-      );
-    }
+    await expect(async () => {
+      expect(await this.tableRows.count()).toBe(expectedRowCount);
+    }).toPass({ timeout });
   }
 
   async clickOnFirstRow() {
@@ -312,7 +299,7 @@ export class InpatientsPage extends BasePage {
         // Handle cases where search results load all results instead of the specific result
         if (await this.getSecondNHNCell().isVisible()) {
           await this.page.reload();
-          await this.page.waitForTimeout(3000);
+          await this.searchTitle.waitFor({ state: 'visible' });
           attempts++;
           continue;
         }

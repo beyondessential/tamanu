@@ -30,7 +30,7 @@ test.describe('All patient table search', () => {
     console.log('newPatient.dateOfBirth', newPatient.dateOfBirth);
     await allPatientsPage.searchTable({ DOB: newPatient.dateOfBirth, advancedSearch: false });
     await allPatientsPage.validateAtLeastOneSearchResult();
-    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!, 'dateOfBirth');
+    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
   });
 
   test('Search by cultural name', async ({ newPatient, allPatientsPage }) => {
@@ -61,7 +61,7 @@ test.describe('All patient table search', () => {
     });
     await allPatientsPage.validateOneSearchResult();
     await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
-    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!, 'dateOfBirth');
+    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
   });
 
   test('Search by DOB to including NHN', async ({ newPatient, allPatientsPage }) => {
@@ -72,7 +72,7 @@ test.describe('All patient table search', () => {
     });
     await allPatientsPage.validateOneSearchResult();
     await allPatientsPage.validateFirstRowContainsNHN(newPatient.displayId);
-    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!, 'dateOfBirth');
+    await allPatientsPage.validateAllRowsDateMatches(newPatient.dateOfBirth!);
   });
 
   test('Search by filling all the fields', async ({ newPatient, allPatientsPage }) => {

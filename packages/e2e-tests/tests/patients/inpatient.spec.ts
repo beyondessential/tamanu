@@ -6,7 +6,7 @@ test.describe('inpatient table search', () => {
   test.beforeEach(async ({ inpatientsPage }) => {
     await inpatientsPage.goto();
   });
-
+test.describe('inpatient table search', () => {
   test('Search by NHN', async ({ newPatientWithHospitalAdmission, inpatientsPage }) => {
     const patientDisplayId = newPatientWithHospitalAdmission.displayId;
     await inpatientsPage.searchTable({ NHN: patientDisplayId, advancedSearch: false });
@@ -93,5 +93,6 @@ test.describe('inpatient table search', () => {
     await inpatientsPage.validateAllRowsContain(testData.departmentName, 'departmentName');
     await inpatientsPage.validateAllRowsContain(currentUser.displayName, 'clinician');
     await inpatientsPage.validateAllRowsContain(testData.dietSearchResult1, 'diets');
+    });
   });
 });

@@ -61,8 +61,6 @@ export class AllPatientsPage extends BasePage {
   readonly DOBFromTxt: Locator;
   readonly DOBToTxt: Locator;
   readonly clearSearchBtn: Locator;
-  readonly downloadBtn: Locator;
-  readonly pageRecordCountDropDown: Locator;
   readonly patientPageRecordCount25: Locator;
   readonly patientPageRecordCount50: Locator;
   readonly patientPage2:Locator;
@@ -111,8 +109,6 @@ export class AllPatientsPage extends BasePage {
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
     this.clearSearchBtn = page.getByTestId('clearbutton-z9x3');
-    this.downloadBtn = page.getByTestId('download-data-button');
-    this.pageRecordCountDropDown= page.getByTestId('styledselectfield-lunn').locator('div');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2=page.getByTestId('paginationitem-c5vg').getByText('2');
@@ -140,7 +136,7 @@ export class AllPatientsPage extends BasePage {
    * @throws Error if the expected row count is not reached within the timeout
    */
   async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
-    try {
+   /**  try {
       await this.page.waitForFunction(
         (count) => {
           const table = document.querySelector('table');
@@ -155,7 +151,10 @@ export class AllPatientsPage extends BasePage {
       throw new Error(
         `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`
       );
-    }
+    }*/
+    await expect(async () => {
+      expect(await this.tableRows.count()).toBe(expectedRowCount);
+    }).toPass({ timeout });
   }
 
   async clickOnFirstRow() {
@@ -270,10 +269,6 @@ export class AllPatientsPage extends BasePage {
     }
   }
 
-  async validateNumberOfPatients(expectedCount: number) {
-    const rowCount = await this.tableRows.count();
-    await expect(rowCount).toBe(expectedCount);
-  }
 
   async validateRowColorIsRed(rowIndex: number = 0) {
     const row = this.tableRows.nth(rowIndex);
