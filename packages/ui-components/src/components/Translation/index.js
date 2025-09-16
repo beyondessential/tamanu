@@ -7,3 +7,4 @@ export { getTranslatedOptions } from './getTranslatedOptions';
 export { TranslatedEnumField } from './TranslatedEnumIInput';
 export { DebugTooltip } from './DebugTooltip';
 export { TranslatedOptionSelectField, TranslatedOption } from './TranslatedOptions';
+export * from './getCurrentLanguageCode';

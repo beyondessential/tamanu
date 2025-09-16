@@ -7,4 +7,5 @@ export * from './NullableBooleanField';
 export * from './NumberField';
 export * from './OuterLabelFieldWrapper';
 export * from './SelectField';
+export * from './SurveyQuestionAutocompleteField';
 export * from './TextField';

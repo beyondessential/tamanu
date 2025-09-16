@@ -12,6 +12,7 @@ import {
   DateField,
   DateTimeField,
   NullableBooleanField,
+  SurveyQuestionAutocompleteField,
 } from '@tamanu/ui-components';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
@@ -42,7 +43,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: withSaveDateAsString(DateField),
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: withSaveDateAsString(DateTimeField),
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: withSaveDateAsString(DateField),
