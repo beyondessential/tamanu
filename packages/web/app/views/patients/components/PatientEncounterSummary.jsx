@@ -217,7 +217,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         message={
           <TranslatedText
             stringId="general.status.loading"
-            fallback="Loading..."
+            fallback="Loading…"
             data-testid="translatedtext-jp7h"
           />
         }

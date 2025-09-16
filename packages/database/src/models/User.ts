@@ -11,7 +11,7 @@ import {
 
 import { Model } from './Model';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
@@ -30,6 +30,7 @@ export class User extends Model {
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
+  declare deviceRegistrationQuota: number;
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
@@ -129,6 +130,11 @@ export class User extends Model {
         },
         phoneNumber: {
           type: DataTypes.STRING,
+        },
+        deviceRegistrationQuota: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
@@ -237,7 +243,7 @@ export class User extends Model {
     ];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 

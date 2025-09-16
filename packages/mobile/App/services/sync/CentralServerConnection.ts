@@ -1,20 +1,21 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
+import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
+import { ERROR_TYPE, extractErrorFromFetchResponse } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   forbiddenFacilityMessage,
   generalErrorMessage,
+  invalidDeviceMessage,
   invalidTokenMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
-  RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
-import { callWithBackoff, fetchWithTimeout, getResponseJsonSafely, sleepAsync } from './utils';
+import { callWithBackoff, fetchWithTimeout, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 const API_PREFIX = 'api';
 
@@ -24,31 +25,26 @@ const fetchAndParse = async (
   isLogin: boolean,
 ): Promise<Record<string, unknown>> => {
   const response = await fetchWithTimeout(url, config);
-  if (response.status === 401) {
+  if (response.ok) {
+    return await response.json();
+  }
+
+  const problem = await extractErrorFromFetchResponse(response, url);
+
+  if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
+    throw new AuthenticationError(invalidDeviceMessage);
+  }
+
+  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
     throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
 
-  if (response.status === 400) {
-    const { error } = await getResponseJsonSafely(response);
-    if (error?.name === 'InvalidClientVersion') {
-      throw new OutdatedVersionError(error.updateUrl);
-    }
+  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+    throw new OutdatedVersionError(problem.extra.get('updateUrl'));
   }
 
-  if (response.status === 422) {
-    const { error } = await getResponseJsonSafely(response);
-    throw new RemoteError(error?.message, error, response.status);
-  }
-
-  if (!response.ok) {
-    const { error } = await getResponseJsonSafely(response);
-    // User will be shown a generic error message;
-    // log it out here to help with debugging
-    console.error('Response had non-OK value', { url, response });
-    throw new RemoteError(generalErrorMessage, error, response.status);
-  }
-
-  return response.json();
+  console.error('Response had non-OK value', problem);
+  throw problem;
 };
 
 export class CentralServerConnection {
@@ -60,7 +56,7 @@ export class CentralServerConnection {
 
   emitter = mitt();
 
-  async connect(host: string): void {
+  async connect(host: string): Promise<void> {
     this.host = host;
     this.deviceId = await readConfig('deviceId');
 
@@ -295,7 +291,7 @@ export class CentralServerConnection {
       const data = await this.post(
         'login',
         {},
-        { email, password, deviceId: this.deviceId },
+        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPES.SYNC_CLIENT] },
         { backoff: { maxAttempts: 1 } },
       );
 
