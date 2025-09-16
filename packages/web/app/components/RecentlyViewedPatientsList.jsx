@@ -200,7 +200,7 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard, index }) => {
         </CapitalizedCardText>
         <CardText $isDashboard={isDashboard} data-testid={`cardtext-i2bu-${index}`}>
           <TranslatedText
-            stringId="general.dateOfBirth.label"
+            stringId="general.dateOfBirth.label.short"
             fallback="DOB"
             data-testid={`translatedtext-7ljq-${index}`}
           />

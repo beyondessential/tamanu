@@ -31,10 +31,10 @@ export function CarePlanNoteForm({
   const submitNote = async (patientCarePlanId, body) =>
     api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
 
-  const updateNote = async (updatedNote) => api.put(`notes/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote => api.put(`notes/${updatedNote.id}`, updatedNote);
   return (
     <Form
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         try {
           if (note) {
             await updateNote({ ...note, ...values });
@@ -117,7 +117,7 @@ export function CarePlanNoteForm({
               ) : (
                 <TranslatedText
                   stringId="general.action.addNote"
-                  fallback="Add Note"
+                  fallback="Add note"
                   data-testid="translatedtext-97gm"
                 />
               )

@@ -8,13 +8,16 @@ import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
 export const SubmitSection = ({
   onPress,
   isEdit,
-}: { onPress: () => void; isEdit: boolean }): ReactElement => {
+}: {
+  onPress: () => void;
+  isEdit: boolean;
+}): ReactElement => {
   const submitText = isEdit ? (
     <TranslatedText stringId="general.action.save" fallback="Save" />
   ) : (
     <TranslatedText
       stringId="patient.register.action.createNewPatient"
-      fallback="Create New Patient"
+      fallback="Create new patient"
     />
   );
   return (
@@ -31,10 +34,7 @@ export const SubmitSection = ({
         justifyContent="center"
         padding={20}
       >
-        <SubmitButton
-          onSubmit={onPress}
-          buttonText={submitText}
-        />
+        <SubmitButton onSubmit={onPress} buttonText={submitText} />
       </StyledSafeAreaView>
     </StyledView>
   );

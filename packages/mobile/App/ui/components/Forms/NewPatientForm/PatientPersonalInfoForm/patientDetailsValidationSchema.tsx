@@ -43,7 +43,7 @@ export const getPatientDetailsValidation = (getSetting: <T>(key: string) => T) =
       Yup.string().translatedLabel(
         <TranslatedText
           stringId="general.localisedField.culturalName.label"
-          fallback="Cultural name"
+          fallback="Cultural/traditional name"
         />,
       ),
     ),

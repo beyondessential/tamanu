@@ -168,7 +168,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
     filter: (data: any) => {
       const isSensitive = data.referenceDrug_isSensitive;
       return !isSensitive || canCreateSensitiveMedication;
-    }
+    },
   });
 
   const practitionerSuggester = new Suggester({
@@ -324,7 +324,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
                   <Field
                     component={AutocompleteModalField}
                     placeholder={
-                      <TranslatedText stringId="general.action.search" fallback="Search..." />
+                      <TranslatedText stringId="general.action.search" fallback="Search" />
                     }
                     navigation={navigation}
                     suggester={medicationSuggester}

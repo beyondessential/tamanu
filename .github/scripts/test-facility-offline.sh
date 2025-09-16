@@ -56,6 +56,16 @@ EOF
                 password: "facility-test",
             },
         },
+
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
+            },
+        },
     }
 EOF
 

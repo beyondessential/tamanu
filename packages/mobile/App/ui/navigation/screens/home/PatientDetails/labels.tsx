@@ -20,7 +20,7 @@ export const labels = {
     <TranslatedText stringId="general.localisedField.sex.label" fallback="Sex" />
   ),
   [PATIENT_DATA_FIELDS.CULTURAL_NAME]: (
-    <TranslatedText stringId="general.localisedField.culturalName.label" fallback="Cultural name" />
+    <TranslatedText stringId="general.localisedField.culturalName.label" fallback="Cultural/traditional name" />
   ),
   [PATIENT_DATA_FIELDS.EMAIL]: (
     <TranslatedText stringId="general.localisedField.email.label" fallback="Email address" />

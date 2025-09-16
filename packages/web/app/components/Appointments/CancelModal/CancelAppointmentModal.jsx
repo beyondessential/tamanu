@@ -195,7 +195,7 @@ const RepeatingAppointmentOptions = ({ deletionType, setDeletionType }) => {
         />
       </StyledBodyText>
       <ModifyModeRadioGroup
-        onChange={(event) => setDeletionType(event.target.value)}
+        onChange={event => setDeletionType(event.target.value)}
         value={deletionType}
         data-testid="modifymoderadiogroup-ky32"
       />
@@ -304,7 +304,7 @@ export const CancelAppointmentModal = ({ open, onClose, appointment }) => {
     >
       <BodyContainer data-testid="bodycontainer-mgm8">
         <TranslatedText
-          stringId="locationBooking.modal.cancel.text"
+          stringId="appointment.modal.cancel.text"
           fallback="Are you sure you would like to cancel the below appointment?"
           data-testid="translatedtext-qp2g"
         />

@@ -1,17 +1,30 @@
 import config from 'config';
 import { fetch } from 'undici';
+import { utils } from 'xlsx';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
-import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-// 408: Request Timeout, 500: Internal Server Error, 502: Bad Gateway, 503: Service Unavailable, 504: Gateway Timeout
-const RETRY_STATUS_CODES = [408, 500, 502, 503, 504]; // TODO: confirm codes for here
-const RETRY_TIMES = 3; // TODO: maybe configurable
+const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
-const checkIfImportCountHasData = importCount =>
-  Object.values(importCount).some(value => value > 0);
+export const INFO_LOGS = {
+  SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
+  SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
+};
+
+export const WARNING_LOGS = {
+  INTEGRATION_NOT_CONFIGURED:
+    'DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping',
+  REPORT_DOES_NOT_EXIST: "DHIS2IntegrationProcessor: Report doesn't exist, skipping",
+  REPORT_HAS_NO_PUBLISHED_VERSION:
+    'DHIS2IntegrationProcessor: Report has no published version, skipping',
+  FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
+};
+
+export const ERROR_LOGS = {
+  ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
+};
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -26,11 +39,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2({ reportData, dryRun = false }, attempt = 1) {
-    const { host, username, password } = config.integrations.dhis2;
+  async postToDHIS2(reportCSV) {
+    const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
-    const params = new URLSearchParams({ dryRun });
+    const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
     const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
       method: 'POST',
       headers: {
@@ -38,22 +52,10 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         Accept: 'application/json',
         Authorization: `Basic ${authHeader}`,
       },
-      body: reportData,
+      body: reportCSV,
     });
 
-    if (response.status === 200) {
-      return response;
-    }
-
-    if (RETRY_STATUS_CODES.includes(response.status) && attempt < RETRY_TIMES) {
-      log.warn(
-        `DHIS2 ${dryRun ? 'dry run' : 'post'} failed (${response.status}), retrying... (${attempt}/${RETRY_TIMES})`,
-      );
-      await sleepAsync(1000 * attempt);
-      return this.postToDHIS2({ reportData, dryRun }, attempt + 1);
-    }
-
-    return response;
+    return await response.json();
   }
 
   async processReport(reportId) {
@@ -75,63 +77,74 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     });
 
     if (!report) {
-      log.warn(`Report ${reportId} doesn't exist, skipping`);
+      log.warn(WARNING_LOGS.REPORT_DOES_NOT_EXIST, { reportId });
       return;
     }
 
     const reportString = `${report.name} (${reportId})`;
 
-    log.info('Processing report', { reportString });
+    log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
     if (!report.versions || report.versions.length === 0) {
-      log.warn(`Report ${reportString} has no published version, skipping`);
+      log.warn(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
+        report: reportString,
+      });
       return;
     }
 
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
+    const reportCSV = arrayOfArraysToCSV(reportData);
 
-    const dryRunResponse = await this.postToDHIS2({
-      reportData,
-      dryRun: true,
-    });
+    const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
 
-    if (dryRunResponse.status === 200) {
-      const { importCount: dryRunImportCount } = await dryRunResponse.json();
-      if (checkIfImportCountHasData(dryRunImportCount)) {
-        const response = await this.postToDHIS2({ reportData });
-        const { importCount } = await response.json();
-        // TODO: LOG SUCCESS
-        log.info(`Report ${reportString} sent to DHIS2`, importCount);
-      } else {
-        log.warn(`Report ${reportString} dry run successful but no data was imported`);
-      }
+    if (httpStatusCode === 200) {
+      // TODO: LOG SUCCESS
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
+        report: reportString,
+        ...response.importCount,
+      });
     } else {
-      log.warn(`Dry run failed for report ${reportString}`, {
-        status: dryRunResponse.status,
-        statusText: dryRunResponse.statusText,
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
+        report: reportString,
+        message,
+        status,
+        httpStatusCode,
       });
       // TODO: LOG FAILURE
+      // Value is the error message returned from DHIS2 api for each errored row
+      const { conflicts = [] } = response;
+      conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
 
   async run() {
-    const { settings } = this.context;
+    const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
 
-    const { reportIds } = await settings.get('integrations.dhis2');
-    const { host, username, password } = config.integrations.dhis2;
-
-    if (!host || !username || !password) {
-      log.warn(`DHIS2 integration not properly configured, skipping`, {
+    if (!host || !username || !password || reportIds.length === 0) {
+      log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
         host: !!host,
         username: !!username,
         password: !!password,
+        reportIds: reportIds.length,
       });
       return;
     }
 
-    log.info(`Sending ${reportIds.length} reports to DHIS2`);
+    log.info(INFO_LOGS.SENDING_REPORTS, {
+      count: reportIds.length,
+    });
 
-    await Promise.all(reportIds.map(reportId => this.processReport(reportId)));
+    for (const reportId of reportIds) {
+      try {
+        await this.processReport(reportId);
+      } catch (error) {
+        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
+          reportId,
+          error,
+        });
+      }
+    }
   }
 }

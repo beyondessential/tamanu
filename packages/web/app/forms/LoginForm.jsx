@@ -227,7 +227,7 @@ export const LoginForm = React.memo(
     const { getTranslation } = useTranslation();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
-    const onError = (errors) => {
+    const onError = errors => {
       if (errors.host) {
         setAdvancedExpanded(true);
       }
@@ -258,7 +258,7 @@ export const LoginForm = React.memo(
         validationSchema={yup.object().shape({
           email: yup
             .string()
-            .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
+            .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
             .nullable()
             .required(),
           password: yup

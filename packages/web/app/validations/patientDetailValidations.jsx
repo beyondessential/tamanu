@@ -77,7 +77,7 @@ export const getPatientDetailsValidation = (patientRegistryType, getSetting, get
         .translatedLabel(
           <TranslatedText
             stringId="general.localisedField.culturalName.label"
-            fallback="Cultural name"
+            fallback="Cultural/traditional name"
           />,
         ),
       'Cultural name',

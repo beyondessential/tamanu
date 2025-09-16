@@ -10,6 +10,8 @@ import {
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { useTranslation } from '../../../contexts/Translation';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
+import { Box } from '@material-ui/core';
+import { Colors } from '../../../constants';
 
 const useOrdinalText = (date, frequency) => {
   const { getTranslation } = useTranslation();
@@ -95,11 +97,13 @@ const FrequencyText = ({ frequency, interval, startTimeDate }) => {
 export const RepeatCharacteristicsDescription = ({ startTimeDate, frequency, interval }) =>
   interval ? (
     <>
-      <TranslatedText
-        stringId="outpatientAppointment.repeating.repeatsOnText"
-        fallback="Repeats on:"
-        data-testid="translatedtext-ilje"
-      />{' '}
+      <Box component="span" fontWeight={500} color={Colors.darkText}>
+        <TranslatedText
+          stringId="outpatientAppointment.repeating.repeatsOnText"
+          fallback="Repeats on:"
+          data-testid="translatedtext-ilje"
+        />
+      </Box>{' '}
       <IntervalText frequency={frequency} interval={interval} data-testid="intervaltext-k7ig" />{' '}
       <FrequencyText
         frequency={frequency}

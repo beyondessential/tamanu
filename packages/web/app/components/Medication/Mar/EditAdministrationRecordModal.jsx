@@ -365,7 +365,7 @@ export const EditAdministrationRecordModal = ({
                 onConfirm={submitForm}
                 confirmDisabled={!dirty}
                 confirmText={
-                  <TranslatedText stringId="general.action.saveChanges" fallback="Save Changes" />
+                  <TranslatedText stringId="general.action.saveChanges" fallback="Save changes" />
                 }
                 cancelText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
               />

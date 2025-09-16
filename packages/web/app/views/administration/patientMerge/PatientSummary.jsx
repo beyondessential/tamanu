@@ -107,7 +107,7 @@ export const PatientSummary = ({
           label={
             <TranslatedText
               stringId="general.localisedField.culturalName.label"
-              fallback="Cultural name"
+              fallback="Cultural/traditional name"
               data-testid="translatedtext-w1p2"
             />
           }
