@@ -44,17 +44,45 @@ export class LocalSystemFact extends Model {
   }
 
   static async set(key: FactName, value?: string) {
-    const existing = await this.findOne({ where: { key } });
-    if (existing) {
-      await this.update({ value }, { where: { key } });
-    } else {
-      // This function is used in the migration code, and in Postgres
-      // version 12 `gen_random_uuid()` is not available in a blank
-      // database, and it's used to default the ID. So instead, create
-      // random UUIDs here in code, so the default isn't invoked. We
-      // use Node's native function so it's just as fast.
-      await this.create({ id: randomUUID(), key, value });
-    }
+    await this.sequelize.query(
+      `
+        INSERT INTO local_system_facts (id, key, value, updated_at)
+        VALUES ($id, $key, $value, NOW())
+        ON CONFLICT (key)
+        DO UPDATE SET
+          value = EXCLUDED.value,
+          updated_at = NOW()
+      `,
+      {
+        bind: {
+          // This function is used in the migration code, and in Postgres
+          // version 12 `gen_random_uuid()` is not available in a blank
+          // database, and it's used to default the ID. So instead, create
+          // a random UUID here in code, so the default isn't invoked.
+          // We use Node's native function so it's just as fast.
+          id: randomUUID(),
+          key,
+          value,
+        },
+      },
+    );
+  }
+
+  static async setIfNull(key: FactName, value?: string) {
+    await this.sequelize.query(
+      `
+        INSERT INTO local_system_facts (key, value)
+        VALUES ($key, $value)
+        ON CONFLICT (key)
+        DO NOTHING
+      `,
+      {
+        bind: {
+          key,
+          value,
+        },
+      },
+    );
   }
 
   static async incrementValue(key: FactName, amount: number = 1) {
@@ -94,7 +122,7 @@ export class LocalSystemFact extends Model {
     if (!value) {
       return [];
     }
-    return value.split(',').map((model) => model.trim());
+    return value.split(',').map(model => model.trim());
   }
 
   static async isLookupRebuildingModel(modelName: string) {
