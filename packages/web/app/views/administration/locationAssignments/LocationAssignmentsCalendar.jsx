@@ -54,12 +54,15 @@ const Carousel = styled.div`
   }
 `;
 
-export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDrawer, ...props }) => {
+export const LocationAssignmentsCalendar = ({
+  locations,
+  isLocationsLoading,
+  openAssignmentDrawer,
+  ...props
+}) => {
   const { monthOf, setMonthOf, setIsCalendarLoaded } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
 
   const { data: assignmentsData, isLoading: isAssignmentsLoading } = useLocationAssignmentsQuery(
     {
@@ -87,10 +90,7 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
   return (
     <>
       <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
-        <CarouselGrid.Root
-          $dayCount={displayedDates.length}
-          data-testid="root-nqxn"
-        >
+        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
           <LocationAssignmentsCalendarHeader
             monthOf={monthOf}
             setMonthOf={setMonthOf}
