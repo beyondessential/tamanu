@@ -104,4 +104,6 @@ jobs:
           path: |
             packages/e2e-tests/playwright-report/
             packages/e2e-tests/test-results/
+            central-server.out
+            facility-server.out
           retention-days: 30
