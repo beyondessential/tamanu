@@ -4,7 +4,7 @@ import {
   INFO_LOGS,
   WARNING_LOGS,
   ERROR_LOGS,
-} from '../../app/tasks/Dhis2IntegrationProcessor';
+} from '../../dist/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
