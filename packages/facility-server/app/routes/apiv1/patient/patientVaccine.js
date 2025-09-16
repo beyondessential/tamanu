@@ -9,7 +9,7 @@ import {
   VACCINE_STATUS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import config from 'config';
 

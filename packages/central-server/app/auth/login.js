@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { InvalidCredentialError, MissingCredentialError } from '@tamanu/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
@@ -80,12 +80,12 @@ export const login = ({ secret, refreshSecret }) =>
     };
 
     if (!email || !password) {
-      throw new BadAuthenticationError('Missing credentials');
+      throw new MissingCredentialError('Missing email or password');
     }
 
     const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
-      throw new BadAuthenticationError('Missing deviceId');
+      throw new MissingCredentialError('Missing deviceId');
     }
 
     const user = await models.User.getForAuthByEmail(email);
@@ -93,7 +93,7 @@ export const login = ({ secret, refreshSecret }) =>
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
-      throw new BadAuthenticationError('No such user');
+      throw new InvalidCredentialError('No such user');
     }
 
     if (!user) {
@@ -113,7 +113,7 @@ export const login = ({ secret, refreshSecret }) =>
     });
     if (isUserLockedOut) {
       log.info(`Trying to login with locked user account: ${email}`);
-      throw new BadAuthenticationError(LOCKED_OUT_ERROR_MESSAGE);
+      throw new RateLimited(20*60, LOCKED_OUT_ERROR_MESSAGE); // TODO: actual lockout duration
     }
 
     const hashedPassword = user?.password || '';
@@ -123,7 +123,7 @@ export const login = ({ secret, refreshSecret }) =>
         userId: user.id,
         deviceId,
       });
-      throw new BadAuthenticationError('Invalid credentials');
+      throw new InvalidCredentialError(); // TODO: add extraData with lockout attempts
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
