@@ -16,7 +16,8 @@
     ]
   },
   "scripts": {
-    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app",
+    "package-default-translations": "node scripts/packageDefaultTranslations.mjs",
+    "build": "swc --delete-dir-on-start --out-dir dist --copy-files --source-maps true app && npm run package-default-translations",
     "build-watch": "npm run build -- --watch",
     "clean": "rimraf dist __disttests__",
     "clean:deps": "rimraf node_modules",
