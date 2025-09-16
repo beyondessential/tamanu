@@ -12,7 +12,6 @@ import {
   type SurveyScreenComponent,
   type SurveyWithComponents,
   type Patient,
-  type User,
 } from '@tamanu/shared/schemas/patientPortal';
 import { getComponentForQuestionType } from './getComponentForQuestionType';
 
@@ -22,7 +21,6 @@ interface SurveyFormProps {
   onCancel: () => void;
   patient: Patient;
   patientAdditionalData?: any;
-  currentUser: User;
   patientProgramRegistration?: any;
   encounterType?: string;
 }
@@ -33,7 +31,6 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   onCancel,
   patient,
   patientAdditionalData,
-  currentUser,
   patientProgramRegistration,
   encounterType,
 }) => {
@@ -46,7 +43,11 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
     currentComponents,
     patient,
     patientAdditionalData,
-    currentUser,
+    /**
+     * Pass an empty object for the currentUser prop.
+     * User data questions are not supported in the patient portal
+     */
+    {},
     patientProgramRegistration,
   );
   const validationSchema = useMemo(

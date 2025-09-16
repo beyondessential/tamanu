@@ -1,11 +1,13 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
-import { useCurrentUser } from '@routes/PrivateRoute';
-import { SurveyForm } from '../features/survey/SurveyForm';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { getAnswersFromData } from '@tamanu/ui-components';
+import { useCurrentUser } from '@routes/PrivateRoute';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
-import { type User } from '@tamanu/shared/schemas/patientPortal';
+import { useSubmitSurveyResponse } from '@api/mutations';
+import { SurveyForm } from '../features/survey/SurveyForm';
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -26,15 +28,29 @@ const Title = styled(Typography)(() => ({
   lineHeight: 2,
 }));
 
+type SurveyData = Record<string, any>;
+
 export const SurveyView = () => {
   const { surveyId } = useParams<{ surveyId: string }>();
+  const [startTime] = useState<string>(getCurrentDateTimeString());
   const { isPending, data: survey } = useSurveyQuery(surveyId);
+  const { mutate: submitSurveyResponse } = useSubmitSurveyResponse();
   const { additionalData, ...patient } = useCurrentUser();
-  const currentUser = {} as User;
+  const history = useHistory();
   const encounterType = ENCOUNTER_TYPES.CLINIC;
 
-  const onSubmit = async () => {};
-  const onCancel = async () => {};
+  const onSubmit = async (data: SurveyData) => {
+    submitSurveyResponse({
+      surveyId,
+      startTime,
+      patientId: patient.id,
+      endTime: getCurrentDateTimeString(),
+      answers: (await getAnswersFromData(data, survey)) as SurveyData,
+    });
+  };
+  const onCancel = async () => {
+    history.push('/');
+  };
 
   if (isPending || !survey) {
     return null;
@@ -50,7 +66,6 @@ export const SurveyView = () => {
           patientAdditionalData={additionalData}
           encounterType={encounterType}
           patient={patient}
-          currentUser={currentUser}
           survey={survey}
           onSubmit={onSubmit}
           onCancel={onCancel}

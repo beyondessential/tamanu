@@ -12,6 +12,6 @@ patientPortalModule.use(authModule);
 patientPortalModule.use('/me', patientDataRoutes);
 
 patientPortalModule.use('/survey/:surveyId', getSurvey);
-patientPortalModule.use('/surveyResponse/:assignmentId', createSurveyResponse);
+patientPortalModule.use('/surveyResponse', createSurveyResponse);
 
 patientPortalModule.use('/suggestions', suggestionRoutes);

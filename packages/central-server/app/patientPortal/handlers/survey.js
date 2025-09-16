@@ -28,5 +28,8 @@ export const getSurvey = asyncHandler(async (req, res) => {
     components,
   };
 
-  return res.send(SurveyWithComponentsSchema.parse(payload));
+  // Parse the payload with zod to validate the data but return the unparsed payload
+  // as zod is transforming dataElement.default options to a string unintentionally
+  SurveyWithComponentsSchema.parse(payload);
+  return res.send(payload);
 });

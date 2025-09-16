@@ -10,7 +10,7 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { Slide } from 'react-toastify';
+import { CustomToastContainer } from '@tamanu/ui-components';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -26,8 +26,6 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
-import { CustomToastContainer } from './customToastContainer';
-import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
 
 const StateContextProviders = ({ children, store }) => (
@@ -79,18 +77,7 @@ function Root({ api, store, history }) {
                       <StateContextProviders store={store}>
                         <ReactQueryDevtools initialIsOpen={false} />
                         <GlobalStyles />
-                        <CustomToastContainer
-                          hideProgressBar
-                          transition={Slide}
-                          closeOnClick
-                          pauseOnFocusLoss
-                          draggable
-                          pauseOnHover
-                          theme="colored"
-                          icon={false}
-                          limit={5}
-                          closeButton={<ClearIcon />}
-                        />
+                        <CustomToastContainer />
                         <CssBaseline />
                         <RoutingApp />
                       </StateContextProviders>
