@@ -10,10 +10,6 @@
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js"
     },
-    "./errors": {
-      "require": "./dist/cjs/errors.js",
-      "import": "./dist/esm/errors.js"
-    },
     "./permissions/*": {
       "require": "./dist/cjs/permissions/*.js",
       "import": "./dist/esm/permissions/*.js"
@@ -142,6 +138,7 @@
     "@opentelemetry/semantic-conventions": "^1.28.0",
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/constants": "*",
+    "@tamanu/errors": "*",
     "@tamanu/settings": "*",
     "@tamanu/utils": "*",
     "bcrypt": "^5.1.1",

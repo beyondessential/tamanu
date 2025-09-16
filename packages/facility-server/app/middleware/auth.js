@@ -7,7 +7,14 @@ import crypto from 'crypto';
 import { version } from '../../package.json';
 
 import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import {
+  AuthPermissionError,
+  ERROR_TYPE,
+  ForbiddenError,
+  InvalidCredentialError,
+  InvalidTokenError,
+  MissingCredentialError,
+} from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -97,7 +104,7 @@ async function localLogin(models, email, password) {
 
   if (!passwordMatch) {
     log.warn('Bad password match');
-    throw new BadAuthenticationError('Incorrect username or password, please try again');
+    throw new InvalidCredentialError('Incorrect username or password, please try again');
   }
 
   const allowedFacilities = await user.allowedFacilities();
@@ -124,15 +131,10 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
   try {
     return await centralServerLogin(models, email, password, deviceId);
   } catch (e) {
-    if (e.name === 'BadAuthenticationError') {
-      // actual bad credentials server-side
-      throw new BadAuthenticationError('Incorrect username or password, please try again');
-    }
-
-    // if it is forbidden error when login to central server,
+    // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
-    if (e.centralServerResponse?.status === 403 && e.centralServerResponse?.body?.error) {
-      throw e.centralServerResponse.body.error;
+    if (e.type.startsWith(ERROR_TYPE.AUTH) || e.type === ERROR_TYPE.FORBIDDEN) {
+      throw e;
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
@@ -158,9 +160,7 @@ export async function loginHandler(req, res, next) {
       serverFacilities,
     );
     if (availableFacilities.length === 0) {
-      throw new BadAuthenticationError(
-        'User does not have access to any facilities on this server',
-      );
+      throw new AuthPermissionError('User does not have access to any facilities on this server');
     }
 
     const [permissions, token, role] = await Promise.all([
@@ -192,7 +192,7 @@ export async function setFacilityHandler(req, res, next) {
 
     const hasAccess = await user.canAccessFacility(facilityId);
     if (!hasAccess) {
-      throw new BadAuthenticationError('User does not have access to this facility');
+      throw new AuthPermissionError('User does not have access to this facility');
     }
     const token = await buildToken(user, facilityId);
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
@@ -216,9 +216,7 @@ async function decodeToken(token) {
   try {
     return await verify(token, jwtSecretKey);
   } catch (e) {
-    throw new BadAuthenticationError(
-      'Your session has expired or is invalid. Please log in again.',
-    );
+    throw new InvalidTokenError('Your session has expired or is invalid. Please log in again.');
   }
 }
 
@@ -230,7 +228,7 @@ function getTokenFromHeaders(request) {
   }
   const bearer = authHeader.match(/Bearer (\S*)/);
   if (!bearer) {
-    throw new BadAuthenticationError(
+    throw new MissingCredentialError(
       'Your session has expired or is invalid. Please log in again.',
     );
   }
@@ -242,9 +240,7 @@ function getTokenFromHeaders(request) {
 async function getUser(models, userId) {
   const user = await models.User.findByPk(userId);
   if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new BadAuthenticationError(
-      'Your session has expired or is invalid. Please log in again.',
-    );
+    throw new AuthPermissionError('Your session has expired or is invalid. Please log in again.');
   }
   return user;
 }

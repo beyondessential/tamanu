@@ -8,7 +8,7 @@ import {
 } from '@tamanu/utils/dateTime';
 import { z } from 'zod';
 
-import { NotFoundError, InvalidOperationError, ResourceConflictError } from '@tamanu/shared/errors';
+import { NotFoundError, InvalidOperationError, EditConflictError } from '@tamanu/errors';
 import {
   ADMINISTRATION_FREQUENCIES,
   ADMINISTRATION_STATUS,
@@ -417,7 +417,7 @@ medication.post(
     await checkSensitiveMedicationPermission([prescription.medicationId], req, 'write');
 
     if (prescription.discontinued) {
-      throw new ResourceConflictError('Prescription already discontinued');
+      throw new EditConflictError('Prescription already discontinued');
     }
 
     await db.transaction(async () => {
