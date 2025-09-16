@@ -39,6 +39,22 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
+  async logDHIS2Push(reportId, status, importCount, conflicts) {
+    const {
+      store: { models },
+    } = this.context;
+    const { imported, updated, ignored, deleted } = importCount;
+    await models.DHIS2PushLog.create({
+      reportId,
+      status,
+      imported,
+      updated,
+      ignored,
+      deleted,
+      conflicts,
+    });
+  }
+
   async postToDHIS2(reportCSV) {
     const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
@@ -97,9 +113,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportCSV = arrayOfArraysToCSV(reportData);
 
     const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
+    await this.logDHIS2Push(reportId, status, response.importCount, response.conflicts);
 
     if (httpStatusCode === 200) {
-      // TODO: LOG SUCCESS
       log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
         report: reportString,
         ...response.importCount,
@@ -111,7 +127,6 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         status,
         httpStatusCode,
       });
-      // TODO: LOG FAILURE
       // Value is the error message returned from DHIS2 api for each errored row
       const { conflicts = [] } = response;
       conflicts.forEach(conflict => log.warn(conflict.value));
