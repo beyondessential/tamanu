@@ -153,7 +153,7 @@ describe('DHIS2 integration processor', () => {
     expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
   });
 
-  it('should log.info if we get a 200 response from DHIS2', async () => {
+  it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
     dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
       httpStatusCode: 200,
       status: 'success',
