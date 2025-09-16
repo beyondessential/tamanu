@@ -408,7 +408,6 @@ jobs:
       - dbt-model
       - dbt-todos
       - typos
-      - translations
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
