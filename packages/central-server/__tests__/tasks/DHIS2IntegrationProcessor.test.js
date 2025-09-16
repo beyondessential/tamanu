@@ -40,7 +40,7 @@ describe('DHIS2 integration processor', () => {
           defaultDateRange: 'allTime',
         }),
         query: 'SELECT id, email from users;',
-        status: REPORT_STATUSES.PUBLISHED,
+        status: REPORT_STATUSES.DRAFT,
       }),
     );
   });
@@ -90,7 +90,6 @@ describe('DHIS2 integration processor', () => {
     });
 
     await setReportIds([report.id]);
-    await reportVersion.update({ status: REPORT_STATUSES.DRAFT });
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
