@@ -1,11 +1,11 @@
 import OvernightIcon from '@material-ui/icons/Brightness2';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, toDateTimeString } from '@tamanu/utils/dateTime';
 
-import { usePatientSuggester, useSuggester } from '../../../api';
+import { useApi, usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { Colors, FORM_TYPES } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
@@ -21,11 +21,15 @@ import {
   Field,
   Form,
   LocalisedLocationField,
+  MultiselectField,
 } from '../../Field';
 import { FormGrid } from '../../FormGrid';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
+import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { sub } from 'date-fns';
+import { BodyText } from '../../Typography';
 
 const formStyles = {
   zIndex: 1000,
@@ -42,7 +46,7 @@ const OvernightStayLabel = styled.span`
 `;
 
 const WarningModal = ({ open, setShowWarningModal, resolveFn }) => {
-  const handleClose = (confirmed) => {
+  const handleClose = confirmed => {
     setShowWarningModal(false);
     resolveFn(confirmed);
   };
@@ -122,19 +126,94 @@ const ErrorMessage = ({ isEdit = false, error }) => {
 };
 
 export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
+  const api = useApi();
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationBookingsContext();
   const isEdit = !!initialValues.id;
-
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [selectedClinicianId, setSelectedClinicianId] = useState(null);
+  const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [clinicianHasLeave, setClinicianHasLeave] = useState(false);
+  const [additionalClinicianHasLeave, setAdditionalClinicianHasLeave] = useState(false);
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
+  const encounterSuggester = useSuggester('encounter', {
+    formatter: encounter => ({
+      value: encounter.id,
+      label: `${formatShort(encounter.startDate)} | ${
+        ENCOUNTER_TYPE_LABELS[encounter.encounterType]
+      } | ${encounter.location.facility.name}`,
+    }),
+    baseQueryParameters: {
+      encounterTypes: [
+        ENCOUNTER_TYPES.ADMISSION,
+        ENCOUNTER_TYPES.CLINIC,
+        ENCOUNTER_TYPES.EMERGENCY,
+        ENCOUNTER_TYPES.IMAGING,
+        ENCOUNTER_TYPES.OBSERVATION,
+        ENCOUNTER_TYPES.TRIAGE,
+      ],
+      after: sub(new Date(), { months: 6 }).toISOString(),
+      patientId: selectedPatientId,
+    },
+  });
   const bookingTypeSuggester = useSuggester('bookingType');
+  const procedureTypeSuggester = useSuggester('procedureType');
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
+  const [procedureTypeOptions, setProcedureTypeOptions] = useState([]);
+
+  useEffect(() => {
+    handleFetchProcedureTypeOptions();
+  }, [procedureTypeSuggester]);
+
+  useEffect(() => {
+    handleCheckClinicianHasLeave();
+  }, [selectedDate, selectedClinicianId]);
+
+  useEffect(() => {
+    handleCheckAdditionalClinicianHasLeave();
+  }, [selectedDate, selectedAdditionalClinicianId]);
+
+  const handleFetchProcedureTypeOptions = async () => {
+    const options = await procedureTypeSuggester.fetchSuggestions();
+    setProcedureTypeOptions(options);
+  };
+
+  const handleCheckClinicianHasLeave = async () => {
+    if (!selectedDate || !selectedClinicianId) {
+      setClinicianHasLeave(false);
+      return;
+    }
+    const user = await api.get(`user/${selectedClinicianId}`);
+    setClinicianHasLeave(
+      user?.leaves?.some(
+        leave =>
+          new Date(leave.startDate) <= new Date(selectedDate) &&
+          new Date(leave.endDate) >= new Date(selectedDate),
+      ),
+    );
+  };
+
+  const handleCheckAdditionalClinicianHasLeave = async () => {
+    if (!selectedDate || !selectedAdditionalClinicianId) {
+      setAdditionalClinicianHasLeave(false);
+      return;
+    }
+    const user = await api.get(`user/${selectedAdditionalClinicianId}`);
+    setAdditionalClinicianHasLeave(
+      user?.leaves?.some(
+        leave =>
+          new Date(leave.startDate) <= new Date(selectedDate) &&
+          new Date(leave.endDate) >= new Date(selectedDate),
+      ),
+    );
+  };
 
   const handleShowWarningModal = async () =>
-    new Promise((resolve) => {
+    new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
       setShowWarningModal(true);
     });
@@ -144,7 +223,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     {
       onSuccess: () =>
         notifySuccess(<SuccessMessage isEdit={isEdit} data-testid="successmessage-7twp" />),
-      onError: (error) => {
+      onError: error => {
         if (error.message === 409) {
           notifyError(
             <TranslatedText
@@ -191,22 +270,37 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     locationId: yup.string().required(requiredMessage),
     overnight: yup.boolean(),
     date: yup.string().when('overnight', {
-      is: (value) => !value,
-      then: yup.string().nullable().required(requiredMessage),
+      is: value => !value,
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     startDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
     endDate: yup.string().when('overnight', {
       is: true,
-      then: yup.string().nullable().required(requiredMessage),
+      then: yup
+        .string()
+        .nullable()
+        .required(requiredMessage),
       otherwise: yup.string().nullable(),
     }),
-    startTime: yup.date().nullable().required(requiredMessage),
-    endTime: yup.date().nullable().required(requiredMessage),
+    startTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
+    endTime: yup
+      .date()
+      .nullable()
+      .required(requiredMessage),
     patientId: yup.string().required(requiredMessage),
     bookingTypeId: yup.string().required(requiredMessage),
     clinicianId: yup.string(),
@@ -222,7 +316,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       updateSelectedCell({ locationId: null, date: null });
     };
 
-    const resetFields = (fields) => {
+    const resetFields = fields => {
       for (const field of fields) void setFieldValue(field, null);
     };
 
@@ -268,7 +362,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             name="locationId"
             component={LocalisedLocationField}
             required
-            onChange={(e) => {
+            onChange={e => {
               updateSelectedCell({ locationId: e.target.value });
               resetFields(['startTime', 'endDate', 'endTime']);
             }}
@@ -299,6 +393,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           />
           <DateTimeRangeField
             onChangeStartDate={() => resetFields(['startTime'])}
+            onChange={e => setSelectedDate(e.target.value)}
             required
             separate={values.overnight}
             data-testid="datetimerangefield-7m5q"
@@ -319,6 +414,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             )}
             required
             suggester={patientSuggester}
+            onChange={e => setSelectedPatientId(e.target.value)}
             data-testid="field-uglc"
           />
           <Field
@@ -335,18 +431,74 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             required
             data-testid="field-hmsi"
           />
+          <div style={{ gridColumn: 'span 1' }}>
+            <Field
+              name="clinicianId"
+              label={
+                <TranslatedText
+                  stringId="general.form.clinician.label"
+                  fallback="Clinician"
+                  data-testid="translatedtext-i94f"
+                />
+              }
+              component={AutocompleteField}
+              suggester={clinicianSuggester}
+              onChange={e => setSelectedClinicianId(e.target.value)}
+              data-testid="field-j6o6"
+            />
+            {clinicianHasLeave && (
+              <BodyText marginTop={'4px'} color={Colors.midText}>
+                Clinician has leave scheduled on this date
+              </BodyText>
+            )}
+          </div>
+          <div style={{ gridColumn: 'span 1' }}>
+            <Field
+              name="additionalClinicianId"
+              label={
+                <TranslatedText
+                  stringId="location.form.additionalClinician.label"
+                  fallback="Additional clinician"
+                  data-testid="translatedtext-additionalclinician"
+                />
+              }
+              component={AutocompleteField}
+              suggester={clinicianSuggester}
+              onChange={e => setSelectedAdditionalClinicianId(e.target.value)}
+              data-testid="field-additionalclinician"
+            />
+            {additionalClinicianHasLeave && (
+              <BodyText marginTop={'4px'} color={Colors.midText}>
+                Clinician has leave scheduled on this date
+              </BodyText>
+            )}
+          </div>
           <Field
-            name="clinicianId"
+            name="procedureTypeIds"
             label={
               <TranslatedText
-                stringId="general.form.clinician.label"
-                fallback="Clinician"
-                data-testid="translatedtext-i94f"
+                stringId="location.form.procedureType.label"
+                fallback="Procedure"
+                data-testid="translatedtext-proceduretype"
+              />
+            }
+            component={MultiselectField}
+            options={procedureTypeOptions}
+            data-testid="field-proceduretype"
+          />
+          <Field
+            name="encounterId"
+            label={
+              <TranslatedText
+                stringId="location.form.encounter.label"
+                fallback="Link encounter"
+                data-testid="translatedtext-encounter"
               />
             }
             component={AutocompleteField}
-            suggester={clinicianSuggester}
-            data-testid="field-j6o6"
+            suggester={encounterSuggester}
+            data-testid="field-encounter"
+            disabled={!values.patientId}
           />
           <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>

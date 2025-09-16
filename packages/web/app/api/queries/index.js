@@ -23,4 +23,6 @@ export {
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
 export * from './usePatientPortalSurveyAssignments';
 export * from './usePatientDataQuery.js';
+export { useLocationAssignmentsQuery } from './useLocationAssignmentsQuery';
+export { useFacilityLocationAssignmentsQuery } from './useFacilityLocationAssignmentsQuery';
 export { useSurveyQuery } from './useSurveyQuery';
