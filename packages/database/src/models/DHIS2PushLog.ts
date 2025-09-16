@@ -14,7 +14,6 @@ export class DHIS2PushLog extends Model {
   declare ignored: number;
   declare deleted: number;
   declare conflicts: string[];
-  declare createdAt: Date;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -24,12 +23,20 @@ export class DHIS2PushLog extends Model {
           type: DataTypes.DATE,
           allowNull: false,
         },
+        updatedAt: {
+          type: DataTypes.DATE,
+          allowNull: false,
+        },
+        deletedAt: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
         reportId: {
-          type: DataTypes.JSONB,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         status: {
-          type: DataTypes.JSONB,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         imported: {
@@ -49,7 +56,7 @@ export class DHIS2PushLog extends Model {
           allowNull: false,
         },
         conflicts: {
-          type: DataTypes.BOOLEAN,
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
