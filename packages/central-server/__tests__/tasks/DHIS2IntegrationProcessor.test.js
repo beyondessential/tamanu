@@ -57,7 +57,14 @@ describe('DHIS2 integration processor', () => {
     await setHost('https://test.dhis2.org');
   });
 
-  afterAll(() => ctx.close());
+  afterEach(() => {
+    Object.values(logSpy).forEach(spy => spy.mockClear());
+  });
+
+  afterAll(() => {
+    Object.values(logSpy).forEach(spy => spy.mockRestore());
+    ctx.close();
+  });
 
   it('should skip if missing host in settings', async () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
