@@ -6,7 +6,7 @@ import { Model } from './Model';
 
 export class PortalUser extends Model {
   declare id: string;
-  declare email?: string;
+  declare email: string;
   declare patientId: string;
   declare visibilityStatus: string;
   declare status: string;
@@ -40,7 +40,7 @@ export class PortalUser extends Model {
         id: primaryKey,
         email: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
           unique: true,
         },
         patientId: {
