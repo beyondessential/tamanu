@@ -14,6 +14,14 @@ export async function up(query: QueryInterface) {
       type: DataTypes.DATE,
       allowNull: false,
     },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     report_id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -38,7 +46,7 @@ export async function up(query: QueryInterface) {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    error: {
+    conflicts: {
       type: DataTypes.JSON,
       allowNull: true,
     },
