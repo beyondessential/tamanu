@@ -1,16 +1,11 @@
-import config from 'config';
+import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { uniqBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
-import * as xlsx from 'xlsx';
-import type { Steps, StepArgs } from '../step.ts';
+import type { Steps, StepArgs } from '../step.js';
 import { END } from '../step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-
-interface Artifact {
-  artifact_type: string;
-  download_url: string;
-}
+import { readFileSync } from 'fs';
 
 interface Translation {
   stringId: string;
@@ -111,17 +106,37 @@ export const STEPS: Steps = [
       // Only run on central server
       return serverType === 'central';
     },
-    async run(args: StepArgs) {
-      const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
-
-      let rows: Translation[] = [];
-
-      if (rows.length === 0) {
+    async run({ models, log }: StepArgs) {
+      try {
+        const filePath = path.join(
+          __dirname,
+          '../../../../packages/central-server/dist/default-translations.csv',
+        );
+        let file;
         try {
-          rows = await download('translations', csvExtractor, args);
+          file = readFileSync(filePath, 'utf8');
         } catch (error) {
-          args.log.error(
-            'Failed to download default translations for exact version, trying from release head',
+          throw new Error(`Failed to read default translations file: ${(error as Error).message}`);
+        }
+
+        const translationRows = parse(file, {
+          columns: true,
+          skip_empty_lines: true,
+        }) as unknown as Translation[];
+
+        if (translationRows.length === 0) {
+          throw new Error('No valid translation rows found in CSV');
+        }
+
+        log.info('Importing new default translations', { count: translationRows.length });
+
+        if (translationRows.length > 0) {
+          await models.TranslatedString.sequelize.query(
+            `
+                INSERT INTO translated_strings (string_id, text, language)
+                VALUES ${translationRows.map(() => `(?, ?, '${DEFAULT_LANGUAGE_CODE}')`).join(', ')}
+                ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
+              `,
             {
               error,
               version: zeroPatch,
