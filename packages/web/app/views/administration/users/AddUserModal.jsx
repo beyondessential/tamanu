@@ -118,15 +118,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
           onClose();
         },
         onError: error => {
-          // Handle specific validation errors from the API
-          if (error.message?.includes('Email must be unique')) {
-            toast.error('Account already exists with this email');
-          } else if (error.message?.includes('Display name')) {
-            toast.error('Display name already exists');
-          } else {
-            // Generic error handling
-            toast.error(error.message || 'Failed to create user');
-          }
+          toast.error(error.message || 'Failed to create user');
         },
       },
     );
@@ -141,7 +133,6 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     phoneNumber: '',
     newPassword: '',
     confirmPassword: '',
-    allowedFacilities: [],
   };
 
   if (!canCreateUser) {
