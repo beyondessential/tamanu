@@ -68,7 +68,7 @@ const PermissionDeniedView = styled.div`
 
 const TableHeaderActions = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 7px;
 `;
@@ -79,11 +79,13 @@ const AddUserButton = styled(Button)`
   font-size: 14px;
   padding: 8px 16px;
   min-width: auto;
+  width: 124px;
+  height: 44px;
   
-  .plus-icon {
-    margin-right: 8px;
-    width: 13px;
-    height: 13px;
+  svg {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
   }
 `;
 
@@ -193,6 +195,13 @@ export const UserAdminView = React.memo(() => {
 
   const title = <TranslatedText stringId="adminSidebar.users" fallback="Users" />;
 
+  const titleActions = canCreateUser && (
+    <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
+      <PlusIcon fill={Colors.white} className="plus-icon" />
+      <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
+    </AddUserButton>
+  );
+
   if (!hasPermission) {
     return (
       <AdminViewContainer title={title}>
@@ -222,18 +231,12 @@ export const UserAdminView = React.memo(() => {
   }
 
   return (
-    <AdminViewContainer title={title}>
+    <AdminViewContainer title={title} titleActions={titleActions}>
       <TableContainer>
         <TableHeaderActions>
           <UserSearchTitle>
             <TranslatedText stringId="admin.users.search.title" fallback="User search" />
           </UserSearchTitle>
-          {canCreateUser && (
-            <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
-              <PlusIcon fill={Colors.white} className="plus-icon" />
-              <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
-            </AddUserButton>
-          )}
         </TableHeaderActions>
         <UserSearchBar
           onSearch={setSearchParameters}
