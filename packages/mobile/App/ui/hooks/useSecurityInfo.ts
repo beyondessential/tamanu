@@ -8,6 +8,8 @@ import {
 } from '~/types/SecurityInfo';
 import { useSettings } from '~/ui/contexts/SettingsContext';
 import { useTranslation, GetTranslationFunction } from '~/ui/contexts/TranslationContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
+import { useOnForeground } from '~/ui/hooks/useOnForeground';
 
 interface SecurityComplianceProperties {
   isStorageCompliant: boolean;
@@ -70,6 +72,8 @@ export const useSecurityInfo = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
+  const { signedIn } = useAuth();
+  const isForeground = useOnForeground();
   const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
   const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
@@ -84,8 +88,12 @@ export const useSecurityInfo = () => {
   }, []);
 
   useEffect(() => {
-    fetchSecurityInfo();
-  }, [fetchSecurityInfo]);
+    if (signedIn && isForeground) {
+      fetchSecurityInfo();
+    } else {
+      setIsLoading(false);
+    }
+  }, [fetchSecurityInfo, signedIn, isForeground]);
 
   const isStorageCompliant = allowUnencryptedStorage ? true : isStorageEncrypted;
   const isPasscodeCompliant = allowUnprotected ? true : isDeviceSecure;
