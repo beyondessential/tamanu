@@ -22,7 +22,7 @@
     }
   },
   "log": {
-    "consoleLevel": null,
+    "consoleLevel": info,
   },
   "schedules": {
     "refreshMaterializedView": {
