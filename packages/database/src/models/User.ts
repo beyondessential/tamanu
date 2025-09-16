@@ -240,6 +240,10 @@ export class User extends Model {
         as: 'facilities',
         attributes: ['id'],
       },
+      {
+        model: models.UserLeave,
+        as: 'leaves',
+      }
     ];
   }
 

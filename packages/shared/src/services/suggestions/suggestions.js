@@ -633,6 +633,7 @@ createSuggester(
       id,
       name: displayName,
     }),
+
     searchColumn: 'display_name',
   },
 );
@@ -948,7 +949,7 @@ createSuggester(
     if (patientId) {
       whereConditions.patientId = patientId;
     }
-    
+
     if (after || before) {
       whereConditions.startDate = {};
       if (after) whereConditions.startDate[Op.gte] = after;
@@ -956,10 +957,10 @@ createSuggester(
     }
 
     if (encounterTypes) {
-      const includeTypes = Array.isArray(encounterTypes) 
+      const includeTypes = Array.isArray(encounterTypes)
         ? encounterTypes
         : encounterTypes.split(',');
-      
+
       whereConditions.encounterType = {
         [Op.in]: includeTypes,
       };
