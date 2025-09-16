@@ -7,7 +7,7 @@ export const useLocationAssignmentDeleteMutation = (options = {}) => {
 
   return useMutation(
     ({ id, deleteFuture = false }) => {
-      const params = deleteFuture ? '?deleteFuture=true' : '';
+      const params = deleteFuture ? '?deleteAllNextRecords=true' : '';
       return api.delete(`admin/location-assignments/${id}${params}`);
     },
     {

@@ -8,6 +8,8 @@ import { AssignUserDrawer } from '../../components/Appointments/LocationAssignme
 import { Colors } from '../../constants';
 import { LocationAssignmentsCalendar } from './locationAssignments/LocationAssignmentsCalendar';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
+import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
+import { ASSIGNMENT_SCHEDULE_INITIAL_VALUES } from '../../constants/locationAssignments';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -55,26 +57,24 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationAssignmentsAdminView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerInitialValues, setDrawerInitialValues] = useState({});
-  const originalLocationsQuery = useSuggestionsQuery('location/all');
-
-  // Filter and sort locations to only show those that have a location group (bookable locations)
-  const allLocations = originalLocationsQuery?.data || [];
-  const bookableLocations = allLocations
-    .filter(location => location.locationGroup?.isBookable)
-    .sort((a, b) => {
-      const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
-      if (locationGroupComparison !== 0) {
-        return locationGroupComparison;
-      }
-      return a.name.localeCompare(b.name);
-    });
-
-  const locationsQuery = {
-    ...originalLocationsQuery,
-    data: bookableLocations,
-  };
-
-  const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
+  const { data: locations, isLoading: isLocationsLoading } = useSuggestionsQuery('location/all', {
+    // Filter and sort locations to only show those that have a location group (bookable locations)
+    select: data => {
+      return data
+        .filter(
+          location =>
+            location.locationGroup &&
+            location.locationGroup.isBookable !== LOCATION_BOOKABLE_VIEW.NO,
+        )
+        .sort((a, b) => {
+          const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
+          if (locationGroupComparison !== 0) {
+            return locationGroupComparison;
+          }
+          return a.name.localeCompare(b.name);
+        });
+    },
+  });
   const hasNoLocations = !isLocationsLoading && locations?.length === 0;
 
   const openAssignmentDrawer = (initialValues = {}) => {
@@ -85,6 +85,15 @@ export const LocationAssignmentsAdminView = () => {
       date: initialValues.date || '',
       startTime: '',
       endTime: '',
+      schedule: {
+        ...ASSIGNMENT_SCHEDULE_INITIAL_VALUES,
+        ...(initialValues.template && {
+          interval: initialValues.template.repeatFrequency,
+          frequency: initialValues.template.repeatUnit,
+          untilDate: initialValues.template.repeatEndDate,
+        }),
+      },
+      isRepeatingAssignment: !!initialValues?.template?.repeatFrequency,
       ...initialValues,
     });
     setIsDrawerOpen(true);
@@ -98,7 +107,10 @@ export const LocationAssignmentsAdminView = () => {
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60">
-        <NewAssignmentButton onClick={openAssignmentDrawer} data-testid="newassignmentbutton-sl1p">
+        <NewAssignmentButton
+          onClick={() => openAssignmentDrawer()}
+          data-testid="newassignmentbutton-sl1p"
+        >
           <PlusIcon data-testid="plusicon-ufmc" />
           <TranslatedText
             stringId="locationAssignment.calendar.assignUser"
@@ -117,7 +129,8 @@ export const LocationAssignmentsAdminView = () => {
         </EmptyStateLabel>
       ) : (
         <LocationAssignmentsCalendar
-          locationsQuery={locationsQuery}
+          locations={locations}
+          isLocationsLoading={isLocationsLoading}
           openAssignmentDrawer={openAssignmentDrawer}
           data-testid="locationassignmentscalendar-s3yu"
         />

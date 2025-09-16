@@ -6,7 +6,7 @@ export const useLocationAssignmentMutation = (options = {}) => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    (assignment) => {
+    assignment => {
       if (assignment.id) {
         return api.put(`admin/location-assignments/${assignment.id}`, assignment);
       }
@@ -22,4 +22,12 @@ export const useLocationAssignmentMutation = (options = {}) => {
       ...options,
     },
   );
+};
+
+export const useLocationAssignmentOverlappingAssignmentsMutation = () => {
+  const api = useApi();
+
+  return useMutation(payload => {
+    return api.post('admin/location-assignments/overlapping-assignments', payload);
+  });
 };

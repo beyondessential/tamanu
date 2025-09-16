@@ -4,9 +4,10 @@ import { Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 import { formatTime } from '@tamanu/utils/dateTime';
 
 import { ConfirmModal } from '../../ConfirmModal';
-import { TranslatedText } from '../../Translation';
+import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { BodyText } from '../../Typography';
 import { Colors } from '../../../constants';
+import { MODIFY_REPEATING_ASSIGNMENT_MODE } from '../../../constants/locationAssignments';
 
 const RadioGroupWrapper = styled.div`
   background-color: ${Colors.white};
@@ -77,17 +78,13 @@ const DetailValue = styled.span`
   color: ${Colors.darkText};
 `;
 
-const DELETE_MODES = {
-  THIS_ONLY: 'thisOnly',
-  ALL_FUTURE: 'allFuture',
-};
-
 export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assignment }) => {
-  const [deleteMode, setDeleteMode] = useState(DELETE_MODES.THIS_ONLY);
+  const [deleteMode, setDeleteMode] = useState(MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_ASSIGNMENT);
   const isRepeating = !!assignment?.templateId;
 
   const handleConfirm = () => {
-    const deleteFuture = deleteMode === DELETE_MODES.ALL_FUTURE;
+    const deleteFuture =
+      deleteMode === MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_AND_FUTURE_ASSIGNMENTS;
     onConfirm({ deleteFuture });
   };
 
@@ -113,13 +110,25 @@ export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assign
         <DetailLabel>
           <TranslatedText stringId="general.area" fallback="Area" />
         </DetailLabel>
-        <DetailValue>{assignment?.locationGroup?.name || 'N/A'}</DetailValue>
+        <DetailValue>
+          <TranslatedReferenceData
+            category="locationGroup"
+            value={assignment?.location?.locationGroup?.id}
+            fallback={assignment?.location?.locationGroup?.name}
+          />
+        </DetailValue>
       </DetailItem>
       <DetailItem>
         <DetailLabel>
           <TranslatedText stringId="general.location" fallback="Location" />
         </DetailLabel>
-        <DetailValue>{assignment?.location?.name || 'N/A'}</DetailValue>
+        <DetailValue>
+          <TranslatedReferenceData
+            category="location"
+            value={assignment?.location?.id}
+            fallback={assignment?.location?.name}
+          />
+        </DetailValue>
       </DetailItem>
     </AssignmentDetailsGrid>
   );
@@ -142,7 +151,7 @@ export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assign
             data-testid="delete-mode-radio-group-input"
           >
             <FormControlLabel
-              value={DELETE_MODES.THIS_ONLY}
+              value={MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_ASSIGNMENT}
               control={<Radio color="primary" />}
               label={
                 <TranslatedText
@@ -154,7 +163,7 @@ export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assign
               data-testid="delete-this-assignment-option"
             />
             <FormControlLabel
-              value={DELETE_MODES.ALL_FUTURE}
+              value={MODIFY_REPEATING_ASSIGNMENT_MODE.THIS_AND_FUTURE_ASSIGNMENTS}
               control={<Radio color="primary" />}
               label={
                 <TranslatedText

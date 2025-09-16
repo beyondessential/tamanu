@@ -1,5 +1,5 @@
 import fs, { promises as asyncFs } from 'fs';
-import { InvalidParameterError, RemoteCallFailedError } from '@tamanu/shared/errors';
+import { InvalidParameterError, RemoteCallError } from '@tamanu/errors';
 import { getUploadedData } from '@tamanu/shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
 
@@ -38,7 +38,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   });
 
   if (syncResponse.error) {
-    throw new RemoteCallFailedError(syncResponse.error.message);
+    throw new RemoteCallError(syncResponse.error.message);
   }
 
   // Send parsed metadata along with the new created attachment id

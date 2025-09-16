@@ -1,9 +1,13 @@
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY, REPEAT_FREQUENCY_UNIT_PLURAL_LABELS } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  REPEAT_FREQUENCY_UNIT_PLURAL_LABELS,
+} from '@tamanu/constants';
 import { isSameDay, add, parseISO, set, format } from 'date-fns';
 import { eachDayInMonth, toDateString } from './dateTime';
 
 export const eachWeekdayInMonth = (date: Date, weekday = date.getDay()) =>
-  eachDayInMonth(date).filter((day) => day.getDay() === weekday);
+  eachDayInMonth(date).filter(day => day.getDay() === weekday);
 
 export const weekdayAtOrdinalPosition = (
   date: Date,
@@ -23,7 +27,7 @@ export const weekdayAtOrdinalPosition = (
 export const getWeekdayOrdinalPosition = (date: Date) => {
   const matchingWeekdays = eachWeekdayInMonth(date);
   // Ordinal positioning is 1-based, -1 means the date is the last occurrence of the weekday in the month
-  const nthWeekday = matchingWeekdays.findIndex((day) => isSameDay(day, date)) + 1;
+  const nthWeekday = matchingWeekdays.findIndex(day => isSameDay(day, date)) + 1;
   return nthWeekday === matchingWeekdays.length ? -1 : nthWeekday;
 };
 
@@ -53,7 +57,9 @@ export const getNextFrequencyDate = (
     [REPEAT_FREQUENCY_UNIT_PLURAL_LABELS[repeatUnit]]: repeatFrequency,
   });
 
-  return toDateString(adjustDateForFrequency(incrementedDate, repeatUnit, dayOfWeek, nthWeekday)) as string;
+  return toDateString(
+    adjustDateForFrequency(incrementedDate, repeatUnit, dayOfWeek, nthWeekday),
+  ) as string;
 };
 
 export const generateFrequencyDates = (
@@ -69,14 +75,30 @@ export const generateFrequencyDates = (
   let nextDate = startDate;
   const frequencyDates: string[] = [];
 
-
   while (nextDate <= endDate) {
     frequencyDates.push(nextDate);
 
-    nextDate = getNextFrequencyDate(
-      frequencyDates.at(-1)!, repeatFrequency, repeatUnit
-    );
+    nextDate = getNextFrequencyDate(frequencyDates.at(-1)!, repeatFrequency, repeatUnit);
   }
 
   return frequencyDates;
-}
+};
+
+export const getLastFrequencyDate = (
+  startDate: string,
+  repeatFrequency: number,
+  repeatUnit: keyof typeof REPEAT_FREQUENCY,
+  occurrence: number,
+) => {
+  if (!startDate || occurrence < 1) {
+    return null;
+  }
+
+  let currentDate = startDate;
+
+  for (let i = 1; i < occurrence; i++) {
+    currentDate = getNextFrequencyDate(currentDate, repeatFrequency, repeatUnit);
+  }
+
+  return currentDate;
+};
