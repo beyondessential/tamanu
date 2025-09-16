@@ -285,12 +285,12 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         name="confirmPassword"
                         label={
                           <TranslatedText
-                            stringId="admin.users.confirmPassword.label"
+                            stringId="admin.users.confirmNewPassword.label"
                             fallback="Confirm new password"
                           />
                         }
                         placeholder={getTranslation(
-                          'admin.users.confirmPassword.placeholder',
+                          'admin.users.confirmNewPassword.placeholder',
                           'Confirm new password',
                         )}
                         component={TextField}
