@@ -199,9 +199,11 @@ patientPortal.post(
     }
 
     const existingAssignment = await models.PortalSurveyAssignment.findOne({
-      patientId,
-      surveyId: survey.id,
-      status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      where: {
+        patientId,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      },
     });
 
     // Don't create an assignment if there is already a pending one
