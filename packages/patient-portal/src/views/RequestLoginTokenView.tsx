@@ -57,7 +57,7 @@ export const RequestLoginTokenView = () => {
         Log In
       </Typography>
       <Typography variant="body1" mb={3} color="text.secondary">
-        Enter your email below to log in. We will send a verification code for account authentication.
+        Enter your email below. We will send a verification code for account authentication.
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
