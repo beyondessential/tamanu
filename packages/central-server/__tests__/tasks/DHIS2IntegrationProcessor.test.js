@@ -45,16 +45,6 @@ describe('DHIS2 integration processor', () => {
     );
   });
 
-  beforeEach(async () => {
-    await models.Setting.set(
-      'integrations.dhis2.host',
-      'https://test.dhis2.org',
-      SETTINGS_SCOPES.CENTRAL,
-    );
-  });
-
-  afterAll(() => ctx.close());
-
   const setHost = async host => {
     await models.Setting.set('integrations.dhis2.host', host, SETTINGS_SCOPES.CENTRAL);
   };
@@ -62,6 +52,12 @@ describe('DHIS2 integration processor', () => {
   const setReportIds = async reportIds => {
     await models.Setting.set('integrations.dhis2.reportIds', reportIds, SETTINGS_SCOPES.CENTRAL);
   };
+
+  beforeEach(async () => {
+    await setHost('https://test.dhis2.org');
+  });
+
+  afterAll(() => ctx.close());
 
   it('should skip if missing host, username, or password', async () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
