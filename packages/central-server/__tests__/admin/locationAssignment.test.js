@@ -613,9 +613,9 @@ describe('Location Assignment API', () => {
 
       const result2 = await adminApp.get(`/api/admin/location-assignments/overlapping-leaves?userId=${testUser.id}&date=${toDateString(today)}&repeatEndDate=${toDateString(addDays(today, 100))}&repeatFrequency=1&repeatUnit=WEEKLY`);
       expect(result2).toHaveSucceeded();
-      expect(result2.body.userLeaves.length).toBe(2);
-      expect(result2.body.userLeaves[1].id).toEqual(leave2.id);
-      expect(result2.body.userLeaves[0].id).toEqual(leave.id);
+      expect(result2.body.length).toBe(2);
+      expect(result2.body[1].id).toEqual(leave2.id);
+      expect(result2.body[0].id).toEqual(leave.id);
     });
   });
 
