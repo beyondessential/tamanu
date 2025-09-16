@@ -23,13 +23,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version-file: .node-version
           cache: npm
-
-      - name: install rg
-        run: |
-          curl -Lo rg.deb https://github.com/BurntSushi/ripgrep/releases/download/$RG_VERSION/ripgrep_${RG_VERSION}-1_amd64.deb
-          sudo dpkg -i rg.deb
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: ripgrep
 
       - name: get current version
         id: currentv

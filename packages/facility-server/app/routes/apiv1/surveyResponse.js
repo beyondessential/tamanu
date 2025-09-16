@@ -7,7 +7,7 @@ import {
   transformAnswers,
 } from '@tamanu/shared/reports/utilities/transformAnswers';
 import { PATIENT_DATA_FIELD_LOCATIONS, SURVEY_TYPES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/errors';
 
 export const surveyResponse = express.Router();
 

@@ -8,7 +8,7 @@ import {
   SYSTEM_USER_UUID,
   TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -381,9 +381,9 @@ export class Encounter extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this, {
+      select: await buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'new_labs.encounter_id IS NOT NULL',
       }),
       joins: `

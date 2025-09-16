@@ -106,7 +106,7 @@ RUN apt update && apt install -y --no-install-recommends \
   zstd
 RUN \
   curl -L --proto '=https' --tlsv1.2 -sSf -o step-cli.deb \
-    "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
+  "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
   && dpkg -i step-cli.deb \
   && rm step-cli.deb
 RUN \

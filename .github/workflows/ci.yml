@@ -87,10 +87,11 @@ jobs:
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/shared",                                   }
-          - { package: "@tamanu/utils",                                    }
-          - { package: "@tamanu/web-frontend" }
-          - { package: "@tamanu/settings" }
+          - { package: "@tamanu/settings"                                  }
+          - { package: "@tamanu/shared"                                    }
+          - { package: "@tamanu/upgrade"                                   }
+          - { package: "@tamanu/utils"                                     }
+          - { package: "@tamanu/web-frontend"                              }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -391,6 +392,20 @@ jobs:
         with:
           config: .typos.toml
 
+  translations:
+    name: Check for duplicates in translation stringIds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: ripgrep
+      - run: .github/scripts/scrape-translations.sh
+
   # Dummy job to have a stable name for PR requirements
   tests-pass:
     if: always() # always run even if dependencies fail
@@ -407,6 +422,7 @@ jobs:
       - dbt-model
       - dbt-todos
       - typos
+      - translations
     runs-on: ubuntu-latest
     steps:
       - uses: re-actors/alls-green@release/v1
