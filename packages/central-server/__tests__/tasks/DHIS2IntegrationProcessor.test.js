@@ -9,20 +9,23 @@ import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/con
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
 
+const logSpy = {
+  info: jest.spyOn(log, 'info'),
+  warn: jest.spyOn(log, 'warn'),
+  error: jest.spyOn(log, 'error'),
+};
+
 describe('DHIS2 integration processor', () => {
   let ctx;
   let models;
   let dhis2IntegrationProcessor;
-  let user;
   let report;
   let reportVersion;
-  let logSpy;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
-    user = await models.User.create(fake(models.User));
 
     report = await models.ReportDefinition.create({
       name: 'Test Report',
@@ -31,23 +34,15 @@ describe('DHIS2 integration processor', () => {
     reportVersion = await models.ReportDefinitionVersion.create(
       fake(models.ReportDefinitionVersion, {
         reportDefinitionId: report.id,
-        userId: user.id,
+        userId: (await models.User.create(fake(models.User))).id,
         queryOptions: JSON.stringify({
-          parameters: [{ parameterField: 'EmailField', name: 'email' }],
+          parameters: [],
           defaultDateRange: 'allTime',
         }),
-        query:
-          'SELECT id, email from users WHERE CASE WHEN :email IS NOT NULL THEN email = :email ELSE TRUE END;',
+        query: 'SELECT id, email from users;',
         status: REPORT_STATUSES.PUBLISHED,
       }),
     );
-
-    // Spy on the log methods
-    logSpy = {
-      info: jest.spyOn(log, 'info'),
-      warn: jest.spyOn(log, 'warn'),
-      error: jest.spyOn(log, 'error'),
-    };
   });
 
   beforeEach(async () => {
@@ -58,16 +53,15 @@ describe('DHIS2 integration processor', () => {
     );
   });
 
-  afterEach(() => {
-    // Clear all spy calls between tests
-    Object.values(logSpy).forEach(spy => spy.mockClear());
-  });
+  afterAll(() => ctx.close());
 
-  afterAll(() => {
-    // Restore all spies
-    Object.values(logSpy).forEach(spy => spy.mockRestore());
-    ctx.close();
-  });
+  const setHost = async host => {
+    await models.Setting.set('integrations.dhis2.host', host, SETTINGS_SCOPES.CENTRAL);
+  };
+
+  const setReportIds = async reportIds => {
+    await models.Setting.set('integrations.dhis2.reportIds', reportIds, SETTINGS_SCOPES.CENTRAL);
+  };
 
   it('should skip if missing host, username, or password', async () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
@@ -82,18 +76,14 @@ describe('DHIS2 integration processor', () => {
   });
 
   it('should check that all reports to be processed exist', async () => {
-    await models.Setting.set(
-      'integrations.dhis2.reportIds',
-      ['non-existent-report-id'],
-      SETTINGS_SCOPES.CENTRAL,
-    );
+    await setReportIds(['non-existent-report-id']);
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.REPORT_DOES_NOT_EXIST, {
       reportId: 'non-existent-report-id',
     });
 
-    await models.Setting.set('integrations.dhis2.reportIds', [report.id], SETTINGS_SCOPES.CENTRAL);
+    await setReportIds([report.id]);
     await reportVersion.update({ status: REPORT_STATUSES.DRAFT });
     await dhis2IntegrationProcessor.run();
 
@@ -110,12 +100,7 @@ describe('DHIS2 integration processor', () => {
   });
 
   it('should log failure if we cant connect to DHIS2', async () => {
-    await models.Setting.set(
-      'integrations.dhis2.host',
-      'https://invalid-host.com',
-      SETTINGS_SCOPES.CENTRAL,
-    );
-
+    await setHost('https://invalid-host.com');
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.error).toHaveBeenCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
