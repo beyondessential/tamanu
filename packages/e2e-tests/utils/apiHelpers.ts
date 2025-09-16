@@ -76,6 +76,7 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
+    dietIds: JSON.stringify(['diet-Carb-Controlled', 'diet-Citrusfree']),
   };
 
   const response = await api.post(encounterUrl, {
