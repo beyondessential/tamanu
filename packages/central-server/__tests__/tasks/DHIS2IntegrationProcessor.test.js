@@ -59,12 +59,22 @@ describe('DHIS2 integration processor', () => {
 
   afterAll(() => ctx.close());
 
-  it('should skip if missing host, username, or password', async () => {
+  it('should skip if missing host', async () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
-
     await dhis2IntegrationProcessor.run();
+
     expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
       host: false,
+      username: true,
+      password: true,
+      reportIds: 0,
+    });
+  });
+
+  it('should skip if no reportIds', async () => {
+    await dhis2IntegrationProcessor.run();
+    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+      host: true,
       username: true,
       password: true,
       reportIds: 0,
@@ -95,7 +105,7 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
-  it('should log failure if we cant connect to DHIS2', async () => {
+  it('should log.error if we establish a connection to DHIS2', async () => {
     await setHost('https://invalid-host.com');
     await dhis2IntegrationProcessor.run();
 
@@ -105,7 +115,7 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
-  it('should warn if we get a non-200 response from DHIS2 for a report', async () => {
+  it('should log.warning if we get a non-200 response from DHIS2 for a report', async () => {
     dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
       httpStatusCode: 409,
       status: 'warning',
@@ -125,7 +135,26 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
-  it('should log success if we get a 200 response from DHIS2', async () => {
+  it('should log individual conflicts when DHIS2 returns conflicts', async () => {
+    dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
+      httpStatusCode: 409,
+      status: 'warning',
+      message: 'Report sent to DHIS2 failed',
+      response: {
+        conflicts: [
+          { value: 'Data element not found: DE123' },
+          { value: 'Organisation unit not found: OU456' },
+        ],
+      },
+    });
+
+    await dhis2IntegrationProcessor.run();
+
+    expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
+    expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
+  });
+
+  it('should log.info if we get a 200 response from DHIS2', async () => {
     dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
       httpStatusCode: 200,
       status: 'success',
