@@ -61,6 +61,7 @@ const CREATE_VALIDATION = yup
     phoneNumber: yup.string().trim().nullable().optional(),
     email: yup.string().trim().email('Must be a valid email').required(),
     designations: yup.array().of(yup.string()).nullable().optional(),
+    allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
     newPassword: yup.string().required(),
     confirmPassword: yup.string().required(),
   })
@@ -91,6 +92,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
+  const facilitySuggester = useSuggester('facility');
 
   const handleSubmit = async (values) => {
     // Transform the payload to match API expectations
@@ -129,6 +131,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     displayId: '',
     role: '',
     designations: [],
+    allowedFacilityIds: [],
     email: '',
     phoneNumber: '',
     newPassword: '',
@@ -250,6 +253,18 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
                     component={TextField}
                     type="password"
                     required
+                  />
+                  <Field
+                    name="allowedFacilityIds"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.allowedFacilities.label"
+                        fallback="Allowed facilities"
+                      />
+                    }
+                    component={MultiAutocompleteField}
+                    suggester={facilitySuggester}
+                    style={{ gridColumn: 'span 2' }}
                   />
                 </FormGrid>
               </Container>
