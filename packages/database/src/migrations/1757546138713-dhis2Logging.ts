@@ -47,7 +47,7 @@ export async function up(query: QueryInterface) {
       allowNull: false,
     },
     conflicts: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   });
