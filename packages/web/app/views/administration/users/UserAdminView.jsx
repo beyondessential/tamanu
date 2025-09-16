@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
-import { DataFetchingTable, Heading1, TranslatedText, UserSearchBar } from '../../../components';
+import { DataFetchingTable, Heading1, TranslatedText, UserSearchBar, Button } from '../../../components';
 import { USERS_ENDPOINT } from '../constants';
 import { Colors } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { AdminViewContainer } from '../components/AdminViewContainer';
 import { LimitedLinesCell } from '../../../components/FormattedTableCell';
 import { UserProfileModal } from './UserProfileModal';
+import { AddUserModal } from './AddUserModal';
 import { useAuth } from '../../../contexts/Auth';
 import { Divider } from '@mui/material';
+import { PlusIcon } from '../../../assets/icons/PlusIcon';
 
 const StatusDiv = styled.div`
   display: flex;
@@ -62,6 +64,29 @@ const PermissionDeniedView = styled.div`
   font-size: 16px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
+`;
+
+const TableHeaderActions = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 7px;
+`;
+
+const AddUserButton = styled(Button)`
+  background-color: ${Colors.primary};
+  color: ${Colors.white};
+  font-size: 14px;
+  padding: 8px 16px;
+  min-width: auto;
+  width: 124px;
+  height: 44px;
+  
+  svg {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 const UserStatusIndicator = ({ visibilityStatus }) => {
@@ -139,10 +164,12 @@ export const UserAdminView = React.memo(() => {
   const [searchParameters, setSearchParameters] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
 
   const { ability } = useAuth();
   const hasPermission = ability.can('list', 'User');
+  const canCreateUser = ability.can('create', 'User');
 
   const handleRowClick = user => {
     setSelectedUser(user);
@@ -158,7 +185,22 @@ export const UserAdminView = React.memo(() => {
     setRefreshCount(prev => prev + 1);
   };
 
+  const handleAddUserClick = () => {
+    setIsAddUserModalOpen(true);
+  };
+
+  const handleCloseAddUserModal = () => {
+    setIsAddUserModalOpen(false);
+  };
+
   const title = <TranslatedText stringId="adminSidebar.users" fallback="Users" />;
+
+  const titleActions = canCreateUser && (
+    <AddUserButton onClick={handleAddUserClick} data-testid="add-user-button">
+      <PlusIcon fill={Colors.white} className="plus-icon" />
+      <TranslatedText stringId="admin.users.addUser.button" fallback="Add user" />
+    </AddUserButton>
+  );
 
   if (!hasPermission) {
     return (
@@ -189,11 +231,13 @@ export const UserAdminView = React.memo(() => {
   }
 
   return (
-    <AdminViewContainer title={title}>
+    <AdminViewContainer title={title} titleActions={titleActions}>
       <TableContainer>
-        <UserSearchTitle>
-          <TranslatedText stringId="admin.users.search.title" fallback="User search" />
-        </UserSearchTitle>
+        <TableHeaderActions>
+          <UserSearchTitle>
+            <TranslatedText stringId="admin.users.search.title" fallback="User search" />
+          </UserSearchTitle>
+        </TableHeaderActions>
         <UserSearchBar
           onSearch={setSearchParameters}
           searchParameters={searchParameters}
@@ -221,6 +265,14 @@ export const UserAdminView = React.memo(() => {
           onClose={handleCloseModal}
           handleRefresh={handleRefresh}
           user={selectedUser}
+        />
+      )}
+
+      {isAddUserModalOpen && (
+        <AddUserModal
+          open
+          onClose={handleCloseAddUserModal}
+          handleRefresh={handleRefresh}
         />
       )}
     </AdminViewContainer>
