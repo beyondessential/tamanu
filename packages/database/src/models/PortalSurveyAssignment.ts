@@ -10,7 +10,7 @@ export class PortalSurveyAssignment extends Model {
   declare id: string;
   declare patientId: string;
   declare surveyId: string;
-  declare facilityId?: string;
+  declare facilityId: string;
   declare status: string;
   declare assignedAt: string;
   declare assignedById?: string;
