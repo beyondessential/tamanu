@@ -38,9 +38,9 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: FactName): Promise<string> {
+  static async get(key: FactName): Promise<string | null> {
     const result = await this.findOne({ where: { key } });
-    return result?.value;
+    return result?.value ?? null;
   }
 
   static async set(key: FactName, value?: string): Promise<void> {
@@ -108,14 +108,14 @@ export class LocalSystemFact extends Model {
       throw new Error(`The local system fact table does not include the fact ${key}`);
     }
     const fact = rowsAffected[0] as LocalSystemFact;
-    return fact.value;
+    return Number(fact.value);
   }
 
   static async delete(key: FactName): Promise<void> {
     await this.destroy({ where: { key } });
   }
 
-  static async getDeviceKey() {
+  static async getDeviceKey(): Promise<EndpointKey> {
     const deviceKey = await this.get(FACT_DEVICE_KEY);
     if (deviceKey) {
       return new EndpointKey(deviceKey);
@@ -125,7 +125,7 @@ export class LocalSystemFact extends Model {
     return newDeviceKey;
   }
 
-  static async getLookupModelsToRebuild() {
+  static async getLookupModelsToRebuild(): Promise<string[]> {
     const value = await this.get(FACT_LOOKUP_MODELS_TO_REBUILD);
     if (!value) {
       return [];
@@ -133,12 +133,12 @@ export class LocalSystemFact extends Model {
     return value.split(',').map(model => model.trim());
   }
 
-  static async isLookupRebuildingModel(modelName: string) {
+  static async isLookupRebuildingModel(modelName: string): Promise<boolean> {
     const modelsToRebuild = await this.getLookupModelsToRebuild();
     return modelsToRebuild.includes(modelName);
   }
 
-  static async markLookupModelRebuilt(modelName: string) {
+  static async markLookupModelRebuilt(modelName: string): Promise<void> {
     await this.sequelize.query(
       `
         UPDATE local_system_facts
