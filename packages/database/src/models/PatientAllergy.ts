@@ -43,7 +43,7 @@ export class PatientAllergy extends Model {
     return ['allergy', 'reaction'];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

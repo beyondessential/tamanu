@@ -11,7 +11,7 @@ export class Prescription extends Model {
   declare isOngoing?: boolean;
   declare isPrn?: boolean;
   declare isVariableDose?: boolean;
-  declare doseAmount: number;
+  declare doseAmount: string;
   declare units: string;
   declare frequency: string;
   declare idealTimes?: string[];
@@ -19,7 +19,7 @@ export class Prescription extends Model {
   declare date: string;
   declare startDate: string;
   declare endDate?: string;
-  declare durationValue?: number | null;
+  declare durationValue?: string | null;
   declare durationUnit?: string | null;
   declare indication?: string;
   declare isPhoneOrder?: boolean;
@@ -137,6 +137,7 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'patientOngoingPrescription',
     });
+
     this.belongsToMany(models.Patient, {
       through: models.PatientOngoingPrescription,
       foreignKey: 'prescriptionId',
@@ -147,6 +148,7 @@ export class Prescription extends Model {
       foreignKey: 'medicationId',
       as: 'medication',
     });
+
     this.hasMany(models.MedicationAdministrationRecord, {
       foreignKey: 'prescriptionId',
       as: 'medicationAdministrationRecords',
@@ -174,9 +176,9 @@ export class Prescription extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this, {
+      select: await buildEncounterLinkedLookupSelect(this, {
         patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
       }),
       joins: `
