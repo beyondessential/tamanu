@@ -24,11 +24,11 @@ e2e_test_setup_setup_central() {
             "username": "tamanu",
             "password": "tamanu"
         },
-		schedules: {
-  			sendStatusToMetaServer: {
-	 			enabled: false,
-			},
-		},
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -90,13 +90,13 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-	    },
-	 	schedules: {
-  			sendStatusToMetaServer: {
-	 			enabled: false,
-			},
-		},
-	}
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
+    }
 EOF
 
     npm run --workspace @tamanu/facility-server start upgrade
