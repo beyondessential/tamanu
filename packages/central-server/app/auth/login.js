@@ -106,11 +106,8 @@ export const login = ({ secret, refreshSecret }) =>
       // To mitigate timing attacks for discovering user accounts,
       // we perform a fake password comparison that takes a similar amount of time
       await bcrypt.compare(password, '');
-      // and return the same error data as for a true password mismatch
-      throw new InvalidCredentialError().withExtraData({
-        lockoutAttempts,
-        lockoutDuration,
-      });
+      // and return the same error (ish) data as for a true password mismatch
+      throw new InvalidCredentialError();
     }
 
     // Check if user is locked out
