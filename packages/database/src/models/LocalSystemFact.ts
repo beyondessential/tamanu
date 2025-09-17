@@ -66,7 +66,7 @@ export class LocalSystemFact extends Model {
           // We use Node's native function so it's just as fast.
           id: randomUUID(),
           key,
-          value,
+          value: value.toString(),
         },
       },
     );
