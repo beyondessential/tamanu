@@ -38,9 +38,9 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: FactName): Promise<string | undefined> {
+  static async get(key: FactName): Promise<string | null> {
     const result = await this.findOne({ where: { key } });
-    return result?.value;
+    return result?.value ?? null;
   }
 
   static async set(key: FactName, value?: string): Promise<void> {
