@@ -106,9 +106,11 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        const tamanuRoot = path.join(import.meta.dirname, '..', '..', '..');
+        const centralServerDistIndexJsPath = require.resolve('@tamanu/central-server');
+        const tamanuPackagesPath = path.join(centralServerDistIndexJsPath, '..', '..', '..');
+        args.log.info(`Scraping all translations from: ${tamanuPackagesPath}`);
 
-        const translationRows = await scrapeTranslations(tamanuRoot);
+        const translationRows = await scrapeTranslations(tamanuPackagesPath);
 
         // Add default language name and country code
         translationRows.unshift({
