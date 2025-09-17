@@ -3,7 +3,7 @@ import { randomInt, randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
 import config from 'config';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/errors';
 
 const DEFAULT_SALT_ROUNDS = 10;
 

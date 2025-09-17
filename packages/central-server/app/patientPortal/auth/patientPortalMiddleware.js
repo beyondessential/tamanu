@@ -5,7 +5,7 @@ import config from 'config';
 import { JWT_TOKEN_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants/auth';
 import { SERVER_TYPES } from '@tamanu/constants/servers';
 import { log } from '@tamanu/shared/services/logging';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/errors';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { initAuditActions } from '@tamanu/database/utils/audit';
 

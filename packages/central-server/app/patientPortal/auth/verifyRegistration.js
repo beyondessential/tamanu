@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/errors';
 import { z } from 'zod';
 import { PORTAL_ONE_TIME_TOKEN_TYPES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
