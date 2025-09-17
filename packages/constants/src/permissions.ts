@@ -86,6 +86,7 @@ export const PERMISSION_NOUNS = [
   'User',
   'Vitals',
   'SensitiveMedication',
+  'LocationSchedule',
 ];
 
 export const NOUNS_WITH_OBJECT_ID = [

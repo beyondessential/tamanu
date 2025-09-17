@@ -16,6 +16,7 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -462,6 +463,17 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   );
 });
 
+createSuggester(
+  'role',
+  'Role',
+  ({ search }) => ({
+    name: { [Op.iLike]: search },
+  }),
+  {
+    mapper: ({ name, id }) => ({ name, id }),
+  },
+);
+
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
     name,
@@ -530,7 +542,7 @@ createSuggester(
       const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
-      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id, isBookable: lg.isBookable };
       return {
         name: name,
         code,
@@ -560,9 +572,11 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
   ...filterByFacilityWhereBuilder({
     endpoint,
     modelName,
-    query: { ...query, filterByFacility: true },
+    query: { ...query, filterByFacility: !!query.facilityId },
   }),
-  isBookable: true,
+  isBookable: {
+    [Op.ne]: LOCATION_BOOKABLE_VIEW.NO,
+  },
 }));
 
 createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({

@@ -286,6 +286,12 @@ export const practitioner = [
   { verb: 'list', noun: 'SensitiveMedication' },
   { verb: 'create', noun: 'SensitiveMedication' },
   { verb: 'write', noun: 'SensitiveMedication' },
+  
+  { verb: 'read', noun: 'LocationSchedule' },
+  { verb: 'list', noun: 'LocationSchedule' },
+  { verb: 'create', noun: 'LocationSchedule' },
+  { verb: 'write', noun: 'LocationSchedule' },
+  { verb: 'delete', noun: 'LocationSchedule' },
 ];
 
 // "Manage all" is a special case in CASL for the admin to grant everything

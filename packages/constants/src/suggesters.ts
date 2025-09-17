@@ -27,4 +27,5 @@ export const SUGGESTER_ENDPOINTS = [
   'survey',
   'sensitiveLabTestCategory',
   'nonSensitiveLabTestCategory',
+  'role',
 ];
