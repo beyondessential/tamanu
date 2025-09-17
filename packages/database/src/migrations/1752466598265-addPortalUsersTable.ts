@@ -33,7 +33,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     email: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
       unique: true,
     },
     visibility_status: {

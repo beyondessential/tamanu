@@ -16,7 +16,7 @@ const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
 const getProgram = ({ survey }) => survey?.program?.name || '';
 const getForm = ({ survey }) => survey?.name || '';
 
-const Container = styled.div`  
+const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
   h4 {
@@ -28,7 +28,7 @@ const TableHeader = () => (
   <Container>
     <Heading4>
       <TranslatedText
-        stringId="vaccine.table.outstandingForms.label"
+        stringId="program.table.outstandingPatientForms.header"
         fallback="Outstanding patient program forms"
       />
     </Heading4>
@@ -58,7 +58,7 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
           stringId="portalSurveyAssignment.table.column.dateRequested"
           fallback="Date requested"
         />
-      ),  
+      ),
       accessor: getDateRequested,
     },
     {
