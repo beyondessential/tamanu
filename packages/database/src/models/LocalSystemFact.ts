@@ -43,6 +43,10 @@ export class LocalSystemFact extends Model {
     return result?.value ?? null;
   }
 
+  // This should be a function that is possible to write as a single
+  // SQL statement for performance/consistency, but there's something
+  // spooky in the sync code that relies on this exact implementation.
+  // Increment this counter if you try and fail to change it: 2.
   static async set(key: FactName, value?: string): Promise<void> {
     const existing = await this.findOne({ where: { key } });
     if (existing) {
