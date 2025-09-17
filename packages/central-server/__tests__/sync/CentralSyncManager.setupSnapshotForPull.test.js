@@ -87,7 +87,6 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
           await resolveUpdateLookupTableWaitingPromise();
           return mockedModelUpdateLookupTableQueryPromise;
         },
-        models,
       },
       buildSyncFilter: () => null,
       buildSyncLookupQueryDetails: () => null,

@@ -279,8 +279,8 @@ export const MedicationDetails = ({
                         />
                       </MidText>
                       <DarkestText mt={0.5}>{`${formatShortest(
-                        medication.discontinuedDate,
-                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
+                        new Date(medication.discontinuedDate),
+                      )} ${formatTimeSlot(new Date(medication.discontinuedDate))}`}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />

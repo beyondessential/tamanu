@@ -96,9 +96,9 @@ export class MedicationAdministrationRecordDose extends Model {
     `;
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this, {
+      select: buildEncounterLinkedLookupSelect(this, {
         patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
       }),
       joins: `

@@ -3,14 +3,7 @@ import { log } from '@tamanu/shared/services/logging/log';
 import { withConfig } from '@tamanu/shared/utils/withConfig';
 import { buildSyncLookupSelect, SYNC_TICK_FLAGS } from '@tamanu/database/sync';
 
-const updateLookupTableForModel = async (
-  model,
-  config,
-  since,
-  sessionConfig,
-  syncLookupTick,
-  shouldFullyRebuild,
-) => {
+const updateLookupTableForModel = async (model, config, since, sessionConfig, syncLookupTick) => {
   const CHUNK_SIZE = config.sync.maxRecordsPerSnapshotChunk;
   const { perModelUpdateTimeoutMs, avoidRepull } = config.sync.lookupTable;
 
@@ -19,7 +12,7 @@ const updateLookupTableForModel = async (
   let fromId = '';
   let totalCount = 0;
   const attributes = model.getAttributes();
-  const { select, joins, where } = (await model.buildSyncLookupQueryDetails(sessionConfig)) || {};
+  const { select, joins, where } = model.buildSyncLookupQueryDetails(sessionConfig) || {};
   const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
 
   while (fromId != null) {
@@ -48,7 +41,7 @@ const updateLookupTableForModel = async (
             is_lab_request,
             updated_at_by_field_sum
           )
-          ${select || (await buildSyncLookupSelect(model))}
+          ${select || buildSyncLookupSelect(model)}
           FROM
             ${table}
            ${
@@ -74,7 +67,7 @@ const updateLookupTableForModel = async (
           }
           ${joins || ''}
           WHERE
-          (${where || `${table}.updated_at_sync_tick > ${shouldFullyRebuild ? -1 : ':since'}`})
+          (${where || `${table}.updated_at_sync_tick > :since`})
           ${fromId ? `AND ${table}.id > :fromId` : ''}
           ORDER BY ${table}.id
           LIMIT :limit
@@ -120,7 +113,7 @@ const updateLookupTableForModel = async (
 };
 
 export const updateLookupTable = withConfig(
-  async (models, outgoingModels, since, config, syncLookupTick, debugObject) => {
+  async (outgoingModels, since, config, syncLookupTick, debugObject) => {
     const invalidModelNames = Object.values(outgoingModels)
       .filter(
         (m) =>
@@ -142,21 +135,13 @@ export const updateLookupTable = withConfig(
 
     for (const model of Object.values(outgoingModels)) {
       try {
-        const shouldRebuildModel = await models.LocalSystemFact.isLookupRebuildingModel(
-          model.tableName,
-        );
         const modelChangesCount = await updateLookupTableForModel(
           model,
           config,
           since,
           sessionConfig,
           syncLookupTick,
-          shouldRebuildModel,
         );
-
-        if (shouldRebuildModel) {
-          await models.LocalSystemFact.markLookupModelRebuilt(model.tableName);
-        }
 
         changesCount += modelChangesCount || 0;
       } catch (e) {

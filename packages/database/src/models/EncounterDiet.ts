@@ -42,7 +42,7 @@ export class EncounterDiet extends Model {
     );
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

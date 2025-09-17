@@ -247,7 +247,7 @@ export class User extends Model {
     ];
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 

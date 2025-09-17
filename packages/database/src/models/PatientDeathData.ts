@@ -152,7 +152,7 @@ export class PatientDeathData extends Model {
     });
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

@@ -126,9 +126,9 @@ export class Note extends Model {
     return (this as any)[parentGetter](options);
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this, {
+      select: buildEncounterLinkedLookupSelect(this, {
         patientId: getPatientIdColumnOfNotes(),
       }),
       joins: buildNoteLinkedJoins().join('\n'),

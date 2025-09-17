@@ -71,9 +71,9 @@ export class EncounterPausePrescriptionHistory extends Model {
     );
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this),
+      select: buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['encounter_prescriptions', 'encounters']),
     };
   }

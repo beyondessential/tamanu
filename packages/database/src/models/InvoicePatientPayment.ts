@@ -53,9 +53,9 @@ export class InvoicePatientPayment extends Model {
     );
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this),
+      select: buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['invoice_payments', 'invoices', 'encounters']),
     };
   }

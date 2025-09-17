@@ -50,7 +50,7 @@ export class ReferenceDataRelation extends Model {
     return null; // syncs everywhere
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

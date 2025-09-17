@@ -71,9 +71,9 @@ export class ContributingDeathCause extends Model {
     `;
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildSyncLookupSelect(this, {
+      select: buildSyncLookupSelect(this, {
         patientId: 'patient_death_data.patient_id',
       }),
       joins: `

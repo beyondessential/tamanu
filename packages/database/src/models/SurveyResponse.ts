@@ -251,7 +251,7 @@ export class SurveyResponse extends Model {
     );
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 

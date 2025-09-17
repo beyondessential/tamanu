@@ -60,7 +60,7 @@ export class Notification extends Model {
 
   static buildPatientSyncFilter = buildPatientSyncFilterViaPatientId;
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

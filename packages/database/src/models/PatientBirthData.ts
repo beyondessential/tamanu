@@ -103,7 +103,7 @@ export class PatientBirthData extends Model {
     'registeredBirthPlace',
   ];
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 

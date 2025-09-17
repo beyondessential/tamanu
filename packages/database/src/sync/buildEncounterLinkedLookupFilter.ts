@@ -17,11 +17,11 @@ export const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
     END
   `;
 
-export async function buildEncounterLinkedLookupSelect(
+export function buildEncounterLinkedLookupSelect(
   model: typeof Model,
   extraSelects?: Record<string, string>,
 ) {
-  return await buildSyncLookupSelect(model, {
+  return buildSyncLookupSelect(model, {
     patientId: 'encounters.patient_id',
     facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
     ...extraSelects,
@@ -40,9 +40,9 @@ export function buildEncounterLinkedLookupJoins(
   ]);
 }
 
-export async function buildEncounterLinkedLookupFilter(model: typeof Model) {
+export function buildEncounterLinkedLookupFilter(model: typeof Model) {
   return {
-    select: await buildEncounterLinkedLookupSelect(model),
+    select: buildEncounterLinkedLookupSelect(model),
     joins: buildEncounterLinkedLookupJoins(model),
   };
 }

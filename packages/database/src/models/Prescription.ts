@@ -137,7 +137,6 @@ export class Prescription extends Model {
       foreignKey: 'prescriptionId',
       as: 'patientOngoingPrescription',
     });
-
     this.belongsToMany(models.Patient, {
       through: models.PatientOngoingPrescription,
       foreignKey: 'prescriptionId',
@@ -148,7 +147,6 @@ export class Prescription extends Model {
       foreignKey: 'medicationId',
       as: 'medication',
     });
-
     this.hasMany(models.MedicationAdministrationRecord, {
       foreignKey: 'prescriptionId',
       as: 'medicationAdministrationRecords',
@@ -176,9 +174,9 @@ export class Prescription extends Model {
     `;
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this, {
+      select: buildEncounterLinkedLookupSelect(this, {
         patientId: 'COALESCE(encounters.patient_id, patient_ongoing_prescriptions.patient_id)',
       }),
       joins: `

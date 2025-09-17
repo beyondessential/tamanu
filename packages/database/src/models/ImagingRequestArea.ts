@@ -45,9 +45,9 @@ export class ImagingRequestArea extends Model {
     );
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return {
-      select: await buildEncounterLinkedLookupSelect(this),
+      select: buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
     };
   }

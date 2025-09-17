@@ -32,7 +32,7 @@ export class TaskTemplateDesignation extends Model {
     return null; // syncs everywhere
   }
 
-  static async buildSyncLookupQueryDetails() {
+  static buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }
