@@ -1,18 +1,9 @@
 import path from 'path';
-import { parse } from 'csv-parse/sync';
-import { uniqBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
 import type { Steps, StepArgs } from '../step.js';
 import { END } from '../step.js';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import { readFileSync } from 'fs';
-
-interface Translation {
-  stringId: string;
-  [DEFAULT_LANGUAGE_CODE]?: string;
-  [ENGLISH_LANGUAGE_CODE]?: string;
-  fallback?: string; // legacy
-}
+import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import { scrapeTranslations } from './scripts/scrapeTranslations.js';
 
 async function download(
   artifactType: string,
@@ -108,25 +99,19 @@ export const STEPS: Steps = [
     },
     async run({ models, log }: StepArgs) {
       try {
-        const filePath = path.join(
-          __dirname,
-          '../../../../packages/central-server/dist/default-translations.csv',
-        );
-        let file;
-        try {
-          file = readFileSync(filePath, 'utf8');
-        } catch (error) {
-          throw new Error(`Failed to read default translations file: ${(error as Error).message}`);
-        }
+        const tamanuRoot = path.join(import.meta.dirname, '..', '..', '..');
 
-        const translationRows = parse(file, {
-          columns: true,
-          skip_empty_lines: true,
-        }) as unknown as Translation[];
+        const translationRows = await scrapeTranslations(tamanuRoot);
 
-        if (translationRows.length === 0) {
-          throw new Error('No valid translation rows found in CSV');
-        }
+        // Add default language name and country code
+        translationRows.unshift({
+          stringId: 'languageName',
+          defaultText: 'English',
+        });
+        translationRows.unshift({
+          stringId: 'countryCode',
+          defaultText: 'gb',
+        });
 
         log.info('Importing new default translations', { count: translationRows.length });
 
@@ -138,8 +123,8 @@ export const STEPS: Steps = [
                 ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
               `,
             {
-              error,
-              version: zeroPatch,
+              replacements: translationRows.flatMap(row => [row.stringId, row.defaultText]),
+              type: QueryTypes.INSERT,
             },
           );
         }
