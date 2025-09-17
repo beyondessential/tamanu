@@ -16,7 +16,7 @@ export async function initDeviceId({ context, deviceType }) {
   let deviceId = await LocalSystemFact.get(FACT_DEVICE_ID);
   if (!deviceId) {
     deviceId = config.deviceId ?? `${deviceType}-${shortid()}`;
-    await LocalSystemFact.setIfNull(FACT_DEVICE_ID, deviceId);
+    await LocalSystemFact.setIfAbsent(FACT_DEVICE_ID, deviceId);
   } else if (config.deviceId && deviceId !== config.deviceId) {
     throw new Error(
       `Device ID mismatch: ${deviceId} (from database) vs ${config.deviceId} (from config)`,

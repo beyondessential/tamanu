@@ -38,12 +38,16 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: FactName) {
+  static async get(key: FactName): Promise<string> {
     const result = await this.findOne({ where: { key } });
     return result?.value;
   }
 
-  static async set(key: FactName, value?: string) {
+  static async set(key: FactName, value?: string): Promise<void> {
+    if (value === null || value === undefined) {
+      return await this.delete(key);
+    }
+
     await this.sequelize.query(
       `
         INSERT INTO local_system_facts (id, key, value, updated_at)
@@ -68,7 +72,7 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async setIfNull(key: FactName, value?: string) {
+  static async setIfAbsent(key: FactName, value?: string): Promise<void> {
     await this.sequelize.query(
       `
         INSERT INTO local_system_facts (key, value)
@@ -85,7 +89,7 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async incrementValue(key: FactName, amount: number = 1) {
+  static async incrementValue(key: FactName, amount: number = 1): Promise<number> {
     const [rowsAffected] = await this.sequelize.query(
       `
         UPDATE
@@ -105,6 +109,10 @@ export class LocalSystemFact extends Model {
     }
     const fact = rowsAffected[0] as LocalSystemFact;
     return fact.value;
+  }
+
+  static async delete(key: FactName): Promise<void> {
+    await this.destroy({ where: { key } });
   }
 
   static async getDeviceKey() {

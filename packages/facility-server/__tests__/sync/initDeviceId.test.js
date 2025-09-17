@@ -24,6 +24,7 @@ describe('initDeviceId', () => {
     expect(ctx.deviceId).toMatch(deviceIdRegex);
     expect(newDeviceId).toMatch(deviceIdRegex);
   });
+
   it('should use existing deviceId if one already exists', async () => {
     const testDeviceId = 'test-device-id-existing';
     await models.LocalSystemFact.set(FACT_DEVICE_ID, testDeviceId);
