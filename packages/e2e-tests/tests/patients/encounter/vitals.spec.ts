@@ -1,6 +1,6 @@
 import { test, expect } from '@fixtures/baseFixture';
 import { extractEncounterIdFromUrl } from '../../../utils/testHelper';
-import { format } from 'date-fns';
+import { format, subWeeks } from 'date-fns';
 
 //TODO: can find validationCriteria for all fields in survey_screen_components table of database
 //search for pde-PatientVitals to find all relevant data elements then sort by validation_criteria
@@ -248,16 +248,59 @@ test.describe('Vitals', () => {
     }
   });
 
-  //TODO: test both custom and default date
-  test('Can create vital with default date or a custom date', async ({vitalsPane, api, patientDetailsPage}) => {
-    //TODO: refactor this first step a little bit and use format to create a date that is in the same format as expected
-    const now = new Date();
-    console.log(now);
-    const nowFormatted = format(now, 'yyyy-MM-dd HH:mm:ss');
-    console.log(nowFormatted);
+  test('Can create vital with default date', async ({vitalsPane, api}) => {
+    const currentDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
 
+    // Does not include date so will use default date of today
+    const defaultDateData = {
+      height: '185',
+      weight: '70',
+    };
+
+    //Confirm default date is today in record vitals modal
     await vitalsPane.clickRecordVitalsButton();
     const dateValue = await vitalsPane.recordVitalsModal?.dateField.evaluate((el: HTMLInputElement) => el.value);
-    console.log(dateValue);
+    expect(dateValue).toBe(currentDateTime);
+
+    const vital = await vitalsPane.recordVitalsModal?.recordVitals(
+      api,
+      vitalsPane.encounterId!,
+      defaultDateData,
+    );
+
+    if (!vital) {
+      throw new Error('Vital failed to be recorded');
+    }
+
+    // Assert the date in the vitals table is today's date
+    expect(vital.date).toBe(currentDateTime);
+    await vitalsPane.assertVitals(vital);
   });
+
+  test('Can create vital with custom date', async ({vitalsPane, api}) => {
+    const dateTwoWeeksAgo = subWeeks(new Date(), 2);
+    const dateTwoWeeksAgoFormatted = format(dateTwoWeeksAgo, 'yyyy-MM-dd\'T\'HH:mm');
+
+    const customDateData = {
+      height: '165',
+      weight: '55',
+      date: dateTwoWeeksAgoFormatted
+    };
+
+    await vitalsPane.clickRecordVitalsButton();
+    const vital = await vitalsPane.recordVitalsModal?.recordVitals(
+      api,
+      vitalsPane.encounterId!,
+      customDateData,
+    );
+
+    if (!vital) {
+      throw new Error('Vital failed to be recorded');
+    }
+
+    // Assert the date in the vitals table is the custom date
+    expect(vital.date).toBe(dateTwoWeeksAgoFormatted);
+    await vitalsPane.assertVitals(vital);
+  });
+
 });

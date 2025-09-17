@@ -682,7 +682,6 @@ TableComponent.propTypes = {
   isBodyScrollable: PropTypes.bool,
   getRowTooltip: PropTypes.func,
   ExportButton: PropTypes.func,
-  'data-testid': PropTypes.string,
 };
 
 TableComponent.defaultProps = {
