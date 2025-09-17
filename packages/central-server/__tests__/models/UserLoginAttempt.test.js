@@ -22,7 +22,7 @@ describe('UserLoginAttempt', () => {
     userId = user.id;
     await models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
       lockoutDuration: 1,
-      lockoutThreshold: 1,
+      lockoutThreshold: 2,
       observationWindow: 1,
     });
     await models.Device.create(fake(models.Device, {

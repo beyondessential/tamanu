@@ -208,7 +208,7 @@ describe('Auth - Login', () => {
     let userId;
     beforeAll(async () => {
       await store.models.Setting.set(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS, {
-        lockoutThreshold: 1,
+        lockoutThreshold: 2,
       });
       const user = await store.models.User.findOne({
         where: {
