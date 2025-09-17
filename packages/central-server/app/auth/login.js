@@ -72,9 +72,6 @@ export const login = ({ secret, refreshSecret }) =>
     const { email, password, facilityIds, deviceId, scopes = [] } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
-    const lockoutAttempts = Number(await settings.get('security.loginAttempts.lockoutThreshold'));
-    const lockoutDuration = 60 * (await settings.get('security.loginAttempts.lockoutDuration'));
-
     const getSettingsForFrontEnd = async () => {
       // Only attach central scoped settings if login request is for central admin panel login
       if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
@@ -111,27 +108,29 @@ export const login = ({ secret, refreshSecret }) =>
     }
 
     // Check if user is locked out
-    const { isUserLockedOut } = await models.UserLoginAttempt.checkIsUserLockedOut({
+    const { isUserLockedOut, remainingLockout } = await models.UserLoginAttempt.checkIsUserLockedOut({
       settings,
       userId: user.id,
       deviceId,
     });
     if (isUserLockedOut) {
       log.info(`Trying to login with locked user account: ${email}`);
-      throw new RateLimitedError(lockoutDuration, LOCKED_OUT_ERROR_MESSAGE);
+      throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      await models.UserLoginAttempt.createFailedLoginAttempt({
+      const { remainingAttempts } = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId: user.id,
         deviceId,
       });
-      throw new InvalidCredentialError().withExtraData({
-        lockoutAttempts,
-        lockoutDuration,
-      });
+      if (remainingAttempts <= 3) {
+        throw new InvalidCredentialError().withExtraData({
+          lockoutAttempts: remainingAttempts,
+        });
+      }
+      throw new InvalidCredentialError();
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
