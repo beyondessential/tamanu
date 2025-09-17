@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   PATIENT_DEATH_FULL_SCHEMA,

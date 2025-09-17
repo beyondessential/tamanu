@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op, Sequelize } from 'sequelize';
 
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissions } from '@tamanu/shared/permissions/middleware';
 import {
   paginatedGetList,
@@ -19,7 +20,6 @@ import config from 'config';
 import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
-import { ForbiddenError } from '@tamanu/errors';
 
 export const user = express.Router();
 
@@ -27,7 +27,7 @@ user.get(
   '/me',
   asyncHandler(async (req, res) => {
     if (!req.user) {
-      throw new ForbiddenError('authentication required');
+      throw new BadAuthenticationError('Invalid token (LLh7)');
     }
     req.checkPermission('read', req.user);
     res.send(req.user);

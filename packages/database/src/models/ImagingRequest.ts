@@ -8,7 +8,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';

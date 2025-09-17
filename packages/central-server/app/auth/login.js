@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { InvalidCredentialError, MissingCredentialError } from '@tamanu/errors';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
@@ -79,12 +79,12 @@ export const login = ({ secret, refreshSecret }) =>
     };
 
     if (!email || !password) {
-      throw new MissingCredentialError('Missing email or password');
+      throw new BadAuthenticationError('Missing credentials');
     }
 
     const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
-      throw new MissingCredentialError('Missing deviceId');
+      throw new BadAuthenticationError('Missing deviceId');
     }
 
     const user = await models.User.getForAuthByEmail(email);
@@ -92,12 +92,12 @@ export const login = ({ secret, refreshSecret }) =>
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
-      throw new InvalidCredentialError('No such user');
+      throw new BadAuthenticationError('No such user');
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      throw new InvalidCredentialError();
+      throw new BadAuthenticationError('Invalid credentials');
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)

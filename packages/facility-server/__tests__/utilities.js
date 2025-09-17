@@ -12,7 +12,6 @@ import {
   seedLocations,
   seedSettings,
 } from '@tamanu/database/demoData';
-import { Problem } from '@tamanu/errors';
 import { ReadSettings } from '@tamanu/settings';
 import { chance } from '@tamanu/fake-data/fake';
 import { asNewRole, showError } from '@tamanu/shared/test-helpers';
@@ -84,26 +83,6 @@ export function extendExpect(expect) {
       return {
         message: () => `Expected success status code, got ${statusCode}. ${formatError(response)}`,
         pass,
-      };
-    },
-    toBeProblemOfType(error, type) {
-      if (!(error instanceof Problem)) {
-        return {
-          message: () => `Expected a Problem, got a ${error?.name ?? typeof error}`,
-          pass: false,
-        };
-      }
-
-      if (error.type !== type) {
-        return {
-          message: () => `Expected Problem type ${type}, got ${error.type}`,
-          pass: false,
-        };
-      }
-
-      return {
-        message: () => `Expected Problem of type ${type}`,
-        pass: true,
       };
     },
     toHaveStatus(response, status) {

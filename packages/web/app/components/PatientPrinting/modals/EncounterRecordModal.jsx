@@ -4,7 +4,7 @@ import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
-import { ForbiddenError, NotFoundError } from '@tamanu/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
 
 import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';

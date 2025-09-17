@@ -1,4 +1,4 @@
-import { ForbiddenError } from '@tamanu/errors';
+import { ForbiddenError } from '../../errors';
 import { canRunStaticReport } from './canRunStaticReport';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID } from '../reportDefinitions';
 import { canRunSurveyReport } from './canRunSurveyReport';

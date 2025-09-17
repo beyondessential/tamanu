@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
-import { ForbiddenError, InvalidParameterError } from '@tamanu/errors';
+import { ForbiddenError, InvalidParameterError } from '@tamanu/shared/errors';
 import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 

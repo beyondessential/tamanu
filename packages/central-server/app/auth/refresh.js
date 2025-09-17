@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 
 import {
   getRandomBase64String,
@@ -27,7 +27,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     } = auth;
 
     if (!isInternalClient(req.header('X-Tamanu-Client'))) {
-      throw new InvalidCredentialError('Refresh tokens are only available to internal clients');
+      throw new BadAuthenticationError('Invalid client');
     }
 
     let contents = null;
@@ -37,7 +37,7 @@ export const refresh = ({ secret, refreshSecret }) =>
         issuer: canonicalHostName,
       });
     } catch (e) {
-      throw new InvalidTokenError('validity');
+      throw new BadAuthenticationError('Invalid token (jMbP)');
     }
 
     const { userId, refreshId } = contents;
@@ -47,7 +47,7 @@ export const refresh = ({ secret, refreshSecret }) =>
     });
 
     if (!user) {
-      throw new InvalidTokenError('user');
+      throw new BadAuthenticationError('Invalid token (vN3y)');
     }
 
     const dbEntry = await store.models.RefreshToken.findOne({
@@ -58,17 +58,17 @@ export const refresh = ({ secret, refreshSecret }) =>
     });
 
     if (!dbEntry) {
-      throw new InvalidTokenError('row');
+      throw new BadAuthenticationError('Invalid token (J7GC)');
     }
 
     if (dbEntry.expiresAt < new Date()) {
-      throw new InvalidTokenError('expired');
+      throw new BadAuthenticationError('Refresh token expired');
     }
 
     const refreshIdValid = await bcrypt.compare(refreshId, dbEntry.refreshId);
 
     if (!refreshIdValid) {
-      throw new InvalidTokenError('id');
+      throw new BadAuthenticationError('Invalid token (Xh01)');
     }
 
     // issue new access token

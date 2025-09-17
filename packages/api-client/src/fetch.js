@@ -1,4 +1,4 @@
-import { RemoteUnreachableError } from '@tamanu/errors';
+import { ServerUnavailableError } from './errors';
 
 export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, ...config } = {}) {
   const abort = new AbortController();
@@ -14,12 +14,28 @@ export async function fetchOrThrowIfUnavailable(url, { fetch, timeout = false, .
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available
-      throw new RemoteUnreachableError(
+      throw new ServerUnavailableError(
         'The server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
       );
     }
 
-    // some other unhandled error
-    throw new RemoteUnreachableError(e.message);
+    throw e; // some other unhandled error
+  }
+}
+
+export async function getResponseErrorSafely(response, logger = console) {
+  try {
+    const data = await response.text();
+    if (data.length === 0) {
+      return {};
+    }
+
+    return JSON.parse(data);
+  } catch (e) {
+    // log json parsing errors, but still return a valid object
+    logger.warn(`getResponseJsonSafely: Error parsing JSON: ${e}`);
+    return {
+      error: { name: 'JSONParseError', message: `Error parsing JSON: ${e}` },
+    };
   }
 }

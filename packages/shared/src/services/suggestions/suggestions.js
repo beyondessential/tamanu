@@ -2,7 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import { NotFoundError, ValidationError } from '@tamanu/errors';
+import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
 import { camelCase } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,

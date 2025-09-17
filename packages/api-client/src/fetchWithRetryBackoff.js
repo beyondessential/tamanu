@@ -1,4 +1,4 @@
-import { isRecoverable } from '@tamanu/errors';
+import { isRecoverable } from './errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 
 export async function fetchWithRetryBackoff(

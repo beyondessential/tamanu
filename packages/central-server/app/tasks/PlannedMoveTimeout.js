@@ -9,7 +9,7 @@ import {
   getCurrentCountryTimeZoneDateTimeString,
   toCountryDateTimeString,
 } from '@tamanu/shared/utils/countryDateTime';
-import { InvalidConfigError } from '.';
+import { InvalidConfigError } from '@tamanu/shared/errors';
 
 export class PlannedMoveTimeout extends ScheduledTask {
   getName() {

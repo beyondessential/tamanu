@@ -3,12 +3,8 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import {
-  ForbiddenError,
-  InvalidCredentialError,
-  InvalidTokenError,
-  MissingCredentialError,
-} from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
+import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { initAuditActions } from '@tamanu/database/utils/audit';
@@ -25,7 +21,7 @@ export const userMiddleware = ({ secret }) =>
     // get token
     const { authorization } = headers;
     if (!authorization) {
-      throw new MissingCredentialError('Missing authorization header');
+      throw new ForbiddenError();
     }
 
     // verify token
@@ -33,7 +29,7 @@ export const userMiddleware = ({ secret }) =>
     const sessionId = createSessionIdentifier(token);
 
     if (bearer.toLowerCase() !== 'bearer') {
-      throw new InvalidCredentialError('Only Bearer token is supported');
+      throw new BadAuthenticationError('Only Bearer token is supported');
     }
 
     let contents = null;
@@ -43,16 +39,19 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      throw new InvalidTokenError();
+      const errorMessage = 'Auth error: Invalid token (hG7c)';
+      log.debug(errorMessage, { error: e.message });
+      res.status(401).send({
+        error: { message: errorMessage },
+      });
+      return;
     }
 
     const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
     if (!user) {
-      throw new InvalidTokenError('User specified in token does not exist').withExtraData({
-        userId,
-      });
+      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
     }
 
     const device = deviceId && (await store.models.Device.findByPk(deviceId));

@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@tamanu/constants": "*",
-    "@tamanu/errors": "*",
     "@tamanu/shared": "*",
     "qs": "^6.10.2"
   }

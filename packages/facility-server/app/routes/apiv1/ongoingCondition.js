@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 

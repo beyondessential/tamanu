@@ -2,7 +2,7 @@ import express from 'express';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
 import asyncHandler from 'express-async-handler';
 import { REFERENCE_DATA_RELATION_TYPES, DEFAULT_HIERARCHY_TYPE } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { keyBy, mapValues } from 'lodash';
 
 export const referenceData = express.Router();

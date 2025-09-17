@@ -1,6 +1,10 @@
 import { Sequelize } from 'sequelize';
-import { DEVICE_SCOPES, SETTING_KEYS } from '@tamanu/constants';
-import { AuthPermissionError, MissingCredentialError, QuotaExceededError } from '@tamanu/errors';
+import {
+  DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR,
+  DEVICE_SCOPES,
+  SETTING_KEYS,
+} from '@tamanu/constants';
+import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { difference } from 'lodash';
 
 /**
@@ -28,7 +32,7 @@ export async function ensureDeviceRegistration({
     async () => {
       if (!deviceId) {
         if (scopes.includes(DEVICE_SCOPES.SYNC_CLIENT)) {
-          throw new MissingCredentialError('Device ID is required');
+          throw new BadAuthenticationError('Device ID is required');
         } else {
           return;
         }
@@ -37,7 +41,7 @@ export async function ensureDeviceRegistration({
       const syncDevice = await Device.findByPk(deviceId);
       if (syncDevice) {
         if (difference(scopes, syncDevice.scopes).length > 0) {
-          throw new AuthPermissionError('Requested more scopes than the device has');
+          throw new BadAuthenticationError('Requested more scopes than the device has');
         }
 
         await syncDevice.markSeen();
@@ -57,7 +61,7 @@ export async function ensureDeviceRegistration({
       if (deviceRegistrationQuotaEnabled && device.requiresQuota()) {
         const currentCount = await Device.getQuotaByUserId(user.id);
         if (currentCount + 1 > user.deviceRegistrationQuota) {
-          throw new QuotaExceededError();
+          throw new BadAuthenticationError(DEVICE_REGISTRATION_QUOTA_EXCEEDED_ERROR);
         }
       }
 

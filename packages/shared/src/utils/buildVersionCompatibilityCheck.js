@@ -1,13 +1,12 @@
 import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
 import config from 'config';
-import {
-  VERSION_COMPATIBILITY_ERRORS,
-  VERSION_MAXIMUM_PROBLEM_KEY,
-  VERSION_MINIMUM_PROBLEM_KEY,
-} from '@tamanu/constants';
-import { ClientIncompatibleError } from '@tamanu/errors';
+import { VERSION_COMPATIBILITY_ERRORS } from '@tamanu/constants';
 import { log } from '../services/logging';
+
+const respondWithError = (res, error) => {
+  res.status(400).json({ error });
+};
 
 function getUpdateInformation(req, minVersion) {
   if (!config.updateUrls) return {};
@@ -40,13 +39,13 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
   }
 
   if (min && compareVersions(clientVersion, min) < 0) {
-    throw new ClientIncompatibleError(VERSION_COMPATIBILITY_ERRORS.LOW).withExtraData({
+    respondWithError(res, {
+      message: VERSION_COMPATIBILITY_ERRORS.LOW,
+      name: 'InvalidClientVersion',
       ...getUpdateInformation(req, min),
-      [VERSION_MINIMUM_PROBLEM_KEY]: min,
-      [VERSION_MAXIMUM_PROBLEM_KEY]: max,
     });
+    return;
   }
-
   if (max && compareVersions(clientVersion, max) > 0) {
     if (semverDiff(max, clientVersion) === 'patch') {
       log.error(
@@ -55,11 +54,11 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
       next();
       return;
     }
-
-    throw new ClientIncompatibleError(VERSION_COMPATIBILITY_ERRORS.HIGH).withExtraData({
-      [VERSION_MINIMUM_PROBLEM_KEY]: min,
-      [VERSION_MAXIMUM_PROBLEM_KEY]: max,
+    respondWithError(res, {
+      message: VERSION_COMPATIBILITY_ERRORS.HIGH,
+      name: 'InvalidClientVersion',
     });
+    return;
   }
   next();
 };

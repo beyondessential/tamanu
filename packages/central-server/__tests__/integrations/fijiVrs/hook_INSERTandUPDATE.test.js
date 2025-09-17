@@ -323,12 +323,12 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
 
       // assert
       expect(response).toHaveRequestError(502);
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         response: false,
         error: {
           status: 502,
           message: expect.stringContaining('500'),
-          name: 'RemoteCallError',
+          name: 'RemoteCallFailedError',
         },
       });
       const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;

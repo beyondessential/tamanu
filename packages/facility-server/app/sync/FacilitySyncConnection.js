@@ -1,6 +1,7 @@
 import config from 'config';
 
-import { extractErrorFromFetchResponse } from '@tamanu/errors';
+import { RemoteCallFailedError } from '@tamanu/shared/errors';
+import { getResponseJsonSafely } from '@tamanu/shared/utils';
 import { log } from '@tamanu/shared/services/logging';
 
 /**
@@ -32,17 +33,24 @@ export class FacilitySyncConnection {
     });
 
     if (!response.ok) {
-      throw await extractErrorFromFetchResponse(response, url, log);
+      const responseBody = await getResponseJsonSafely(response);
+      const { error } = responseBody;
+
+      const errorMessage = error ? error.message : 'no error message given';
+      const err = new RemoteCallFailedError(
+        `Faciliy Sync API responded with status code ${response.status} (${errorMessage})`,
+      );
+      throw err;
     }
 
-    return await response.json();
+    return response.json();
   }
 
   async runSync(syncData) {
-    return await this.fetch('run', { method: 'POST', body: { syncData } });
+    return this.fetch('run', { method: 'POST', body: { syncData } });
   }
 
   async getSyncStatus() {
-    return await this.fetch('status');
+    return this.fetch('status');
   }
 }

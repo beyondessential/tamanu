@@ -4,7 +4,7 @@ import { subject } from '@casl/ability';
 
 import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
 import { SURVEY_TYPES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 
 export const surveyResponse = express.Router();
 

@@ -4,7 +4,7 @@ import {
   mergePatient,
 } from '../../../dist/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
-import { InvalidParameterError } from '@tamanu/errors';
+import { InvalidParameterError } from '@tamanu/shared/errors';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';

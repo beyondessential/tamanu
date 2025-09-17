@@ -8,7 +8,7 @@ import {
   SYSTEM_USER_UUID,
   TASK_DELETE_RECORDED_IN_ERROR_REASON_ID,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOutpatientEncounters';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 

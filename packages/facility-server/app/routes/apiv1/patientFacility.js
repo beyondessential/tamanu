@@ -1,5 +1,5 @@
 import express from 'express';
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 
 export const patientFacility = express.Router();
 

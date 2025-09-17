@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';

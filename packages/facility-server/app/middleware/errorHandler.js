@@ -1,24 +1,15 @@
-import { BaseError as SequelizeError } from 'sequelize';
-import { convertDatabaseError } from '@tamanu/database';
-import { Problem } from '@tamanu/errors';
+import { getCodeForErrorName } from '@tamanu/shared/errors';
 import { log } from '@tamanu/shared/services/logging';
 
 // eslint-disable-next-line no-unused-vars
 export default function errorHandler(error, req, res, _) {
-  if (error instanceof SequelizeError) {
-    error = convertDatabaseError(error);
-  }
-
-  const problem = (
-    error instanceof Problem ? error : Problem.fromError(error)
-  ).excludeSensitiveFields(process.env.NODE_ENV === 'production');
-
-  if (problem.type.includes('auth')) {
-    log.warn(`Error ${problem.status} (${problem.type}): ${error.message}`);
-  } else if (problem.status >= 500) {
-    log.error(`Error ${problem.status} (${problem.type}): `, error);
+  const code = getCodeForErrorName(error.name);
+  if (error.name === 'BadAuthenticationError') {
+    log.warn(`Error ${code}: ${error.message}`);
+  } else if (code >= 500) {
+    log.error(`Error ${code}: `, error);
   } else {
-    log.info(`Error ${problem.status} (${problem.type}): `, error);
+    log.info(`Error ${code}: `, error);
   }
 
   // we're past the point of permission checking; this just
@@ -28,9 +19,7 @@ export default function errorHandler(error, req, res, _) {
     req.flagPermissionChecked();
   }
 
-  res.set(problem.headers);
-  res.status(problem.status).send({
-    ...problem.toJSON(),
+  res.status(code).send({
     error: {
       message: error.message,
       ...error,

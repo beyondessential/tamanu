@@ -32,8 +32,6 @@ import { MedicationDiscontinuer } from './MedicationDiscontinuer';
 
 export { startFhirWorkerTasks } from './fhir';
 
-export class InvalidConfigError extends Error {}
-
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,

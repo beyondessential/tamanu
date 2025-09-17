@@ -1,4 +1,4 @@
-import { AuthPermissionError, ForbiddenError, UnimplementedError } from '@tamanu/errors';
+import { BadAuthenticationError, ForbiddenError } from '../errors';
 import { getAbilityForUser, getPermissionsForRoles } from './rolesToPermissions';
 
 // copied from casl source as it's not exported directly
@@ -39,7 +39,8 @@ const checkIfHasPermission = (req, action, subject, field = '') => {
 
   const { ability } = req;
   if (!ability) {
-    throw new AuthPermissionError(`${action} ${subject}`);
+    // user must log in - 401
+    throw new BadAuthenticationError('No permission');
   }
 
   return ability.can(action, subject, field);
@@ -79,7 +80,12 @@ export function ensurePermissionCheck(req, res, next) {
 
   res.send = () => {
     res.send = originalResSend;
-    throw new UnimplementedError('No permission check was implemented for this endpoint.');
+    res.status(501).send({
+      error: {
+        name: 'NoPermissionCheckError',
+        message: 'No permission check was implemented for this endpoint.',
+      },
+    });
   };
 
   next();

@@ -1,8 +1,6 @@
-export const VERSION_MAXIMUM_PROBLEM_KEY = 'compatible-version-maximum';
-export const VERSION_MINIMUM_PROBLEM_KEY = 'compatible-version-minimum';
 export const VERSION_COMPATIBILITY_ERRORS = {
-  LOW: 'too low',
-  HIGH: 'too high',
+  LOW: 'Client version too low',
+  HIGH: 'Client version too high',
 };
 
 // Size in bytes

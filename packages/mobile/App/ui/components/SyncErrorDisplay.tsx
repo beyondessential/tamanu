@@ -4,8 +4,16 @@ import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
+function stringifyError(e): string {
+  const error = e.error || e;
+  if (typeof error === 'string') return error;
+  if (error.name && error.message) return `${error.name}: ${error.message}`;
+  if (error.message) return error.message;
+  return JSON.stringify(e);
+}
+
 // italicised, smaller and light grey text
-const ErrorDetail = styled(StyledText)`
+const RemoteErrorText = styled(StyledText)`
   font-size: 12px;
   color: #c4c4c4;
   font-style: italic;
@@ -29,7 +37,7 @@ export const SyncErrorDisplay = (): ReactElement => {
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
       syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     };
-  }, [syncManager.emitter]);
+  }, []);
 
   if (!error) {
     return null;
@@ -44,8 +52,10 @@ export const SyncErrorDisplay = (): ReactElement => {
       borderColor="#F76853"
     >
       <StyledView margin={8}>
-        <StyledText color="white">{error.message ?? error.title}</StyledText>
-        {error.detail && <ErrorDetail>{error.detail}</ErrorDetail>}
+        <StyledText color="#FFFFFF">{stringifyError(error)}</StyledText>
+        {error.remoteError && (
+          <RemoteErrorText>{stringifyError(error.remoteError)}</RemoteErrorText>
+        )}
       </StyledView>
     </StyledView>
   );

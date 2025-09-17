@@ -9,7 +9,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';

@@ -61,7 +61,6 @@
     "@react-pdf/renderer": "^3.4.4",
     "@tamanu/api-client": "*",
     "@tamanu/database": "*",
-    "@tamanu/errors": "*",
     "@tamanu/settings": "*",
     "@tamanu/shared": "*",
     "@tamanu/ui-components": "*",

@@ -1,8 +1,17 @@
 import config from 'config';
 
-import { TamanuApi } from '@tamanu/api-client';
+import {
+  TamanuApi,
+  AuthError,
+  AuthInvalidError,
+  VersionIncompatibleError,
+} from '@tamanu/api-client';
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+  RemoteCallFailedError,
+} from '@tamanu/shared/errors';
 import { DEVICE_SCOPES, SERVER_TYPES } from '@tamanu/constants';
-import { ERROR_TYPE } from '@tamanu/errors';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { log } from '@tamanu/shared/services/logging';
 
@@ -59,7 +68,7 @@ export class CentralServerConnection extends TamanuApi {
     try {
       return await super.fetch(endpoint, query, config);
     } catch (error) {
-      if (retryAuth && error.type?.startsWith(ERROR_TYPE.AUTH)) {
+      if (retryAuth && error instanceof AuthError) {
         await this.connect();
         return await super.fetch(endpoint, query, config);
       }
@@ -85,13 +94,34 @@ export class CentralServerConnection extends TamanuApi {
     const { email, password } = config.sync;
     log.info(`Logging in to ${this.host} as ${email}...`);
 
-    return await this.login(email, password, {
-      backoff,
-      timeout,
-      scopes: [DEVICE_SCOPES.SYNC_CLIENT],
-    }).then(loginData => {
-      return (this.#loginData = loginData);
-    });
+    try {
+      return await this.login(email, password, {
+        backoff,
+        timeout,
+        scopes: [DEVICE_SCOPES.SYNC_CLIENT],
+      }).then(loginData => {
+        return (this.#loginData = loginData);
+      });
+    } catch (error) {
+      if (error instanceof AuthInvalidError) {
+        const newError = new BadAuthenticationError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      if (error instanceof VersionIncompatibleError) {
+        const newError = new FacilityAndSyncVersionIncompatibleError(error.message);
+        newError.response = error.response;
+        newError.cause = error;
+        throw newError;
+      }
+
+      const newError = new RemoteCallFailedError(error.message);
+      newError.response = error.response;
+      newError.cause = error;
+      throw newError;
+    }
   }
 
   async loginData() {

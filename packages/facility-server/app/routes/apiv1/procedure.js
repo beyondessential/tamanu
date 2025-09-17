@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NotFoundError, InvalidOperationError } from '@tamanu/errors';
+import { NotFoundError, InvalidOperationError } from '@tamanu/shared/errors';
 import { findRouteObject } from '@tamanu/shared/utils/crudHelpers';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { createSurveyResponse } from './surveyResponse';

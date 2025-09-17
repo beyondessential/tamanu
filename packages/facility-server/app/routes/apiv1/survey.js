@@ -4,7 +4,7 @@ import { Op, literal } from 'sequelize';
 
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { getFilteredListByPermission } from '@tamanu/shared/utils/getFilteredListByPermission';
-import { NotFoundError } from '@tamanu/errors';
+import { NotFoundError } from '@tamanu/shared/errors';
 import {
   findRouteObject,
   permissionCheckingRouter,

@@ -10,7 +10,7 @@ import { FHIR_DATETIME_PRECISION } from '@tamanu/constants/fhir';
 import { parseDateTime, formatFhirDate } from '@tamanu/shared/utils/fhir/datetime';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
-import { InvalidOperationError } from '@tamanu/errors';
+import { InvalidOperationError } from '@tamanu/shared/errors';
 
 export const routes = express.Router();
 

@@ -1,4 +1,4 @@
-import { RateLimitedError } from '@tamanu/errors';
+import { RequestQueueExceededError, RequestQueueTimeoutError } from '@tamanu/shared/errors';
 
 import { QueueManager, RequestQueue } from '@tamanu/central-server/app/middleware/loadshedder';
 
@@ -65,8 +65,8 @@ describe('RequestQueue', () => {
     await expect(queue.acquire()).resolves.toEqual(expect.anything());
     const willTimeout = queue.acquire();
     expect(willTimeout).toEqual(expect.any(Promise));
-    await expect(queue.acquire()).rejects.toEqual(expect.any(RateLimitedError));
-    await expect(willTimeout).rejects.toEqual(expect.any(RateLimitedError));
+    await expect(queue.acquire()).rejects.toEqual(expect.any(RequestQueueExceededError));
+    await expect(willTimeout).rejects.toEqual(expect.any(RequestQueueTimeoutError));
   });
 
   it('rejects parallel requests that take too long', async () => {
@@ -77,7 +77,7 @@ describe('RequestQueue', () => {
     });
     await expect(queue.acquire()).resolves.toEqual(expect.anything());
     const startMs = Date.now();
-    await expect(queue.acquire()).rejects.toEqual(expect.any(RateLimitedError));
+    await expect(queue.acquire()).rejects.toEqual(expect.any(RequestQueueTimeoutError));
     const elapsedMs = Date.now() - startMs;
     expect(elapsedMs).toBeLessThan(1100); // accept any delay less than a second - the event queue can be slow
   });
