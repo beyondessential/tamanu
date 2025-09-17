@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { Op } from 'sequelize';
 import { parseISO, isBefore, differenceInMonths, addMonths, isAfter } from 'date-fns';
 import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
 import { toDateString, dateCustomValidation, timeCustomValidation } from '@tamanu/utils/dateTime';
 export const locationAssignmentsRouter = express.Router();
 

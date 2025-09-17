@@ -10,7 +10,7 @@ import {
   NotFoundError,
   ValidationError,
   InvalidOperationError,
-} from '@tamanu/errors';
+} from '@tamanu/shared/errors';
 import { isBefore, startOfDay } from 'date-fns';
 
 export const usersRouter = express.Router();
