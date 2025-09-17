@@ -46,6 +46,16 @@ EOF
             },
         },
 
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
+            },
+        },
+
         referenceData: [
             {
                 url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx',
