@@ -154,7 +154,7 @@ export const createClinicEncounterViaApi = async (
   const user = await getUser(api);
 
   const encounterData = {
-    departmentId: 'department-GeneralMedicine',
+    departmentId: 'department-Cardiology',
     encounterType: 'clinic',
     examinerId: user.id,
     locationId: 'location-EDBed1',

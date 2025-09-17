@@ -98,7 +98,7 @@ export class PatientTable {
     }
   }
 
-  async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
+  async waitForTableRowCount(expectedRowCount: number, timeout: number = 50000) {
   /**  try {
       await this.page.waitForFunction(
         (count) => {

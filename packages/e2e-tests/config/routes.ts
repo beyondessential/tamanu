@@ -5,6 +5,7 @@ export const routes = {
     all: '/#/patients/all',
     inpatients: '/#/patients/inpatient',
     patientDetails: '/#/patients/all/*',
+    outpatients: '/#/patients/outpatient',
   },
 };
 
