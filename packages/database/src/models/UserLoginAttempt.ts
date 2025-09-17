@@ -88,7 +88,8 @@ export class UserLoginAttempt extends Model {
     const {
       lockoutThreshold,
       observationWindow,
-    } = await settings.get(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath) as { lockoutThreshold: number, observationWindow: number };
+      lockoutDuration,
+    } = await settings.get(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath) as { lockoutThreshold: number, observationWindow: number, lockoutDuration: number };
   
     const failedAttempts = await this.count({
       where: {
@@ -105,7 +106,9 @@ export class UserLoginAttempt extends Model {
       },
     }) as unknown as number;
 
-    const outcome = failedAttempts >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
+    // We need to add 1 to the failed attempts because the current attempt is not included in the count
+    const outcome = failedAttempts + 1 >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
+    const remainingLockout = outcome === LOGIN_ATTEMPT_OUTCOMES.LOCKED ? lockoutDuration * 60 : 0;
     const loginAttempt = await this.create({
       userId,
       deviceId,
@@ -114,7 +117,8 @@ export class UserLoginAttempt extends Model {
 
     return {
       loginAttempt,
-      remainingAttempts: lockoutThreshold - failedAttempts,
+      remainingLockout,
+      remainingAttempts: Math.max(0, lockoutThreshold - failedAttempts - 1),
     };
   }
 }

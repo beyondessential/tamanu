@@ -120,11 +120,14 @@ export const login = ({ secret, refreshSecret }) =>
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      const { remainingAttempts } = await models.UserLoginAttempt.createFailedLoginAttempt({
+      const { remainingAttempts, remainingLockout } = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId: user.id,
         deviceId,
       });
+      if (remainingAttempts === 0) {
+        throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
+      }
       if (remainingAttempts <= 3) {
         throw new InvalidCredentialError().withExtraData({
           lockoutAttempts: remainingAttempts,
