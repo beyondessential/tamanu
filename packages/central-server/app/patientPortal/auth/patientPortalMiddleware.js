@@ -83,6 +83,12 @@ export const patientPortalMiddleware = ({ secret }) =>
       backEndContext: { serverType: SERVER_TYPES.CENTRAL, isPatientPortal: true },
     });
 
+    // stub out permission checks
+    req.checkPermission = () => true;
+    req.ability = {
+      can: () => true,
+    };
+
     const spanAttributes = {
       'app.patient.id': patient.id,
     };

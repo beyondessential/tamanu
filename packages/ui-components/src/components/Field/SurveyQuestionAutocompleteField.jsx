@@ -6,7 +6,7 @@ import { useProgramRegistryContext } from '../../contexts';
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
-const getSuggesterEndpointForConfig = config => {
+export const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'ReferenceData') {
     const type = config.where?.type;
     return type === 'icd10' ? 'diagnosis' : type;

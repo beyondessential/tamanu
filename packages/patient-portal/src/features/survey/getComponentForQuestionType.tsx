@@ -1,5 +1,5 @@
 import React from 'react';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, PORTAL_SUGGESTER_ALLOW_LIST } from '@tamanu/constants';
 import { Box } from '@mui/material';
 import {
   LimitedTextField,
@@ -13,6 +13,7 @@ import {
   DateTimeField,
   NullableBooleanField,
   SurveyQuestionAutocompleteField,
+  getSuggesterEndpointForConfig,
 } from '@tamanu/ui-components';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
@@ -24,11 +25,21 @@ const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   );
 };
 
-const UnSupportedField = ({ label, type }: { label: string; type: string }) => {
+const UnSupportedField = ({
+  label,
+  type,
+  message,
+}: {
+  label: string;
+  type: string;
+  message?: string;
+}) => {
   return (
     <Box>
       {label}
-      <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field is not supported</Box>
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>
+        {message ? message : `${type} field is not supported`}
+      </Box>
     </Box>
   );
 };
@@ -37,13 +48,23 @@ const withSaveDateAsString = (Component: React.ComponentType<any>) => (props: an
   <Component {...props} saveDateAsString />
 );
 
+const PortalAutocompleteField = (props: any) => {
+  const endpoint = getSuggesterEndpointForConfig(props.config);
+  if (PORTAL_SUGGESTER_ALLOW_LIST.includes(endpoint)) {
+    return <SurveyQuestionAutocompleteField {...props} />;
+  }
+  return (
+    <UnSupportedField label={props.label} message={`The ${endpoint} resource is not supported`} />
+  );
+};
+
 const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: PortalAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: withSaveDateAsString(DateField),
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: withSaveDateAsString(DateTimeField),
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: withSaveDateAsString(DateField),
