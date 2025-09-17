@@ -27,6 +27,7 @@ export const DataFetchingProgramsTable = ({
   tableOptions = {},
   className,
   onDelete = null,
+                                            TableHeader
 }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -163,6 +164,7 @@ export const DataFetchingProgramsTable = ({
         data-testid="surveyresponsesprintmodal-ima2"
       />
       <DataFetchingTable
+        TableHeader={TableHeader}
         endpoint={endpoint}
         columns={columns}
         initialSort={{
