@@ -103,8 +103,8 @@ EOF
 }
 
 e2e_test_setup_start_servers() {
-    nohup npm run --workspace @tamanu/central-server start 2>&1 | tee central-server.out &
-    nohup npm run --workspace @tamanu/facility-server start 2>&1 | tee facility-server.out &
+    nohup npm run --workspace @tamanu/central-server start > central-server.out &
+    nohup npm run --workspace @tamanu/facility-server start > facility-server.out &
     # Give servers time to start before syncing
     sleep 20
     # Sync the servers
