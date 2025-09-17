@@ -180,10 +180,10 @@ export class InpatientsPage extends BasePage {
     await expect(this.nhnInput).toHaveValue('');
     await expect(this.firstNameInput).toHaveValue('');
     await expect(this.lastNameInput).toHaveValue('');
-    await expect(this.areaInput).toHaveValue('');
-    await expect(this.departmentInput).toHaveValue('');
-    await expect(this.clinicianInput).toHaveValue('');
-    await expect(this.dietInput).toHaveValue('');
+    await expect(this.areaInput.locator('input')).toHaveValue('');
+    await expect(this.departmentInput.locator('input')).toHaveValue('');
+    await expect(this.clinicianInput.locator('input')).toHaveValue('');
+    await expect(this.dietInput.locator('input')).toHaveValue('');
   }
 
   async validateAllRowsContain(expectedText: string, columnName: string) {

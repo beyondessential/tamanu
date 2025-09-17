@@ -1,5 +1,5 @@
 import { testData } from '@utils/testData';
-import { test } from '../../fixtures/baseFixture';
+import { test, expect } from '../../fixtures/baseFixture';
 import { getUser } from '../../utils/apiHelpers';
 
 test.describe('inpatient table search', () => {
@@ -94,5 +94,134 @@ test.describe('inpatient table search', () => {
     await inpatientsPage.validateAllRowsContain(currentUser.displayName, 'clinician');
     await inpatientsPage.validateAllRowsContain(testData.dietSearchResult1, 'diets');
     });
+    test('Clear search', async ({ newPatientWithHospitalAdmission, inpatientsPage, api }) => {
+      const currentUser = await getUser(api);
+      await inpatientsPage.searchTable({
+        NHN: newPatientWithHospitalAdmission.displayId,
+        firstName: newPatientWithHospitalAdmission.firstName,
+        lastName: newPatientWithHospitalAdmission.lastName,
+        area: testData.areaName,
+        department: testData.departmentName,
+        clinician: currentUser.displayName,
+        diet: testData.dietName,
+        advancedSearch: true,
+      });
+      await inpatientsPage.clearSearch();
+      await inpatientsPage.validateAllFieldsAreEmpty();
+    });
+  });
+});
+
+test.describe('inpatient table pagination', () => {
+  test.beforeEach(async ({ inpatientsPage }) => {
+    await inpatientsPage.goto();
+  });
+
+  test('number of patients in patient list defaulted to 10', async ({ inpatientsPage }) => {
+    await expect(inpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
+    await inpatientsPage.patientTable.validateNumberOfPatients(10);
+  });
+
+  test('change number of patients per list to 25 and going to next page', async ({
+    inpatientsPage,
+  }) => {
+    await expect(inpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
+    await inpatientsPage.patientTable.pageRecordCountDropDown.click();
+    await inpatientsPage.patientTable.patientPageRecordCount25.click();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.patientTable.waitForTableRowCount(25);
+    await inpatientsPage.patientTable.validateNumberOfPatients(25);
+    await inpatientsPage.patientTable.patientPage2.click();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.patientTable.waitForTableRowCount(25);
+    await inpatientsPage.patientTable.validateNumberOfPatients(25);
+    await expect(inpatientsPage.patientTable.pageRecordCount).toContainText('26–50 of');
+  });
+
+  //skipping this test for now as it is failing in ci because of less than 100 patients in the database.
+  test.skip('change number of patients per list to 50 and going to next page', async ({
+    inpatientsPage,
+  }) => {
+    await expect(inpatientsPage.patientTable.pageRecordCountDropDown).toHaveText('10');
+    await inpatientsPage.patientTable.pageRecordCountDropDown.click();
+    await inpatientsPage.patientTable.patientPageRecordCount50.click();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    //await inpatientsPage.patientTable.waitForTableRowCount(50);
+    await inpatientsPage.patientTable.validateNumberOfPatients(50);
+    await inpatientsPage.patientTable.patientPage2.click();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    //await inpatientsPage.patientTable.waitForTableRowCount(50);
+    await inpatientsPage.patientTable.validateNumberOfPatients(50);
+  });
+});
+
+test.describe('inpatient table sorting', () => {
+  test.beforeEach(async ({ inpatientsPage }) => {
+    await inpatientsPage.goto();
+  });
+
+  test('Sort table by NHN in descending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByNHN();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(false, 'displayId');
+  });
+
+  test('Sort table by NHN in ascending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByNHN();
+    await inpatientsPage.sortByNHN();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(true, 'displayId');
+  });
+
+  test('Sort table by First name in descending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByFirstName();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(false, 'firstName');
+  });
+
+  test('Sort table by First name in ascending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByFirstName();
+    await inpatientsPage.sortByFirstName();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(true, 'firstName');
+  });
+
+  test('Sort table by Last name in descending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByLastName();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(false, 'lastName');
+  });
+
+  test('Sort table by Last name in ascending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByLastName();
+    await inpatientsPage.sortByLastName();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(true, 'lastName');
+  });
+
+  test('Sort table by DOB in descending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByDOB();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateDateSortOrder(false);
+  });
+
+  test('Sort table by DOB in ascending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortByDOB();
+    await inpatientsPage.sortByDOB();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateDateSortOrder(true);
+  });
+
+  test('Sort table by Sex in descending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortBySex();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(false, 'sex');
+  });
+
+  test('Sort table by Sex in ascending order', async ({ inpatientsPage }) => {
+    await inpatientsPage.sortBySex();
+    await inpatientsPage.sortBySex();
+    await inpatientsPage.patientTable.waitForTableToLoad();
+    await inpatientsPage.validateSortOrder(true, 'sex');
   });
 });
