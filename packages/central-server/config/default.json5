@@ -1,6 +1,5 @@
 {
   "port": 3000,
-  "deviceId": null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
   "portalHostName": "http://localhost:5175",

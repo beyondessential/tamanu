@@ -11,8 +11,6 @@ import { closeDatabase, initDatabase, initReporting } from './database';
 import { initIntegrations } from './integrations';
 import { defineSingletonTelegramBotService } from './services/TelegramBotService';
 import { VERSION } from './middleware/versionCompatibility';
-import { initDeviceId } from '@tamanu/shared/utils';
-import { DEVICE_TYPES } from '@tamanu/constants';
 
 export const CENTRAL_SERVER_APP_TYPES = {
   API: 'api',
@@ -45,9 +43,6 @@ export class ApplicationContext {
   /**@type {ReadSettings<CentralSettingPath> | null} */
   settings = null;
 
-  /** @type {string | null} */
-  deviceId = null;
-
   closeHooks = [];
 
   async init({ testMode, appType = CENTRAL_SERVER_APP_TYPES.MAIN, dbKey } = {}) {
@@ -63,7 +58,7 @@ export class ApplicationContext {
 
     this.store = await initDatabase({ testMode, dbKey: dbKey ?? appType });
 
-    this.closePromise = new Promise(resolve => {
+    this.closePromise = new Promise((resolve) => {
       this.onClose(resolve);
     });
 
@@ -73,8 +68,6 @@ export class ApplicationContext {
     if (appType === CENTRAL_SERVER_APP_TYPES.MIGRATE) {
       return this;
     }
-
-    await initDeviceId({ context: this, deviceType: DEVICE_TYPES.CENTRAL_SERVER });
 
     this.emailService = new EmailService();
 
@@ -93,16 +86,16 @@ export class ApplicationContext {
     }
 
     this.timesync = new Timesimp(
-      async err => {
+      async (err) => {
         if (err) throw err;
         // we assume central-server time is correct
         return 0;
       },
-      async err => {
+      async (err) => {
         if (err) throw err;
         // we assume central-server time is correct
       },
-      async err => {
+      async (err) => {
         if (err) throw err;
         throw new Error('No upstream timesync server for central');
       },

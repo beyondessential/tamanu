@@ -6,7 +6,6 @@ export * from './colors.js';
 export * from './comms.js';
 export * from './datetimes.js';
 export * from './deaths.js';
-export * from './devices.js';
 export * from './diagnoses.js';
 export * from './documents.js';
 export * from './encounters.js';

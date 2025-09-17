@@ -47,7 +47,6 @@
     }
   },
   "port": 4000,
-  "deviceId": null,
   "db": {
     "name": "tamanu-facility",
     "username": "",
