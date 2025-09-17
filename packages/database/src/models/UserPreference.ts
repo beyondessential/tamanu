@@ -82,7 +82,7 @@ export class UserPreference extends Model {
     return null;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

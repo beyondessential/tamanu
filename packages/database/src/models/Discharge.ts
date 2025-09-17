@@ -1,6 +1,6 @@
 import { DataTypes, QueryTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
@@ -121,7 +121,7 @@ export class Discharge extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

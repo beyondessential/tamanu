@@ -1,5 +1,5 @@
 import { subject } from '@casl/ability';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 /**
  * Check if the request is valid for patient program registration

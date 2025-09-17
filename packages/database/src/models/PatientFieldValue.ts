@@ -78,7 +78,7 @@ export class PatientFieldValue extends Model {
     });
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildPatientLinkedLookupFilter(this);
   }
 
