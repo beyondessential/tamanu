@@ -25,8 +25,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
   const [open, setOpen] = useState(false);
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
-  const patient = useSelector(state => state.patient);
-  const isDeceased = Boolean(patient?.dateOfDeath);
+  const isDeceased = useSelector(state => Boolean(state.patient?.dateOfDeath));
 
   const handleChange = event => {
     const surveyId = event.target.value;
