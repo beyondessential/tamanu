@@ -1,9 +1,24 @@
+import config from 'config';
 import path from 'path';
 import { QueryTypes } from 'sequelize';
+import { uniqBy } from 'lodash';
+import * as xlsx from 'xlsx';
 import type { Steps, StepArgs } from '../step.js';
 import { END } from '../step.js';
-import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { scrapeTranslations } from './scripts/scrapeTranslations.js';
+
+interface Artifact {
+  artifact_type: string;
+  download_url: string;
+}
+
+interface Translation {
+  stringId: string;
+  [DEFAULT_LANGUAGE_CODE]?: string;
+  [ENGLISH_LANGUAGE_CODE]?: string;
+  fallback?: string; // legacy
+}
 
 async function download(
   artifactType: string,
@@ -68,16 +83,6 @@ async function apply(artifactType: string, rows: Translation[], { models, log }:
   }
 }
 
-async function csvExtractor(resp: Response): Promise<Translation[]> {
-  return uniqBy(
-    parse(await resp.text(), {
-      columns: true,
-      skip_empty_lines: true,
-    }) as unknown as Translation[],
-    item => item.stringId,
-  );
-}
-
 async function xlsxExtractor(resp: Response): Promise<Translation[]> {
   const data = await resp.arrayBuffer();
   const workbook = xlsx.read(data, { type: 'buffer' });
@@ -97,7 +102,9 @@ export const STEPS: Steps = [
       // Only run on central server
       return serverType === 'central';
     },
-    async run({ models, log }: StepArgs) {
+    async run(args: StepArgs) {
+      const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
+
       try {
         const tamanuRoot = path.join(import.meta.dirname, '..', '..', '..');
 
@@ -106,58 +113,23 @@ export const STEPS: Steps = [
         // Add default language name and country code
         translationRows.unshift({
           stringId: 'languageName',
-          defaultText: 'English',
+          [DEFAULT_LANGUAGE_CODE]: 'English',
         });
         translationRows.unshift({
           stringId: 'countryCode',
-          defaultText: 'gb',
+          [DEFAULT_LANGUAGE_CODE]: 'gb',
         });
 
-        log.info('Importing new default translations', { count: translationRows.length });
+        args.log.info('Importing new default translations', { count: translationRows.length });
 
         if (translationRows.length > 0) {
-          await models.TranslatedString.sequelize.query(
-            `
-                INSERT INTO translated_strings (string_id, text, language)
-                VALUES ${translationRows.map(() => `(?, ?, '${DEFAULT_LANGUAGE_CODE}')`).join(', ')}
-                ON CONFLICT (string_id, language) DO UPDATE SET text = EXCLUDED.text
-              `,
-            {
-              replacements: translationRows.flatMap(row => [row.stringId, row.defaultText]),
-              type: QueryTypes.INSERT,
-            },
-          );
+          await apply('translations', translationRows, args);
         }
-      }
-
-      if (rows.length === 0) {
-        try {
-          rows = await download('translations', csvExtractor, { ...args, toVersion: zeroPatch });
-        } catch (error) {
-          args.log.error(
-            'Failed to download default translations, you will need to manually import them',
-            {
-              error,
-              version: zeroPatch,
-            },
-          );
-        }
-      }
-
-      if (rows.length > 0) {
-        try {
-          await apply('translations', rows, args);
-          args.log.info('Successfully imported default translations');
-        } catch (error) {
-          // Failing to import translations is not world-ending... for now
-          // We may want to make this more strict in the future
-          args.log.error(
-            'Failed to import default translations, you will need to manually import them',
-            {
-              error,
-            },
-          );
-        }
+      } catch (error) {
+        args.log.error(
+          'Failed to import default translations, you will need to manually import them',
+          { error },
+        );
       }
 
       try {

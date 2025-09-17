@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { enumTranslations } from '@tamanu/constants/enumRegistry';
+import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 
 type ScrapeTranslationsOptions = {
   includeEnumTranslations?: boolean;
@@ -96,7 +97,7 @@ export const scrapeTranslations = async (
   const translationRows = Array.from(translations.values())
     .map(({ stringId, defaultText }) => ({
       stringId,
-      defaultText: flattenDefaultText(defaultText),
+      [DEFAULT_LANGUAGE_CODE]: flattenDefaultText(defaultText),
     }))
     .sort((a, b) => a.stringId.localeCompare(b.stringId));
 
