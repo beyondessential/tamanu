@@ -1,5 +1,4 @@
 import config from 'config';
-import path from 'path';
 import { QueryTypes } from 'sequelize';
 import { uniqBy } from 'lodash';
 import * as xlsx from 'xlsx';
@@ -7,6 +6,7 @@ import type { Steps, StepArgs } from '../step.js';
 import { END } from '../step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { scrapeTranslations } from './scripts/scrapeTranslations.js';
+import { getTamanuPackagesPath } from './scripts/getTamanaPackagesPath.js';
 
 interface Artifact {
   artifact_type: string;
@@ -106,8 +106,7 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        const centralServerDistIndexJsPath = require.resolve('@tamanu/central-server');
-        const tamanuPackagesPath = path.join(centralServerDistIndexJsPath, '..', '..', '..');
+        const tamanuPackagesPath = getTamanuPackagesPath();
         args.log.info(`Scraping all translations from: ${tamanuPackagesPath}`);
 
         const translationRows = await scrapeTranslations(tamanuPackagesPath);
@@ -126,6 +125,7 @@ export const STEPS: Steps = [
 
         if (translationRows.length > 0) {
           await apply('translations', translationRows, args);
+          args.log.info('Successfully imported default translations');
         }
       } catch (error) {
         args.log.error(

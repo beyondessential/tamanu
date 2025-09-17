@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryTypes } from 'sequelize';
-import { STEPS } from '../../src/steps/1752105049000-downloadTranslationArtifacts.js';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { STEPS } from '../../src/steps/1752105049000-importDefaultTranslations.js';
+import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import path from 'path';
 
 // Mock dependencies
 vi.mock('config', () => ({
@@ -10,6 +11,12 @@ vi.mock('config', () => ({
       host: 'https://meta.example.com',
     },
   },
+}));
+
+vi.mock('../../src/steps/scripts/getTamanaPackagesPath.js', () => ({
+  getTamanuPackagesPath: vi.fn().mockImplementation(() => {
+    return path.join(import.meta.dirname, '..', 'fixtures', 'scrapeTranslations');
+  }),
 }));
 
 vi.mock('csv-parse/sync', () => ({
@@ -51,43 +58,18 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    mockFetch.mockRestore();
   });
 
   describe('artifact download', () => {
     const mockArtifacts = [
-      {
-        artifact_type: 'translations',
-        download_url: 'https://example.com/translations.csv',
-      },
       {
         artifact_type: 'report-translations',
         download_url: 'https://example.com/report-translations.xlsx',
       },
     ];
 
-    it('should successfully download and import translations', async () => {
-      const mockTranslations = [
-        { stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'Test Value 1' },
-        { stringId: 'test.key2', [ENGLISH_LANGUAGE_CODE]: 'Test Value 2' },
-      ];
-
-      // Mock artifacts list response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue(mockArtifacts),
-      });
-
-      // Mock translations download response
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('mocked csv content'),
-      });
-
-      // Mock CSV parsing
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
+    it('should successfully download, scrape, and import translations', async () => {
       // Mock report translations download
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -113,7 +95,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
       const step = STEPS[0];
       await step.run(mockStepArgs);
 
-      expect(mockFetch).toHaveBeenCalledWith('https://meta.example.com/versions/1.1.5/artifacts', {
+      expect(mockFetch).toHaveBeenCalledWith('https://meta.example.com/versions/1.1.0/artifacts', {
         headers: { Accept: 'application/json' },
       });
 
@@ -124,17 +106,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
     });
 
     it('should handle missing artifacts gracefully', async () => {
-      // Mock artifacts list with no translations artifact
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([
-          {
-            artifact_type: 'other-artifact',
-            download_url: 'https://example.com/other.csv',
-          },
-        ]),
-      });
-
       // Mock for report translations (should also fail)
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -145,7 +116,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
       await step.run(mockStepArgs);
 
       expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
+        'Failed to import default report translations, you will need to manually import them',
         expect.any(Object),
       );
     });
@@ -188,12 +159,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
     });
 
     it('should handle HTTP errors gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
       // Mock for report translations
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -205,7 +170,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
       await step.run(mockStepArgs);
 
       expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
+        'Failed to import default report translations, you will need to manually import them',
         expect.any(Object),
       );
     });
@@ -213,27 +178,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
   describe('translation data processing', () => {
     it('should handle translations with default language code', async () => {
-      const mockTranslations = [
-        { stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'Default Value' },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
       // Mock report translations failure
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -246,134 +190,41 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
       expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO translated_strings'),
-        {
-          replacements: ['test.key1', 'Default Value'],
+        expect.objectContaining({
+          replacements: expect.arrayContaining([
+            'getTranslation.js',
+            'Get Translation JS',
+            'translatedText.js',
+            'Translated Text JS',
+            'getTranslation.jsx',
+            'Get Translation JSX',
+            'translatedText.jsx',
+            'Translated Text JSX',
+            'getTranslation.ts',
+            'Get Translation TS',
+            'translatedText.ts',
+            'Translated Text TS',
+            'getTranslation.tsx',
+            'Get Translation TSX',
+            'translatedText.tsx',
+            'Translated Text TSX',
+          ]),
           type: QueryTypes.INSERT,
-        },
+        }),
       );
-    });
 
-    it('should fall back to English when default is not available', async () => {
-      const mockTranslations = [
-        { stringId: 'test.key1', [ENGLISH_LANGUAGE_CODE]: 'English Value' },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
+      // Should ignore files that aren't js, jsx, ts, or tsx
       expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO translated_strings'),
-        {
-          replacements: ['test.key1', 'English Value'],
-          type: QueryTypes.INSERT,
-        },
-      );
-    });
-
-    it('should fall back to legacy fallback field', async () => {
-      const mockTranslations = [{ stringId: 'test.key1', fallback: 'Fallback Value' }];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
+        expect.objectContaining({
+          replacements: expect.not.arrayContaining([
+            'getTranslation.txt',
+            'Get Translation TXT',
+            'translatedText.txt',
+            'Translated Text TXT',
           ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO translated_strings'),
-        {
-          replacements: ['test.key1', 'Fallback Value'],
           type: QueryTypes.INSERT,
-        },
-      );
-    });
-
-    it('should skip entries without any valid text', async () => {
-      const mockTranslations = [
-        { stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'Valid Value' },
-        { stringId: 'test.key2' }, // No text fields
-        { stringId: 'test.key3', [DEFAULT_LANGUAGE_CODE]: null },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
-      // Should only include the valid entry
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
-        expect.stringContaining('INSERT INTO translated_strings'),
-        {
-          replacements: ['test.key1', 'Valid Value'],
-          type: QueryTypes.INSERT,
-        },
+        }),
       );
     });
 
@@ -421,17 +272,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
   describe('XLSX processing', () => {
     it('should handle XLSX files for report translations', async () => {
-      // Mock regular translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([]),
-      });
-
       // Mock report translations success
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -555,13 +395,12 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
     it('should handle network errors gracefully', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       const step = STEPS[0];
       await step.run(mockStepArgs);
 
       expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
+        'Failed to import default report translations, you will need to manually import them',
         expect.any(Object),
       );
     });
@@ -579,10 +418,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
       await step.run({ ...mockStepArgs, toVersion: '2.5.3' });
 
-      // Should call with original version first, then zero patch
-      expect(mockFetch).toHaveBeenCalledWith('https://meta.example.com/versions/2.5.3/artifacts', {
-        headers: { Accept: 'application/json' },
-      });
+      // Should call zero patch for report translations
       expect(mockFetch).toHaveBeenCalledWith('https://meta.example.com/versions/2.5.0/artifacts', {
         headers: { Accept: 'application/json' },
       });
@@ -590,76 +426,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle empty CSV response', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/empty.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue(''),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue([]);
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
-      expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
-        expect.any(Object),
-      );
-    });
-
-    it('should handle CSV parsing errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/bad.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('invalid csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockImplementation(() => {
-        throw new Error('CSV parsing failed');
-      });
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
-      expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations for exact version, trying from release head',
-        expect.any(Object),
-      );
-    });
-
     it('should handle XLSX parsing errors', async () => {
       // Mock regular translations failure
       mockFetch.mockResolvedValueOnce({
@@ -714,23 +480,12 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
       // Should log errors about failed downloads
       expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
+        'Failed to import default report translations, you will need to manually import them',
         expect.any(Object),
       );
     });
 
     it('should handle missing report-translations artifact in list', async () => {
-      // Mock regular translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([]),
-      });
-
       // Mock artifact list without report-translations artifact
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -757,133 +512,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
             message: expect.stringContaining('No report-translations artifact found'),
           }),
         }),
-      );
-
-      // Regular translations should also fail due to empty artifact list
-      expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations, you will need to manually import them',
-        expect.any(Object),
-      );
-    });
-
-    it('should handle mixed successes and failures', async () => {
-      // Simulate a realistic scenario where:
-      // - First translation download fails
-      // - Fallback translation download succeeds
-      // - Report translation download succeeds
-      const regularTranslations = [
-        { stringId: 'common.save', [DEFAULT_LANGUAGE_CODE]: 'Save' },
-        { stringId: 'common.cancel', [ENGLISH_LANGUAGE_CODE]: 'Cancel' },
-        { stringId: 'patient.name', fallback: 'Patient Name' },
-        { stringId: 'empty.field' }, // Should be skipped
-      ];
-
-      const reportTranslations = [
-        { stringId: 'report.title', [DEFAULT_LANGUAGE_CODE]: 'Patient Report' },
-        { stringId: 'report.date', [DEFAULT_LANGUAGE_CODE]: 'Report Date' },
-      ];
-
-      // First attempt fails (exact version)
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      // Second attempt succeeds (zero patch version)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([
-          {
-            artifact_type: 'translations',
-            download_url: 'https://meta.example.com/v1.1.0/translations.csv',
-          },
-        ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi
-          .fn()
-          .mockResolvedValue(
-            'stringId,default,en,fallback\ncommon.save,Save,,\ncommon.cancel,,Cancel,',
-          ),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(regularTranslations);
-
-      // Report translations succeed
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([
-          {
-            artifact_type: 'report-translations',
-            download_url: 'https://meta.example.com/v1.1.0/reports.xlsx',
-          },
-        ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(512)),
-      });
-
-      const xlsx = await import('xlsx');
-      (xlsx.read as any).mockReturnValue({
-        Sheets: {
-          'Report Translations': { A1: { v: 'stringId' }, B1: { v: 'default' } },
-        },
-      });
-      (xlsx.utils.sheet_to_json as any).mockReturnValue(reportTranslations);
-
-      const step = STEPS[0];
-      await step.run({ ...mockStepArgs, toVersion: '1.1.5' });
-
-      // Verify fallback behavior
-      expect(mockStepArgs.log.error).toHaveBeenCalledWith(
-        'Failed to download default translations for exact version, trying from release head',
-        expect.objectContaining({
-          version: '1.1.0',
-        }),
-      );
-
-      // Verify successful imports
-      expect(mockStepArgs.log.info).toHaveBeenCalledWith(
-        'Successfully imported default translations',
-      );
-      expect(mockStepArgs.log.info).toHaveBeenCalledWith(
-        'Successfully imported default report translations',
-      );
-
-      // Verify database calls
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledTimes(2);
-
-      // Verify regular translations (3 valid entries out of 4)
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenNthCalledWith(
-        1,
-        expect.stringContaining("(?, ?, 'default'), (?, ?, 'default'), (?, ?, 'default')"),
-        {
-          replacements: [
-            'common.save',
-            'Save',
-            'common.cancel',
-            'Cancel',
-            'patient.name',
-            'Patient Name',
-          ],
-          type: QueryTypes.INSERT,
-        },
-      );
-
-      // Verify report translations
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenNthCalledWith(
-        2,
-        expect.stringContaining("(?, ?, 'default'), (?, ?, 'default')"),
-        {
-          replacements: ['report.title', 'Patient Report', 'report.date', 'Report Date'],
-          type: QueryTypes.INSERT,
-        },
       );
     });
   });
