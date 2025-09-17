@@ -70,8 +70,14 @@ export class UserLoginAttempt extends Model {
         lockoutDuration,
       },
     });
-  
-    return !!lockedAttempt;
+
+    const createdAt = lockedAttempt?.createdAt?.getTime() ?? 0;
+    const remainingLockout = lockoutDuration * 60 - Math.floor((Date.now() - createdAt) / 1000);
+
+    return {
+      isUserLockedOut: !!lockedAttempt,
+      remainingLockout: Math.max(0, remainingLockout),
+    };
   }
 
   static async createFailedLoginAttempt({
@@ -106,6 +112,9 @@ export class UserLoginAttempt extends Model {
       outcome,
     });
 
-    return loginAttempt;
+    return {
+      loginAttempt,
+      remainingAttempts: lockoutThreshold - failedAttempts,
+    };
   }
 }

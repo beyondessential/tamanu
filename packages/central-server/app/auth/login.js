@@ -111,7 +111,7 @@ export const login = ({ secret, refreshSecret }) =>
     }
 
     // Check if user is locked out
-    const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
+    const { isUserLockedOut } = await models.UserLoginAttempt.checkIsUserLockedOut({
       settings,
       userId: user.id,
       deviceId,

@@ -30,7 +30,7 @@ resetPassword.post(
     const { email, deviceId } = body;
 
     const user = await models.User.getForAuthByEmail(email);
-    const isUserLockedOut = user ? await models.UserLoginAttempt.checkIsUserLockedOut({
+    const { isUserLockedOut } = user ? await models.UserLoginAttempt.checkIsUserLockedOut({
       models,
       settings,
       userId: user.id,

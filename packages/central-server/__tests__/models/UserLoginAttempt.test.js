@@ -39,7 +39,7 @@ describe('UserLoginAttempt', () => {
 
   describe('checkIsUserLockedOut', () => {
     it('should return false if the user has no locked login attempts', async () => {
-      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
+      const { isUserLockedOut } = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -54,7 +54,7 @@ describe('UserLoginAttempt', () => {
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         createdAt: Sequelize.literal("CURRENT_TIMESTAMP - interval '3 minutes'"),
       });
-      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
+      const { isUserLockedOut } = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -68,7 +68,7 @@ describe('UserLoginAttempt', () => {
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
       });
-      const isUserLockedOut = await models.UserLoginAttempt.checkIsUserLockedOut({
+      const { isUserLockedOut } = await models.UserLoginAttempt.checkIsUserLockedOut({
         settings,
         userId,
         deviceId,
@@ -85,7 +85,7 @@ describe('UserLoginAttempt', () => {
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
         createdAt: Sequelize.literal("CURRENT_TIMESTAMP - interval '3 minutes'"),
       });
-      const loginAttempt = await models.UserLoginAttempt.createFailedLoginAttempt({
+      const { loginAttempt } = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId,
         deviceId,
@@ -99,7 +99,7 @@ describe('UserLoginAttempt', () => {
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
       });
-      const loginAttempt = await models.UserLoginAttempt.createFailedLoginAttempt({
+      const { loginAttempt } = await models.UserLoginAttempt.createFailedLoginAttempt({
         settings,
         userId,
         deviceId,
