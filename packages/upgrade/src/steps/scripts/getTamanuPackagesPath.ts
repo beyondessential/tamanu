@@ -1,11 +1,12 @@
 import path from 'path';
 
 export const getTamanuPackagesPath = () => {
-  const centralServerDistIndexJsPath = require.resolve('@tamanu/central-server');
+  const centralServerDistIndexJsPath = require.resolve('@tamanu/upgrade');
   const tamanuPackagesPath = path.join(
     centralServerDistIndexJsPath,
+    '..', // cjs
     '..', // dist
-    '..', // central-server
+    '..', // upgrade
     '..', // packages
   );
   return tamanuPackagesPath;
