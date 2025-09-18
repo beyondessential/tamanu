@@ -29,11 +29,11 @@ export class Procedure extends Model {
   declare timeOut?: string;
 
   declare encounter?: Encounter;
-  declare Location?: Location;
-  declare Department?: Department;
-  declare LeadClinician?: User;
-  declare Anaesthetist?: User;
-  declare AssistantAnaesthetist?: User;
+  declare location?: Location;
+  declare department?: Department;
+  declare leadClinician?: User;
+  declare anaesthetist?: User;
+  declare assistantAnaesthetist?: User;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -73,7 +73,7 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
-      as: 'Location',
+      as: 'location',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'procedureTypeId',

@@ -10,7 +10,7 @@ export const useProceduresQuery = () => {
   const api = useApi();
 
   return useQuery<unknown, Error, Procedure[]>({
-    queryKey: ['upcomingVaccines'],
+    queryKey: ['procedures'],
     queryFn: () => api.get('me/procedures'),
     select: transformArray<Procedure>(ProcedureSchema),
   });
