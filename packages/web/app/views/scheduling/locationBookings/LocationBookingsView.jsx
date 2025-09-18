@@ -58,8 +58,8 @@ const CalendarWrapper = styled.div`
   overflow: hidden;
   margin: 1rem;
   border-radius: 0.25rem;
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
-  background: ${Colors.white};
+  border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+  background: ${TAMANU_COLORS.white};
 `;
 
 const CalendarInnerWrapper = styled.div`
@@ -67,7 +67,7 @@ const CalendarInnerWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: auto;
-  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
+  border-block-start: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
 `;
 
 const NewBookingButton = styled(Button)`
