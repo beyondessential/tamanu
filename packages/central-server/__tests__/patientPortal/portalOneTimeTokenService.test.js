@@ -87,7 +87,7 @@ describe('PortalOneTimeTokenService', () => {
       const expectedExpiry = addMinutes(now, defaultExpiryTime);
 
       const expiry = parseISO(result.expiresAt);
-      expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
+      expect(Math.abs(differenceInMinutes(expectedExpiry, expiry))).toEqual(0);
     });
 
     it('should overwrite existing tokens for the same user', async () => {
