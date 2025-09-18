@@ -56,9 +56,11 @@ export const SurveyView = () => {
     return null;
   }
 
-  console.log('survey', survey);
-
-  const facilityId = survey.portalSurveyAssignment.facilityId;
+  /**
+   * The facilityId is captured from the facility where the survey was assigned. Provided to
+   * the survey in the portal for suggesters to filter data correctly.
+   */
+  const { facilityId } = survey.portalSurveyAssignment;
 
   return (
     <Container>

@@ -31,7 +31,7 @@ const UnSupportedField = ({
   message,
 }: {
   label: string;
-  type: string;
+  type?: string;
   message?: string;
 }) => {
   return (

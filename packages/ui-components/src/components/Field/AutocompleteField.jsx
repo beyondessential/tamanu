@@ -3,12 +3,14 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce, groupBy, map } from 'lodash';
-import { TranslationContext, StyledTextField, TAMANU_COLORS } from '@tamanu/ui-components';
 import { IconButton, MenuItem, Paper, Popper, Typography } from '@material-ui/core';
+import { StyledTextField } from './TextField';
+import { TAMANU_COLORS } from '../../constants';
 import { ClearIcon } from '../Icons';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { FormFieldTag } from '../Tag';
 import { Icon, ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
+import { TranslationContext } from '../../contexts';
 import { TranslatedText } from '../Translation';
 import { notifyError } from '../../utils';
 

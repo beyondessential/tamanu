@@ -24,6 +24,7 @@ export const getSurvey = asyncHandler(async (req, res) => {
   const payload = {
     ...surveyRecord.forResponse(),
     components,
+    // There can only ever be one portalSurveyAssignment so attach it directly to the survey response
     portalSurveyAssignment: surveyRecord.portalSurveyAssignments?.[0] || null,
   };
 
