@@ -70,7 +70,7 @@ describe('DHIS2 integration processor', () => {
     await models.Setting.set('integrations.dhis2.host', '', SETTINGS_SCOPES.CENTRAL);
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+    expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
       host: false,
       username: true,
       password: true,
@@ -80,7 +80,7 @@ describe('DHIS2 integration processor', () => {
 
   it('should skip if no reportIds in settings', async () => {
     await dhis2IntegrationProcessor.run();
-    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+    expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
       host: true,
       username: true,
       password: true,
@@ -92,21 +92,21 @@ describe('DHIS2 integration processor', () => {
     await setReportIds(['non-existent-report-id']);
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.REPORT_DOES_NOT_EXIST, {
+    expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.REPORT_DOES_NOT_EXIST, {
       reportId: 'non-existent-report-id',
     });
 
     await setReportIds([report.id]);
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
+    expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
       report: `Test Report (${report.id})`,
     });
 
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.info).toHaveBeenCalledWith(INFO_LOGS.PROCESSING_REPORT, {
+    expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.PROCESSING_REPORT, {
       report: `Test Report (${report.id})`,
     });
   });
@@ -115,7 +115,7 @@ describe('DHIS2 integration processor', () => {
     await setHost('https://invalid-host.com');
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.error).toHaveBeenCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
+    expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
       reportId: report.id,
       error: expect.any(Error),
     });
@@ -133,7 +133,7 @@ describe('DHIS2 integration processor', () => {
 
     await dhis2IntegrationProcessor.run();
 
-    expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
+    expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
       report: `Test Report (${report.id})`,
       message: 'Report sent to DHIS2 failed',
       status: 'warning',
