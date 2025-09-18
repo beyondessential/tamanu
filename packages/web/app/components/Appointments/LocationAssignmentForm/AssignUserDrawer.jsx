@@ -10,7 +10,6 @@ import {
   useLocationAssignmentDeleteMutation,
   useLocationAssignmentOverlappingAssignmentsMutation,
 } from '../../../api/mutations';
-import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
@@ -44,7 +43,7 @@ import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
 } from '@tamanu/utils/appointmentScheduling';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY,  FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
 import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
@@ -261,7 +260,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
           />,
         );
         // Force the form to show errors by setting submit status
-        setStatus({ submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+        setStatus({ submitStatus: SUBMIT_ATTEMPTED_STATUS });
       } else {
         setFieldError('date', ''); // Clear error if no overlapping leaves
       }
