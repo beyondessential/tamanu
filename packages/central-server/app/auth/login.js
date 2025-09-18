@@ -2,21 +2,12 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
-import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
-import { InvalidCredentialError, MissingCredentialError, RateLimitedError } from '@tamanu/errors';
+import { SERVER_TYPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-import {
-  getRandomBase64String,
-  getRandomU32,
-  buildToken,
-  isInternalClient,
-  stripUser,
-} from './utils';
-import { ensureDeviceRegistration } from './ensureDeviceRegistration';
+import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './utils';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -67,85 +58,27 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
 
 export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
-    const { store, body, settings } = req;
-    const { models } = store;
-    const { email, password, facilityIds, deviceId, scopes = [] } = body;
-    const tamanuClient = req.header('X-Tamanu-Client');
-
-    const getSettingsForFrontEnd = async () => {
-      // Only attach central scoped settings if login request is for central admin panel login
-      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
-        return await settings.getFrontEndSettings();
-      }
-    };
-
-    if (!email || !password) {
-      throw new MissingCredentialError('Missing email or password');
-    }
-
-    const internalClient = isInternalClient(tamanuClient);
-    if (internalClient && !deviceId) {
-      throw new MissingCredentialError('Missing deviceId');
-    }
-
-    const user = await models.User.getForAuthByEmail(email);
-    if (!user && config.auth.reportNoUserError) {
-      // an attacker can use this to get a list of user accounts
-      // but hiding this error entirely can make debugging a hassle
-      // so we just put it behind a config flag
-      throw new InvalidCredentialError('No such user');
-    }
-
-    if (!user) {
-      // Keep track of bad requests for non-existent user accounts
-      log.info(`Trying to login with non-existent user account: ${email}`);
-
-      // To mitigate timing attacks for discovering user accounts,
-      // we perform a fake password comparison that takes a similar amount of time
-      await bcrypt.compare(password, '');
-      // and return the same error (ish) data as for a true password mismatch
-      throw new InvalidCredentialError();
-    }
-
-    // Check if user is locked out
-    const { isUserLockedOut, remainingLockout } = await models.UserLoginAttempt.checkIsUserLockedOut({
+    const {
+      store: {
+        models,
+        models: { User },
+      },
+      body,
       settings,
-      userId: user.id,
-      deviceId,
-    });
-    if (isUserLockedOut) {
-      log.info(`Trying to login with locked user account: ${email}`);
-      throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
-    }
+    } = req;
 
-    const hashedPassword = user?.password || '';
-    if (!(await bcrypt.compare(password, hashedPassword))) {
-      const { remainingAttempts, lockoutDuration } = await models.UserLoginAttempt.createFailedLoginAttempt({
-        settings,
-        userId: user.id,
-        deviceId,
-      });
-      if (remainingAttempts === 0) {
-        throw new RateLimitedError(lockoutDuration, LOCKED_OUT_ERROR_MESSAGE);
-      }
-      if (remainingAttempts <= 3) {
-        throw new InvalidCredentialError().withExtraData({
-          lockoutAttempts: remainingAttempts,
-          lockoutDuration,
-        });
-      }
-      throw new InvalidCredentialError();
-    }
-
-    // Manages necessary checks for device authorization (check or create accordingly)
-    await ensureDeviceRegistration({ models, settings, user, deviceId, scopes });
-
-    // Create successful login attempt
-    await models.UserLoginAttempt.create({
-      userId: user.id,
-      deviceId,
-      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
-    });
+    const {
+      user,
+      device,
+      internalClient,
+      settings: userSettings,
+    } = await User.login(
+      {
+        ...body,
+        clientHeader: req.header('X-Tamanu-Client'),
+      },
+      { log, settings },
+    );
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
@@ -155,7 +88,7 @@ export const login = ({ secret, refreshSecret }) =>
         buildToken(
           {
             userId: user.id,
-            deviceId,
+            deviceId: device?.id,
           },
           secret,
           {
@@ -166,7 +99,7 @@ export const login = ({ secret, refreshSecret }) =>
           },
         ),
         internalClient
-          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId })
+          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId: device?.id })
           : undefined,
         user.allowedFacilities(),
         getLocalisation(),
@@ -186,6 +119,6 @@ export const login = ({ secret, refreshSecret }) =>
       allowedFacilities,
       localisation,
       centralHost: config.canonicalHostName,
-      settings: await getSettingsForFrontEnd(),
+      settings: userSettings,
     });
   });

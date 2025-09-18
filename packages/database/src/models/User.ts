@@ -1,22 +1,33 @@
-import { hash } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { DataTypes, Sequelize } from 'sequelize';
 import { unionBy } from 'lodash';
-
+import type { Logger } from 'winston';
+import * as z from 'zod';
+import type { Subject } from '@casl/ability';
 import {
   CAN_ACCESS_ALL_FACILITIES,
+  DEVICE_SCOPES,
+  LOCKED_OUT_ERROR_MESSAGE,
+  LOGIN_ATTEMPT_OUTCOMES,
+  SERVER_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
+import {
+  ForbiddenError,
+  InvalidCredentialError,
+  MissingCredentialError,
+  RateLimitedError,
+} from '@tamanu/errors';
+import type { ReadSettings } from '@tamanu/settings';
+import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
+import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 
 import { Model } from './Model';
-import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError } from '@tamanu/errors';
-import { getSubjectName } from '@tamanu/shared/permissions/middleware';
-import type { InitOptions, ModelProperties, Models } from '../types/model';
-import type { Subject } from '@casl/ability';
-import { Permission } from './Permission';
 import type { Facility } from './Facility';
+import type { Device } from './Device';
+import type { InitOptions, ModelProperties, Models } from '../types/model';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
@@ -234,6 +245,7 @@ export class User extends Model {
   }
 
   async checkPermission(action: string, subject: Subject, field = '') {
+    const { Permission } = this.sequelize.models;
     const ability = await getAbilityForUser({ Permission }, this);
     const subjectName = getSubjectName(subject);
     const hasPermission = ability.can(action, subject!, field);
@@ -338,4 +350,120 @@ export class User extends Model {
     }
     return [];
   }
+
+  static readonly LoginPayload = z.object({
+    email: z.email(),
+    password: z.string().min(1),
+    facilityIds: z.array(z.string().min(1)).min(1).optional(),
+    deviceId: z.string().optional(),
+    scopes: z.array(z.enum(DEVICE_SCOPES)).min(1).optional(),
+    clientHeader: z.string().min(1).optional(),
+  });
+
+  static async login(
+    payload: Record<string, any>,
+    { log, settings }: { log: Logger; settings: ReadSettings },
+  ): Promise<LoginReturn> {
+    const { Device, UserLoginAttempt } = this.sequelize.models;
+    const {
+      email,
+      password,
+      facilityIds,
+      deviceId,
+      scopes = [],
+      clientHeader,
+    } = this.LoginPayload.parse(payload);
+
+    if (!email || !password) {
+      throw new MissingCredentialError('Missing email or password');
+    }
+
+    const internalClient = Boolean(
+      clientHeader && (Object.values(SERVER_TYPES) as string[]).includes(clientHeader),
+    );
+    if (internalClient && !deviceId) {
+      throw new MissingCredentialError('Missing deviceId');
+    }
+
+    const user = await this.getForAuthByEmail(email);
+    if (!user && (await settings.get('security.reportNoUserError'))) {
+      // an attacker can use this to get a list of user accounts
+      // but hiding this error entirely can make debugging a hassle
+      // so we just put it behind a flag
+      throw new InvalidCredentialError('No such user');
+    }
+
+    if (!user) {
+      // Keep track of bad requests for non-existent user accounts
+      log.info(`Trying to login with non-existent user account: ${email}`);
+
+      // To mitigate timing attacks for discovering user accounts,
+      // we perform a fake password comparison that takes a similar amount of time
+      await compare(password, '');
+      // and return the same error (ish) data as for a true password mismatch
+      throw new InvalidCredentialError();
+    }
+
+    // Check if user is locked out
+    const { isUserLockedOut, remainingLockout } = await UserLoginAttempt.checkIsUserLockedOut({
+      settings,
+      userId: user.id,
+      deviceId,
+    });
+    if (isUserLockedOut) {
+      log.info(`Trying to login with locked user account: ${email}`);
+      throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
+    }
+
+    const hashedPassword = user?.password || '';
+    if (!(await compare(password, hashedPassword))) {
+      const { lockoutDuration, remainingAttempts } =
+        await UserLoginAttempt.createFailedLoginAttempt({
+          settings,
+          userId: user.id,
+          deviceId,
+        });
+      if (remainingAttempts === 0) {
+        throw new RateLimitedError(lockoutDuration, LOCKED_OUT_ERROR_MESSAGE);
+      }
+      if (remainingAttempts <= 3) {
+        throw new InvalidCredentialError().withExtraData({
+          lockoutAttempts: remainingAttempts,
+          lockoutDuration,
+        });
+      }
+      throw new InvalidCredentialError();
+    }
+
+    // Manages necessary checks for device authorization (check or create accordingly)
+    const device = await Device.ensureRegistration({ settings, user, deviceId, scopes });
+
+    // Create successful login attempt
+    await UserLoginAttempt.create({
+      userId: user.id,
+      deviceId,
+      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
+    });
+
+    return {
+      user,
+      device,
+      internalClient,
+      settings:
+        clientHeader &&
+        ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE] as string[]).includes(clientHeader) &&
+        !facilityIds
+          ? await settings.getFrontEndSettings()
+          : undefined,
+    };
+  }
+}
+
+export interface LoginReturn {
+  user: User;
+  device?: Device;
+  internalClient: boolean;
+  settings?: {
+    [key: string]: string | number | object;
+  };
 }

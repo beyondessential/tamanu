@@ -1229,6 +1229,12 @@ export const globalSettings = {
       highRisk: true,
       description: 'Security settings',
       properties: {
+        reportNoUserError: {
+          description:
+            'Display "no such user" message when authenticating. This may weaken security by allowing attackers to determine valid usernames.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         loginAttempts: {
           description: 'Login attempts settings',
           properties: {
