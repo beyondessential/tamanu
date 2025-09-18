@@ -1,4 +1,0 @@
-export const translations = [
-  `getTranslation('getTranslation.txt', 'Get Translation TXT')`,
-  `<TranslatedText stringId="translatedText.txt" fallback="Translated Text TXT" />`,
-];

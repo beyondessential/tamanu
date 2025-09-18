@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryTypes } from 'sequelize';
 import { STEPS } from '../../src/steps/1752105049000-importDefaultTranslations.js';
 import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
-import path from 'path';
 
 // Mock dependencies
 vi.mock('config', () => ({
@@ -11,16 +10,6 @@ vi.mock('config', () => ({
       host: 'https://meta.example.com',
     },
   },
-}));
-
-vi.mock('../../src/steps/scripts/getTamanaPackagesPath.js', () => ({
-  getTamanuPackagesPath: vi.fn().mockImplementation(() => {
-    return path.join(import.meta.dirname, '..', 'fixtures', 'scrapeTranslations');
-  }),
-}));
-
-vi.mock('csv-parse/sync', () => ({
-  parse: vi.fn(),
 }));
 
 vi.mock('xlsx', () => ({
@@ -34,7 +23,7 @@ vi.mock('xlsx', () => ({
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-describe('1752105049000-downloadTranslationArtifacts', () => {
+describe('1752105049000-importDefaultTranslations', () => {
   const mockStepArgs = {
     sequelize: {} as any,
     models: {
@@ -121,29 +110,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
       );
     });
 
-    it('should fallback to zero patch version for translations', async () => {
-      // First call fails (exact version)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue([]),
-      });
-
-      // Second call succeeds (zero patch version)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi.fn().mockResolvedValue(mockArtifacts),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue([
-        { stringId: 'test.key', [DEFAULT_LANGUAGE_CODE]: 'Test Value' },
-      ]);
-
+    it('should use zero patch version for report translations', async () => {
       // Mock report translations
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -191,24 +158,7 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
       expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO translated_strings'),
         expect.objectContaining({
-          replacements: expect.arrayContaining([
-            'getTranslation.js',
-            'Get Translation JS',
-            'translatedText.js',
-            'Translated Text JS',
-            'getTranslation.jsx',
-            'Get Translation JSX',
-            'translatedText.jsx',
-            'Translated Text JSX',
-            'getTranslation.ts',
-            'Get Translation TS',
-            'translatedText.ts',
-            'Translated Text TS',
-            'getTranslation.tsx',
-            'Get Translation TSX',
-            'translatedText.tsx',
-            'Translated Text TSX',
-          ]),
+          replacements: expect.arrayContaining(['welcome.title', 'Welcome, :displayName!']), // Hard coding a real translation here, if this changes we'll need to update the test
           type: QueryTypes.INSERT,
         }),
       );
@@ -225,47 +175,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
           ]),
           type: QueryTypes.INSERT,
         }),
-      );
-    });
-
-    it('should deduplicate translations by stringId', async () => {
-      const mockTranslations = [
-        { stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'First Value' },
-        { stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'Second Value' },
-        { stringId: 'test.key2', [DEFAULT_LANGUAGE_CODE]: 'Unique Value' },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
-      // Mock report translations failure
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      });
-
-      const step = STEPS[0];
-      await step.run(mockStepArgs);
-
-      // Should only have 2 entries after deduplication
-      expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledWith(
-        expect.stringContaining("(?, ?, 'default'), (?, ?, 'default')"),
-        expect.any(Object),
       );
     });
   });
@@ -353,25 +262,6 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
 
   describe('error handling', () => {
     it('should handle database errors gracefully during import', async () => {
-      const mockTranslations = [{ stringId: 'test.key1', [DEFAULT_LANGUAGE_CODE]: 'Test Value' }];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: vi
-          .fn()
-          .mockResolvedValue([
-            { artifact_type: 'translations', download_url: 'https://example.com/translations.csv' },
-          ]),
-      });
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        text: vi.fn().mockResolvedValue('csv content'),
-      });
-
-      const { parse } = await import('csv-parse/sync');
-      (parse as any).mockReturnValue(mockTranslations);
-
       // Mock database error
       mockStepArgs.models.TranslatedString.sequelize.query.mockRejectedValue(
         new Error('Database connection failed'),
@@ -391,6 +281,8 @@ describe('1752105049000-downloadTranslationArtifacts', () => {
         'Failed to import default translations, you will need to manually import them',
         expect.any(Object),
       );
+
+      mockStepArgs.models.TranslatedString.sequelize.query.mockRestore();
     });
 
     it('should handle network errors gracefully', async () => {

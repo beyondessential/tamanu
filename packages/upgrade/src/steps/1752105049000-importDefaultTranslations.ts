@@ -2,10 +2,10 @@ import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { uniqBy } from 'lodash';
 import * as xlsx from 'xlsx';
+import path from 'path';
+import fs from 'fs';
 import { END, type Steps, type StepArgs } from '../step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
-import { scrapeTranslations } from './scripts/scrapeTranslations.js';
-import { getTamanuPackagesPath } from './scripts/getTamanaPackagesPath.js';
 
 interface Artifact {
   artifact_type: string;
@@ -105,10 +105,17 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
-        const tamanuPackagesPath = getTamanuPackagesPath();
-        args.log.info(`Scraping all translations from: ${tamanuPackagesPath}`);
+        const defaultTranslationsPath = path.join(
+          __dirname, // scripts
+          '..', // src
+          '..', // upgrade
+          'dist',
+          'default-translations.json',
+        );
 
-        const translationRows = await scrapeTranslations(tamanuPackagesPath);
+        args.log.info(`Loading default all translations from: ${defaultTranslationsPath}`);
+
+        const translationRows = JSON.parse(fs.readFileSync(defaultTranslationsPath, 'utf8'));
 
         // Add default language name and country code
         translationRows.unshift({
