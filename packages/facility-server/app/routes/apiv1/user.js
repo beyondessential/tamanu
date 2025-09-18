@@ -190,7 +190,7 @@ user.get(
     const { models } = req;
     req.checkPermission('read', 'Tasking');
 
-    const hasMedicationPermission = req.ability.can('list', 'Medication');
+    const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
