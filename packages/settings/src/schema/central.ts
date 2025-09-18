@@ -106,7 +106,9 @@ export const centralSettings = {
           properties: {
             host: {
               description: 'The host of the DHIS2 instance',
-              type: yup.string(),
+              type: yup
+                .string()
+                .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
             },
             reportIds: {

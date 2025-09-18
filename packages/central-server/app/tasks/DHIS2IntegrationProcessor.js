@@ -5,6 +5,7 @@ import { utils } from 'xlsx';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+import { fetchWithRetryBackoff } from '@tamanu/api-client/fetchWithRetryBackoff';
 
 const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
 
@@ -42,19 +43,24 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async postToDHIS2(reportCSV) {
     const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
-    const { username, password } = config.integrations.dhis2;
+    const { username, password, backoff } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
-    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/csv',
-        Accept: 'application/json',
-        Authorization: `Basic ${authHeader}`,
+    const response = await fetchWithRetryBackoff(
+      `${host}/api/dataValueSets?${params.toString()}`,
+      {
+        fetch,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/csv',
+          Accept: 'application/json',
+          Authorization: `Basic ${authHeader}`,
+        },
+        body: reportCSV,
       },
-      body: reportCSV,
-    });
+      { ...backoff, log },
+    );
 
     return await response.json();
   }
