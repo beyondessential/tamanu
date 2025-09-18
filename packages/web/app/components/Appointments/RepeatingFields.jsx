@@ -26,7 +26,7 @@ import {
   TranslatedText,
 } from '@tamanu/ui-components';
 import { SmallBodyText } from '../Typography';
-import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
+import { RepeatCharacteristicsDescription } from './OutpatientsBookingForm/RepeatCharacteristicsDescription';
 import { ENDS_MODES } from '../../constants/locationAssignments';
 
 const Container = styled('div')`
