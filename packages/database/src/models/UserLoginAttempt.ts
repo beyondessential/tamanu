@@ -108,7 +108,6 @@ export class UserLoginAttempt extends Model {
 
     // We need to add 1 to the failed attempts because the current attempt is not included in the count
     const outcome = failedAttempts + 1 >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
-    const remainingLockout = outcome === LOGIN_ATTEMPT_OUTCOMES.LOCKED ? lockoutDuration * 60 : 0;
     const loginAttempt = await this.create({
       userId,
       deviceId,
@@ -117,7 +116,7 @@ export class UserLoginAttempt extends Model {
 
     return {
       loginAttempt,
-      remainingLockout,
+      lockoutDuration: lockoutDuration * 60,
       remainingAttempts: Math.max(0, lockoutThreshold - failedAttempts - 1),
     };
   }
