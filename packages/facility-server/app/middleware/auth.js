@@ -1,25 +1,16 @@
-import { context, propagation, trace } from '@opentelemetry/api';
-import { sign as signCallback, verify as verifyCallback } from 'jsonwebtoken';
+import crypto from 'node:crypto';
+import { promisify } from 'node:util';
 import { compare } from 'bcrypt';
 import config from 'config';
-import { promisify } from 'util';
-import crypto from 'crypto';
-import { version } from '../../package.json';
-
-import { SERVER_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import {
-  AuthPermissionError,
-  ERROR_TYPE,
-  ForbiddenError,
-  InvalidCredentialError,
-  InvalidTokenError,
-  MissingCredentialError,
-} from '@tamanu/errors';
+import { sign as signCallback } from 'jsonwebtoken';
+import { context, propagation, trace } from '@opentelemetry/api';
+import { SERVER_TYPES } from '@tamanu/constants';
+import { AuthPermissionError, ERROR_TYPE, InvalidTokenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-
+import { version } from '../../package.json';
 import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
@@ -28,7 +19,6 @@ const { tokenDuration, secret } = config.auth;
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
 const jwtSecretKey = secret || crypto.randomUUID();
 const sign = promisify(signCallback);
-const verify = promisify(verifyCallback);
 
 export async function buildToken(user, facilityId, expiresIn = tokenDuration) {
   return sign(
@@ -94,17 +84,14 @@ export async function centralServerLogin(models, email, password, deviceId) {
   return { central: true, user, localisation, allowedFacilities };
 }
 
-async function localLogin(models, email, password) {
-  // some other error in communicating with central server, revert to local login
-  const user = await models.User.getForAuthByEmail(email);
-  log.info('User found: ', Boolean(user));
-
-  const passwordMatch = await comparePassword(user, password);
-
-  if (!passwordMatch) {
-    log.warn('Bad password match');
-    throw new InvalidCredentialError('Incorrect username or password, please try again');
-  }
+async function localLogin(models, settings, email, password) {
+  const { user } = await models.User.loginFromCredential(
+    {
+      email,
+      password,
+    },
+    { log, settings },
+  );
 
   const allowedFacilities = await user.allowedFacilities();
 
@@ -121,10 +108,10 @@ async function localLogin(models, email, password) {
   };
 }
 
-async function centralServerLoginWithLocalFallback(models, email, password, deviceId) {
+async function centralServerLoginWithLocalFallback(models, settings, email, password, deviceId) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
-    return localLogin(models, email, password);
+    return localLogin(models, settings, email, password);
   }
 
   try {
@@ -137,12 +124,12 @@ async function centralServerLoginWithLocalFallback(models, email, password, devi
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
-    return localLogin(models, email, password);
+    return localLogin(models, settings, email, password);
   }
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, deviceId } = req;
+  const { body, models, deviceId, settings } = req;
   const { email, password } = body;
 
   // no permission needed for login
@@ -150,7 +137,7 @@ export async function loginHandler(req, res, next) {
 
   try {
     const { central, user, localisation, allowedFacilities } =
-      await centralServerLoginWithLocalFallback(models, email, password, deviceId);
+      await centralServerLoginWithLocalFallback(models, settings, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -211,48 +198,25 @@ export async function refreshHandler(req, res) {
   res.send({ token });
 }
 
-async function decodeToken(token) {
-  try {
-    return await verify(token, jwtSecretKey);
-  } catch (e) {
-    throw new InvalidTokenError('Your session has expired or is invalid. Please log in again.');
-  }
-}
-
-function getTokenFromHeaders(request) {
-  const { headers } = request;
-  const authHeader = headers.authorization || '';
-  if (!authHeader) {
-    throw new ForbiddenError();
-  }
-  const bearer = authHeader.match(/Bearer (\S*)/);
-  if (!bearer) {
-    throw new MissingCredentialError(
-      'Your session has expired or is invalid. Please log in again.',
-    );
-  }
-
-  const token = bearer[1];
-  return token;
-}
-
-async function getUser(models, userId) {
-  const user = await models.User.findByPk(userId);
-  if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
-    throw new AuthPermissionError('Your session has expired or is invalid. Please log in again.');
-  }
-  return user;
-}
-
 export const authMiddleware = async (req, res, next) => {
+  const {
+    auth: { secret },
+    canonicalHostName,
+  } = config;
   const { models, settings } = req;
   try {
-    const token = getTokenFromHeaders(req);
+    const { token, user, facility, device } = await models.User.loginFromAuthorizationHeader(
+      req.headers.get('authorization'),
+      { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+    );
+
+    if (!facility) {
+      throw new InvalidTokenError('Missing facilityId in token');
+    }
+
     const sessionId = createSessionIdentifier(token);
-    const { userId, facilityId } = await decodeToken(token);
-    const user = await getUser(models, userId);
     req.user = user; // eslint-disable-line require-atomic-updates
-    req.facilityId = facilityId; // eslint-disable-line require-atomic-updates
+    req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
     req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
@@ -268,7 +232,7 @@ export const authMiddleware = async (req, res, next) => {
       access: async ({ recordId, params, model }) => {
         if (!auditSettings?.accesses.enabled) return;
         return req.models.AccessLog.create({
-          userId,
+          userId: user.id,
           recordId,
           recordType: model.name,
           sessionId,
@@ -276,8 +240,8 @@ export const authMiddleware = async (req, res, next) => {
           frontEndContext: params,
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
-          facilityId: req.facilityId,
-          deviceId: req.deviceId || 'unknown-device',
+          facilityId: facility.id,
+          deviceId: device?.id ?? req.deviceId ?? 'unknown-device',
           version,
         });
       },
@@ -288,8 +252,8 @@ export const authMiddleware = async (req, res, next) => {
       spanAttributes['enduser.id'] = req.user.id;
       spanAttributes['enduser.role'] = req.user.role;
     }
-    if (req.facilityId) {
-      spanAttributes['session.facilityId'] = req.facilityId;
+    if (facility) {
+      spanAttributes['session.facilityId'] = facility.id;
     }
 
     // eslint-disable-next-line no-unused-expressions

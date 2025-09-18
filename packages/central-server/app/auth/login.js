@@ -11,11 +11,13 @@ import { getRandomBase64String, getRandomU32, buildToken, stripUser } from './ut
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
-  const { auth, canonicalHostName } = config;
   const {
-    saltRounds,
-    refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
-  } = auth;
+    auth: {
+      saltRounds,
+      refreshToken: { refreshIdLength, tokenDuration: refreshTokenDuration },
+    },
+    canonicalHostName,
+  } = config;
 
   const refreshId = await getRandomBase64String(refreshIdLength);
   const refreshTokenJwtId = getRandomU32();
@@ -56,69 +58,60 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   return refreshToken;
 };
 
-export const login = ({ secret, refreshSecret }) =>
-  asyncHandler(async (req, res) => {
-    const {
-      store: {
-        models,
-        models: { User },
-      },
-      body,
-      settings,
-    } = req;
+export const login = asyncHandler(async (req, res) => {
+  const {
+    auth: {
+      secret,
+      tokenDuration,
+      refreshToken: { secret: refreshSecret },
+    },
+    canonicalHostName,
+  } = config;
+  const {
+    store: {
+      models,
+      models: { User },
+    },
+    body,
+    settings,
+  } = req;
 
-    const {
-      user,
-      device,
-      internalClient,
-      settings: userSettings,
-    } = await User.login(
-      {
-        ...body,
-        clientHeader: req.header('X-Tamanu-Client'),
-      },
-      { log, settings },
-    );
+  const {
+    token,
+    user,
+    device,
+    internalClient,
+    settings: userSettings,
+  } = await User.loginFromCredential(
+    {
+      ...body,
+      clientHeader: req.header('X-Tamanu-Client'),
+    },
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+  );
 
-    const { auth, canonicalHostName } = config;
-    const { tokenDuration } = auth;
-    const accessTokenJwtId = getRandomU32();
-    const [token, refreshToken, allowedFacilities, localisation, permissions, role] =
-      await Promise.all([
-        buildToken(
-          {
-            userId: user.id,
-            deviceId: device?.id,
-          },
-          secret,
-          {
-            expiresIn: tokenDuration,
-            audience: JWT_TOKEN_TYPES.ACCESS,
-            issuer: canonicalHostName,
-            jwtid: `${accessTokenJwtId}`,
-          },
-        ),
-        internalClient
-          ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId: device?.id })
-          : undefined,
-        user.allowedFacilities(),
-        getLocalisation(),
-        getPermissionsForRoles(models, user.role),
-        models.Role.findByPk(user.role),
-      ]);
+  const [refreshToken, allowedFacilities, localisation, permissions, role] = await Promise.all([
+    internalClient
+      ? getRefreshToken(models, { refreshSecret, userId: user.id, deviceId: device?.id })
+      : undefined,
+    user.allowedFacilities(),
+    getLocalisation(),
+    getPermissionsForRoles(models, user.role),
+    models.Role.findByPk(user.role),
+  ]);
 
-    // Send some additional data with login to tell the user about
-    // the context they've just logged in to.
-    res.send({
-      token,
-      refreshToken,
-      user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
-      permissions,
-      serverType: SERVER_TYPES.CENTRAL,
-      role: role?.forResponse() ?? null,
-      allowedFacilities,
-      localisation,
-      centralHost: config.canonicalHostName,
-      settings: userSettings,
-    });
+  // Send some additional data with login to tell the user about
+  // the context they've just logged in to.
+  res.send({
+    token,
+    refreshToken,
+    user: convertFromDbRecord(stripUser(user.get({ plain: true }))).data,
+    permissions,
+    serverType: SERVER_TYPES.CENTRAL,
+    role: role?.forResponse() ?? null,
+    allowedFacilities,
+    localisation,
+    centralHost: config.canonicalHostName,
+    settings: userSettings,
   });
+});

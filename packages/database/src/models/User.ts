@@ -1,12 +1,16 @@
+import { randomInt } from 'node:crypto';
+import { promisify } from 'node:util';
 import { compare, hash } from 'bcrypt';
-import { DataTypes, Sequelize } from 'sequelize';
+import { build as buildCallback, verify as verifyCallback } from 'jsonwebtoken';
 import { unionBy } from 'lodash';
+import { DataTypes, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
 import * as z from 'zod';
 import type { Subject } from '@casl/ability';
 import {
   CAN_ACCESS_ALL_FACILITIES,
   DEVICE_SCOPES,
+  JWT_TOKEN_TYPES,
   LOCKED_OUT_ERROR_MESSAGE,
   LOGIN_ATTEMPT_OUTCOMES,
   SERVER_TYPES,
@@ -15,8 +19,10 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import {
+  AuthPermissionError,
   ForbiddenError,
   InvalidCredentialError,
+  InvalidTokenError,
   MissingCredentialError,
   RateLimitedError,
 } from '@tamanu/errors';
@@ -30,6 +36,9 @@ import type { Device } from './Device';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 
 const DEFAULT_SALT_ROUNDS = 10;
+const MAX_U32_VALUE = 2 ** 32 - 1;
+const buildToken = promisify(buildCallback);
+const verifyToken = promisify(verifyCallback);
 
 export class User extends Model {
   declare id: string;
@@ -360,9 +369,9 @@ export class User extends Model {
     clientHeader: z.string().min(1).optional(),
   });
 
-  static async login(
+  static async loginFromCredential(
     payload: Record<string, any>,
-    { log, settings }: { log: Logger; settings: ReadSettings },
+    { log, settings, tokenSecret, tokenIssuer, tokenDuration }: LoginContext,
   ): Promise<LoginReturn> {
     const { Device, UserLoginAttempt } = this.sequelize.models;
     const {
@@ -372,11 +381,9 @@ export class User extends Model {
       deviceId,
       scopes = [],
       clientHeader,
-    } = this.LoginPayload.parse(payload);
-
-    if (!email || !password) {
-      throw new MissingCredentialError('Missing email or password');
-    }
+    } = await this.LoginPayload.parseAsync(payload).catch(error => {
+      throw new MissingCredentialError().withCause(error);
+    });
 
     const internalClient = Boolean(
       clientHeader && (Object.values(SERVER_TYPES) as string[]).includes(clientHeader),
@@ -402,6 +409,9 @@ export class User extends Model {
       await compare(password, '');
       // and return the same error (ish) data as for a true password mismatch
       throw new InvalidCredentialError();
+    }
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new AuthPermissionError('User no longer exists');
     }
 
     // Check if user is locked out
@@ -435,7 +445,7 @@ export class User extends Model {
       throw new InvalidCredentialError();
     }
 
-    // Manages necessary checks for device authorization (check or create accordingly)
+    // Manage necessary checks for device authorization (check or create accordingly)
     const device = await Device.ensureRegistration({ settings, user, deviceId, scopes });
 
     // Create successful login attempt
@@ -445,7 +455,22 @@ export class User extends Model {
       outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
     });
 
+    const token = await buildToken(
+      {
+        userId: user.id,
+        deviceId: device?.id,
+      },
+      tokenSecret,
+      {
+        expiresIn: tokenDuration,
+        audience: JWT_TOKEN_TYPES.ACCESS,
+        issuer: tokenIssuer,
+        jwtid: randomInt(0, MAX_U32_VALUE).toString(),
+      },
+    );
+
     return {
+      token,
       user,
       device,
       internalClient,
@@ -457,12 +482,100 @@ export class User extends Model {
           : undefined,
     };
   }
+
+  static async loginFromToken(
+    token: string,
+    { tokenSecret, tokenIssuer }: LoginContext,
+  ): Promise<LoginReturn> {
+    const { Device, Facility } = this.sequelize.models;
+
+    const contents = await verifyToken(token, tokenSecret, {
+      issuer: tokenIssuer,
+      audience: JWT_TOKEN_TYPES.ACCESS,
+    }).catch(() => {
+      throw new InvalidTokenError();
+    });
+
+    const TokenPayload = z.object({
+      userId: z.string().min(1),
+      deviceId: z.string().min(1).optional(),
+      facilityId: z.string().min(1).optional(),
+    });
+
+    const { userId, deviceId, facilityId } = await TokenPayload.parseAsync(contents).catch(
+      error => {
+        throw new InvalidTokenError('Invalid token payload').withCause(error);
+      },
+    );
+
+    const user = await this.findByPk(userId);
+    if (!user) {
+      throw new InvalidTokenError('User does not exist').withExtraData({
+        userId,
+      });
+    }
+    if (user.visibilityStatus !== VISIBILITY_STATUSES.CURRENT) {
+      throw new AuthPermissionError('User no longer exists');
+    }
+
+    const device = deviceId ? ((await Device.findByPk(deviceId)) ?? undefined) : undefined;
+    if (deviceId && !device) {
+      throw new InvalidTokenError('Device does not exist').withExtraData({
+        deviceId,
+      });
+    }
+
+    const facility = facilityId ? ((await Facility.findByPk(facilityId)) ?? undefined) : undefined;
+    if (facilityId && !facility) {
+      throw new InvalidTokenError('Facility does not exist').withExtraData({
+        facilityId,
+      });
+    }
+
+    return {
+      token,
+      user,
+      device,
+      facility,
+    };
+  }
+
+  static async loginFromAuthorizationHeader(
+    header: string | undefined | null,
+    context: LoginContext,
+  ): Promise<LoginReturn> {
+    if (!header) {
+      throw new MissingCredentialError('Missing authorization header');
+    }
+
+    const prefix = 'Bearer ';
+    if (header.startsWith(prefix)) {
+      throw new InvalidCredentialError('Only Bearer token is supported');
+    }
+
+    const token = header.slice(prefix.length);
+    if (token.length === 0) {
+      throw new MissingCredentialError('Missing authorization token');
+    }
+
+    return await this.loginFromToken(token, context);
+  }
+}
+
+export interface LoginContext {
+  log: Logger;
+  settings: ReadSettings;
+  tokenDuration: number;
+  tokenIssuer: string;
+  tokenSecret: string;
 }
 
 export interface LoginReturn {
+  token: string;
   user: User;
   device?: Device;
-  internalClient: boolean;
+  facility?: Facility;
+  internalClient?: boolean;
   settings?: {
     [key: string]: string | number | object;
   };
