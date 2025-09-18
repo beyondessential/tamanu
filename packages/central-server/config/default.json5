@@ -376,6 +376,11 @@
       // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!
