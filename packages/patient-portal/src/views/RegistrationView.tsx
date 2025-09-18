@@ -18,6 +18,17 @@ const IconDisplay = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
+const getErrorMessage = (error: Error) => {
+  const { message } = error;
+  if (message.includes('Invalid registration token')) {
+    return 'Broken registration link';
+  }
+  if (message.includes('Verification code has expired')) {
+    return 'Registration link expired';
+  }
+  return 'An error occurred while verifying registration';
+};
+
 const useVerifyRegistration = () => {
   const api = useApi();
 
@@ -46,7 +57,7 @@ export const RegistrationView = () => {
       {error ? (
         <>
           <Typography mb={2} variant="h2">
-            Registration link expired
+            {getErrorMessage(error)}
           </Typography>
           <Typography variant="body1" gutterBottom>
             Please contact the sending facility to resend a new link.
