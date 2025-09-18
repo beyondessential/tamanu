@@ -11,7 +11,7 @@ import {
 
 import { Model } from './Model';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
@@ -225,7 +225,7 @@ export class User extends Model {
     ];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 

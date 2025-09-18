@@ -1,7 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
@@ -91,9 +91,9 @@ export class ImagingResult extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
+      select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['imaging_requests', 'encounters']),
     };
   }

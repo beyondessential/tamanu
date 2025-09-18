@@ -2,7 +2,7 @@ import { upperFirst } from 'lodash';
 import { DataTypes, Op } from 'sequelize';
 import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
@@ -87,9 +87,9 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterLinkedLookupSelect(this),
+      select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, [
         {
           model: this.sequelize.models.SurveyResponse,

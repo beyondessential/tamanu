@@ -22,10 +22,16 @@ remove_irrelevant_packages() {
   # remove from npm workspace list all packages that aren't the ones we're building
   cp package.json{,.working}
   scripts/list-packages.mjs -- --no-shared -- --paths \
+    | tee debug.json \
     | jq \
       --arg wanted "$1" \
       '(. - ["packages/\($wanted)"])' \
-    > /tmp/unwanted.json
+    > /tmp/unwanted.json || true
+    if [[ ! -s /tmp/unwanted.json ]]; then
+      stat debug.json || true
+      cat debug.json || true
+      exit 1
+    fi
 
   # erase from the package.json
   jq \

@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '../errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same

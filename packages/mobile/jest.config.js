@@ -6,7 +6,14 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
-    '\\.(ts|tsx)$': '<rootDir>/../../node_modules/ts-jest',
+    '\\.(ts|tsx)$': [
+      '<rootDir>/../../node_modules/ts-jest',
+      {
+        diagnostics: {
+          warnOnly: true,
+        },
+      },
+    ],
   },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/../../node_modules/', 'e2e'],
@@ -27,13 +34,6 @@ module.exports = {
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
     '/presentation(.*)$': '<rootDir>/App/presentation$1',
-  },
-  globals: {
-    'ts-jest': {
-      diagnostics: {
-        warnOnly: true,
-      },
-    },
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };

@@ -5,7 +5,7 @@ import {
   REFERENCE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { QueryTypes } from 'sequelize';
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/central-server",
-  "version": "2.41.0",
+  "version": "2.42.0",
   "private": true,
   "description": "Central server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -51,6 +51,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@socket.io/postgres-adapter": "^0.3.1",
     "@tamanu/database": "*",
+    "@tamanu/errors": "*",
     "@tamanu/shared": "*",
     "@tamanu/upgrade": "*",
     "@tamanu/utils": "*",

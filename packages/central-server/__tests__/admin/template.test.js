@@ -74,7 +74,7 @@ describe('Patient merge', () => {
     expect(response.body).toMatchObject({
       error: {
         message: 'Template name must be unique',
-        name: 'SequelizeValidationError',
+        name: 'DatabaseValidationError',
       },
     });
   });
@@ -94,7 +94,7 @@ describe('Patient merge', () => {
     expect(response.body).toMatchObject({
       error: {
         message: 'Template name must be unique',
-        name: 'SequelizeValidationError',
+        name: 'DatabaseValidationError',
       },
     });
   });
