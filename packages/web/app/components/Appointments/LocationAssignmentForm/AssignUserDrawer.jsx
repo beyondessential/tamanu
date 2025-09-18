@@ -14,7 +14,7 @@ import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError } from '../../../utils';
-import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
+import { FormSubmitCancelRow, ButtonRow } from '@tamanu/ui-components';
 import { Button } from '../../Button';
 import { Drawer } from '../../Drawer';
 import {
