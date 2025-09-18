@@ -1,3 +1,4 @@
+import { ERROR_TYPE } from '@tamanu/errors';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -37,7 +38,18 @@ export const login =
       const loginInfo = await api.login(email, password);
       await handleLoginSuccess(dispatch, loginInfo);
     } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, error: error.message });
+      let message = error.message;
+      if (error.type === ERROR_TYPE.RATE_LIMITED) {
+        message = `You have been locked out due to too many log in attempts. Please try again in ${Math.ceil(
+          error.extra.get('retry-after') / 60,
+        )} minutes.`;
+      } else if (error.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && error.extra.has('lockout-attempts')) {
+        const attemptsLeft = error.extra.get('lockout-attempts');
+        const lockoutDuration = Math.ceil((error.extra.get('lockout-duration') ?? 0) / 60);
+        const lockoutWarning = lockoutDuration > 0 ? ` before you are locked out for ${lockoutDuration} minutes` : '';
+        message = `${error.title}, please try again.\n\nYou have ${attemptsLeft} more log in attempts${lockoutWarning}.`;
+      }
+      dispatch({ type: LOGIN_FAILURE, error: message });
     }
   };
 
@@ -116,7 +128,13 @@ export const requestPasswordReset =
       await api.requestPasswordReset(email);
       dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
     } catch (error) {
-      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
+      let message = error.message;
+      if (error.type === ERROR_TYPE.RATE_LIMITED) {
+        message = `User locked out. ${Math.ceil(
+          error.extra.get('retry-after') / 60,
+        )} minutes remaining.`;
+      }
+      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
     }
   };
 
