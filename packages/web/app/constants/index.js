@@ -1,4 +1,5 @@
 export { TAMANU_COLORS as Colors } from '@tamanu/ui-components';
+export {FORM_TYPES} from '@tamanu/constants';
 export * from './binary.js';
 export * from './births.js';
 export * from './documents.js';
