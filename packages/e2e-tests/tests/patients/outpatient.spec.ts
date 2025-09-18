@@ -37,7 +37,7 @@ test.describe('outpatient table tests', () => {
     });
 
     test('Search by department', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
-      const patientDepartment = testData.departmentName;
+      const patientDepartment = testData.department;
       await outpatientsPage.searchTable({ department: patientDepartment, advancedSearch: true });
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientDepartment, 'departmentName');
@@ -58,14 +58,14 @@ test.describe('outpatient table tests', () => {
         firstName: newPatientWithClinicAdmission.firstName,
         lastName: newPatientWithClinicAdmission.lastName,
         area: testData.areaName,
-        department: testData.departmentName,
+        department: testData.department,
         clinician: currentUser.displayName,
         advancedSearch: true,
       });
       await outpatientsPage.validateOneSearchResult();
       await outpatientsPage.validateFirstRowContainsNHN(newPatientWithClinicAdmission.displayId);
       await outpatientsPage.validateAllRowsContain(testData.areaName, 'locationGroupName');
-      await outpatientsPage.validateAllRowsContain(testData.departmentName, 'departmentName');
+      await outpatientsPage.validateAllRowsContain(testData.department, 'departmentName');
       await outpatientsPage.validateAllRowsContain(currentUser.displayName, 'clinician');
     });
 
@@ -76,7 +76,7 @@ test.describe('outpatient table tests', () => {
         firstName: newPatientWithClinicAdmission.firstName,
         lastName: newPatientWithClinicAdmission.lastName,
         area: testData.areaName,
-        department: testData.departmentName,
+        department: testData.department,
         clinician: currentUser.displayName,
         advancedSearch: true,
       });
