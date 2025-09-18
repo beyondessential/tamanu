@@ -1221,11 +1221,6 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
-            allowUnprotected: {
-              description: 'Allow mobile devices without screen lock with passcode',
-              type: yup.boolean(),
-              defaultValue: false,
-            },
           },
         },
       },
@@ -1238,6 +1233,11 @@ export const globalSettings = {
           properties: {
             allowUnencryptedStorage: {
               description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
               type: yup.boolean(),
               defaultValue: false,
             },
