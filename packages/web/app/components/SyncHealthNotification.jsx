@@ -1,9 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-import { ApiContext } from '../api';
+import { ApiContext, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`

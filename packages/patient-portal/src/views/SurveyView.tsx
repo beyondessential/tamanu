@@ -3,7 +3,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { getAnswersFromData } from '@tamanu/ui-components';
+import { getAnswersFromData, AuthContext } from '@tamanu/ui-components';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 import { useSubmitSurveyResponse } from '@api/mutations';
@@ -56,20 +56,28 @@ export const SurveyView = () => {
     return null;
   }
 
+  /**
+   * The facilityId is captured from the facility where the survey was assigned. Provided to
+   * the survey in the portal for suggesters to filter data correctly.
+   */
+  const { facilityId } = survey.portalSurveyAssignment;
+
   return (
     <Container>
       <Header p={2}>
         <Title variant="h2">{survey.name}</Title>
       </Header>
       <Box p={2}>
-        <SurveyForm
-          patientAdditionalData={additionalData}
-          encounterType={encounterType}
-          patient={patient}
-          survey={survey}
-          onSubmit={onSubmit}
-          onCancel={onCancel}
-        />
+        <AuthContext.Provider value={{ facilityId }}>
+          <SurveyForm
+            patientAdditionalData={additionalData}
+            encounterType={encounterType}
+            patient={patient}
+            survey={survey}
+            onSubmit={onSubmit}
+            onCancel={onCancel}
+          />
+        </AuthContext.Provider>
       </Box>
     </Container>
   );
