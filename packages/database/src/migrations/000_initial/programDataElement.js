@@ -19,6 +19,7 @@ const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   'SurveyResult',
   'Autocomplete',
   'Photo',
+  'Signature',
   'Geolocate',
   'DaysSince',
   'MonthsSince',
