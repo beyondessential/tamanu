@@ -1240,17 +1240,17 @@ export const globalSettings = {
           properties: {
             lockoutThreshold: {
               description: 'Number of failed attempts before account is locked',
-              type: yup.number(),
+              type: yup.number().positive().integer(),
               defaultValue: 10,
             },
             observationWindow: {
               description: 'Time interval in minutes that attempts must occur within',
-              type: yup.number(),
+              type: yup.number().positive().integer(),
               defaultValue: 10,
             },
             lockoutDuration: {
               description: 'Duration of lockout in minutes',
-              type: yup.number(),
+              type: yup.number().positive(),
               defaultValue: 10,
             },
           },
