@@ -7,6 +7,7 @@ import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../c
 import { Colors } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
+import { LoginAlert } from './LoginForm';
 
 const ResetPasswordButton = styled(FormSubmitButton)`
   font-size: 14px;
@@ -52,7 +53,7 @@ const ResetPasswordFormComponent = ({ errorMessage, onNavToLogin }) => {
             data-testid="translatedtext-6vjp"
           />
         </FormSubtext>
-        {!!errorMessage && <FormSubtext data-testid="formsubtext-bvu8">{errorMessage}</FormSubtext>}
+        {!!errorMessage && <LoginAlert data-testid="formsubtext-bvu8">{errorMessage}</LoginAlert>}
       </div>
       <Field
         autoComplete="email"
