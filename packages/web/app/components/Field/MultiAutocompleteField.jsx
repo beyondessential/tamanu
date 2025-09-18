@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
@@ -8,6 +8,7 @@ import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
 import { FormHelperText } from '@material-ui/core';
 import { SelectDropdownIndicator, SelectMultiValueRemove, Select } from '../Select';
+import { CheckControl } from './CheckField';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -26,7 +27,7 @@ const StyledSelect = styled(Select)`
   .react-select__control {
     padding-right: 8px;
     min-height: 39px;
-    border-color: ${(props) => props.$borderColor || Colors.outline};
+    border-color: ${props => props.$borderColor || Colors.outline};
     border-radius: 3px;
   }
   .react-select__control--is-focused {
@@ -45,7 +46,7 @@ const StyledSelect = styled(Select)`
   .react-select__placeholder {
     color: ${Colors.softText};
     line-height: 1;
-    ${(p) => p.size === 'small' && 'font-size: 11px;'}
+    ${p => p.size === 'small' && 'font-size: 11px;'}
   }
 
   .react-select__multi-value {
@@ -85,10 +86,12 @@ const StyledSelect = styled(Select)`
   .react-select__option {
     color: ${Colors.darkestText};
     cursor: pointer;
-    padding: 10px 15px;
+    padding: 13px 15px;
     font-size: 13px;
     display: inline-flex;
-    ${(p) => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
+    align-items: center;
+    line-height: 1;
+    ${p => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
     &:hover {
       background-color: ${Colors.background};
     }
@@ -97,15 +100,50 @@ const StyledSelect = styled(Select)`
       padding-left: 4px;
     }
   }
+
+  .react-select__group {
+    &:not(:last-child) {
+      border-bottom: 1px solid ${Colors.outline};
+    }
+    padding: 0;
+  }
+
+  .react-select__group-heading {
+    background-color: ${Colors.white};
+    text-transform: none;
+    font-size: 14px;
+    color: ${Colors.darkestText};
+    font-weight: 400;
+    margin-bottom: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
 `;
 
 const StyledTick = styled.svg`
   margin-right: 3px;
-  margin-top: 6px;
+  margin-top: 2px;
   flex-shrink: 0;
 `;
 
-const MultiValue = (props) => {
+const GroupLabel = styled.div`
+  padding-top: 8px;
+  padding-bottom: 4px;
+`;
+
+const StyledCheckControl = styled(CheckControl)`
+  padding: 0;
+  margin-right: 6px;
+  margin-left: ${props => (props.value ? '11px' : '0')};
+  height: fit-content;
+  i {
+    margin: 0;
+  }
+`;
+
+const ALL_OPTIONS_VALUE = 'ALL_OPTIONS';
+
+const MultiValue = props => {
   const { getTranslation } = useTranslation();
   const { index, clearValue, removeProps, getValue, data, selectProps } = props;
   const selected = getValue();
@@ -113,7 +151,7 @@ const MultiValue = (props) => {
 
   useEffect(() => {
     if (index === 0 && data?.value && !data.label) {
-      selectProps.fetchCurrentOption(data.value).then((option) => {
+      selectProps.fetchCurrentOption(data.value).then(option => {
         setLabel(option.label);
       });
     }
@@ -143,32 +181,52 @@ const MultiValue = (props) => {
   );
 };
 
-const Option = (props) => {
+const Option = props => {
+  const { isAllOptionsSelected, allowSelectAll, value, ...rest } = props;
+  const isSelected =
+    rest.isSelected || (value === ALL_OPTIONS_VALUE && isAllOptionsSelected && allowSelectAll);
   const children = (
     <>
-      {props.isSelected && (
-        <StyledTick
-          width="8"
-          height="6"
-          viewBox="0 0 8 6"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          data-testid="styledtick-ror3"
-        >
-          <path
-            d="M7.82857 1.02L3.25714 5.82C3.14286 5.94 3.02857 6 2.85714 6C2.68571 6 2.57143 5.94 2.45714 5.82L0.171429 3.42C-0.0571429 3.18 -0.0571429 2.82 0.171429 2.58C0.4 2.34 0.742857 2.34 0.971428 2.58L2.85714 4.56L7.02857 0.18C7.25714 -0.06 7.6 -0.06 7.82857 0.18C8.05714 0.42 8.05714 0.78 7.82857 1.02Z"
-            fill={Colors.primary}
-          />
-        </StyledTick>
+      {allowSelectAll ? (
+        <StyledCheckControl value={isSelected} />
+      ) : (
+        isSelected && (
+          <StyledTick
+            width="8"
+            height="6"
+            viewBox="0 0 8 6"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            data-testid="styledtick-ror3"
+          >
+            <path
+              d="M7.82857 1.02L3.25714 5.82C3.14286 5.94 3.02857 6 2.85714 6C2.68571 6 2.57143 5.94 2.45714 5.82L0.171429 3.42C-0.0571429 3.18 -0.0571429 2.82 0.171429 2.58C0.4 2.34 0.742857 2.34 0.971428 2.58L2.85714 4.56L7.02857 0.18C7.25714 -0.06 7.6 -0.06 7.82857 0.18C8.05714 0.42 8.05714 0.78 7.82857 1.02Z"
+              fill={Colors.primary}
+            />
+          </StyledTick>
+        )
       )}
       <span>{props.children}</span>
     </>
   );
   return (
-    <components.Option {...props} isFocused={false} data-testid="option-75zd">
+    <components.Option
+      {...props}
+      isFocused={false}
+      isSelected={isSelected}
+      data-testid="option-75zd"
+    >
       {children}
     </components.Option>
   );
+};
+
+const Group = props => {
+  return <components.Group {...props} />;
+};
+
+const GroupHeading = props => {
+  return <components.GroupHeading {...props} />;
 };
 
 export const MultiAutocompleteInput = ({
@@ -181,6 +239,7 @@ export const MultiAutocompleteInput = ({
   placeholder,
   helperText,
   maxSelected = 10,
+  allowSelectAll = false,
   ...props
 }) => {
   const { getTranslation } = useTranslation();
@@ -188,26 +247,78 @@ export const MultiAutocompleteInput = ({
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState([]);
 
+  const isAllOptionsSelected = options.every(option =>
+    selected.some(s => s.value === option.value),
+  );
+
+  const groupedOptions = useMemo(() => {
+    if (!allowSelectAll) return options;
+    const selectedOptions = options.filter(option => selected.some(s => s.value === option.value));
+
+    if (!options.length) return [];
+
+    return [
+      ...(selectedOptions.length && !isAllOptionsSelected
+        ? [
+            {
+              label: (
+                <GroupLabel>
+                  {getTranslation(
+                    'general.multiAutocompleteField.yourSelections',
+                    'Your selections',
+                  )}
+                </GroupLabel>
+              ),
+              options: selectedOptions,
+            },
+          ]
+        : []),
+      {
+        label: '',
+        options: [
+          {
+            value: ALL_OPTIONS_VALUE,
+            label: getTranslation('general.multiAutocompleteField.selectAll', 'Select all'),
+          },
+        ],
+      },
+      {
+        label: '',
+        options,
+      },
+    ];
+  }, [options, selected, getTranslation, allowSelectAll, isAllOptionsSelected]);
+
   useEffect(() => {
     // fill initial values
     setSelected(
       Array.isArray(value)
-        ? value.map((v) => ({ value: v, label: selected.find((s) => s.value === v)?.label }))
+        ? value.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label }))
         : [],
     );
   }, [value]);
 
   const handleChange = useCallback(
-    (selectedOptions) => {
+    selectedOptions => {
+      if (allowSelectAll && selectedOptions.some(s => s.value === ALL_OPTIONS_VALUE)) {
+        if (isAllOptionsSelected) {
+          setSelected([]);
+          onChange({ target: { value: [], name } });
+        } else {
+          setSelected(options);
+          onChange({ target: { value: options.map(x => x.value), name } });
+        }
+        return;
+      }
       setSelected(selectedOptions);
-      const newValue = selectedOptions.map((x) => x.value);
+      const newValue = selectedOptions.map(x => x.value);
       onChange({ target: { value: newValue, name } });
     },
-    [onChange, name],
+    [options, onChange, name, allowSelectAll, isAllOptionsSelected],
   );
 
   const handleLoadOption = useCallback(
-    debounce(async (search) => {
+    debounce(async search => {
       try {
         const options = await suggester.fetchSuggestions(search);
         setOptions(options);
@@ -232,11 +343,11 @@ export const MultiAutocompleteInput = ({
       <StyledFormControl {...props} data-testid="styledformcontrol-td30">
         <StyledSelect
           value={selected}
-          options={options}
+          options={groupedOptions}
           classNamePrefix="react-select"
           isMulti
           isOptionDisabled={() => {
-            return selected.length >= maxSelected;
+            return !allowSelectAll && selected.length >= maxSelected;
           }}
           $borderColor={props.error ? Colors.alert : null}
           closeMenuOnSelect={false}
@@ -252,7 +363,15 @@ export const MultiAutocompleteInput = ({
             DropdownIndicator: SelectDropdownIndicator,
             MultiValue,
             MultiValueRemove: SelectMultiValueRemove,
-            Option,
+            Option: props => (
+              <Option
+                {...props}
+                isAllOptionsSelected={isAllOptionsSelected}
+                allowSelectAll={allowSelectAll}
+              />
+            ),
+            Group,
+            GroupHeading,
           }}
           onChange={handleChange}
           onMenuOpen={() => handleLoadOption(inputValue)}
