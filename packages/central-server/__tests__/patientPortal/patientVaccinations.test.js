@@ -32,6 +32,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       Location,
       Department,
       User,
+      Setting,
     } = store.models;
 
     // Create a test village
@@ -106,6 +107,8 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       patientId: testPatient.id,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
+
+    await Setting.set('features.patientPortal', true);
 
     // Login to get auth token
     authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
