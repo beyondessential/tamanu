@@ -26,6 +26,8 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     store = ctx.store;
     const { Patient, PortalUser, ReferenceData, Setting } = store.models;
 
+    await Setting.set('features.patientPortal', true);
+    
     // Create a test village
     testVillage = await ReferenceData.create(
       fake(ReferenceData, {
@@ -53,8 +55,6 @@ describe('Patient Portal Registration Verification Endpoint', () => {
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       status: PORTAL_USER_STATUSES.UNREGISTERED,
     });
-
-    await Setting.set('features.patientPortal', true);
 
     // Initialize token service
     oneTimeTokenService = new PortalOneTimeTokenService(store.models);

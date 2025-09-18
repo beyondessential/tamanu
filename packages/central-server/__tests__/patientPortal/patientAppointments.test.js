@@ -24,6 +24,8 @@ describe('Patient Portal Appointments Endpoints', () => {
     store = ctx.store;
     const { Patient, PortalUser, ReferenceData, Facility, LocationGroup, User, Setting } = store.models;
 
+    await Setting.set('features.patientPortal', true);
+    
     // Create a test village
     testVillage = await ReferenceData.create(
       fake(ReferenceData, {
@@ -76,8 +78,6 @@ describe('Patient Portal Appointments Endpoints', () => {
       patientId: testPatient.id,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
-
-    await Setting.set('features.patientPortal', true);
 
     // Login to get auth token
     authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
