@@ -105,11 +105,12 @@ export const STEPS: Steps = [
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
       try {
+        const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
+
         const defaultTranslationsPath = path.join(
-          __dirname, // scripts
-          '..', // src
-          '..', // upgrade
-          'dist',
+          updateDistCjsIndexJsPath,
+          '..', // cjs
+          '..', // dist
           'default-translations.json',
         );
 
