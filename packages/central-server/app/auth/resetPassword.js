@@ -3,8 +3,8 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as yup from 'yup';
 import { addMinutes } from 'date-fns';
-
-import { COMMUNICATION_STATUSES } from '@tamanu/constants';
+import { RateLimitedError } from '@tamanu/errors';
+import { COMMUNICATION_STATUSES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { getRandomBase64String } from './utils';
 
@@ -30,7 +30,7 @@ resetPassword.post(
     const { email, deviceId } = body;
 
     const user = await models.User.getForAuthByEmail(email);
-    const { isUserLockedOut } = user ? await models.UserLoginAttempt.checkIsUserLockedOut({
+    const { isUserLockedOut, remainingLockout } = user ? await models.UserLoginAttempt.checkIsUserLockedOut({
       models,
       settings,
       userId: user.id,
@@ -47,6 +47,7 @@ resetPassword.post(
       // regardless of whether it's valid or not.
     } else if (isUserLockedOut) {
       log.info(`Trying to login with locked user account: ${email}`);
+      throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
     } else {
       const token = await createOneTimeLogin(models, user);
       await sendResetEmail(req.emailService, user, token);
