@@ -20,18 +20,6 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
-const getLoginError = (error: Error) => {
-  const { message } = error;
-  if (
-    message.includes('Verification code has expired') ||
-    message.includes('Invalid verification code')
-  ) {
-    return message;
-  }
-
-  return 'An error occurred while logging in.';
-};
-
 /**
  * Mask the email address so that the last characters of the local part are visible.
  * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
@@ -116,7 +104,7 @@ export const LoginView = () => {
           <VerificationCodeInput
             name="verificationCode"
             error={!!loginError}
-            helperText={loginError ? getLoginError(loginError) : ''}
+            helperText={loginError ? loginError.message : ''}
             onFocus={() => {
               if (!loginError) return;
               // Reset error state when the input is re-focused after submitting
