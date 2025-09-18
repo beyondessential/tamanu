@@ -16,9 +16,9 @@
       "/interfaces/*": ["App/ui/interfaces/*"],
       "/helpers/*": ["App/ui/helpers/*"],
       "/types/*": ["App/types/*"],
-      "/navigation/*": ["App/ui/navigation/*"],      
-      "/containers/*":["App/ui/containers/*"],
-      "/contexts/*":["App/ui/contexts/*"],
+      "/navigation/*": ["App/ui/navigation/*"],
+      "/containers/*": ["App/ui/containers/*"],
+      "/contexts/*": ["App/ui/contexts/*"],
       "/store/*": ["App/ui/store/*"],
       "/models/*": ["App/ui/models/*"],
       "/services/*": ["App/ui/services/*"],
@@ -28,7 +28,7 @@
       "/presentation/*": ["App/presentation/*"],
       "/migrations/*": ["App/migrations/*"]
     },
-    "moduleResolution": "nodenext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "jsx": "react",
     "lib": ["es2019"],
@@ -37,10 +37,5 @@
     "noImplicitThis": false,
     "target": "es2019"
   },
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "metro.config.js",
-    "jest.config.mjs"
-  ]
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.mjs"]
 }
