@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { PatientInfoPane } from '../app/components/PatientInfoPane';
 import { MockedApi } from './utils/mockedApi';
+import { MockSettingsProvider } from './utils/mockSettingsProvider';
 
 const endpoints = {
   'patient/:id/conditions': () => {
@@ -40,7 +41,9 @@ const Container = styled.div`
 storiesOf('PatientInfoPane', module)
   .addDecorator(story => (
     <Container>
-      <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      <MockSettingsProvider mockSettings={{}}>
+        <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      </MockSettingsProvider>
     </Container>
   ))
   .add('Basic Example', () => <PatientInfoPane />);

@@ -3,9 +3,11 @@ import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
-import { Button } from '../../components/Button';
+
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
+
 import { useEncounter } from '../../contexts/Encounter';
-import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useTranslation } from '../../contexts/Translation';
@@ -14,13 +16,12 @@ import {
   useReferenceDataQuery,
   usePatientConditionsQuery,
 } from '../../api/queries';
-import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 import { printPDF, PDFLoader } from '../../components/PatientPrinting/PDFLoader';
 import { useEncounterDischargeQuery } from '../../api/queries/useEncounterDischargeQuery';
 import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   height: calc(100vh - 142px);
 `;
 

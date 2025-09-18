@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
 
 export const TableTooltip = styled(({ className, children, placement = 'top', ...props }) => (
   <Tooltip
@@ -18,8 +19,8 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
   pointer-events: auto;
 
   & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.primaryDark};
+    color: ${TAMANU_COLORS.white};
     font-weight: 400;
     font-size: 0.6875rem;
     line-height: 15px;
@@ -32,7 +33,7 @@ export const TableTooltip = styled(({ className, children, placement = 'top', ..
     -webkit-box-orient: vertical;
     text-align: center;
     & .MuiTooltip-arrow {
-      color: ${Colors.primaryDark};
+      color: ${TAMANU_COLORS.primaryDark};
     }
   }
 `;

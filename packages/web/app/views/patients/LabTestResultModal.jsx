@@ -1,20 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 
-import { Colors } from '../../constants';
+import { TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+
+import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const ModalBody = styled.div`
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
   grid-column-gap: 30px;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 20px 30px 0px;
   margin: 20px 0px 40px;
@@ -26,7 +25,7 @@ const ModalHeader = styled.div`
 `;
 
 const VerticalDivider = styled.div`
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   height: 60%;
 `;
 
@@ -34,7 +33,7 @@ const ValueContainer = styled.div`
   margin-bottom: 20px;
 `;
 const TitleLabel = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 const ValueLabel = styled(BodyText)`
   font-weight: 500;

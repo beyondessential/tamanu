@@ -5,15 +5,15 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
-import { Colors, denseTableStyle } from '../../constants';
+import { denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
 import { DateDisplay } from '../DateDisplay';
-import { TranslatedText } from '../Translation';
 import { ThemedTooltip } from '../Tooltip';
 
 const StyledTitleCell = ({ value }) => (
-  <Box sx={{ color: Colors.midText, fontWeight: 400 }} data-testid="box-f4ea">
+  <Box sx={{ color: TAMANU_COLORS.midText, fontWeight: 400 }} data-testid="box-f4ea">
     {value}
   </Box>
 );
@@ -159,10 +159,10 @@ export const InvoiceItemsTable = ({ invoice }) => {
       }
       allowExport={false}
       elevated={false}
-      headerColor={Colors.white}
+      headerColor={TAMANU_COLORS.white}
       fetchOptions={{ page: undefined, order: undefined }}
       rowStyle={() => 'height: 40px;'}
-      headerTextColor={Colors.midText}
+      headerTextColor={TAMANU_COLORS.midText}
       containerStyle={denseTableStyle.container}
       cellStyle={denseTableStyle.cell}
       headStyle={denseTableStyle.head}

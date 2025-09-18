@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { Paper } from '../../components';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ProgramsPane = styled(Paper)`
   background: white;
@@ -15,7 +15,7 @@ export const ProgramsPane = styled(Paper)`
 export const ProgramsPaneHeader = styled.div`
   padding: 30px;
   margin: -30px -30px 30px -30px;
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   &::first-letter {
     text-transform: uppercase;
   }

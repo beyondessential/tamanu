@@ -7,9 +7,8 @@ import { useLocation } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { UnstyledHtmlButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
-import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { ThemedTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';
@@ -25,7 +24,7 @@ const Tile = styled(UnstyledHtmlButton)`
   border-radius: 0.3125rem;
   border-style: solid;
   border-width: max(0.0625rem, 1px);
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   cursor: pointer;
   display: grid;
   gap: 0.3125rem;
@@ -40,7 +39,7 @@ const Tile = styled(UnstyledHtmlButton)`
     background-color: var(--bg-darker);
   }
 
-  ${({ $color = Colors.blue, $selected = false }) => css`
+  ${({ $color = TAMANU_COLORS.blue, $selected = false }) => css`
     --bg-lighter: oklch(from ${$color} l c h / 10%);
     --bg-darker: oklch(from ${$color} l c h / 20%);
     @supports not (color: oklch(from black l c h)) {
@@ -151,7 +150,7 @@ export const AppointmentTile = ({
               <HighPriorityIcon
                 aria-label="High priority"
                 aria-hidden={undefined}
-                htmlColor={Colors.alert}
+                htmlColor={TAMANU_COLORS.alert}
                 style={{ fontSize: 15 }}
                 data-testid={`highpriorityicon-c3ug-${testIdPrefix}`}
               />
@@ -160,7 +159,7 @@ export const AppointmentTile = ({
               <OvernightIcon
                 aria-label="Overnight booking"
                 aria-hidden={undefined}
-                htmlColor={Colors.primary}
+                htmlColor={TAMANU_COLORS.primary}
                 style={{ fontSize: 15 }}
                 data-testid={`overnighticon-wbfe-${testIdPrefix}`}
               />

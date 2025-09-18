@@ -2,14 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
-import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
-import { FormGrid } from '../FormGrid';
+import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding-bottom: 1.2rem;
 `;
 

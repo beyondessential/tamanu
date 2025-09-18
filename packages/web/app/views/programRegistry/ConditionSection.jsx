@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { sortBy } from 'lodash';
 import { Divider, ButtonBase } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
-import { Heading5, TranslatedText } from '../../components';
+import { Heading5 } from '../../components';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionalTooltip } from '../../components/Tooltip';
-import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { useTranslation } from '../../contexts/Translation';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
@@ -22,7 +22,7 @@ const Container = styled.div`
 const ScrollBody = styled.div`
   flex: 1;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 5px 0;
   overflow: auto;
 `;
@@ -49,7 +49,7 @@ const ClippedConditionName = styled.span`
 `;
 
 const ConditionCategory = styled.span`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const getGroupedConditions = conditions => {

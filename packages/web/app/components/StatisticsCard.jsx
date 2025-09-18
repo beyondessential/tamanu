@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const Container = styled.div`
   flex: 1;
-  border-right: 1px solid ${Colors.outline};
+  border-right: 1px solid ${TAMANU_COLORS.outline};
 
   &:last-child {
     border-right: none;
@@ -15,7 +15,7 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  color: ${Colors.white};
+  color: ${TAMANU_COLORS.white};
   background: ${(props) => props.background};
   text-align: center;
   font-weight: 500;
@@ -43,7 +43,7 @@ const ValueText = styled.span`
 `;
 
 const PercentageText = styled.div`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   font-size: 18px;
   align-self: center;
   display: ${(props) => props.percentage === 0 && 'none'};
@@ -57,7 +57,7 @@ const PercentageText = styled.div`
 const FooterContainer = styled.div`
   padding: 10px 0 15px;
   text-align: center;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
 
   svg {
     font-size: 21px;
@@ -113,6 +113,6 @@ export const StatisticsCardContainer = styled.div`
   display: flex;
   border-radius: 3px;
   overflow: hidden;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;

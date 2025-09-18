@@ -4,7 +4,7 @@ import AccessTime from '@material-ui/icons/AccessTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants/encounters';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
@@ -71,11 +71,11 @@ const FooterLabel = styled.span`
   font-size: 14px;
   line-height: 18px;
   margin-right: 5px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const FooterTime = styled(FooterLabel)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const CardFooter = ({ averageWaitTime, color }) => {

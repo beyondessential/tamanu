@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
-import { Button } from '../../Button';
-import { Colors, denseTableStyle } from '../../../constants';
+import { denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
@@ -30,7 +30,7 @@ const PaneHeader = styled.div`
   padding-top: 8px;
   padding-bottom: 8px;
   background: white;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const BulkAddButton = styled(Button)`
@@ -46,7 +46,7 @@ const Container = styled.div`
   padding-right: 15px;
   background: white;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 
   ::-webkit-scrollbar {
     width: 5px;
@@ -60,13 +60,13 @@ const Container = styled.div`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${Colors.softText};
+    background: ${TAMANU_COLORS.softText};
     border-radius: 5px;
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: ${Colors.softText};
+    background: ${TAMANU_COLORS.softText};
   }
 `;
 
@@ -232,7 +232,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         allowExport={false}
         rowStyle={potentialInvoiceItemRowStyle}
         onDataFetched={onPotentialInvoiceItemsFetched}
-        headerColor={Colors.white}
+        headerColor={TAMANU_COLORS.white}
         fetchOptions={{ page: undefined }}
         elevated={false}
         isEmpty={isEmptyPotentialInvoiceItems}

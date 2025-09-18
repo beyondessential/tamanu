@@ -1,17 +1,16 @@
 import React from 'react';
 import { parseISO, startOfWeek } from 'date-fns';
 import { VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants/vaccines';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import {
   DateDisplay,
   MenuButton,
   NoteModalActionBlocker,
-  OutlinedButton,
   TableCellTag,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
-import { Colors } from '../../constants';
 
 export const getVaccineName = record =>
   record.vaccineName || (
@@ -44,7 +43,7 @@ export const getDueDate = record => {
 export const getGiver = record => {
   if (record.status === VACCINE_STATUS.NOT_GIVEN) {
     return (
-      <TableCellTag $background="#4444441a" $color={Colors.darkestText}>
+      <TableCellTag $background="#4444441a" $color={TAMANU_COLORS.darkestText}>
         <TranslatedText stringId="vaccine.property.status.notGiven" fallback="Not given" />
       </TableCellTag>
     );
@@ -83,7 +82,7 @@ export const getActionButtons = ({ onItemClick, onItemEditClick, onItemDeleteCli
         <TranslatedText stringId="general.action.view" fallback="View" />
       </OutlinedButton>
       <MarginedMenuButton
-        iconColor={Colors.primary}
+        iconColor={TAMANU_COLORS.primary}
         actions={[
           {
             label: <TranslatedText stringId="general.action.edit" fallback="Edit" />,

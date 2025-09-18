@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { ApiContext } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
@@ -18,7 +18,7 @@ const Container = styled.div`
   p {
     margin: 0;
   }
-  background: ${Colors.alert};
+  background: ${TAMANU_COLORS.alert};
 `;
 
 export const SyncHealthNotificationComponent = () => {

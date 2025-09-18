@@ -1,8 +1,7 @@
 import React from 'react';
 import { useApi } from '../../../api';
 import { DeleteEncounterForm } from '../../../forms/DeleteEncounterForm';
-import { Modal } from '../../../components/Modal';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 
 export const DeleteEncounterModal = ({ open, onClose, encounterToDelete, patient }) => {
   const api = useApi();

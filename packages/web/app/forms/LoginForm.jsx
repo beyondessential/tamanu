@@ -3,35 +3,30 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
   CheckField,
   Field,
-  Form,
-  FormSubmitButton,
-  TextButton,
-  TextField,
 } from '../components';
-import { Colors } from '../constants';
+import { TextField, Form, FormGrid, FormSubmitButton, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding: 10px 0;
 `;
 
 const LoginHeading = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
 `;
 
 const LoginSubtext = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding-top: 10px;
 `;
 
@@ -48,7 +43,7 @@ const ForgotPasswordButton = styled(TextButton)`
   font-weight: 400;
 
   :hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     font-weight: 500;
     text-decoration: underline;
   }

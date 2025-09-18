@@ -30,7 +30,7 @@ import { DeathForm } from '../../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../../app/forms/FamilyHistoryForm';
 import { LabRequestSummaryPane } from '../../app/views/patients/components/LabRequestSummaryPane';
 import { createDummySuggester, mapToSuggestions } from '../utils';
-import { Modal } from '../../app/components/Modal';
+import { Modal } from '@tamanu/ui-components';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { fakeLabRequest } from '../../.storybook/__mocks__/defaultEndpoints';
 import { MockSettingsProvider } from '../utils/mockSettingsProvider.jsx';

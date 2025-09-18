@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
+
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
+import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { useSelectableColumn } from '../../Table';
-import { ConfirmCancelRow } from '../../ButtonRow';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi } from '../../../api';
-import { Colors } from '../../../constants';
 
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
 import { FormDivider, PrintMultipleSelectionTable } from './PrintMultipleSelectionTable';
@@ -165,7 +165,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
             data-testid="translatedtext-url5"
           />
         }
-        headerColor={Colors.white}
+        headerColor={TAMANU_COLORS.white}
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequestsData || []}
         elevated={false}

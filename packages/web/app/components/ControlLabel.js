@@ -1,13 +1,13 @@
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Colors } from '../constants';
+import {TAMANU_COLORS} from '@tamanu/ui-components';
 
 export const ControlLabel = styled(FormControlLabel)`
   margin: 0;
   padding: 10px 12px 10px 10px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   justify-content: center;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
 
   span {
     font-size: 14px;

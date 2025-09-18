@@ -1,22 +1,20 @@
 import React, { Fragment } from 'react';
 import {
   Field,
-  FormGrid,
   NumberField,
-  TextField,
   TranslatedReferenceData,
   TranslatedText,
 } from '../../components';
+import { TextField, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 import { TranslatedOptionSelectField } from '../../components/Translation/TranslatedOptions';
 
 const StyledHeading = styled.div`
   font-weight: 500;
   font-size: 16px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   margin-bottom: 30px;
 `;
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import MaterialTable from '@material-ui/core/Table';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableBody from '@material-ui/core/TableBody';
@@ -8,19 +9,15 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableFooter from '@material-ui/core/TableFooter';
-
-import { Colors } from '../../constants';
 import { Paginator } from './Paginator.jsx';
-
-import { TranslatedText } from '../../components/Translation';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 const StyledFixedTable = styled(MaterialTable)`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px 3px 0 0;
   border-collapse: unset;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
 
   table-layout: fixed;
   width: 100%;
@@ -31,7 +28,7 @@ const StyledFixedTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${Colors.background};
+  background: ${TAMANU_COLORS.background};
 `;
 
 const StyledTableHeaderCell = styled(TableCell)`
@@ -45,7 +42,7 @@ const StyledTableDataCell = styled(TableCell)`
 `;
 
 const StyledTableFooter = styled(TableFooter)`
-  background: ${Colors.background};
+  background: ${TAMANU_COLORS.background};
   width: 100%;
 
   tr:last-child td {

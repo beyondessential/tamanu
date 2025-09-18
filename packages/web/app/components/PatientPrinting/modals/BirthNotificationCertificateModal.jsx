@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import { Modal } from '../../Modal';
+import { Modal } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useCertificate } from '../../../utils/useCertificate';

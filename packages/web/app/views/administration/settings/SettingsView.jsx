@@ -5,16 +5,16 @@ import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { applyDefaults, validateSettings } from '@tamanu/settings';
+import { Form, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { Form, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
-import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
@@ -26,7 +26,7 @@ const SETTING_TABS = {
 
 const StyledTabDisplay = styled(TabDisplay)`
   height: 100%;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   > div:last-child {
     flex: 1;
   }
@@ -38,7 +38,7 @@ const TabContainer = styled.div`
   padding-top: 0.75rem;
   display: flex;
   flex-direction: column;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
 `;
 
 const tabs = [

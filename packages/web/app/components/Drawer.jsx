@@ -2,20 +2,21 @@ import Collapse, { collapseClasses } from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import React from 'react';
 import styled from 'styled-components';
+import EditIcon from '@material-ui/icons/Edit';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../constants';
 import { ClearIcon as CloseDrawerIcon } from './Icons';
 import { BodyText, Heading4 } from './Typography';
 
 const StyledCollapse = styled(Collapse)`
   &.${collapseClasses.root} {
     z-index: 20;
-    background-color: ${Colors.background};
+    background-color: ${TAMANU_COLORS.background};
     block-size: 100%;
 
     // Cannot simply use ‘collapseClasses.entered’, because during transition neither class applies
     &:not(.${collapseClasses.hidden}) {
-      border-inline-start: max(0.0625rem, 1px) ${Colors.outline} solid;
+      border-inline-start: max(0.0625rem, 1px) ${TAMANU_COLORS.outline} solid;
     }
   }
 `;
@@ -33,7 +34,7 @@ const Wrapper = styled.div`
 
 const Header = styled.div`
   align-items: baseline;
-  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+  border-block-end: max(0.0625rem, 1px) ${TAMANU_COLORS.outline} solid;
   display: grid;
   grid-template-columns: 1fr auto;
   padding-block: 1rem 0.75rem;
@@ -41,7 +42,7 @@ const Header = styled.div`
 `;
 
 const Title = styled(Heading4)`
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
   font-size: 1rem;
   margin-block: 0;
 `;
@@ -61,9 +62,21 @@ const DrawerBody = styled.section`
 `;
 
 const Description = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   font-size: 0.75rem;
   margin-block-end: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: space-between;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  svg {
+    color: ${TAMANU_COLORS.primary};
+    width: 1rem;
+    height: 1rem;
+  }
 `;
 
 export const Drawer = ({
@@ -72,6 +85,7 @@ export const Drawer = ({
   title,
   description,
   children,
+  onEdit,
   orientation = 'horizontal',
   ...props
 }) => {
@@ -90,7 +104,16 @@ export const Drawer = ({
           </IconButton>
         </Header>
         <DrawerBody data-testid="drawerbody-9l6q">
-          {description && <Description data-testid="description-eo9s">{description}</Description>}
+          {description && (
+            <Description data-testid="description-eo9s">
+              {description}
+              {onEdit && (
+                <StyledIconButton aria-label="Edit" data-testid="iconbutton-edit" onClick={onEdit}>
+                  <EditIcon />
+                </StyledIconButton>
+              )}
+            </Description>
+          )}
           {children}
         </DrawerBody>
       </Wrapper>

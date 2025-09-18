@@ -10,11 +10,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Search from '@mui/icons-material/Search';
 
 import { CheckboxIconChecked, CheckboxIconUnchecked } from '../Icons/CheckboxIcon';
-import { Colors } from '../../constants';
-import { TextButton } from '../Button';
 import { useSuggesterOptions } from '../../hooks';
 import { TranslatedText } from '../Translation';
-import { TextInput } from './TextField';
+import { TextInput, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledTextInput = styled(TextInput)`
   .MuiInputBase-input {
@@ -24,7 +22,7 @@ const StyledTextInput = styled(TextInput)`
 
 const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     font-size: 0.9375rem;
   }
 
@@ -45,19 +43,19 @@ const OptionsContainer = styled(Box)`
   overflow-y: auto;
   padding-block: 0.5rem;
   padding-inline: 0;
-  border-block-start: 1px solid ${Colors.outline};
+  border-block-start: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const StyledInputButton = styled(Button)`
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   font-size: 0.875rem;
   line-height: 1.125rem;
   padding-inline: 0.9375rem;
   text-transform: none;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   :hover {
-    background-color: ${Colors.veryLightBlue};
-    border-color: ${Colors.outline};
+    background-color: ${TAMANU_COLORS.veryLightBlue};
+    border-color: ${TAMANU_COLORS.outline};
   }
 
   ${({ $highlight }) => {
@@ -65,8 +63,8 @@ const StyledInputButton = styled(Button)`
       $highlight &&
       `
         background-color: #cfe3f6;
-        border-color: ${Colors.outline};
-        color: ${Colors.darkestText};
+        border-color: ${TAMANU_COLORS.outline};
+        color: ${TAMANU_COLORS.darkestText};
       `
     );
   }}
@@ -74,7 +72,7 @@ const StyledInputButton = styled(Button)`
   ${({ $open }) =>
     $open &&
     `
-      border-color: ${Colors.primary};
+      border-color: ${TAMANU_COLORS.primary};
     `}
 `;
 
@@ -106,12 +104,12 @@ export const SearchMultiSelectInput = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const [searchValue, setSearchValue] = useState('');
 
-  const handleOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleOpen = event => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
-  const handleSelectOption = (optionValue) => {
+  const handleSelectOption = optionValue => {
     const newSelected = value.includes(optionValue)
-      ? value.filter((v) => v !== optionValue) // remove if already selected
+      ? value.filter(v => v !== optionValue) // remove if already selected
       : [...value, optionValue]; // add if not selected
 
     onChange({ target: { value: newSelected, name } });
@@ -154,7 +152,7 @@ export const SearchMultiSelectInput = ({
               placeholder={`Search ${label.toLowerCase()}`}
               style={{ paddingInlineStart: 0 }}
               value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
+              onChange={e => setSearchValue(e.target.value)}
               size="small"
               data-testid={`styledtextinput-ryvy-${name}`}
             />
@@ -171,9 +169,9 @@ export const SearchMultiSelectInput = ({
         <OptionsContainer data-testid={`optionscontainer-nneh-${name}`}>
           {options.length > 0 ? (
             options
-              .filter((option) => option.label.toLowerCase().includes(searchValue.toLowerCase()))
+              .filter(option => option.label.toLowerCase().includes(searchValue.toLowerCase()))
               .sort((a, b) => a.label.localeCompare(b.label))
-              .map((option) => (
+              .map(option => (
                 <StyledMenuItem
                   key={`${name}-${option.value}`}
                   onClick={() => handleSelectOption(option.value)}

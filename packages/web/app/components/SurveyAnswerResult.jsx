@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { Button } from '@tamanu/ui-components';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { DateDisplay } from './DateDisplay';
-import { Button } from './Button';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
+import { TranslatedOption } from './Translation/TranslatedOptions';
 import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
 
 const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
@@ -40,6 +40,8 @@ export const SurveyAnswerResult = ({
       return parseFloat(answer).toFixed(1);
     case PROGRAM_DATA_ELEMENT_TYPES.PHOTO:
       return <ViewPhotoLink imageId={answer} data-testid="viewphotolink-w78m" />;
+    case PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE:
+      return <ViewPhotoLink imageId={answer} data-testid="viewsignaturelink-w78m" />;
     case PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE:
       return <DateDisplay date={answer} data-testid="datedisplay-q1xj" />;
     case PROGRAM_DATA_ELEMENT_TYPES.DATE:

@@ -2,11 +2,10 @@ import React from 'react';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { Field, Form, TextField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import { TextField, Form, FormGrid, TAMANU_COLORS, ConfirmCancelRow, TranslatedText } from '@tamanu/ui-components';
+import { Field } from '../../Field';
+import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
-import { Colors } from '../../../constants';
 import { formatTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
@@ -24,28 +23,28 @@ const StyledDivider = styled(Divider)`
 
 const DetailsContainer = styled(Box)`
   padding: 12px 16px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   position: relative;
 `;
 
 const MidText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const VerticalSeparator = styled.div`
   width: 1px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   margin: 0 20px;
 `;
 export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) => {

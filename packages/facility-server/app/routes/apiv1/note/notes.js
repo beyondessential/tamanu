@@ -58,7 +58,7 @@ noteRoute.get(
 
     await req.audit.access({
       recordId: noteId,
-      params,
+      frontEndContext: params,
       model: models.Note,
     });
 

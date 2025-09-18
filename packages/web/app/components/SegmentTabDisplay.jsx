@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-
 import { Tab, Tabs } from '@material-ui/core';
-import { Colors } from '../constants';
+
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const TabBar = styled.div`
   display: flex;
@@ -19,22 +19,22 @@ const TabBar = styled.div`
 `;
 
 const TabContainer = styled(Tabs)`
-  background: ${Colors.white};
-  border: 1px solid ${Colors.primary};
+  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.primary};
   border-radius: 25px;
   width: auto;
   height: 10px;
 
   .MuiTab-root {
     min-height: 32px;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 
   .Mui-selected {
     margin: 3px;
     border-radius: 25px;
     color: white;
-    background-color: ${Colors.primary};
+    background-color: ${TAMANU_COLORS.primary};
     height: 10px;
   }
 `;

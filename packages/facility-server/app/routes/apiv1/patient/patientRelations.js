@@ -122,7 +122,7 @@ patientRelations.get(
     if (additionalDataRecord) {
       await req.audit.access({
         recordId: additionalDataRecord.id,
-        params,
+        frontEndContext: params,
         model: models.PatientAdditionalData,
         facilityId,
       });

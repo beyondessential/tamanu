@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
-import { Colors } from '../../../constants';
 import { formatValue } from '../../FormattedTableCell';
 import { InwardArrowVectorIcon } from '../../Icons/VitalVectorIcon';
 import { CustomDot } from './CustomDot';
@@ -29,7 +29,7 @@ const Wrapper = styled(FlexColumn)`
 `;
 
 const TimeText = styled.span`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 const CustomDotWrapper = styled.div`
   padding: 1px;

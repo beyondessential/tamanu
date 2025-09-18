@@ -1,8 +1,8 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import styled from '@mui/system/styled';
-import { Colors } from '../../../constants';
-import { ConfirmCancelRow } from '../../ButtonRow';
+
+import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 const FlexCol = styled(Box)`
   display: flex;
@@ -16,7 +16,7 @@ const FlexRow = styled(Box)`
 
 const Label = styled(`span`)`
   font-weight: 400;
-  font-color: ${Colors.midText};
+  font-color: ${TAMANU_COLORS.midText};
 `;
 
 const Value = styled(`span`)`
@@ -32,15 +32,15 @@ const DetailDisplay = ({ label, value }) => (
 
 const AppointmentDetailsContainer = styled(FlexRow)`
   font-size: 0.875rem;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding-block: 1.5rem;
 `;
 
 const OptionsContainer = styled(FlexCol)`
   font-size: 0.875rem;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   padding: 1.5rem;
 `;
 
@@ -51,14 +51,14 @@ const AppointmentDetailsColumn = styled(FlexCol)`
 `;
 
 const AppointmentDetailsColumnLeft = styled(AppointmentDetailsColumn)`
-  border-inline-end: 1px solid ${Colors.outline};
+  border-inline-end: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const BottomModalContainer = styled(Box)`
   padding-block: 2rem;
   padding-inline: 2.5rem;
-  border-block-start: 1px solid ${Colors.outline};
-  background-color: ${Colors.background};
+  border-block-start: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${TAMANU_COLORS.background};
 `;
 
 const StyledConfirmCancelRow = styled(ConfirmCancelRow)`

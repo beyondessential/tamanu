@@ -4,6 +4,7 @@ import { Box, Divider } from '@material-ui/core';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import CancelIcon from '@material-ui/icons/Cancel';
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TASK_STATUSES, TASK_ACTIONS, TASK_DURATION_UNIT } from '@tamanu/constants';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { differenceInHours, parseISO, addMilliseconds, subMilliseconds } from 'date-fns';
@@ -12,11 +13,9 @@ import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import {
   BodyText,
   SmallBodyText,
-  TranslatedText,
   useSelectableColumn,
   DataFetchingTable,
 } from '../.';
-import { Colors } from '../../constants';
 import useOverflow from '../../hooks/useOverflow';
 import { ThemedTooltip } from '../Tooltip';
 import { TaskActionModal } from './TaskActionModal';
@@ -25,7 +24,7 @@ import ms from 'ms';
 import { useEncounter } from '../../contexts/Encounter';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   font-size: 16px;
   position: absolute;
   left: -8px;
@@ -40,12 +39,12 @@ const StyledTable = styled(DataFetchingTable)`
   border-radius: 0px;
   overflow: visible;
   .MuiTableCell-head {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 8px !important;
     padding-bottom: 8px !important;
     span {
       font-weight: 400;
-      color: ${Colors.midText} !important;
+      color: ${TAMANU_COLORS.midText} !important;
     }
     padding-left: 7px;
     padding-right: 7px;
@@ -100,7 +99,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
   }
   .MuiTableFooter-root {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     .MuiPagination-root {
       padding-top: 6px;
       padding-bottom: 6px;
@@ -115,7 +114,7 @@ const StyledTable = styled(DataFetchingTable)`
 const StatusTodo = styled.div`
   width: 15px;
   height: 15px;
-  border: 1px dashed ${Colors.blue};
+  border: 1px dashed ${TAMANU_COLORS.blue};
   border-radius: 50%;
 `;
 
@@ -148,19 +147,19 @@ const TooltipContainer = styled.div`
 
 const StyledDeleteOutlineIcon = styled(DeleteOutlineIcon)`
   font-size: 18px;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   vertical-align: middle;
 `;
 
 const StyledCancelIcon = styled(CancelIcon)`
   font-size: 18px;
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   vertical-align: middle;
 `;
 
 const StyledCheckCircleIcon = styled(CheckCircleIcon)`
   font-size: 18px;
-  color: ${Colors.green};
+  color: ${TAMANU_COLORS.green};
   vertical-align: middle;
 `;
 
@@ -174,8 +173,8 @@ const NoDataContainer = styled.div`
   justify-content: center;
   padding: 0 17%;
   white-space: normal;
-  background: ${Colors.hoverGrey};
-  color: ${Colors.primary};
+  background: ${TAMANU_COLORS.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const StyledDivider = styled(Divider)`
@@ -226,7 +225,7 @@ const getCompletedTooltipText = ({ completedBy, completedTime, completedNote }) 
     />
     <div>{completedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(completedTime)} </span>
+      <span color={TAMANU_COLORS.midText}>{formatShortest(completedTime)} </span>
       <LowercaseText data-testid="lowercasetext-5r41">{formatTime(completedTime)}</LowercaseText>
     </div>
     <div>{completedNote}</div>
@@ -242,7 +241,7 @@ const getNotCompletedTooltipText = ({ notCompletedBy, notCompletedTime, notCompl
     />
     <div>{notCompletedBy.displayName}</div>
     <div>
-      <span color={Colors.midText}>{formatShortest(notCompletedTime)} </span>
+      <span color={TAMANU_COLORS.midText}>{formatShortest(notCompletedTime)} </span>
       <LowercaseText data-testid="lowercasetext-w9wo">{formatTime(notCompletedTime)}</LowercaseText>
     </div>
     <div>{notCompletedReason?.name}</div>
@@ -281,7 +280,7 @@ const getDueTime = ({ dueTime }) => {
       <BodyText sx={{ textTransform: 'lowercase' }} data-testid="bodytext-24uw">
         {formatTime(dueTime)}
       </BodyText>
-      <SmallBodyText color={Colors.midText} data-testid="smallbodytext-7kv1">
+      <SmallBodyText color={TAMANU_COLORS.midText} data-testid="smallbodytext-7kv1">
         {formatShortest(dueTime)}
       </SmallBodyText>
     </div>

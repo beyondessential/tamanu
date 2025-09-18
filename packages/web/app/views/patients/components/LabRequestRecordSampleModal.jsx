@@ -1,20 +1,17 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
+import { Form, FormGrid, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 
 const validationSchema = yup.object().shape({
@@ -61,20 +58,20 @@ const StyledField = styled(Field)`
     margin-bottom: 31px;
   }
   .MuiInputBase-root.Mui-disabled {
-    background: ${Colors.background};
+    background: ${TAMANU_COLORS.background};
   }
   .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
+    border-color: ${TAMANU_COLORS.softOutline};
   }
   .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${Colors.softOutline};
+    border-color: ${TAMANU_COLORS.softOutline};
   }
 `;
 
 const FieldContainer = styled.div`
   position: relative;
-  background-color: ${Colors.white};
-  border: 1px solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 18px;
   margin-bottom: 28px;
@@ -82,7 +79,7 @@ const FieldContainer = styled.div`
 
 const HorizontalLine = styled.div`
   height: 1px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
   position: absolute;
   top: 61px;
   left: 0;

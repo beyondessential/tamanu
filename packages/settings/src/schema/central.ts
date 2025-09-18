@@ -6,6 +6,7 @@ import {
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
+  datelessTimeStringSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
 
@@ -26,6 +27,28 @@ export const centralSettings = {
               description: 'The minimum gigabytes required to upload documents',
               type: yup.number().positive(),
               defaultValue: 16,
+            },
+          },
+        },
+      },
+    },
+    survey: {
+      name: 'Survey settings',
+      description: '_',
+      properties: {
+        defaultCodes: {
+          description:
+            'Default reference data codes to use when creating a survey encounter on patient portal',
+          properties: {
+            department: {
+              description: 'Default department code',
+              type: yup.string(),
+              defaultValue: 'GeneralClinic',
+            },
+            location: {
+              description: 'Default location code',
+              type: yup.string(),
+              defaultValue: 'GeneralClinic',
             },
           },
         },
@@ -56,10 +79,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },
@@ -98,6 +118,34 @@ export const centralSettings = {
             },
           },
         },
+      },
+    },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        assignmentSlots: {
+          description: 'Configure the available time slots for assigning locations to users',
+          properties: {
+            startTime: {
+              description:
+                'The earliest start time for an assignment. Uses 24-hour time, e.g. 13:30.',
+              type: datelessTimeStringSchema,
+              defaultValue: '09:00',
+            },
+            endTime: {
+              description:
+                'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+            slotDuration: {
+              description:
+                'The length of each assignment slot. A single assignment may span multiple consecutive slots. Supported units: ‘min’, ‘h’.',
+              type: durationStringSchema('slotDuration'),
+              defaultValue: '30min',
+            },
+          },
+        },        
       },
     },
   },

@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
+import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
-import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
@@ -27,12 +26,12 @@ const CoreComplexChartInfoWrapper = styled.div`
 const CoreComplexChartInfoHeader = styled.span`
   font-weight: 500;
   margin-right: 5px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 const CoreComplexChartSingleInfoWrapper = styled.span`
   margin-right: 20px;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 export const CoreComplexChartData = ({

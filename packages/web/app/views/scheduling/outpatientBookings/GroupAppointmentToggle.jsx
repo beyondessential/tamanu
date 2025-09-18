@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import { useHistory } from 'react-router-dom';
 
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
 import { TranslatedText } from '../../../components';
 import { useOutpatientAppointmentsContext } from '../../../contexts/OutpatientAppointments';
@@ -20,9 +20,9 @@ const Wrapper = styled(Box)`
   position: relative;
   justify-content: space-between;
   padding: 0.125rem;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   border-radius: calc(infinity * 1px);
-  border: max(0.0625rem, 1px) solid ${Colors.primary};
+  border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.primary};
   user-select: none;
 `;
 
@@ -30,7 +30,7 @@ const ToggleButton = styled('button')`
   cursor: pointer;
   position: relative;
   appearance: none;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   border: none;
   background: none;
   width: 6.65rem;
@@ -39,7 +39,7 @@ const ToggleButton = styled('button')`
   font-family: inherit;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   &[aria-checked='true'] {
-    color: ${Colors.white};
+    color: ${TAMANU_COLORS.white};
   }
 `;
 ToggleButton.defaultProps = { role: 'radio' };
@@ -50,7 +50,7 @@ const AnimatedBackground = styled('div')`
   left: 0.2rem;
   height: 2rem;
   border-radius: 50px;
-  background-color: ${Colors.primary};
+  background-color: ${TAMANU_COLORS.primary};
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   transform: ${({ $toggled }) => ($toggled ? 'translateX(6.563rem)' : 'translateX(0)')};
 `;

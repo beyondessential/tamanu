@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { formatShortest, formatTime } from '@tamanu/utils/dateTime';
-import { Colors } from '../../../constants';
 
 const TextFontSize = 11;
 const xAxisTickTimeY = 23;
@@ -19,14 +19,14 @@ export const CustomisedXAxisTick = (props) => {
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <Text x={0} y={9} textAnchor="middle" fill={Colors.darkText} data-testid="text-ch4x">
+      <Text x={0} y={9} textAnchor="middle" fill={TAMANU_COLORS.darkText} data-testid="text-ch4x">
         {formatShortest(date)}
       </Text>
       <Text
         x={0}
         y={xAxisTickTimeY}
         textAnchor="middle"
-        fill={Colors.midText}
+        fill={TAMANU_COLORS.midText}
         data-testid="text-cydx"
       >
         {formatTime(date)}
@@ -50,7 +50,7 @@ export const CustomisedYAxisTick = (props) => {
 
   return (
     <g transform={`translate(${x},${y})`}>
-      <Text x={0} y={textY} textAnchor="end" fill={Colors.darkText} data-testid="text-24h9">
+      <Text x={0} y={textY} textAnchor="end" fill={TAMANU_COLORS.darkText} data-testid="text-24h9">
         {value}
       </Text>
     </g>

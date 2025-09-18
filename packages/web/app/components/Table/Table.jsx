@@ -1,3 +1,4 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 /**
  * Tamanu
  * Copyright (c) 2018-2022 Beyond Essential Systems Pty Ltd
@@ -20,7 +21,6 @@ import { PaperStyles } from '../Paper';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useSettings } from '../../contexts/Settings';
-import { Colors } from '../../constants';
 import { ThemedTooltip } from '../Tooltip';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { Paginator } from './Paginator';
@@ -70,7 +70,7 @@ const StyledTableRow = styled(TableRow)`
       ? `
       cursor: pointer;
       &:hover {
-        background: ${Colors.veryLightBlue};
+        background: ${TAMANU_COLORS.veryLightBlue};
       }
     `
       : ''}
@@ -94,7 +94,7 @@ const StyledTableContainer = styled.div`
   border-radius: 5px;
   background: white;
   width: 100%;
-  border: 1px solid ${(props) => (props.$borderColor ? props.$borderColor : Colors.outline)};
+  border: 1px solid ${(props) => (props.$borderColor ? props.$borderColor : TAMANU_COLORS.outline)};
   ${(props) => (props.$elevated ? PaperStyles : null)};
   ${(props) => (props.containerStyle ? props.containerStyle : null)}
 `;
@@ -165,17 +165,17 @@ const StyledTableHead = styled(TableHead)`
       top: 0;
   `
       : ``}
-  background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
+  background: ${(props) => (props.$headerColor ? props.$headerColor : TAMANU_COLORS.background)};
   white-space: nowrap;
   .MuiTableCell-head {
-    background: ${(props) => (props.$headerColor ? props.$headerColor : Colors.background)};
+    background: ${(props) => (props.$headerColor ? props.$headerColor : TAMANU_COLORS.background)};
     ${(props) => (props.$fixedHeader ? 'top: 0; position: sticky;' : '')}
   }
   ${(props) => (props.$headStyle ? props.$headStyle : '')}
 `;
 
 const StyledTableFooter = styled(TableFooter)`
-  background: ${Colors.background};
+  background: ${TAMANU_COLORS.background};
 
   tr:last-child td {
     border-bottom: none;
@@ -183,11 +183,11 @@ const StyledTableFooter = styled(TableFooter)`
 `;
 
 const ActiveSortIcon = styled(ExpandMore)`
-  color: ${Colors.darkestText} !important;
+  color: ${TAMANU_COLORS.darkestText} !important;
 `;
 
 const InactiveSortIcon = styled(ActiveSortIcon)`
-  color: ${Colors.midText} !important;
+  color: ${TAMANU_COLORS.midText} !important;
 `;
 
 const HeaderContainer = React.memo(({ children, numeric }) => (
@@ -601,15 +601,15 @@ class TableComponent extends React.Component {
         isBodyScrollable
         containerStyle={containerStyle}
         $borderColor={
-          noDataBackgroundColor !== Colors.white && !(data?.length || isLoading)
+          noDataBackgroundColor !== TAMANU_COLORS.white && !(data?.length || isLoading)
             ? noDataBackgroundColor
-            : Colors.outline
+            : TAMANU_COLORS.outline
         }
         data-testid="styledtablecontainer-3ttp"
       >
         {TableHeader && TableHeader}
         <StyledTable
-          $backgroundColor={data?.length || isLoading ? Colors.white : noDataBackgroundColor}
+          $backgroundColor={data?.length || isLoading ? TAMANU_COLORS.white : noDataBackgroundColor}
           data-testid="styledtable-1dlu"
         >
           {!hideHeader && (
@@ -718,7 +718,7 @@ TableComponent.defaultProps = {
   allowExport: true,
   lazyLoading: false,
   isLoadingMore: false,
-  noDataBackgroundColor: Colors.white,
+  noDataBackgroundColor: TAMANU_COLORS.white,
   isBodyScrollable: false,
   getRowTooltip: null,
 };

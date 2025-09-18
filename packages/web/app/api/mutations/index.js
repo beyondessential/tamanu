@@ -7,3 +7,10 @@ export * from './usePatientPaymentsMutation';
 export * from './useNotificationsMutation';
 export { useUserPreferencesMutation } from './useUserPreferencesMutation';
 export { useUpdateProgramRegistryMutation } from './useUpdateProgramRegistryMutation';
+export { useRegisterPatientPortal } from './useRegisterPatientPortal';
+export * from './useUserMutation';
+export {
+  useLocationAssignmentMutation,
+  useLocationAssignmentOverlappingAssignmentsMutation,
+} from './useLocationAssignmentMutation';
+export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';

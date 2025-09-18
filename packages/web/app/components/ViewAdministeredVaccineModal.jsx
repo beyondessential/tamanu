@@ -5,11 +5,9 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
-import { Colors } from '../constants';
+import { TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Modal } from './Modal';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../contexts/Translation.jsx';
@@ -18,36 +16,36 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: ${Colors.white};
-  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
+  background-color: ${TAMANU_COLORS.white};
+  ${(props) => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const DisplayField = styled.div`
   width: 50%;
   padding-right: 15px;
   padding-bottom: 20px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
 
   &:nth-child(2n) {
-    ${props => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
-    ${props => (props.$editMode ? `padding-left: 15px;` : '')}
+    ${(props) => (props.$editMode ? `border-left: 1px solid ${TAMANU_COLORS.outline};` : '')}
+    ${(props) => (props.$editMode ? `padding-left: 15px;` : '')}
   }
 `;
 
 const Label = styled.div`
   font-weight: 400;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const FieldGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 90%;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 
   &:last-of-type {
     border-bottom: none;

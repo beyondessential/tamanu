@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { Modal } from '../../Modal';
+import { TranslatedText, TranslatedReferenceData, Modal } from '@tamanu/ui-components';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
-import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useSettings } from '../../../contexts/Settings';
 
 const Container = styled.div`

@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
 import { useHistory } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
-
-import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
+import { Heading4 } from '../../../components';
 import { useAutoUpdatingQuery } from '../../../api/queries/useAutoUpdatingQuery';
 import { useAuth } from '../../../contexts/Auth';
 import { APPOINTMENT_GROUP_BY } from '../../scheduling/outpatientBookings/OutpatientAppointmentsView';
@@ -17,10 +16,10 @@ const Container = styled.div`
   ${({ showTasks }) => showTasks && 'flex-grow: 1; width: 100%;'}
   min-width: 366px;
   min-height: 51%;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   padding-top: 15px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   display: flex;
   flex-direction: column;
 `;
@@ -29,7 +28,7 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   padding-bottom: 6px;
   margin: 0 20px 11px;
 `;
@@ -50,8 +49,8 @@ const StyledContentContainer = styled(Box)`
 const StyledProgressBarContainer = styled.div`
   padding: 10px;
   border-radius: 3px;
-  border: 1px solid ${Colors.outline};
-  background-color: ${Colors.offWhite};
+  border: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${TAMANU_COLORS.offWhite};
 `;
 
 const ProgressBar = styled.div`
@@ -67,7 +66,7 @@ const ProgressBar = styled.div`
     width: ${({ percentage }) => `${percentage}%`};
     height: 100%;
     border-radius: 10px;
-    background-color: ${Colors.green};
+    background-color: ${TAMANU_COLORS.green};
   }
 `;
 
@@ -96,8 +95,8 @@ const NoDataContainer = styled.div`
   margin: 0 20px 20px;
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.primary};
-  background-color: ${Colors.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
+  background-color: ${TAMANU_COLORS.hoverGrey};
   text-align: center;
 `;
 

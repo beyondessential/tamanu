@@ -5,9 +5,8 @@ import * as yup from 'yup';
 
 import { Box, Divider, Typography } from '@material-ui/core';
 
-import { Colors } from '../../constants';
-import { FormConfirmCancelBackRow } from '../ButtonRow';
-import { Form, LocalisedField, SuggesterSelectField, TextField } from '../Field';
+import { TextField, Form, FormConfirmCancelBackRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { LocalisedField, SuggesterSelectField } from '../Field';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
@@ -55,7 +54,7 @@ const StyledFullWidthContainer = styled(Box)`
 `;
 
 const StyledDivider = styled(Divider)`
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 export const AddReminderContact = ({ onContinue, onClose, onBack }) => {
