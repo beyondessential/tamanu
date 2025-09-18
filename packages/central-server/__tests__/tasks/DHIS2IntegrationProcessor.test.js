@@ -9,23 +9,24 @@ import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/con
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
 
-const logSpy = {
-  info: jest.spyOn(log, 'info'),
-  warn: jest.spyOn(log, 'warn'),
-  error: jest.spyOn(log, 'error'),
-};
-
 describe('DHIS2 integration processor', () => {
   let ctx;
   let models;
   let dhis2IntegrationProcessor;
   let report;
   let reportVersion;
+  let logSpy;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
+
+    logSpy = {
+      info: jest.spyOn(log, 'info'),
+      warn: jest.spyOn(log, 'warn'),
+      error: jest.spyOn(log, 'error'),
+    };
 
     report = await models.ReportDefinition.create({
       name: 'Test Report',
