@@ -3,13 +3,10 @@ import styled from 'styled-components';
 
 import { TranslatedText } from '../../Translation';
 import { ConfirmRowDivider } from '../../ConfirmRowDivider';
-import { ButtonRow } from '../../ButtonRow';
-import { Button } from '../../Button';
-import { Modal } from '../../Modal';
-import { BodyText } from '../../Typography';
-import { Colors } from '../../../constants';
+import { ButtonRow, Button, Modal, TAMANU_COLORS } from '@tamanu/ui-components';
 import { formatShort, formatTime } from '@tamanu/utils/dateTime';
 import { set } from 'date-fns';
+import { BodyText } from '../../Typography';
 
 const StyledModal = styled(Modal)`
   & .MuiPaper-root {
@@ -50,7 +47,7 @@ const RightDetails = styled.div`
   flex-direction: column;
   gap: 16px;
   padding-left: 20px;
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   flex: 1;
   height: fit-content;
 `;
@@ -118,8 +115,8 @@ const AssignmentDetails = ({ assignment }) => {
       <LeftDetails>
         {leftDetails.map((detail, index) => (
           <div key={index}>
-            <BodyText color={Colors.midText}>{detail.label}</BodyText>
-            <BodyText color={Colors.darkestText} fontWeight={500} marginTop={'4px'}>
+            <BodyText color={TAMANU_COLORS.midText}>{detail.label}</BodyText>
+            <BodyText color={TAMANU_COLORS.darkestText} fontWeight={500} marginTop={'4px'}>
               {detail.value}
             </BodyText>
           </div>
@@ -128,8 +125,8 @@ const AssignmentDetails = ({ assignment }) => {
       <RightDetails>
         {rightDetails.map((detail, index) => (
           <div key={index}>
-            <BodyText color={Colors.midText}>{detail.label}</BodyText>
-            <BodyText color={Colors.darkestText} fontWeight={500} marginTop={'4px'}>
+            <BodyText color={TAMANU_COLORS.midText}>{detail.label}</BodyText>
+            <BodyText color={TAMANU_COLORS.darkestText} fontWeight={500} marginTop={'4px'}>
               {detail.value}
             </BodyText>
           </div>
@@ -156,13 +153,13 @@ export const OverlappingRepeatingAssignmentModal = ({
       onClose={onClose}
     >
       <Content>
-        <BodyText color={Colors.darkestText}>
+        <BodyText color={TAMANU_COLORS.darkestText}>
           <TranslatedText
             stringId="locationAssignment.modal.overlap.description"
             fallback="The selected location has already been assigned on one or more of the selected repeating date and times. The first of these conflicts is shown below. Please change the selected repeating assignment or update the existing assignment."
           />
         </BodyText>
-        <BodyText color={Colors.darkText} fontWeight={500} marginTop={'20px'}>
+        <BodyText color={TAMANU_COLORS.darkText} fontWeight={500} marginTop={'20px'}>
           <TranslatedText
             stringId="locationAssignment.modal.overlap.existingAssignmentDetails"
             fallback="Existing assignment details"
