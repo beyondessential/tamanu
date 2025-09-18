@@ -1,7 +1,6 @@
-import { randomInt } from 'node:crypto';
-import { promisify } from 'node:util';
+import { createSecretKey, randomInt } from 'node:crypto';
 import { compare, hash } from 'bcrypt';
-import { build as buildCallback, verify as verifyCallback } from 'jsonwebtoken';
+import * as jose from 'jose';
 import { unionBy } from 'lodash';
 import { DataTypes, Sequelize } from 'sequelize';
 import type { Logger } from 'winston';
@@ -37,8 +36,6 @@ import type { InitOptions, ModelProperties, Models } from '../types/model';
 
 const DEFAULT_SALT_ROUNDS = 10;
 const MAX_U32_VALUE = 2 ** 32 - 1;
-const buildToken = promisify(buildCallback);
-const verifyToken = promisify(verifyCallback);
 
 export class User extends Model {
   declare id: string;
@@ -455,19 +452,18 @@ export class User extends Model {
       outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
     });
 
-    const token = await buildToken(
-      {
-        userId: user.id,
-        deviceId: device?.id,
-      },
-      tokenSecret,
-      {
-        expiresIn: tokenDuration,
-        audience: JWT_TOKEN_TYPES.ACCESS,
-        issuer: tokenIssuer,
-        jwtid: randomInt(0, MAX_U32_VALUE).toString(),
-      },
-    );
+    const alg = 'HS256';
+    const secret = createSecretKey(new TextEncoder().encode(tokenSecret));
+    const token = await new jose.SignJWT({
+      userId: user.id,
+      deviceId: device?.id,
+    })
+      .setProtectedHeader({ alg })
+      .setIssuedAt()
+      .setIssuer(tokenIssuer)
+      .setAudience(JWT_TOKEN_TYPES.ACCESS)
+      .setExpirationTime(tokenDuration)
+      .sign(secret);
 
     return {
       token,
@@ -489,12 +485,25 @@ export class User extends Model {
   ): Promise<LoginReturn> {
     const { Device, Facility } = this.sequelize.models;
 
-    const contents = await verifyToken(token, tokenSecret, {
-      issuer: tokenIssuer,
-      audience: JWT_TOKEN_TYPES.ACCESS,
-    }).catch(() => {
-      throw new InvalidTokenError();
-    });
+    const secret = createSecretKey(new TextEncoder().encode(tokenSecret));
+    const contents = await jose
+      .jwtVerify(
+        token,
+        ({ alg }) => {
+          if (alg === 'HS256') {
+            return secret;
+          }
+          throw new InvalidTokenError('Unsupported algorithm');
+        },
+        {
+          issuer: tokenIssuer,
+          audience: JWT_TOKEN_TYPES.ACCESS,
+          clockTolerance: 10,
+        },
+      )
+      .catch(error => {
+        throw new InvalidTokenError().withCause(error);
+      });
 
     const TokenPayload = z.object({
       userId: z.string().min(1),
@@ -567,7 +576,7 @@ export interface LoginContext {
   settings: ReadSettings;
   tokenDuration: number;
   tokenIssuer: string;
-  tokenSecret: string;
+  tokenSecret: Secret;
 }
 
 export interface LoginReturn {
