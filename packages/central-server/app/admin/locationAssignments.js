@@ -34,6 +34,7 @@ const customAssignmentValidation = (data, ctx) => {
 const getLocationAssignmentsSchema = z.object({
   after: dateCustomValidation.optional(),
   before: dateCustomValidation.optional(),
+  userId: z.string().optional(),
   locationId: z.string().optional(),
   facilityId: z.string().optional(),
   page: z.coerce.number().int().min(0).optional().default(0),
@@ -54,7 +55,7 @@ locationAssignmentsRouter.get(
 
     const query = await getLocationAssignmentsSchema.parseAsync(req.query);
 
-    const { after, before, locationId, facilityId, page, rowsPerPage, all } = query;
+    const { after, before, locationId, facilityId, userId, page, rowsPerPage, all } = query;
 
     const includeOptions = [
       {
@@ -95,6 +96,7 @@ locationAssignmentsRouter.get(
         ...(before && { [Op.lte]: before }),
       },
       ...(locationId && { locationId }),
+      ...(userId && { userId }),
       ...(facilityId && {
         [Op.or]: [
           { '$location.facility_id$': facilityId },
