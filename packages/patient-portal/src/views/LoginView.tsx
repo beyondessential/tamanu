@@ -20,6 +20,15 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
+const getLoginError = (loginError: Error) => {
+  // Expired handling
+  if (loginError.message.includes('Verification code has expired') || loginError.message.includes('Invalid verification code')) {
+    return loginError.message;
+  }
+
+  return 'An error occurred while logging in.';
+};
+
 /**
  * Mask the email address so that the last characters of the local part are visible.
  * Visible characters range from 0 (in the case of a single character) and a maximum of 3.
@@ -50,7 +59,7 @@ interface LocationState {
 }
 
 export const LoginView = () => {
-  const { mutate: login, isError: isLoginError, reset: resetLogin } = useLogin();
+  const { mutate: login, error: loginError, reset: resetLogin } = useLogin();
   const location = useLocation<LocationState>();
   const history = useHistory();
 
@@ -103,10 +112,10 @@ export const LoginView = () => {
         <Box sx={{ mb: 3 }}>
           <VerificationCodeInput
             name="verificationCode"
-            error={isLoginError}
-            helperText={isLoginError ? 'Incorrect verification code.' : ''}
+            error={!!loginError}
+            helperText={loginError ? getLoginError(loginError) : ''}
             onFocus={() => {
-              if (!isLoginError) return;
+              if (!loginError) return;
               // Reset error state when the input is re-focused after submitting
               resetLogin();
             }}
