@@ -32,6 +32,8 @@ import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
 
 export { startFhirWorkerTasks } from './fhir';
 
+export class InvalidConfigError extends Error {}
+
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,

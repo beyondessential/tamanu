@@ -34,7 +34,12 @@ test_facility_offline_central_start() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -96,7 +101,12 @@ test_facility_offline_facility_start() {
 	        "verbose": true,
 	        "username": "tamanu",
 	        "password": "tamanu",
-	    }
+	    },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
 	}
 	EOF
 	npm run --workspace @tamanu/facility-server start upgrade
