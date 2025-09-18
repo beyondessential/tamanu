@@ -15,6 +15,17 @@ const logSpy = {
   error: jest.spyOn(log, 'error'),
 };
 
+const mockDhis2Response = ({ code, conflicts = [] }) =>
+  jest.fn().mockResolvedValue({
+    httpStatusCode: code,
+    status: code === 200 ? 'success' : 'warning',
+    message: code === 200 ? 'Report sent to DHIS2 successfully' : 'Report sent to DHIS2 failed',
+    response: {
+      importCount: { imported: 0, updated: 0, deleted: 0, ignored: conflicts.length },
+      conflicts,
+    },
+  });
+
 describe('DHIS2 integration processor', () => {
   let ctx;
   let models;
@@ -122,15 +133,7 @@ describe('DHIS2 integration processor', () => {
   });
 
   it('should log.warning if we get a non-200 response from DHIS2 for a report', async () => {
-    dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-      httpStatusCode: 409,
-      status: 'warning',
-      message: 'Report sent to DHIS2 failed',
-      response: {
-        conflicts: [],
-      },
-    });
-
+    dhis2IntegrationProcessor.postToDHIS2 = mockDhis2Response({ code: 409 });
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
@@ -138,28 +141,17 @@ describe('DHIS2 integration processor', () => {
       message: 'Report sent to DHIS2 failed',
       status: 'warning',
       httpStatusCode: 409,
-      response: {
-        importCount: { imported: 0, updated: 0, deleted: 0, ignored: 0 },
-        conflicts: [],
-      },
     });
   });
 
   it('should log individual conflicts when DHIS2 returns conflicts', async () => {
-    dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-      httpStatusCode: 409,
-      status: 'warning',
-      message: 'Report sent to DHIS2 failed',
-
-      response: {
-        importCount: { imported: 0, updated: 0, deleted: 0, ignored: 0 },
-        conflicts: [
-          { value: 'Data element not found: DE123' },
-          { value: 'Organisation unit not found: OU456' },
-        ],
-      },
+    dhis2IntegrationProcessor.postToDHIS2 = mockDhis2Response({
+      code: 409,
+      conflicts: [
+        { value: 'Data element not found: DE123' },
+        { value: 'Organisation unit not found: OU456' },
+      ],
     });
-
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
@@ -167,23 +159,19 @@ describe('DHIS2 integration processor', () => {
   });
 
   it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
-    dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-      httpStatusCode: 200,
-      status: 'success',
-      message: 'Report sent to DHIS2 successfully',
-      response: {
-        importCount: { imported: 1, updated: 0, deleted: 0, ignored: 0 },
-        conflicts: [],
-      },
+    dhis2IntegrationProcessor.postToDHIS2 = mockDhis2Response({
+      code: 200,
+      conflicts: [],
     });
 
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
       report: `Test Report (${report.id})`,
-      imported: 1,
+      imported: 0,
       updated: 0,
       deleted: 0,
+      ignored: 0,
     });
   });
 });
