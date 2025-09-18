@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/errors';
 
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';

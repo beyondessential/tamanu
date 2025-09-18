@@ -5,7 +5,7 @@ import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPort
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
