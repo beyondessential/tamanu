@@ -111,7 +111,7 @@ describe('DHIS2 integration processor', () => {
     });
   });
 
-  it('should log.error if we establish a connection to DHIS2', async () => {
+  it('should log.error if we cant establish a connection to DHIS2', async () => {
     await setHost('https://invalid-host.com');
     await dhis2IntegrationProcessor.run();
 
@@ -138,6 +138,10 @@ describe('DHIS2 integration processor', () => {
       message: 'Report sent to DHIS2 failed',
       status: 'warning',
       httpStatusCode: 409,
+      response: {
+        importCount: { imported: 0, updated: 0, deleted: 0, ignored: 0 },
+        conflicts: [],
+      },
     });
   });
 
@@ -146,7 +150,9 @@ describe('DHIS2 integration processor', () => {
       httpStatusCode: 409,
       status: 'warning',
       message: 'Report sent to DHIS2 failed',
+
       response: {
+        importCount: { imported: 0, updated: 0, deleted: 0, ignored: 0 },
         conflicts: [
           { value: 'Data element not found: DE123' },
           { value: 'Organisation unit not found: OU456' },
@@ -166,7 +172,8 @@ describe('DHIS2 integration processor', () => {
       status: 'success',
       message: 'Report sent to DHIS2 successfully',
       response: {
-        importCount: { imported: 1, updated: 0, deleted: 0 },
+        importCount: { imported: 1, updated: 0, deleted: 0, ignored: 0 },
+        conflicts: [],
       },
     });
 
