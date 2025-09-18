@@ -21,8 +21,10 @@ const EmailSectionContainer = styled(Box)({
 });
 
 const getLoginError = (loginError: Error) => {
-  // Expired handling
-  if (loginError.message.includes('Verification code has expired') || loginError.message.includes('Invalid verification code')) {
+  if (
+    loginError.message.includes('Verification code has expired') ||
+    loginError.message.includes('Invalid verification code')
+  ) {
     return loginError.message;
   }
 
