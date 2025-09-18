@@ -142,7 +142,7 @@ describe('PortalOneTimeTokenService', () => {
       const result = await customService.createRegisterToken(testPortalUser.id);
 
       // Verify expiry time is correct (to closest minute to avoid false negatives)
-      const defaultExpiryMinutes = 1440;
+      const defaultExpiryMinutes = 43800;
       const expectedExpiry = addMinutes(now, defaultExpiryMinutes);
 
       const expiry = parseISO(result.expiresAt);
