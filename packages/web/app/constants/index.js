@@ -1,3 +1,4 @@
+export { TAMANU_COLORS as Colors } from '@tamanu/ui-components';
 export * from './binary.js';
 export * from './births.js';
 export * from './documents.js';
