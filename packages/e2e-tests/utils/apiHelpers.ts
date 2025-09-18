@@ -40,7 +40,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
     patientRegistryType: 'new_patient',
     registeredById: user.id,
     sex: faker.person.sex(),
-    villageId: testData.villageID,
+    villageId: testData.villageId,
     culturalName: faker.person.middleName(),
   };
 
@@ -67,13 +67,14 @@ export const createHospitalAdmissionEncounterViaAPI = async (
   const encounterUrl = constructFacilityUrl('/api/encounter');
   const user = await getUser(api);
 
+
   const encounterData = {
-    departmentId: 'department-Cardiology',
-    encounterType: 'admission',
+    departmentId: testData.departmentId,
+    encounterType: testData.encounterType,
     examinerId: user.id,
-    locationId: 'location-EDBed1',
-    patientBillingTypeId: 'patientType-Private',
-    patientId,
+    locationId: testData.locationId,
+    patientBillingTypeId: testData.patientBillingTypeId,
+    patientId: testData.patientId || patientId  ,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
     dietIds: JSON.stringify(['diet-Carb-Controlled', 'diet-Citrusfree']),
