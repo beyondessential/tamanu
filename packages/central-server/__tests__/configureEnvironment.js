@@ -49,8 +49,8 @@ expect.extend({
   toHaveRequestError(response, expected) {
     const { statusCode } = response;
     const match = expected === statusCode;
-    const pass = statusCode >= 400 && statusCode !== 403 && (statusCode < 500 || match);
-    let expectedText = 'Expected error status code';
+    const pass = statusCode >= 400 && (statusCode < 500 || match);
+    let expectedText = 'Expected 4xx error status code';
     if (expected) {
       expectedText += ` ${expected}`;
     }

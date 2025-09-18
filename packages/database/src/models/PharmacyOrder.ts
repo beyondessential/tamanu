@@ -56,7 +56,7 @@ export class PharmacyOrder extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }
