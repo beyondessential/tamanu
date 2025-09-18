@@ -27,9 +27,9 @@ const AssignmentsWrapper = styled.div`
 `;
 
 const AssignmentContainer = styled.div`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
