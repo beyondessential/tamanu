@@ -5,10 +5,10 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useHistory } from 'react-router-dom';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { TranslatedText, TranslatedReferenceData, TranslatedEnum } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatTimeSlot } from '../../utils/medications';
@@ -18,7 +18,6 @@ import { MedicationDetails } from './MedicationDetails';
 import { useApi } from '../../api';
 import { singularize } from '../../utils';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '../Button';
 import { AddMedicationIcon } from '../../assets/icons/AddMedicationIcon';
 import { useAuth } from '../../contexts/Auth';
 
@@ -26,7 +25,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
   border: none;
   border-radius: 0;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   margin-top: 8px;
   .MuiTableHead-root {
     ${props => props.$noData && 'display: none;'}
@@ -34,12 +33,12 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     top: 0;
   }
   .MuiTableCell-head {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 12px;
     padding-bottom: 12px;
     span {
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     padding-left: 10px;
     padding-right: 10px;
@@ -63,7 +62,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${Colors.veryLightBlue};
+      background-color: ${TAMANU_COLORS.veryLightBlue};
     }
   }
   .MuiTableBody-root {
@@ -85,8 +84,8 @@ const NoDataContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${Colors.hoverGrey};
-  color: ${Colors.primary};
+  background: ${TAMANU_COLORS.hoverGrey};
+  color: ${TAMANU_COLORS.primary};
   padding: 0 120px;
 `;
 
@@ -109,7 +108,7 @@ const getMedicationName = (
 
   return (
     <Box
-      color={isPausing ? Colors.softText : 'inherit'}
+      color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
       fontStyle={isPausing ? 'italic' : 'normal'}
     >
       <TranslatedReferenceData
@@ -139,7 +138,7 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
   const isPausing = !!pauseData && !discontinued;
   return (
     <Box
-      color={isPausing ? Colors.softText : 'inherit'}
+      color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
       fontStyle={isPausing ? 'italic' : 'normal'}
     >
       {getTranslatedFrequency(frequency, getTranslation)}
@@ -168,7 +167,7 @@ const getMedicationColumns = (
         const isPausing = !!pauseData && !data.discontinued;
         return (
           <NoWrapCell
-            color={isPausing ? Colors.softText : 'inherit'}
+            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
@@ -194,7 +193,7 @@ const getMedicationColumns = (
 
         return (
           <NoWrapCell
-            color={isPausing ? Colors.softText : 'inherit'}
+            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
@@ -232,7 +231,7 @@ const getMedicationColumns = (
         }
         return (
           <NoWrapCell
-            color={isPausing ? Colors.softText : 'inherit'}
+            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <ConditionalTooltip
@@ -253,7 +252,7 @@ const getMedicationColumns = (
         const isPausing = !!pauseData && !discontinued;
         return (
           <Box
-            color={isPausing ? Colors.softText : 'inherit'}
+            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             {prescriber?.displayName ?? ''}
@@ -286,7 +285,7 @@ const getMedicationColumns = (
         if (!lastOrderedAt) {
           return (
             <NoWrapCell
-              color={isPausing ? Colors.softText : 'inherit'}
+              color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
               fontStyle={isPausing ? 'italic' : 'normal'}
             >
               <TranslatedText
@@ -302,12 +301,12 @@ const getMedicationColumns = (
         const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
-            color={isPausing ? Colors.softText : 'inherit'}
+            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
               {formatShortest(orderDate)}
-              <Box fontSize="12px" color={Colors.softText}>
+              <Box fontSize="12px" color={TAMANU_COLORS.softText}>
                 {format(orderDate, 'h:mma').toLowerCase()}
               </Box>
             </Box>
@@ -410,7 +409,7 @@ export const EncounterMedicationTable = ({
           <NoDataContainer>
             {canCreatePrescription && canImportOngoingPrescriptions ? (
               <Box
-                color={Colors.darkestText}
+                color={TAMANU_COLORS.darkestText}
                 display="flex"
                 flexDirection="column"
                 justifyContent="center"

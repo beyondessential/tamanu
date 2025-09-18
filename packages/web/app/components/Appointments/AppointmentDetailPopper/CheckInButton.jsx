@@ -2,13 +2,13 @@ import { styled } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
+import { TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
+
 import { useAppointmentMutation } from '../../../api/mutations';
 import {
   usePatientAdditionalDataQuery,
   usePatientCurrentEncounterQuery,
 } from '../../../api/queries';
-import { Colors } from '../../../constants';
-import { TextButton } from '../../Button';
 import { EncounterModal } from '../../EncounterModal';
 import { ConditionalTooltip } from '../../Tooltip';
 import { TranslatedText } from '../../Translation';
@@ -26,7 +26,7 @@ const StyledConditionalTooltip = styled(ConditionalTooltip)`
 `;
 
 const StyledButton = styled(TextButton)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-size: 0.6875rem;
   padding-block: 0.125rem;
   text-decoration-thickness: from-font;

@@ -2,14 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import {
-  ConfirmCancelRow,
   DateDisplay,
   FormSeparatorLine,
-  Modal,
-  TranslatedText,
 } from '../../components';
-import { Colors } from '../../constants';
-import { TranslatedReferenceData } from '../../components/Translation';
+import { TAMANU_COLORS, ConfirmCancelRow, TranslatedReferenceData, Modal, TranslatedText } from '@tamanu/ui-components';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { useAuth } from '../../contexts/Auth';
 
@@ -24,12 +20,12 @@ const WarningDiv = styled.div`
 `;
 
 const InfoDiv = styled.div`
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 22px 30px;
 `;
@@ -45,7 +41,7 @@ export const FormSeparatorVerticalLine = styled.hr`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   margin: 22px;
 `;
 
@@ -54,11 +50,11 @@ const Info = styled.div`
 `;
 
 const Label = styled.div`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const Value = styled.div`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
 `;
 

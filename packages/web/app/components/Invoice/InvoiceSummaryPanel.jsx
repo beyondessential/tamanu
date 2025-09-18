@@ -5,12 +5,11 @@ import CloseIcon from '@material-ui/icons/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../Tooltip';
 import { BodyText, Heading3 } from '../Typography';
-import { Button, DefaultIconButton } from '../Button';
+import { Button, DefaultIconButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
@@ -35,11 +34,11 @@ const Container = styled.div`
   flex-direction: column;
   gap: 10px;
   width: 450px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 5px;
   padding: 16px 20px;
   margin-left: auto;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
 `;
 
 const DiscountedPrice = styled.div`
@@ -221,7 +220,7 @@ const InsurersView = ({ insurers, insurerDiscountAmountDisplayList }) => {
           {insurer.insurer?.name}
           <DiscountedPrice data-testid={`discounted-price-${index}`}>
             <span data-testid={`percentage-${index}`}>{insurer.percentage * 100}%</span>
-            <BodyText color={Colors.darkestText} data-testid={`discount-amount-${index}`}>
+            <BodyText color={TAMANU_COLORS.darkestText} data-testid={`discount-amount-${index}`}>
               {insurerDiscountAmountDisplayList[index]
                 ? `-${insurerDiscountAmountDisplayList[index]}`
                 : ''}
@@ -339,7 +338,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
             <span>{invoice.discount.percentage * 100}%</span>
             <BodyText
               sx={{ fontWeight: 400 }}
-              color={Colors.darkestText}
+              color={TAMANU_COLORS.darkestText}
               data-testid="bodytext-511e"
             >
               {typeof discountTotal === 'string' ? `-${discountTotal}` : '-'}
@@ -351,7 +350,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
         <CardItem
           sx={{
             marginBottom: '-6px',
-            color: Colors.midText,
+            color: TAMANU_COLORS.midText,
             '&&': { justifyContent: 'flex-start' },
           }}
           data-testid="carditem-85pj"
@@ -398,7 +397,7 @@ export const InvoiceSummaryPanel = ({ invoice, editable, handleEditDiscount }) =
         </CardItem>
       )}
       {!!invoice.discount && (
-        <CardItem sx={{ marginBottom: '-6px', color: Colors.midText }} data-testid="carditem-wljk">
+        <CardItem sx={{ marginBottom: '-6px', color: TAMANU_COLORS.midText }} data-testid="carditem-wljk">
           <TranslatedText
             stringId="invoice.summary.appliedDiscountable"
             fallback="Applied to discountable balance"

@@ -113,11 +113,10 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const appointment = response.body.data[0];
+      const appointment = response.body[0];
       expect(appointment).toHaveProperty('id');
       expect(appointment).toHaveProperty('appointmentType');
       expect(appointment.appointmentType).toHaveProperty('name', 'Consultation');
@@ -168,11 +167,10 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should include cancelled appointment
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should include cancelled appointment
 
-      const appointment = response.body.data[0];
+      const appointment = response.body[0];
       expect(appointment).toHaveProperty('id');
       expect(appointment).toHaveProperty('appointmentType');
       expect(appointment.appointmentType).toHaveProperty('name', 'Checkup');
@@ -241,11 +239,10 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should only return future appointment
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should only return future appointment
 
-      const appointment = response.body.data[0];
+      const appointment = response.body[0];
       expect(appointment).toHaveProperty('startTime');
       // Verify it's the future appointment (should be tomorrow)
       const appointmentDate = new Date(appointment.startTime);
@@ -297,11 +294,10 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const appointment = response.body.data[0];
+      const appointment = response.body[0];
       expect(appointment).toHaveProperty('id');
       expect(appointment).toHaveProperty('appointmentType');
       expect(appointment.appointmentType).toHaveProperty('name', 'Checkup');
@@ -354,11 +350,10 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const appointment = response.body.data[0];
+      const appointment = response.body[0];
       expect(appointment).toHaveProperty('id');
       expect(appointment).toHaveProperty('appointmentType');
       expect(appointment.appointmentType).toHaveProperty('name', 'Test Appointment');
@@ -391,9 +386,8 @@ describe('Patient Portal Appointments Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {

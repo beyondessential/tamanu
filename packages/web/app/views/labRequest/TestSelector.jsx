@@ -5,11 +5,10 @@ import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { useQuery } from '@tanstack/react-query';
 import { subStrSearch } from '../../utils/subStringSearch';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { FormSeparatorLine } from '../../components/FormSeparatorLine';
 import { SearchField, SuggesterSelectField } from '../../components/Field';
-import { TextButton } from '../../components/Button';
+import { TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { BodyText } from '../../components/Typography';
 import { SelectableTestItem, TestItem } from './TestItem';
 import {
@@ -37,7 +36,7 @@ const Wrapper = styled.div`
   padding: 10px;
   width: 100%;
   height: 359px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   background: white;
 `;
@@ -67,7 +66,7 @@ const SelectorTable = styled.div`
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: ${Colors.softText};
+    background-color: ${TAMANU_COLORS.softText};
     height: 35px;
     border-radius: 20px;
     border: 7px solid transparent;
@@ -88,7 +87,7 @@ const SectionHeader = styled.span`
   font-size: 15px;
   line-height: 18px;
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const ClearAllButton = styled(TextButton)`
@@ -126,7 +125,7 @@ const StyledSearchField = styled(SearchField)`
 `;
 
 const VerticalLine = styled.div`
-  border-left: 1px solid ${Colors.outline};
+  border-left: 1px solid ${TAMANU_COLORS.outline};
   height: 100%;
 `;
 

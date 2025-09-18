@@ -2,7 +2,8 @@ import React from 'react';
 
 import { PATIENT_REGISTRY_TYPES } from '@tamanu/constants';
 
-import { AutocompleteField, DisplayIdField, TextField } from '../../../../../components';
+import { TextField } from '@tamanu/ui-components';
+import { AutocompleteField, DisplayIdField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../../../api';

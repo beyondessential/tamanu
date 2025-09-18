@@ -1,24 +1,16 @@
 import React from 'react';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import {
   DIAGNOSIS_CERTAINTY,
   DIAGNOSIS_CERTAINTY_VALUES,
   DIAGNOSIS_CERTAINTY_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { foreignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { FormGrid } from '../components/FormGrid';
-import {
-  AutocompleteField,
-  CheckField,
-  DateField,
-  Field,
-  Form,
-  TranslatedSelectField,
-} from '../components/Field';
+import { AutocompleteField, CheckField, DateField, Field } from '../components/Field';
 import { useSuggester } from '../api';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
@@ -37,7 +29,7 @@ export const DiagnosisForm = React.memo(
     const isEdit = !!diagnosis?.id;
     // don't show the "ED Diagnosis" option if we're just on a regular encounter
     // (unless we're editing a diagnosis with ED certainty already set)
-    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter((value) =>
+    const certaintyOptions = DIAGNOSIS_CERTAINTY_VALUES.filter(value =>
       shouldIncludeCertaintyOption({ value }, isTriage, isEdit),
     );
     const defaultCertainty = certaintyOptions[0].value;
@@ -45,7 +37,7 @@ export const DiagnosisForm = React.memo(
     const { currentUser } = useAuth();
 
     const diagnosisSuggester = useSuggester('diagnosis', {
-      filterer: (icd) => !excludeDiagnoses.some((d) => d.diagnosisId === icd.id),
+      filterer: icd => !excludeDiagnoses.some(d => d.diagnosisId === icd.id),
     });
     const practitionerSuggester = useSuggester('practitioner');
 
@@ -132,8 +124,8 @@ export const DiagnosisForm = React.memo(
               }
               component={TranslatedSelectField}
               enumValues={DIAGNOSIS_CERTAINTY_LABELS}
-              transformOptions={(options) =>
-                options.filter((option) => shouldIncludeCertaintyOption(option, isTriage, isEdit))
+              transformOptions={options =>
+                options.filter(option => shouldIncludeCertaintyOption(option, isTriage, isEdit))
               }
               required
               data-testid="field-a9rl"

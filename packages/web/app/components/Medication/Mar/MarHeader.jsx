@@ -1,10 +1,10 @@
 import { addDays, subDays, format, isSameDay } from 'date-fns';
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from '@material-ui/icons';
-import { ButtonWithPermissionCheck, Heading3, TranslatedText } from '../..';
+import { ButtonWithPermissionCheck, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Heading3, TranslatedText } from '../..';
 import { IconButton } from '@material-ui/core';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   padding: 2px 12px;
 `;
 
@@ -28,7 +28,7 @@ const DateSelectWrapper = styled.div`
 const DateDisplay = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: ${Colors.darkText};
+  color: ${TAMANU_COLORS.darkText};
   padding: 0 4px;
 `;
 

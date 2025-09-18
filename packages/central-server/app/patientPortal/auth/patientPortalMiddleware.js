@@ -54,12 +54,17 @@ export const patientPortalMiddleware = ({ secret }) =>
       );
     }
 
-    const patient = await portalUser.getPatient();
+    const patient = await portalUser.getPatient({ include: ['additionalData'] });
 
     if (!patient) {
       throw new BadAuthenticationError(
         `Portal user specified in token (${portalUserId}) does not have a patient`,
       );
+    }
+
+    // Transform additionalData from array to object
+    if (patient.additionalData && Array.isArray(patient.additionalData)) {
+      patient.setDataValue('additionalData', patient.additionalData[0] || null);
     }
 
     /* eslint-disable require-atomic-updates */

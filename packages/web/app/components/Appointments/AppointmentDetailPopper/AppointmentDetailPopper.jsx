@@ -1,3 +1,4 @@
+
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
@@ -6,8 +7,9 @@ import { push } from 'connected-react-router';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
-import { Colors } from '../../../constants';
 import { reloadPatient } from '../../../store';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';
@@ -19,7 +21,7 @@ import { useAuth } from '../../../contexts/Auth';
 export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
 const StyledPaper = styled(Paper)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   display: flex;
   flex-direction: column;
   width: 16rem;

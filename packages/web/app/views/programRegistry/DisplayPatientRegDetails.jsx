@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { Colors } from '../../constants/index';
 import { programsIcon } from '../../constants/images';
 import {
   DeleteProgramRegistryFormModal,
@@ -10,7 +10,7 @@ import {
   PatientProgramRegistryUpdateModal,
 } from '../../features/ProgramRegistry';
 import { RemoveProgramRegistryFormModal } from './RemoveProgramRegistryFormModal';
-import { TranslatedText, OutlinedButton, DateDisplay, MenuButton } from '../../components';
+import { TranslatedText, DateDisplay, MenuButton } from '../../components';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { ConditionalTooltip } from '../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
@@ -25,7 +25,7 @@ const Container = styled(Row)`
   justify-content: space-between;
   padding: 6px 0 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
 `;
 
 const TreeIcon = styled.img`
@@ -35,7 +35,7 @@ const TreeIcon = styled.img`
 `;
 
 const DividerVertical = styled.div`
-  border-left: 1px solid ${Colors.softOutline};
+  border-left: 1px solid ${TAMANU_COLORS.softOutline};
   height: 44px;
   margin-right: 10px;
 `;
@@ -127,7 +127,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       >
         <TreeIcon src={programsIcon} />
         <TextColumnsContainer>
-          <TextColumns style={{ color: Colors.midText }}>
+          <TextColumns style={{ color: TAMANU_COLORS.midText }}>
             <div>
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"

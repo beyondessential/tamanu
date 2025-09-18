@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 // Web/Mobile duplicated
 const COLORS = {
@@ -31,7 +31,7 @@ function separateColorText(resultText) {
     }
   }
   return {
-    color: Colors.white,
+    color: TAMANU_COLORS.white,
     strippedResultText: resultText,
   };
 }

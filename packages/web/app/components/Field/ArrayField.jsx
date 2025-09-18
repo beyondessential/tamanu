@@ -4,7 +4,7 @@ import { FieldArray } from 'formik';
 import { IconButton } from '@material-ui/core';
 import { Add, Remove } from '@material-ui/icons';
 import { generate } from 'shortid';
-import { Button } from '../Button';
+import { Button } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const AddButton = styled(Button)`

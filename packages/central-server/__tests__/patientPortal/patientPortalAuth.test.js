@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
@@ -24,10 +23,7 @@ describe('Patient Portal Auth', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, Setting } = store.models;
-
-    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
-
+    const { Patient, PortalUser } = store.models;
     // Create a test patient
     testPatient = await Patient.create(
       fake(Patient, {
@@ -136,12 +132,11 @@ describe('Patient Portal Auth', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(response.body.data).toHaveProperty('id', testPatient.id);
-      expect(response.body.data).toHaveProperty('displayId', 'TEST001');
-      expect(response.body.data).toHaveProperty('firstName', 'John');
-      expect(response.body.data).toHaveProperty('lastName', 'Doe');
-      expect(response.body.data).toHaveProperty('sex', 'male');
+      expect(response.body).toHaveProperty('id', testPatient.id);
+      expect(response.body).toHaveProperty('displayId', 'TEST001');
+      expect(response.body).toHaveProperty('firstName', 'John');
+      expect(response.body).toHaveProperty('lastName', 'Doe');
+      expect(response.body).toHaveProperty('sex', 'male');
     });
 
     it('Should reject request without authorization header', async () => {

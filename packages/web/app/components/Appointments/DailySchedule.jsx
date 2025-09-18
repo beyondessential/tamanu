@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../constants';
+
 import { Appointment } from './Appointment';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
@@ -114,25 +115,25 @@ const ColumnHeader = styled.div`
   -webkit-box-orient: vertical;
   width: ${({ $width }) => $width};
   min-width: ${({ $minWidth }) => $minWidth};
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
   text-align: center;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   position: sticky;
   top: 0;
-  text-color: ${Colors.darkText};
+  text-color: ${TAMANU_COLORS.darkText};
   :nth-last-of-type(2) {
-    border-right: 1px solid ${Colors.outline};
+    border-right: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 
 const ColumnBody = styled.div`
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-right: none;
   padding: 0;
   :last-of-type {
-    border-right: 1px solid ${Colors.outline};
+    border-right: 1px solid ${TAMANU_COLORS.outline};
   }
 `;

@@ -6,7 +6,8 @@ import { NOTE_PERMISSION_TYPES, NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/con
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { Colors, NOTE_FORM_MODES } from '../constants';
+import { NOTE_FORM_MODES } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedEnum, TranslatedText } from './Translation';
@@ -19,7 +20,7 @@ const StyledEditIcon = styled(EditIcon)`
   float: right;
   width: 1rem;
   height: 1rem;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const NoteRowContainer = styled.div`
@@ -45,8 +46,8 @@ const NoteContentContainer = styled.div`
 `;
 
 const EllipsisHideShowSpan = styled.span`
-  background-color: ${Colors.white};
-  color: ${Colors.primary};
+  background-color: ${TAMANU_COLORS.white};
+  color: ${TAMANU_COLORS.primary};
   cursor: pointer;
   &:hover {
     text-decoration: underline;
@@ -65,7 +66,7 @@ const NoteHeaderContainer = styled.div`
 
 const NoteHeaderText = styled.span`
   font-weight: 500;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const NoteBodyContainer = styled.div`
@@ -84,14 +85,14 @@ const NoteFooterContainer = styled.div`
   margin-top: 10px;
   font-size: 11px;
   font-weight: 500;
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
 `;
 
 const EditedButton = styled.span`
   cursor: pointer;
   text-decoration: underline;
   &:hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 `;
 
@@ -105,7 +106,7 @@ const NoteFooterTextElement = styled.span`
 
 const NoDataMessage = styled.span`
   font-weight: 500;
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
@@ -131,7 +132,7 @@ const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
 
 const rowStyle = () =>
   `.MuiTableCell-root{
-    border-bottom: 1px solid ${Colors.outline};
+    border-bottom: 1px solid ${TAMANU_COLORS.outline};
 
     &:first-child {
       padding-left: 0;
@@ -373,7 +374,7 @@ const NoteTable = ({
         endpoint={`encounter/${encounterId}/notes`}
         fetchOptions={{ noteType }}
         elevated={false}
-        noDataBackgroundColor={Colors.background}
+        noDataBackgroundColor={TAMANU_COLORS.background}
         noDataMessage={
           <NoDataMessage data-testid="nodatamessage-78ud">
             {noteType ? (

@@ -202,9 +202,23 @@ patientPortal.post(
       });
     }
 
+    const existingAssignment = await models.PortalSurveyAssignment.findOne({
+      where: {
+        patientId,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      },
+    });
+
+    // Don't create an assignment if there is already a pending one
+    if (existingAssignment) {
+      return res.send(existingAssignment);
+    }
+
     const portalSurveyAssignment = await models.PortalSurveyAssignment.create({
       patientId: patient.id,
       surveyId: survey.id,
+      facilityId,
       assignedById: user.id,
       assignedAt: assignedAt,
     });

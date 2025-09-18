@@ -4,16 +4,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 
-import { AutocompleteInput, CheckInput, TextField } from '../Field';
-import { ConfirmCancelBackRow, ConfirmCancelRow } from '../ButtonRow';
+import {
+  TextField,
+  ConfirmCancelBackRow,
+  ConfirmCancelRow,
+  TAMANU_COLORS,
+  BaseModal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { AutocompleteInput, CheckInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import { Colors } from '../../constants';
 
 import BasePharmacyIcon from '../../assets/images/pharmacy.svg?react';
 
-import { TranslatedText } from '../Translation';
-import { BaseModal } from '../BaseModal';
 import { notifyError } from '../../utils';
 import { PharmacyOrderMedicationTable, COLUMN_KEYS } from './PharmacyOrderMedicationTable';
 import { useSettings } from '../../contexts/Settings';
@@ -27,7 +31,7 @@ const StyledModal = styled(BaseModal)`
 `;
 
 const SubmitButtonsWrapper = styled.div`
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   padding-top: 10px;
   margin-top: 20px;
 `;
@@ -71,19 +75,19 @@ const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
 
 const DischargePrescriptionMessage = styled.div`
   font-weight: 500;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
   margin-bottom: 6px;
 `;
 
 const DischargePrescriptionLabel = styled.div`
   font-size: 14px;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
 `;
 
 const DialogSecondaryText = styled.div`
   font-size: 14px;
   text-align: center;
-  color: ${Colors.textSecondary};
+  color: ${TAMANU_COLORS.textSecondary};
   line-height: 1.4;
 `;
 
@@ -462,7 +466,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         />
       </CommentsWrapper>
 
-      <HorizontalDivider color={Colors.outline} />
+      <HorizontalDivider color={TAMANU_COLORS.outline} />
 
       <DischargePrescriptionWrapper>
         <DischargePrescriptionMessage>

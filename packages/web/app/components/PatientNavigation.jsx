@@ -2,16 +2,15 @@ import { goBack } from 'connected-react-router';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { Colors } from '../constants';
-import { BackButton } from './Button';
+import { BackButton, TAMANU_COLORS } from '@tamanu/ui-components';  
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
 const StickyContainer = styled.div`
-  width: 100%;
-  background: ${Colors.white};
+  width: 100%;  
+  background: ${TAMANU_COLORS.white};
   display: flex;
   z-index: 9;
   position: sticky;
@@ -20,14 +19,14 @@ const StickyContainer = styled.div`
   align-items: center;
   padding-left: 30px;
   padding-right: 30px;
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   flex-shrink: 0;
 `;
 
 const VerticalDivider = styled.div`
   margin-left: 30px;
   margin-right: 30px;
-  border-left: 1px solid ${Colors.softOutline};
+  border-left: 1px solid ${TAMANU_COLORS.softOutline};
   height: 100%;
 `;
 

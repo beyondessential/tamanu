@@ -7,16 +7,15 @@ import MuiDialog from '@material-ui/core/Dialog';
 import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
+import { TextInput, SelectInput, MultiselectInput } from '@tamanu/ui-components';
+
 import {
   AutocompleteInput,
   DateInput,
   DateTimeInput,
   MonthPicker,
-  MultiselectInput,
   NullableBooleanInput,
   NumberInput,
-  SelectInput,
-  TextInput,
   TimeInput,
   TimeWithUnitInput,
   SwitchInput,
@@ -57,7 +56,7 @@ class StoryControlWrapper extends React.PureComponent {
     }
   }
 
-  onChange = (e) => {
+  onChange = e => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     action('change')(value);
     this.setState({ value });
@@ -95,13 +94,13 @@ function addStories(name, Component, note) {
 
 addStories(
   'TextInput',
-  (props) => <StoryControlWrapper Component={TextInput} label="Label Name" {...props} />,
+  props => <StoryControlWrapper Component={TextInput} label="Label Name" {...props} />,
   'Free text input.',
 ).add('Multiline', () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
 ));
 
-addStories('TimeWithUnitInput', (props) => (
+addStories('TimeWithUnitInput', props => (
   <StoryControlWrapper
     Component={TimeWithUnitInput}
     label="Time between onset"
@@ -141,21 +140,21 @@ const TAGGED_FRUITS = [
 ];
 
 const dummyTaggedSuggester = {
-  fetchSuggestions: async (search) => {
-    await new Promise((resolve) => {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return TAGGED_FRUITS.filter((x) => x.label.toLowerCase().includes(search.toLowerCase()));
+    return TAGGED_FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
-  fetchCurrentOption: async (value) => {
-    await new Promise((resolve) => {
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return TAGGED_FRUITS.find((x) => x.value === value);
+    return TAGGED_FRUITS.find(x => x.value === value);
   },
 };
 
-addStories('Dropdown with tags', (props) => {
+addStories('Dropdown with tags', props => {
   return (
     <Container>
       <StoryControlWrapper
@@ -181,13 +180,13 @@ addStories('Dropdown with tags', (props) => {
   );
 });
 
-addStories('NullableBooleanInput', (props) => (
+addStories('NullableBooleanInput', props => (
   <StoryControlWrapper Component={NullableBooleanInput} label="Enable" {...props} />
 ));
 
-addStories('DateInput', (props) => (
+addStories('DateInput', props => (
   <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
-)).add('With prefilled date', (props) => (
+)).add('With prefilled date', props => (
   <StoryControlWrapper
     Component={DateInput}
     label="Prefilled"
@@ -196,15 +195,15 @@ addStories('DateInput', (props) => (
   />
 ));
 
-addStories('DateInput', (props) => (
+addStories('DateInput', props => (
   <StoryControlWrapper Component={DateInput} label="Date of birth" {...props} />
-)).add('With arrows', (props) => (
+)).add('With arrows', props => (
   <StoryControlWrapper Component={DateInput} value="2019-10-04T08:30:56.200Z" arrows {...props} />
 ));
 
-addStories('DateTimeInput', (props) => (
+addStories('DateTimeInput', props => (
   <StoryControlWrapper Component={DateTimeInput} label="Sample taken" {...props} />
-)).add('With prefilled date', (props) => (
+)).add('With prefilled date', props => (
   <StoryControlWrapper
     Component={DateTimeInput}
     label="Prefilled"
@@ -213,9 +212,9 @@ addStories('DateTimeInput', (props) => (
   />
 ));
 
-addStories('TimeInput', (props) => (
+addStories('TimeInput', props => (
   <StoryControlWrapper Component={TimeInput} label="Time" {...props} />
-)).add('With prefilled time', (props) => (
+)).add('With prefilled time', props => (
   <StoryControlWrapper
     Component={TimeInput}
     label="Prefilled"
@@ -224,7 +223,7 @@ addStories('TimeInput', (props) => (
   />
 ));
 
-addStories('NumberInput', (props) => (
+addStories('NumberInput', props => (
   <StoryControlWrapper Component={NumberInput} label="Amount" {...props} />
 )).add('With limited range', () => (
   <StoryControlWrapper
@@ -235,32 +234,32 @@ addStories('NumberInput', (props) => (
   />
 ));
 
-addStories('SelectInput', (props) => (
+addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 )).add('Small', () => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} size="small" />
 ));
 
-addStories('MultiselectInput', (props) => (
+addStories('MultiselectInput', props => (
   <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
 ));
 
 const dummySuggester = {
-  fetchSuggestions: async (search) => {
-    await new Promise((resolve) => {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return FRUITS.filter((x) => x.label.toLowerCase().includes(search.toLowerCase()));
+    return FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
   },
-  fetchCurrentOption: async (value) => {
-    await new Promise((resolve) => {
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });
-    return FRUITS.find((x) => x.value === value);
+    return FRUITS.find(x => x.value === value);
   },
 };
 
-addStories('Autocomplete', (props) => (
+addStories('Autocomplete', props => (
   <StoryControlWrapper Component={AutocompleteInput} label="Fruit" options={FRUITS} {...props} />
 ))
   .add('Small', () => (
@@ -283,7 +282,7 @@ addStories('Autocomplete', (props) => (
       suggester={dummySuggester}
     />
   ))
-  .add('Inside a Modal', (props) => (
+  .add('Inside a Modal', props => (
     <MuiDialog width="md" open title="Autocomplete">
       <Box p={5}>
         <AutocompleteInput label="Fruit" options={FRUITS} {...props} />
@@ -309,16 +308,16 @@ addStories('Autocomplete', (props) => (
     },
   );
 
-addStories('IdInput', (props) => (
+addStories('IdInput', props => (
   <StoryControlWrapper Component={IdInput} regenerateId={shortid.generate} {...props} />
 ));
 
-addStories('CalendarInput', (props) => (
+addStories('CalendarInput', props => (
   <LocalizationProvider dateAdapter={AdapterDateFns}>
     <StoryControlWrapper Component={MonthPicker} label="Date" {...props} />
   </LocalizationProvider>
 ));
 
-addStories('SwitchField', (props) => (
+addStories('SwitchField', props => (
   <StoryControlWrapper Component={SwitchInput} label="Enable" {...props} />
 ));

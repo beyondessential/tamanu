@@ -1,5 +1,5 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
-import { PORTAL_ONE_TIME_TOKEN_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
@@ -21,8 +21,6 @@ describe('PortalOneTimeTokenService', () => {
     ctx = await createTestContext();
     store = ctx.store;
     models = store.models;
-
-    await models.Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
 
     // Create a test patient
     const testPatient = await models.Patient.create(

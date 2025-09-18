@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { MenuButton, OutlinedButton } from '../../app/components';
+import { OutlinedButton } from '@tamanu/ui-components';
+import { MenuButton } from '../../app/components';
 import { LabRequestCard } from '../../app/views/patients/components/LabRequestCard';
 
 export default {

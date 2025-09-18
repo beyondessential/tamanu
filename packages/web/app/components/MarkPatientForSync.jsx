@@ -2,9 +2,7 @@ import React, { useCallback } from 'react';
 import { Loop } from '@material-ui/icons';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-
-import { Button } from './Button';
-import { Colors } from '../constants';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
 import { useSyncState } from '../contexts/SyncState';
@@ -12,7 +10,7 @@ import { TranslatedText } from './Translation/TranslatedText';
 import { useAuth } from '../contexts/Auth';
 
 const MarkPatientForSyncButton = styled(Button)`
-  background: ${Colors.white};
+  background: ${TAMANU_COLORS.white};
   height: 9rem;
   .MuiButton-label {
     display: flex;

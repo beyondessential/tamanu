@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
-import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
-import { Colors, INVOICE_MODAL_TYPES } from '../../../constants';
+import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
@@ -33,7 +33,7 @@ const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
 `;
 
 const InvoiceTitle = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
   font-size: 18px;
 `;
@@ -43,13 +43,13 @@ const InvoiceTopBar = styled.div`
   justify-content: space-between;
   align-items: center;
   padding-bottom: 8px;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const InvoiceContainer = styled.div`
   padding: 8px 16px;
   margin-bottom: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {

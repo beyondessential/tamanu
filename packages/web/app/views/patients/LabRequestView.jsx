@@ -8,18 +8,24 @@ import {
   LAB_REQUEST_STATUS_LABELS,
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
+import {
+  OutlinedButton,
+  TAMANU_COLORS,
+  Button,
+  MODAL_TRANSITION_DURATION,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
-  Button,
   DateDisplay,
   Heading2,
   MenuButton,
-  MODAL_TRANSITION_DURATION,
-  OutlinedButton,
   TableButtonRow,
   Tile,
   TileContainer,
@@ -40,12 +46,6 @@ import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
-import { Colors } from '../../constants';
-import {
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
-} from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
 
@@ -58,11 +58,11 @@ const Container = styled.div`
 
 const TopContainer = styled.div`
   padding: 18px 30px;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
 `;
 
 const BottomContainer = styled.div`
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   padding: 18px 30px;
   display: flex;
   flex-direction: column;
@@ -70,7 +70,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${p => p.color || Colors.darkestText};
+  color: ${p => p.color || TAMANU_COLORS.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -365,7 +365,7 @@ export const LabRequestView = () => {
                       <LabelContainer
                         color={
                           labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
-                          Colors.softText
+                          TAMANU_COLORS.softText
                         }
                         data-testid="labelcontainer-mjji"
                       >
@@ -405,7 +405,7 @@ export const LabRequestView = () => {
             main={
               <>
                 <DateDisplay
-                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
+                  color={labRequest.sampleTime ? 'unset' : TAMANU_COLORS.softText}
                   date={labRequest.sampleTime}
                   showTime
                   data-testid="datedisplay-h6el"

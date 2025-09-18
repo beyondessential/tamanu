@@ -1,19 +1,17 @@
 import React, { useEffect } from 'react';
 
 import { ForbiddenError } from '@tamanu/shared/errors';
-
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { InvoiceRecordPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { Modal } from '../../Modal';
+
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { combineQueries } from '../../../api/combineQueries';
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { PDFLoader, printPDF } from '../PDFLoader';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { useTranslation } from '../../../contexts/Translation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
@@ -59,7 +57,7 @@ export const InvoiceRecordModal = ({ open, onClose, invoice }) => {
         data-testid="translatedtext-hj8p"
       />
     ),
-    color: Colors.white,
+    color: TAMANU_COLORS.white,
     open,
     onClose,
     maxWidth: 'md',

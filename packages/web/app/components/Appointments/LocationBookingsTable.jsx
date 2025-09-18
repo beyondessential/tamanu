@@ -8,11 +8,11 @@ import {
   formatShortest,
   formatTime,
 } from '@tamanu/utils/dateTime';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import Brightness2Icon from '@material-ui/icons/Brightness2';
 
 import { useLocationBookingsQuery } from '../../api/queries';
 import { Table } from '../Table';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
@@ -29,7 +29,7 @@ const TableTitleContainer = styled(Box)`
   padding: 15px 12px 15px 10px;
   position: sticky;
   top: 0;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   z-index: 1;
   line-height: 1.5;
   height: 50px;
@@ -41,13 +41,13 @@ const ViewPastBookingsButton = styled(Box)`
   text-decoration: underline;
   cursor: pointer;
   &:hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     font-weight: 500;
   }
 `;
 
 const OvernightIcon = styled(Brightness2Icon)`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-size: 12px;
 `;
 
@@ -59,18 +59,18 @@ const StyledTable = styled(Table)`
     tr {
       position: sticky;
       top: 50px;
-      background-color: ${Colors.white};
+      background-color: ${TAMANU_COLORS.white};
       z-index: 1;
     }
   }
   .MuiTableCell-head {
-    background-color: ${Colors.white};
-    border-top: 1px solid ${Colors.outline};
+    background-color: ${TAMANU_COLORS.white};
+    border-top: 1px solid ${TAMANU_COLORS.outline};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     padding-left: 6px;
     padding-right: 6px;
@@ -84,7 +84,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: calc(100% - 10px);
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         bottom: 0;
         right: 0;
       }
@@ -93,7 +93,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: calc(100% - 10px);
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         top: 0;
         right: 0;
       }
@@ -108,7 +108,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: calc(100% - 10px);
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         bottom: 0;
         left: 0;
       }
@@ -117,7 +117,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: calc(100% - 10px);
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         top: 0;
         left: 0;
       }
@@ -135,7 +135,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: 100%;
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         bottom: 0;
       }
     }
@@ -159,7 +159,7 @@ const StyledTable = styled(Table)`
         position: absolute;
         width: calc(100% - 10px);
         height: 1px;
-        background-color: ${Colors.outline};
+        background-color: ${TAMANU_COLORS.outline};
         bottom: 0;
         left: 0;
       }
@@ -180,7 +180,7 @@ const StyledTable = styled(Table)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${(props) => (props.onClickRow ? TAMANU_COLORS.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {
@@ -208,7 +208,7 @@ const NoDataContainer = styled.div`
   padding: 0 10px 0 10px;
   border-radius: 5px;
   background: white;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const CustomCellContainer = styled(Box)`

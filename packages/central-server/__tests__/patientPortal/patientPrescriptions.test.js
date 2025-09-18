@@ -103,11 +103,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('id');
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Metformin');
@@ -168,11 +167,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('id');
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Aspirin');
@@ -260,11 +258,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should only return ongoing prescription
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should only return ongoing prescription
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Ongoing Medication');
     });
@@ -323,11 +320,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(1); // Should return the prescription with null discontinued
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(1); // Should return the prescription with null discontinued
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Null Discontinued Medication');
       expect(prescription).not.toHaveProperty('discontinued');
@@ -461,17 +457,17 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${targetAuth}`);
 
       expect(response).toHaveSucceeded();
-      expect(Array.isArray(response.body?.data)).toBe(true);
+      expect(Array.isArray(response.body)).toBe(true);
 
       // Should only include the target patient's ongoing prescription
-      const meds = response.body.data.map(p => p?.medication?.name);
+      const meds = response.body.map(p => p?.medication?.name);
       expect(meds).toContain('Target Ongoing');
       expect(meds).not.toContain('Target Discontinued');
       expect(meds).not.toContain('Other Ongoing');
       expect(meds).not.toContain('Other Discontinued');
 
       // And the count should be exactly 1 for this patient
-      expect(response.body.data.length).toBe(1);
+      expect(response.body.length).toBe(1);
     });
 
     it('Should handle prescription with null frequency gracefully', async () => {
@@ -527,11 +523,10 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const prescription = response.body.data[0];
+      const prescription = response.body[0];
       expect(prescription).toHaveProperty('id');
       expect(prescription).toHaveProperty('medication');
       expect(prescription.medication).toHaveProperty('name', 'Test Medication');
@@ -562,9 +557,8 @@ describe('Patient Portal Prescriptions Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {

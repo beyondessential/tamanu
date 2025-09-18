@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-
+import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { SurveyResultBadge } from './SurveyResultBadge';
@@ -13,7 +13,13 @@ import { SurveyResponsesPrintModal } from './PatientPrinting/modals/SurveyRespon
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} data-testid="datedisplay-2zgy" />;
-const getSubmittedBy = ({ submittedBy }) => submittedBy;
+const getSubmittedBy = ({ submittedBy, userId }) => {
+  // Forms submitted on the patient portal are submitted against the system user on behalf of the patient
+  if (userId === SYSTEM_USER_UUID) {
+    return 'Patient';
+  }
+  return submittedBy;
+};
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => (
@@ -27,7 +33,7 @@ export const DataFetchingProgramsTable = ({
   tableOptions = {},
   className,
   onDelete = null,
-                                            TableHeader
+  TableHeader,
 }) => {
   const { ability } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);

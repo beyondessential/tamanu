@@ -3,27 +3,24 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-
-import { useApi, useSuggester } from '../api';
-import { useAuth } from '../contexts/Auth';
 import {
-  AutocompleteField,
-  DateField,
-  Field,
-  Form,
   MultilineTextField,
   TextField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { ModalLoader } from '../components/BaseModal';
-import { Button, OutlinedButton } from '../components';
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+  ModalLoader,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { useApi, useSuggester } from '../api';
+import { useAuth } from '../contexts/Auth';
+import { AutocompleteField, DateField, Field } from '../components/Field';
 import { PatientDetailsCard } from '../components/PatientDetailsCard';
 import { ModalGenericButtonRow } from '../components/ModalActionRow';
-import { FORM_TYPES } from '../constants';
-import { TranslatedText } from '../components/Translation/TranslatedText';
-import { TEMPLATE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, FORM_TYPES } from '@tamanu/constants';
 
-const TallMultilineTextField = (props) => (
+const TallMultilineTextField = props => (
   <MultilineTextField
     style={{ minHeight: '156px' }}
     {...props}
@@ -53,13 +50,13 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
   const [templateLoading, setTemplateLoading] = useState(false);
 
   const onChangeTemplate = useCallback(
-    async (templateId) => {
+    async templateId => {
       if (!templateId) {
         return;
       }
       setTemplateLoading(true);
       const template = await api.get(`template/${templateId}`);
-      setValues((values) => ({
+      setValues(values => ({
         ...values,
         title: template.title,
         body: template.body,
@@ -114,7 +111,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
           }
           suggester={patientLetterTemplateSuggester}
           component={AutocompleteField}
-          onChange={(e) => onChangeTemplate(e.target.value)}
+          onChange={e => onChangeTemplate(e.target.value)}
           data-testid="field-befh"
         />
         <Field
@@ -148,7 +145,7 @@ const PatientLetterFormContents = ({ submitForm, onCancel, setValues }) => {
       </StyledFormGrid>
       <ModalGenericButtonRow data-testid="modalgenericbuttonrow-qbz5">
         <FinaliseAndPrintButton
-          onClick={(e) => submitForm(e, { printRequested: true })}
+          onClick={e => submitForm(e, { printRequested: true })}
           data-testid="finaliseandprintbutton-rtc8"
         >
           <TranslatedText
@@ -198,7 +195,7 @@ export const PatientLetterForm = ({ onSubmit, onCancel, editedObject, endpoint, 
     [api, endpoint, onSubmit, patient, facilityId],
   );
 
-  const renderForm = (props) =>
+  const renderForm = props =>
     props.isSubmitting ? (
       <ModalLoader
         loadingText={

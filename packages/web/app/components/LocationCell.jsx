@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography } from '@material-ui/core';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { TranslatedReferenceData } from './Translation';
 
 export const LocationCell = ({
@@ -24,7 +24,7 @@ export const LocationCell = ({
         locationName
       )}
       {plannedLocationName && (
-        <Typography style={{ fontSize: 12, color: Colors.darkText }} data-testid="typography-nnh6">
+        <Typography style={{ fontSize: 12, color: TAMANU_COLORS.darkText }} data-testid="typography-nnh6">
           (Planned -{' '}
           {
             <TranslatedReferenceData

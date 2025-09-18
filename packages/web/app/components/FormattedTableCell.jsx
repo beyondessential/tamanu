@@ -2,7 +2,7 @@ import { isNumber } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { formatLong, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 import { TableTooltip } from './Table/TableTooltip';
 
@@ -11,7 +11,7 @@ const ALERT = 'alert';
 const INFO = 'info';
 
 const CellWrapper = styled.div`
-  background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}20` : 'transparent')};
+  background: ${({ severity }) => (severity === ALERT ? `${TAMANU_COLORS.alert}20` : 'transparent')};
   border-radius: 10px;
   padding: 8px 14px;
   margin: -8px ${({ severity }) => (severity === ALERT ? '0px' : '-14px')};
@@ -22,7 +22,7 @@ const ClickableCellWrapper = styled(CellWrapper)`
   cursor: pointer;
 
   &:hover {
-    background: ${({ severity }) => (severity === ALERT ? `${Colors.alert}40` : Colors.background)};
+    background: ${({ severity }) => (severity === ALERT ? `${TAMANU_COLORS.alert}40` : TAMANU_COLORS.background)};
   }
 `;
 
@@ -30,9 +30,9 @@ const HeadCellWrapper = styled.div`
   display: block;
   width: fit-content;
   div {
-    color: ${Colors.midText};
+    color: ${TAMANU_COLORS.midText};
     :first-child {
-      color: ${Colors.darkText};
+      color: ${TAMANU_COLORS.darkText};
     }
   }
 `;

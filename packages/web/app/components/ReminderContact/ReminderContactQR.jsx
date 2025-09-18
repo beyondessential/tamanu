@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
 import QRCode from 'qrcode';
 import { toast } from 'react-toastify';
 import { Typography, CircularProgress } from '@material-ui/core';
 
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ModalCancelRow } from '../ModalActionRow';
-import { TranslatedText } from '../Translation/TranslatedText';
 import { joinNames } from '../../utils/user';
 import { useTranslation } from '../../contexts/Translation';
 import { useTelegramBotInfoQuery } from '../../api/queries';
-import { Colors } from '../../constants';
 
 const StyledHeaderText = styled(Typography)`
   font-size: 14px;
@@ -43,7 +41,7 @@ const StyledQrContainer = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
 `;
 
 export const ReminderContactQR = ({ contact, onClose }) => {

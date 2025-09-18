@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { DeletePortalSurveyAssignmentModal } from '../views/patients/components/DeletePortalSurveyAssignmentModal';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Heading4 } from './Typography';
 
 const getDateRequested = ({ assignedAt }) => <DateDisplay date={assignedAt} />;
@@ -16,9 +16,9 @@ const getRequestedBy = ({ assignedBy }) => assignedBy?.displayName || '';
 const getProgram = ({ survey }) => survey?.program?.name || '';
 const getForm = ({ survey }) => survey?.name || '';
 
-const Container = styled.div`  
+const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   h4 {
     margin: 0;
   }
@@ -58,7 +58,7 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
           stringId="portalSurveyAssignment.table.column.dateRequested"
           fallback="Date requested"
         />
-      ),  
+      ),
       accessor: getDateRequested,
     },
     {

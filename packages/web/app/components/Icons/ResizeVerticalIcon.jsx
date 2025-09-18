@@ -1,8 +1,8 @@
 import React from 'react';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ResizeVerticalIcon = ({
-  htmlColor = Colors.primary,
+  htmlColor = TAMANU_COLORS.primary,
   width = 24,
   height = 24,
   ...props

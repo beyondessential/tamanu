@@ -10,12 +10,13 @@ import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
 import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { Slide } from 'react-toastify';
+import { CustomToastContainer } from '@tamanu/ui-components';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { GlobalStyles } from './constants';
 import { EncounterProvider } from './contexts/Encounter';
+import { AuthProvider } from './contexts/Auth';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
@@ -25,8 +26,6 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
-import { CustomToastContainer } from './customToastContainer';
-import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
 
 const StateContextProviders = ({ children, store }) => (
@@ -40,7 +39,9 @@ const StateContextProviders = ({ children, store }) => (
                 <SyncStateProvider>
                   <TranslationProvider>
                     <LocalisationProvider store={store}>
-                      <NoteModalProvider>{children}</NoteModalProvider>
+                      <AuthProvider>
+                        <NoteModalProvider>{children}</NoteModalProvider>
+                      </AuthProvider>
                     </LocalisationProvider>
                   </TranslationProvider>
                 </SyncStateProvider>
@@ -76,18 +77,7 @@ function Root({ api, store, history }) {
                       <StateContextProviders store={store}>
                         <ReactQueryDevtools initialIsOpen={false} />
                         <GlobalStyles />
-                        <CustomToastContainer
-                          hideProgressBar
-                          transition={Slide}
-                          closeOnClick
-                          pauseOnFocusLoss
-                          draggable
-                          pauseOnHover
-                          theme="colored"
-                          icon={false}
-                          limit={5}
-                          closeButton={<ClearIcon />}
-                        />
+                        <CustomToastContainer />
                         <CssBaseline />
                         <RoutingApp />
                       </StateContextProviders>
