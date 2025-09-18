@@ -20,12 +20,13 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
-const getLoginError = (loginError: Error) => {
+const getLoginError = (error: Error) => {
+  const { message } = error;
   if (
-    loginError.message.includes('Verification code has expired') ||
-    loginError.message.includes('Invalid verification code')
+    message.includes('Verification code has expired') ||
+    message.includes('Invalid verification code')
   ) {
-    return loginError.message;
+    return message;
   }
 
   return 'An error occurred while logging in.';
