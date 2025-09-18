@@ -99,7 +99,7 @@ export class PatientTable {
   }
 
   async waitForTableRowCount(expectedRowCount: number, timeout: number = 30000) {
-    try {
+  /**  try {
       await this.page.waitForFunction(
         (count) => {
           const table = document.querySelector('table');
@@ -114,7 +114,10 @@ export class PatientTable {
       throw new Error(
         `Table did not reach expected row count of ${expectedRowCount} within ${timeout}ms. ${error instanceof Error ? error.message : String(error)}`,
       );
-    }
+    }*/
+      await expect(async () => {
+      expect(await this.rows.count()).toBe(expectedRowCount);
+    }).toPass({ timeout });
   }
 
   async clickOnFirstRow() {
