@@ -1,18 +1,16 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Box, Button as MuiButton } from '@material-ui/core';
-import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS, TranslatedText, OuterLabelFieldWrapper } from '@tamanu/ui-components';
 
 const CANVAS_WIDTH = 400;
 const CANVAS_HEIGHT = 150;
 
 const SignatureCanvas = styled.canvas`
-  border: 2px solid ${Colors.outline};
+  border: 2px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
   cursor: crosshair;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   touch-action: none;
 `;
 
@@ -30,9 +28,9 @@ const StyledButton = styled(MuiButton)`
 `;
 
 const SignaturePreview = styled.div`
-  border: 2px solid ${Colors.outline};
+  border: 2px solid ${TAMANU_COLORS.outline};
   border-radius: 3px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   min-height: 150px;
   width: 100%;
   display: flex;
