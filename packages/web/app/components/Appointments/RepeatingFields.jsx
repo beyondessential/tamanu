@@ -25,7 +25,7 @@ import {
   NumberField,
   TranslatedText,
 } from '@tamanu/ui-components';
-import { SmallBodyText } from '../../Typography';
+import { SmallBodyText } from '../Typography';
 import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
 import { ENDS_MODES } from '../../constants/locationAssignments';
 
