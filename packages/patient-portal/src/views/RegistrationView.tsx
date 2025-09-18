@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import { styled, Typography } from '@mui/material';
 
 import { Button } from '@tamanu/ui-components';
@@ -18,6 +17,17 @@ const IconDisplay = styled('div')(({ theme }) => ({
   margin: '0 auto',
   marginBottom: theme.spacing(2),
 }));
+
+const getErrorMessage = (error: Error) => {
+  const { message } = error;
+  if (message.includes('Invalid registration token')) {
+    return 'Broken registration link';
+  }
+  if (message.includes('Verification code has expired')) {
+    return 'Registration link expired';
+  }
+  return 'An error occurred while verifying registration';
+};
 
 const useVerifyRegistration = () => {
   const api = useApi();
@@ -46,14 +56,11 @@ export const RegistrationView = () => {
     <Card sx={{ width: '425px' }}>
       {error ? (
         <>
-          <IconDisplay sx={{ background: 'error.light' }}>
-            <ErrorIcon color="error" />
-          </IconDisplay>
           <Typography mb={2} variant="h2">
-            Failed to create account
+            {getErrorMessage(error)}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            {error.message}
+            Please contact the sending facility to resend a new link.
           </Typography>
         </>
       ) : (

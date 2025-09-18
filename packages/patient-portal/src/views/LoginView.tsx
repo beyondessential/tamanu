@@ -50,7 +50,7 @@ interface LocationState {
 }
 
 export const LoginView = () => {
-  const { mutate: login, isError: isLoginError, reset: resetLogin } = useLogin();
+  const { mutate: login, error: loginError, reset: resetLogin } = useLogin();
   const location = useLocation<LocationState>();
   const history = useHistory();
 
@@ -103,10 +103,10 @@ export const LoginView = () => {
         <Box sx={{ mb: 3 }}>
           <VerificationCodeInput
             name="verificationCode"
-            error={isLoginError}
-            helperText={isLoginError ? 'Incorrect verification code.' : ''}
+            error={!!loginError}
+            helperText={loginError ? loginError.message : ''}
             onFocus={() => {
-              if (!isLoginError) return;
+              if (!loginError) return;
               // Reset error state when the input is re-focused after submitting
               resetLogin();
             }}
