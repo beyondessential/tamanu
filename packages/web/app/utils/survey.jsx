@@ -26,6 +26,7 @@ import {
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   PhotoField,
+  SignatureField,
   ChartInstanceNameField,
 } from '../components/Field';
 import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -77,6 +78,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: (props) => (
     <BaseSelectField {...props} clearValue="" />
   ),
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
 };
 
 export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
@@ -306,7 +308,7 @@ export const getAnswersFromData = async (data, survey) => {
   for (const [key, val] of Object.entries(data)) {
     const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
     const currentDataElementType = currentComponent?.dataElement?.type;
-    if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
+    if ((currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO || currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE) && val instanceof File) {
       try {
         const size = val.size;
         const base64Data = await convertToBase64(val);
