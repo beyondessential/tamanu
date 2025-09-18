@@ -32,7 +32,10 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       Location,
       Department,
       User,
+      Setting,
     } = store.models;
+
+    await Setting.set('features.patientPortal', true);
 
     // Create a test village
     testVillage = await ReferenceData.create(
