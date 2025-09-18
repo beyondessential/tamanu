@@ -2,10 +2,11 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { SERVER_TYPES } from '@tamanu/constants';
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { InvalidCredentialError, MissingCredentialError } from '@tamanu/errors';
+import { SERVER_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants';
+import { JWT_TOKEN_TYPES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
+import { InvalidCredentialError, MissingCredentialError, RateLimitedError } from '@tamanu/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
+import { log } from '@tamanu/shared/services/logging';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 import {
@@ -95,13 +96,56 @@ export const login = ({ secret, refreshSecret }) =>
       throw new InvalidCredentialError('No such user');
     }
 
+    if (!user) {
+      // Keep track of bad requests for non-existent user accounts
+      log.info(`Trying to login with non-existent user account: ${email}`);
+
+      // To mitigate timing attacks for discovering user accounts,
+      // we perform a fake password comparison that takes a similar amount of time
+      await bcrypt.compare(password, '');
+      // and return the same error (ish) data as for a true password mismatch
+      throw new InvalidCredentialError();
+    }
+
+    // Check if user is locked out
+    const { isUserLockedOut, remainingLockout } = await models.UserLoginAttempt.checkIsUserLockedOut({
+      settings,
+      userId: user.id,
+      deviceId,
+    });
+    if (isUserLockedOut) {
+      log.info(`Trying to login with locked user account: ${email}`);
+      throw new RateLimitedError(remainingLockout, LOCKED_OUT_ERROR_MESSAGE);
+    }
+
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
+      const { remainingAttempts, lockoutDuration } = await models.UserLoginAttempt.createFailedLoginAttempt({
+        settings,
+        userId: user.id,
+        deviceId,
+      });
+      if (remainingAttempts === 0) {
+        throw new RateLimitedError(lockoutDuration, LOCKED_OUT_ERROR_MESSAGE);
+      }
+      if (remainingAttempts <= 3) {
+        throw new InvalidCredentialError().withExtraData({
+          lockoutAttempts: remainingAttempts,
+          lockoutDuration,
+        });
+      }
       throw new InvalidCredentialError();
     }
 
     // Manages necessary checks for device authorization (check or create accordingly)
     await ensureDeviceRegistration({ models, settings, user, deviceId, scopes });
+
+    // Create successful login attempt
+    await models.UserLoginAttempt.create({
+      userId: user.id,
+      deviceId,
+      outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
+    });
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;
@@ -129,6 +173,7 @@ export const login = ({ secret, refreshSecret }) =>
         getPermissionsForRoles(models, user.role),
         models.Role.findByPk(user.role),
       ]);
+
     // Send some additional data with login to tell the user about
     // the context they've just logged in to.
     res.send({

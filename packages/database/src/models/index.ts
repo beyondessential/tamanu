@@ -1,6 +1,7 @@
 export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
+export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
 export * from './Device';
 
