@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { useCurrentUser } from '@routes/PrivateRoute';
-
 import { OutstandingFormsSection } from '../features/dashboard/OutstandingForms/OutstandingFormsSection';
 import { UpcomingAppointmentsSection } from '../features/dashboard/Appointments/UpcomingAppointmentsSection';
 import { PatientDetailsSection } from '../features/dashboard/PatientDetailsSection';

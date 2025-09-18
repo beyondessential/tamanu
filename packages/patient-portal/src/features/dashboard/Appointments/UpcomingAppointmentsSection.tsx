@@ -18,31 +18,35 @@ export const UpcomingAppointmentsSection = () => {
         title={
           <Typography variant="h4" fontWeight="normal">
             You have{' '}
-            <Typography
-              component="span"
-              variant="h4"
-              sx={{ textDecoration: 'underline', fontWeight: 'bold' }}
-            >
-              {appointmentCount || 'no'}
-            </Typography>{' '}
+            {appointmentCount ? (
+              <Typography
+                component="span"
+                variant="h4"
+                sx={{ textDecoration: 'underline', fontWeight: 'bold' }}
+              >
+                {appointmentCount}
+              </Typography>
+            ) : (
+              'no'
+            )}{' '}
             upcoming {appointmentCount === 1 ? 'appointment' : 'appointments'}
           </Typography>
         }
       />
 
-      <CardContent>
-        {isLoading ? (
+      {isLoading ? (
+        <CardContent>
           <StyledCircularProgress size={24} />
-        ) : appointments && appointments.length > 0 ? (
+        </CardContent>
+      ) : appointments && appointments.length > 0 ? (
+        <CardContent>
           <Stack spacing={2}>
             {appointments.map(appointment => (
               <AppointmentCard key={appointment.id} appointment={appointment} />
             ))}
           </Stack>
-        ) : (
-          <Typography color="text.secondary">No upcoming appointments scheduled.</Typography>
-        )}
-      </CardContent>
+        </CardContent>
+      ) : null}
     </Card>
   );
 };
