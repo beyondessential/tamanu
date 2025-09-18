@@ -5,10 +5,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { useLocationsQuery } from '../../../api/queries';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { PageContainer, TopBar } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
@@ -36,9 +36,13 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     />
   ),
 })`
-  h3 { min-width: 0px; }
-  .MuiToolbar-root { padding-inline: 20px; }
-  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
+  h3 {
+    min-width: 0px;
+  }
+  .MuiToolbar-root {
+    padding-inline: 20px;
+  }
+  border-block-end: max(0.0625rem, 1px) ${TAMANU_COLORS.outline} solid;
 `;
 
 const Wrapper = styled(PageContainer)`
@@ -75,7 +79,7 @@ const EmptyStateLabel = styled(Typography).attrs({
   color: 'textSecondary',
   variant: 'body1',
 })`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   font-size: 2rem;
   font-weight: 400;
   place-self: center;
@@ -91,13 +95,19 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { ability, facilityId } = useAuth();
 
-  const { filters, updateSelectedCell, viewType, selectedDate, setSelectedDate } = useLocationBookingsContext();
+  const {
+    filters,
+    updateSelectedCell,
+    viewType,
+    selectedDate,
+    setSelectedDate,
+  } = useLocationBookingsContext();
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async (appointment) => {
+  const openBookingForm = async appointment => {
     // “Useless” await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
@@ -109,7 +119,7 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const openCancelModal = (appointment) => {
+  const openCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
@@ -121,7 +131,7 @@ export const LocationBookingsView = () => {
     openBookingForm({});
   };
 
-  const handleDateChange = (event) => {
+  const handleDateChange = event => {
     setSelectedDate(event.target.value);
   };
 

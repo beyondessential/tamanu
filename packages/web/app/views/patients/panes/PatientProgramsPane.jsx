@@ -3,17 +3,15 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
 import {
-  Button,
   ContentPane,
   Heading4,
   NoteModalActionBlocker,
   TableButtonRow,
 } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
-import { Colors } from '../../../constants/index';
 import { useSettings } from '../../../contexts/Settings';
 
 const TableWrapper = styled.div`
@@ -22,7 +20,7 @@ const TableWrapper = styled.div`
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
   h4 {
     margin: 0;
   }

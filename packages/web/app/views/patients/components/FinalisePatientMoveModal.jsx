@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
-import { BodyText, Modal } from '../../../components';
+import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { BodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
@@ -23,7 +22,7 @@ const Container = styled.div`
 `;
 
 const BedIcon = styled(SingleBedIcon)`
-  color: ${Colors.softText};
+  color: ${TAMANU_COLORS.softText};
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
@@ -36,14 +35,14 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.darkText};
+  background: ${TAMANU_COLORS.darkText};
   border-radius: 50%;
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
   border-radius: 5px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   font-size: 14px;
   line-height: 21px;
 

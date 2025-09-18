@@ -1,7 +1,7 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { styled } from '@mui/material/styles';
 import React from 'react';
 
-import { Colors } from '../../../constants';
 import { DateDisplay } from '../../DateDisplay';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
 import { TranslatedSex, TranslatedText } from '../../Translation';
@@ -17,7 +17,7 @@ const Header = styled('header')`
   transition: background-color 150ms ease;
 
   &:hover {
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${TAMANU_COLORS.veryLightBlue};
   }
 `;
 
@@ -43,7 +43,7 @@ const PrimaryDetails = styled('div')`
 `;
 
 const PatientId = styled('p')`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   font-variant-numeric: lining-nums tabular-nums;
   margin-block: 0.25rem 0;

@@ -7,23 +7,23 @@ import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 import { TranslatedSex, TranslatedText } from './Translation';
 
 const colorFromEncounterType = {
-  admission: Colors.green,
+  admission: TAMANU_COLORS.green,
   clinic: '#E9AC50',
-  triage: Colors.orange,
-  observation: Colors.orange,
-  emergency: Colors.orange,
-  default: Colors.blue,
+  triage: TAMANU_COLORS.orange,
+  observation: TAMANU_COLORS.orange,
+  emergency: TAMANU_COLORS.orange,
+  default: TAMANU_COLORS.blue,
 };
 
 function getPatientStatusColor({ $encounterType, $isPatientDeceased }) {
   if ($isPatientDeceased) {
-    return Colors.midText;
+    return TAMANU_COLORS.midText;
   }
 
   return colorFromEncounterType[$encounterType || 'default'] || colorFromEncounterType.default;
@@ -31,7 +31,7 @@ function getPatientStatusColor({ $encounterType, $isPatientDeceased }) {
 
 const ComponentDivider = styled(Divider)`
   margin: 10px 30px 0px 30px;
-  background-color: ${Colors.outline};
+  background-color: ${TAMANU_COLORS.outline};
 `;
 
 const SectionLabel = styled.div`
@@ -54,14 +54,14 @@ const CardComponent = styled.div`
   flex-direction: row;
   cursor: pointer;
   &:hover {
-    background-color: ${Colors.hoverGrey};
+    background-color: ${TAMANU_COLORS.hoverGrey};
   }
   &:first-child {
     margin-left: 0;
   }
   ${(p) =>
     p.$isDashboard
-      ? `border: 1px solid ${Colors.outline};
+      ? `border: 1px solid ${TAMANU_COLORS.outline};
       height: 100px;
     `
       : ''}
@@ -84,10 +84,10 @@ const CardListContainer = styled.div`
   align-items: center;
   ${(p) =>
     p.$isDashboard
-      ? `background-color: ${Colors.white};
+      ? `background-color: ${TAMANU_COLORS.white};
     margin-left: 20px;
     margin-right: 20px;
-    border: 1px solid ${Colors.outline};
+    border: 1px solid ${TAMANU_COLORS.outline};
     padding-bottom: 10px;`
       : ''}
 `;

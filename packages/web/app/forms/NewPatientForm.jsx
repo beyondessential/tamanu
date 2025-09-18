@@ -3,14 +3,14 @@ import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 
-import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from '@tamanu/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { Form, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Field, Form } from '../components/Field';
+import { Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalFormActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors, FORM_TYPES } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
 
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -27,7 +27,7 @@ import { useSettings } from '../contexts/Settings';
 const StyledImageButton = styled(Button)`
   min-width: 30px;
   margin-right: 5px;
-  background: ${Colors.background};
+  background: ${TAMANU_COLORS.background};
 `;
 
 const IdBannerContainer = styled.div`
@@ -37,7 +37,7 @@ const IdBannerContainer = styled.div`
 
 const AdditionalInformationRow = styled.div`
   grid-column: 1 / -1;
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
   margin-top: 30px;
   margin-bottom: 20px;
   padding: 10px 0;
@@ -48,12 +48,12 @@ const AdditionalInformationRow = styled.div`
   div {
     font-weight: 500;
     font-size: 17px;
-    color: ${Colors.darkestText};
+    color: ${TAMANU_COLORS.darkestText};
   }
 
   button {
     padding: 0;
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
   }
 
   div span {

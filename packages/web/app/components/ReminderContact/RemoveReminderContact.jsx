@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { Box, CircularProgress, Divider, Typography } from '@material-ui/core';
+import { FormConfirmCancelBackRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
-import { Colors } from '../../constants';
-import { FormConfirmCancelBackRow } from '../ButtonRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { useApi } from '../../api';
 import { ContactDetails } from './ContactDetails';
@@ -28,7 +27,7 @@ const StyledFullWidthContainer = styled(Box)`
 `;
 
 const StyledDivider = styled(Divider)`
-  border-top: 1px solid ${Colors.outline};
+  border-top: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 export const RemoveReminderContact = ({

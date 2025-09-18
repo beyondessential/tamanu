@@ -9,8 +9,8 @@ import {
   Field,
   LocalisedField,
   SearchField,
-  TranslatedSelectField,
 } from '../Field';
+import { TranslatedSelectField } from '@tamanu/ui-components';
 import { useSuggester } from '../../api';
 import { DateField } from '../Field/DateField';
 import { SearchBarCheckField } from './SearchBarCheckField';

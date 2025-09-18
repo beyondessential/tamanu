@@ -2,7 +2,8 @@ import React from 'react';
 
 import { VACCINE_CATEGORY_LABELS } from '@tamanu/constants';
 
-import { Field, TranslatedSelectField } from '../../components';
+import { Field } from '../../components';
+import { TranslatedSelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const VaccineCategoryField = ({ name = 'category', required, label }) => (

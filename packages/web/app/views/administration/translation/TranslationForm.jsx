@@ -13,11 +13,10 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
+import { TextField, Form, TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
+import { SearchInput, TableFormFields } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
 import { ThemedTooltip } from '../../../components/Tooltip';
@@ -43,7 +42,7 @@ const StyledTableFormFields = styled(TableFormFields)`
 `;
 
 const ReservedText = styled.p`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   margin-right: 6px;
   font-weight: 500;
   font-size: 14px;
@@ -243,7 +242,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                   }
                   data-testid="tooltip-brb2"
                 >
-                  <HelpIcon style={{ color: Colors.primary }} data-testid="helpicon-py2n" />
+                  <HelpIcon style={{ color: TAMANU_COLORS.primary }} data-testid="helpicon-py2n" />
                 </Tooltip>
               </Box>
             );

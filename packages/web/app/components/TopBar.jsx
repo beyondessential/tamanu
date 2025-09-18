@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Toolbar, Typography } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 // Default height of the top bar
 export const TOP_BAR_HEIGHT = 66;
@@ -24,7 +24,7 @@ const AppBar = styled.div`
   top: 0;
   z-index: 9;
   flex-grow: 1;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
 `;
 
 const Bar = styled(Toolbar)`
@@ -45,11 +45,11 @@ const Dot = styled.span`
 
 export const TopBar = React.memo(({ title, subTitle, children, className, encounterType }) => {
   const dotColors = {
-    [ENCOUNTER_TYPES.ADMISSION]: Colors.safe,
+    [ENCOUNTER_TYPES.ADMISSION]: TAMANU_COLORS.safe,
     [ENCOUNTER_TYPES.CLINIC]: '#F9BA5B',
-    [ENCOUNTER_TYPES.TRIAGE]: Colors.orange,
-    [ENCOUNTER_TYPES.OBSERVATION]: Colors.orange,
-    [ENCOUNTER_TYPES.EMERGENCY]: Colors.orange,
+    [ENCOUNTER_TYPES.TRIAGE]: TAMANU_COLORS.orange,
+    [ENCOUNTER_TYPES.OBSERVATION]: TAMANU_COLORS.orange,
+    [ENCOUNTER_TYPES.EMERGENCY]: TAMANU_COLORS.orange,
   };
 
   return (

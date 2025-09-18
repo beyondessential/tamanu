@@ -3,15 +3,14 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
-import { FormGrid } from './FormGrid';
+import { FORM_TYPES } from '@tamanu/constants';
+import { TextField, Form, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const SubmitError = styled.div`
-  color: ${Colors.alert};
+  color: ${TAMANU_COLORS.alert};
   padding: 0.25rem;
 `;
 

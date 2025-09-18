@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, TextButton } from '../../components/Button';
-import { ButtonRow } from '../../components/ButtonRow';
-import { SelectInput } from '../../components/Field/SelectField';
+import { SelectInput, Button, TextButton, ButtonRow } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
 import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';

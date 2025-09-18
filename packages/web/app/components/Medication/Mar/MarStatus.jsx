@@ -11,9 +11,8 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
+import { TAMANU_COLORS, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ConditionalTooltip } from '../../Tooltip';
 import { useTranslation } from '../../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
@@ -27,10 +26,10 @@ const StatusContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   border-right: none;
   border-bottom: none;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,14 +43,14 @@ const StatusContainer = styled.div`
       : 'default'};
   ${p =>
     (p.isDiscontinued || p.isEnd || p.isPaused) &&
-    `background-image: linear-gradient(${Colors.outline} 1px, transparent 1px);
+    `background-image: linear-gradient(${TAMANU_COLORS.outline} 1px, transparent 1px);
     background-size: 100% 5px;
     background-position: 0 2.5px;`}
   ${p =>
     p.isDisabled || p.isDiscontinued || p.isEnd
-      ? `background-color: ${Colors.background}; color: ${Colors.softText};`
+      ? `background-color: ${TAMANU_COLORS.background}; color: ${TAMANU_COLORS.softText};`
       : `&:hover {
-    background-color: ${p.$disabledClick ? 'transparent' : Colors.veryLightBlue};
+    background-color: ${p.$disabledClick ? 'transparent' : TAMANU_COLORS.veryLightBlue};
   }`}
 `;
 
@@ -70,7 +69,7 @@ const StyledPriorityHighIcon = styled(PriorityHighIcon)`
   bottom: 3px;
   font-size: 18px;
   &.MuiSvgIcon-root {
-    color: ${Colors.alert};
+    color: ${TAMANU_COLORS.alert};
     width: 16px;
   }
 `;
@@ -94,7 +93,7 @@ const SelectedOverlay = styled.div`
   height: 100%;
   transition: all 0.2s;
   opacity: ${p => (p.isSelected && !p.isDisabled ? 1 : 0)};
-  border: 1px solid ${Colors.primary};
+  border: 1px solid ${TAMANU_COLORS.primary};
 `;
 
 const DiscontinuedDivider = styled.div`
@@ -103,7 +102,7 @@ const DiscontinuedDivider = styled.div`
   left: 0;
   width: 2px;
   height: 100%;
-  background-color: ${Colors.midText};
+  background-color: ${TAMANU_COLORS.midText};
 `;
 
 const getIsPast = ({ timeSlot, selectedDate }) => {
@@ -332,7 +331,7 @@ export const MarStatus = ({
     switch (status) {
       case ADMINISTRATION_STATUS.GIVEN:
         return (
-          <IconWrapper $color={Colors.green}>
+          <IconWrapper $color={TAMANU_COLORS.green}>
             <CheckCircleIcon />
             {isAlert && <StyledPriorityHighIcon />}
             {isEdited && <EditedIcon>*</EditedIcon>}
@@ -340,7 +339,7 @@ export const MarStatus = ({
         );
       case ADMINISTRATION_STATUS.NOT_GIVEN:
         return (
-          <IconWrapper $color={Colors.alert}>
+          <IconWrapper $color={TAMANU_COLORS.alert}>
             <CancelIcon />
             {isAlert && <StyledPriorityHighIcon />}
             {isEdited && <EditedIcon>*</EditedIcon>}
@@ -349,7 +348,7 @@ export const MarStatus = ({
       default: {
         if (isPast) {
           return isPrn ? null : (
-            <IconWrapper $color={Colors.darkOrange}>
+            <IconWrapper $color={TAMANU_COLORS.darkOrange}>
               <HelpOutlineIcon />
             </IconWrapper>
           );

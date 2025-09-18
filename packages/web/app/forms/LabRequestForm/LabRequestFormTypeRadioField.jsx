@@ -3,10 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@material-ui/lab';
 import styled from 'styled-components';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { Field, OuterLabelFieldWrapper, RadioField } from '../../components';
 import { useApi } from '../../api';
-import { Colors } from '../../constants';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSettings } from '../../contexts/Settings';
 
 const OPTIONS = {
@@ -69,7 +68,7 @@ const ItemSkeleton = styled(Skeleton)`
   padding: 16px 14px;
   margin-right: 14px;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   width: 247px;
   height: 88px;
 `;

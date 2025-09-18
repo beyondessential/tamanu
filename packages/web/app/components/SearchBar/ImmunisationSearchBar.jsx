@@ -7,9 +7,8 @@ import {
   AutocompleteField,
   LocalisedField,
   SearchField,
-  SelectField,
-  TranslatedSelectField,
 } from '../Field';
+import { TranslatedSelectField, SelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation';
 import { useSettings } from '../../contexts/Settings';
 

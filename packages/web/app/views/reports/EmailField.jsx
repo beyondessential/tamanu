@@ -1,6 +1,7 @@
 import React from 'react';
 import * as Yup from 'yup';
-import { Field, TextField } from '../../components';
+import { TextField } from '@tamanu/ui-components';
+import { Field } from '../../components';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 export const parseEmails = commaSeparatedEmails =>

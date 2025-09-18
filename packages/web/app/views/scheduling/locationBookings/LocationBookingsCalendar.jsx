@@ -14,7 +14,7 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { useLocationBookingsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
-import { Colors } from '../../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
@@ -28,13 +28,13 @@ const getDisplayableDates = (date) => {
 };
 
 const EmptyState = styled.div`
-  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
-  background-color: ${Colors.white};
+  --border-style: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+  background-color: ${TAMANU_COLORS.white};
   border-block-end: var(--border-style);
   border-end-end-radius: 0.2rem;
   border-end-start-radius: 0.2rem;
   border-inline: var(--border-style);
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
   font-weight: 500;
   margin-inline: 1rem;
   padding-block: 0.75rem;
@@ -43,8 +43,8 @@ const EmptyState = styled.div`
 `;
 
 const Carousel = styled.div`
-  background-color: ${Colors.white};
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  background-color: ${TAMANU_COLORS.white};
+  border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
   border-radius: 0.2rem;
   display: grid;
   grid-template-rows: 1fr auto;

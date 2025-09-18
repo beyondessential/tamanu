@@ -1,13 +1,12 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 
-import { Colors } from '../constants';
+import { TAMANU_COLORS, Modal } from '@tamanu/ui-components';
 import { useVitalChartData } from '../contexts/VitalChartData';
 import { DateTimeSelector } from './Charts/components/DateTimeSelector';
 import { MultiVitalChartsView } from '../views/charts/MultiVitalChartsView';
 import { SingleVitalChartView } from '../views/charts/SingleVitalChartView';
 import { VitalMultiChartFilter } from './VitalMultiChartFilter';
-import { Modal } from './Modal';
 
 export const VitalChartsModal = React.memo(() => {
   const {
@@ -26,7 +25,7 @@ export const VitalChartsModal = React.memo(() => {
       title={modalTitle}
       open={vitalChartModalOpen}
       width="xl"
-      color={Colors.white}
+      color={TAMANU_COLORS.white}
       onClose={() => {
         setVitalChartModalOpen(false);
       }}

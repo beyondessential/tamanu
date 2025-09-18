@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const CardHeader = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   padding-bottom: 10px;
   margin-bottom: 15px;
   color: ${(props) => props.theme.palette.text.tertiary};
@@ -48,7 +48,7 @@ const CardValue = styled.span`
 const Card = styled.div`
   background: white;
   box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   padding: ${(props) => `${props.$contentPadding ?? 32}px`};
   padding-top: ${(props) => `${props.$paddingTop ?? props.$contentPadding}px`};
   ${CardLabel} {

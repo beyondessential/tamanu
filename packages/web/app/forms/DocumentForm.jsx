@@ -5,14 +5,13 @@ import { Typography } from '@material-ui/core';
 
 import { ForbiddenError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
-import { AutocompleteField, Field, Form, TextField } from '../components/Field';
+import { TextField, Form, FormGrid, ConfirmCancelRow, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { AutocompleteField, Field } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
-import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow, FormSubmitCancelRow } from '../components/ButtonRow';
-import { FORM_TYPES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

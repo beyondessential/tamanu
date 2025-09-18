@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { components } from 'react-select';
 import styled from 'styled-components';
 import FormControl from '@material-ui/core/FormControl';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
 import { debounce } from 'lodash';
 import { useTranslation } from '../../contexts/Translation';
 import { FormHelperText } from '@material-ui/core';
@@ -26,14 +26,14 @@ const StyledSelect = styled(Select)`
   .react-select__control {
     padding-right: 8px;
     min-height: 39px;
-    border-color: ${(props) => props.$borderColor || Colors.outline};
+    border-color: ${props => props.$borderColor || TAMANU_COLORS.outline};
     border-radius: 3px;
   }
   .react-select__control--is-focused {
-    border-color: ${Colors.primary};
+    border-color: ${TAMANU_COLORS.primary};
     box-shadow: none;
     &:hover {
-      border-color: ${Colors.primary};
+      border-color: ${TAMANU_COLORS.primary};
     }
   }
   .react-select__value-container--is-multi {
@@ -43,16 +43,16 @@ const StyledSelect = styled(Select)`
     }
   }
   .react-select__placeholder {
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
     line-height: 1;
-    ${(p) => p.size === 'small' && 'font-size: 11px;'}
+    ${p => p.size === 'small' && 'font-size: 11px;'}
   }
 
   .react-select__multi-value {
     padding: 6px 11px;
     background-color: transparent;
     border-radius: 50px;
-    border: 1px solid ${Colors.primary};
+    border: 1px solid ${TAMANU_COLORS.primary};
     max-width: 80%;
     margin: 0;
     margin-right: 4px;
@@ -72,7 +72,7 @@ const StyledSelect = styled(Select)`
   }
 
   .react-select__menu {
-    border: 1px solid ${Colors.primary};
+    border: 1px solid ${TAMANU_COLORS.primary};
     border-radius: 3px;
     overflow: overlay;
     box-shadow: none;
@@ -83,14 +83,14 @@ const StyledSelect = styled(Select)`
     max-height: 190px;
   }
   .react-select__option {
-    color: ${Colors.darkestText};
+    color: ${TAMANU_COLORS.darkestText};
     cursor: pointer;
     padding: 10px 15px;
     font-size: 13px;
     display: inline-flex;
-    ${(p) => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
+    ${p => p.size === 'small' && 'font-size: 11px; padding: 8px 12px 8px 20px;'}
     &:hover {
-      background-color: ${Colors.background};
+      background-color: ${TAMANU_COLORS.background};
     }
     &--is-selected {
       background-color: unset;
@@ -105,7 +105,7 @@ const StyledTick = styled.svg`
   flex-shrink: 0;
 `;
 
-const MultiValue = (props) => {
+const MultiValue = props => {
   const { getTranslation } = useTranslation();
   const { index, clearValue, removeProps, getValue, data, selectProps } = props;
   const selected = getValue();
@@ -113,7 +113,7 @@ const MultiValue = (props) => {
 
   useEffect(() => {
     if (index === 0 && data?.value && !data.label) {
-      selectProps.fetchCurrentOption(data.value).then((option) => {
+      selectProps.fetchCurrentOption(data.value).then(option => {
         setLabel(option.label);
       });
     }
@@ -143,7 +143,7 @@ const MultiValue = (props) => {
   );
 };
 
-const Option = (props) => {
+const Option = props => {
   const children = (
     <>
       {props.isSelected && (
@@ -157,7 +157,7 @@ const Option = (props) => {
         >
           <path
             d="M7.82857 1.02L3.25714 5.82C3.14286 5.94 3.02857 6 2.85714 6C2.68571 6 2.57143 5.94 2.45714 5.82L0.171429 3.42C-0.0571429 3.18 -0.0571429 2.82 0.171429 2.58C0.4 2.34 0.742857 2.34 0.971428 2.58L2.85714 4.56L7.02857 0.18C7.25714 -0.06 7.6 -0.06 7.82857 0.18C8.05714 0.42 8.05714 0.78 7.82857 1.02Z"
-            fill={Colors.primary}
+            fill={TAMANU_COLORS.primary}
           />
         </StyledTick>
       )}
@@ -192,22 +192,22 @@ export const MultiAutocompleteInput = ({
     // fill initial values
     setSelected(
       Array.isArray(value)
-        ? value.map((v) => ({ value: v, label: selected.find((s) => s.value === v)?.label }))
+        ? value.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label }))
         : [],
     );
   }, [value]);
 
   const handleChange = useCallback(
-    (selectedOptions) => {
+    selectedOptions => {
       setSelected(selectedOptions);
-      const newValue = selectedOptions.map((x) => x.value);
+      const newValue = selectedOptions.map(x => x.value);
       onChange({ target: { value: newValue, name } });
     },
     [onChange, name],
   );
 
   const handleLoadOption = useCallback(
-    debounce(async (search) => {
+    debounce(async search => {
       try {
         const options = await suggester.fetchSuggestions(search);
         setOptions(options);
@@ -238,7 +238,7 @@ export const MultiAutocompleteInput = ({
           isOptionDisabled={() => {
             return selected.length >= maxSelected;
           }}
-          $borderColor={props.error ? Colors.alert : null}
+          $borderColor={props.error ? TAMANU_COLORS.alert : null}
           closeMenuOnSelect={false}
           hideSelectedOptions={false}
           tabSelectsValue={false}

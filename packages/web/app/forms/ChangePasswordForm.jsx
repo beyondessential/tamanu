@@ -2,19 +2,12 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
-  Button,
   Field,
-  Form,
-  FormSubmitButton,
-  TextButton,
-  TextField,
 } from '../components';
-import { Colors } from '../constants';
+import { TextField, Form, Button, TextButton, FormSubmitButton, FormGrid, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const FormTitleSection = styled.div`
@@ -22,14 +15,14 @@ const FormTitleSection = styled.div`
 `;
 
 const FormHeading = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
 `;
 
 const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
   padding-top: 10px;
 `;
 
@@ -76,7 +69,7 @@ const ResendCodeButton = styled(TextButton)`
   color: black;
   font-weight: 400;
   :hover {
-    color: ${Colors.primary};
+    color: ${TAMANU_COLORS.primary};
     font-weight: 500;
     text-decoration: underline;
   }

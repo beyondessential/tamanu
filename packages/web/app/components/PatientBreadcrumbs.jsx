@@ -2,14 +2,15 @@ import { Breadcrumbs, Typography } from '@material-ui/core';
 import React from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
+
 const StyledBreadcrumbs = styled(Breadcrumbs)`
   & ol > .MuiBreadcrumbs-separator {
     font-size: 12px;
-    color: ${Colors.softText};
+    color: ${TAMANU_COLORS.softText};
   }
   & ol > :last-child > p {
     pointer-events: none;

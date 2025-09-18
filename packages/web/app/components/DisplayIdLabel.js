@@ -1,20 +1,20 @@
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const DisplayIdLabel = styled.span`
-  background: ${Colors.primary};
-  color: ${Colors.secondary};
+  background: ${TAMANU_COLORS.primary};
+  color: ${TAMANU_COLORS.secondary};
   padding: 5px;
   border-radius: 3px;
 `;
 
 export const TextDisplayIdLabel = styled.span`
-  color: ${Colors.primary};
+  color: ${TAMANU_COLORS.primary};
 `;
 
 export const InvertedDisplayIdLabel = styled(DisplayIdLabel)`
-  background: ${Colors.primary};
-  color: ${Colors.white};
-  border: 1px solid ${Colors.white};
+  background: ${TAMANU_COLORS.primary};
+  color: ${TAMANU_COLORS.white};
+  border: 1px solid ${TAMANU_COLORS.white};
   border-radius: 3px;
 `;

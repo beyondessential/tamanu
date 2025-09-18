@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+
 import { PlusIcon } from '../../assets/icons/PlusIcon';
-import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
-import { Button } from '../Button';
 import { ModalCancelRow } from '../ModalActionRow';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { ContactDetails } from './ContactDetails';
@@ -13,7 +13,7 @@ const StyledAddContactButton = styled(Button)`
   padding: 11px 15px !important;
   height: 33px;
   border-radius: 3px;
-  border: 1px solid ${Colors.primary};
+  border: 1px solid ${TAMANU_COLORS.primary};
   line-height: 18px;
   margin-bottom: 20px;
 
@@ -50,7 +50,7 @@ export const ReminderContactList = ({
           onClick={onAddContact}
           data-testid="styledaddcontactbutton-rrqt"
         >
-          <PlusIcon fill={Colors.primary} data-testid="plusicon-fts6" />
+          <PlusIcon fill={TAMANU_COLORS.primary} data-testid="plusicon-fts6" />
           <TranslatedText
             stringId="patient.details.reminderContacts.action.add"
             fallback="Add contact"

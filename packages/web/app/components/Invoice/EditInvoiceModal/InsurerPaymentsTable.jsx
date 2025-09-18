@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { Colors, denseTableStyle } from '../../../constants';
+import { denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 
@@ -14,22 +14,22 @@ const TableContainer = styled.div`
   margin-top: 10px;
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${Colors.white};
+  background-color: ${TAMANU_COLORS.white};
   flex: 2;
   border-radius: 4px;
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const getInsurerPaymentStatus = (insurerPayment) => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
     return (
-      <Box color={Colors.alert} data-testid="box-lbl5">
+      <Box color={TAMANU_COLORS.alert} data-testid="box-lbl5">
         {`${capitalize(insurerPayment?.status)}${
           insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
         }`}
@@ -134,7 +134,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
       <Table
         columns={COLUMNS}
         data={insurerPayments}
-        headerColor={Colors.white}
+        headerColor={TAMANU_COLORS.white}
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}

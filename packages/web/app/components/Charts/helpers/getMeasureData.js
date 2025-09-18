@@ -1,13 +1,13 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
-import { Colors } from '../../../constants';
 
 const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {
-  let color = useInwardArrowVector ? Colors.darkestText : Colors.blue;
+  let color = useInwardArrowVector ? TAMANU_COLORS.darkestText : TAMANU_COLORS.blue;
   if (!isInsideNormalRange) {
-    color = Colors.alert;
+    color = TAMANU_COLORS.alert;
   }
   if (isOutsideGraphRange) {
-    color = Colors.darkestText;
+    color = TAMANU_COLORS.darkestText;
   }
   return color;
 };
@@ -102,7 +102,7 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
 
     // Preserve the first one if its an alert, otherwise the secondary
     const finalDotColor =
-      baseData.dotColor === Colors.alert ? Colors.alert : secondaryValueDotColor;
+      baseData.dotColor === TAMANU_COLORS.alert ? TAMANU_COLORS.alert : secondaryValueDotColor;
 
     return {
       ...baseData,

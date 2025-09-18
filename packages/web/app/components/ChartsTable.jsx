@@ -4,7 +4,8 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
-import { Colors } from '../constants';
+import {TAMANU_COLORS} from '@tamanu/ui-components';
+
 import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
@@ -25,10 +26,10 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
     columns={[]}
     data={[]}
     elevated={false}
-    noDataBackgroundColor={Colors.background}
+    noDataBackgroundColor={TAMANU_COLORS.background}
     isLoading={isLoading}
     noDataMessage={
-      <Box color={Colors.primary} fontWeight={500} data-testid="box-k3rm">
+      <Box color={TAMANU_COLORS.primary} fontWeight={500} data-testid="box-k3rm">
         {noDataMessage}
       </Box>
     }

@@ -1,9 +1,9 @@
-import { TAMANU_COLORS as Colors } from '@tamanu/ui-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { createGlobalStyle } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;
 
-export { Colors, MUI_SPACING_UNIT };
+export { TAMANU_COLORS, MUI_SPACING_UNIT };
 
 export const denseTableStyle = {
   container: 'border: 0px solid white; overflow: visible;',
@@ -20,7 +20,7 @@ export const denseTableStyle = {
   `,
   head: `
     .MuiTableCell-head {
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
       font-weight: 400;
       padding: 8px 30px 8px 0px;
       &:last-child {
@@ -28,7 +28,7 @@ export const denseTableStyle = {
       }
     }
     .MuiTableSortLabel-root.MuiTableSortLabel-active {
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
       font-weight: 400;
     }
   `,

@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { Colors } from '../../../constants';
 import { ExportReportView } from './ExportReportView';
 import { ImportReportView } from './ImportReportView';
 import { CreateReportView } from './CreateReportView';
 import { SelectReportView } from './SelectReportView';
-import { TranslatedText } from '../../../components/Translation';
 
 const OuterContainer = styled.div`
   position: relative;
-  background-color: ${Colors.background};
+  background-color: ${TAMANU_COLORS.background};
   min-height: 100%;
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
   .MuiTabs-root {
     padding: 0px 20px;
-    border-bottom: 1px solid ${Colors.outline};
+    border-bottom: 1px solid ${TAMANU_COLORS.outline};
   }
 `;
 

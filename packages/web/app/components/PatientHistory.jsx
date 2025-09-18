@@ -5,11 +5,11 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-
+import { TranslationContext, useTranslation, TAMANU_COLORS } from '@tamanu/ui-components';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
-import { Colors, PATIENT_STATUS_COLORS } from '../constants';
+import { PATIENT_STATUS_COLORS } from '../constants';
 import { LocationGroupCell } from './LocationCell';
 import { LimitedLinesCell } from './FormattedTableCell';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -21,7 +21,6 @@ import { useAuth } from '../contexts/Auth';
 import { TranslatedEnum, TranslatedReferenceData } from './Translation/index.js';
 import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
-import { TranslationContext, useTranslation } from '../contexts/Translation.jsx';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 
@@ -45,13 +44,13 @@ const StyledTable = styled(DataFetchingTable)`
   box-shadow: none;
   padding: 0 21px;
   .MuiTableCell-head {
-    border-top: 1px solid ${Colors.outline};
-    background-color: ${Colors.white};
+    border-top: 1px solid ${TAMANU_COLORS.outline};
+    background-color: ${TAMANU_COLORS.white};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
       font-weight: 400;
-      color: ${Colors.midText};
+      color: ${TAMANU_COLORS.midText};
     }
     padding-left: 6px;
     padding-right: 6px;
@@ -76,7 +75,7 @@ const StyledTable = styled(DataFetchingTable)`
             display: block;
             width: 6px;
             height: 100%;
-            background-color: ${Colors.veryLightBlue};
+            background-color: ${TAMANU_COLORS.veryLightBlue};
           }
         }
         &:last-child {
@@ -89,7 +88,7 @@ const StyledTable = styled(DataFetchingTable)`
             display: block;
             width: 6px;
             height: 100%;
-            background-color: ${Colors.veryLightBlue};
+            background-color: ${TAMANU_COLORS.veryLightBlue};
           }
         }
       }
@@ -115,7 +114,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
   }
   .MuiTableFooter-root {
-    background-color: ${Colors.white};
+    background-color: ${TAMANU_COLORS.white};
     .MuiPagination-root {
       padding-top: 6px;
       padding-bottom: 6px;
@@ -135,7 +134,7 @@ const StatusIndicator = styled.div`
   height: 44px;
   border-radius: 10px;
   background-color: ${p =>
-    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
+    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : TAMANU_COLORS.white};
   ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 
@@ -182,10 +181,9 @@ const getDate = ({ startDate, endDate, encounterType }) => {
     </DateWrapper>
   );
 };
-const getType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+const getType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 const getReasonForEncounter = ({ reasonForEncounter }) => (
   <ReasonForEncounterWrapper data-testid="reasonforencounterwrapper-7vsk">
     {reasonForEncounter}

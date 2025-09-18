@@ -32,6 +32,28 @@ export const centralSettings = {
         },
       },
     },
+    survey: {
+      name: 'Survey settings',
+      description: '_',
+      properties: {
+        defaultCodes: {
+          description:
+            'Default reference data codes to use when creating a survey encounter on patient portal',
+          properties: {
+            department: {
+              description: 'Default department code',
+              type: yup.string(),
+              defaultValue: 'GeneralClinic',
+            },
+            location: {
+              description: 'Default location code',
+              type: yup.string(),
+              defaultValue: 'GeneralClinic',
+            },
+          },
+        },
+      },
+    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
@@ -57,10 +79,7 @@ export const centralSettings = {
             'If generating a report takes longer than this, it will be cancelled and marked as timed out. (If this ' +
             'is set to a very short duration shorter than the time between Report Request Processor runs ' +
             '(‘schedules.reportRequestProcessor’), it will have no effect.',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 7200, // 2 hours
           unit: 'seconds',
         },

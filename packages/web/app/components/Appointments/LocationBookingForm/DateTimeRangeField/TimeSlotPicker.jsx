@@ -1,4 +1,4 @@
-
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import FormHelperText, { formHelperTextClasses } from '@mui/material/FormHelperText';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import { areIntervalsOverlapping, isSameDay, max, min, parseISO } from 'date-fns';
@@ -17,7 +17,6 @@ import {
 } from '@tamanu/utils/dateTime';
 
 import { useLocationAssignmentsQuery, useLocationBookingsQuery } from '../../../../api/queries';
-import { Colors } from '../../../../constants';
 import { useBookingSlots } from '../../../../hooks/useBookingSlots';
 import { OuterLabelFieldWrapper } from '../../../Field';
 import { PlaceholderTimeSlotToggles, TimeSlotToggle } from './TimeSlotToggle';
@@ -32,7 +31,8 @@ import {
 
 const ToggleGroup = styled(ToggleButtonGroup)`
   background-color: white;
-  border: max(0.0625rem, 1px) solid ${({ error }) => (error ? Colors.alert : Colors.outline)};
+  border: max(0.0625rem, 1px) solid
+    ${({ error }) => (error ? TAMANU_COLORS.alert : TAMANU_COLORS.outline)};
   padding-block: 0.75rem;
   padding-inline: 0.85rem;
 
@@ -111,41 +111,39 @@ export const TimeSlotPicker = ({
    */
   const [selectedToggles, setSelectedToggles] = useState(
     initialInterval
-      ? timeSlots
-          ?.filter((slot) => areIntervalsOverlapping(slot, initialInterval))
-          .map(idOfTimeSlot)
+      ? timeSlots?.filter(slot => areIntervalsOverlapping(slot, initialInterval)).map(idOfTimeSlot)
       : [],
   );
   const [hoverRange, setHoverRange] = useState(null);
 
-  const locationBookingsQuery =
-    useLocationBookingsQuery(
-      {
-        after: toDateTimeString(dayStart),
-        before: toDateTimeString(dayEnd),
-        all: true,
-        locationId: values.locationId,
-      },
-      { enabled: !!date && !!values.locationId && type === 'bookings' },
-    );
+  const locationBookingsQuery = useLocationBookingsQuery(
+    {
+      after: toDateTimeString(dayStart),
+      before: toDateTimeString(dayEnd),
+      all: true,
+      locationId: values.locationId,
+    },
+    { enabled: !!date && !!values.locationId && type === 'bookings' },
+  );
 
-  const locationAssignmentsQuery =
-    useLocationAssignmentsQuery(
-      {
-        after: date,
-        before: date,
-        all: true,
-        locationId: values.locationId,
-      },
-      { 
-        enabled: !!date && !!values.locationId && type === 'assignments',
-      },
-    );
-  const existingBookings = type === 'bookings' ? locationBookingsQuery.data : locationAssignmentsQuery.data;
-  const isFetchingExistingBookings = type === 'bookings' ? locationBookingsQuery.isFetching : locationAssignmentsQuery.isFetching;
+  const locationAssignmentsQuery = useLocationAssignmentsQuery(
+    {
+      after: date,
+      before: date,
+      all: true,
+      locationId: values.locationId,
+    },
+    {
+      enabled: !!date && !!values.locationId && type === 'assignments',
+    },
+  );
+  const existingBookings =
+    type === 'bookings' ? locationBookingsQuery.data : locationAssignmentsQuery.data;
+  const isFetchingExistingBookings =
+    type === 'bookings' ? locationBookingsQuery.isFetching : locationAssignmentsQuery.isFetching;
 
   const updateInterval = useCallback(
-    (newInterval) => {
+    newInterval => {
       const { start, end } = newInterval;
       if (start !== undefined) void setFieldValue('startTime', toDateTimeString(start));
       if (end !== undefined) void setFieldValue('endTime', toDateTimeString(end));
@@ -265,13 +263,13 @@ export const TimeSlotPicker = ({
     () =>
       existingBookings?.data
         .map(appointmentToInterval)
-        .filter((interval) => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
+        .filter(interval => !isEqual(interval, initialInterval)) ?? [], // Ignore the booking currently being modified
     [existingBookings?.data, initialInterval],
   );
 
   /** A time slot is selectable if it does not create a selection of time slots that collides with another booking */
   const checkIfSelectableTimeSlot = useCallback(
-    (timeSlot) => {
+    timeSlot => {
       if (variant === TIME_SLOT_PICKER_VARIANTS.RANGE && (!values.startTime || !values.endTime)) {
         // If beginning a fresh selection in the RANGE variant, discontinuity is impossible
         return true;
@@ -299,9 +297,7 @@ export const TimeSlotPicker = ({
       };
       const targetSelection = getTargetSelection();
 
-      return !bookedIntervals.some((interval) =>
-        areIntervalsOverlapping(targetSelection, interval),
-      );
+      return !bookedIntervals.some(interval => areIntervalsOverlapping(targetSelection, interval));
     },
     [bookedIntervals, dayEnd, dayStart, values.endTime, values.startTime, variant],
   );
@@ -328,8 +324,10 @@ export const TimeSlotPicker = ({
     const endTime = values.endTime;
 
     // Check if values have actually changed to avoid unnecessary processing
-    if (startTime === lastValuesRef.current.startTime && 
-        endTime === lastValuesRef.current.endTime) {
+    if (
+      startTime === lastValuesRef.current.startTime &&
+      endTime === lastValuesRef.current.endTime
+    ) {
       return;
     }
 
@@ -367,7 +365,7 @@ export const TimeSlotPicker = ({
 
       const interval = appointmentToInterval({ startTime, endTime });
       setSelectedToggles(
-        timeSlots?.filter((slot) => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
+        timeSlots?.filter(slot => areIntervalsOverlapping(slot, interval)).map(idOfTimeSlot),
       );
       return;
     }
@@ -378,7 +376,7 @@ export const TimeSlotPicker = ({
         return;
       }
 
-      const hasConflict = bookedIntervals.some((interval) =>
+      const hasConflict = bookedIntervals.some(interval =>
         areIntervalsOverlapping({ start, end: dayEnd }, interval),
       );
       if (hasConflict) {
@@ -388,7 +386,7 @@ export const TimeSlotPicker = ({
       }
 
       const startValue = start.valueOf();
-      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter((slotId) => slotId >= startValue));
+      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId >= startValue));
       return;
     }
 
@@ -405,7 +403,7 @@ export const TimeSlotPicker = ({
       }
 
       const endValue = end.valueOf();
-      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter((slotId) => slotId < endValue));
+      setSelectedToggles(timeSlots?.map(idOfTimeSlot).filter(slotId => slotId < endValue));
       return;
     }
   }, [
@@ -447,8 +445,8 @@ export const TimeSlotPicker = ({
         {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
           <PlaceholderTimeSlotToggles type={type} data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
-          timeSlots?.map((timeSlot) => {
-            const isBooked = bookedIntervals.some((bookedInterval) =>
+          timeSlots?.map(timeSlot => {
+            const isBooked = bookedIntervals.some(bookedInterval =>
               areIntervalsOverlapping(timeSlot, bookedInterval),
             );
             const id = idOfTimeSlot(timeSlot);
@@ -498,7 +496,9 @@ export const TimeSlotPicker = ({
                 selectable={!hasNoLegalSelection && checkIfSelectableTimeSlot(timeSlot)}
                 timeSlot={timeSlot}
                 value={id}
-                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(timeSlot.end)}`}
+                data-testid={`timeslottoggle-9o5k-${parseISO(timeSlot.start)}-${parseISO(
+                  timeSlot.end,
+                )}`}
               />
             );
           })

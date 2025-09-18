@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Colors } from '../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const GRID_ROW_GAP = 18;
 
 const CardHeader = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
+  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
   padding-bottom: 10px;
   margin-bottom: 15px;
   color: ${(props) => props.theme.palette.text.tertiary};
@@ -34,7 +34,7 @@ const CardCell = styled.div`
         GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
     bottom: -${({ $numberOfColumns, $borderHeight = 0 }) =>
         GRID_ROW_GAP / $numberOfColumns - $borderHeight}px;
-    border-left: 1px solid ${Colors.softOutline};
+    border-left: 1px solid ${TAMANU_COLORS.softOutline};
     ${(props) => (props.$borderHeight ? `height: ${props.$borderHeight}px` : '')};
   }
 `;
@@ -51,7 +51,7 @@ const Card = styled.div`
   box-shadow: ${({ $elevated }) => ($elevated ? '2px 2px 25px rgba(0, 0, 0, 0.1)' : 'none')};
   border-radius: 5px;
   padding: ${(props) => `${props.$contentPadding || 32}px`};
-  border: 1px solid ${Colors.outline};
+  border: 1px solid ${TAMANU_COLORS.outline};
   ${(props) =>
     props.$contentMarginBottom ? `margin-bottom: ${props.$contentMarginBottom}px` : ''};
 

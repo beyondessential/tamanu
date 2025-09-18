@@ -12,7 +12,7 @@ import {
   PatientProgramRegistryUpdateModal,
   PatientProgramRegistryActivateModal,
 } from '../../features/ProgramRegistry';
-import { Colors } from '../../constants';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { LimitedLinesCell } from '../../components/FormattedTableCell';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -245,7 +245,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
         onRowClick={selectRegistration}
         fetchOptions={searchParameters}
         rowStyle={({ patient }) => {
-          return patient.dateOfDeath ? `& > td { color: ${Colors.alert}; }` : '';
+          return patient.dateOfDeath ? `& > td { color: ${TAMANU_COLORS.alert}; }` : '';
         }}
         initialSort={{
           order: 'desc',

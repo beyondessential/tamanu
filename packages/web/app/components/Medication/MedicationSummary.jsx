@@ -3,25 +3,28 @@ import React from 'react';
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  TAMANU_COLORS,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.midText};
+  color: ${TAMANU_COLORS.midText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${Colors.darkestText};
+  color: ${TAMANU_COLORS.darkestText};
 `;
 
 export const MedicationSummary = ({ medication }) => {
@@ -32,9 +35,9 @@ export const MedicationSummary = ({ medication }) => {
       my={3}
       px={2.5}
       py={2}
-      border={`1px solid ${Colors.outline}`}
+      border={`1px solid ${TAMANU_COLORS.outline}`}
       borderRadius={'3px'}
-      bgcolor={Colors.white}
+      bgcolor={TAMANU_COLORS.white}
       display={'flex'}
       justifyContent={'space-between'}
     >
@@ -68,7 +71,7 @@ export const MedicationSummary = ({ medication }) => {
       >
         <Box display={'flex'}>
           {medication.isPrn && (
-            <Box display={'flex'} alignItems={'center'} color={Colors.primary}>
+            <Box display={'flex'} alignItems={'center'} color={TAMANU_COLORS.primary}>
               <CheckSharp style={{ fontSize: '18px' }} />
               <MidText ml={0.5}>
                 <TranslatedText
@@ -79,7 +82,7 @@ export const MedicationSummary = ({ medication }) => {
             </Box>
           )}
           {medication.isOngoing && (
-            <Box ml={'5px'} display={'flex'} alignItems={'center'} color={Colors.primary}>
+            <Box ml={'5px'} display={'flex'} alignItems={'center'} color={TAMANU_COLORS.primary}>
               <CheckSharp style={{ fontSize: '18px' }} />
               <MidText ml={0.5}>
                 <TranslatedText
