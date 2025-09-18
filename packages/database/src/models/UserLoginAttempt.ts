@@ -8,7 +8,7 @@ import type { SettingPath } from '@tamanu/settings/types';
 interface UserLoginAttemptMethodParams {
   settings: ReadSettings;
   userId: string;
-  deviceId: string;
+  deviceId?: string;
 }
 
 export class UserLoginAttempt extends Model {
@@ -54,7 +54,9 @@ export class UserLoginAttempt extends Model {
     userId,
     deviceId = '',
   }: UserLoginAttemptMethodParams) {
-    const { lockoutDuration } = await settings.get(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath) as { lockoutDuration: number };
+    const { lockoutDuration } = (await settings.get(
+      SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
+    )) as { lockoutDuration: number };
 
     const lockedAttempt = await this.findOne({
       where: {
@@ -85,26 +87,26 @@ export class UserLoginAttempt extends Model {
     userId,
     deviceId = '',
   }: UserLoginAttemptMethodParams) {
-    const {
-      lockoutThreshold,
-      observationWindow,
-      lockoutDuration,
-    } = await settings.get(SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath) as { lockoutThreshold: number, observationWindow: number, lockoutDuration: number };
-  
-    const failedAttempts = await this.count({
+    const { lockoutThreshold, observationWindow, lockoutDuration } = (await settings.get(
+      SETTING_KEYS.SECURITY_LOGIN_ATTEMPTS as SettingPath,
+    )) as { lockoutThreshold: number; observationWindow: number; lockoutDuration: number };
+
+    const failedAttempts = (await this.count({
       where: {
         userId,
         deviceId,
         outcome: LOGIN_ATTEMPT_OUTCOMES.FAILED,
         createdAt: {
-          [Op.gte]: Sequelize.literal("CURRENT_TIMESTAMP - $observationWindow * interval '1 minute'"),
+          [Op.gte]: Sequelize.literal(
+            "CURRENT_TIMESTAMP - $observationWindow * interval '1 minute'",
+          ),
         },
       },
       // @ts-ignore - sequelize doesn't know bind works in count
       bind: {
         observationWindow,
       },
-    }) as unknown as number;
+    })) as unknown as number;
 
     // We need to add 1 to the failed attempts because the current attempt is not included in the count
     const outcome = failedAttempts + 1 >= lockoutThreshold ? LOGIN_ATTEMPT_OUTCOMES.LOCKED : LOGIN_ATTEMPT_OUTCOMES.FAILED;
