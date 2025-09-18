@@ -291,9 +291,9 @@ export const MultiAutocompleteInput = ({
 
   useEffect(() => {
     // fill initial values
-    setSelected(
+    setSelected(currentSelected =>
       Array.isArray(value)
-        ? value.map(v => ({ value: v, label: selected.find(s => s.value === v)?.label }))
+        ? value.map(v => ({ value: v, label: currentSelected.find(s => s.value === v)?.label }))
         : [],
     );
   }, [value]);
