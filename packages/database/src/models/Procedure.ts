@@ -57,12 +57,12 @@ export class Procedure extends Model {
 
   static getListReferenceAssociations() {
     return [
-      'Location',
-      'ProcedureType',
-      'Anaesthetic',
-      'Department',
-      'AssistantClinicians',
-      'SurveyResponses',
+      'location',
+      'procedureType',
+      'anaesthetic',
+      'department',
+      'assistantClinicians',
+      'surveyResponses',
     ];
   }
 
@@ -77,37 +77,37 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'procedureTypeId',
-      as: 'ProcedureType',
+      as: 'procedureType',
     });
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
-      as: 'LeadClinician',
+      as: 'leadClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
-      as: 'Anaesthetist',
+      as: 'anaesthetist',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'anaestheticId',
-      as: 'Anaesthetic',
+      as: 'anaesthetic',
     });
     this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
-      as: 'Department',
+      as: 'department',
     });
     this.belongsTo(models.User, {
       foreignKey: 'assistantAnaesthetistId',
-      as: 'AssistantAnaesthetist',
+      as: 'assistantAnaesthetist',
     });
 
     this.belongsToMany(models.User, {
       through: 'ProcedureAssistantClinician',
-      as: 'AssistantClinicians',
+      as: 'assistantClinicians',
       foreignKey: 'procedureId',
     });
     this.belongsToMany(models.SurveyResponse, {
       through: 'ProcedureSurveyResponse',
-      as: 'SurveyResponses',
+      as: 'surveyResponses',
       foreignKey: 'procedureId',
     });
   }

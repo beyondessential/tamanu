@@ -8,6 +8,7 @@ import { OngoingConditionsSection } from '../features/dashboard/OngoingCondition
 import { AllergiesSection } from '../features/dashboard/AllergiesSection';
 import { MedicationsSection } from '../features/dashboard/MedicationSection';
 import { VaccinationsSection } from '../features/dashboard/Vaccinations/VaccinationsSection';
+import { ProceduresSection } from '../features/dashboard/Procedures/ProceduresSection';
 
 export const DashboardView = () => {
   const patient = useCurrentUser();
@@ -30,6 +31,7 @@ export const DashboardView = () => {
         <PatientDetailsSection />
         <OngoingConditionsSection />
         <AllergiesSection />
+        <ProceduresSection />
         <MedicationsSection />
         <VaccinationsSection />
       </Stack>
