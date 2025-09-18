@@ -1,10 +1,10 @@
 export const testData = {
   village: "Dama",
-  villageID: "village-Dama",
+  villageId: "village-Dama",
   department: "Cardiology",
-  departmentID: "department-Cardiology",
+  departmentId: "department-Cardiology",
   encounterType: "admission",
-  locationID: "location-EDBed1",
-  patientBillingTypeID: "patientType-Private",
-  patientID: undefined,
+  locationId: "location-EDBed1",
+  patientBillingTypeId: "patientType-Private",
+  patientId: undefined,
 };

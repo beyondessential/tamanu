@@ -40,7 +40,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
     patientRegistryType: 'new_patient',
     registeredById: user.id,
     sex: faker.person.sex(),
-    villageId: testData.villageID,
+    villageId: testData.villageId,
     culturalName: faker.person.middleName(),
   };
 
@@ -69,12 +69,12 @@ export const createHospitalAdmissionEncounterViaAPI = async (
 
 
   const encounterData = {
-    departmentId: testData.departmentID,
+    departmentId: testData.departmentId,
     encounterType: testData.encounterType,
     examinerId: user.id,
-    locationId: testData.locationID,
-    patientBillingTypeId: testData.patientBillingTypeID,
-    patientId: testData.patientID || patientId  ,
+    locationId: testData.locationId,
+    patientBillingTypeId: testData.patientBillingTypeId,
+    patientId: testData.patientId || patientId  ,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
   };
