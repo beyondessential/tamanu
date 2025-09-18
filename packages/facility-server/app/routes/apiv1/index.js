@@ -31,6 +31,7 @@ import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
 import { locationAssignments } from './locationAssignments';
+import { userLeaves } from './userLeaves';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
@@ -176,6 +177,7 @@ referenceDataRoutes.use('/scheduledVaccine', scheduledVaccine);
 referenceDataRoutes.use('/suggestions', suggestions);
 referenceDataRoutes.use('/survey', survey);
 referenceDataRoutes.use('/user', user);
+referenceDataRoutes.use('/leaves', userLeaves);
 referenceDataRoutes.use('/upcomingVaccinations', upcomingVaccinations);
 referenceDataRoutes.use('/translation', translation);
 
