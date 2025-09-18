@@ -23,7 +23,12 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -43,6 +48,16 @@ EOF
                 code: "facility-1",
                 user: "facility-1@tamanu.io",
                 password: "facility-1",
+            },
+        },
+
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
             },
         },
 
@@ -75,8 +90,13 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-	    }
-	}
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
+    }
 EOF
 
     npm run --workspace @tamanu/facility-server start upgrade
