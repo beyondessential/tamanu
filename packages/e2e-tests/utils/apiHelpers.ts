@@ -48,6 +48,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
     data: patientData,
   });
 
+
   return response.json();
 };
 
@@ -158,7 +159,7 @@ export const createClinicEncounterViaApi = async (
     departmentId: 'department-Cardiology',
     encounterType: 'clinic',
     examinerId: user.id,
-    locationId: 'location-EDBed1',
+    locationId: 'location-EDBed1-tamanu',
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
