@@ -13,6 +13,7 @@ import {
 import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
 import { useTranslation } from '../../../contexts/Translation';
+import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
 import { notifyError } from '../../../utils';
 import { FormSubmitCancelRow, ButtonRow } from '../../ButtonRow';
 import { Button } from '../../Button';
@@ -96,6 +97,7 @@ const StyledButton = styled(Button)`
 
 export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const { getTranslation } = useTranslation();
+  const { updateSelectedCell } = useLocationAssignmentsContext();
   const isViewing = Boolean(initialValues?.id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -191,6 +193,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
           handleCloseOverlappingLeaves();
           mutateAssignment(payload, {
             onSuccess: () => {
+              updateSelectedCell({ locationId: null, date: null });
               onClose();
               resetForm();
             },
@@ -204,6 +207,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     }
     mutateAssignment(payload, {
       onSuccess: () => {
+        updateSelectedCell({ locationId: null, date: null });
         onClose();
         resetForm();
       },
@@ -220,6 +224,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
   const handleDeleteConfirm = async ({ deleteFuture }) => {
     await deleteAssignment({ id: initialValues.id, deleteFuture });
     setIsDeleteModalOpen(false);
+    updateSelectedCell({ locationId: null, date: null });
     onClose();
   };
 
@@ -408,6 +413,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     const handleUpdateDate = event => {
       if (event.target.value) {
         handleUpdateScheduleToStartTime(parseISO(event.target.value));
+        updateSelectedCell({ date: parseISO(event.target.value) });
       }
     };
 
@@ -423,10 +429,15 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
       }
     };
 
+    const handleClose = () => {
+      updateSelectedCell({ locationId: null, date: null });
+      onClose();
+    };
+
     return (
       <Drawer
         open={open}
-        onClose={onClose}
+        onClose={handleClose}
         title={
           isViewing ? (
             <TranslatedText
@@ -487,6 +498,9 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             required
             locationGroupSuggesterType="bookableLocationGroup"
             disabled={isViewing && !isEditMode}
+            onChange={(e) => {
+              updateSelectedCell({ locationId: e.target.value });
+            }}
             data-testid="field-lmrx"
             showAllLocations
           />
@@ -560,7 +574,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
                   data-testid="translatedtext-delete"
                 />
               </StyledButton>
-              <StyledButton onClick={onClose} data-testid="close-button">
+              <StyledButton onClick={handleClose} data-testid="close-button">
                 <TranslatedText
                   stringId="general.action.close"
                   fallback="Close"
@@ -570,7 +584,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             </StyledButtonRow>
           ) : (
             <StyledFormSubmitCancelRow
-              onCancel={onClose}
+              onCancel={handleClose}
               confirmText={
                 <TranslatedText
                   stringId="general.action.saveChanges"
