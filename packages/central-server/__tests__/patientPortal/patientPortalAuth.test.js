@@ -24,9 +24,7 @@ describe('Patient Portal Auth', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, Setting } = store.models;
-
-    await Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
+    const { Patient, PortalUser } = store.models;
 
     // Create a test patient
     testPatient = await Patient.create(
