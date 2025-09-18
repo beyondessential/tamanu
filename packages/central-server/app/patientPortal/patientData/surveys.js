@@ -5,7 +5,7 @@ import { PortalSurveyAssignmentSchema } from '@tamanu/shared/schemas/patientPort
 
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   const { patient } = req;
@@ -32,7 +32,9 @@ export const getOutstandingSurveys = asyncHandler(async (req, res) => {
   });
 
   return res.send({
-    data: outstandingSurveys.map(survey => PortalSurveyAssignmentSchema.parse(survey.forResponse())),
+    data: outstandingSurveys.map(survey =>
+      PortalSurveyAssignmentSchema.parse(survey.forResponse()),
+    ),
   });
 });
 
@@ -51,7 +53,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       surveyId: body.surveyId,
     },
   });
- 
+
   if (!assignedSurvey) {
     log.error('Patient attempted to submit response for invalid assigned survey', {
       assignmentId,

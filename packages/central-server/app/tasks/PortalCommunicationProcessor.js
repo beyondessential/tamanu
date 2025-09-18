@@ -1,6 +1,6 @@
 import config from 'config';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { PATIENT_COMMUNICATION_CHANNELS, PATIENT_COMMUNICATION_TYPES } from '@tamanu/constants';
 import { BaseCommunicationProcessor } from './BaseCommunicationProcessor';
 import { PortalOneTimeTokenService } from '../patientPortal/auth/PortalOneTimeTokenService';

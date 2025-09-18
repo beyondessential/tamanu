@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { mapQueryFilters } from '../../../database/utils';
 import {
