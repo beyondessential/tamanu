@@ -3,12 +3,13 @@ import { AddRounded } from '@material-ui/icons';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
+import { PageContainer, TopBar } from '../../components';
 import { AssignUserDrawer } from '../../components/Appointments/LocationAssignmentForm/AssignUserDrawer';
 import { Colors } from '../../constants';
 import { LocationAssignmentsCalendar } from './locationAssignments/LocationAssignmentsCalendar';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
 import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
+import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ASSIGNMENT_SCHEDULE_INITIAL_VALUES } from '../../constants/locationAssignments';
 
 const PlusIcon = styled(AddRounded)`

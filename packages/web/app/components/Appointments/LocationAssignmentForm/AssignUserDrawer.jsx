@@ -17,14 +17,11 @@ import {
   FormSubmitCancelRow,
   ButtonRow,
   Button,
-  AutocompleteField,
-  DateField,
   Field,
   Form,
-  LocalisedLocationField,
-  SwitchField,
   FormGrid,
 } from '@tamanu/ui-components';
+import { AutocompleteField, LocalisedLocationField, SwitchField, DateField } from '../../Field';
 import { Drawer } from '../../Drawer';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
@@ -43,7 +40,12 @@ import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
 } from '@tamanu/utils/appointmentScheduling';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY,  FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import {
+  DAYS_OF_WEEK,
+  REPEAT_FREQUENCY,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+} from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
 import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
