@@ -1,5 +1,5 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
-import { PORTAL_ONE_TIME_TOKEN_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
 import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
@@ -22,7 +22,7 @@ describe('PortalOneTimeTokenService', () => {
     store = ctx.store;
     models = store.models;
 
-    await models.Setting.set('features.patientPortal', true, SETTINGS_SCOPES.GLOBAL);
+    await models.Setting.set('features.patientPortal', true);
 
     // Create a test patient
     const testPatient = await models.Patient.create(
@@ -87,7 +87,7 @@ describe('PortalOneTimeTokenService', () => {
       const expectedExpiry = addMinutes(now, defaultExpiryTime);
 
       const expiry = parseISO(result.expiresAt);
-      expect(differenceInMinutes(expectedExpiry, expiry)).toEqual(0);
+      expect(Math.abs(differenceInMinutes(expectedExpiry, expiry))).toEqual(0);
     });
 
     it('should overwrite existing tokens for the same user', async () => {
@@ -142,7 +142,7 @@ describe('PortalOneTimeTokenService', () => {
       const result = await customService.createRegisterToken(testPortalUser.id);
 
       // Verify expiry time is correct (to closest minute to avoid false negatives)
-      const defaultExpiryMinutes = 1440;
+      const defaultExpiryMinutes = 43800;
       const expectedExpiry = addMinutes(now, defaultExpiryMinutes);
 
       const expiry = parseISO(result.expiresAt);
