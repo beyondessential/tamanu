@@ -1,3 +1,5 @@
+export { Field, SelectField } from '@tamanu/ui-components';
+
 // simple fields
 export * from './MonthPicker';
 export * from './CheckField';

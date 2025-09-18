@@ -1,18 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { VISIBILITY_STATUSES, FORM_TYPES } from '@tamanu/constants';
+import { AutocompleteField, MultiAutocompleteField } from '../../../components/Field';
 import {
-  Field,
   Form,
   TextField,
-  AutocompleteField,
-  MultiAutocompleteField,
+  TranslatedText,
+  Button,
+  OutlinedButton,
+  FormGrid,
+  Field,
   SelectField,
-} from '../../../components/Field';
+} from '@tamanu/ui-components';
 import { useSuggester } from '../../../api';
-import { FormGrid, TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { FormModal } from '../../../components';
+import { Colors } from '../../../constants';
 import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
 import { useUpdateUserMutation } from '../../../api/mutations';
