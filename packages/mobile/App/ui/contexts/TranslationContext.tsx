@@ -50,11 +50,7 @@ interface TranslationContextData {
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;
-  getEnumTranslation: (
-    enumValues: Record<string, string>,
-    value: string,
-    enumFallback?: string,
-  ) => string;
+  getEnumTranslation: (enumValues: Record<string, string>, value: string) => string;
   getReferenceDataTranslation: (props: TranslatedReferenceDataProps) => string;
 }
 
@@ -156,13 +152,9 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     return replaceStringVariables(translation, translationOptions, translations);
   };
 
-  const getEnumTranslation = (
-    enumValues: Record<string, string>,
-    value: string,
-    enumFallback = 'Unknown',
-  ) => {
+  const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
     if (!enumValues[value]) {
-      return getTranslation('general.fallback.unknown', enumFallback);
+      return getTranslation('general.fallback.unknown', 'Unknown');
     }
 
     const stringId = getEnumStringId(value, enumValues);
