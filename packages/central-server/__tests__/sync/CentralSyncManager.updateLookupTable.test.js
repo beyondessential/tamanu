@@ -1,6 +1,10 @@
 import { Op } from 'sequelize';
 
-import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
+import {
+  FACT_CURRENT_SYNC_TICK,
+  FACT_LOOKUP_UP_TO_TICK,
+  FACT_LOOKUP_MODELS_TO_REBUILD,
+} from '@tamanu/constants/facts';
 import { SYNC_SESSION_DIRECTION } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
 
@@ -28,6 +32,7 @@ const doImport = (options, models) => {
 describe('CentralSyncManager.updateLookupTable', () => {
   let ctx;
   let models;
+  let sequelize;
 
   const DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS = 100000000;
   const initializeCentralSyncManager = config =>
@@ -75,6 +80,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
           await resolveUpdateLookupTableWaitingPromise();
           return mockedModelUpdateLookupTableQueryPromise;
         },
+        models,
       },
       buildSyncFilter: () => null,
       buildSyncLookupQueryDetails: () => null,
@@ -89,12 +95,13 @@ describe('CentralSyncManager.updateLookupTable', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    ({ models } = ctx.store);
+    ({ models, sequelize } = ctx.store);
   });
 
   beforeEach(async () => {
     jest.resetModules();
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, 2);
+    await models.LocalSystemFact.set(FACT_LOOKUP_MODELS_TO_REBUILD, null);
     await models.SyncLookupTick.truncate({ force: true });
     await models.SyncDeviceTick.truncate({ force: true });
     await models.Facility.truncate({ cascade: true, force: true });
@@ -260,6 +267,92 @@ describe('CentralSyncManager.updateLookupTable', () => {
         updatedAtSyncTick: newCurrentSyncTime.toString(), // we take the tick for this
       }),
     );
+  });
+
+  it('fully rebuilds models that have been flagged for rebuild', async () => {
+    const patient1 = await models.Patient.create(fake(models.Patient));
+    const centralSyncManager = initializeCentralSyncManager({
+      sync: {
+        lookupTable: {
+          enabled: true,
+        },
+        maxRecordsPerSnapshotChunk: DEFAULT_MAX_RECORDS_PER_SNAPSHOT_CHUNKS,
+      },
+    });
+
+    await models.LocalSystemFact.set(
+      FACT_LOOKUP_UP_TO_TICK,
+      parseInt(patient1.updatedAtSyncTick, 10) + 1,
+    ); // Set this to skip initial build
+
+    await centralSyncManager.updateLookupTable();
+
+    const lookupData = await models.SyncLookup.findAll({
+      where: {
+        recordId: {
+          [Op.not]: SYSTEM_USER_UUID,
+        },
+      },
+    });
+
+    expect(lookupData).toHaveLength(0);
+
+    const patient2 = await models.Patient.create(fake(models.Patient));
+
+    await sequelize.query(`SELECT flag_lookup_model_to_rebuild('patients')`);
+
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual(['patients']);
+
+    await centralSyncManager.updateLookupTable();
+
+    const lookupData2 = await models.SyncLookup.findAll({
+      where: {
+        recordId: {
+          [Op.not]: SYSTEM_USER_UUID,
+        },
+      },
+    });
+
+    expect(lookupData2).toHaveLength(2);
+    const patient1Lookup = lookupData2.find(d => d.recordId === patient1.id);
+    const patient2Lookup = lookupData2.find(d => d.recordId === patient2.id);
+    expect(patient1Lookup).toEqual(
+      expect.objectContaining({
+        recordId: patient1.id,
+        recordType: 'patients',
+        updatedAtSyncTick: patient1.updatedAtSyncTick, // Preserve the historic sync tick to avoid syncing historic data
+        data: expect.objectContaining({
+          id: patient1.id,
+          displayId: patient1.displayId,
+          firstName: patient1.firstName,
+          middleName: patient1.middleName,
+          lastName: patient1.lastName,
+          culturalName: patient1.culturalName,
+          dateOfBirth: patient1.dateOfBirth,
+          dateOfDeath: null,
+          sex: patient1.sex,
+          email: patient1.email,
+          visibilityStatus: patient1.visibilityStatus,
+          villageId: null,
+          mergedIntoId: null,
+        }),
+        isLabRequest: false,
+        isDeleted: false,
+      }),
+    );
+    expect(patient2Lookup).toEqual(
+      expect.objectContaining({
+        recordId: patient2.id,
+        recordType: 'patients',
+      }),
+    );
+
+    // Bumping the lookup table tick works in the same build
+    expect(parseInt(patient2Lookup.updatedAtSyncTick, 10)).toBeGreaterThan(
+      parseInt(patient2.updatedAtSyncTick, 10),
+    );
+
+    expect(await models.LocalSystemFact.getLookupModelsToRebuild()).toEqual([]);
   });
 
   it('allows having the same recordId but different record_type in sync lookup table', async () => {

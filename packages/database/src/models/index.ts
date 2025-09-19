@@ -2,6 +2,7 @@ export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
+export * from './Device';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -152,3 +153,6 @@ export * from './SyncLookupTick';
 export * from './AccessLog';
 export * from './ChangeLog';
 export * from './UserLeave';
+
+export * from './LocationAssignmentTemplate';
+export * from './LocationAssignment';

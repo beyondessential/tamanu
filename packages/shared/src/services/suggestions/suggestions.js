@@ -2,7 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { literal, Op, Sequelize } from 'sequelize';
-import { NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { NotFoundError, ValidationError } from '@tamanu/errors';
 import { camelCase } from 'lodash';
 import {
   DEFAULT_HIERARCHY_TYPE,
@@ -542,7 +542,7 @@ createSuggester(
       const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
-      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id, isBookable: lg.isBookable };
       return {
         name: name,
         code,
@@ -572,7 +572,7 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
   ...filterByFacilityWhereBuilder({
     endpoint,
     modelName,
-    query: { ...query, filterByFacility: true },
+    query: { ...query, filterByFacility: !!query.facilityId },
   }),
   isBookable: {
     [Op.ne]: LOCATION_BOOKABLE_VIEW.NO,

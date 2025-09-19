@@ -253,7 +253,6 @@ export const UserLeaveSection = ({ user }) => {
           </BodyText>
           <LeaveListContainer>
             {leaves
-              .filter(leave => !leave.removedAt)
               .map(leave => (
                 <LeaveItem key={leave.id}>
                   <LeaveDates>

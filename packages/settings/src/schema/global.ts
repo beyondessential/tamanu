@@ -105,6 +105,16 @@ export const globalSettings = {
         },
       },
     },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        assignmentMaxFutureMonths: {
+          description: 'The maximum number of months allowed when creating location assignments',
+          type: yup.number().min(1),
+          defaultValue: 12,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -338,6 +348,16 @@ export const globalSettings = {
           description: 'Use the global PDF font for all PDFs',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
         },
       },
     },

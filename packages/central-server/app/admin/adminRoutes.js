@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 
@@ -17,6 +17,7 @@ import { reportsRouter } from './reports/reportRoutes';
 import { syncLastCompleted } from './sync';
 import { translationRouter } from './translation';
 import { usersRouter } from './users';
+import { locationAssignmentsRouter } from './locationAssignments';
 
 export const adminRoutes = express.Router();
 adminRoutes.use(ensurePermissionCheck);
@@ -68,6 +69,7 @@ adminRoutes.use('/template', templateRoutes);
 
 adminRoutes.use('/asset', assetRoutes);
 adminRoutes.use('/users', usersRouter);
+adminRoutes.use('/location-assignments', locationAssignmentsRouter);
 
 // These settings endpoints are setup for viewing and saving the settings in the JSON editor in the admin panel
 adminRoutes.get(
