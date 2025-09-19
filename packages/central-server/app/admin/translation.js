@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
-import { isNull } from 'lodash';
+import { isEmpty } from 'lodash';
 
 export const translationRouter = express.Router();
 
@@ -44,7 +44,9 @@ translationRouter.put(
           language,
         },
       });
-      if (isNull(text) || existing?.text === text) return [];
+      if (isEmpty(text) && !existing) return [];
+      if (isEmpty(text) && existing) return [await existing.destroy(), false];
+      if (existing?.text === text) return [];
       if (existing) return [await existing.update({ text }), false];
       return [await TranslatedString.create({ stringId, language, text }), true];
     };
@@ -61,8 +63,8 @@ translationRouter.put(
     });
 
     const newlyCreated = results
-      .filter((result) => result[1])
-      .map((result) => result[0].get({ plain: true }));
+      .filter(result => result[1])
+      .map(result => result[0].get({ plain: true }));
 
     if (newlyCreated.length) {
       res.status(201).send({ data: newlyCreated });
