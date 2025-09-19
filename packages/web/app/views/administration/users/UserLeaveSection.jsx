@@ -14,11 +14,11 @@ import {
   useDeleteUserLeaveMutation,
 } from '../../../api/mutations/useUserLeaveMutation';
 import { useUserLeavesQuery } from '../../../api/queries/useUserLeaveQuery';
+import { useLocationAssignmentsQuery } from '../../../api/queries';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { LocationAssignmentConflictModal } from '../../../components/LocationAssignmentConflictModal';
 import { useAuth } from '../../../contexts/Auth';
-import { useApi } from '../../../api/useApi';
 
 const SectionSubtitle = styled(Box)`
   font-size: 14px;
@@ -102,10 +102,11 @@ export const UserLeaveSection = ({ user }) => {
   );
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
-  const api = useApi();
   const [leaveToDelete, setLeaveToDelete] = useState(null);
   const [pendingLeaveValues, setPendingLeaveValues] = useState(null);
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [formResetFunction, setFormResetFunction] = useState(null);
+  const [conflictCheckValues, setConflictCheckValues] = useState(null);
 
   const { mutateAsync: createLeave, isLoading: isCreatingLeave } = useCreateUserLeaveMutation(
     user.id,
@@ -158,18 +159,56 @@ export const UserLeaveSection = ({ user }) => {
       await createLeave(pendingLeaveValues);
       setPendingLeaveValues(null);
       setShowConflictModal(false);
+      if (formResetFunction) {
+        formResetFunction();
+        setFormResetFunction(null);
+      }
     }
   };
 
   const handleConflictModalCancel = () => {
     setPendingLeaveValues(null);
     setShowConflictModal(false);
+    setFormResetFunction(null);
   };
 
   const { data: leavesData } = useUserLeavesQuery(user.id);
   const leaves = leavesData || [];
 
-  const handleSubmit = async values => {
+  // Query for location assignments to check for conflicts
+  const { isFetching: isCheckingConflicts } = useLocationAssignmentsQuery(
+    conflictCheckValues
+      ? {
+          userId: user.id,
+          after: conflictCheckValues.startDate,
+          before: conflictCheckValues.endDate,
+        }
+      : null,
+    {
+      enabled: !!conflictCheckValues,
+      onSuccess: data => {
+        const hasConflicts = data?.data?.length > 0;
+        if (hasConflicts) {
+          // Show conflict modal
+          setPendingLeaveValues(conflictCheckValues);
+          setFormResetFunction(() => conflictCheckValues.resetForm);
+          setShowConflictModal(true);
+        } else {
+          // No conflicts, create leave directly
+          createLeave(conflictCheckValues).then(() => {
+            conflictCheckValues.resetForm();
+          });
+        }
+        setConflictCheckValues(null);
+      },
+      onError: error => {
+        toast.error(error.message);
+        setConflictCheckValues(null);
+      },
+    },
+  );
+
+  const handleSubmit = async (values, resetForm) => {
     if (new Date(values.endDate) < new Date(values.startDate)) {
       toast.error(
         getTranslation(
@@ -180,20 +219,11 @@ export const UserLeaveSection = ({ user }) => {
       return;
     }
 
-    const locationAssignments = await api.get('admin/location-assignments', {
-      userId: user.id,
-      after: values.startDate,
-      before: values.endDate,
+    // Trigger conflict check using the query
+    setConflictCheckValues({
+      ...values,
+      resetForm,
     });
-
-    if (locationAssignments?.data?.length > 0) {
-      // Show conflict modal
-      setPendingLeaveValues(values);
-      setShowConflictModal(true);
-    } else {
-      // No conflicts, create leave directly
-      await createLeave(values);
-    }
   };
 
   const initialValues = {
@@ -221,7 +251,7 @@ export const UserLeaveSection = ({ user }) => {
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
             formType={FORM_TYPES.CREATE_FORM}
-            render={({ submitForm, values, resetForm }) => {
+            render={({ values, resetForm }) => {
               const { startDate, endDate } = values;
               return (
                 <DateFieldsContainer>
@@ -251,12 +281,11 @@ export const UserLeaveSection = ({ user }) => {
                     required
                   />
                   <StyledButton
-                    onClick={async e => {
-                      await submitForm(e);
-                      resetForm();
+                    onClick={async () => {
+                      await handleSubmit(values, resetForm);
                     }}
-                    disabled={!startDate || !endDate || isCreatingLeave}
-                    isSubmitting={isCreatingLeave}
+                    disabled={!startDate || !endDate || isCreatingLeave || isCheckingConflicts}
+                    isSubmitting={isCreatingLeave || isCheckingConflicts}
                   >
                     <TranslatedText
                       stringId="admin.users.leave.schedule"
@@ -284,19 +313,18 @@ export const UserLeaveSection = ({ user }) => {
             />
           </BodyText>
           <LeaveListContainer>
-            {leaves
-              .map(leave => (
-                <LeaveItem key={leave.id}>
-                  <LeaveDates>
-                    {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
-                  </LeaveDates>
-                  {canUpdateUser && (
-                    <RemoveLink onClick={() => handleDeleteLeave(leave)}>
-                      <TranslatedText stringId="general.action.remove" fallback="Remove" />
-                    </RemoveLink>
-                  )}
-                </LeaveItem>
-              ))}
+            {leaves.map(leave => (
+              <LeaveItem key={leave.id}>
+                <LeaveDates>
+                  {formatShort(leave.startDate)} - {formatShort(leave.endDate)}
+                </LeaveDates>
+                {canUpdateUser && (
+                  <RemoveLink onClick={() => handleDeleteLeave(leave)}>
+                    <TranslatedText stringId="general.action.remove" fallback="Remove" />
+                  </RemoveLink>
+                )}
+              </LeaveItem>
+            ))}
           </LeaveListContainer>
         </>
       )}
