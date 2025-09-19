@@ -62,18 +62,6 @@ export const patientPortalMiddleware = ({ secret }) =>
       );
     }
 
-    // Reject access if the patient is deceased
-    if (patient.dateOfDeath) {
-      log.debug('Patient portal auth error: Deceased patient token use', {
-        portalUserId,
-        patientId: patient.id,
-      });
-      res.status(401).send({
-        error: { message: 'Invalid token' },
-      });
-      return;
-    }
-
     /* eslint-disable require-atomic-updates */
     req.portalUser = portalUser;
     req.patient = patient;
