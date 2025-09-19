@@ -10,7 +10,7 @@ import {
   NotFoundError,
   ValidationError,
   InvalidOperationError,
-} from '@tamanu/shared/errors';
+} from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 
 export const usersRouter = express.Router();
@@ -106,9 +106,13 @@ usersRouter.get(
       case 'designations':
         orderClause = [
           [
-            { model: UserDesignation, as: 'designations' },
-            { model: ReferenceData, as: 'referenceData' },
-            'name',
+            User.sequelize.literal(
+              `(SELECT MIN(ref."name") FROM ${UserDesignation.getTableName()} ud
+                LEFT JOIN ${ReferenceData.getTableName()} ref ON ud."designation_id" = ref."id"
+                WHERE ud."user_id" = "User"."id" AND ud."deleted_at" IS NULL AND ref."deleted_at" IS NULL
+                GROUP BY ud."user_id")
+              `,
+            ),
             upperOrder,
           ],
         ];
@@ -128,7 +132,6 @@ usersRouter.get(
       order: orderClause,
       limit: rowsPerPage,
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
-      subQuery: false,
     });
 
     // Get role names for each user

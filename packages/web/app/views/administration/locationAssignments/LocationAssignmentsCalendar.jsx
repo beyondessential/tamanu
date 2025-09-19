@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { toDateString } from '@tamanu/utils/dateTime';
@@ -11,7 +11,6 @@ import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBookings/CarouselComponents';
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
-import { LOCATION_ASSIGNMENTS_CALENDAR_ID } from '../../../constants/locationAssignments';
 import { getDisplayableDates } from './utils';
 
 const EmptyState = styled.div`
@@ -55,12 +54,15 @@ const Carousel = styled.div`
   }
 `;
 
-export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDrawer, ...props }) => {
-  const { monthOf, setMonthOf } = useLocationAssignmentsContext();
+export const LocationAssignmentsCalendar = ({
+  locations,
+  isLocationsLoading,
+  openAssignmentDrawer,
+  ...props
+}) => {
+  const { monthOf, setMonthOf, setIsCalendarLoaded } = useLocationAssignmentsContext();
 
   const displayedDates = getDisplayableDates(monthOf);
-
-  const { data: locations, isLoading: isLocationsLoading } = locationsQuery;
 
   const { data: assignmentsData, isLoading: isAssignmentsLoading } = useLocationAssignmentsQuery(
     {
@@ -72,6 +74,15 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
   );
   const assignments = assignmentsData?.data ?? [];
 
+  // Signal that calendar is ready when data is loaded
+  useEffect(() => {
+    if (!isLocationsLoading && !isAssignmentsLoading) {
+      setIsCalendarLoaded(true);
+    } else {
+      setIsCalendarLoaded(false);
+    }
+  }, [isLocationsLoading, isAssignmentsLoading, setIsCalendarLoaded]);
+
   if (isLocationsLoading || isAssignmentsLoading) {
     return <LoadingIndicator />;
   }
@@ -79,11 +90,7 @@ export const LocationAssignmentsCalendar = ({ locationsQuery, openAssignmentDraw
   return (
     <>
       <Carousel className={APPOINTMENT_CALENDAR_CLASS} {...props} data-testid="carousel-sitm">
-        <CarouselGrid.Root
-          id={LOCATION_ASSIGNMENTS_CALENDAR_ID}
-          $dayCount={displayedDates.length}
-          data-testid="root-nqxn"
-        >
+        <CarouselGrid.Root $dayCount={displayedDates.length} data-testid="root-nqxn">
           <LocationAssignmentsCalendarHeader
             monthOf={monthOf}
             setMonthOf={setMonthOf}

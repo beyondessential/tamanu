@@ -63,9 +63,9 @@ export class LocationAssignment extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         facilityId: 'COALESCE(location_groups.facility_id, locations.facility_id)',
       }),
       joins: `

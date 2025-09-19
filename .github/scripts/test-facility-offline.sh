@@ -34,7 +34,12 @@ test_facility_offline_central_start() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -54,6 +59,16 @@ EOF
                 code: "test",
                 user: "facility-test@tamanu.io",
                 password: "facility-test",
+            },
+        },
+
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
             },
         },
     }
@@ -86,7 +101,12 @@ test_facility_offline_facility_start() {
 	        "verbose": true,
 	        "username": "tamanu",
 	        "password": "tamanu",
-	    }
+	    },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
 	}
 	EOF
 	npm run --workspace @tamanu/facility-server start upgrade

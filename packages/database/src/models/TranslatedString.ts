@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
@@ -86,7 +86,7 @@ export class TranslatedString extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 
@@ -94,11 +94,6 @@ export class TranslatedString extends Model {
     const languagesInDb = await TranslatedString.findAll({
       attributes: ['language'],
       group: 'language',
-      where: {
-        language: {
-          [Op.not]: DEFAULT_LANGUAGE_CODE,
-        },
-      },
     });
 
     const languageNames = await TranslatedString.findAll({

@@ -8,8 +8,8 @@ import {
 } from 'date-fns';
 
 import {
-  LOCATION_ASSIGNMENTS_CALENDAR_ID,
   THIS_WEEK_ID,
+  FIRST_DISPLAYED_DAY_ID,
 } from '../../../constants/locationAssignments';
 
 export const generateIdFromCell = ({ locationId, date }) =>
@@ -20,10 +20,10 @@ export const scrollToThisWeek = scrollIntoViewOptions =>
     .getElementById(THIS_WEEK_ID)
     ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
 
-export const scrollToBeginning = scrollToOptions => {
-  const calendarElement = document.getElementById(LOCATION_ASSIGNMENTS_CALENDAR_ID);
-  return calendarElement?.scroll({ left: 0, ...scrollToOptions });
-};
+export const scrollToFirstDisplayedDay = scrollIntoViewOptions =>
+  document
+    .getElementById(FIRST_DISPLAYED_DAY_ID)
+    ?.scrollIntoView({ inline: 'start', ...scrollIntoViewOptions });
 
 export const scrollToCell = (cell, scrollIntoViewOptions) =>
   document

@@ -17,7 +17,7 @@ import {
 
 const SearchBar = styled('search')`
   display: flex;
-  gap: 0.625rem;
+  gap: 0.5rem;
 `;
 
 const FormListener = () => {
