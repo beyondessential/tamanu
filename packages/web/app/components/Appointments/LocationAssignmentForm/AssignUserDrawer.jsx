@@ -498,7 +498,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             required
             locationGroupSuggesterType="bookableLocationGroup"
             disabled={isViewing && !isEditMode}
-            onChange={(e) => {
+            onChange={e => {
               updateSelectedCell({ locationId: e.target.value });
             }}
             data-testid="field-lmrx"
@@ -613,13 +613,15 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
         style={formStyles}
         data-testid="form-rwgy"
       />
-      <DeleteLocationAssignmentModal
-        open={isDeleteModalOpen}
-        onClose={handleDeleteCancel}
-        onConfirm={handleDeleteConfirm}
-        assignment={initialValues}
-        data-testid="delete-assignment-modal"
-      />
+      {isDeleteModalOpen && (
+        <DeleteLocationAssignmentModal
+          open
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          assignment={initialValues}
+          data-testid="delete-assignment-modal"
+        />
+      )}
       <ModifyRepeatingAssignmentModal
         open={isConfirmModifyRepeatingAssignmentModalOpen}
         onClose={() => setIsConfirmModifyRepeatingAssignmentModalOpen(false)}
