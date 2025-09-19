@@ -35,8 +35,7 @@ test.describe('inpatient table tests', () => {
       await inpatientsPage.validateAtLeastOneSearchResult();
       await inpatientsPage.validateAllRowsContain(patientArea, 'locationGroupName');
     });
-    //skipping this because there is a bug in the department search
-    test.skip('Search by department', async ({
+    test('Search by department', async ({
       newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission,
       inpatientsPage,
     }) => {
@@ -73,8 +72,7 @@ test.describe('inpatient table tests', () => {
       await inpatientsPage.validateAtLeastOneSearchResult();
       await inpatientsPage.validateAllRowsContain(testData.dietSearchResult2, 'diets');
     });
-    //skipping this because there is a bug in the department search
-    test.skip('Search by filling all the fields', async ({
+    test('Search by filling all the fields', async ({
       newPatientWithHospitalAdmission,
       inpatientsPage,
       api,

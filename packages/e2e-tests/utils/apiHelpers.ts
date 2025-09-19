@@ -156,10 +156,10 @@ export const createClinicEncounterViaApi = async (
   const user = await getUser(api);
 
   const encounterData = {
-    departmentId: 'department-Cardiology',
+    departmentId: testData.departmentId,
     encounterType: 'clinic',
     examinerId: user.id,
-    locationId: 'location-EDBed1-tamanu',
+    locationId: testData.locationId,
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
