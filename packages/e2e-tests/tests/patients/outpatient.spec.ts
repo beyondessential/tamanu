@@ -36,8 +36,7 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.validateAllRowsContain(patientArea, 'locationGroupName');
     });
 
-//skipping this because there is a bug in the department search
-    test.skip('Search by department', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('Search by department', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientDepartment = testData.department;
       await outpatientsPage.searchTable({ department: patientDepartment, advancedSearch: true });
       await outpatientsPage.validateAtLeastOneSearchResult();
@@ -51,8 +50,8 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientClinician, 'clinician');
     });
-   //skipping this because there is a bug in the department search
-    test.skip('Search by filling all the fields', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
+
+    test('Search by filling all the fields', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
       const currentUser = await getUser(api);
       await outpatientsPage.searchTable({
         NHN: newPatientWithClinicAdmission.displayId,
