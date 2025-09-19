@@ -26,6 +26,8 @@ const getErrorMessage = (error: Error) => {
     if (error.message.includes('Invalid verification code')) {
       return 'Invalid verification code';
     }
+    if (error.message.includes('Verification code has expired')) {
+      return 'Verification code has expired';
   }
   return 'An error occurred while logging in';
 };
