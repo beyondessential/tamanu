@@ -75,7 +75,6 @@ export const LocationAssignmentsAdminView = () => {
         });
     },
   });
-  console.log('locations', locations);
   const hasNoLocations = !isLocationsLoading && locations?.length === 0;
 
   const openAssignmentDrawer = (initialValues = {}) => {
