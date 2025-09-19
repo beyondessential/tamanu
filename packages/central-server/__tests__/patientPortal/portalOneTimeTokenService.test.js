@@ -1,6 +1,6 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/errors';
+import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import bcrypt from 'bcrypt';
@@ -215,17 +215,17 @@ describe('PortalOneTimeTokenService', () => {
       expect(tokenAfterConsume).toBeNull();
     });
 
-    it('should throw BadAuthenticationError for invalid token', async () => {
+    it('should throw InvalidCredentialError for invalid token', async () => {
       // Attempt to verify a non-existent token
       await expect(
         oneTimeTokenService.verifyAndConsume({
           token: '123456',
           portalUserId: testPortalUser.id,
         }),
-      ).rejects.toThrow(BadAuthenticationError);
+      ).rejects.toThrow(InvalidCredentialError);
     });
 
-    it('should throw BadAuthenticationError for expired token', async () => {
+    it('should throw InvalidTokenError for expired token', async () => {
       // Create a token that's already expired
       const expiresAt = subMinutes(new Date(), 5); // 5 minutes in the past
 
@@ -245,7 +245,7 @@ describe('PortalOneTimeTokenService', () => {
           token,
           portalUserId: testPortalUser.id,
         }),
-      ).rejects.toThrow(BadAuthenticationError);
+      ).rejects.toThrow(InvalidTokenError);
     });
   });
 });
