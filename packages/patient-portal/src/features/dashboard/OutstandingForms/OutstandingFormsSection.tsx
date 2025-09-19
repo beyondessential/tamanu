@@ -13,7 +13,6 @@ export const OutstandingFormsSection = () => {
   const formCount = forms?.length || 0;
   const hasOutstandingForms = formCount > 0;
 
-  // Dynamic header text
   const headerText = hasOutstandingForms
     ? `You have ${formCount} outstanding ${formCount === 1 ? 'form' : 'forms'} to complete below`
     : 'You have no outstanding forms';
@@ -34,11 +33,12 @@ export const OutstandingFormsSection = () => {
           </Typography>
         }
       />
-
-      <CardContent>
-        {isLoading ? (
+      {isLoading ? (
+        <CardContent>
           <StyledCircularProgress size={24} />
-        ) : forms && forms.length > 0 ? (
+        </CardContent>
+      ) : forms && forms.length > 0 ? (
+        <CardContent>
           <Stack spacing={2}>
             {forms.map(form => (
               <OutstandingFormCard
@@ -51,8 +51,8 @@ export const OutstandingFormsSection = () => {
               />
             ))}
           </Stack>
-        ) : null}
-      </CardContent>
+        </CardContent>
+      ) : null}
     </Card>
   );
 };
