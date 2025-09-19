@@ -8,7 +8,6 @@ import { useLogin } from '@api/mutations';
 import { TextField } from '@components/TextField';
 import { Card } from '@components/Card';
 import { VerificationCodeInput } from '@components/VerificationCodeInput';
-import { BadAuthenticationError } from '@tamanu/errors';
 
 const EmailSectionContainer = styled(Box)({
   display: 'flex',
@@ -22,13 +21,13 @@ const EmailSectionContainer = styled(Box)({
 });
 
 const getErrorMessage = (error: Error) => {
-  if (error instanceof BadAuthenticationError) {
-    if (error.message.includes('Invalid verification code')) {
-      return 'Invalid verification code';
-    }
-    if (error.message.includes('Verification code has expired')) {
-      return 'Verification code has expired';
+  if (error.message.includes('Invalid verification code')) {
+    return 'Invalid verification code';
   }
+  if (error.message.includes('Verification code has expired')) {
+    return 'Verification code has expired';
+  }
+
   return 'An error occurred while logging in';
 };
 
