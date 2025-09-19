@@ -17,7 +17,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types && npm run package-default-translations",
     "build:dev:watch": "npm run clean && concurrently \"npm run build:esm -- --watch\" \"npm run build:cjs -- --watch\" \"npm run build:types:esm -- --watch\" \"npm run build:types:cjs -- --watch\"",
     "build:esm": "swc --out-dir dist/esm --copy-files --source-maps true src",
     "build:cjs": "npm run build:esm -- --out-dir dist/cjs --config module.type=commonjs",
@@ -28,6 +28,7 @@
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
     "test": "vitest run --no-file-parallelism",
+    "package-default-translations": "npx tsx src/steps/scripts/scrapeTranslations.ts > dist/default-translations.json",
     "test:watch": "vitest watch"
   },
   "devDependencies": {

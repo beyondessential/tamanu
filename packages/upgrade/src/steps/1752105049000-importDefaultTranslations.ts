@@ -1,10 +1,10 @@
 import config from 'config';
-import { parse } from 'csv-parse/sync';
-import { uniqBy } from 'lodash';
 import { QueryTypes } from 'sequelize';
+import { uniqBy } from 'lodash';
 import * as xlsx from 'xlsx';
-import type { Steps, StepArgs } from '../step.ts';
-import { END } from '../step.js';
+import path from 'path';
+import fs from 'fs';
+import { END, type Steps, type StepArgs } from '../step.js';
 import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 interface Artifact {
@@ -82,16 +82,6 @@ async function apply(artifactType: string, rows: Translation[], { models, log }:
   }
 }
 
-async function csvExtractor(resp: Response): Promise<Translation[]> {
-  return uniqBy(
-    parse(await resp.text(), {
-      columns: true,
-      skip_empty_lines: true,
-    }) as unknown as Translation[],
-    item => item.stringId,
-  );
-}
-
 async function xlsxExtractor(resp: Response): Promise<Translation[]> {
   const data = await resp.arrayBuffer();
   const workbook = xlsx.read(data, { type: 'buffer' });
@@ -114,50 +104,41 @@ export const STEPS: Steps = [
     async run(args: StepArgs) {
       const zeroPatch = args.toVersion.replace(/\.(\d+)$/, '.0');
 
-      let rows: Translation[] = [];
+      try {
+        const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
 
-      if (rows.length === 0) {
-        try {
-          rows = await download('translations', csvExtractor, args);
-        } catch (error) {
-          args.log.error(
-            'Failed to download default translations for exact version, trying from release head',
-            {
-              error,
-              version: zeroPatch,
-            },
-          );
-        }
-      }
+        const defaultTranslationsPath = path.join(
+          updateDistCjsIndexJsPath,
+          '..', // cjs
+          '..', // dist
+          'default-translations.json',
+        );
 
-      if (rows.length === 0) {
-        try {
-          rows = await download('translations', csvExtractor, { ...args, toVersion: zeroPatch });
-        } catch (error) {
-          args.log.error(
-            'Failed to download default translations, you will need to manually import them',
-            {
-              error,
-              version: zeroPatch,
-            },
-          );
-        }
-      }
+        args.log.info(`Loading default all translations from: ${defaultTranslationsPath}`);
 
-      if (rows.length > 0) {
-        try {
-          await apply('translations', rows, args);
+        const translationRows = JSON.parse(fs.readFileSync(defaultTranslationsPath, 'utf8'));
+
+        // Add default language name and country code
+        translationRows.unshift({
+          stringId: 'languageName',
+          [DEFAULT_LANGUAGE_CODE]: 'English',
+        });
+        translationRows.unshift({
+          stringId: 'countryCode',
+          [DEFAULT_LANGUAGE_CODE]: 'gb',
+        });
+
+        args.log.info('Importing new default translations', { count: translationRows.length });
+
+        if (translationRows.length > 0) {
+          await apply('translations', translationRows, args);
           args.log.info('Successfully imported default translations');
-        } catch (error) {
-          // Failing to import translations is not world-ending... for now
-          // We may want to make this more strict in the future
-          args.log.error(
-            'Failed to import default translations, you will need to manually import them',
-            {
-              error,
-            },
-          );
         }
+      } catch (error) {
+        args.log.error(
+          'Failed to import default translations, you will need to manually import them',
+          { error },
+        );
       }
 
       try {
