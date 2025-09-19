@@ -277,7 +277,7 @@ encounterRelations.get(
     const { Prescription } = models;
     const { order = 'ASC', orderBy = 'medication.name', rowsPerPage, page, marDate } = query;
 
-    req.checkPermission('list', 'Medication');
+    req.checkPermission('list', 'MedicationAdministration');
 
     const associations = Prescription.getListReferenceAssociations() || [];
 
