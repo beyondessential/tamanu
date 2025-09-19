@@ -54,10 +54,10 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     });
   }
 
-  // Do not issue login tokens for deceased patients (avoid enumeration: respond with success)
+  // Do not issue login tokens for deceased patients
   const patient = await portalUser.getPatient();
   if (patient?.dateOfDeath) {
-    log.debug('Patient portal login: Deceased patient - suppressing token issuance', {
+    log.debug('Patient portal login: Deceased patient - suppressing issuing token', {
       email,
       patientId: patient.id,
     });
