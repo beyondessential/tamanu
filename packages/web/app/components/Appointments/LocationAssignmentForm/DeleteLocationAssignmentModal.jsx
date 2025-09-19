@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
-import { formatTime } from '@tamanu/utils/dateTime';
+import { formatTime, formatShortest, parseDate } from '@tamanu/utils/dateTime';
+import { parseISO } from 'date-fns';
 
 import { ConfirmModal } from '../../ConfirmModal';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { BodyText } from '../../Typography';
 import { Colors } from '../../../constants';
 import { MODIFY_REPEATING_ASSIGNMENT_MODE } from '../../../constants/locationAssignments';
+import { RepeatCharacteristicsDescription } from '../OutpatientsBookingForm/RepeatCharacteristicsDescription';
 
 const RadioGroupWrapper = styled.div`
   background-color: ${Colors.white};
@@ -130,11 +132,51 @@ export const DeleteLocationAssignmentModal = ({ open, onClose, onConfirm, assign
           />
         </DetailValue>
       </DetailItem>
+      {isRepeating && assignment?.template && (
+        <>
+          <DetailItem>
+            <DetailLabel>
+              <TranslatedText stringId="appointment.repeating.label" fallback="Repeating" />
+            </DetailLabel>
+            <DetailValue>
+              <RepeatCharacteristicsDescription
+                startTimeDate={parseISO(assignment.date)}
+                frequency={assignment.template.repeatUnit}
+                interval={assignment.template.repeatFrequency}
+                hideRepeatsOnLabel
+              />
+            </DetailValue>
+          </DetailItem>
+          <DetailItem>
+            <DetailLabel>
+              <TranslatedText stringId="general.duration" fallback="Duration" />
+            </DetailLabel>
+            <DetailValue>
+              <TranslatedText
+                stringId="general.endOn"
+                fallback="End on :endDate"
+                replacements={{
+                  endDate: formatShortest(parseDate(assignment.template.repeatEndDate)),
+                }}
+              />
+            </DetailValue>
+          </DetailItem>
+        </>
+      )}
     </AssignmentDetailsGrid>
   );
 
   const customContent = (
     <ContentWrapper data-testid={'delete-content'}>
+      {!isRepeating && (
+        <BodyText mb="20px">
+          <TranslatedText
+            stringId="locationAssignment.modal.delete.description"
+            fallback="Are you sure you would like to delete this location assignment?"
+            data-testid="translatedtext-delete-description"
+          />
+        </BodyText>
+      )}
       {AssignmentDetails}
       {isRepeating && (
         <RadioGroupWrapper data-testid="delete-mode-radio-group">

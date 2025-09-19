@@ -69,8 +69,8 @@ export const CENTRAL_MENU_ITEMS = [
     key: 'locationAssignments',
     label: (
       <TranslatedText
-        stringId="adminSidebar.locationAssignments"
-        fallback="Location assignments"
+        stringId="adminSidebar.locationAssignment"
+        fallback="Location assignment"
         data-testid="translatedtext-locationassignments"
       />
     ),

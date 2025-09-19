@@ -29,7 +29,6 @@ const AssignmentTile = styled.div`
 `;
 
 const AssignmentTimeRange = styled.div`
-  font-weight: 500;
   margin-bottom: 0.125rem;
 `;
 
