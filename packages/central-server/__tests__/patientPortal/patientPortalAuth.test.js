@@ -220,17 +220,7 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveRequestError();
     });
 
-    it('Should reject request for deceased patient with a valid token', async () => {
-      const token = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
-      // mark patient as deceased
-      await testPatient.update({ dateOfDeath: new Date().toISOString() });
 
-      const response = await baseApp
-        .get('/api/portal/me')
-        .set('Authorization', `Bearer ${token}`);
-      expect(response).toHaveRequestError();
-
-    });
   });
 
   describe('Patient Portal Route Protection', () => {

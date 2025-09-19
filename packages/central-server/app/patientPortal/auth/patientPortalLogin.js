@@ -94,18 +94,15 @@ export const patientPortalLogin = ({ secret }) =>
     const { loginToken, email } = body;
 
     const portalUser = await models.PortalUser.getForAuthByEmail(email);
+    const patient = await portalUser?.getPatient();
+    const portalUserIdParam = patient?.dateOfDeath ? undefined : portalUser?.id;
+
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
-      // If the email is unknown, pass undefined so the service throws a generic auth error.
-      portalUserId: portalUser?.id,
+      // If the email is unknown, or the patient is deceased, pass undefined so the service throws a generic auth error.
+      portalUserId: portalUserIdParam,
     });
-
-    // Prevent login for deceased patients
-    const patient = await portalUser.getPatient();
-    if (patient?.dateOfDeath) {
-      throw new BadAuthenticationError('Patient is deceased');
-    }
 
     const patientPortalTokenDuration = config.patientPortal.tokenDuration;
     const accessTokenJwtId = getRandomU32();
