@@ -54,6 +54,18 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     });
   }
 
+  // Do not issue login tokens for deceased patients (avoid enumeration: respond with success)
+  const patient = await portalUser.getPatient();
+  if (patient?.dateOfDeath) {
+    log.debug('Patient portal login: Deceased patient - suppressing token issuance', {
+      email,
+      patientId: patient.id,
+    });
+    return res.status(200).json({
+      message: 'One-time token sent successfully',
+    });
+  }
+
   if (portalUser.status !== PORTAL_USER_STATUSES.REGISTERED) {
     throw new BadAuthenticationError('Email is not verified');
   }
@@ -88,6 +100,12 @@ export const patientPortalLogin = ({ secret }) =>
       // If the email is unknown, pass undefined so the service throws a generic auth error.
       portalUserId: portalUser?.id,
     });
+
+    // Prevent login for deceased patients
+    const patient = await portalUser.getPatient();
+    if (patient?.dateOfDeath) {
+      throw new BadAuthenticationError('Patient is deceased');
+    }
 
     const patientPortalTokenDuration = config.patientPortal.tokenDuration;
     const accessTokenJwtId = getRandomU32();
