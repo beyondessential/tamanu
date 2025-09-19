@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { z } from 'zod';
-import { useHistory } from 'react-router-dom';
-import { Divider, Typography } from '@mui/material';
+import { useHistory, useLocation } from 'react-router-dom';
+import { Alert, Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 import { Button } from '@tamanu/ui-components';
@@ -17,6 +17,12 @@ const LoginButton = styled(Button)(({ theme }) => ({
 export const RequestLoginTokenView = () => {
   const [error, setError] = useState<string | null>(null);
   const history = useHistory();
+
+  const location = useLocation();
+  const expired = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('reason') === 'expired';
+  }, [location.search]);
 
   const { mutate: submit } = useRequestLoginToken({
     onSuccess: ({ email }) => {
@@ -53,6 +59,13 @@ export const RequestLoginTokenView = () => {
 
   return (
     <Card>
+      {expired && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <Typography variant="body1">  
+          Your session expired. Please log in again.
+          </Typography>
+        </Alert>
+      )}
       <Typography variant="h1" component="h1" gutterBottom>
         Log In
       </Typography>
