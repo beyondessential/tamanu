@@ -7,7 +7,7 @@ import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation';
 import { Colors } from '../constants';
 import { BodyText } from './Typography';
-
+import { FormSubmitButton } from './Button';
 
 const StyledConfirmModal = styled(ConfirmModal)`
   & .MuiPaper-root {
@@ -39,12 +39,13 @@ const ScheduledLeaveDates = styled(BodyText)`
   font-weight: 500;
 `;
 
-export const LocationAssignmentConflictModal = ({ 
-  open, 
-  onClose, 
-  onConfirm, 
-  startDate, 
-  endDate 
+export const LocationAssignmentConflictModal = ({
+  open,
+  onClose,
+  onConfirm,
+  startDate,
+  endDate,
+  isConfirming,
 }) => {
   return (
     <StyledConfirmModal
@@ -57,12 +58,22 @@ export const LocationAssignmentConflictModal = ({
           fallback="Location assigned during scheduled leave"
         />
       }
-      cancelButtonText={
-        <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-      }
-      confirmButtonText={
-        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-      }
+      cancelButtonText={<TranslatedText stringId="general.action.cancel" fallback="Cancel" />}
+      ConfirmButton={props => {
+        const confirmButtonText = (
+          <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+        );
+        return (
+          <FormSubmitButton
+            {...props}
+            disabled={isConfirming}
+            showLoadingIndicator={isConfirming}
+            variant="contained"
+          >
+            {confirmButtonText}
+          </FormSubmitButton>
+        );
+      }}
       customContent={
         <Container>
           <BodyText color={Colors.darkestText}>
@@ -71,10 +82,10 @@ export const LocationAssignmentConflictModal = ({
               fallback="The user has one or more locations assigned during the leave dates selected."
             />{' '}
             <Box fontWeight={500}>
-            <TranslatedText
-              stringId="admin.users.leave.locationConflict.warning"
-              fallback="The user will be automatically removed from any assigned locations during the scheduled leave dates."
-            />
+              <TranslatedText
+                stringId="admin.users.leave.locationConflict.warning"
+                fallback="The user will be automatically removed from any assigned locations during the scheduled leave dates."
+              />
             </Box>
           </BodyText>
           <ScheduledLeaveWrapper>

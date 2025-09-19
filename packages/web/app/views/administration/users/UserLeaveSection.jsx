@@ -332,6 +332,7 @@ export const UserLeaveSection = ({ user }) => {
         onConfirm={handleConflictModalConfirm}
         startDate={pendingLeaveValues?.startDate}
         endDate={pendingLeaveValues?.endDate}
+        isConfirming={isCreatingLeave}
       />
     </div>
   );
