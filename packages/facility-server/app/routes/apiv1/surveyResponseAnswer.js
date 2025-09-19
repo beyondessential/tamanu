@@ -66,7 +66,7 @@ surveyResponseAnswer.get(
 
     await req.audit.access({
       recordId: answer.id,
-      params,
+      frontEndContext: params,
       model: models.SurveyResponseAnswer,
       facilityId,
     });

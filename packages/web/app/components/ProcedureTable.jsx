@@ -27,7 +27,7 @@ const COLUMNS = [
     accessor: ({ date }) => <DateDisplay date={date} data-testid="datedisplay-te7h" />,
   },
   {
-    key: 'ProcedureType.code',
+    key: 'procedureType.code',
     title: (
       <TranslatedText
         stringId="procedure.table.column.code"
@@ -38,7 +38,7 @@ const COLUMNS = [
     accessor: getCodeLabel,
   },
   {
-    key: 'ProcedureType.name',
+    key: 'procedureType.name',
     title: (
       <TranslatedText
         stringId="procedure.table.column.name"
@@ -54,7 +54,7 @@ export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
   <DataFetchingTable
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/procedures`}
-    onRowClick={(row) => onItemClick(row)}
+    onRowClick={row => onItemClick(row)}
     elevated={false}
     initialSort={{ orderBy: 'date', order: 'desc' }}
     data-testid="datafetchingtable-ks0b"

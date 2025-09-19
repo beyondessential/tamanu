@@ -54,7 +54,7 @@ medication.get(
     if (object) {
       await req.audit.access({
         recordId: object.id,
-        params,
+        frontEndContext: params,
         model: Prescription,
         facilityId: query.facilityId,
       });

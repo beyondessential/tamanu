@@ -13,7 +13,7 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
-import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
+import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;

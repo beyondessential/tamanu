@@ -15,39 +15,47 @@ permissions:
 
 jobs:
   pack:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: web
+            package: frontend
+          - name: patient-portal
+            package: patient-portal
     runs-on: ubuntu-latest
-    name: Pack frontend
+    name: Pack ${{ matrix.package }}
     steps:
       - name: Login to ghcr.io
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
 
       - name: Pull image
-        run: docker pull ghcr.io/beyondessential/tamanu-frontend:sha-${{ github.sha }}.amd64
+        run: docker pull ghcr.io/beyondessential/tamanu-${{ matrix.package }}:sha-${{ github.sha }}.amd64
 
       - name: Extract version from image
         id: version
         run: |
           set -x
-          docker image inspect ghcr.io/beyondessential/tamanu-frontend:sha-${{ github.sha }}.amd64 \
+          docker image inspect ghcr.io/beyondessential/tamanu-${{ matrix.package }}:sha-${{ github.sha }}.amd64 \
             | jq '"version=\(.[0] | .Config.Labels["org.opencontainers.image.version"])"' -r | tee -a "$GITHUB_OUTPUT"
 
       - name: Extract build from image and pack it
         run: |
           set -x
 
-          docker create --name web ghcr.io/beyondessential/tamanu-frontend:sha-${{ github.sha }}.amd64
-          docker cp web:/app tamanu-web-${{ steps.version.outputs.version }}
-          docker rm web
+          docker create --name ${{ matrix.name }} ghcr.io/beyondessential/tamanu-${{ matrix.package }}:sha-${{ github.sha }}.amd64
+          docker cp ${{ matrix.name }}:/app tamanu-${{ matrix.name }}-${{ steps.version.outputs.version }}
+          docker rm ${{ matrix.name }}
 
-          zip -r -0 tamanu-web-${{ steps.version.outputs.version }}.zip tamanu-web-${{ steps.version.outputs.version }}
-          tar -cf web-${{ steps.version.outputs.version }}.tar tamanu-web-${{ steps.version.outputs.version }}
-          zstd --rm --adapt -T0 -10 web-${{ steps.version.outputs.version }}.tar
+          zip -r -0 tamanu-${{ matrix.name }}-${{ steps.version.outputs.version }}.zip tamanu-${{ matrix.name }}-${{ steps.version.outputs.version }}
+          tar -cf ${{ matrix.name }}-${{ steps.version.outputs.version }}.tar tamanu-${{ matrix.name }}-${{ steps.version.outputs.version }}
+          zstd --rm --adapt -T0 -10 ${{ matrix.name }}-${{ steps.version.outputs.version }}.tar
 
       - name: Upload to artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-package
-          path: web*.tar.zst*
+          name: ${{ matrix.name }}-package
+          path: ${{ matrix.name }}*.tar.zst*
           retention-days: 15
           if-no-files-found: error
 
@@ -96,5 +104,5 @@ jobs:
           url: ${{ vars.META_URL }}
           crt: ${{ secrets.META_CERT }}
           key: ${{ secrets.META_KEY }}
-          api: /artifacts/${{ steps.destination.outputs.result }}/frontend/any
-          arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.destination.outputs.result }}/web-${{ steps.version.outputs.version }}.tar.zst'
+          api: /artifacts/${{ steps.destination.outputs.result }}/${{ matrix.package }}/any
+          arg: --data-binary 'https://servers.ops.tamanu.io/${{ steps.destination.outputs.result }}/${{ matrix.name }}-${{ steps.version.outputs.version }}.tar.zst'

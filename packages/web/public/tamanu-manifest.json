@@ -6,25 +6,25 @@
     {
       "purpose": "any",
       "sizes": "192x192",
-      "src": "/tamanu-icons/manifest-icon-192.maskable.png",
+      "src": "/shared//tamanu-icons/manifest-icon-192.maskable.png",
       "type": "image/png"
     },
     {
       "purpose": "maskable",
       "sizes": "192x192",
-      "src": "/tamanu-icons/manifest-icon-192.maskable.png",
+      "src": "/shared/tamanu-icons/manifest-icon-192.maskable.png",
       "type": "image/png"
     },
     {
       "purpose": "any",
       "sizes": "512x512",
-      "src": "/tamanu-icons/manifest-icon-512.maskable.png",
+      "src": "/shared/tamanu-icons/manifest-icon-512.maskable.png",
       "type": "image/png"
     },
     {
       "purpose": "maskable",
       "sizes": "512x512",
-      "src": "/tamanu-icons/manifest-icon-512.maskable.png",
+      "src": "/shared/tamanu-icons/manifest-icon-512.maskable.png",
       "type": "image/png"
     }
   ],
