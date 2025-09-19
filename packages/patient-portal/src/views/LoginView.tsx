@@ -4,6 +4,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ERROR_TYPE } from '@tamanu/errors';
 import { useLogin } from '@api/mutations';
 import { TextField } from '@components/TextField';
 import { Card } from '@components/Card';
@@ -20,11 +21,12 @@ const EmailSectionContainer = styled(Box)({
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
 
-const getErrorMessage = (error: Error) => {
-  if (error.message.includes('Invalid verification code')) {
+const getErrorMessage = (error: unknown) => {
+  const maybeProblem = error as { type?: string; status?: number } | undefined;
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
     return 'Invalid verification code';
   }
-  if (error.message.includes('Verification code has expired')) {
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
     return 'Verification code has expired';
   }
   return 'An error occurred while logging in';

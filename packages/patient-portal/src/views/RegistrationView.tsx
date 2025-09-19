@@ -5,6 +5,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
 import { styled, Typography } from '@mui/material';
 
 import { Button } from '@tamanu/ui-components';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 import { useApi } from '@api/useApi';
 import { Card } from '@components/Card';
@@ -18,13 +19,13 @@ const IconDisplay = styled('div')(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const getErrorMessage = (error: Error) => {
-  const { message } = error;
-  if (message.includes('Invalid registration token')) {
-    return 'Broken registration link';
-  }
-  if (message.includes('Verification code has expired')) {
+const getErrorMessage = (error: unknown) => {
+  const maybeProblem = error as { type?: string; status?: number } | undefined;
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
     return 'Registration link expired';
+  }
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
+    return 'Broken registration link';
   }
   return 'An error occurred while verifying registration';
 };
