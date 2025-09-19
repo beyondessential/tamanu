@@ -15,3 +15,7 @@ export const goToAdminFrontend = async (page: Page) => {
 export const constructFacilityUrl = (url: string) => {
   return `${facilityFrontend}${url}`;
 };
+
+export const constructAdminUrl = (url: string) => {
+  return `${adminFrontend}${url}`;
+};

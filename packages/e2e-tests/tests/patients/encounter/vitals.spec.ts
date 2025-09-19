@@ -2,12 +2,9 @@ import { test, expect } from '@fixtures/baseFixture';
 import { extractEncounterIdFromUrl } from '../../../utils/testHelper';
 import { format, subWeeks } from 'date-fns';
 
-//TODO: can find validationCriteria for all fields in survey_screen_components table of database
-//search for pde-PatientVitals to find all relevant data elements then sort by validation_criteria
-//TODO: seems like above also shows where normal range is defined
+//TODO: validate when out of threshholds - search pde-PatientVitals in survey_screen_components table of database
+//TODO: is the chart part of this (when you click the upwards icon next to measure)?
 //TODO: search all TODOS, some in random places
-//TODO: test case for creating a vital for a specific date (currently theyre just using default)
-//TODO: test case to confirm default date is correct
 
 async function generateTestData() {
   const generateRandomNumber = (
@@ -82,11 +79,6 @@ async function generateTestData() {
   };
 }
 
-//TODO: validation while recording vitals (mins maxs etc)
-//TODO: validate when out of threshholds
-//TODO: is the chart part of this (when you click the upwards icon next to measure)?
-//TODO: BMI is auto calculated
-//TODO: search all TODOS, some in random places
 test.describe('Vitals', () => {
   test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage, vitalsPane }) => {
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
@@ -302,5 +294,11 @@ test.describe('Vitals', () => {
     expect(vital.date).toBe(dateTwoWeeksAgoFormatted);
     await vitalsPane.assertVitals(vital);
   });
+
+//TODO: need to set up some way of enable vital edits in settings
+  test('Edit a vital', async ({vitalsPane, api}) => {
+
+  });
+
 
 });

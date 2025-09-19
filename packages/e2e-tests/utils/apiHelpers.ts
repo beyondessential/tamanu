@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { request, Page, APIRequestContext } from '@playwright/test';
 
-import { constructFacilityUrl } from './navigation';
+import { constructFacilityUrl, constructAdminUrl } from './navigation';
 import { getItemFromLocalStorage } from './localStorage';
 import { Patient, User } from '@tamanu/database';
 import { generateNHN } from './generateNewPatient';
@@ -255,4 +255,34 @@ export const getVitalsRecordedDates = async (
   } else {
     throw new Error('Date recorded not found');
   }
+};
+
+//TODO: make this more generic so other api requests for admin panel can be made easier in future?
+export const enableEditVitals = async (page: Page) => {
+  const settingsUrl = constructAdminUrl('/api/admin/settings');
+  const token = await getItemFromLocalStorage(page, 'apiToken');
+  
+  const settingsData = {
+    settings: {
+      'features.enableVitalEdit': true,
+    },
+    scope: 'global',
+  };
+
+  const response = await fetch(settingsUrl, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(settingsData),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Failed to enable vitals edit:', response.status, errorText);
+    throw new Error(`Failed to enable vitals edit: ${response.status} ${errorText}`);
+  }
+
+  return response.json();
 };

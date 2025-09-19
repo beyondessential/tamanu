@@ -2,7 +2,7 @@ import { Locator, Page } from '@playwright/test';
 
 import { BasePage } from './BasePage';
 import { routes } from '../config/routes';
-import { constructFacilityUrl } from '../utils/navigation';
+import { constructFacilityUrl, constructAdminUrl } from '../utils/navigation';
 
 export class LoginPage extends BasePage {
   readonly loginButton: Locator;
@@ -16,10 +16,10 @@ export class LoginPage extends BasePage {
     this.passwordInput = page.getByTestId('styledfield-a9k6-input');
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, url?: 'admin' | 'facility') {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
     await this.loginButton.click();
-    await this.page.waitForURL(constructFacilityUrl(routes.dashboard));
+    await this.page.waitForURL(url === 'admin' ? constructAdminUrl(routes.referenceData) : constructFacilityUrl(routes.dashboard));
   }
 }

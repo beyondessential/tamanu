@@ -5,6 +5,7 @@ export const routes = {
     all: '/#/patients/all',
     patientDetails: '/#/patients/all/*',
   },
+  referenceData: '/#/admin/referenceData'
 };
 
 export function wildcardToRegex(route: string): RegExp {
