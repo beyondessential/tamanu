@@ -16,7 +16,9 @@ import {
 import { useUserLeavesQuery } from '../../../api/queries/useUserLeaveQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmModal } from '../../../components/ConfirmModal';
+import { LocationAssignmentConflictModal } from '../../../components/LocationAssignmentConflictModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useApi } from '../../../api/useApi';
 
 const SectionSubtitle = styled(Box)`
   font-size: 14px;
@@ -100,7 +102,10 @@ export const UserLeaveSection = ({ user }) => {
   );
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
+  const api = useApi();
   const [leaveToDelete, setLeaveToDelete] = useState(null);
+  const [pendingLeaveValues, setPendingLeaveValues] = useState(null);
+  const [showConflictModal, setShowConflictModal] = useState(false);
 
   const { mutateAsync: createLeave, isLoading: isCreatingLeave } = useCreateUserLeaveMutation(
     user.id,
@@ -148,6 +153,19 @@ export const UserLeaveSection = ({ user }) => {
     setLeaveToDelete(null);
   };
 
+  const handleConflictModalConfirm = async () => {
+    if (pendingLeaveValues) {
+      await createLeave(pendingLeaveValues);
+      setPendingLeaveValues(null);
+      setShowConflictModal(false);
+    }
+  };
+
+  const handleConflictModalCancel = () => {
+    setPendingLeaveValues(null);
+    setShowConflictModal(false);
+  };
+
   const { data: leavesData } = useUserLeavesQuery(user.id);
   const leaves = leavesData || [];
 
@@ -161,7 +179,21 @@ export const UserLeaveSection = ({ user }) => {
       );
       return;
     }
-    await createLeave(values);
+
+    const locationAssignments = await api.get('admin/location-assignments', {
+      userId: user.id,
+      after: values.startDate,
+      before: values.endDate,
+    });
+
+    if (locationAssignments?.data?.length > 0) {
+      // Show conflict modal
+      setPendingLeaveValues(values);
+      setShowConflictModal(true);
+    } else {
+      // No conflicts, create leave directly
+      await createLeave(values);
+    }
   };
 
   const initialValues = {
@@ -292,6 +324,14 @@ export const UserLeaveSection = ({ user }) => {
             <TranslatedText stringId="admin.users.leave.delete.confirm" fallback="Remove leave" />
           </StyledFormSubmitButton>
         )}
+      />
+
+      <LocationAssignmentConflictModal
+        open={showConflictModal}
+        onClose={handleConflictModalCancel}
+        onConfirm={handleConflictModalConfirm}
+        startDate={pendingLeaveValues?.startDate}
+        endDate={pendingLeaveValues?.endDate}
       />
     </div>
   );
