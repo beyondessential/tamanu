@@ -97,14 +97,19 @@ export const patientPortalLogin = ({ secret }) =>
     const patient = await portalUser?.getPatient();
     
     let portalUserIdParam = portalUser?.id;
-    if (patient?.dateOfDeath || !portalUser) {
-      log.debug('Patient portal login: suppressing issuing token', {
+    if (!portalUser) {
+      log.debug('Patient portal login: suppressing issuing token for unknown user', {
         email,
-        patientId: patient?.id,
-        portalUserId: portalUser?.id,
-        isDeceased: patient?.dateOfDeath,
       });
-      // If the email is unknown, or the patient is deceased, pass undefined so the service throws a generic auth error.
+      // If the email is unknown, pass undefined so the service throws a generic auth error.
+      portalUserIdParam = undefined;
+    } else if (patient?.dateOfDeath) {
+      log.debug('Patient portal login: suppressing issuing token for deceased patient', {
+        email,
+        patientId: patient.id,
+        portalUserId: portalUser.id,
+      });
+      // If the patient is deceased, pass undefined so the service throws a generic auth error.
       portalUserIdParam = undefined;
     }
 
