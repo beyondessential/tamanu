@@ -28,7 +28,5 @@ export const getProcedures = asyncHandler(async (req, res) => {
     attributes: getAttributesFromSchema(ProcedureSchema),
   });
 
-  res.send({
-    data: procedures.map(procedure => ProcedureSchema.parse(procedure.forResponse())),
-  });
+  res.send(procedures.map(procedure => ProcedureSchema.parse(procedure.forResponse())));
 });

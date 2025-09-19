@@ -171,11 +171,10 @@ describe('Patient Portal Procedures Endpoints', () => {
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const procedure = response.body.data[0];
+      const procedure = response.body[0];
       expect(procedure).toHaveProperty('id');
       expect(procedure).toHaveProperty('completed', true);
       expect(procedure).toHaveProperty('date');
@@ -244,11 +243,10 @@ describe('Patient Portal Procedures Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const procedure = response.body.data[0];
+      const procedure = response.body[0];
       expect(procedure).toHaveProperty('id');
       expect(procedure).toHaveProperty('completed', false);
       expect(procedure).toHaveProperty('note', 'Routine blood test');
@@ -313,11 +311,10 @@ describe('Patient Portal Procedures Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThan(0);
 
-      const procedure = response.body.data[0];
+      const procedure = response.body[0];
       expect(procedure).toHaveProperty('id');
       expect(procedure).toHaveProperty('completed', true);
       expect(procedure).toHaveProperty('procedureType');
@@ -351,9 +348,8 @@ describe('Patient Portal Procedures Endpoints', () => {
         .set('Authorization', `Bearer ${newAuthToken}`);
 
       expect(response).toHaveSucceeded();
-      expect(response.body).toHaveProperty('data');
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBe(0);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBe(0);
     });
 
     it('Should reject request without authorization header', async () => {
