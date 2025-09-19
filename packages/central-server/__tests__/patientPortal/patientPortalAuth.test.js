@@ -230,8 +230,6 @@ describe('Patient Portal Auth', () => {
         .set('Authorization', `Bearer ${token}`);
       expect(response).toHaveRequestError();
 
-      // cleanup to avoid affecting other tests
-      await testPatient.update({ dateOfDeath: null });
     });
   });
 
