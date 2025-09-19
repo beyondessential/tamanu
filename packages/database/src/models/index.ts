@@ -152,3 +152,7 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './UserLeave';
+
+export * from './LocationAssignmentTemplate';
+export * from './LocationAssignment';
