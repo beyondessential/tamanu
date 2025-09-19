@@ -28,8 +28,16 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    if (!userPreferences?.locationBookingFilters) return;
-    setFilters(userPreferences?.locationBookingFilters);
+    if (userPreferences?.locationBookingFilters) {
+      setFilters(userPreferences?.locationBookingFilters);
+    }
+
+    if (userPreferences?.locationBookingViewType) {
+      setViewType(userPreferences?.locationBookingViewType);
+    } else {
+      setViewType(VIEW_TYPES.DAILY);
+    }
+    
   }, [userPreferences]);
 
   useEffect(() => {
@@ -43,7 +51,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
-  const [viewType, setViewType] = useState(VIEW_TYPES.DAILY);
+  const [viewType, setViewType] = useState(null);
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   useEffect(
     () => {

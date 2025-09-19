@@ -36,7 +36,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     />
   ),
 })`
-  h3 { min-width: 78px; }
+  h3 { flex: 0; min-width: auto; }
   .MuiToolbar-root { padding-inline: 20px; }
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;

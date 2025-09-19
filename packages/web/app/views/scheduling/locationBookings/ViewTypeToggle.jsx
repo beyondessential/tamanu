@@ -5,6 +5,10 @@ import Box from '@mui/material/Box';
 import { TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { useUserPreferencesMutation } from '../../../api/mutations';
+import { debounce } from 'lodash';
+import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
+import { useAuth } from '../../../contexts/Auth';
 
 const Wrapper = styled(Box)`
   cursor: pointer;
@@ -18,7 +22,8 @@ const Wrapper = styled(Box)`
   border-radius: calc(infinity * 1px);
   border: max(0.0625rem, 1px) solid ${Colors.outline};
   user-select: none;
-  margin-right: 0.275rem;
+  margin-right: auto;
+  margin-left: 1rem;
 `;
 
 const ToggleButton = styled('button')`
@@ -59,12 +64,27 @@ export const VIEW_TYPES = {
 };
 
 export const ViewTypeToggle = (props) => {
-  const { viewType = VIEW_TYPES.DAILY, setViewType } = useLocationBookingsContext();
+  const { viewType, setViewType } = useLocationBookingsContext();
+  const { facilityId } = useAuth();
+
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  const updateUserPreferences = debounce(
+    (viewType) =>
+      mutateUserPreferences({
+        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_VIEW_TYPE,
+        value: viewType,
+      }),
+    200,
+  );
 
   const handleViewChange = () => {
     const newViewType = viewType === VIEW_TYPES.WEEKLY ? VIEW_TYPES.DAILY : VIEW_TYPES.WEEKLY;
     setViewType(newViewType);
+
+    updateUserPreferences(newViewType);
   };
+
+  if (!viewType) return null;
 
   return (
     <Wrapper onClick={handleViewChange} role="radiogroup" {...props} data-testid="viewtypetoggle-main">
