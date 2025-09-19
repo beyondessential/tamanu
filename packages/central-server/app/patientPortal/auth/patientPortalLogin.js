@@ -95,12 +95,22 @@ export const patientPortalLogin = ({ secret }) =>
 
     const portalUser = await models.PortalUser.getForAuthByEmail(email);
     const patient = await portalUser?.getPatient();
-    const portalUserIdParam = patient?.dateOfDeath ? undefined : portalUser?.id;
+    
+    let portalUserIdParam = portalUser?.id;
+    if (patient?.dateOfDeath || !portalUser) {
+      log.debug('Patient portal login: suppressing issuing token', {
+        email,
+        patientId: patient?.id,
+        portalUserId: portalUser?.id,
+        isDeceased: patient?.dateOfDeath,
+      });
+      // If the email is unknown, or the patient is deceased, pass undefined so the service throws a generic auth error.
+      portalUserIdParam = undefined;
+    }
 
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
-      // If the email is unknown, or the patient is deceased, pass undefined so the service throws a generic auth error.
       portalUserId: portalUserIdParam,
     });
 
