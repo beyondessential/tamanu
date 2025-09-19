@@ -158,8 +158,8 @@ describe('Patient Portal Procedures Endpoints', () => {
         physicianId: testClinician.id,
         completed: true,
         date: new Date().toISOString(),
-        startTime: '09:00:00',
-        endTime: '10:30:00',
+        startTime: new Date('2024-01-01T09:00:00').toISOString(),
+        endTime: new Date('2024-01-01T10:30:00').toISOString(),
         note: 'Standard appendectomy procedure',
         completedNote: 'Procedure completed successfully',
       });
@@ -179,8 +179,8 @@ describe('Patient Portal Procedures Endpoints', () => {
       expect(procedure).toHaveProperty('id');
       expect(procedure).toHaveProperty('completed', true);
       expect(procedure).toHaveProperty('date');
-      expect(procedure).toHaveProperty('startTime', '09:00:00');
-      expect(procedure).toHaveProperty('endTime', '10:30:00');
+      expect(procedure).toHaveProperty('startTime', '2024-01-01 09:00:00');
+      expect(procedure).toHaveProperty('endTime', '2024-01-01 10:30:00');
       expect(procedure).toHaveProperty('note', 'Standard appendectomy procedure');
       expect(procedure).toHaveProperty('completedNote', 'Procedure completed successfully');
       expect(procedure).toHaveProperty('procedureType');
