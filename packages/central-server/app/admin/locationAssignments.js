@@ -55,7 +55,16 @@ locationAssignmentsRouter.get(
 
     const query = await getLocationAssignmentsSchema.parseAsync(req.query);
 
-    const { after, before, locationId, facilityId, userId, page, rowsPerPage, all } = query;
+    const {
+      after,
+      before,
+      locationId,
+      facilityId,
+      userId,
+      page,
+      rowsPerPage,
+      all,
+    } = query;
 
     const includeOptions = [
       {
