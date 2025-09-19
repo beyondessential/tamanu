@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { InvalidCredentialError, MissingCredentialError } from '@tamanu/errors';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
@@ -15,6 +15,7 @@ import {
   isInternalClient,
   stripUser,
 } from './utils';
+import { ensureDeviceRegistration } from './ensureDeviceRegistration';
 
 const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   const { RefreshToken } = models;
@@ -67,7 +68,7 @@ export const login = ({ secret, refreshSecret }) =>
   asyncHandler(async (req, res) => {
     const { store, body, settings } = req;
     const { models } = store;
-    const { email, password, facilityIds, deviceId } = body;
+    const { email, password, facilityIds, deviceId, scopes = [] } = body;
     const tamanuClient = req.header('X-Tamanu-Client');
 
     const getSettingsForFrontEnd = async () => {
@@ -78,12 +79,12 @@ export const login = ({ secret, refreshSecret }) =>
     };
 
     if (!email || !password) {
-      throw new BadAuthenticationError('Missing credentials');
+      throw new MissingCredentialError('Missing email or password');
     }
 
     const internalClient = isInternalClient(tamanuClient);
     if (internalClient && !deviceId) {
-      throw new BadAuthenticationError('Missing deviceId');
+      throw new MissingCredentialError('Missing deviceId');
     }
 
     const user = await models.User.getForAuthByEmail(email);
@@ -91,13 +92,16 @@ export const login = ({ secret, refreshSecret }) =>
       // an attacker can use this to get a list of user accounts
       // but hiding this error entirely can make debugging a hassle
       // so we just put it behind a config flag
-      throw new BadAuthenticationError('No such user');
+      throw new InvalidCredentialError('No such user');
     }
 
     const hashedPassword = user?.password || '';
     if (!(await bcrypt.compare(password, hashedPassword))) {
-      throw new BadAuthenticationError('Invalid credentials');
+      throw new InvalidCredentialError();
     }
+
+    // Manages necessary checks for device authorization (check or create accordingly)
+    await ensureDeviceRegistration({ models, settings, user, deviceId, scopes });
 
     const { auth, canonicalHostName } = config;
     const { tokenDuration } = auth;

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import * as yup from 'yup';
 
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
