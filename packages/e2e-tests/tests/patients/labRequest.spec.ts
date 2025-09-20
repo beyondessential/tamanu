@@ -504,7 +504,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.recordSampleButton.click();
       await labRequestDetailsPage.recordSampleModal.waitForModalToLoad();
       const date = new Date();
-      const currentDateTime = date.toISOString().slice(0, 16);
+      const currentDateTime = format(date, "yyyy-MM-dd'T'HH:mm").toString();
       const expectedDateTime = format(date, 'MM/dd/yyyy h:mm a');
       await labRequestDetailsPage.recordSampleModal.dateTimeCollectedInput.fill(currentDateTime);
       await labRequestDetailsPage.recordSampleModal.selectFirstFromAllDropdowns();
