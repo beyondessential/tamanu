@@ -3,16 +3,32 @@ import { BasePatientPage } from '../../../BasePatientPage';
 import { RecordVitalsModal } from '../modals/RecordVitalsModal';
 import { Vitals } from '../../../../../types/vitals/Vitals';
 import { format } from 'date-fns';
+import { EditVitalModal } from '../modals/EditVitalModal';   
+
+const FIELD_ROWS = {
+  height: '0', weight: '1', BMI: '2', SBP: '3', DBP: '4', MAP: '5',
+  heartRate: '6', respiratoryRate: '7', temperature: '8', spo2: '9',
+  spo2Oxygen: '10', AVPU: '11', TEW: '12', GCS: '13', painScale: '14',
+  capillaryRefillTime: '15', randomBGL: '16', fastingBGL: '17',
+  ventilatorLitresPerMinute: '18', ventilatorMode: '19', FIO2: '20',
+  PIP: '21', PEEP: '22', Rate: '23', iTime: '24', tVolume: '25',
+  mVLitresPerMinute: '26'
+};
 
 export class VitalsPane extends BasePatientPage {
   recordVitalsModal?: RecordVitalsModal;
+  editVitalModal?: EditVitalModal;
   encounterId?: string;
   readonly recordVitalsButton: Locator;
   readonly dateColumnHeaderPrefix: string;
+  readonly tableCellPrefix: string;
+  readonly editVitalContainer: string;
   constructor(page: Page) {
     super(page);
     this.recordVitalsButton = this.page.getByTestId('button-mk5r');
     this.dateColumnHeaderPrefix = 'tablelabel-0eff-';
+    this.tableCellPrefix = 'styledtablecell-2gyy-';
+    this.editVitalContainer = 'cellcontainer-4zzh';
   }
 
   async clickRecordVitalsButton() {
@@ -56,35 +72,35 @@ export class VitalsPane extends BasePatientPage {
       mVLitresPerMinute,
     } = vitals;
 
-    const fieldMappings = [
-      { value: this.appendUnit(height, 'cm'), row: '0' },
-      { value: this.appendUnit(weight, 'kg'), row: '1' },
-      { value: this.roundToOneDecimalPlace(BMI), row: '2' },
-      { value: SBP, row: '3' },
-      { value: DBP, row: '4' },
-      { value: this.roundMAPValue(MAP), row: '5' },
-      { value: heartRate, row: '6' },
-      { value: respiratoryRate, row: '7' },
-      { value: this.appendUnit(this.roundToOneDecimalPlace(temperature), '°C'), row: '8' },
-      { value: this.appendUnit(spo2, '%'), row: '9' },
-      { value: this.appendUnit(spo2Oxygen, '%'), row: '10' },
-      { value: AVPU, row: '11' },
-      { value: TEW, row: '12' },
-      { value: GCS, row: '13' },
-      { value: painScale, row: '14' },
-      { value: capillaryRefillTime, row: '15' },
-      { value: randomBGL, row: '16' },
-      { value: fastingBGL, row: '17' },
-      { value: ventilatorLitresPerMinute, row: '18' },
-      { value: ventilatorMode, row: '19' },
-      { value: this.appendUnit(FIO2, '%'), row: '20' },
-      { value: PIP, row: '21' },
-      { value: PEEP, row: '22' },
-      { value: Rate, row: '23' },
-      { value: iTime, row: '24' },
-      { value: tVolume, row: '25' },
-      { value: mVLitresPerMinute, row: '26' },
-    ];
+    const fieldValues = {
+      height: this.appendUnit(height, 'cm'),
+      weight: this.appendUnit(weight, 'kg'),
+      BMI: this.roundToOneDecimalPlace(BMI),
+      SBP: SBP,
+      DBP: DBP,
+      MAP: this.roundMAPValue(MAP),
+      heartRate: heartRate,
+      respiratoryRate: respiratoryRate,
+      temperature: this.appendUnit(this.roundToOneDecimalPlace(temperature), '°C'),
+      spo2: this.appendUnit(spo2, '%'),
+      spo2Oxygen: this.appendUnit(spo2Oxygen, '%'),
+      AVPU: AVPU,
+      TEW: TEW,
+      GCS: GCS,
+      painScale: painScale,
+      capillaryRefillTime: capillaryRefillTime,
+      randomBGL: randomBGL,
+      fastingBGL: fastingBGL,
+      ventilatorLitresPerMinute: ventilatorLitresPerMinute,
+      ventilatorMode: ventilatorMode,
+      FIO2: this.appendUnit(FIO2, '%'),
+      PIP: PIP,
+      PEEP: PEEP,
+      Rate: Rate,
+      iTime: iTime,
+      tVolume: tVolume,
+      mVLitresPerMinute: mVLitresPerMinute,
+    };
 
     if (!date || !locatorKey) {
       throw new Error('Date and locator key are required to assert vitals');
@@ -96,14 +112,21 @@ export class VitalsPane extends BasePatientPage {
     await expect(dateLocator).toContainText(formattedDate);
 
     //Assert the values in the vitals table match what was recorded
-    for (const { value, row } of fieldMappings) {
-      const cellLocator = this.page.getByTestId(`styledtablecell-2gyy-${row}-${locatorKey}`);
+    for (const [field, value] of Object.entries(fieldValues)) {
+      const row = FIELD_ROWS[field as keyof typeof FIELD_ROWS];
+      const cellLocator = this.page.getByTestId(`${this.tableCellPrefix}${row}-${locatorKey}`);
       if (value) {
         await expect(cellLocator).toContainText(value);
       } else if (value === undefined) {
         await expect(cellLocator).toContainText('—');
       }
     }
+
+    return {
+      date,
+      locatorKey,
+      ...fieldValues
+    };
   }
 
   /**
@@ -143,5 +166,27 @@ export class VitalsPane extends BasePatientPage {
       return value + unit;
     }
     return value;
+  }
+
+  //TODO: update types for vitals
+  async editVitals(recordedVitals: { locatorKey: string }, specificEdits: Partial<Vitals>) {
+    const edits = Object.entries(specificEdits).filter(([, value]) => value !== undefined);
+    
+    for (const [editField, editValue] of edits) {
+      const { locatorKey } = recordedVitals;
+      const row = FIELD_ROWS[editField as keyof typeof FIELD_ROWS];
+      const cellLocator = `${row}-${locatorKey}`;
+      await this.editSpecificVital(cellLocator, editValue);
+    }
+  }
+
+  async editSpecificVital(cellLocator: string, editValue: string) {
+    const vitalToEdit = this.page.getByTestId(`${this.tableCellPrefix}${cellLocator}`).getByTestId(this.editVitalContainer);
+    await vitalToEdit.click();
+    if (!this.editVitalModal) {
+      this.editVitalModal = new EditVitalModal(this.page);
+    }
+    //TODO: call an editVital function which is written  the editvitalmodal pom?
+    await this.editVitalModal.editVital(editValue);
   }
 }

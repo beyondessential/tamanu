@@ -5,6 +5,11 @@ import { format, subWeeks } from 'date-fns';
 //TODO: validate when out of threshholds - search pde-PatientVitals in survey_screen_components table of database
 //TODO: is the chart part of this (when you click the upwards icon next to measure)?
 //TODO: search all TODOS, some in random places
+//TODO: make the function to enable edits in CI via API more generic / cleaner
+//TODO: editing even just 1 of height and/or weight etc should also auto updates the BMI and MAP, how to handle?
+//TODO: test editing all vitals?
+//TODO: history of edits in edit vitals modal
+//TODO: modal heading (includes OG date), test for asserting that?
 
 async function generateTestData() {
   const generateRandomNumber = (
@@ -295,8 +300,22 @@ test.describe('Vitals', () => {
     await vitalsPane.assertVitals(vital);
   });
 
-//TODO: need to set up some way of enable vital edits in settings
   test('Edit a vital', async ({vitalsPane, api}) => {
+    await vitalsPane.clickRecordVitalsButton();
+    const vital = await vitalsPane.recordVitalsModal?.recordVitals(
+      api,
+      vitalsPane.encounterId!,
+      await generateTestData(),
+    );
+    if (!vital) {
+      throw new Error('Vital failed to be recorded');
+    }
+
+    const recordedVitals = await vitalsPane.assertVitals(vital);
+
+    await vitalsPane.editVitals(recordedVitals, { height: '186', weight: '71'});
+
+    //TODO: assert edits
 
   });
 
