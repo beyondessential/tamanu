@@ -73,6 +73,7 @@ describe('DHIS2 integration processor', () => {
     await dhis2IntegrationProcessor.run();
 
     expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+      enabled: true,
       host: false,
       username: true,
       password: true,
@@ -84,6 +85,7 @@ describe('DHIS2 integration processor', () => {
     await setReportIds([]);
     await dhis2IntegrationProcessor.run();
     expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+      enabled: true,
       host: true,
       username: true,
       password: true,
