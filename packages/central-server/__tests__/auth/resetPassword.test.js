@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
+import { LOGIN_ATTEMPT_OUTCOMES, LOCKED_OUT_ERROR_MESSAGE } from '@tamanu/constants/auth';
 import { SETTING_KEYS } from '@tamanu/constants';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
@@ -209,9 +209,11 @@ describe('Auth', () => {
             },
           ],
         });
-  
-        expect(response).toHaveSucceeded();
+
         expect(otl).toBeNull();
+        expect(response.body.error).toBeTruthy();
+        expect(response.body.error.message).toBe(LOCKED_OUT_ERROR_MESSAGE);
+        expect(response.body.error.name).toBe('RateLimitedError');
       });
     });
   });
