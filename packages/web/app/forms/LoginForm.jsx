@@ -19,7 +19,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const LoginAlert = styled(({ children, ...props }) => (
+export const LoginAlert = styled(({ children, ...props }) => (
   <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
     {children}
   </Alert>
