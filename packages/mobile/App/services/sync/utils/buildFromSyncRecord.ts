@@ -11,8 +11,8 @@ export const buildFromSyncRecord = (
   const includedColumns = extractIncludedColumns(model);
   // Skip field mapping for raw insert - keep original field names
   return records.map(record => {
-    const data = pick(record.data, includedColumns)
-    data.deletedAt = record.isDeleted ? new Date().toISOString() : null;
+    const data = pick(record.data, includedColumns);
+    data.deletedAt = record.isDeleted ? "datetime('now')" : null;
     return data as DataToPersist;
   });
 };
