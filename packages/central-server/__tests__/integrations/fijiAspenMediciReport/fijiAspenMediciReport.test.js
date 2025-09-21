@@ -15,6 +15,7 @@ import { log } from '@tamanu/shared/services/logging';
 
 import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
+import { QueryTypes } from 'sequelize';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
@@ -354,6 +355,20 @@ describe('fijiAspenMediciReport', () => {
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
     fakedata = await fakeAllData(models, ctx);
+
+    console.log('[TZ] env=%s resolved=%s offset=%s',
+      process.env.TZ,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      new Date().toString(),
+    );
+    console.log('[TZ] config.countryTimeZone=%s', config.countryTimeZone);
+  
+    const [{ tz, db_now, utc_now }] = await ctx.store.sequelize.query(
+      "select current_setting('TimeZone') as tz, now() as db_now, (now() at time zone 'UTC') as utc_now",
+      { type: QueryTypes.SELECT },
+    );
+    console.log('[TZ] db session=%s db_now=%s utc_now=%s', tz, db_now, utc_now);
+    
   });
 
   afterAll(() => ctx.close());
