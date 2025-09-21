@@ -11,19 +11,6 @@ const getValuePlaceholdersForRows = (rowCount: number, columnsCount: number): st
 
 const quote = (identifier: string): string => `"${identifier}"`;
 
-const dedupe = (rows: DataToPersist[]): DataToPersist[] => {
-  const deduplicatedRows = [];
-  const idsAdded = new Set();
-  for (const row of rows) {
-    const { id } = row;
-    if (!idsAdded.has(id)) {
-      deduplicatedRows.push(row);
-      idsAdded.add(id);
-    }
-  }
-  return deduplicatedRows;
-};
-
 /**
  * Much faster than typeorm bulk insert or save
  * Prepare a raw query and execute it with the values
@@ -36,19 +23,14 @@ export const executePreparedInsert = async (
 ) => {
   if (!rows.length) return;
 
-  // Can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
-  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
-  // because it has a lab request attached
-  const deduplicatedRows = dedupe(rows);
-
   const { tableName } = repository.metadata;
 
-  const columns = Object.keys(deduplicatedRows[0]);
+  const columns = Object.keys(rows[0]);
   const columnNames = columns.map(quote).join(', ');
 
   const chunkSize = getEffectiveBatchSize(maxRecordsPerBatch, columns.length);
 
-  for (const chunkRows of chunk(deduplicatedRows, chunkSize)) {
+  for (const chunkRows of chunk(rows, chunkSize)) {
     const query = `
     INSERT INTO ${tableName} (${columnNames}) 
     VALUES ${getValuePlaceholdersForRows(chunkRows.length, columns.length)}
