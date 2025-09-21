@@ -54,7 +54,7 @@ export type MobileSyncSettings = {
   maxRecordsPerUpdateBatch: number;
   useUnsafeSchemaForInitialSync: boolean;
   dynamicLimiter: DynamicLimiterSettings;
-};  
+};
 
 export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS_INCREMENTAL).length;
 
@@ -374,6 +374,9 @@ export class MobileSyncManager {
     } else {
       await this.pullIncrementalSync(pullParams);
     }
+    console.log(
+      `MobileSyncManager.pullIncomingChanges(): End sync incoming changes, incoming changes count: ${totalToPull}`,
+    );
   }
 
   async pullInitialSync(pullParams: PullParams): Promise<void> {
