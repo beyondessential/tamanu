@@ -120,11 +120,12 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
   async run() {
     const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
-    const { username, password } = config.integrations.dhis2;
+    const { enabled, username, password } = config.integrations.dhis2;
 
-    if (!host || !username || !password || reportIds.length === 0) {
+    if (!host || !enabled || !username || !password || reportIds.length === 0) {
       log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
         host: !!host,
+        enabled: !!enabled,
         username: !!username,
         password: !!password,
         reportIds: reportIds.length,
