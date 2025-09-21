@@ -1,8 +1,31 @@
 import config from 'config';
+import { fetch } from 'undici';
+import { utils } from 'xlsx';
 
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_STATUSES } from '@tamanu/constants';
+
+const arrayOfArraysToCSV = reportData => utils.sheet_to_csv(utils.aoa_to_sheet(reportData));
+
+export const INFO_LOGS = {
+  SENDING_REPORTS: 'DHIS2IntegrationProcessor: Sending reports to DHIS2',
+  PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Processing report',
+  SUCCESSFULLY_SENT_REPORT: 'DHIS2IntegrationProcessor: Report sent to DHIS2 successfully',
+};
+
+export const WARNING_LOGS = {
+  INTEGRATION_NOT_CONFIGURED:
+    'DHIS2IntegrationProcessor: DHIS2 integration not properly configured, skipping',
+  REPORT_DOES_NOT_EXIST: "DHIS2IntegrationProcessor: Report doesn't exist, skipping",
+  REPORT_HAS_NO_PUBLISHED_VERSION:
+    'DHIS2IntegrationProcessor: Report has no published version, skipping',
+  FAILED_TO_SEND_REPORT: 'DHIS2IntegrationProcessor: Failed to send report to DHIS2',
+};
+
+export const ERROR_LOGS = {
+  ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
+};
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
@@ -17,54 +40,112 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
+  async postToDHIS2(reportCSV) {
+    const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
+    const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
+
+    const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
+    const response = await fetch(`${host}/api/dataValueSets?${params.toString()}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/csv',
+        Accept: 'application/json',
+        Authorization: `Basic ${authHeader}`,
+      },
+      body: reportCSV,
+    });
+
+    return await response.json();
+  }
+
+  async processReport(reportId) {
+    const {
+      store: { models, sequelize },
+    } = this.context;
+
+    const report = await models.ReportDefinition.findByPk(reportId, {
+      include: [
+        {
+          model: models.ReportDefinitionVersion,
+          as: 'versions',
+          where: { status: REPORT_STATUSES.PUBLISHED },
+          order: [['createdAt', 'DESC']],
+          limit: 1,
+          separate: true,
+        },
+      ],
+    });
+
+    if (!report) {
+      log.warn(WARNING_LOGS.REPORT_DOES_NOT_EXIST, { reportId });
+      return;
+    }
+
+    const reportString = `${report.name} (${reportId})`;
+
+    log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
+
+    if (!report.versions || report.versions.length === 0) {
+      log.warn(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
+        report: reportString,
+      });
+      return;
+    }
+
+    const latestVersion = report.versions[0];
+    const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
+    const reportCSV = arrayOfArraysToCSV(reportData);
+
+    const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
+
+    if (httpStatusCode === 200) {
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
+        report: reportString,
+        ...response.importCount,
+      });
+    } else {
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
+        report: reportString,
+        message,
+        status,
+        httpStatusCode,
+      });
+
+      // Value is the error message returned from DHIS2 api for each errored row
+      const { conflicts = [] } = response;
+      conflicts.forEach(conflict => log.warn(conflict.value));
+    }
+  }
+
   async run() {
-    try {
-      const {
-        settings,
-        store: { models, sequelize },
-      } = this.context;
+    const { reportIds, host } = await this.context.settings.get('integrations.dhis2');
+    const { enabled, username, password } = config.integrations.dhis2;
 
-      const { reportIds } = await settings.get('integrations.dhis2');
+    if (!enabled || !host || !username || !password || reportIds.length === 0) {
+      log.warn(WARNING_LOGS.INTEGRATION_NOT_CONFIGURED, {
+        enabled: !!enabled,
+        host: !!host,
+        username: !!username,
+        password: !!password,
+        reportIds: reportIds.length,
+      });
+      return;
+    }
 
-      log.info(`Processing DHIS2 integration for ${reportIds.length} reports`);
+    log.info(INFO_LOGS.SENDING_REPORTS, {
+      count: reportIds.length,
+    });
 
-      for (const reportId of reportIds) {
-        const report = await models.ReportDefinition.findByPk(reportId, {
-          include: [
-            {
-              model: models.ReportDefinitionVersion,
-              as: 'versions',
-              where: { status: REPORT_STATUSES.PUBLISHED },
-              order: [['createdAt', 'DESC']],
-              limit: 1,
-              separate: true,
-            },
-          ],
+    for (const reportId of reportIds) {
+      try {
+        await this.processReport(reportId);
+      } catch (error) {
+        log.error(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
+          reportId,
+          error,
         });
-
-        if (!report) {
-          log.warn(`Report ${reportId} doesn't exist, skipping`);
-          continue;
-        }
-
-        log.info('Processing report', { reportId });
-
-        if (!report.versions || report.versions.length === 0) {
-          log.warn(`Report ${reportId} has no published version, skipping`);
-          continue;
-        }
-
-        const latestVersion = report.versions[0];
-        const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {});
-
-        // TODO: Send this to DHIS2 in TAN-2540
-        log.info(`Report ${reportId} CSV Data: ${JSON.stringify(reportData)}`);
       }
-
-      log.info('DHIS2 integration processing completed');
-    } catch (error) {
-      log.error('Error in DHIS2 integration processing', { error: error.message });
-      throw error;
     }
   }
 }

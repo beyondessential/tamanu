@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 import {
   durationStringSchema,
+  dhis2IdSchemeSchema,
   emailSchema,
   nationalityIdSchema,
   passportSchema,
@@ -103,11 +104,54 @@ export const centralSettings = {
         dhis2: {
           description: 'DHIS2 settings',
           properties: {
+            host: {
+              description: 'The host of the DHIS2 instance',
+              type: yup.string(),
+              defaultValue: '',
+            },
             reportIds: {
+              name: 'Reports',
               description: 'The IDs of the reports to send to DHIS2',
               type: yup.array(yup.string().min(1)),
               defaultValue: [],
               suggesterEndpoint: 'reportDefinition',
+            },
+            // Descriptions and allowed values taken from https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_data_values_import_parameters
+            idSchemes: {
+              description: 'The ID schemes to use for the reports',
+              properties: {
+                dataElementIdScheme: {
+                  name: 'Data element ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                orgUnitIdScheme: {
+                  name: 'Organisation unit ID scheme',
+                  description: 'Property of the org unit object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                categoryOptionComboIdScheme: {
+                  name: 'Category option combo ID scheme',
+                  description:
+                    'Property of the category option combo and attribute option combo objects to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                dataSetIdScheme: {
+                  name: 'Data set ID scheme',
+                  description: 'Property of the data set object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                idScheme: {
+                  name: 'ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+              },
             },
           },
         },
