@@ -41,7 +41,7 @@ describe('DHIS2 integration processor', () => {
           defaultDateRange: 'allTime',
         }),
         query: 'SELECT id, email from users;',
-        status: REPORT_STATUSES.DRAFT,
+        status: REPORT_STATUSES.PUBLISHED,
       }),
     );
   });
@@ -57,6 +57,7 @@ describe('DHIS2 integration processor', () => {
   beforeEach(async () => {
     await setHost('https://test.dhis2.org');
     await setReportIds([report.id]);
+    await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
   });
 
   afterEach(() => {
@@ -103,6 +104,7 @@ describe('DHIS2 integration processor', () => {
       });
 
       await setReportIds([report.id]);
+      await reportVersion.update({ status: REPORT_STATUSES.DRAFT });
       await dhis2IntegrationProcessor.run();
 
       expect(logSpy.warn).toHaveBeenLastCalledWith(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
@@ -112,7 +114,7 @@ describe('DHIS2 integration processor', () => {
       await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.PROCESSING_REPORT, {
+      expect(logSpy.info).toHaveBeenCalledWith(INFO_LOGS.PROCESSING_REPORT, {
         report: `Test Report (${report.id})`,
       });
     });
@@ -128,6 +130,8 @@ describe('DHIS2 integration processor', () => {
         error: expect.any(Error),
       });
     });
+
+    it.todo('should retry based on the backoff settings in config');
   });
 
   describe('DHIS2 response', () => {
