@@ -4,6 +4,7 @@ import { useLocation, useHistory } from 'react-router-dom';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ERROR_TYPE } from '@tamanu/errors';
 import { useLogin } from '@api/mutations';
 import { TextField } from '@components/TextField';
 import { Card } from '@components/Card';
@@ -19,6 +20,17 @@ const EmailSectionContainer = styled(Box)({
   borderRadius: 8,
   border: `1px solid ${TAMANU_COLORS.blue}`,
 });
+
+const getErrorMessage = (error: unknown) => {
+  const maybeProblem = error as { type?: string; status?: number } | undefined;
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
+    return 'Invalid verification code';
+  }
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
+    return 'Verification code has expired';
+  }
+  return 'An error occurred while logging in';
+};
 
 /**
  * Mask the email address so that the last characters of the local part are visible.
@@ -104,7 +116,7 @@ export const LoginView = () => {
           <VerificationCodeInput
             name="verificationCode"
             error={!!loginError}
-            helperText={loginError ? loginError.message : ''}
+            helperText={loginError ? getErrorMessage(loginError) : ''}
             onFocus={() => {
               if (!loginError) return;
               // Reset error state when the input is re-focused after submitting
