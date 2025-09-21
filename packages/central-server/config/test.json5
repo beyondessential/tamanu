@@ -122,6 +122,7 @@
       "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     },
     "dhis2": {
+      "enabled": true,
       "username": "admin",
       "password": "district"
     }
