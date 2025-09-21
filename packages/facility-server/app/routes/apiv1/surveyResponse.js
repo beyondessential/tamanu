@@ -2,9 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
 
-import { transformAnswers } from '@tamanu/shared/reports/utilities/transformAnswers';
-import { SURVEY_TYPES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
+import {
+  getPatientDataFieldAssociationData,
+  transformAnswers,
+} from '@tamanu/shared/reports/utilities/transformAnswers';
+import { PATIENT_DATA_FIELD_LOCATIONS, SURVEY_TYPES } from '@tamanu/constants';
+import { InvalidOperationError, NotFoundError, InvalidParameterError } from '@tamanu/errors';
 
 export const surveyResponse = express.Router();
 
@@ -48,6 +51,7 @@ surveyResponse.get(
           originalBody: answer.body,
           body: transformedAnswer?.body,
           sourceType: transformedAnswer?.sourceType,
+          sourceConfig: transformedAnswer?.sourceConfig,
         };
       }),
     });
@@ -139,5 +143,44 @@ surveyResponse.put(
     });
 
     res.send(responseRecord);
+  }),
+);
+
+surveyResponse.get(
+  '/patient-data-field-association-data/:column',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const value = query.value;
+    const column = params.column;
+
+    req.checkPermission('read', 'Patient');
+
+    if (!column) {
+      throw new InvalidParameterError('Column parameter is required');
+    }
+    if (!value) {
+      res.json({
+        data: null,
+      });
+      return;
+    }
+
+    if (!PATIENT_DATA_FIELD_LOCATIONS[column]) {
+      throw new InvalidParameterError('Invalid column');
+    }
+
+    const [modelName, fieldName] = PATIENT_DATA_FIELD_LOCATIONS[column];
+
+    const { data, targetModel } = await getPatientDataFieldAssociationData({
+      models,
+      modelName,
+      fieldName,
+      answer: value,
+    });
+
+    res.json({
+      model: targetModel,
+      data,
+    });
   }),
 );
