@@ -178,7 +178,7 @@ export const MedicationSetMedicationsList = ({
                 </CheckedLabel>
               )}
               <BodyText sx={{ paddingRight: '52px' }}>
-                {[ 
+                {[
                   getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
                   getTranslatedFrequency(frequency, getTranslation),
                   getEnumTranslation(DRUG_ROUTE_LABELS, route),

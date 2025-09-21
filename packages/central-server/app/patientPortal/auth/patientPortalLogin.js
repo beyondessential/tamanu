@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { BadAuthenticationError } from '@tamanu/errors';
 
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
@@ -54,6 +54,18 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
     });
   }
 
+  // Do not issue login tokens for deceased patients
+  const patient = await portalUser.getPatient();
+  if (patient?.dateOfDeath) {
+    log.debug('Patient portal login: Deceased patient - suppressing issuing token', {
+      email,
+      patientId: patient.id,
+    });
+    return res.status(200).json({
+      message: 'One-time token sent successfully',
+    });
+  }
+
   if (portalUser.status !== PORTAL_USER_STATUSES.REGISTERED) {
     throw new BadAuthenticationError('Email is not verified');
   }
@@ -82,11 +94,29 @@ export const patientPortalLogin = ({ secret }) =>
     const { loginToken, email } = body;
 
     const portalUser = await models.PortalUser.getForAuthByEmail(email);
+    const patient = await portalUser?.getPatient();
+    
+    let portalUserIdParam = portalUser?.id;
+    if (!portalUser) {
+      log.debug('Patient portal login: suppressing issuing token for unknown user', {
+        email,
+      });
+      // If the email is unknown, pass undefined so the service throws a generic auth error.
+      portalUserIdParam = undefined;
+    } else if (patient?.dateOfDeath) {
+      log.debug('Patient portal login: suppressing issuing token for deceased patient', {
+        email,
+        patientId: patient.id,
+        portalUserId: portalUser.id,
+      });
+      // If the patient is deceased, pass undefined so the service throws a generic auth error.
+      portalUserIdParam = undefined;
+    }
+
     const oneTimeTokenService = new PortalOneTimeTokenService(models);
     await oneTimeTokenService.verifyAndConsume({
       token: loginToken,
-      // If the email is unknown, pass undefined so the service throws a generic auth error.
-      portalUserId: portalUser?.id,
+      portalUserId: portalUserIdParam,
     });
 
     const patientPortalTokenDuration = config.patientPortal.tokenDuration;

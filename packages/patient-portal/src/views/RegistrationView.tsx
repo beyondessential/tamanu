@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleOutline';
-import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import { styled, Typography } from '@mui/material';
 
 import { Button } from '@tamanu/ui-components';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 import { useApi } from '@api/useApi';
 import { Card } from '@components/Card';
@@ -18,6 +18,17 @@ const IconDisplay = styled('div')(({ theme }) => ({
   margin: '0 auto',
   marginBottom: theme.spacing(2),
 }));
+
+const getErrorMessage = (error: unknown) => {
+  const maybeProblem = error as { type?: string; status?: number } | undefined;
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_TOKEN_INVALID && maybeProblem.status === 401) {
+    return 'Registration link expired';
+  }
+  if (maybeProblem?.type === ERROR_TYPE.AUTH_CREDENTIAL_INVALID && maybeProblem.status === 401) {
+    return 'Broken registration link';
+  }
+  return 'An error occurred while verifying registration';
+};
 
 const useVerifyRegistration = () => {
   const api = useApi();
@@ -46,14 +57,11 @@ export const RegistrationView = () => {
     <Card sx={{ width: '425px' }}>
       {error ? (
         <>
-          <IconDisplay sx={{ background: 'error.light' }}>
-            <ErrorIcon color="error" />
-          </IconDisplay>
           <Typography mb={2} variant="h2">
-            Failed to create account
+            {getErrorMessage(error)}
           </Typography>
           <Typography variant="body1" gutterBottom>
-            {error.message}
+            Please contact the sending facility to resend a new link.
           </Typography>
         </>
       ) : (

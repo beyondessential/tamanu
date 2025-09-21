@@ -1,26 +1,11 @@
-import {
-  AuthenticationError,
-  InvalidCredentialsError,
-  OutdatedVersionError,
-  RemoteError,
-} from '~/services/error';
 import { sleepAsync } from './sleepAsync';
+import { isRecoverable } from '@tamanu/errors';
 
 export type callWithBackoffOptions = Partial<{
   maxAttempts: number;
   maxWaitMs: number;
   multiplierMs: number;
 }>;
-
-const IRRECOVERABLE_ERRORS = [AuthenticationError, InvalidCredentialsError, OutdatedVersionError];
-const isErrorOnIrrecoverableList = (e: unknown) =>
-  IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
-const is4xx = (e: unknown) => e instanceof RemoteError && e.status >= 400 && e.status < 500;
-const isInsufficientStorage = (e: unknown) =>
-  e instanceof RemoteError && e?.remoteError?.name === 'InsufficientStorage';
-const isIrrecoverable = (e: unknown) => {
-  return isErrorOnIrrecoverableList(e) || is4xx(e) || isInsufficientStorage(e);
-};
 
 // duplicated from monorepo, but with type annotations and no debug logging
 export const callWithBackoff = async <T>(
@@ -46,7 +31,7 @@ export const callWithBackoff = async <T>(
       return result;
     } catch (e) {
       // throw if the error is irrecoverable
-      if (isIrrecoverable(e)) {
+      if (!isRecoverable(e)) {
         console.error(
           `callWithBackoff: attempt ${attempt}/${maxAttempts} failed, error was irrecoverable: ${e?.stack}`,
         );

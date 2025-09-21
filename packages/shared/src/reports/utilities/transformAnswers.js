@@ -1,22 +1,33 @@
 import { parseISO } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
-import { differenceInMilliseconds, format, isISOString } from '@tamanu/utils/dateTime';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
-
-// also update getNameColumnForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
-function getNameColumnForModel(modelName) {
-  switch (modelName) {
-    case 'User':
-      return 'displayName';
-    default:
-      return 'name';
-  }
-}
+import {
+  differenceInMilliseconds,
+  format,
+  formatShort,
+  isISOString,
+  parseDate,
+} from '@tamanu/utils/dateTime';
+import { PATIENT_DATA_FIELD_LOCATIONS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
 // also update getDisplayNameForModel in /packages/mobile/App/ui/helpers/fields.ts when this changes
 function getDisplayNameForModel(modelName, record) {
-  const columnName = getNameColumnForModel(modelName);
-  return record[columnName] || record.id;
+  let result = '';
+  switch (modelName) {
+    case 'User':
+      result = record['displayName'];
+      break;
+    case 'Patient':
+      // follow the same format as the patient label in usePatientSuggester
+      result = `${[record.firstName, record.lastName].filter(Boolean).join(' ')} (${record.displayId}) - ${
+        record.sex
+      } - ${record.dateOfBirth ? formatShort(parseDate(record.dateOfBirth)) : ''}`;
+      break;
+    default:
+      result = record?.['name'];
+      break;
+  }
+
+  return result || record.id;
 }
 
 const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
@@ -68,69 +79,101 @@ const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy', notTransformDate
   return '';
 };
 
-// Logic duplicated in packages/mobile/App/ui/navigation/screens/programs/SurveyResponseDetailsScreen/index.tsx
-const isAutocomplete = ({ config, dataElement }) =>
-  dataElement?.type === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE ||
-  (config &&
-    JSON.parse(config).writeToPatient?.fieldType === PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE);
+export const getPatientDataFieldAssociationData = async ({ models, modelName, fieldName, answer }) => {
+  const model = models[modelName];
+  const associations = Object.values(model.associations || {});
+  const foreignKeyAssociation = associations.find(
+    association => association.foreignKey === fieldName,
+  );
+  if (!foreignKeyAssociation) return { data: answer, targetModel: null };
+  const targetModel = foreignKeyAssociation.target.name;
+  const result = await models[targetModel].findOne({
+    where: {
+      id: answer,
+    },
+  });
+  return { data: result, targetModel };
+};
 
-export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
-  switch (type) {
-    case 'Date':
-    case 'SubmissionDate':
-      return convertDateAnswer(answer, transformConfig);
-    case 'Checkbox':
-      return convertBinaryToYesNo(answer);
-    case 'Autocomplete':
-      return convertAutocompleteAnswer(models, componentConfig, answer);
-    default: {
-      if (isAutocomplete({ config: JSON.stringify(componentConfig) })) {
-        return convertAutocompleteAnswer(models, componentConfig, answer);
-      }
-      return answer;
-    }
+const convertPatientDataAnswer = async (models, componentConfig, answer) => {
+  const [modelName, fieldName, options] =
+    PATIENT_DATA_FIELD_LOCATIONS[componentConfig.column] || [];
+  if (!modelName) {
+    // If the field is a custom field, we need to display the raw value
+    return answer;
+  } else if (options) {
+    // If the field is a standard field with options, we need to translate the value
+    const label = options[answer];
+    return label || answer;
+  } else {
+    const { data, targetModel } = await getPatientDataFieldAssociationData({
+      models,
+      modelName,
+      fieldName,
+      answer,
+    });
+    return getDisplayNameForModel(targetModel, data);
   }
 };
 
-export const getAutocompleteComponentMap = async (models, surveyComponents) => {
-  // Get all survey answer components with config and type from source
-  const surveyAnswerComponents = await Promise.all(
-    surveyComponents
-      .filter(c => c.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER)
-      .map(async c => {
-        const config = JSON.parse(c.config);
-        const ssc = await models.SurveyScreenComponent.findOne({
-          include: [
-            {
-              model: models.ProgramDataElement,
-              as: 'dataElement',
-              where: {
-                code: config.source || config.Source,
-              },
+export const getAnswerBody = async (
+  models,
+  componentConfig,
+  originalType,
+  answer,
+  transformConfig,
+) => {
+  let parsedComponentConfig = {};
+  let type = originalType;
+  let sourceType, sourceConfig;
+  try {
+    if (componentConfig) {
+      parsedComponentConfig = JSON.parse(componentConfig);
+    }
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER) {
+      const ssc = await models.SurveyScreenComponent.findOne({
+        include: [
+          {
+            model: models.ProgramDataElement,
+            as: 'dataElement',
+            where: {
+              code: parsedComponentConfig.source || parsedComponentConfig.Source,
             },
-          ],
-        });
-        return {
-          ...c,
-          lookupSurveyScreenComponent: ssc,
-        };
-      }),
-  );
-  const surveyAnswerAutocompleteComponents = surveyAnswerComponents
-    .filter(c => isAutocomplete(c.lookupSurveyScreenComponent))
-    .map(c => [
-      c.dataElementId,
-      c.lookupSurveyScreenComponent.config ? JSON.parse(c.lookupSurveyScreenComponent.config) : {},
-    ]);
+          },
+        ],
+      });
+      type = ssc.dataElement.dataValues.type;
+      parsedComponentConfig = ssc.config ? JSON.parse(ssc.config) : {};
+      sourceType = type;
+      sourceConfig = ssc.config;
+    }
+  } catch (error) {
+    console.error('Error parsing componentConfig', error);
+  }
+  let result;
+  switch (type) {
+    case 'Date':
+    case 'SubmissionDate':
+      result = convertDateAnswer(answer, transformConfig);
+      break;
+    case 'Checkbox':
+      result = convertBinaryToYesNo(answer);
+      break;
+    case 'Autocomplete':
+      result = await convertAutocompleteAnswer(models, parsedComponentConfig, answer);
+      break;
+    case 'PatientData':
+      result = await convertPatientDataAnswer(models, parsedComponentConfig, answer);
+      break;
+    default:
+      result = answer;
+  }
 
-  const autocompleteComponents = surveyComponents
-    .filter(isAutocomplete)
-    .map(({ dataElementId, config: componentConfig }) => [
-      dataElementId,
-      componentConfig ? JSON.parse(componentConfig) : {},
-    ]);
-
-  return new Map([...autocompleteComponents, ...surveyAnswerAutocompleteComponents]);
+  return {
+    body: result,
+    sourceType,
+    sourceConfig,
+  };
 };
 
 export const transformAnswers = async (
@@ -139,7 +182,6 @@ export const transformAnswers = async (
   surveyComponents,
   transformConfig = {},
 ) => {
-  const autocompleteComponentMap = await getAutocompleteComponentMap(models, surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   // Some questions in the front end are not answered but still record the answer as empty string in the database
@@ -157,31 +199,14 @@ export const transformAnswers = async (
     const patientId = answer.surveyResponse?.encounter?.patientId;
     const responseEndTime = answer.surveyResponse?.endTime;
     const { dataElementId } = answer;
-    let type = dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type;
-    let sourceType;
-    const componentConfig = autocompleteComponentMap.get(dataElementId);
+    const surveyComponent = dataElementIdToComponent[dataElementId];
+    let type = surveyComponent?.dataElement?.dataValues?.type;
+    const componentConfig = surveyComponent?.config;
 
-    // If the answer is a survey answer, we need to look up the type from the source survey components
-    if (type === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER) {
-      const config = JSON.parse(dataElementIdToComponent[dataElementId].config);
-      const ssc = await models.SurveyScreenComponent.findOne({
-        include: [
-          {
-            model: models.ProgramDataElement,
-            as: 'dataElement',
-            where: {
-              code: config.source || config.Source,
-            },
-          },
-        ],
-      });
-      sourceType = ssc.dataElement.dataValues.type;
-    }
-
-    const body = await getAnswerBody(
+    const { body, sourceType, sourceConfig } = await getAnswerBody(
       models,
       componentConfig,
-      sourceType || type,
+      type,
       answer.body,
       transformConfig,
     );
@@ -194,6 +219,7 @@ export const transformAnswers = async (
       dataElementId,
       body,
       sourceType,
+      sourceConfig,
     };
     transformedAnswers.push(answerObject);
   }

@@ -3,7 +3,7 @@ import { randomInt, randomBytes } from 'crypto';
 import bcrypt from 'bcrypt';
 import config from 'config';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
+import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
@@ -79,7 +79,7 @@ export class PortalOneTimeTokenService {
 
     const portalUser = await PortalUser.findByPk(portalUserId);
     if (!portalUser) {
-      throw new BadAuthenticationError('Invalid verification code');
+      throw new InvalidCredentialError('Invalid verification code');
     }
 
     const tokenRecord = await PortalOneTimeToken.findOne({
@@ -88,17 +88,17 @@ export class PortalOneTimeTokenService {
     });
 
     if (!tokenRecord) {
-      throw new BadAuthenticationError('Invalid verification code');
+      throw new InvalidCredentialError('Invalid verification code');
     }
 
     if (tokenRecord.isExpired()) {
-      throw new BadAuthenticationError('Verification code has expired');
+      throw new InvalidTokenError('Verification code has expired');
     }
 
     const isVerified = await bcrypt.compare(token, tokenRecord.token);
 
     if (!isVerified) {
-      throw new BadAuthenticationError('Invalid verification code');
+      throw new InvalidCredentialError('Invalid verification code');
     }
 
     await tokenRecord.destroy({

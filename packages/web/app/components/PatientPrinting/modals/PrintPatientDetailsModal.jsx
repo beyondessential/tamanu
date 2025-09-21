@@ -154,10 +154,10 @@ const PRINT_OPTIONS = {
   },
 };
 
-const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
+const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
-
+  const isDeceased = Boolean(patient?.dateOfDeath); 
   const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (
@@ -225,7 +225,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
           />
         )}
       </StyledPrintOptionsRow>
-      {isVisible(PRINT_OPTIONS.patientPortalRegistration.condition) && (
+      {isVisible(PRINT_OPTIONS.patientPortalRegistration.condition) && !isDeceased && (
         <>
           <StyledDivider data-testid="styleddivider-ds12" />
           <Header data-testid="header-kf7c">
@@ -392,6 +392,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
         >
           <StyledPrintOptionContainer
             setCurrentlyPrinting={setCurrentlyPrinting}
+            patient={patient}
             data-testid="styledprintoptioncontainer-e9vr"
           />
         </Modal>

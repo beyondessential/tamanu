@@ -11,7 +11,7 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
-import { NotFoundError, ResourceConflictError } from '@tamanu/shared/errors';
+import { NotFoundError, EditConflictError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 import { escapePatternWildcard } from '../../utils/query';
@@ -370,7 +370,7 @@ appointments.post(
           transaction,
         });
 
-        if (conflictCount > 0) throw new ResourceConflictError();
+        if (conflictCount > 0) throw new EditConflictError();
 
         const location = await Location.findByPk(locationId, { transaction });
         if (!location) throw new NotFoundError('Location not found');
@@ -426,7 +426,7 @@ appointments.put(
           });
 
           if (bookingTimeAlreadyTaken) {
-            throw new ResourceConflictError();
+            throw new EditConflictError();
           }
         }
 

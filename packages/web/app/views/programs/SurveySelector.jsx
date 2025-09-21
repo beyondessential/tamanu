@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { SelectInput, Button, TextButton, ButtonRow } from '@tamanu/ui-components';
 import { SendFormToPatientPortalModal } from '../patients/components/SendFormToPatientPortalModal';
@@ -22,6 +23,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
   const [open, setOpen] = useState(false);
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
+  const isDeceased = useSelector(state => Boolean(state.patient?.dateOfDeath));
 
   const handleChange = event => {
     const surveyId = event.target.value;
@@ -42,7 +44,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        {isPatientPortalEnabled && (
+        {isPatientPortalEnabled && !isDeceased && (
           <TextButton onClick={() => setOpen(true)} disabled={!value}>
             <SendIcon width={12} height={12} />
             <TranslatedText

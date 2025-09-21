@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 

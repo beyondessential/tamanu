@@ -6,7 +6,4 @@ export const globalTestSettings = {
   appointments: {
     maxRepeatingAppointmentsPerGeneration: 10,
   },
-  features: {
-    patientPortal: true,
-  },
 };
