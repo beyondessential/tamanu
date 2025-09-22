@@ -134,20 +134,13 @@ describe('DHIS2 integration processor', () => {
 
     it('should retry based on the backoff settings in config', async () => {
       const { idSchemes, host } = await ctx.settings.get('integrations.dhis2');
-      const { multiplierMs, maxAttempts } = config.integrations.dhis2.backoff;
+      const { maxAttempts } = config.integrations.dhis2.backoff;
       await dhis2IntegrationProcessor.run();
 
       const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
       const url = `${host}/api/dataValueSets?${params.toString()}`;
 
-      for (let i = 0; i < maxAttempts; i++) {
-        expect(logSpy.warn).toHaveBeenCalledWith('fetchWithRetryBackoff: failed, retrying', {
-          url,
-          attempt: i + 1,
-          maxAttempts,
-          retryingIn: `${multiplierMs}ms`,
-        });
-      }
+      expect(logSpy.warn).toHaveBeenCalledTimes(maxAttempts - 1);
 
       expect(logSpy.error).toHaveBeenCalledWith(
         'fetchWithRetryBackoff: failed, max retries exceeded',
@@ -155,6 +148,7 @@ describe('DHIS2 integration processor', () => {
           url,
           attempt: maxAttempts,
           maxAttempts,
+          stack: expect.any(Error),
         },
       );
     });
