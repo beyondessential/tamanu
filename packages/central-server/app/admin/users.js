@@ -6,10 +6,11 @@ import { pick } from 'lodash';
 import * as yup from 'yup';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import {
-  ResourceConflictError,
+  DatabaseDuplicateError,
   NotFoundError,
   ValidationError,
   InvalidOperationError,
+  EditConflictError,
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 
@@ -158,7 +159,7 @@ usersRouter.get(
               'phoneNumber',
               'role',
               'visibilityStatus',
-              'facilities'
+              'facilities',
             ]),
             roleName,
             allowedFacilities,
@@ -170,15 +171,17 @@ usersRouter.get(
   }),
 );
 
-const VALIDATION = yup
+const CREATE_VALIDATION = yup
   .object()
   .shape({
-    displayName: yup.string().required(),
+    displayName: yup.string().trim().required(),
+    displayId: yup.string().trim().nullable().optional(),
     role: yup.string().required(),
-    displayId: yup.string(),
-    phoneNumber: yup.string(),
+    phoneNumber: yup.string().trim().nullable().optional(),
+    email: yup.string().trim().email().required(),
+    designations: yup.array().of(yup.string()).nullable().optional(),
     password: yup.string().required(),
-    email: yup.string().email().required(),
+    allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
   })
   .noUnknown();
 
@@ -187,19 +190,274 @@ usersRouter.post(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { Role, User },
+        models: { Role, User, ReferenceData, UserDesignation, UserFacility, Facility },
+      },
+      db,
+    } = req;
+
+    req.checkPermission('create', 'User');
+
+    const fields = await CREATE_VALIDATION.validate(req.body);
+    const role = await Role.findByPk(fields.role);
+    if (!role) {
+      throw new NotFoundError('Role not found');
+    }
+
+    const existingUserWithSameEmail = await User.findOne({
+      where: {
+        email: fields.email,
+      },
+    });
+    if (existingUserWithSameEmail) {
+      throw new DatabaseDuplicateError('Email must be unique across all users');
+    }
+
+    const existingUserWithSameDisplayName = await User.findOne({
+      where: {
+        displayName: fields.displayName,
+      },
+    });
+    if (existingUserWithSameDisplayName) {
+      throw new DatabaseDuplicateError('Display name must be unique across all users');
+    }
+
+    if (fields.designations && fields.designations.length > 0) {
+      // Check if all designation IDs exist and are of type 'designation'
+      const existingDesignations = await ReferenceData.findAll({
+        where: {
+          id: { [Op.in]: fields.designations },
+          type: REFERENCE_TYPES.DESIGNATION,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingDesignationIds = existingDesignations.map(d => d.id);
+      const invalidDesignationIds = fields.designations.filter(
+        id => !existingDesignationIds.includes(id),
+      );
+
+      if (invalidDesignationIds.length > 0) {
+        throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
+      }
+    }
+
+    if (fields.allowedFacilityIds && fields.allowedFacilityIds.length > 0) {
+      const existingFacilities = await Facility.findAll({
+        where: {
+          id: { [Op.in]: fields.allowedFacilityIds },
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingFacilityIds = existingFacilities.map(f => f.id);
+      const invalidFacilityIds = fields.allowedFacilityIds.filter(
+        id => !existingFacilityIds.includes(id),
+      );
+
+      if (invalidFacilityIds.length > 0) {
+        throw new ValidationError(`Invalid facility IDs: ${invalidFacilityIds.join(', ')}`);
+      }
+    }
+
+    await db.transaction(async () => {
+      const user = await User.create(fields);
+
+      // Add new designations
+      if (fields.designations && fields.designations.length > 0) {
+        const designationRecords = fields.designations.map(designationId => ({
+          userId: user.id,
+          designationId,
+        }));
+        await UserDesignation.bulkCreate(designationRecords);
+      }
+
+      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
+      await UserFacility.bulkCreate(
+        uniqueFacilityIds.map(facilityId => ({
+          userId: user.id,
+          facilityId,
+        })),
+        {
+          ignoreDuplicates: true,
+        },
+      );
+    });
+
+    res.send({ ok: true });
+  }),
+);
+
+const VALIDATION = yup
+  .object()
+  .shape({
+    displayName: yup.string().trim().required(),
+    email: yup.string().trim().email().required(),
+  })
+  .noUnknown();
+
+usersRouter.post(
+  '/validate',
+  asyncHandler(async (req, res) => {
+    const {
+      store: {
+        models: { User },
       },
     } = req;
 
     req.checkPermission('create', 'User');
 
     const fields = await VALIDATION.validate(req.body);
+
+    const existingUserWithSameEmail = await User.findOne({
+      where: {
+        email: fields.email,
+      },
+    });
+
+    const existingUserWithSameDisplayName = await User.findOne({
+      where: {
+        displayName: fields.displayName,
+      },
+    });
+
+    res.send({
+      isEmailUnique: !existingUserWithSameEmail,
+      isDisplayNameUnique: !existingUserWithSameDisplayName,
+    });
+  }),
+);
+
+const UPDATE_VALIDATION = yup
+  .object()
+  .shape({
+    visibilityStatus: yup
+      .string()
+      .required()
+      .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
+    displayName: yup.string().trim().required(),
+    displayId: yup.string().trim().nullable().optional(),
+    role: yup.string().required(),
+    phoneNumber: yup.string().trim().nullable().optional(),
+    email: yup.string().trim().email().required(),
+    designations: yup.array().of(yup.string()).nullable().optional(),
+    newPassword: yup.string().nullable().optional(),
+    confirmPassword: yup.string().nullable().optional(),
+    allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
+  })
+  .test('passwords-match', 'Passwords must match', function (value) {
+    const { newPassword, confirmPassword } = value;
+    // If both passwords are provided, they must match
+    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+      return this.createError({ message: 'Passwords must match' });
+    }
+    // If only one password is provided, it's an error
+    if ((newPassword && !confirmPassword) || (!newPassword && confirmPassword)) {
+      return this.createError({ message: 'Both password fields must be filled' });
+    }
+    return true;
+  })
+  .noUnknown();
+usersRouter.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const {
+      store: {
+        models: { Role, User, UserDesignation, ReferenceData, UserFacility },
+      },
+      params: { id },
+      db,
+    } = req;
+
+    const fields = await UPDATE_VALIDATION.validate(req.body);
+
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new NotFoundError('User not found');
+    }
+    req.checkPermission('write', user);
+
     const role = await Role.findByPk(fields.role);
     if (!role) {
-      throw new Error('Role not found');
+      throw new NotFoundError('Role not found');
     }
 
-    await User.create(fields);
+    const existingUserWithSameEmail = await User.findOne({
+      where: {
+        email: fields.email,
+        id: { [Op.ne]: id },
+      },
+    });
+    if (existingUserWithSameEmail) {
+      throw new EditConflictError('Email must be unique across all users');
+    }
+
+    const existingUserWithSameDisplayName = await User.findOne({
+      where: {
+        displayName: fields.displayName,
+        id: { [Op.ne]: id },
+      },
+    });
+    if (existingUserWithSameDisplayName) {
+      throw new EditConflictError('Display name must be unique across all users');
+    }
+
+    // Validate designations if provided
+    if (fields.designations && fields.designations.length > 0) {
+      // Check if all designation IDs exist and are of type 'designation'
+      const existingDesignations = await ReferenceData.findAll({
+        where: {
+          id: { [Op.in]: fields.designations },
+          type: REFERENCE_TYPES.DESIGNATION,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingDesignationIds = existingDesignations.map(d => d.id);
+      const invalidDesignationIds = fields.designations.filter(
+        id => !existingDesignationIds.includes(id),
+      );
+
+      if (invalidDesignationIds.length > 0) {
+        throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
+      }
+    }
+
+    const updateFields = {
+      displayName: fields.displayName,
+      role: fields.role,
+      email: fields.email,
+      visibilityStatus: fields.visibilityStatus,
+      displayId: fields.displayId,
+      phoneNumber: fields.phoneNumber,
+    };
+
+    // Add password to update fields if provided
+    if (fields.newPassword && fields.confirmPassword) {
+      updateFields.password = fields.newPassword;
+    }
+
+    await db.transaction(async () => {
+      await user.update(updateFields);
+      // Remove existing designations
+      await UserDesignation.destroy({
+        where: { userId: id },
+      });
+
+      // Add new designations
+      if (fields.designations && fields.designations.length > 0) {
+        const designationRecords = fields.designations.map(designationId => ({
+          userId: id,
+          designationId,
+        }));
+        await UserDesignation.bulkCreate(designationRecords);
+      }
+
+      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
+      await updateUserFacilities(UserFacility, user, uniqueFacilityIds);
+    });
 
     res.send({ ok: true });
   }),
@@ -210,7 +468,6 @@ const userLeaveSchema = yup.object().shape({
   endDate: yup.string().min(1, 'endDate is required').required(),
   force: yup.boolean().optional(),
 });
-
 // POST /:id/leave - Create leave for a user
 usersRouter.post(
   '/:id/leaves',
@@ -325,139 +582,12 @@ usersRouter.delete(
     res.send(leave);
   }),
 );
-const UPDATE_VALIDATION = yup
-  .object()
-  .shape({
-    visibilityStatus: yup
-      .string()
-      .required()
-      .oneOf([VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.HISTORICAL]),
-    displayName: yup.string().trim().required(),
-    displayId: yup.string().trim().nullable().optional(),
-    role: yup.string().required(),
-    phoneNumber: yup.string().trim().nullable().optional(),
-    email: yup.string().trim().email().required(),
-    designations: yup.array().of(yup.string()).nullable().optional(),
-    newPassword: yup.string().nullable().optional(),
-    confirmPassword: yup.string().nullable().optional(),
-    allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
-  })
-  .test('passwords-match', 'Passwords must match', function (value) {
-    const { newPassword, confirmPassword } = value;
-    // If both passwords are provided, they must match
-    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
-      return this.createError({ message: 'Passwords must match' });
-    }
-    // If only one password is provided, it's an error
-    if ((newPassword && !confirmPassword) || (!newPassword && confirmPassword)) {
-      return this.createError({ message: 'Both password fields must be filled' });
-    }
-    return true;
-  })
-  .noUnknown();
-usersRouter.put(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const {
-      store: {
-        models: { Role, User, UserDesignation, ReferenceData, UserFacility },
-      },
-      params: { id },
-      db,
-    } = req;
-
-    const fields = await UPDATE_VALIDATION.validate(req.body);
-
-    const user = await User.findByPk(id);
-    if (!user) {
-      throw new NotFoundError('User not found');
-    }
-    req.checkPermission('write', user);
-
-    const role = await Role.findByPk(fields.role);
-    if (!role) {
-      throw new NotFoundError('Role not found');
-    }
-
-    // Check if email is unique (excluding current user)
-    if (fields.email) {
-      const existingUser = await User.findOne({
-        where: {
-          email: fields.email,
-          id: { [Op.ne]: id },
-        },
-      });
-
-      if (existingUser) {
-        throw new ResourceConflictError('Email must be unique across all users');
-      }
-    }
-
-    // Validate designations if provided
-    if (fields.designations && fields.designations.length > 0) {
-      // Check if all designation IDs exist and are of type 'designation'
-      const existingDesignations = await ReferenceData.findAll({
-        where: {
-          id: { [Op.in]: fields.designations },
-          type: REFERENCE_TYPES.DESIGNATION,
-          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-        },
-        attributes: ['id'],
-      });
-
-      const existingDesignationIds = existingDesignations.map(d => d.id);
-      const invalidDesignationIds = fields.designations.filter(
-        id => !existingDesignationIds.includes(id),
-      );
-
-      if (invalidDesignationIds.length > 0) {
-        throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
-      }
-    }
-
-    const updateFields = {
-      displayName: fields.displayName,
-      role: fields.role,
-      email: fields.email,
-      visibilityStatus: fields.visibilityStatus,
-      displayId: fields.displayId,
-      phoneNumber: fields.phoneNumber,
-    };
-
-    // Add password to update fields if provided
-    if (fields.newPassword && fields.confirmPassword) {
-      updateFields.password = fields.newPassword;
-    }
-
-    await db.transaction(async () => {
-      await user.update(updateFields);
-      // Remove existing designations
-      await UserDesignation.destroy({
-        where: { userId: id },
-      });
-
-      // Add new designations
-      if (fields.designations && fields.designations.length > 0) {
-        const designationRecords = fields.designations.map(designationId => ({
-          userId: id,
-          designationId,
-        }));
-        await UserDesignation.bulkCreate(designationRecords);
-      }
-
-      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
-      await updateUserFacilities(UserFacility, user, uniqueFacilityIds);
-    });
-
-    res.send({ ok: true });
-  }),
-);
 
 async function updateUserFacilities(UserFacility, user, allowedFacilityIds) {
   if (allowedFacilityIds.length === 0) {
     return await UserFacility.destroy({
       where: {
-        userId: user.id
+        userId: user.id,
       },
     });
   }
@@ -473,9 +603,11 @@ async function updateUserFacilities(UserFacility, user, allowedFacilityIds) {
     allowedFacilityIds.map(facilityId => ({
       userId: user.id,
       facilityId,
-    })), {
-    ignoreDuplicates: true,
-  });
+    })),
+    {
+      ignoreDuplicates: true,
+    },
+  );
 
   await UserFacility.destroy({
     where: {

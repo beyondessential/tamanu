@@ -110,33 +110,27 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   ];
 
   const handleSubmit = async values => {
-    updateUser(
-      {
-        ...values,
-        designations: values.designations || [],
+    updateUser(values, {
+      onSuccess: () => {
+        handleRefresh();
+        if (values.newPassword && values.confirmPassword) {
+          toast.success(
+            getTranslation(
+              'admin.users.profile.successWithPassword',
+              'User updated successfully! Password changed.',
+            ),
+          );
+        } else {
+          toast.success(
+            getTranslation('admin.users.profile.success', 'User updated successfully!'),
+          );
+        }
+        onClose();
       },
-      {
-        onSuccess: () => {
-          handleRefresh();
-          if (values.newPassword && values.confirmPassword) {
-            toast.success(
-              getTranslation(
-                'admin.users.profile.successWithPassword',
-                'User updated successfully! Password changed.',
-              ),
-            );
-          } else {
-            toast.success(
-              getTranslation('admin.users.profile.success', 'User updated successfully!'),
-            );
-          }
-          onClose();
-        },
-        onError: error => {
-          toast.error(error.message);
-        },
+      onError: error => {
+        toast.error(error.message);
       },
-    );
+    });
   };
 
   const initialValues = useMemo(() => {
@@ -261,6 +255,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     component={MultiAutocompleteField}
                     allowSelectAll
                     suggester={facilitySuggester}
+                    style={{ gridColumn: 'span 2' }}
                   />
                 </FormGrid>
                 {canUpdateUser && (
@@ -302,12 +297,12 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         name="confirmPassword"
                         label={
                           <TranslatedText
-                            stringId="admin.users.confirmPassword.label"
+                            stringId="admin.users.confirmNewPassword.label"
                             fallback="Confirm new password"
                           />
                         }
                         placeholder={getTranslation(
-                          'admin.users.confirmPassword.placeholder',
+                          'admin.users.confirmNewPassword.placeholder',
                           'Confirm new password',
                         )}
                         component={TextField}

@@ -10,3 +10,23 @@ export const useUpdateUserMutation = (userId, options = {}) => {
     ...options,
   });
 };
+
+export const useCreateUserMutation = (options = {}) => {
+  const api = useApi();
+
+  return useMutation({
+    mutationKey: ['users', 'create'],
+    mutationFn: payload => api.post('admin/users', payload),
+    ...options,
+  });
+};
+
+export const useValidateUserMutation = (options = {}) => {
+  const api = useApi();
+
+  return useMutation({
+    mutationKey: ['users', 'validate'],
+    mutationFn: payload => api.post('admin/users/validate', payload),
+    ...options,
+  });
+};
