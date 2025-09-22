@@ -1,6 +1,7 @@
 import { Page, Locator } from '@playwright/test';
 import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
+import * as fieldHelpers from '@utils/fieldHelpers';
 
 export class UpdateTreatmentPlanModal extends BaseNoteModal {
   // Additional fields specific to update treatment plan
@@ -11,15 +12,10 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
     super(page);
     
     // Additional fields specific to update treatment plan
-    this.updatedByInput = page.getByTestId('field-ar9q-input').locator('input');
+    this.updatedByInput = page.getByTestId('field-ar9q-input');
     this.updatedByDropdownList = page.getByTestId('field-ar9q-suggestionslist');
   }
 
-  async setUpdatedBy(updatedBy: string) {
-    await this.updatedByInput.click();
-    await this.updatedByDropdownList.getByText(updatedBy).click();
-
-  }
 
   /**
    * Updates the treatment plan note
@@ -29,7 +25,9 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
    */
   async updateTreatmentPlan(updatedBy: string, updatedContent: string): Promise<string> {
     await this.waitForModalToLoad();
-    await this.setUpdatedBy(updatedBy);
+    await fieldHelpers.selectAutocompleteFieldOption(this.page, this.updatedByInput, {
+      optionToSelect: updatedBy,
+    });
     const updatedDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
     await this.dateTimeInput.fill(updatedDateTime);
     await this.noteContentTextarea.fill(updatedContent);
