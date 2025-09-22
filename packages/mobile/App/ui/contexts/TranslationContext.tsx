@@ -14,6 +14,8 @@ import { isEmpty, upperFirst } from 'lodash';
 import { registerYup } from '../helpers/yupMethods';
 import { readConfig, writeConfig } from '~/services/config';
 import { LanguageOption } from '~/models/TranslatedString';
+import { getEnumStringId } from '../components/Translations/TranslatedEnum';
+import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -32,6 +34,13 @@ export interface TranslatedTextProps {
   casing?: Casing;
 }
 
+interface TranslatedReferenceDataProps {
+  value: string;
+  category: string;
+  fallback: string;
+  placeholder?: string;
+}
+
 interface TranslationContextData {
   debugMode: boolean;
   language: string;
@@ -41,6 +50,8 @@ interface TranslationContextData {
   setLanguage: (language: string) => void;
   host: string;
   setHost: (host: string) => void;
+  getEnumTranslation: (enumValues: Record<string, string>, value: string) => string;
+  getReferenceDataTranslation: (props: TranslatedReferenceDataProps) => string;
 }
 
 interface TranslationOptions {
@@ -95,6 +106,8 @@ const TranslationContext = createContext<TranslationContextData>({
   setLanguage: () => {},
   host: null,
   setHost: () => {},
+  getEnumTranslation: () => '',
+  getReferenceDataTranslation: () => '',
 } as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
@@ -139,6 +152,27 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     return replaceStringVariables(translation, translationOptions, translations);
   };
 
+  const getEnumTranslation = (enumValues: Record<string, string>, value: string) => {
+    if (!enumValues[value]) {
+      return getTranslation('general.fallback.unknown', 'Unknown');
+    }
+
+    const stringId = getEnumStringId(value, enumValues);
+    const fallback = enumValues[value];
+    return getTranslation(stringId, fallback);
+  };
+
+  const getReferenceDataTranslation = ({
+    value,
+    category,
+    fallback,
+    placeholder,
+  }: TranslatedReferenceDataProps) => {
+    return value
+      ? getTranslation(getReferenceDataStringId(value, category), fallback)
+      : placeholder;
+  };
+
   const writeLanguage = async (languageCode: string) => {
     await writeConfig('language', languageCode);
   };
@@ -160,7 +194,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
     restoreLanguage();
     if (!__DEV__) return;
     DevSettings.addMenuItem('Toggle translation highlighting', () =>
-      setIsDebugMode((oldDebugValue) => !oldDebugValue),
+      setIsDebugMode(oldDebugValue => !oldDebugValue),
     );
   }, []);
 
@@ -175,6 +209,8 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setLanguage,
         host,
         setHost,
+        getEnumTranslation,
+        getReferenceDataTranslation,
       }}
     >
       {children}
