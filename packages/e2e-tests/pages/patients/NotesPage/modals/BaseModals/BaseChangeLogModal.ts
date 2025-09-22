@@ -18,11 +18,11 @@ export abstract class BaseChangeLogModal {
     // Common change log elements
     this.changeLogInfoWrappers = page.getByTestId('stylednotechangeloginfowrapper-zbh3');
     this.changelogInfoDates = this.changeLogInfoWrappers.getByTestId('tooltip-b4e8');
-    this.changelogTextContents = this.changeLogInfoWrappers.locator('+ span');
+    this.changelogTextContents = this.page.getByRole('dialog').getByTestId('stylednotechangeloginfowrapper-zbh3').locator('+ span');
   }
 
   async waitForModalToLoad() {
-    await this.closeButton.waitFor({ state: 'visible' });
+    await this.noteTypeLabel.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 

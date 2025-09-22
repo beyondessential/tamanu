@@ -316,7 +316,7 @@ test.describe('Notes Tests', () => {
   });
 
   test.describe('Notes Table Tests', () => {
-    test.setTimeout(50000);
+    test.setTimeout(60000);
     test('treatment plan note should appear on top when creating multiple notes', async ({ patientDetailsPage }) => {
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
@@ -329,6 +329,8 @@ test.describe('Notes Tests', () => {
       for (const note of notes) {
         await patientDetailsPage.notesPane?.newNoteButton.click();
         await newNoteModal?.createBasicNote(note.type, note.content);
+        await newNoteModal?.waitForModalToClose();
+        await patientDetailsPage.notesPane?.waitForNotesPaneToLoad();
       }
       await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(3);
       await patientDetailsPage.notesPane?.newNoteModal?.waitForModalToClose();
