@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-eclipse';
 import 'ace-builds/src-noconflict/theme-dawn';
+
+import { Colors } from '../../../../constants';
 
 const THEMES = {
   VIEW: 'dawn',
@@ -12,12 +13,12 @@ const THEMES = {
 };
 
 const StyledJSONEditor = styled(AceEditor)`
-  border: 1px solid ${(p) => (p.$hasError ? TAMANU_COLORS.alert : TAMANU_COLORS.outline)};
+  border: 1px solid ${p => (p.$hasError ? Colors.alert : Colors.outline)};
   border-radius: 4px;
   z-index: 0;
   .error-marker {
     position: absolute;
-    background-color: ${TAMANU_COLORS.alert};
+    background-color: ${Colors.alert};
   }
 `;
 
@@ -69,7 +70,7 @@ export const JSONEditor = React.memo(
       }
     }, [error, value]);
 
-    const onLoad = (editor) => {
+    const onLoad = editor => {
       // Disable the "undo" command (Ctrl+Z)
       editor.commands.addCommand({
         name: 'undo',

@@ -1,36 +1,35 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-
+import { Colors } from '../constants';
 import { MenuButton } from './MenuButton';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const NoteContainer = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
-  background-color: ${TAMANU_COLORS.white};
+  border: 1px solid ${Colors.outline};
+  background-color: ${Colors.white};
   margin-bottom: 0.75rem;
 `;
 
 const NoteHeaderContainer = styled.div`
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   display: flex;
   justify-content: space-between;
 `;
 
 const NoteAuthorName = styled.strong`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const NoteOnBehalfOf = styled.span`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const MainCarePlanIndicator = styled.strong`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   padding-left: 1rem;
 `;
 
@@ -41,7 +40,7 @@ const VerticalCenter = styled.div`
 `;
 
 const Timestamp = styled.span`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   margin-right: 15px;
 `;
 
@@ -51,7 +50,7 @@ const NoteContentContainer = styled.div`
 `;
 
 const NoteContent = styled.p`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   white-space: pre-line;
 `;
 
@@ -91,7 +90,7 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
             <DateDisplay date={note.date} data-testid="datedisplay-rguy" />
           </Timestamp>
           <MenuButton
-            iconColor={TAMANU_COLORS.midText}
+            iconColor={Colors.midText}
             actions={[
               {
                 label: (

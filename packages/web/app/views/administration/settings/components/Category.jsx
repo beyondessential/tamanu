@@ -2,10 +2,10 @@ import React, { memo } from 'react';
 import styled from 'styled-components';
 import LockIcon from '@material-ui/icons/Lock';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { isSetting } from '@tamanu/settings';
 
-import { BodyText, Heading4, LargeBodyText } from '../../../../components';
+import { BodyText, Heading4, LargeBodyText, TranslatedText } from '../../../../components';
+import { Colors } from '../../../../constants';
 import { ThemedTooltip } from '../../../../components/Tooltip';
 import { SettingInput } from './SettingInput';
 import { useAuth } from '../../../../contexts/Auth';
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   grid-template-columns: subgrid;
 
   &:not(:first-child) {
-    border-top: 1px solid ${TAMANU_COLORS.outline};
+    border-top: 1px solid ${Colors.outline};
   }
 `;
 
