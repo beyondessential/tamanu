@@ -184,7 +184,7 @@ test.describe('Notes Tests', () => {
       test.setTimeout(50000);
       const originalContent = 'Original treatment plan';
       const updatedContent = 'Updated treatment plan';
-      const updatedBy = 'Coder';
+      const updatedBy = 'coder';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       const updateTreatmentPlanModal = patientDetailsPage.notesPane?.getUpdateTreatmentPlanModal();
       const changeLogTreatmentPlanModal = patientDetailsPage.notesPane?.getChangeLogTreatmentPlanModal();
