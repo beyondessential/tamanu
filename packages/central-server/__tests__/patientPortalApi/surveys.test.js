@@ -19,7 +19,9 @@ describe('Patient Portal Surveys GET Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, ReferenceData } = store.models;
+    const { Patient, PortalUser, ReferenceData, Setting } = store.models;
+
+    await Setting.set('features.patientPortal', true);
 
     // Create a test village
     testVillage = await ReferenceData.create(
@@ -88,8 +90,5 @@ describe('Patient Portal Surveys GET Endpoints', () => {
       expect(response.body).toMatchObject({ id: survey.id, components: expect.any(Array) });
       expect(response.body.components.length).toBeGreaterThan(0);
     });
-
   });
 });
-
-

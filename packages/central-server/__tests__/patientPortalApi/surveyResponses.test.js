@@ -24,7 +24,10 @@ describe('Patient Portal Survey Response POST Endpoints', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser, ReferenceData, Location, Department, Facility } = store.models;
+    const { Patient, PortalUser, ReferenceData, Location, Department, Facility, Setting } =
+      store.models;
+
+    await Setting.set('features.patientPortal', true);
 
     testFacility = await Facility.create(
       fake(Facility, {
