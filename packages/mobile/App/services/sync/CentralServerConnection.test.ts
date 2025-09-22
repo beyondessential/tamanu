@@ -256,7 +256,7 @@ describe('CentralServerConnection', () => {
         }),
       );
 
-      expect(fetchRes).toEqual('test-result');
+      expect(fetchRes).toEqual('test-result-correct');
     });
 
     it('should invoke itself after invalid token and refresh endpoint', async () => {
