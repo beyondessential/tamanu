@@ -8,7 +8,7 @@ import { createTestContext } from '../utilities';
 import {
   PortalOneTimeTokenService,
   hashPortalToken,
-} from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+} from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 describe('PortalOneTimeTokenService', () => {
   let ctx;

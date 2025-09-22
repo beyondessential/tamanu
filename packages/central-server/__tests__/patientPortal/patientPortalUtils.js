@@ -1,4 +1,4 @@
-import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 export const getPatientAuthToken = async (app, models, email) => {
   const portalUser = await models.PortalUser.getForAuthByEmail(email);

@@ -5,7 +5,7 @@ import {
 } from '@tamanu/constants';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 
 const TEST_PATIENT_EMAIL = 'register@test.com';
 const REGISTRATION_URL = '/api/portal/verify-registration';
@@ -27,7 +27,7 @@ describe('Patient Portal Registration Verification Endpoint', () => {
     const { Patient, PortalUser, ReferenceData, Setting } = store.models;
 
     await Setting.set('features.patientPortal', true);
-    
+
     // Create a test village
     testVillage = await ReferenceData.create(
       fake(ReferenceData, {

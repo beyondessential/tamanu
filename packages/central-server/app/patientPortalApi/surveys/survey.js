@@ -10,7 +10,13 @@ export const getSurvey = asyncHandler(async (req, res) => {
 
   const surveyRecord = await models.Survey.findByPk(surveyId, {
     attributes: getAttributesFromSchema(SurveySchema),
-    include: ['portalSurveyAssignments'],
+    include: [
+      {
+        association: 'portalSurveyAssignments',
+        order: [['created_at', 'DESC']],
+        limit: 1,
+      },
+    ],
   });
 
   if (!surveyRecord) {
