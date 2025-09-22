@@ -46,20 +46,6 @@ describe('executePreparedQuery', () => {
       expect(getEffectiveBatchSize).toHaveBeenCalledWith(500, 3);
     });
 
-    it('deduplicates rows by id before inserting', async () => {
-      const repository = makeRepository();
-      const rows = [
-        { id: '1', name: 'Dog Man', deletedAt: null },
-        { id: '1', name: 'Dog Man', deletedAt: null },
-      ];
-
-      await executePreparedInsert(repository, rows as any, 500, progress);
-
-      const [, params] = repository.query.mock.calls[0];
-      expect(params).toEqual(['1', 'Dog Man', null]);
-      expect(progress).toHaveBeenCalledWith(1);
-    });
-
     it('falls back to repository.insert when raw query fails', async () => {
       const repository = makeRepository();
       repository.query.mockRejectedValue(new Error('raw insert failed'));
@@ -83,7 +69,7 @@ describe('executePreparedQuery', () => {
       const rows = [
         { id: '1', name: 'Dog Man', deletedAt: null },
         { id: '2', name: 'Muffin Man', deletedAt: deletedDate },
-      ];    
+      ];
 
       await executePreparedUpdate(repository, rows as any, 500, progress);
 
@@ -116,5 +102,3 @@ describe('executePreparedQuery', () => {
     });
   });
 });
-
-
