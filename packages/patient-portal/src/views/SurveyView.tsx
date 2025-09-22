@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { styled, Typography, Box } from '@mui/material';
+import { Alert } from '@material-ui/lab';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { getAnswersFromData, AuthContext } from '@tamanu/ui-components';
@@ -28,6 +29,12 @@ const Title = styled(Typography)(() => ({
   lineHeight: 2,
 }));
 
+const ErrorAlert = styled(Alert)(() => ({
+  width: 400,
+  maxWidth: '90%',
+  margin: '40px auto 0',
+}));
+
 type SurveyData = Record<string, any>;
 
 export const SurveyView = () => {
@@ -52,8 +59,17 @@ export const SurveyView = () => {
     history.push('/');
   };
 
-  if (isPending || !survey) {
+  if (isPending) {
     return null;
+  }
+
+  if (!survey || !survey.portalSurveyAssignment) {
+    return (
+      <ErrorAlert severity="error">
+        There was an error loading the survey. Please try again or contact support if the problem
+        persists.
+      </ErrorAlert>
+    );
   }
 
   /**
