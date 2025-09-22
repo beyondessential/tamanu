@@ -126,8 +126,8 @@
       "username": "admin",
       "password": "district",
       "backoff": {
-        "multiplierMs": 300,
-        "maxAttempts": 3,
+        "multiplierMs": 50,
+        "maxAttempts": 2,
         "maxWaitMs": 10000
       }
     }

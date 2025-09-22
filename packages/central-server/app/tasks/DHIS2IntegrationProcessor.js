@@ -90,14 +90,14 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
 
     const reportString = `${report.name} (${reportId})`;
 
-    log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
-
     if (!report.versions || report.versions.length === 0) {
       log.warn(WARNING_LOGS.REPORT_HAS_NO_PUBLISHED_VERSION, {
         report: reportString,
       });
       return;
     }
+
+    log.info(INFO_LOGS.PROCESSING_REPORT, { report: reportString });
 
     const latestVersion = report.versions[0];
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
