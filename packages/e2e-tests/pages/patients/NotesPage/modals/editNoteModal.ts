@@ -1,7 +1,7 @@
 import { Page } from '@playwright/test';
-import { BaseNoteUpdateModal } from './BaseModals/BaseNoteUpdateModal';
+import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 
-export class EditNoteModal extends BaseNoteUpdateModal {
+export class EditNoteModal extends BaseNoteModal {
   constructor(page: Page) {
     super(page);
   }

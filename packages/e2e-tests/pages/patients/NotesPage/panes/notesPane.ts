@@ -63,7 +63,6 @@ export class NotesPane {
   // Wait for the notes pane to load
   async waitForNotesPaneToLoad() {
     await this.notesContainer.waitFor({ state: 'visible' });
-    await this.page.waitForTimeout(5000);
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 

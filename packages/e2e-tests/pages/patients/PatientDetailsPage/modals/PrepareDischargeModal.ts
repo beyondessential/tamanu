@@ -22,7 +22,7 @@ export class PrepareDischargeModal {
     
     // Action buttons (these would need to be updated with actual test IDs from the modal)
     this.confirmButton = page.getByTestId('box-p5wr');
-    this.cancelButton = page.getByTestId('outlinedbutton-8rnr');
+    this.cancelButton = page.getByRole('dialog').getByTestId('outlinedbutton-8rnr');
   }
 
   async waitForModalToLoad() {

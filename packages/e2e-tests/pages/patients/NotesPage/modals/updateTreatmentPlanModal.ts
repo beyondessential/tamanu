@@ -1,26 +1,24 @@
 import { Page, Locator } from '@playwright/test';
-import { BaseNoteUpdateModal } from './BaseModals/BaseNoteUpdateModal';
+import { BaseNoteModal } from './BaseModals/BaseNoteModal';
 import { format } from 'date-fns';
 
-export class UpdateTreatmentPlanModal extends BaseNoteUpdateModal {
+export class UpdateTreatmentPlanModal extends BaseNoteModal {
   // Additional fields specific to update treatment plan
   readonly updatedByInput: Locator;
-  readonly updatedByClearButton: Locator;
   readonly updatedByDropdownList: Locator;
 
   constructor(page: Page) {
     super(page);
     
     // Additional fields specific to update treatment plan
-    this.updatedByInput = page.getByTestId('field-ar9q-input');
-    this.updatedByClearButton = page.getByTestId('field-ar9q-input-clearbutton');
+    this.updatedByInput = page.getByTestId('field-ar9q-input').locator('input');
     this.updatedByDropdownList = page.getByTestId('field-ar9q-suggestionslist');
   }
 
-  // Form field interaction methods specific to update treatment plan
   async setUpdatedBy(updatedBy: string) {
-    await this.updatedByInput.click();
+    await this.updatedByInput.fill(updatedBy);
     await this.updatedByDropdownList.getByText(updatedBy).click();
+
   }
 
   /**

@@ -422,4 +422,11 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
       .first();
   }
+
+  getPrepareDischargeModal(): PrepareDischargeModal {
+    if (!this.prepareDischargeModal) {
+      this.prepareDischargeModal = new PrepareDischargeModal(this.page);
+    }
+    return this.prepareDischargeModal;
+  }
 }
