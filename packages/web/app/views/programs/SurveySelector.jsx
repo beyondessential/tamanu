@@ -25,9 +25,9 @@ const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
   const isDeceased = useSelector(state => Boolean(state.patient?.dateOfDeath));
-  const canCreatePortalRegistration = ability?.can('create', 'PatientPortalForm');
+  const canAssignPortalForm = ability?.can('create', 'PatientPortalForm');
 
-  if (!isPatientPortalEnabled || !canCreatePortalRegistration || isDeceased) {
+  if (!isPatientPortalEnabled || !canAssignPortalForm || isDeceased) {
     return null;
   }
 

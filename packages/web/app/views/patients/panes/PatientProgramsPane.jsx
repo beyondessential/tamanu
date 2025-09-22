@@ -36,7 +36,7 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const { ability } = useAuth();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
-  const canReadPortalRegistration = ability?.can('list', 'PatientPortalForm');
+  const canListPortalForms = ability?.can('list', 'PatientPortalForm');
 
   const handleNewSurvey = () =>
     dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
@@ -63,7 +63,7 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
           data-testid="datafetchingprogramstable-uytn"
         />
       </TableWrapper>
-      {isPatientPortalEnabled && canReadPortalRegistration && (
+      {isPatientPortalEnabled && canListPortalForms && (
         <PortalSurveyAssignmentsTable patient={patient} />
       )}
     </ContentPane>
