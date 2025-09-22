@@ -6,6 +6,7 @@ export * from './Field';
 export * from './FormSeparatorLine';
 export * from './Layout';
 export * from './FormModal';
+export * from './Modal';
 export * from './ModalActionRow';
 export * from './MenuButton';
 export * from './Notification';
