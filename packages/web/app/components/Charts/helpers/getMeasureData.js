@@ -1,13 +1,13 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { VITALS_DATA_ELEMENT_IDS } from '@tamanu/constants/surveys';
+import { Colors } from '../../../constants';
 
 const getDotColor = ({ isInsideNormalRange, isOutsideGraphRange, useInwardArrowVector }) => {
-  let color = useInwardArrowVector ? TAMANU_COLORS.darkestText : TAMANU_COLORS.blue;
+  let color = useInwardArrowVector ? Colors.darkestText : Colors.blue;
   if (!isInsideNormalRange) {
-    color = TAMANU_COLORS.alert;
+    color = Colors.alert;
   }
   if (isOutsideGraphRange) {
-    color = TAMANU_COLORS.darkestText;
+    color = Colors.darkestText;
   }
   return color;
 };
@@ -46,7 +46,7 @@ const getBloodPressureDescription = (description, key) => {
 
 const getDefaultMeasureData = (rawData, visualisationConfig) => {
   const { yAxis } = visualisationConfig;
-  return rawData.map((d) => {
+  return rawData.map(d => {
     const isInsideNormalRange =
       d.value >= yAxis.normalRange.min && d.value <= yAxis.normalRange.max;
     const isOutsideGraphRange = d.value < yAxis.graphRange.min || d.value > yAxis.graphRange.max;
@@ -80,7 +80,7 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
 
   // Adjust shape calculations for secondary value in arrow vector
   // (currently this just applies to DBP in blood pressure).
-  return defaultMeasureData.map((baseData) => {
+  return defaultMeasureData.map(baseData => {
     const secondaryData = { value: baseData.inwardArrowVector.bottom };
 
     const isInsideNormalRange =
@@ -102,7 +102,7 @@ const getInwardArrowMeasureData = (rawData, visualisationConfig, secondaryConfig
 
     // Preserve the first one if its an alert, otherwise the secondary
     const finalDotColor =
-      baseData.dotColor === TAMANU_COLORS.alert ? TAMANU_COLORS.alert : secondaryValueDotColor;
+      baseData.dotColor === Colors.alert ? Colors.alert : secondaryValueDotColor;
 
     return {
       ...baseData,

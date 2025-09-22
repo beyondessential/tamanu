@@ -16,6 +16,9 @@ export * from './SearchField';
 export * from './SwitchField';
 export * from './ChartInstanceNameField';
 export * from './SurveyAnswerField';
+export * from './Select';
+export * from './SelectField';
+export * from './TextField';
 
 // fancy fields
 export * from './HierarchyFieldItem';

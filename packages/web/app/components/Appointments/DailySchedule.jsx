@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-
+import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
 const Column = ({ header, appointments, onAppointmentUpdated }) => {
@@ -49,14 +48,14 @@ export const DailySchedule = ({
   onAppointmentUpdated,
 }) => {
   const appointmentGroups = groupBy(
-    appointments.filter((appointment) => {
+    appointments.filter(appointment => {
       // don't show canceled appointment
       if (appointment.status === APPOINTMENT_STATUSES.CANCELLED) {
         return false;
       }
       return true;
     }),
-    (appt) => appt[activeFilter].id,
+    appt => appt[activeFilter].id,
   );
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
@@ -73,7 +72,7 @@ export const DailySchedule = ({
       // location has name, while clinician has displayName;
       const header = filterObject.name || filterObject.displayName;
 
-      const displayAppointments = appts.filter((appointment) => {
+      const displayAppointments = appts.filter(appointment => {
         // if no appointmentType selected, show all
         if (!appointmentType.length) {
           return true;
@@ -88,7 +87,7 @@ export const DailySchedule = ({
     });
   return (
     <Container data-testid="container-xxnp">
-      {columns.map((props) => (
+      {columns.map(props => (
         <Column
           key={props.key}
           onAppointmentUpdated={onAppointmentUpdated}
@@ -115,25 +114,25 @@ const ColumnHeader = styled.div`
   -webkit-box-orient: vertical;
   width: ${({ $width }) => $width};
   min-width: ${({ $minWidth }) => $minWidth};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-right: none;
   font-weight: bold;
   padding: 0.75em 1.5em;
   text-align: center;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   position: sticky;
   top: 0;
-  text-color: ${TAMANU_COLORS.darkText};
+  text-color: ${Colors.darkText};
   :nth-last-of-type(2) {
-    border-right: 1px solid ${TAMANU_COLORS.outline};
+    border-right: 1px solid ${Colors.outline};
   }
 `;
 
 const ColumnBody = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-right: none;
   padding: 0;
   :last-of-type {
-    border-right: 1px solid ${TAMANU_COLORS.outline};
+    border-right: 1px solid ${Colors.outline};
   }
 `;

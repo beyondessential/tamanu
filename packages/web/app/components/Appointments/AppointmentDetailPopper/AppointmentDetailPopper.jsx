@@ -1,4 +1,3 @@
-
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
@@ -7,9 +6,8 @@ import { push } from 'connected-react-router';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
+import { Colors } from '../../../constants';
 import { reloadPatient } from '../../../store';
 import { AppointmentDetailsDisplay } from './AppointmentDetailsDisplay';
 import { AppointmentStatusSelector } from './AppointmentStatusSelector';
@@ -21,7 +19,7 @@ import { useAuth } from '../../../contexts/Auth';
 export const APPOINTMENT_CALENDAR_CLASS = 'appointment-calendar';
 
 const StyledPaper = styled(Paper)`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   display: flex;
   flex-direction: column;
   width: 16rem;
@@ -63,7 +61,7 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const handleClickAway = (e) => {
+  const handleClickAway = e => {
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
@@ -96,7 +94,7 @@ export const AppointmentDetailPopper = ({
       anchorEl={anchorEl}
       modifiers={modifiers}
       // Prevent the popper from closing when clicked
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
       open={open}
       placement="bottom-start"
       sx={{ zIndex: 10 }}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
 
@@ -10,14 +9,15 @@ import {
   CircleIconOutlined,
   CrossIconFilled,
 } from '../Icons';
+import { Colors } from '../../constants';
 
 export const APPOINTMENT_STATUS_COLORS = {
-  [APPOINTMENT_STATUSES.ARRIVED]: TAMANU_COLORS.purple,
-  [APPOINTMENT_STATUSES.ASSESSED]: TAMANU_COLORS.pink,
-  [APPOINTMENT_STATUSES.CANCELLED]: TAMANU_COLORS.darkText,
-  [APPOINTMENT_STATUSES.CONFIRMED]: TAMANU_COLORS.blue,
-  [APPOINTMENT_STATUSES.NO_SHOW]: TAMANU_COLORS.darkOrange,
-  [APPOINTMENT_STATUSES.SEEN]: TAMANU_COLORS.green,
+  [APPOINTMENT_STATUSES.ARRIVED]: Colors.purple,
+  [APPOINTMENT_STATUSES.ASSESSED]: Colors.pink,
+  [APPOINTMENT_STATUSES.CANCELLED]: Colors.darkText,
+  [APPOINTMENT_STATUSES.CONFIRMED]: Colors.blue,
+  [APPOINTMENT_STATUSES.NO_SHOW]: Colors.darkOrange,
+  [APPOINTMENT_STATUSES.SEEN]: Colors.green,
 };
 
 export const APPOINTMENT_STATUS_ICONS = {
@@ -34,7 +34,7 @@ export const AppointmentStatusIndicator = ({ appointmentStatus, ...props }) => {
   return (
     <IconComponent
       aria-label={appointmentStatus}
-      htmlColor={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? TAMANU_COLORS.blue}
+      htmlColor={APPOINTMENT_STATUS_COLORS[appointmentStatus] ?? Colors.blue}
       {...props}
       data-testid="iconcomponent-95h6"
     />
