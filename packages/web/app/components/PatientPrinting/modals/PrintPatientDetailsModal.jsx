@@ -150,14 +150,15 @@ const PRINT_OPTIONS = {
     ),
     icon: PatientPortalIcon,
     component: SendToPatientModal,
-    condition: getSetting => getSetting('features.patientPortal'),
+    condition: (getSetting, ability) =>
+      getSetting('features.patientPortal') && ability?.can('create', 'PatientPortalForm'),
   },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
-  const isDeceased = Boolean(patient?.dateOfDeath); 
+  const isDeceased = Boolean(patient?.dateOfDeath);
   const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (

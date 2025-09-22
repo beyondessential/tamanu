@@ -101,7 +101,7 @@ const sendPortalEmail = async ({ patient, email, models, settings, facilityId, e
 patientPortal.get(
   '/:id/portal/status',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortal');
+    req.checkPermission('read', 'PatientPortalRegistration');
 
     const { models } = req;
     const { id: patientId } = req.params;
@@ -129,7 +129,7 @@ patientPortal.get(
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'PatientPortal');
+    req.checkPermission('create', 'PatientPortalRegistration');
     const { models, settings, body } = req;
     const { id: patientId } = req.params;
     const { email, facilityId } = body;
@@ -158,6 +158,9 @@ patientPortal.post(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortalForm');
+
+    // Patient's can be registered at the same time as assigning forms
+    req.checkPermission('create', 'PatientPortalRegistration');
 
     const { models, user, settings } = req;
     const { id: patientId } = req.params;

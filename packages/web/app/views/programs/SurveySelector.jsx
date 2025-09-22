@@ -6,6 +6,7 @@ import { SendFormToPatientPortalModal } from '../patients/components/SendFormToP
 import { TranslatedText } from '../../components';
 import { SendIcon } from '../../components/Icons/SendIcon';
 import { useSettings } from '../../contexts/Settings';
+import { useAuth } from '../../contexts/Auth.jsx';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
@@ -19,11 +20,30 @@ const StyledButtonRow = styled(ButtonRow)`
   }
 `;
 
-export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
-  const [open, setOpen] = useState(false);
+const SendFormToPatientPortalModalButton = ({ setOpen, isDisabled }) => {
+  const { ability } = useAuth();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
   const isDeceased = useSelector(state => Boolean(state.patient?.dateOfDeath));
+  const canCreatePortalRegistration = ability?.can('create', 'PatientPortalRegistration');
+
+  if (!isPatientPortalEnabled || !canCreatePortalRegistration || isDeceased) {
+    return null;
+  }
+
+  return (
+    <TextButton onClick={() => setOpen(true)} disabled={isDisabled}>
+      <SendIcon width={12} height={12} />
+      <TranslatedText
+        stringId="program.action.sendToPatientPortal"
+        fallback="Send to patient portal"
+      />
+    </TextButton>
+  );
+};
+
+export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, buttonText }) => {
+  const [open, setOpen] = useState(false);
 
   const handleChange = event => {
     const surveyId = event.target.value;
@@ -44,16 +64,7 @@ export const SurveySelector = React.memo(({ value, onChange, onSubmit, surveys, 
         data-testid="selectinput-4g3c"
       />
       <StyledButtonRow data-testid="styledbuttonrow-nem0">
-        {isPatientPortalEnabled && !isDeceased && (
-          <TextButton onClick={() => setOpen(true)} disabled={!value}>
-            <SendIcon width={12} height={12} />
-            <TranslatedText
-              stringId="program.action.sendToPatientPortal"
-              fallback="Send to patient portal"
-            />
-          </TextButton>
-        )}
-
+        <SendFormToPatientPortalModalButton setOpen={setOpen} isDisabled={!value} />
         <Button
           onClick={handleSubmit}
           disabled={!value}
