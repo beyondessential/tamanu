@@ -65,7 +65,7 @@ const DefaultSuccessScreen = ({ onClose }) => (
       <Button variant="contained" color="primary" onClick={onClose} data-testid="button-swbr">
         <TranslatedText
           stringId="general.action.ok"
-          fallback="Ok"
+          fallback="OK"
           data-testid="translatedtext-xxgi"
         />
       </Button>
@@ -150,7 +150,7 @@ export const usePaginatedForm = () => {
     setScreenIndex(screenIndex + 1);
   };
 
-  const handleStep = (step) => () => {
+  const handleStep = step => () => {
     setScreenIndex(step);
   };
 
@@ -184,7 +184,7 @@ export const PaginatedForm = ({
   const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
-  const onSubmitForm = async (data) => {
+  const onSubmitForm = async data => {
     await onSubmit(data);
     setFormState(FORM_STATES.SUCCESS);
   };
@@ -195,7 +195,7 @@ export const PaginatedForm = ({
 
   const formScreenReactElements = React.Children.toArray(children);
   const allQuestionReactElements = formScreenReactElements
-    .map((s) => React.Children.toArray(s.props.children))
+    .map(s => React.Children.toArray(s.props.children))
     .flat();
   const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
@@ -242,9 +242,9 @@ export const PaginatedForm = ({
           );
         }
 
-        const submitVisibleValues = (event) => {
+        const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(values, allQuestionReactElements).map((q) => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 

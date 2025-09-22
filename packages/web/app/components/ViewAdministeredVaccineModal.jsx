@@ -9,11 +9,7 @@ import { Colors } from '../constants';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { Modal } from './Modal';
-import {
-  TranslatedEnum,
-  TranslatedReferenceData,
-  TranslatedText,
-} from './Translation';
+import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../contexts/Translation.jsx';
@@ -23,7 +19,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${Colors.white};
-  ${(props) => (props.$editMode ? 'margin-bottom: 20px;' : '')}
+  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -37,8 +33,8 @@ const DisplayField = styled.div`
   font-weight: 500;
 
   &:nth-child(2n) {
-    ${(props) => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
-    ${(props) => (props.$editMode ? `padding-left: 15px;` : '')}
+    ${props => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
+    ${props => (props.$editMode ? `padding-left: 15px;` : '')}
   }
 `;
 
@@ -70,7 +66,7 @@ const FieldsViewer = ({ labelValueFieldGroups, editMode }) => (
           <DisplayField
             key={label}
             $editMode={editMode}
-            data-testid={`displayfield-jkpx-${key}-${label}`}
+            data-testid={`displayfield-jkpx-${key}-${label.props['data-testid']}`}
           >
             <Label data-testid={`label-4tcx-${key}-${label}`}>{label}</Label>
             {value}
@@ -201,7 +197,13 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       value: <DateDisplay date={date} data-testid="datedisplay-vjag" />,
     },
     injectionSite: {
-      label: <TranslatedText stringId="vaccine.injectionSite.label" fallback="Injection site" />,
+      label: (
+        <TranslatedText
+          stringId="vaccine.injectionSite.label"
+          fallback="Injection site"
+          data-testid="injectsite-m8uo"
+        />
+      ),
       value: (
         <TranslatedEnum value={injectionSite} enumValues={INJECTION_SITE_LABELS} enumFallback="-" />
       ),
@@ -364,7 +366,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
       label: (
         <TranslatedText
           stringId="vaccine.status.label"
-          fallback="Status"
+          fallback="Vaccine status"
           data-testid="translatedtext-qgo7"
         />
       ),
@@ -420,7 +422,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         vaccineCircumstances?.length > 0
           ? vaccineCircumstances
               ?.map(
-                (circumstance) =>
+                circumstance =>
                   circumstance &&
                   getTranslation(
                     getReferenceDataStringId(circumstance.id, 'vaccineCircumstance'),
@@ -642,13 +644,13 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
     },
   ];
 
-  const modalVersion = modalVersions.find((modalType) => modalType.condition === true);
+  const modalVersion = modalVersions.find(modalType => modalType.condition === true);
   if (!modalVersion) return <ErrorMessage data-testid="errormessage-1gnb" />;
   const fieldGroups = modalVersion.fieldGroups
-    .map((group) => ({
+    .map(group => ({
       ...group,
       fields: group.fields
-        .filter((field) => {
+        .filter(field => {
           // filter out fields if they're conditional on the editMode, and the editMode doesn't match
           // this can be written more concisely but i want it explicit
           if (editMode && field.editMode === true) return true;
@@ -658,7 +660,7 @@ export const ViewAdministeredVaccineContent = ({ vaccineRecord, editMode }) => {
         })
         .map(({ field }) => field),
     }))
-    .filter((group) => {
+    .filter(group => {
       // eliminate empty groups
       return group.fields.length > 0;
     });

@@ -1,4 +1,4 @@
-import { ServerUnavailableError } from './errors';
+import { RemoteUnreachableError } from '@tamanu/errors';
 
 import type { LoggerType } from './TamanuApi';
 
@@ -35,12 +35,13 @@ export async function fetchOrThrowIfUnavailable(
   } catch (e) {
     if (e instanceof Error && e.message === 'Failed to fetch') {
       // apply more helpful message if the server is not available
-      throw new ServerUnavailableError(
+      throw new RemoteUnreachableError(
         'The server is unavailable. Please check with your system administrator that the address is set correctly, and that it is running',
       );
     }
 
-    throw e; // some other unhandled error
+    // some other unhandled error
+    throw new RemoteUnreachableError(e.message);
   }
 }
 

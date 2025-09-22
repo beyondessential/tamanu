@@ -1,7 +1,7 @@
 import { Op, DataTypes } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
@@ -77,7 +77,7 @@ export class Triage extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 

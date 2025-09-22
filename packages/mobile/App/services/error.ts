@@ -1,18 +1,3 @@
-type RemoteErrorPayload = {
-  name?: string;
-  message?: string;
-};
-
-export class RemoteError extends Error {
-  status?: number;
-  remoteError?: RemoteErrorPayload;
-  constructor(message: string, remoteError: RemoteErrorPayload | undefined, status: number) {
-    super(message);
-    this.remoteError = remoteError;
-    this.status = status;
-  }
-}
-
 export class AuthenticationError extends Error {
   constructor(message: string) {
     super(message);
@@ -41,5 +26,7 @@ export const noServerAccessMessage = 'Unable to access Server.\n Please check in
 export const invalidUserCredentialsMessage =
   'Invalid user credentials.\nPlease check email and password and try again.';
 export const invalidTokenMessage = 'Your login has expired, please sign out and back in.';
-export const forbiddenFacilityMessage = 'You dont have access to this facility'
+export const forbiddenFacilityMessage = 'You dont have access to this facility';
 export const generalErrorMessage = 'Oops, something went wrong.\n Please try again later!';
+export const invalidDeviceMessage =
+  'This mobile device requires sync approval before you can proceed with login. Please contact your system administrator to grant approval.';

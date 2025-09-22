@@ -21,8 +21,8 @@ export class EncounterPrescription extends Model {
         isSelectedForDischarge: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
-          defaultValue: false
-        }
+          defaultValue: false,
+        },
       },
       {
         ...options,
@@ -42,7 +42,7 @@ export class EncounterPrescription extends Model {
     });
     this.hasMany(models.EncounterPausePrescription, {
       foreignKey: 'encounterPrescriptionId',
-      as: 'pausePrescriptions'
+      as: 'pausePrescriptions',
     });
   }
 
@@ -56,7 +56,7 @@ export class EncounterPrescription extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

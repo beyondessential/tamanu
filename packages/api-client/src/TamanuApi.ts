@@ -1,19 +1,15 @@
 import qs from 'qs';
 
-import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND } from '@tamanu/constants';
+import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DeviceScope } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
 
 import {
-  AuthExpiredError,
-  AuthInvalidError,
-  ForbiddenError,
-  NotFoundError,
-  ResourceConflictError,
-  ServerResponseError,
-  VersionIncompatibleError,
-  getVersionIncompatibleMessage,
-} from './errors';
-import { BaseFetchOptions, fetchOrThrowIfUnavailable, getResponseErrorSafely } from './fetch';
+  ERROR_TYPE,
+  Problem,
+  extractErrorFromFetchResponse,
+  RemoteIncompatibleError,
+} from '@tamanu/errors';
+import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
 import {
   InterceptorManager,
@@ -23,11 +19,14 @@ import {
   type ResponseInterceptorFulfilled,
   type ResponseInterceptorRejected,
 } from './InterceptorManager';
+import { getVersionIncompatibleMessage } from './getVersionIncompatibleMessage';
 
 interface Logger {
   debug: (message: string, data?: any) => void;
   warn: (message: string, data?: any) => void;
   error: (message: string, data?: any) => void;
+  info: (message: string, data?: any) => void;
+  log: (message: string, data?: any) => void;
 }
 
 export type LoggerType = Logger | Console;
@@ -72,6 +71,7 @@ interface FetchOptions extends BaseFetchOptions {
   throwResponse?: boolean;
   waitForAuth?: boolean;
   backoff?: boolean | RetryBackoffOptions;
+  scopes?: DeviceScope[];
 }
 
 interface PasswordChangeArgs {
@@ -176,6 +176,7 @@ export class TamanuApi {
   }
 
   async login(email: string, password: string, config: FetchOptions = {}): Promise<LoginResponse> {
+    const { scopes = [], ...restOfConfig } = config;
     if (this.#ongoingAuth) {
       await this.#ongoingAuth;
     }
@@ -187,16 +188,18 @@ export class TamanuApi {
           email,
           password,
           deviceId: this.deviceId,
+          scopes,
         },
-        { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
+        { ...restOfConfig, returnResponse: true, useAuthToken: false, waitForAuth: false },
       )) as Response;
 
-      const serverType = response.headers.get('x-tamanu-server') as keyof typeof SERVER_TYPES;
-      if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        throw new ServerResponseError(
-          `Tamanu server type '${String(serverType)}' is not supported.`,
-          response,
+      const serverType = response.headers.get('x-tamanu-server');
+      if (!(SERVER_TYPES.FACILITY === serverType || SERVER_TYPES.CENTRAL === serverType)) {
+        const problem = Problem.fromError(
+          new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
         );
+        problem.response = response;
+        throw problem;
       }
 
       const responseData = (await response.json()) as LoginResponseData;
@@ -211,7 +214,7 @@ export class TamanuApi {
       server.centralHost = centralHost;
       this.setToken(loginData.token, loginData.refreshToken);
 
-      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], config);
+      const { user, ability } = await this.fetchUserData(loginData.permissions ?? [], restOfConfig);
       return { ...loginData, user, ability, server };
     })().finally(() => {
       this.#ongoingAuth = null;
@@ -401,54 +404,20 @@ export class TamanuApi {
       throw response;
     }
 
-    return this.extractError(endpoint, response);
-  }
+    const problem = await extractErrorFromFetchResponse(response, url, this.logger);
 
-  /**
-   * Handle errors from the server response.
-   *
-   * Generally only used internally.
-   */
-  async extractError(endpoint: string, response: Response): Promise<never> {
-    const { error } = await getResponseErrorSafely(response, this.logger);
-    const message = error?.message || response.status.toString();
-
-    if (response.status === 403 && error) {
-      throw new ForbiddenError(message, response);
+    if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
+      this.#onAuthFailure?.(problem.detail);
     }
 
-    if (response.status === 404) {
-      throw new NotFoundError(message, response);
-    }
-
-    if (response.status === 401) {
-      const errorMessage = error?.message || 'Failed authentication';
-      if (this.#onAuthFailure) {
-        this.#onAuthFailure(errorMessage);
-      }
-      throw new (endpoint === 'login' ? AuthInvalidError : AuthExpiredError)(
-        errorMessage,
-        response,
-      );
-    }
-
-    // handle version incompatibility
-    if (response.status === 400 && error) {
-      const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
+    if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+      const versionIncompatibleMessage = getVersionIncompatibleMessage(problem);
       if (versionIncompatibleMessage) {
-        if (this.#onVersionIncompatible) {
-          this.#onVersionIncompatible(versionIncompatibleMessage);
-        }
-        throw new VersionIncompatibleError(versionIncompatibleMessage, response);
+        this.#onVersionIncompatible?.(versionIncompatibleMessage);
       }
     }
 
-    // Handle resource conflict
-    if (response.status === 409) {
-      throw new ResourceConflictError(message, response);
-    }
-
-    throw new ServerResponseError(`Server error response: ${message}`, response);
+    throw problem;
   }
 
   async get<T = any>(
