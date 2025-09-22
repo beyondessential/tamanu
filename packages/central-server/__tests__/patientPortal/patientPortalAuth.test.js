@@ -17,6 +17,8 @@ describe('Patient Portal Auth', () => {
   let testPatient;
   let testPortalUser;
   let deactivatedPortalUser;
+  let deceasedPatient;
+  let deceasedPortalUser;
 
   beforeAll(async () => {
     const ctx = await createTestContext();
@@ -24,6 +26,10 @@ describe('Patient Portal Auth', () => {
     close = ctx.close;
     store = ctx.store;
     const { Patient, PortalUser } = store.models;
+    const { Patient, PortalUser, Setting } = store.models;
+
+    await Setting.set('features.patientPortal', true);
+
     // Create a test patient
     testPatient = await Patient.create(
       fake(Patient, {
@@ -56,6 +62,23 @@ describe('Patient Portal Auth', () => {
       email: 'deactivated@test.com',
       patientId: deactivatedPatient.id,
       visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+
+    // Create a deceased patient and portal user
+    deceasedPatient = await Patient.create(
+      fake(Patient, {
+        displayId: 'TEST003',
+        firstName: 'Dee',
+        lastName: 'Ceased',
+        sex: 'female',
+        dateOfDeath: new Date().toISOString(),
+      }),
+    );
+
+    deceasedPortalUser = await PortalUser.create({
+      email: 'deceased@test.com',
+      patientId: deceasedPatient.id,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
   });
 
@@ -115,6 +138,26 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveSucceeded();
       expect(spy).not.toHaveBeenCalled();
       spy.mockRestore();
+    });
+
+    it('Should return success for a deceased patient email and not create a token', async () => {
+      const spy = jest.spyOn(PortalOneTimeTokenService.prototype, 'createLoginToken');
+      const response = await baseApp.post('/api/portal/request-login-token').send({
+        email: deceasedPortalUser.email,
+      });
+      expect(response).toHaveSucceeded();
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
+
+    it('Should reject login for a deceased patient', async () => {
+      const oneTimeTokenService = new PortalOneTimeTokenService(store.models);
+      const { token } = await oneTimeTokenService.createLoginToken(deceasedPortalUser.id);
+      const response = await baseApp.post('/api/portal/login').send({
+        loginToken: token,
+        email: deceasedPortalUser.email,
+      });
+      expect(response).toHaveRequestError();
     });
   });
 
@@ -176,6 +219,8 @@ describe('Patient Portal Auth', () => {
         .set('Authorization', `Bearer ${expiredToken}`);
       expect(response).toHaveRequestError();
     });
+
+
   });
 
   describe('Patient Portal Route Protection', () => {

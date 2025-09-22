@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { useCurrentUser } from '@routes/PrivateRoute';
-
 import { OutstandingFormsSection } from '../features/dashboard/OutstandingForms/OutstandingFormsSection';
 import { UpcomingAppointmentsSection } from '../features/dashboard/Appointments/UpcomingAppointmentsSection';
 import { PatientDetailsSection } from '../features/dashboard/PatientDetailsSection';
@@ -9,6 +8,7 @@ import { OngoingConditionsSection } from '../features/dashboard/OngoingCondition
 import { AllergiesSection } from '../features/dashboard/AllergiesSection';
 import { MedicationsSection } from '../features/dashboard/MedicationSection';
 import { VaccinationsSection } from '../features/dashboard/Vaccinations/VaccinationsSection';
+import { ProceduresSection } from '../features/dashboard/Procedures/ProceduresSection';
 
 export const DashboardView = () => {
   const patient = useCurrentUser();
@@ -31,6 +31,7 @@ export const DashboardView = () => {
         <PatientDetailsSection />
         <OngoingConditionsSection />
         <AllergiesSection />
+        <ProceduresSection />
         <MedicationsSection />
         <VaccinationsSection />
       </Stack>

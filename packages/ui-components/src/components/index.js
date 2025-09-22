@@ -10,3 +10,4 @@ export * from './Modal';
 export * from './BaseModal';
 export * from './CustomToastContainer';
 export * from './Suggester';
+export * from './DateDisplay';

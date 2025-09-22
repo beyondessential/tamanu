@@ -1,12 +1,13 @@
 import React from 'react';
-import { useSuggester } from '../Suggester';
+
+import { usePatientSuggester, useSuggester } from '../../api';
 import { AutocompleteField } from './AutocompleteField';
-import { useProgramRegistryContext } from '../../contexts';
+import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
 
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
-export const getSuggesterEndpointForConfig = config => {
+const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'ReferenceData') {
     const type = config.where?.type;
     return type === 'icd10' ? 'diagnosis' : type;
@@ -28,11 +29,13 @@ export const getSuggesterEndpointForConfig = config => {
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
   const { programRegistryId } = useProgramRegistryContext(); // this will be null for normal surveys
-  const suggester = useSuggester(
+  const isPatientSource = config?.source === 'Patient';
+  const patientSuggester = usePatientSuggester();
+  const otherSuggester = useSuggester(
     endpoint,
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
   );
-
+  const suggester = isPatientSource ? patientSuggester : otherSuggester;
   return (
     <AutocompleteField suggester={suggester} {...props} data-testid="autocompletefield-efuf" />
   );

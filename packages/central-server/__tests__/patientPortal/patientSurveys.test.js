@@ -16,6 +16,9 @@ describe('Patient Portal Surveys', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
+    const { Patient, PortalUser, ReferenceData, Setting } = store.models;
+
+    await Setting.set('features.patientPortal', true);
     const { Patient, PortalUser } = store.models;
 
     const testPatient = await Patient.create(

@@ -1,7 +1,7 @@
 import { REFERENCE_DATA_RELATION_TYPES } from '@tamanu/constants';
-import { createTestContext } from '../utilities';
+import { NotFoundError } from '@tamanu/errors';
 import { fake } from '@tamanu/fake-data/fake';
-import { NotFoundError } from '../../../shared/src/errors';
+import { createTestContext } from '../utilities';
 
 describe('Reference data', () => {
   let userApp = null;

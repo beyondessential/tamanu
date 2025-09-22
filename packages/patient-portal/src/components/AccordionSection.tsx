@@ -7,6 +7,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import SvgIcon from '@mui/material/SvgIcon';
 import { styled } from '@mui/material/styles';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 type AccordionSectionTitle = string | React.ReactNode;
 
@@ -29,7 +30,7 @@ export const AccordionSection = ({ header, icon, children, ...props }: Accordion
     <StyledAccordion elevation={0} {...props} disableGutters>
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SvgIcon color="primary" sx={{ width: 24, height: 24 }}>
+          <SvgIcon htmlColor={TAMANU_COLORS.blue} sx={{ width: 24, height: 24 }}>
             {icon}
           </SvgIcon>
           {typeof header === 'string' ? <Typography variant="h4">{header}</Typography> : header}

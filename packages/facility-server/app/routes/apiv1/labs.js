@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
