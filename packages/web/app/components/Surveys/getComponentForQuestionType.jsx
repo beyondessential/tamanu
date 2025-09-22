@@ -7,7 +7,6 @@ import {
   ReadOnlyTextField,
   BaseSelectField,
   InstructionField,
-  SurveyQuestionAutocompleteField,
 } from '@tamanu/ui-components';
 import {
   DateField,
@@ -19,6 +18,7 @@ import {
   PhotoField,
   ChartInstanceNameField,
   SurveyAnswerField,
+  SurveyQuestionAutocompleteField,
 } from '../Field';
 
 const QUESTION_COMPONENTS = {

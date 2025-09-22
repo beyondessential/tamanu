@@ -1,12 +1,7 @@
-import React from 'react';
-import { useSuggester, usePatientSuggester } from '../Suggester';
-import { AutocompleteField } from './AutocompleteField';
-import { useProgramRegistryContext } from '../../contexts';
-
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic
 // approach already, so do the extra step here.
-const getSuggesterEndpointForConfig = config => {
+export const getSuggesterEndpointForConfig = config => {
   if (config?.source === 'ReferenceData') {
     const type = config.where?.type;
     return type === 'icd10' ? 'diagnosis' : type;
@@ -23,19 +18,4 @@ const getSuggesterEndpointForConfig = config => {
 
   // autocomplete component won't crash when given an invalid endpoint, it just logs an error.
   return null;
-};
-
-export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
-  const endpoint = getSuggesterEndpointForConfig(config);
-  const { programRegistryId } = useProgramRegistryContext(); // this will be null for normal surveys
-  const isPatientSource = config?.source === 'Patient';
-  const patientSuggester = usePatientSuggester();
-  const otherSuggester = useSuggester(
-    endpoint,
-    programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
-  );
-  const suggester = isPatientSource ? patientSuggester : otherSuggester;
-  return (
-    <AutocompleteField suggester={suggester} {...props} data-testid="autocompletefield-efuf" />
-  );
 };

@@ -27,6 +27,7 @@ export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';
 export * from './PatientDataDisplayField';
+export * from './SurveyQuestionAutocompleteField';
 
 // form helpers
 export * from './FormGroup';
