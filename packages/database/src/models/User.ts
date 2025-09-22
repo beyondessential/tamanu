@@ -1,5 +1,6 @@
 import { hash } from 'bcrypt';
 import { DataTypes, Sequelize } from 'sequelize';
+import { unionBy } from 'lodash';
 
 import {
   CAN_ACCESS_ALL_FACILITIES,
@@ -10,7 +11,7 @@ import {
 
 import { Model } from './Model';
 import { getAbilityForUser } from '@tamanu/shared/permissions/rolesToPermissions';
-import { ForbiddenError } from '@tamanu/shared/errors';
+import { ForbiddenError } from '@tamanu/errors';
 import { getSubjectName } from '@tamanu/shared/permissions/middleware';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
@@ -29,6 +30,7 @@ export class User extends Model {
   declare phoneNumber?: string;
   declare visibilityStatus: string;
   declare facilities: Facility[];
+  declare deviceRegistrationQuota: number;
 
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
@@ -68,7 +70,7 @@ export class User extends Model {
   }
 
   static async bulkCreate(records: any[], ...args: any[]): Promise<any> {
-    const sanitizedRecords = await Promise.all(records.map((r) => this.sanitizeForInsert(r)));
+    const sanitizedRecords = await Promise.all(records.map(r => this.sanitizeForInsert(r)));
     return super.bulkCreate(sanitizedRecords, ...args);
   }
 
@@ -118,6 +120,11 @@ export class User extends Model {
         },
         phoneNumber: {
           type: DataTypes.STRING,
+        },
+        deviceRegistrationQuota: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
@@ -218,7 +225,7 @@ export class User extends Model {
     ];
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 
@@ -265,29 +272,40 @@ export class User extends Model {
     return false;
   }
 
-  async checkCanAccessAllFacilities() {
-    const restrictUsersToFacilities = await this.sequelize.models.Setting.get(
-      'auth.restrictUsersToFacilities',
-    );
-    if (!restrictUsersToFacilities) return true;
-    if (this.isSuperUser()) return true;
-    // Allow for roles that have access to all facilities configured via permissions
-    // (e.g. a custom "AdminICT" role)
-    if (await this.hasPermission('login', 'Facility')) return true;
-    return false;
-  }
-
   async allowedFacilities() {
-    const canAccessAllFacilities = await this.checkCanAccessAllFacilities();
-    if (canAccessAllFacilities) {
-      return CAN_ACCESS_ALL_FACILITIES;
-    }
+    const { Facility, Setting } = this.sequelize.models;
 
+    if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
+
+    const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
+    const hasLoginPermission = await this.hasPermission('login', 'Facility');
+    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
+
+    const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
+    if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)
+      return CAN_ACCESS_ALL_FACILITIES;
+
+    // Get user's linked facilities
     if (!this.facilities) {
       await this.reload({ include: 'facilities' });
     }
+    const explicitlyAllowedFacilities =
+      this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
 
-    return this.facilities?.map(({ id, name }) => ({ id, name })) ?? [];
+    if (hasAllNonSensitiveFacilityAccess) {
+      // Combine any explicitly linked facilities with all non-sensitive facilities
+      const nonSensitiveFacilities = await Facility.findAll({
+        where: { isSensitive: false },
+        attributes: ['id', 'name'],
+        raw: true,
+      });
+
+      const combinedFacilities = unionBy(explicitlyAllowedFacilities, nonSensitiveFacilities, 'id');
+      return combinedFacilities;
+    }
+
+    // Otherwise return only the facilities the user is linked to (including sensitive ones)
+    return explicitlyAllowedFacilities;
   }
 
   async allowedFacilityIds() {
@@ -295,14 +313,13 @@ export class User extends Model {
     if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
       return CAN_ACCESS_ALL_FACILITIES;
     }
-    return allowedFacilities.map((f) => f.id);
+    return allowedFacilities.map(f => f.id);
   }
 
   async canAccessFacility(id: string) {
-    const allowed = await this.allowedFacilityIds();
-    if (allowed === CAN_ACCESS_ALL_FACILITIES) return true;
-
-    return allowed?.includes(id) ?? false;
+    const allowedFacilityIds = await this.allowedFacilityIds();
+    if (allowedFacilityIds === CAN_ACCESS_ALL_FACILITIES) return true;
+    return allowedFacilityIds.includes(id);
   }
 
   static async filterAllowedFacilities(
@@ -310,7 +327,7 @@ export class User extends Model {
     facilityIds: string[],
   ) {
     if (Array.isArray(allowedFacilities)) {
-      return allowedFacilities.filter((f) => facilityIds.includes(f.id));
+      return allowedFacilities.filter(f => facilityIds.includes(f.id));
     } else {
       if (allowedFacilities === CAN_ACCESS_ALL_FACILITIES) {
         const facilitiesMatchingIds = await this.sequelize.models.Facility.findAll({

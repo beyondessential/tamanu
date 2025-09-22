@@ -4,6 +4,10 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import type { Department } from './Department';
+import type { User } from './User';
+import type { Location } from './Location';
+import type { Encounter } from './Encounter';
 
 export class Procedure extends Model {
   declare id: string;
@@ -17,9 +21,19 @@ export class Procedure extends Model {
   declare locationId?: string;
   declare procedureTypeId?: string;
   declare physicianId?: string;
-  declare assistantId?: string;
   declare anaesthetistId?: string;
   declare anaestheticId?: string;
+  declare departmentId?: string;
+  declare assistantAnaesthetistId?: string;
+  declare timeIn?: string;
+  declare timeOut?: string;
+
+  declare encounter?: Encounter;
+  declare Location?: Location;
+  declare Department?: Department;
+  declare LeadClinician?: User;
+  declare Anaesthetist?: User;
+  declare AssistantAnaesthetist?: User;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -34,13 +48,22 @@ export class Procedure extends Model {
         startTime: dateTimeType('startTime'),
         note: DataTypes.TEXT,
         completedNote: DataTypes.TEXT,
+        timeIn: dateTimeType('timeIn'),
+        timeOut: dateTimeType('timeOut'),
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
   static getListReferenceAssociations() {
-    return ['Location', 'ProcedureType', 'Anaesthetic'];
+    return [
+      'Location',
+      'ProcedureType',
+      'Anaesthetic',
+      'Department',
+      'AssistantClinicians',
+      'SurveyResponses',
+    ];
   }
 
   static initRelations(models: Models) {
@@ -58,11 +81,7 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
-      as: 'Physician',
-    });
-    this.belongsTo(models.User, {
-      foreignKey: 'assistantId',
-      as: 'Assistant',
+      as: 'LeadClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
@@ -72,6 +91,43 @@ export class Procedure extends Model {
       foreignKey: 'anaestheticId',
       as: 'Anaesthetic',
     });
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'Department',
+    });
+    this.belongsTo(models.User, {
+      foreignKey: 'assistantAnaesthetistId',
+      as: 'AssistantAnaesthetist',
+    });
+
+    this.belongsToMany(models.User, {
+      through: 'ProcedureAssistantClinician',
+      as: 'AssistantClinicians',
+      foreignKey: 'procedureId',
+    });
+    this.belongsToMany(models.SurveyResponse, {
+      through: 'ProcedureSurveyResponse',
+      as: 'SurveyResponses',
+      foreignKey: 'procedureId',
+    });
+  }
+
+  forResponse() {
+    const procedureResponse = super.forResponse();
+    const assistantClinicians = this.dataValues?.AssistantClinicians;
+    if (!assistantClinicians) {
+      return procedureResponse;
+    }
+
+    // Parse the nested many to many data for assistantClinicians
+    const assistantCliniciansData = assistantClinicians.map(
+      (assistantClinician: { forResponse: () => any }) => assistantClinician.forResponse(),
+    );
+
+    return {
+      ...procedureResponse,
+      assistantClinicians: assistantCliniciansData,
+    };
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
@@ -84,7 +140,7 @@ export class Procedure extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

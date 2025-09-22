@@ -2,13 +2,16 @@
 import React from 'react';
 import * as yup from 'yup';
 import { intervalToDuration, parseISO } from 'date-fns';
-import { isNull, isUndefined } from 'lodash';
+import { camelCase, isNull, isUndefined } from 'lodash';
+import { toast } from 'react-toastify';
 import { checkJSONCriteria } from '@tamanu/shared/utils/criteria';
 import {
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
   READONLY_DATA_FIELDS,
+  SEX_LABELS,
 } from '@tamanu/constants';
+import { convertToBase64 } from '@tamanu/utils/encodings';
 
 import {
   DateField,
@@ -23,13 +26,21 @@ import {
   BaseSelectField,
   SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
-  UnsupportedPhotoField,
+  PhotoField,
+  ChartInstanceNameField,
 } from '../components/Field';
-import { ageInMonths, ageInWeeks, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import {
+  ageInMonths,
+  ageInWeeks,
+  ageInYears,
+  getCurrentDateTimeString,
+} from '@tamanu/utils/dateTime';
 import { joinNames } from './user';
 import { notifyError } from './utils';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { SurveyAnswerField } from '../components/Field/SurveyAnswerField';
+import { getPatientNameAsString } from '../components/PatientNameDisplay';
+import { DateDisplay } from '../components';
 
 const isNullOrUndefined = (value) => isNull(value) || isUndefined(value);
 
@@ -61,29 +72,35 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: (props) => (
-    <LimitedTextField {...props} limit={15} />
-  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: (props) => (
     <DateTimeField {...props} saveDateAsString />
   ),
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: BaseSelectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: BaseSelectField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: (props) => (
+    <BaseSelectField {...props} clearValue="" />
+  ),
 };
 
-export function getComponentForQuestionType(type, { source, writeToPatient: { fieldType } = {} }) {
+const PatientDataDisplayFieldWrapper = props => (
+  <PatientDataDisplayField {...props} value={props.field.value} />
+);
+
+export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
     if (fieldType) {
       // PatientData specifically can overwrite field type if we are writing back to patient record
       component = QUESTION_COMPONENTS[fieldType];
-    } else if (source) {
+    } else {
       // we're displaying a relation, so use PatientDataDisplayField
       // (using a LimitedTextField will just display the bare id)
-      component = PatientDataDisplayField;
+      component = PatientDataDisplayFieldWrapper;
     }
   }
   if (component === undefined) {
@@ -296,16 +313,26 @@ export function getFormInitialValues(
   return initialValues;
 }
 
-export const getAnswersFromData = (data, survey) =>
-  Object.entries(data).reduce((acc, [key, val]) => {
-    if (
-      survey.components.find(({ dataElement }) => dataElement.id === key)?.dataElement?.type !==
-      'PatientIssue'
-    ) {
-      acc[key] = val;
+export const getAnswersFromData = async (data, survey) => {
+  const answers = {};
+  for (const [key, val] of Object.entries(data)) {
+    const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
+    const currentDataElementType = currentComponent?.dataElement?.type;
+    if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
+      try {
+        const size = val.size;
+        const base64Data = await convertToBase64(val);
+        answers[key] = { size, data: base64Data };
+      } catch (e) {
+        toast.error(e.message);
+        throw e;
+      }
+    } else if (currentDataElementType !== 'PatientIssue') {
+      answers[key] = val;
     }
-    return acc;
-  }, {});
+  }
+  return answers;
+};
 
 export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMandatory = {}) => {
   if (!surveyData) return {};
@@ -323,11 +350,10 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       },
     ) => {
       const { unit = '' } = getConfigObject(componentId, config);
-      const {
-        min,
-        max,
-        mandatory: mandatoryConfig,
-      } = getConfigObject(componentId, validationCriteria);
+      const { min, max, mandatory: mandatoryConfig } = getConfigObject(
+        componentId,
+        validationCriteria,
+      );
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
       const isGeolocateType = type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE;
@@ -432,5 +458,61 @@ export const checkMandatory = (mandatory, values) => {
       />,
     );
     return false;
+  }
+};
+
+export const getPatientDataDisplayValue = async ({
+  api,
+  getEnumTranslation,
+  getReferenceDataTranslation,
+  value,
+  config,
+}) => {
+  // eslint-disable-next-line no-unused-vars
+  const [modelName, _, options] = PATIENT_DATA_FIELD_LOCATIONS[config.column] || [];
+  if (!modelName) {
+    // If the field is a custom field, we need to display the raw value
+    return value;
+  } else if (options) {
+    // If the field is a standard field with options, we need to translate the value
+    const translation = getEnumTranslation(options, value);
+    return translation || value;
+  } else {
+    // If the field is a standard field without options, we need to query the display value
+    try {
+      const { data, model } = await api.get(
+        `surveyResponse/patient-data-field-association-data/${config.column}`,
+        {
+          value,
+        },
+      );
+      if (!model) return value;
+
+      switch (model) {
+        case 'ReferenceData':
+          return getReferenceDataTranslation({
+            value: data.id,
+            category: data.type,
+            fallback: data.name,
+          });
+        case 'User':
+          return data?.displayName;
+        case 'Patient':
+          return `${getPatientNameAsString(data)} (${data.displayId}) - ${getEnumTranslation(
+            SEX_LABELS,
+            data.sex,
+          )} - ${DateDisplay.stringFormat(data.dateOfBirth)}`;
+        default: {
+          const category = camelCase(model);
+          return getReferenceDataTranslation({
+            value: data.id,
+            category,
+            fallback: data.name || value,
+          });
+        }
+      }
+    } catch (error) {
+      return value;
+    }
   }
 };

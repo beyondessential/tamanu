@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { z } from 'zod';
-import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError, ValidationError } from '@tamanu/errors';
 import {
   getInvoicePatientPaymentStatus,
   getInvoiceSummary,

@@ -14,10 +14,11 @@ export * from './SelectField';
 export * from './SurveyQuestionAutocompleteField';
 export * from './SurveyResponseSelectField';
 export * from './TextField';
-export * from './UnsupportedPhotoField';
+export * from './PhotoField';
 export * from './ImagingPriorityField';
 export * from './SearchField';
 export * from './SwitchField';
+export * from './ChartInstanceNameField';
 
 // fancy fields
 export * from './HierarchyFieldItem';
@@ -28,6 +29,7 @@ export * from './DisplayIdField';
 export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';
+export * from './PatientDataDisplayField';
 
 // form helpers
 export * from './Form';

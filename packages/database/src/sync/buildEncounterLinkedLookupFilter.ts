@@ -10,18 +10,18 @@ import type { Model } from '../models/Model';
  * Only populates facility_id when the encounter is from a sensitive facility
  * This ensures sensitive encounters are only synced to their originating facility
  */
-const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
+export const ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE = `
     CASE
       WHEN facilities.is_sensitive = TRUE THEN facilities.id
       ELSE NULL
     END
   `;
 
-export function buildEncounterLinkedLookupSelect(
+export async function buildEncounterLinkedLookupSelect(
   model: typeof Model,
   extraSelects?: Record<string, string>,
 ) {
-  return buildSyncLookupSelect(model, {
+  return await buildSyncLookupSelect(model, {
     patientId: 'encounters.patient_id',
     facilityId: ADD_SENSITIVE_FACILITY_ID_IF_APPLICABLE,
     ...extraSelects,
@@ -40,9 +40,9 @@ export function buildEncounterLinkedLookupJoins(
   ]);
 }
 
-export function buildEncounterLinkedLookupFilter(model: typeof Model) {
+export async function buildEncounterLinkedLookupFilter(model: typeof Model) {
   return {
-    select: buildEncounterLinkedLookupSelect(model),
+    select: await buildEncounterLinkedLookupSelect(model),
     joins: buildEncounterLinkedLookupJoins(model),
   };
 }

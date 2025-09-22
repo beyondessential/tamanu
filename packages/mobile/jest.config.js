@@ -6,9 +6,15 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
-    '\\.(ts|tsx)$': ['<rootDir>/../../node_modules/ts-jest', {
-      tsconfig: 'tsconfig.json',
-    }],
+    '\\.(ts|tsx)$': [
+      '<rootDir>/../../node_modules/ts-jest',
+      {
+        tsconfig: 'tsconfig.json',
+        diagnostics: {
+          warnOnly: true,
+        },
+      },
+    ],
   },
   testEnvironment: 'node',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/../../node_modules/', 'e2e'],
@@ -30,13 +36,6 @@ module.exports = {
     '/infra(.*)$': '<rootDir>/App/infra$1',
     'react-native-sqlite-storage': 'react-native-quick-sqlite',
     'react-native-quick-sqlite': '<rootDir>/__mocks__/react-native-quick-sqlite.ts',
-  },
-  globals: {
-    'ts-jest': {
-      diagnostics: {
-        warnOnly: true,
-      },
-    },
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };

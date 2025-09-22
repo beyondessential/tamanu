@@ -12,6 +12,7 @@ sources:
             triggers:
               - notify_user_designations_changed
               - record_user_designations_changelog
+              - set_user_designations_updated_at
               - set_user_designations_updated_at_sync_tick
         columns:
           - name: id
