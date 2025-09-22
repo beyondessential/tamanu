@@ -233,7 +233,7 @@ patientPortal.post(
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortalForm');
+    req.checkPermission('list', 'PatientPortalForm');
 
     const { models, query } = req;
     const { id: patientId } = req.params;
