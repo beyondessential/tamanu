@@ -16,7 +16,7 @@ export class UpdateTreatmentPlanModal extends BaseNoteModal {
   }
 
   async setUpdatedBy(updatedBy: string) {
-    await this.updatedByInput.fill(updatedBy);
+    await this.updatedByInput.click();
     await this.updatedByDropdownList.getByText(updatedBy).click();
 
   }

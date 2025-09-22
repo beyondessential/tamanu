@@ -48,8 +48,8 @@ export class NotesPane {
     
     // Individual note elements
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
-    this.noteHeaderTexts = page.getByTestId('noteheadertext-e3kq');
-    this.noteContents = page.getByTestId('notecontentcontainer-cgxg');
+    this.noteHeaderTexts = page.getByTestId('styledtablebody-a0jz').getByTestId('noteheadertext-e3kq');
+    this.noteContents = page.getByTestId('styledtablebody-a0jz').getByTestId('notecontentcontainer-cgxg');
     this.readMoreButton = page.getByTestId('readmorespan-dpwv');
     this.showLessButton = page.getByTestId('showlessspan-7kuw');
     this.editIcons = page.getByTestId('styledediticon-nmdz');
