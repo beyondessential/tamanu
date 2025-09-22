@@ -4,7 +4,8 @@ import { useApi } from '../../../api';
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
 
-import { Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Modal, TranslatedText } from '../..';
+import { Colors } from '../../../constants';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { useTranslation } from '../../../contexts/Translation';
@@ -43,9 +44,10 @@ export const SurveyResponsesPrintModal = React.memo(
       },
     );
 
-    const { data: transformedSurveyResponse, isLoading: surveyResponseLoading } = useTransformedSurveyResponseQuery(
-      surveyResponseId,
-    );
+    const {
+      data: transformedSurveyResponse,
+      isLoading: surveyResponseLoading,
+    } = useTransformedSurveyResponseQuery(surveyResponseId);
 
     const { data: user, isLoading: isUserLoading } = useQuery(
       ['user', transformedSurveyResponse?.userId],
@@ -75,7 +77,7 @@ export const SurveyResponsesPrintModal = React.memo(
         open={open}
         onClose={onClose}
         width="md"
-        color={TAMANU_COLORS.white}
+        color={Colors.white}
         printable
         onPrint={() => printPDF('survey-responses-printout')}
         data-testid="modal-65lj"

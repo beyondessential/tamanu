@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
 import { DIAGNOSIS_CERTAINTIES_TO_HIDE } from '@tamanu/constants/diagnoses';
 import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 
+import { Modal } from '../../Modal';
 import { useCertificate } from '../../../utils/useCertificate';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
 import { useLabRequestsQuery } from '../../../api/queries/useLabRequestsQuery';
@@ -17,9 +17,11 @@ import { useEncounterDischargeQuery } from '../../../api/queries/useEncounterDis
 import { useReferenceDataQuery } from '../../../api/queries/useReferenceDataQuery';
 import { usePatientAdditionalDataQuery } from '../../../api/queries/usePatientAdditionalDataQuery';
 import { useLocalisation } from '../../../contexts/Localisation';
+import { Colors } from '../../../constants';
 import { ForbiddenErrorModalContents } from '../../ForbiddenErrorModal';
 import { ModalActionRow } from '../../ModalActionRow';
 import { printPDF } from '../PDFLoader';
+import { TranslatedText } from '../../Translation/TranslatedText';
 import { useVitalsQuery } from '../../../api/queries/useVitalsQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { LoadingIndicator } from '../../LoadingIndicator';
@@ -161,7 +163,7 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
         data-testid="translatedtext-9czu"
       />
     ),
-    color: TAMANU_COLORS.white,
+    color: Colors.white,
     open,
     onClose,
     maxWidth: 'md',

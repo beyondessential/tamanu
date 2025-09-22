@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { Table } from '../../Table';
+import { Colors } from '../../../constants';
 import { OuterLabelFieldWrapper } from '../../Field';
 
 const StyledSelectionTable = styled(Table)`
@@ -14,7 +14,7 @@ const StyledSelectionTable = styled(Table)`
     border-bottom: none;
   }
   thead tr th {
-    color: ${TAMANU_COLORS.midText};
+    color: ${Colors.midText};
     span {
       white-space: break-spaces;
     }
@@ -32,7 +32,7 @@ export const FormDivider = styled.div`
   margin: 15px 0 30px 0;
   width: calc(100% + 64px);
   height: 1px;
-  background-color: ${TAMANU_COLORS.outline};
+  background-color: ${Colors.outline};
   position: relative;
   left: -32px;
 `;

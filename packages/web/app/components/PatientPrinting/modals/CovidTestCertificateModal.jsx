@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { CertificateTypes, CovidLabCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { ASSET_NAMES, ICAO_DOCUMENT_TYPES } from '@tamanu/constants';
-import { Modal } from '@tamanu/ui-components';
 
+import { Modal } from '../../Modal';
 import { useApi } from '../../../api';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { EmailButton } from '../../Email/EmailButton';
@@ -27,13 +27,15 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     patient.id,
     CertificateTypes.test,
   );
-  const { data: additionalData, isLoading: isAdditionalDataLoading } =
-    usePatientAdditionalDataQuery(patient.id);
+  const {
+    data: additionalData,
+    isLoading: isAdditionalDataLoading,
+  } = usePatientAdditionalDataQuery(patient.id);
 
   const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
-    (data) =>
+    data =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requireSigning: false,

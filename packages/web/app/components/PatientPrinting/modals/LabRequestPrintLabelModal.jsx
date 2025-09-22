@@ -3,9 +3,10 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { TranslatedText, TranslatedReferenceData, Modal } from '@tamanu/ui-components';
+import { Modal } from '../../Modal';
 import { LabRequestPrintLabel } from '../printouts/LabRequestPrintLabel';
 import { getPatientNameAsString } from '../../PatientNameDisplay';
+import { TranslatedText, TranslatedReferenceData } from '../../Translation';
 import { useSettings } from '../../../contexts/Settings';
 
 const Container = styled.div`
@@ -27,7 +28,7 @@ const Container = styled.div`
 `;
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { getSetting } = useSettings();
   const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 
