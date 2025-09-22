@@ -1,3 +1,4 @@
+export * from './AutocompleteField';
 export * from './DateField';
 export * from './Field';
 export * from './InstructionField';

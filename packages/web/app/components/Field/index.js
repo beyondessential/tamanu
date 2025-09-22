@@ -9,7 +9,6 @@ export * from './NullableBooleanField';
 export * from './TimeWithUnitField';
 export * from './RadioField';
 export * from './SuggesterSelectField';
-export * from './SurveyQuestionAutocompleteField';
 export * from './SurveyResponseSelectField';
 export * from './PhotoField';
 export * from './ImagingPriorityField';
@@ -28,6 +27,7 @@ export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';
 export * from './PatientDataDisplayField';
+export * from './SurveyQuestionAutocompleteField';
 
 // form helpers
 export * from './FormGroup';

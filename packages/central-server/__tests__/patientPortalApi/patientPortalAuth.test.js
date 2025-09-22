@@ -5,7 +5,7 @@ import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
-import { PortalOneTimeTokenService } from '../../app/patientPortal/auth/PortalOneTimeTokenService';
+import { PortalOneTimeTokenService } from '../../app/patientPortalApi/auth/PortalOneTimeTokenService';
 import { getPatientAuthToken } from './patientPortalUtils';
 
 const TEST_PATIENT_EMAIL = 'patient@test.com';
@@ -25,7 +25,6 @@ describe('Patient Portal Auth', () => {
     baseApp = ctx.baseApp;
     close = ctx.close;
     store = ctx.store;
-    const { Patient, PortalUser } = store.models;
     const { Patient, PortalUser, Setting } = store.models;
 
     await Setting.set('features.patientPortal', true);
@@ -219,8 +218,6 @@ describe('Patient Portal Auth', () => {
         .set('Authorization', `Bearer ${expiredToken}`);
       expect(response).toHaveRequestError();
     });
-
-
   });
 
   describe('Patient Portal Route Protection', () => {

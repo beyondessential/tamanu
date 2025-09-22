@@ -14,11 +14,11 @@ import {
   NullableBooleanField,
   NumberField,
   PatientDataDisplayField,
-  SurveyQuestionAutocompleteField,
   SurveyResponseSelectField,
   PhotoField,
   ChartInstanceNameField,
   SurveyAnswerField,
+  SurveyQuestionAutocompleteField,
 } from '../Field';
 
 const QUESTION_COMPONENTS = {

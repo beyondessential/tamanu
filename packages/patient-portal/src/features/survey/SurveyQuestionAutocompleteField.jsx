@@ -1,23 +1,31 @@
 import React from 'react';
+import { Box } from '@mui/material';
 import {
   useProgramRegistryContext,
   AutocompleteField,
   useSuggester,
-  usePatientSuggester,
   getSuggesterEndpointForConfig,
 } from '@tamanu/ui-components';
+import { PORTAL_SUGGESTER_ALLOW_LIST } from '@tamanu/constants';
 
 export const SurveyQuestionAutocompleteField = ({ config, ...props }) => {
   const endpoint = getSuggesterEndpointForConfig(config);
   const { programRegistryId } = useProgramRegistryContext(); // this will be null for normal surveys
-  const isPatientSource = config?.source === 'Patient';
-  const patientSuggester = usePatientSuggester();
-  const otherSuggester = useSuggester(
+  const suggester = useSuggester(
     endpoint,
     programRegistryId ? { baseQueryParameters: { programRegistryId } } : {},
   );
-  const suggester = isPatientSource ? patientSuggester : otherSuggester;
+
+  if (PORTAL_SUGGESTER_ALLOW_LIST.includes(endpoint)) {
+    return (
+      <AutocompleteField suggester={suggester} {...props} data-testid="autocompletefield-efuf" />
+    );
+  }
+
   return (
-    <AutocompleteField suggester={suggester} {...props} data-testid="autocompletefield-efuf" />
+    <Box>
+      {props.label}
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>The {endpoint} resource is not supported</Box>
+    </Box>
   );
 };

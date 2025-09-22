@@ -83,6 +83,15 @@ export const patientPortalMiddleware = ({ secret }) =>
       backEndContext: { serverType: SERVER_TYPES.CENTRAL, isPatientPortal: true },
     });
 
+    /**
+     * Stub out permission checks to always return true. Permission checks are not needed or supported
+     * in patient portal but these methods are called in shared code such as suggesters
+     */
+    req.checkPermission = () => true;
+    req.ability = {
+      can: () => true,
+    };
+
     const spanAttributes = {
       'app.patient.id': patient.id,
     };

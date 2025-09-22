@@ -13,6 +13,7 @@ import {
   DateTimeField,
   NullableBooleanField,
 } from '@tamanu/ui-components';
+import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
 const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   return (
@@ -23,11 +24,11 @@ const PlaceholderField = ({ label, type }: { label: string; type: string }) => {
   );
 };
 
-const UnSupportedField = ({ label, type }: { label: string; type: string }) => {
+const unsupportedField = ({ label, type }: { label: string; type?: string }) => {
   return (
     <Box>
       {label}
-      <Box sx={{ p: 2, border: '1px dashed grey' }}>{type} field is not supported</Box>
+      <Box sx={{ p: 2, border: '1px dashed grey' }}>{`${type} field is not supported`}</Box>
     </Box>
   );
 };
@@ -42,7 +43,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: BaseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: BaseMultiselectField,
-  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocompleteField,
   [PROGRAM_DATA_ELEMENT_TYPES.DATE]: withSaveDateAsString(DateField),
   [PROGRAM_DATA_ELEMENT_TYPES.DATE_TIME]: withSaveDateAsString(DateTimeField),
   [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: withSaveDateAsString(DateField),
@@ -54,20 +55,20 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: UnSupportedField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: UnSupportedField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: UnSupportedField,
-  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: UnSupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: unsupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: unsupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_TYPE]: unsupportedField,
+  [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: unsupportedField,
 };
 
 export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
   const Component = QUESTION_COMPONENTS[type];
-  if (Component === PlaceholderField || Component === UnSupportedField) {
+  if (Component === PlaceholderField || Component === unsupportedField) {
     return (props: any) => <Component {...props} type={type} />;
   }
   return Component;
