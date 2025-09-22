@@ -56,7 +56,7 @@ describe('DHIS2 integration processor', () => {
   };
 
   beforeEach(async () => {
-    await setHost('https://test.dhis2.org');
+    await setHost('test host');
     await setReportIds([report.id]);
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
   });
@@ -123,7 +123,6 @@ describe('DHIS2 integration processor', () => {
 
   describe('connection', () => {
     it('should log.error if we cant establish a connection to DHIS2', async () => {
-      await setHost('https://invalid-host.com');
       await dhis2IntegrationProcessor.run();
 
       expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
