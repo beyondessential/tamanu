@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -96,6 +96,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
+  const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
 
   const statusOptions = [
     {
@@ -138,17 +139,20 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     );
   };
 
-  const initialValues = {
-    visibilityStatus: user?.visibilityStatus,
-    displayName: user?.displayName,
-    displayId: user?.displayId,
-    role: user?.role,
-    designations: user?.designations?.map(d => d.designationId) || [],
-    email: user?.email,
-    phoneNumber: user?.phoneNumber,
-    newPassword: '',
-    confirmPassword: '',
-  };
+  const initialValues = useMemo(() => {
+    return {
+      visibilityStatus: user?.visibilityStatus,
+      displayName: user?.displayName,
+      displayId: user?.displayId,
+      role: user?.role,
+      designations: user?.designations?.map(d => d.designationId) || [],
+      email: user?.email,
+      phoneNumber: user?.phoneNumber,
+      newPassword: '',
+      confirmPassword: '',
+      allowedFacilityIds: user?.facilities?.map(f => f.id) || [],
+    };
+  }, [user]);
 
   return (
     <StyledFormModal
@@ -162,6 +166,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         formType={FORM_TYPES.EDIT_FORM}
+        enableReinitialize
         render={({ submitForm, dirty }) => {
           const allowSave = dirty && canUpdateUser;
           return (
@@ -244,6 +249,18 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     }
                     component={TextField}
                     disabled={!canUpdateUser}
+                  />
+                  <Field
+                    name="allowedFacilityIds"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.allowedFacilities.label"
+                        fallback="Allowed facilities"
+                      />
+                    }
+                    component={MultiAutocompleteField}
+                    allowSelectAll
+                    suggester={facilitySuggester}
                   />
                 </FormGrid>
                 {canUpdateUser && (

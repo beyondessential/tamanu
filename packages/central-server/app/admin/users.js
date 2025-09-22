@@ -158,6 +158,7 @@ usersRouter.get(
               'phoneNumber',
               'role',
               'visibilityStatus',
+              'facilities'
             ]),
             roleName,
             allowedFacilities,
