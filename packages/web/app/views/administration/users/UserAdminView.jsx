@@ -82,7 +82,7 @@ const TableHeaderActions = styled.div`
 const AddUserButton = styled(Button)`
   background-color: ${Colors.primary};
   color: ${Colors.white};
-  collapsecommentfont-size: 14px;
+  font-size: 14px;
   padding: 8px 16px;
   min-width: auto;
   width: 124px;

@@ -105,6 +105,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     if (!data.isEmailUnique || !data.isDisplayNameUnique) {
       return;
     }
+
     // Transform the payload to match API expectations
     const payload = {
       ...values,
@@ -134,7 +135,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     allowedFacilityIds: [],
     email: '',
     phoneNumber: '',
-    password: '',
+    newPassword: '',
     confirmPassword: '',
   };
 

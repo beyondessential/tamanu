@@ -190,7 +190,7 @@ usersRouter.post(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { Role, User, ReferenceData, UserDesignation, UserFacility },
+        models: { Role, User, ReferenceData, UserDesignation, UserFacility, Facility },
       },
       db,
     } = req;
@@ -200,7 +200,7 @@ usersRouter.post(
     const fields = await CREATE_VALIDATION.validate(req.body);
     const role = await Role.findByPk(fields.role);
     if (!role) {
-      throw new Error('Role not found');
+      throw new NotFoundError('Role not found');
     }
 
     const existingUserWithSameEmail = await User.findOne({
@@ -239,6 +239,25 @@ usersRouter.post(
 
       if (invalidDesignationIds.length > 0) {
         throw new ValidationError(`Invalid designation IDs: ${invalidDesignationIds.join(', ')}`);
+      }
+    }
+
+    if (fields.allowedFacilityIds && fields.allowedFacilityIds.length > 0) {
+      const existingFacilities = await Facility.findAll({
+        where: {
+          id: { [Op.in]: fields.allowedFacilityIds },
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        },
+        attributes: ['id'],
+      });
+
+      const existingFacilityIds = existingFacilities.map(f => f.id);
+      const invalidFacilityIds = fields.allowedFacilityIds.filter(
+        id => !existingFacilityIds.includes(id),
+      );
+
+      if (invalidFacilityIds.length > 0) {
+        throw new ValidationError(`Invalid facility IDs: ${invalidFacilityIds.join(', ')}`);
       }
     }
 
