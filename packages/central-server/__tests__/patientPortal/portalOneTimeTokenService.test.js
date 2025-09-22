@@ -1,7 +1,6 @@
 import { addMinutes, subMinutes, differenceInMinutes, parseISO } from 'date-fns';
 import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
 import { PORTAL_ONE_TIME_TOKEN_TYPES } from '@tamanu/constants';
-import { BadAuthenticationError } from '@tamanu/shared/errors';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
 import { fake } from '@tamanu/fake-data/fake';
 import bcrypt from 'bcrypt';

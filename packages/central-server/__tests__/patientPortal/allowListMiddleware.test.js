@@ -1,10 +1,10 @@
 import express from 'express';
 import supertest from 'supertest';
 
-import { allowListMiddleware } from '../../app/patientPortal/allowListMiddleware';
+import { allowListMiddleware } from '../../app/patientPortal/surveys/allowListMiddleware';
 
 describe('allowListMiddleware', () => {
-  const buildApp = (allowed) => {
+  const buildApp = allowed => {
     const app = express();
     const router = express.Router();
 
@@ -43,5 +43,3 @@ describe('allowListMiddleware', () => {
     expect(res.status).toBe(404);
   });
 });
-
-

@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 
 import { OngoingConditionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingCondition.schema';
 
-import { getAttributesFromSchema } from '../../../utils/schemaUtils';
+import { getAttributesFromSchema } from '../../utils/schemaUtils';
 
 export const getOngoingConditions = asyncHandler(async (req, res) => {
   const { patient } = req;

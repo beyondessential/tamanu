@@ -86,7 +86,7 @@ export const requestLoginToken = asyncHandler(async (req, res) => {
   });
 });
 
-export const patientPortalLogin = ({ secret }) =>
+export const login = ({ secret }) =>
   asyncHandler(async (req, res) => {
     const { store, body } = req;
     const { canonicalHostName } = config;
@@ -95,7 +95,7 @@ export const patientPortalLogin = ({ secret }) =>
 
     const portalUser = await models.PortalUser.getForAuthByEmail(email);
     const patient = await portalUser?.getPatient();
-    
+
     let portalUserIdParam = portalUser?.id;
     if (!portalUser) {
       log.debug('Patient portal login: suppressing issuing token for unknown user', {

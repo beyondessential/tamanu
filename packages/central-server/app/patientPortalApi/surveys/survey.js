@@ -4,7 +4,7 @@ import {
   SurveyWithComponentsSchema,
 } from '@tamanu/shared/schemas/patientPortal/responses/survey.schema';
 import { getAttributesFromSchema } from '../../utils/schemaUtils';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 
 export const getSurvey = asyncHandler(async (req, res) => {
   const { params } = req;

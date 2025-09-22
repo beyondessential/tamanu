@@ -20,7 +20,7 @@ function parseRegistrationToken(token) {
   }
 }
 
-export const verifyRegistration = asyncHandler(async (req, res) => {
+export const register = asyncHandler(async (req, res) => {
   const { store, body } = req;
   const { models } = store;
   const { token } = body;

@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 
 import { OngoingPrescriptionSchema } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
-import { getAttributesFromSchema } from '../../../utils/schemaUtils';
+import { getAttributesFromSchema } from '../../utils/schemaUtils';
 import { Op } from 'sequelize';
 
 export const getOngoingPrescriptions = asyncHandler(async (req, res) => {

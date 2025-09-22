@@ -10,7 +10,6 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 export { useTranslation };
 
 export const TranslationProvider = ({ children, value }) => {
-
   const [storedLanguage, setStoredLanguage] = useState(getCurrentLanguageCode());
 
   const { data: translations } = useTranslationsQuery(storedLanguage);
@@ -40,7 +39,6 @@ export const TranslationProvider = ({ children, value }) => {
     return value;
   };
 
-  const updateStoredLanguage = newLanguage => {
   const getReferenceDataTranslation = ({ value, category, fallback, placeholder }) => {
     return value
       ? getTranslation(getReferenceDataStringId(value, category), fallback)

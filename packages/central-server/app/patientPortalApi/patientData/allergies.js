@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 
 import { AllergySchema } from '@tamanu/shared/schemas/patientPortal/responses/allergy.schema';
-import { getAttributesFromSchema } from '../../../utils/schemaUtils';
+import { getAttributesFromSchema } from '../../utils/schemaUtils';
 
 export const getAllergies = asyncHandler(async (req, res) => {
   const { patient } = req;

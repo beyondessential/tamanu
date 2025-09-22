@@ -18,8 +18,11 @@ import {
   ageInYears,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { TranslatedText } from '../components';
-import { notify } from './notify'
+import { TranslatedText, DateDisplay } from '../components';
+import { notify } from './notify';
+
+const getPatientNameAsString = ({ firstName, lastName }) =>
+  [firstName, lastName].filter(Boolean).join(' ');
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
@@ -269,10 +272,11 @@ export const getValidationSchema = (surveyData, getTranslation, valuesToCheckMan
       },
     ) => {
       const { unit = '' } = getConfigObject(componentId, config);
-      const { min, max, mandatory: mandatoryConfig } = getConfigObject(
-        componentId,
-        validationCriteria,
-      );
+      const {
+        min,
+        max,
+        mandatory: mandatoryConfig,
+      } = getConfigObject(componentId, validationCriteria);
       const { type, defaultText } = dataElement;
       const text = componentText || defaultText;
       const isGeolocateType = type === PROGRAM_DATA_ELEMENT_TYPES.GEOLOCATE;

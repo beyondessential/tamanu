@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { getPatientDataDisplayValue } from '@tamanu/ui-components';
 import { useTranslation } from '../../contexts/Translation';
-import { getPatientDataDisplayValue } from '../../utils/survey';
 import { useApi } from '../../api/useApi';
 
 const Container = styled.div`
