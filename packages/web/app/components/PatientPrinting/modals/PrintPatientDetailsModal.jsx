@@ -151,7 +151,7 @@ const PRINT_OPTIONS = {
     icon: PatientPortalIcon,
     component: SendToPatientModal,
     condition: (getSetting, ability) =>
-      getSetting('features.patientPortal') && ability?.can('create', 'PatientPortalForm'),
+      getSetting('features.patientPortal') && ability?.can('create', 'PatientPortalRegistration'),
   },
 };
 
