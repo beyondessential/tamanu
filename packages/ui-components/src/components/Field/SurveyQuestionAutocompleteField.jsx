@@ -1,8 +1,7 @@
 import React from 'react';
-
-import { usePatientSuggester, useSuggester } from '../../api';
+import { useSuggester, usePatientSuggester } from '../Suggester';
 import { AutocompleteField } from './AutocompleteField';
-import { useProgramRegistryContext } from '../../contexts/ProgramRegistry';
+import { useProgramRegistryContext } from '../../contexts';
 
 // Required due to web/mobile using different implementations for
 // suggesters (due to using different db's). Mobile has the more generic

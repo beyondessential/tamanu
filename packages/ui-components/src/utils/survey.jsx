@@ -18,11 +18,8 @@ import {
   ageInYears,
   getCurrentDateTimeString,
 } from '@tamanu/utils/dateTime';
-import { TranslatedText, DateDisplay } from '../components';
+import { getPatientNameAsString, TranslatedText, DateDisplay } from '../components';
 import { notify } from './notify';
-
-const getPatientNameAsString = ({ firstName, lastName }) =>
-  [firstName, lastName].filter(Boolean).join(' ');
 
 const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 

@@ -6,7 +6,7 @@ const SUGGESTER_ALLOW_LIST = [REFERENCE_TYPES.DRUG];
 
 export const suggestionRoutes = express.Router();
 
-const allowListMiddleware = names => (req, res, next) => {
+export const allowListMiddleware = names => (req, res, next) => {
   const firstSegment = (req.path || '').replace(/^\//, '').split('/')[0];
   if (!names.includes(firstSegment)) {
     res.status(404).end();

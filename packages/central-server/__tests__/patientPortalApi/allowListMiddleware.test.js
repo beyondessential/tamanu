@@ -1,7 +1,7 @@
 import express from 'express';
 import supertest from 'supertest';
 
-import { allowListMiddleware } from '../../app/patientPortal/surveys/allowListMiddleware';
+import { allowListMiddleware } from '../../app/patientPortalApi/surveys';
 
 describe('allowListMiddleware', () => {
   const buildApp = allowed => {
