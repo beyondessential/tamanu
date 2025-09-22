@@ -136,7 +136,9 @@ describe('DHIS2 integration processor', () => {
       const { maxAttempts } = config.integrations.dhis2.backoff;
       await dhis2IntegrationProcessor.run();
 
+      // A warning for each retry, except the last one which is an error
       expect(logSpy.warn).toHaveBeenCalledTimes(maxAttempts - 1);
+      // 1 error for the initial call, and 1 error for the max retries exceeded
       expect(logSpy.error).toHaveBeenCalledTimes(2);
     });
   });
