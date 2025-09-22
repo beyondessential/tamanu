@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { EndpointKey } from 'mushi';
 
-import { SYNC_DIRECTIONS, FACT_DEVICE_KEY } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, FACT_DEVICE_KEY, FACT_LOOKUP_MODELS_TO_REBUILD } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions } from '../types/model';
 import { randomUUID } from 'node:crypto';
@@ -38,12 +38,16 @@ export class LocalSystemFact extends Model {
     );
   }
 
-  static async get(key: FactName) {
+  static async get(key: FactName): Promise<string | null> {
     const result = await this.findOne({ where: { key } });
-    return result?.value;
+    return result?.value ?? null;
   }
 
-  static async set(key: FactName, value?: string) {
+  // This should be a function that is possible to write as a single
+  // SQL statement for performance/consistency, but there's something
+  // spooky in the sync code that relies on this exact implementation.
+  // Increment this counter if you try and fail to change it: 2.
+  static async set(key: FactName, value?: string): Promise<void> {
     const existing = await this.findOne({ where: { key } });
     if (existing) {
       await this.update({ value }, { where: { key } });
@@ -57,7 +61,24 @@ export class LocalSystemFact extends Model {
     }
   }
 
-  static async incrementValue(key: FactName, amount: number = 1) {
+  static async setIfAbsent(key: FactName, value?: string): Promise<void> {
+    await this.sequelize.query(
+      `
+        INSERT INTO local_system_facts (key, value)
+        VALUES ($key, $value)
+        ON CONFLICT (key)
+        DO NOTHING
+      `,
+      {
+        bind: {
+          key,
+          value,
+        },
+      },
+    );
+  }
+
+  static async incrementValue(key: FactName, amount: number = 1): Promise<number> {
     const [rowsAffected] = await this.sequelize.query(
       `
         UPDATE
@@ -76,10 +97,14 @@ export class LocalSystemFact extends Model {
       throw new Error(`The local system fact table does not include the fact ${key}`);
     }
     const fact = rowsAffected[0] as LocalSystemFact;
-    return fact.value;
+    return Number(fact.value);
   }
 
-  static async getDeviceKey() {
+  static async delete(key: FactName): Promise<void> {
+    await this.destroy({ where: { key } });
+  }
+
+  static async getDeviceKey(): Promise<EndpointKey> {
     const deviceKey = await this.get(FACT_DEVICE_KEY);
     if (deviceKey) {
       return new EndpointKey(deviceKey);
@@ -87,5 +112,34 @@ export class LocalSystemFact extends Model {
     const newDeviceKey = EndpointKey.generateFor('ecdsa256');
     await this.set(FACT_DEVICE_KEY, newDeviceKey.privateKeyPem());
     return newDeviceKey;
+  }
+
+  static async getLookupModelsToRebuild(): Promise<string[]> {
+    const value = await this.get(FACT_LOOKUP_MODELS_TO_REBUILD);
+    if (!value) {
+      return [];
+    }
+    return value.split(',').map(model => model.trim());
+  }
+
+  static async isLookupRebuildingModel(modelName: string): Promise<boolean> {
+    const modelsToRebuild = await this.getLookupModelsToRebuild();
+    return modelsToRebuild.includes(modelName);
+  }
+
+  static async markLookupModelRebuilt(modelName: string): Promise<void> {
+    await this.sequelize.query(
+      `
+        UPDATE local_system_facts
+	      SET value = array_to_string(array_remove(string_to_array(value, ','), :modelName), ',')
+	      WHERE key = :key
+    `,
+      {
+        replacements: {
+          modelName,
+          key: FACT_LOOKUP_MODELS_TO_REBUILD,
+        },
+      },
+    );
   }
 }

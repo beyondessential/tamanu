@@ -533,7 +533,7 @@ export const MedicationForm = ({
   const weightUnit = getTranslation('general.localisedField.weightUnit.label', 'kg');
 
   const patient = useSelector(state => state.patient);
-  const age = getAgeDurationFromDate(patient.dateOfBirth).years;
+  const age = getAgeDurationFromDate(patient.dateOfBirth)?.years ?? 0;
   const showPatientWeight = age < MAX_AGE_TO_RECORD_WEIGHT && !isOngoingPrescription;
   const canPrintPrescription = ability.can('read', 'Medication');
 
@@ -578,7 +578,7 @@ export const MedicationForm = ({
     const defaultIdealTimes = frequenciesAdministrationIdealTimes?.[data.frequency];
     if (!isOneTimeFrequency(data.frequency) && data.timeSlots.length < defaultIdealTimes?.length) {
       setIdealTimesErrorOpen(true);
-      return Promise.reject({ message: 'Administration times discrepancy error' });
+      return Promise.reject();
     }
 
     const idealTimes = data.timeSlots.map(slot => slot.value);
@@ -668,7 +668,7 @@ export const MedicationForm = ({
         initialValues={getInitialValues()}
         formType={FORM_TYPES.CREATE_FORM}
         validationSchema={validationSchema}
-        render={({ submitForm, setValues, values, dirty }) => (
+        render={({ submitForm, setValues, values, dirty, setFieldError }) => (
           <StyledFormGrid>
             {!isEditing ? (
               <>
@@ -790,6 +790,7 @@ export const MedicationForm = ({
                 onChange={(_, value) => {
                   if (value) {
                     setValues({ ...values, doseAmount: '' });
+                    setFieldError('doseAmount', null);
                   }
                 }}
               />
@@ -970,7 +971,7 @@ export const MedicationForm = ({
                   name="patientWeight"
                   label={
                     <TranslatedText
-                      stringId="medication.patientWeight.label"
+                      stringId="medication.patientWeightIfPrinting.label"
                       fallback="Patient weight if printing (:unit)"
                       replacements={{ unit: weightUnit }}
                     />

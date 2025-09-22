@@ -227,7 +227,18 @@ export const globalSettings = {
             },
           },
         },
+        mandatoryChartingEditReason: {
+          description: 'Require a reason for change text field to be filled out on chart edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableChartingEdit: {
+          description: 'Allow existing charting records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         desktopCharting: {
+          description: 'Enable desktop charting module',
           properties: {
             enabled: {
               type: yup.boolean(),
@@ -314,12 +325,29 @@ export const globalSettings = {
               type: yup.boolean(),
               defaultValue: false,
             },
+            medicationAlreadyOrderedConfirmationTimeout: {
+              description:
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
           },
         },
         useGlobalPdfFont: {
           description: 'Use the global PDF font for all PDFs',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
         },
       },
     },
@@ -926,6 +954,11 @@ export const globalSettings = {
           properties: generateFieldSchema({ type: LOCALISED_FIELD_TYPES.STRING }),
         },
       },
+    },
+    fileChooserMbSizeLimit: {
+      description: 'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      type: yup.number().min(1),
+      defaultValue: 10,
     },
     integrations: {
       name: 'Integrations',

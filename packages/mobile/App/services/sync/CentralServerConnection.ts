@@ -1,6 +1,8 @@
 import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
+import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
+import { RemoteError } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -10,12 +12,10 @@ import {
   invalidTokenMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
-  RemoteError,
 } from '../error';
 import { version } from '/root/package.json';
 import { callWithBackoff, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-import { CAN_ACCESS_ALL_FACILITIES } from '~/constants';
 
 type ErrorResponse = {
   error?: {
@@ -239,10 +239,7 @@ export class CentralServerConnection {
     await this.pollUntilTrue(`sync/${sessionId}/pull/ready`);
 
     // finally, fetch the count of changes to pull and sync tick the pull runs up until
-    return this.get<PullMetadataResponse>(
-      `sync/${sessionId}/pull/metadata`,
-      {},
-    );  
+    return this.get<PullMetadataResponse>(`sync/${sessionId}/pull/metadata`, {});
   }
 
   async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
@@ -329,7 +326,7 @@ export class CentralServerConnection {
       const data = await this.post<LoginResponse>(
         'login',
         {},
-        { email, password, deviceId: this.deviceId },
+        { email, password, deviceId: this.deviceId, scopes: [DEVICE_SCOPES.SYNC_CLIENT] },
         { backoff: { maxAttempts: 1 } },
       );
 

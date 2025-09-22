@@ -23,7 +23,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const userCount = await store.models.User.count({
     where: {
       id: { [Op.ne]: SYSTEM_USER_UUID },
-    }
+    },
   });
 
   if (userCount > 0) {
@@ -129,7 +129,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const combineSettings = async (settingData, scope, facilityId) => {
     const existing = await store.models.Setting.get('', facilityId, scope);
     const combined = defaultsDeep(settingData, existing);
-    return store.models.Settings.set('', combined, scope, facilityId);
+    return store.models.Setting.set('', combined, scope, facilityId);
   };
 
   if (settings.global) {

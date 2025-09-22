@@ -1,4 +1,4 @@
-import { isRecoverable } from './errors';
+import { isRecoverable } from '@tamanu/errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
 import { type LoggerType } from './TamanuApi';
 
@@ -48,7 +48,7 @@ export async function fetchWithRetryBackoff(
       return result;
     } catch (e: unknown) {
       // throw if the error is irrecoverable
-      if (!isRecoverable(e)) {
+      if (!isRecoverable(e as Error)) {
         log.error(`retries: failed, error was irrecoverable`, {
           attempt,
           maxAttempts,
