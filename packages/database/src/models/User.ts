@@ -1,4 +1,4 @@
-import { createSecretKey, randomInt } from 'node:crypto';
+import { createSecretKey } from 'node:crypto';
 import { compare, hash } from 'bcrypt';
 import * as jose from 'jose';
 import { unionBy } from 'lodash';
@@ -35,7 +35,6 @@ import type { Device } from './Device';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 
 const DEFAULT_SALT_ROUNDS = 10;
-const MAX_U32_VALUE = 2 ** 32 - 1;
 
 export class User extends Model {
   declare id: string;
@@ -576,7 +575,7 @@ export interface LoginContext {
   settings: ReadSettings;
   tokenDuration: number;
   tokenIssuer: string;
-  tokenSecret: Secret;
+  tokenSecret: string;
 }
 
 export interface LoginReturn {
