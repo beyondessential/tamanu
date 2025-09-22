@@ -7,8 +7,9 @@ import {
   AutocompleteField,
   LocalisedField,
   SearchField,
+  SelectField,
+  TranslatedSelectField,
 } from '../Field';
-import { TranslatedSelectField, SelectField } from '@tamanu/ui-components';
 import { TranslatedText } from '../Translation';
 import { useSettings } from '../../contexts/Settings';
 
@@ -90,8 +91,8 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
           />
         }
         component={TranslatedSelectField}
-        transformOptions={(options) =>
-          hideOtherSex ? options.filter((o) => o.value !== SEX_VALUES.OTHER) : options
+        transformOptions={options =>
+          hideOtherSex ? options.filter(o => o.value !== SEX_VALUES.OTHER) : options
         }
         enumValues={SEX_LABELS}
         size="small"

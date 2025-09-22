@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { Pagination, PaginationItem } from '@material-ui/lab';
 import { MenuItem, Select } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons/ChevronIcon';
+import { TranslatedText } from '../Translation/TranslatedText';
 
 const PaginatorWrapper = styled.td``;
 
@@ -20,14 +21,14 @@ const StyledPagination = styled(Pagination)`
   ul {
     li {
       .MuiPaginationItem-page {
-        border: 1px solid ${TAMANU_COLORS.outline};
+        border: 1px solid ${Colors.outline};
         font-size: 13px;
         margin: 0 3px;
       }
       .MuiPaginationItem-page.Mui-selected {
-        background: ${TAMANU_COLORS.primary};
+        background: ${Colors.primary};
         border: none;
-        color: ${TAMANU_COLORS.white};
+        color: ${Colors.white};
       }
       &:first-child,
       &:last-child {
@@ -45,7 +46,7 @@ const PageRecordCount = styled.span`
 `;
 
 const StyledSelectField = styled(Select)`
-  border: 1px ${TAMANU_COLORS.outline} solid;
+  border: 1px ${Colors.outline} solid;
   border-radius: 20px;
   width: 60px;
   height: 26px;
@@ -88,7 +89,7 @@ const useStyles = makeStyles({
   selectMenu: {
     borderRadius: 3,
     '& ul': {
-      backgroundColor: TAMANU_COLORS.white,
+      backgroundColor: Colors.white,
       padding: 0,
     },
     '& li': {
@@ -96,7 +97,7 @@ const useStyles = makeStyles({
       margin: 3,
     },
     '& li:hover': {
-      backgroundColor: TAMANU_COLORS.veryLightBlue,
+      backgroundColor: Colors.veryLightBlue,
     },
   },
 });
@@ -155,7 +156,7 @@ export const Paginator = React.memo(
             disabled={!isDataInTable}
             data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map((option) => (
+            {rowsPerPageOptions.map(option => (
               <StyledMenuItem
                 key={option}
                 value={option}
@@ -170,7 +171,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={(item) => {
+            renderItem={item => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (

@@ -9,8 +9,8 @@ import {
   LocalisedField,
   SearchField,
   SuggesterSelectField,
+  TranslatedSelectField,
 } from '../Field';
-import { TranslatedSelectField } from '@tamanu/ui-components';
 import { CustomisableSearchBarWithPermissionCheck } from './CustomisableSearchBar';
 import { LabRequestSearchParamKeys, useLabRequest } from '../../contexts/LabRequest';
 import { useSuggester } from '../../api';
@@ -278,9 +278,9 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               />
             }
             component={TranslatedSelectField}
-            transformOptions={(options) =>
+            transformOptions={options =>
               options.filter(
-                (option) =>
+                option =>
                   ![
                     LAB_REQUEST_STATUSES.PUBLISHED,
                     LAB_REQUEST_STATUSES.DELETED,

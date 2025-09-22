@@ -2,19 +2,20 @@ import React from 'react';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import styled from 'styled-components';
 import { Table } from '../Table';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '../Translation';
+import { Colors } from '../../constants';
 import { useTableSorting } from '../Table/useTableSorting';
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 16px;
 `;
 
 const StyledTable = styled(Table)`
   margin-bottom: 20px;
   border-radius: 5px;
-  border: 1px solid ${TAMANU_COLORS.outline};
-  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
   box-shadow: none;
 
   table {
@@ -24,8 +25,8 @@ const StyledTable = styled(Table)`
   }
 
   table thead th {
-    background-color: ${TAMANU_COLORS.white} !important;
-    border-bottom: 1px solid ${TAMANU_COLORS.outline};
+    background-color: ${Colors.white} !important;
+    border-bottom: 1px solid ${Colors.outline};
     padding: 13px 0 12px 2px;
     padding-left: 2px !important;
     width: 30%;

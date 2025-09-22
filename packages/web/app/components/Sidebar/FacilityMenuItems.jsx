@@ -8,7 +8,8 @@ import {
   vaccineIcon,
   dashboardIcon,
 } from '../../constants/images';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { ProgramRegistrySidebarItem } from '../../views/programRegistry/ProgramRegistrySidebarItem';
 
 export const FACILITY_MENU_ITEMS = [
@@ -46,7 +47,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-7oku"
           />
         ),
-        color: TAMANU_COLORS.blue,
+        color: Colors.blue,
         path: '/patients/all',
         key: 'patientsAll',
         ability: { action: 'read' },
@@ -59,7 +60,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-tjv8"
           />
         ),
-        color: TAMANU_COLORS.green,
+        color: Colors.green,
         path: '/patients/inpatient',
         key: 'patientsInpatients',
         ability: { action: 'read' },
@@ -72,7 +73,7 @@ export const FACILITY_MENU_ITEMS = [
             data-testid="translatedtext-sn91"
           />
         ),
-        color: TAMANU_COLORS.orange,
+        color: Colors.orange,
         path: '/patients/emergency',
         key: 'patientsEmergency',
         ability: { action: 'read' },
