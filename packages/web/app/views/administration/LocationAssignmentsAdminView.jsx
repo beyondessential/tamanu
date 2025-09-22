@@ -20,8 +20,8 @@ const PlusIcon = styled(AddRounded)`
 const LocationAssignmentsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText
-      stringId="scheduling.locationAssignments.title"
-      fallback="Location assignments"
+      stringId="scheduling.locationAssignment.title"
+      fallback="Location assignment"
       data-testid="translatedtext-y7nl"
     />
   ),
