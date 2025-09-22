@@ -9,7 +9,8 @@ import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { NOTE_PERMISSION_TYPES } from '@tamanu/constants';
 
 import { DateDisplay } from './DateDisplay';
-import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextInput } from './Field/TextField';
+import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { withPermissionCheck } from './withPermissionCheck';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -22,7 +23,7 @@ const StyledEditIcon = styled(EditIcon)`
   float: right;
   width: 1rem;
   height: 1rem;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 `;
 const StyledSaveText = styled.span`
   float: right;
@@ -32,7 +33,7 @@ const StyledSaveText = styled.span`
   bottom: 0;
   right: 10px;
   cursor: pointer;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 `;
 const StyledCancelText = styled.span`
   float: right;
@@ -55,7 +56,7 @@ const StyledNoteItemSecondaryWrapper = styled.div`
   float: right;
   font-size: 11px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
 `;
 const StyledViewChangeLogWrapper = styled.span`
   float: right;
@@ -64,13 +65,13 @@ const StyledViewChangeLogWrapper = styled.span`
   font-weight: bold;
   text-decoration: underline;
   cursor: pointer;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 `;
 const StyledNoteItemLogMetadata = styled.div`
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
 `;
 const StyledNoteItemLogContent = styled.div`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 const StyledTooltip = styled(props => (
   <ClickAwayListener onClickAway={props.onClickAway} data-testid="clickawaylistener-ttee">
@@ -83,10 +84,10 @@ const StyledTooltip = styled(props => (
   pointer-events: auto;
 
   & .MuiTooltip-tooltip {
-    background-color: ${TAMANU_COLORS.white};
-    color: ${TAMANU_COLORS.darkText};
-    border: 1px solid ${TAMANU_COLORS.outline};
-    box-shadow: 0 1px 3px ${TAMANU_COLORS.outline};
+    background-color: ${Colors.white};
+    color: ${Colors.darkText};
+    border: 1px solid ${Colors.outline};
+    box-shadow: 0 1px 3px ${Colors.outline};
     font-size: 11px;
     font-weight: 400;
     white-space: pre-line;

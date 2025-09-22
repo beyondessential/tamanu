@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 const StyledAvatar = styled(Avatar)`
-  background: ${TAMANU_COLORS.primary};
-  color: ${TAMANU_COLORS.white};
+  background: ${Colors.primary};
+  color: ${Colors.white};
   text-transform: uppercase;
   width: 46px;
   height: 46px;

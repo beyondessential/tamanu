@@ -11,7 +11,7 @@ import {
   Paper,
   Popper,
 } from '@material-ui/core';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 const OpenButton = styled(IconButton)`
   padding: 5px;
@@ -23,7 +23,7 @@ const Item = styled(MenuItem)`
   line-height: 15px;
 
   &:hover {
-    background: ${TAMANU_COLORS.veryLightBlue};
+    background: ${Colors.veryLightBlue};
   }
 `;
 
@@ -125,5 +125,5 @@ MenuButton.propTypes = {
 
 MenuButton.defaultProps = {
   iconDirection: 'vertical',
-  iconColor: TAMANU_COLORS.midText,
+  iconColor: Colors.midText,
 };

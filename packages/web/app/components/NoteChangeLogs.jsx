@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { useQuery } from '@tanstack/react-query';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { useApi } from '../api';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import { NoteChangeLog } from './NoteChangeLog';
@@ -16,7 +16,7 @@ const StyledBox = styled(Box)`
   }
   &.MuiBox-root {
     border-radius: 3px;
-    border: 1px solid ${TAMANU_COLORS.outline};
+    border: 1px solid ${Colors.outline};
     padding-bottom: 16px;
   }
 `;

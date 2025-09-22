@@ -5,7 +5,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 import { DateDisplay } from './DateDisplay';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledDivider = styled(Divider)`
@@ -24,7 +24,7 @@ const StyledNoteChangeLogInfoWrapper = styled.div`
   font-weight: 500;
   font-size: 11px;
   line-height: 15px;
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
   margin-top: 5px;
 `;
 
