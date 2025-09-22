@@ -159,9 +159,6 @@ patientPortal.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientPortalForm');
 
-    // Patient's can be registered at the same time as assigning forms
-    req.checkPermission('create', 'PatientPortalRegistration');
-
     const { models, user, settings } = req;
     const { id: patientId } = req.params;
     const { formId, assignedAt, email, facilityId } = SendPortalFormRequestSchema.parse(req.body);
@@ -181,6 +178,7 @@ patientPortal.post(
       if (!email) {
         throw new ValidationError('You must provide an email to send the form.');
       }
+      req.checkPermission('create', 'PatientPortalRegistration');
       await registerPatient({ patientId: patient.id, models, email });
       await sendPortalEmail({
         patient,
