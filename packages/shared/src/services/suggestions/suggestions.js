@@ -80,6 +80,7 @@ function createSuggesterRoute(
       const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
+      const noLimit = query.noLimit === 'true';
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
@@ -125,7 +126,7 @@ function createSuggesterRoute(
           searchQuery: `%${searchQuery}%`,
           ...extraReplacementsBuilder(query),
         },
-        limit: DEFAULT_LIMIT,
+        limit: noLimit ? undefined : DEFAULT_LIMIT,
         ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)

@@ -158,6 +158,7 @@ usersRouter.get(
               'phoneNumber',
               'role',
               'visibilityStatus',
+              'facilities'
             ]),
             roleName,
             allowedFacilities,
@@ -339,6 +340,7 @@ const UPDATE_VALIDATION = yup
     designations: yup.array().of(yup.string()).nullable().optional(),
     newPassword: yup.string().nullable().optional(),
     confirmPassword: yup.string().nullable().optional(),
+    allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
   })
   .test('passwords-match', 'Passwords must match', function (value) {
     const { newPassword, confirmPassword } = value;
@@ -358,7 +360,7 @@ usersRouter.put(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { Role, User, UserDesignation, ReferenceData },
+        models: { Role, User, UserDesignation, ReferenceData, UserFacility },
       },
       params: { id },
       db,
@@ -442,8 +444,43 @@ usersRouter.put(
         }));
         await UserDesignation.bulkCreate(designationRecords);
       }
+
+      const uniqueFacilityIds = [...new Set(fields.allowedFacilityIds || [])];
+      await updateUserFacilities(UserFacility, user, uniqueFacilityIds);
     });
 
     res.send({ ok: true });
   }),
 );
+
+async function updateUserFacilities(UserFacility, user, allowedFacilityIds) {
+  if (allowedFacilityIds.length === 0) {
+    return await UserFacility.destroy({
+      where: {
+        userId: user.id
+      },
+    });
+  }
+
+  await UserFacility.restore({
+    where: {
+      userId: user.id,
+      facilityId: { [Op.in]: allowedFacilityIds },
+    },
+  });
+
+  await UserFacility.bulkCreate(
+    allowedFacilityIds.map(facilityId => ({
+      userId: user.id,
+      facilityId,
+    })), {
+    ignoreDuplicates: true,
+  });
+
+  await UserFacility.destroy({
+    where: {
+      userId: user.id,
+      facilityId: { [Op.notIn]: allowedFacilityIds },
+    },
+  });
+}
