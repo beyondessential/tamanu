@@ -190,4 +190,10 @@ describe('DHIS2 integration processor', () => {
       });
     });
   });
+
+  describe('auditing', () => {
+    it.todo('should create a failure log when cant connect to DHIS2');
+    it.todo('should create a warning log when conflicts are returned in DHIS2');
+    it.todo('should create a success log when report is successfully sent to DHIS2');
+  });
 });
