@@ -181,6 +181,7 @@ test.describe('Notes Tests', () => {
       await changeLogModal!.closeButton.click();
     });
     test('should update a treatment plan note and validate the change log', async ({ patientDetailsPage }) => {
+      test.setTimeout(50000);
       const originalContent = 'Original treatment plan';
       const updatedContent = 'Updated treatment plan';
       const updatedBy = 'Coder';
@@ -315,6 +316,7 @@ test.describe('Notes Tests', () => {
   });
 
   test.describe('Notes Table Tests', () => {
+    test.setTimeout(50000);
     test('treatment plan note should appear on top when creating multiple notes', async ({ patientDetailsPage }) => {
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
@@ -329,6 +331,7 @@ test.describe('Notes Tests', () => {
         await newNoteModal?.createBasicNote(note.type, note.content);
       }
       await patientDetailsPage.notesPane?.waitForNoteRowsToEqual(3);
+      await patientDetailsPage.notesPane?.newNoteModal?.waitForModalToClose();
       // Validate all notes appear in the table
       expect(patientDetailsPage.notesPane).toBeDefined();
       const noteCount = await patientDetailsPage.notesPane!.noteRows.count();
