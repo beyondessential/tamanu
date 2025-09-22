@@ -5,6 +5,9 @@ const MUI_SPACING_UNIT = 8;
 
 export { TAMANU_COLORS, MUI_SPACING_UNIT };
 
+// For existing imports of Colors
+export const Colors = TAMANU_COLORS;
+
 export const denseTableStyle = {
   container: 'border: 0px solid white; overflow: visible;',
   cell: `

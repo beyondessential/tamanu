@@ -7,10 +7,11 @@ import { kebabCase } from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
 import { labsIcon, radiologyIcon, medicationIcon } from '../../constants/images';
+import { Colors } from '../../constants';
 import { BodyText, Heading3, Heading5 } from '../Typography';
+import { TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest, formatTime } from '../DateDisplay';
 import { useMarkAllAsRead, useMarkAsRead } from '../../api/mutations';
@@ -94,14 +95,14 @@ const ActionLink = styled.span`
   font-size: 14px;
   &:hover {
     font-weight: 500;
-    color: ${TAMANU_COLORS.primary};
+    color: ${Colors.primary};
   }
 `;
 
 const CloseButton = styled.div`
   cursor: pointer;
   svg {
-    fill: ${TAMANU_COLORS.darkText};
+    fill: ${Colors.darkText};
   }
 `;
 
@@ -112,7 +113,7 @@ const CardContainer = styled.div`
   gap: 10px;
   padding: 0 14px;
   &:hover {
-    background-color: ${TAMANU_COLORS.veryLightBlue};
+    background-color: ${Colors.veryLightBlue};
   }
   position: relative;
   cursor: pointer;
@@ -126,14 +127,14 @@ const CardDatetime = styled.div`
   font-size: 11px;
   line-height: 15px;
   margin-top: 2px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   text-transform: lowercase;
 `;
 const CardIndicator = styled.div`
   width: 3px;
   height: calc(100% + 11px);
   position: absolute;
-  background-color: ${TAMANU_COLORS.primary};
+  background-color: ${Colors.primary};
   top: -6px;
   left: 0;
   border-radius: 5px;
@@ -311,7 +312,7 @@ export const NotificationDrawer = ({ open, onClose, notifications, isLoading }) 
           </NotificationList>
         </>
       ) : (
-        <LoadingIndicator backgroundColor={TAMANU_COLORS.white} data-testid="loadingindicator-36ut" />
+        <LoadingIndicator backgroundColor={Colors.white} data-testid="loadingindicator-36ut" />
       )}
     </StyledDrawer>
   );

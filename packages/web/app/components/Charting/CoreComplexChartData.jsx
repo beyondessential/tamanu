@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
-import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
+import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { DeleteChartModal } from '../DeleteChartModal';
+import { Colors } from '../../constants';
 import { MenuButton } from '../MenuButton';
 import { CHARTING_DATA_ELEMENT_IDS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { useEncounter } from '../../contexts/Encounter';
@@ -26,12 +27,12 @@ const CoreComplexChartInfoWrapper = styled.div`
 const CoreComplexChartInfoHeader = styled.span`
   font-weight: 500;
   margin-right: 5px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const CoreComplexChartSingleInfoWrapper = styled.span`
   margin-right: 20px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 export const CoreComplexChartData = ({
@@ -93,7 +94,8 @@ export const CoreComplexChartData = ({
                 value={dateDataElement?.id}
                 fallback={dateDataElement?.name}
                 data-testid="translatedreferencedata-moh0"
-              />{dateDataElement ? ':' : null}
+              />
+              {dateDataElement ? ':' : null}
             </CoreComplexChartInfoHeader>
             <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
@@ -106,7 +108,8 @@ export const CoreComplexChartData = ({
                   value={typeDataElement?.id}
                   fallback={typeDataElement?.name}
                   data-testid="translatedreferencedata-4z04"
-                />{typeDataElement ? ':' : null}
+                />
+                {typeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -121,7 +124,8 @@ export const CoreComplexChartData = ({
                   value={subtypeDataElement?.id}
                   fallback={subtypeDataElement?.name}
                   data-testid="translatedreferencedata-9x05"
-                />{subtypeDataElement ? ':' : null}
+                />
+                {subtypeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>

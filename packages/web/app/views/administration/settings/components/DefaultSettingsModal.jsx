@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { centralDefaults, globalDefaults, facilityDefaults } from '@tamanu/settings';
 
-import { Modal } from '@tamanu/ui-components';
+import { Modal } from '../../../../components/Modal';
 import { JSONEditor } from './JSONEditor';
 
 const SCOPE_DEFAULT_SETTINGS = {

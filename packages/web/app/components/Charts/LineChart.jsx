@@ -11,9 +11,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { DISPLAY_VALUE_KEY, getMeasureData } from './helpers/getMeasureData';
 import { CustomisedXAxisTick, CustomisedYAxisTick } from './components/CustomisedTick';
+import { Colors } from '../../constants';
 import { ReferenceBands } from './components/ReferenceBands';
 import { CustomDot } from './components/CustomDot';
 import { NoDataStateScreen } from './components/NoDataStateScreen';
@@ -21,7 +21,7 @@ import { Y_AXIS_WIDTH } from './constants';
 import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 import { CustomTooltip } from './components/CustomTooltip';
 
-export const LineChart = (props) => {
+export const LineChart = props => {
   const {
     isVital = false,
     chartData,
@@ -70,19 +70,19 @@ export const LineChart = (props) => {
         {yAxisConfigs.normalRange.min !== yAxisConfigs.graphRange.min && (
           <ReferenceLine
             y={yAxisConfigs.normalRange.min}
-            stroke={TAMANU_COLORS.alert}
+            stroke={Colors.alert}
             data-testid="referenceline-e2y7"
           />
         )}
         {yAxisConfigs.normalRange.max !== yAxisConfigs.graphRange.max && (
           <ReferenceLine
             y={yAxisConfigs.normalRange.max}
-            stroke={TAMANU_COLORS.alert}
+            stroke={Colors.alert}
             data-testid="referenceline-6uf9"
           />
         )}
         <ReferenceArea
-          shape={(shapeProps) => (
+          shape={shapeProps => (
             <ReferenceBands
               {...shapeProps}
               rangesToHighlight={[
@@ -97,7 +97,7 @@ export const LineChart = (props) => {
         />
         <Tooltip
           wrapperStyle={{
-            backgroundColor: TAMANU_COLORS.white,
+            backgroundColor: Colors.white,
             boxShadow: `0px 4px 20px rgba(0, 0, 0, 0.1)`,
             borderRadius: '5px',
           }}
@@ -112,7 +112,7 @@ export const LineChart = (props) => {
         <Line
           type="linear"
           dataKey={DISPLAY_VALUE_KEY}
-          stroke={TAMANU_COLORS.blue}
+          stroke={Colors.blue}
           strokeWidth={2}
           dot={<DotComponent tableHeight={tableHeight} data-testid="dotcomponent-y4cv" />}
           activeDot={
@@ -124,7 +124,11 @@ export const LineChart = (props) => {
         {(chartData.length === 0 || isLoading) && (
           <Customized
             component={
-              <NoDataStateScreen isLoading={isLoading} isVital={isVital} data-testid="nodatastatescreen-v4iv" />
+              <NoDataStateScreen
+                isLoading={isLoading}
+                isVital={isVital}
+                data-testid="nodatastatescreen-v4iv"
+              />
             }
             data-testid="customized-11uz"
           />

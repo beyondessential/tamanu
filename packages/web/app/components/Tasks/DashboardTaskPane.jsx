@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
-import { CheckInput, Heading4, LocationInput } from '../../components';
+
+import { Colors } from '../../constants';
+import { CheckInput, Heading4, LocationInput, TranslatedText } from '../../components';
 import { DashboardTasksTable } from '../../components/Tasks/DashboardTaskTable';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
@@ -11,11 +12,11 @@ import { useAuth } from '../../contexts/Auth';
 
 const TabPane = styled.div`
   flex-grow: 1;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 4px;
   padding: 2px 12px 4px 12px;
   min-height: 0px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 const ActionRow = styled.div`
@@ -51,7 +52,7 @@ const FilterGrid = styled.div`
   column-gap: 10px;
   align-items: center;
   > :nth-child(2) > :first-child > :nth-child(2) {
-    background-color: ${TAMANU_COLORS.background};
+    background-color: ${Colors.background};
   }
 `;
 
@@ -62,7 +63,7 @@ export const DashboardTaskPane = React.memo(() => {
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = (e) => {
+  const onLocationIdChange = e => {
     const { value } = e.target;
 
     const newParams = value
@@ -75,7 +76,7 @@ export const DashboardTaskPane = React.memo(() => {
     });
   };
 
-  const onHighPriorityOnlyChange = (e) => {
+  const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
 
     const newParams = checked

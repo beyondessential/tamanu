@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-
-import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
+import { FormGrid } from '@tamanu/ui-components';
 
 export const PatientDetailsHeading = styled.div`
   font-weight: 500;
   font-size: 16px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   margin-bottom: 30px;
   display: flex;
   justify-content: space-between;

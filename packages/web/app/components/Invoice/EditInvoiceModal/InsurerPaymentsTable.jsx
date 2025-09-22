@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { TranslatedText } from '../../Translation';
 import { Table } from '../../Table';
-import { denseTableStyle } from '../../../constants';
+import { Colors, denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../Typography';
 import { DateDisplay } from '../../DateDisplay';
 
@@ -14,22 +14,22 @@ const TableContainer = styled.div`
   margin-top: 10px;
   padding-left: 16px;
   padding-right: 16px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   flex: 2;
   border-radius: 4px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
 `;
 
 const Title = styled.div`
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
-const getInsurerPaymentStatus = (insurerPayment) => {
+const getInsurerPaymentStatus = insurerPayment => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
     return (
-      <Box color={TAMANU_COLORS.alert} data-testid="box-lbl5">
+      <Box color={Colors.alert} data-testid="box-lbl5">
         {`${capitalize(insurerPayment?.status)}${
           insurerPayment?.reason ? ` (${insurerPayment?.reason})` : ''
         }`}
@@ -108,7 +108,7 @@ const COLUMNS = [
 
 export const InsurerPaymentsTable = ({ invoice }) => {
   const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurerPayments = invoice.payments.filter((payment) => !!payment?.insurerPayment?.id);
+  const insurerPayments = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
 
   return (
     <TableContainer data-testid="tablecontainer-x4t9">
@@ -134,7 +134,7 @@ export const InsurerPaymentsTable = ({ invoice }) => {
       <Table
         columns={COLUMNS}
         data={insurerPayments}
-        headerColor={TAMANU_COLORS.white}
+        headerColor={Colors.white}
         page={null}
         elevated={false}
         containerStyle={denseTableStyle.container}

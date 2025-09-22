@@ -1,6 +1,5 @@
 import React from 'react';
-import { TextField } from '@tamanu/ui-components';
-import { AutocompleteField, HierarchyFields } from '../../../../../components';
+import { AutocompleteField, HierarchyFields, TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 
 import { useSuggester } from '../../../../../api';
@@ -48,7 +47,11 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         component: AutocompleteField,
         suggester: divisionSuggester,
         label: (
-          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" data-testid="translatedtext-s0p5" />
+          <TranslatedText
+            stringId="general.localisedField.divisionId.label"
+            fallback="Division"
+            data-testid="translatedtext-s0p5"
+          />
         ),
       },
     }),

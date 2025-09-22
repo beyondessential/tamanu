@@ -5,8 +5,10 @@ import FormControlLabel, { formControlLabelClasses } from '@mui/material/FormCon
 import Radio, { radioClasses } from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
+
+import { TranslatedText } from '../Translation';
+import { Colors } from '../../constants';
 
 const StyledRadioGroup = styled(RadioGroup)`
   gap: 0.75rem;
@@ -14,7 +16,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const StyledRadio = styled(Radio)`
   &.${radioClasses.root} {
-    color: ${TAMANU_COLORS.primary};
+    color: ${Colors.primary};
     padding: 0.375rem;
   }
   & svg {
@@ -29,7 +31,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
     & .${typographyClasses.root} {
       font-size: 14px;
       margin-left: 0.375rem;
-      color: ${TAMANU_COLORS.darkestText};
+      color: ${Colors.darkestText};
     }
   }
 `;

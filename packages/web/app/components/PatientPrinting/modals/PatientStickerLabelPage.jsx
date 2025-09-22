@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { PDFLoader, printPDF } from '../PDFLoader';
 import { IDLabelPrintout } from '@tamanu/shared/utils/patientCertificates';
-import { Modal } from '@tamanu/ui-components';
+import { Modal } from '../../Modal';
 import { useSettings } from '../../../contexts/Settings';
 
 export const PatientStickerLabelPage = React.memo(({ patient }) => {

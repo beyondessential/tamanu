@@ -5,7 +5,7 @@ import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CancelIcon from '@material-ui/icons/Cancel';
 import Tooltip from '@material-ui/core/Tooltip';
 import { Box } from '@material-ui/core';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
 import { DateDisplay } from '../DateDisplay';
@@ -17,16 +17,16 @@ const StyledTooltip = styled(({ className, ...props }) => (
   z-index: 1200; // make it less than the dialog, which is 1300
 
   .MuiTooltip-tooltip {
-    background-color: ${TAMANU_COLORS.white};
-    color: ${TAMANU_COLORS.darkestText};
+    background-color: ${Colors.white};
+    color: ${Colors.darkestText};
     font-size: 0.9em;
     padding: 0.75em 1em;
-    border: 1px solid ${TAMANU_COLORS.outline};
+    border: 1px solid ${Colors.outline};
     max-width: 500px;
   }
 
   .MuiTooltip-arrow {
-    color: ${TAMANU_COLORS.outline};
+    color: ${Colors.outline};
   }
 `;
 
@@ -65,7 +65,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
     >
       <StyledAppointment
         className={`status-${status}`}
-        onClick={() => setDetailOpen((open) => !open)}
+        onClick={() => setDetailOpen(open => !open)}
         data-testid="styledappointment-ii9x"
       >
         <div>
@@ -86,7 +86,7 @@ const StyledAppointment = styled.div`
   column-gap: 1rem;
   cursor: pointer;
   padding: 10px;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: none;
   }
@@ -99,13 +99,13 @@ const StyledAppointment = styled.div`
   &.status-Arrived {
     background-color: #ebfff4;
     .icon {
-      color: ${TAMANU_COLORS.safe};
+      color: ${Colors.safe};
     }
   }
   &.status-No-show {
     background-color: #ffebe8;
     .icon {
-      color: ${TAMANU_COLORS.alert};
+      color: ${Colors.alert};
     }
   }
 `;

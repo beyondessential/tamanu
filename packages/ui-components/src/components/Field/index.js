@@ -6,5 +6,6 @@ export * from './MultiselectField';
 export * from './NullableBooleanField';
 export * from './NumberField';
 export * from './OuterLabelFieldWrapper';
+export * from './Select';
 export * from './SelectField';
 export * from './TextField';

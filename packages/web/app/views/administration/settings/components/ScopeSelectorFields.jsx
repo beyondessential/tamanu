@@ -5,8 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 
 import { useApi } from '../../../../api';
-import { DynamicSelectField } from '../../../../components';
-import { SelectInput } from '@tamanu/ui-components';
+import { DynamicSelectField, SelectInput } from '../../../../components';
 import { TranslatedText } from '../../../../components/Translation';
 
 const ScopeSelectInput = styled(SelectInput)`
@@ -44,7 +43,7 @@ export const ScopeSelectorFields = React.memo(
       },
     );
 
-    const facilityOptions = facilitiesArray.map((facility) => ({
+    const facilityOptions = facilitiesArray.map(facility => ({
       label: facility.name,
       value: facility.id,
     }));

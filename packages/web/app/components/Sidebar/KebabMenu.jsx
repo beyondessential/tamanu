@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, Menu } from '@material-ui/core';
 import { Launch, MoreVert } from '@material-ui/icons';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { ChangeLanguageModal } from '../ChangeLanguageModal';
 import { useTranslationLanguagesQuery } from '../../api/queries';
 import { useLocalisation } from '../../contexts/Localisation';
+import { Colors } from '../../constants';
 
 const SupportDesktopLink = styled.a`
   margin-top: 4px;
@@ -13,14 +14,14 @@ const SupportDesktopLink = styled.a`
   font-size: 11px;
   line-height: 15px;
   text-decoration: underline;
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
 `;
 
 const KebabMenuItem = styled.div`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
   padding: 4px;
   cursor: pointer;
   border-radius: 4px;
@@ -38,8 +39,8 @@ const StyledIconButton = styled(IconButton)`
 
 const StyledMenu = styled(Menu)`
   & .MuiPaper-root {
-    border: 1px solid ${TAMANU_COLORS.outline};
-    background: ${TAMANU_COLORS.primaryDark};
+    border: 1px solid ${Colors.outline};
+    background: ${Colors.primaryDark};
     width: 124px;
   }
   & .MuiList-padding {
@@ -62,7 +63,7 @@ export const KebabMenu = () => {
     };
   });
 
-  const onOpenKebabMenu = (event) => {
+  const onOpenKebabMenu = event => {
     setAnchorEl(event.currentTarget);
   };
 

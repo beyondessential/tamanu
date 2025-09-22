@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
-import { SelectField } from '@tamanu/ui-components';
+import { SelectField } from '../Field';
 
 const StyledTranslatedSelectField = styled(SelectField)`
   width: 300px;
@@ -12,7 +12,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
 export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const handleChange = (newValues) => {
+  const handleChange = newValues => {
     const newSelectedChartType = newValues.target.value;
 
     setSelectedChartTypeId(newSelectedChartType);

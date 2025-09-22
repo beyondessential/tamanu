@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { InfoButton } from './InfoButton';
-import { Modal } from '@tamanu/ui-components';
+import { Modal } from './Modal';
 
 const FullSizeImg = styled.img`
   max-width: 100%;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TextField } from '@tamanu/ui-components';
+import { TextField } from '../../../../../components';
 import { ConfiguredMandatoryPatientFields } from '../../../ConfiguredMandatoryPatientFields';
 import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
 

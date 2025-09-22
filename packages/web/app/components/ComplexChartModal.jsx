@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Divider } from '@mui/material';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-
 import { FormModal } from './FormModal';
 import { ChartForm } from '../forms/ChartForm';
 import { ChartInstanceInfoSection } from './Charting/ChartInstanceInfoSection';
 import { COMPLEX_CHART_FORM_MODES } from './Charting/constants';
+import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
@@ -17,7 +16,7 @@ const StyledChartInstanceInfoSection = styled(ChartInstanceInfoSection)`
 
 const StyledDivider = styled(Divider)`
   margin: 24px 0px !important;
-  border-color: ${TAMANU_COLORS.outline} !important;
+  border-color: ${Colors.outline} !important;
 `;
 
 export const ComplexChartModal = ({
@@ -53,13 +52,17 @@ export const ComplexChartModal = ({
         onSubmit={onSubmit}
         patient={patient}
         chartSurveyId={chartSurveyId}
-        confirmText={isChartInstance ? (
-          <TranslatedText
-            stringId="general.action.submit"
-            fallback="Submit"
-            data-testid="translatedtext-miac"
-          />
-        ) : undefined}
+        confirmText={
+          isChartInstance ? (
+            <TranslatedText
+              stringId="general.action.submit"
+              fallback="Submit"
+              data-testid="translatedtext-miac"
+            />
+          ) : (
+            undefined
+          )
+        }
         data-testid="chartform-iquz"
       />
     </FormModal>

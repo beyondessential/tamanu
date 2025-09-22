@@ -2,8 +2,7 @@ import React, { useMemo } from 'react';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
 import { uniqBy } from 'lodash';
 import styled from 'styled-components';
-import { TextField } from '@tamanu/ui-components';
-import { Field } from '../../components';
+import { Field, TextField } from '../../components';
 import { TestSelectorField } from '../../views/labRequest/TestSelector';
 import { BodyText, Heading3 } from '../../components/Typography';
 import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
@@ -96,7 +95,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
 };
 
-export const LabRequestFormScreen2 = (props) => {
+export const LabRequestFormScreen2 = props => {
   const {
     values: { requestFormType },
     onSelectionChange,

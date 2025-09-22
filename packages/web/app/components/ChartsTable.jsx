@@ -4,8 +4,7 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import { subject } from '@casl/ability';
 
-import {TAMANU_COLORS} from '@tamanu/ui-components';
-
+import { Colors } from '../constants';
 import { DynamicColumnTable, Table } from './Table';
 import { useEncounter } from '../contexts/Encounter';
 import { useEncounterChartsQuery } from '../api/queries/useEncounterChartsQuery';
@@ -26,10 +25,10 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
     columns={[]}
     data={[]}
     elevated={false}
-    noDataBackgroundColor={TAMANU_COLORS.background}
+    noDataBackgroundColor={Colors.background}
     isLoading={isLoading}
     noDataMessage={
-      <Box color={TAMANU_COLORS.primary} fontWeight={500} data-testid="box-k3rm">
+      <Box color={Colors.primary} fontWeight={500} data-testid="box-k3rm">
         {noDataMessage}
       </Box>
     }
@@ -37,78 +36,75 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   />
 );
 
-export const ChartsTable = React.memo(({
-  selectedSurveyId,
-  selectedChartSurveyName,
-  noDataMessage,
-  currentInstanceId,
-}) => {
-  const { ability } = useAuth();
-  const patient = useSelector((state) => state.patient);
-  const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
-    encounter.id,
-    selectedSurveyId,
-    currentInstanceId,
-  );
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedCell, setSelectedCell] = useState(null);
-  const { getSetting } = useSettings();
-  const isChartingEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
-  const hasReadPermission = ability.can('read', subject('Charting', { id: selectedSurveyId }));
-  const showFooterLegend = data.some((entry) =>
-    recordedDates.some((date) => entry[date].historyLogs.length > 1),
-  );
-
-  const onCellClick = useCallback((clickedCell) => {
-    setOpenEditModal(true);
-    setSelectedCell(clickedCell);
-  }, []);
-
-  // create a column for each reading
-  const columns = getChartsTableColumns(
-    selectedChartSurveyName,
-    patient,
-    recordedDates,
-    onCellClick,
-    isChartingEditEnabled && hasReadPermission,
-  );
-
-  // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
-  // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
-  if (selectedSurveyId && isLoading) {
-    return (
-      <Box mt={2} data-testid="box-zgmh">
-        <LoadingIndicator height="400px" data-testid="loadingindicator-i4u9" />
-      </Box>
+export const ChartsTable = React.memo(
+  ({ selectedSurveyId, selectedChartSurveyName, noDataMessage, currentInstanceId }) => {
+    const { ability } = useAuth();
+    const patient = useSelector(state => state.patient);
+    const { encounter } = useEncounter();
+    const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
+      encounter.id,
+      selectedSurveyId,
+      currentInstanceId,
     );
-  }
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [selectedCell, setSelectedCell] = useState(null);
+    const { getSetting } = useSettings();
+    const isChartingEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const hasReadPermission = ability.can('read', subject('Charting', { id: selectedSurveyId }));
+    const showFooterLegend = data.some(entry =>
+      recordedDates.some(date => entry[date].historyLogs.length > 1),
+    );
 
-  if (data.length === 0) {
-    return <EmptyChartsTable noDataMessage={noDataMessage} data-testid="emptychartstable-w6z7" />;
-  }
+    const onCellClick = useCallback(clickedCell => {
+      setOpenEditModal(true);
+      setSelectedCell(clickedCell);
+    }, []);
 
-  return (
-    <>
-      <EditVitalCellModal
-        open={openEditModal}
-        dataPoint={selectedCell}
-        onClose={() => {
-          setOpenEditModal(false);
-        }}
-        data-testid="editvitalcellmodal-2jqx"
-      />
-      <StyledDynamicColumnTable
-        columns={columns}
-        data={data}
-        elevated={false}
-        errorMessage={error?.message}
-        count={data.length}
-        allowExport
-        showFooterLegend={showFooterLegend}
-        data-testid="dynamiccolumntable-ddeu"
-        isBodyScrollable
-      />
-    </>
-  );
-});
+    // create a column for each reading
+    const columns = getChartsTableColumns(
+      selectedChartSurveyName,
+      patient,
+      recordedDates,
+      onCellClick,
+      isChartingEditEnabled && hasReadPermission,
+    );
+
+    // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
+    // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
+    if (selectedSurveyId && isLoading) {
+      return (
+        <Box mt={2} data-testid="box-zgmh">
+          <LoadingIndicator height="400px" data-testid="loadingindicator-i4u9" />
+        </Box>
+      );
+    }
+
+    if (data.length === 0) {
+      return <EmptyChartsTable noDataMessage={noDataMessage} data-testid="emptychartstable-w6z7" />;
+    }
+
+    return (
+      <>
+        <EditVitalCellModal
+          open={openEditModal}
+          dataPoint={selectedCell}
+          onClose={() => {
+            setOpenEditModal(false);
+          }}
+          data-testid="editvitalcellmodal-2jqx"
+        />
+        <StyledDynamicColumnTable
+          columns={columns}
+          data={data}
+          elevated={false}
+          errorMessage={error?.message}
+          count={data.length}
+          allowExport
+          showFooterLegend={showFooterLegend}
+          data-testid="dynamiccolumntable-ddeu"
+          isBodyScrollable
+        />
+      </>
+    );
+  },
+);

@@ -4,8 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
+import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
-import { TranslatedText, Modal } from '@tamanu/ui-components';
+import { TranslatedText } from './Translation/TranslatedText';
 
 const StyledTypography = styled.p`
   margin: 60px 20px;

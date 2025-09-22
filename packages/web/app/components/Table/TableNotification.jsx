@@ -1,14 +1,14 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { ClearIcon } from '../Icons/ClearIcon';
+import { Colors } from '../../constants';
 
 const Notification = styled.div`
-  background-color: ${TAMANU_COLORS.primary}10;
-  border: 1px solid ${TAMANU_COLORS.primary}1a;
+  background-color: ${Colors.primary}10;
+  border: 1px solid ${Colors.primary}1a;
   border-radius: 4px;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 
   height: 48px;
   line-height: 48px;
@@ -27,7 +27,7 @@ const NotificationClearIcon = styled(ClearIcon)`
   top: 19px;
   cursor: pointer;
   path {
-    fill: ${TAMANU_COLORS.primary};
+    fill: ${Colors.primary};
   }
 `;
 

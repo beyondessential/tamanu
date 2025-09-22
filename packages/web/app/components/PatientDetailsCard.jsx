@@ -4,14 +4,14 @@ import { Box } from '@material-ui/core';
 
 import { SEX_VALUE_INDEX } from '@tamanu/constants';
 
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { DateDisplay } from '.';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Card = styled(Box)`
   background: white;
   border-radius: 5px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   padding: 20px 10px;
   display: flex;
   align-items: flex-start;
@@ -23,14 +23,14 @@ const Column = styled.div`
   padding-left: 20px;
 
   :first-of-type {
-    border-right: 1px solid ${TAMANU_COLORS.outline};
+    border-right: 1px solid ${Colors.outline};
   }
 `;
 
 const CardCell = styled.div`
   font-size: 14px;
   line-height: 18px;
-  color: ${(props) => props.theme.palette.text.tertiary};
+  color: ${props => props.theme.palette.text.tertiary};
   margin-bottom: 20px;
 
   &:last-child {
@@ -44,7 +44,7 @@ const CardLabel = styled.div`
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const CardItem = ({ label, value, ...props }) => (
