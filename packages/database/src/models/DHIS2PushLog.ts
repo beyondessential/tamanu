@@ -44,19 +44,19 @@ export class DHIS2PushLog extends Model {
           allowNull: true,
         },
         imported: {
-          type: DataTypes.TEXT,
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         updated: {
-          type: DataTypes.TEXT,
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         ignored: {
-          type: DataTypes.TEXT,
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         deleted: {
-          type: DataTypes.TEXT,
+          type: DataTypes.INTEGER,
           allowNull: true,
         },
         conflicts: {
