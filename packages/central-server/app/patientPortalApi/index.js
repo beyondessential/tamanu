@@ -1,5 +1,5 @@
 import express from 'express';
-import { getSurvey, createSurveyResponse, suggestionRoutes } from './surveys';
+import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
 import {
   getAdministeredVaccines,
   getAllergies,
@@ -37,5 +37,6 @@ patientPortalApi.get('/me/surveys/outstanding', getOutstandingSurveys);
 
 // Survey routes
 patientPortalApi.get('/survey/:surveyId', getSurvey);
+patientPortalApi.get('/settings/:facilityId', getSettings);
 patientPortalApi.post('/surveyResponse', createSurveyResponse);
 patientPortalApi.use('/suggestions', suggestionRoutes);

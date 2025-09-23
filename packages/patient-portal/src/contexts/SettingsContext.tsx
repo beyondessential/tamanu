@@ -1,17 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-//@ts-nocheck
-// Todo: Setup settings
 import React from 'react';
 import { get } from 'lodash';
-import { SettingsContext } from '@tamanu/ui-components';
+import { useQuery } from '@tanstack/react-query';
+import { SettingsContext, useApi } from '@tamanu/ui-components';
+import { StyledCircularProgress } from '@components/StyledCircularProgress';
 
-export const SettingsProvider = ({ children }) => {
-  const settings = {};
+interface SettingsProviderProps {
+  facilityId: string;
+  children: React.ReactNode;
+}
+
+export const useSettings = (facilityId: string) => {
+  const api = useApi();
+  return useQuery({
+    queryKey: ['settings', facilityId],
+    queryFn: () => api.get(`settings/${facilityId}`),
+    enabled: Boolean(facilityId),
+  });
+};
+
+export const SettingsProvider = ({ facilityId, children }: SettingsProviderProps) => {
+  const { isPending, data: settings } = useSettings(facilityId);
+
+  if (isPending) {
+    return <StyledCircularProgress />;
+  }
 
   return (
     <SettingsContext.Provider
       value={{
-        getSetting: path => get(settings, path),
+        getSetting: (path: string) => get(settings, path),
         settings,
       }}
     >
