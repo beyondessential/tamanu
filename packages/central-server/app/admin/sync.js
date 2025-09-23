@@ -58,27 +58,27 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
   res.send({
     data: sessions
       .map(session => ({
-        facilityIds: session.parameters.facilityIds ||
-          session.debugInfo.facilityIds || [session.debugInfo.facilityId],
+        facilityIds: session.parameters.facilityIds ??
+          session.debugInfo.facilityIds ?? [session.debugInfo.facilityId],
         completedAt: session.completedAt,
         duration: session.completedAt - session.createdAt,
-        deviceId: session.parameters.deviceId,
+        deviceId: session.parameters.deviceId ?? 'unknown',
         deviceType: session.parameters.isMobile ? 'mobile' : 'facility',
         recordsPulled: session.debugInfo.totalToPull ?? 0,
-        tick: session.pullSince,
+        tick: session.pullSince ?? 0,
       }))
       .sort((oa, ob) => {
         const [a, b] = order === 'desc' ? [ob, oa] : [oa, ob];
         if (orderBy === 'completedAt') {
           return a.completedAt - b.completedAt;
         } else if (orderBy === 'deviceId') {
-          return a.deviceId.localeCompare(b.deviceId);
+          return a.deviceId?.localeCompare(b.deviceId ?? '') ?? 0;
         } else if (orderBy === 'deviceType') {
-          return a.deviceType.localeCompare(b.deviceType);
+          return a.deviceType?.localeCompare(b.deviceType ?? '') ?? 0;
         } else if (orderBy === 'duration') {
           return a.duration - b.duration;
         } else if (orderBy === 'facilityIds') {
-          return a.facilityIds[0].localeCompare(b.facilityIds[0]);
+          return a.facilityIds?.[0]?.localeCompare(b.facilityIds?.[0] ?? '') ?? 0;
         } else if (orderBy === 'recordsPulled') {
           return a.recordsPulled - b.recordsPulled;
         } else if (orderBy === 'tick') {
