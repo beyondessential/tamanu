@@ -22,6 +22,36 @@ import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 
+// ErrorBox Component
+interface ErrorBoxProps {
+  errorMessage: string;
+}
+
+const ErrorBox: React.FC<ErrorBoxProps> = ({ errorMessage }) => {
+  if (!errorMessage) return null;
+  return (
+    <StyledView
+      backgroundColor={theme.colors.ERROR_LIGHT}
+      borderColor={theme.colors.ALERT}
+      borderWidth={1}
+      borderRadius={5}
+      padding={16}
+      marginBottom={16}
+      flexDirection="row"
+      alignItems="center"
+    >
+      <StyledText
+        color={theme.colors.TEXT_SUPER_DARK}
+        fontSize={14}
+        fontWeight={400}
+        flex={1}
+      >
+        {errorMessage}
+      </StyledText>
+    </StyledView>
+  );
+};
+
 interface SignInFormModelValues {
   email: string;
   password: string;
