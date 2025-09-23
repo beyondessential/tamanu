@@ -1,6 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'path';
-import os from 'os';
 
 /**
  * Read environment variables from file.
