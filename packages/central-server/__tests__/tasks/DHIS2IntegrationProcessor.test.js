@@ -132,13 +132,29 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should retry based on the backoff settings in config', async () => {
-      const { maxAttempts } = config.integrations.dhis2.backoff;
+      const { maxAttempts, multiplierMs } = config.integrations.dhis2.backoff;
       await dhis2IntegrationProcessor.run();
 
       // A warning for each retry, except the last one which is an error
-      expect(logSpy.warn).toHaveBeenCalledTimes(maxAttempts - 1);
-      // 1 error for the initial call, and 1 error for the max retries exceeded
-      expect(logSpy.error).toHaveBeenCalledTimes(2);
+      for (let i = 1; i < maxAttempts; i++) {
+        expect(logSpy.warn).toHaveBeenCalledWith('fetchWithRetryBackoff: failed, retrying', {
+          attempt: i,
+          maxAttempts: maxAttempts,
+          retryingIn: `${multiplierMs}ms`,
+          url: expect.any(String),
+          stack: expect.any(String),
+        });
+      }
+
+      expect(logSpy.error).toHaveBeenCalledWith(
+        'fetchWithRetryBackoff: failed, max retries exceeded',
+        {
+          attempt: maxAttempts,
+          maxAttempts: maxAttempts,
+          url: expect.any(String),
+          stack: expect.any(String),
+        },
+      );
     });
   });
 
