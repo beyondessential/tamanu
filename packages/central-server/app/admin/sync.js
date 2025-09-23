@@ -18,7 +18,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
             return Number.parseInt(val);
           }
           return val;
-        }, z.int().min(1))
+        }, z.int().min(0))
         .default(1),
       rowsPerPage: z
         .preprocess(val => {
@@ -101,7 +101,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
           return 0;
         }
       })
-      .slice((page - 1) * rowsPerPage, page * rowsPerPage),
+      .slice(page * rowsPerPage, (page + 1) * rowsPerPage),
     count: lastCompleteds.length,
   });
 });
