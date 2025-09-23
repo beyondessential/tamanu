@@ -1,4 +1,5 @@
 import { createSecretKey, randomBytes, randomInt } from 'node:crypto';
+import config from 'config';
 import * as jose from 'jose';
 
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -11,7 +12,11 @@ export const stripUser = user => {
   return userData;
 };
 
-export const buildToken = async (data, secret, options) => {
+export const buildToken = async (
+  data,
+  secret = config.auth.secret ?? crypto.randomUUID(),
+  options,
+) => {
   return await new jose.SignJWT(data)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

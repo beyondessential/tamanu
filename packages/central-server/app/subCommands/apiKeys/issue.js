@@ -2,7 +2,6 @@ import { Command } from 'commander';
 import config from 'config';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
-import { DEFAULT_JWT_SECRET } from '../../auth';
 import { buildToken } from '../../auth/utils';
 import { closeDatabase, initDatabase } from '../../database';
 
@@ -21,7 +20,7 @@ export const genToken = async (email, { expiresIn }) => {
     {
       userId: user.id,
     },
-    DEFAULT_JWT_SECRET,
+    config.auth.secret || crypto.randomUUID(),
     { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: config.canonicalHostName },
   );
 

@@ -30,7 +30,6 @@ import { CentralServerConnection } from '../dist/sync/CentralServerConnection';
 import { ApplicationContext } from '../dist/ApplicationContext';
 import { FacilitySyncConnection } from '../dist/sync/FacilitySyncConnection';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
-import { randomBytes } from 'node:crypto';
 
 jest.mock('../dist/sync/CentralServerConnection');
 jest.mock('../dist/utils/uploadAttachment');
@@ -190,7 +189,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await buildToken(user, facilityIds[0] ?? randomBytes(16), '1d');
+    const token = await buildToken(user, facilityIds[0], '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
