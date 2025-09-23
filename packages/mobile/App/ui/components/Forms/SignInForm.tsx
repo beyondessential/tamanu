@@ -21,6 +21,7 @@ import { ServerSelector } from '../ServerSelectorField/ServerSelector';
 import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
+import { OutdatedVersionError } from '~/services/error';
 
 // ErrorBox Component
 interface ErrorBoxProps {
@@ -78,27 +79,31 @@ const ServerInfo = __DEV__
     }
   : (): ReactElement => null; // hide info on production
 
-export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
+export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const passwordRef = useRef(null);
   const { signIn } = useAuth();
   const { getTranslation } = useTranslation();
 
   const handleSignIn = useCallback(
     async (values: SignInFormModelValues) => {
+      setErrorMessage('');
       try {
         if (!existingHost && !values.server) {
-          // TODO it would be better to properly respond to form validation and show the error
-          onError(new Error('Please select a server to connect to'));
-          return;
+          throw new Error('Please select a server to connect to');
         }
         await signIn(values);
         onSuccess();
       } catch (error) {
-        onError(error);
+        if (error instanceof OutdatedVersionError) {
+          onOutdatedVersionError(error);
+        } else {
+          setErrorMessage(error.message);
+        }
       }
     },
-    [existingHost],
+    [existingHost, signIn,onOutdatedVersionError, onSuccess],
   );
 
   useEffect(() => {
@@ -145,6 +150,7 @@ export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
                 label={<TranslatedText stringId="general.country.label" fallback="Country" />}
               />
             )}
+            <ErrorBox errorMessage={errorMessage} />
             <Field
               name="email"
               keyboardType="email-address"
