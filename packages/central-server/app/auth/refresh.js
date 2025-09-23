@@ -1,7 +1,7 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { InvalidCredentialError, InvalidTokenError } from '@tamanu/errors';
@@ -115,7 +115,7 @@ export const refresh = asyncHandler(async (req, res) => {
     },
   );
   // Extract expiry as set by jwt.sign
-  const { exp } = jwt.decode(newRefreshToken);
+  const { exp } = jose.decodeJwt(newRefreshToken);
 
   await store.models.RefreshToken.upsert(
     {

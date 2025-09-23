@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -78,8 +78,8 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('token');
 
-      const oldTokenContents = jwt.decode(token);
-      const newTokenContents = jwt.decode(refreshResponse.body.token);
+      const oldTokenContents = jose.decodeJwt(token);
+      const newTokenContents = jose.decodeJwt(refreshResponse.body.token);
 
       expect(newTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.ACCESS,
@@ -116,8 +116,8 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('refreshToken');
 
-      const newRefreshTokenContents = jwt.decode(refreshResponse.body.refreshToken);
-      const oldRefreshTokenContents = jwt.decode(refreshToken);
+      const newRefreshTokenContents = jose.decodeJwt(refreshResponse.body.refreshToken);
+      const oldRefreshTokenContents = jose.decodeJwt(refreshToken);
 
       expect(newRefreshTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.REFRESH,

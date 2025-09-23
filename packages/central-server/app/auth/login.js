@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 import { SERVER_TYPES, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { log } from '@tamanu/shared/services/logging';
@@ -39,7 +39,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
   ]);
 
   // Extract expiry as set by jwt.sign
-  const { exp } = jwt.decode(refreshToken);
+  const { exp } = jose.decodeJwt(refreshToken);
   await RefreshToken.upsert(
     {
       refreshId: hashedRefreshId,
