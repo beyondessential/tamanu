@@ -2,7 +2,7 @@ import mitt from 'mitt';
 import { v4 as uuidv4 } from 'uuid';
 import axios, { AxiosRequestConfig, AxiosError } from 'axios';
 import { CAN_ACCESS_ALL_FACILITIES, DEVICE_SCOPES } from '@tamanu/constants';
-import { RemoteError } from '@tamanu/errors';
+import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { readConfig, writeConfig } from '../config';
 import { FetchOptions, LoginResponse, SyncRecord } from './types';
 import {
@@ -10,20 +10,13 @@ import {
   forbiddenFacilityMessage,
   generalErrorMessage,
   invalidTokenMessage,
+  invalidDeviceMessage,
   invalidUserCredentialsMessage,
   OutdatedVersionError,
 } from '../error';
 import { version } from '/root/package.json';
 import { callWithBackoff, sleepAsync } from './utils';
 import { CentralConnectionStatus } from '~/types';
-
-type ErrorResponse = {
-  error?: {
-    name?: string;
-    message?: string;
-    updateUrl?: string;
-  };
-};
 
 type PullMetadataResponse = {
   totalToPull: number;
@@ -37,22 +30,33 @@ type RefreshResponse = {
 
 const API_PREFIX = 'api';
 
-const toRemoteError = (err: AxiosError, isLogin: boolean): Error => {
-  const status = err.response?.status;
-  const error = (err.response?.data as ErrorResponse)?.error;
-  if (status === 401) {
+const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
+  const problemJson = err.response?.data || {};
+  const problem = Problem.fromJSON(problemJson);
+
+  if (!problem) {
+    return new Problem(
+      ERROR_TYPE.UNKNOWN,
+      'Unknown error',
+      err.response?.status,
+      err.response?.statusText,
+    );
+  }
+
+  if (problem.type === ERROR_TYPE.AUTH_QUOTA_EXCEEDED) {
+    return new AuthenticationError(invalidDeviceMessage);
+  }
+
+  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
     return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
   }
-  if (status === 400) {
-    if (error?.name === 'InvalidClientVersion') {
-      return new OutdatedVersionError(error.updateUrl);
-    }
+
+  if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
+    return new OutdatedVersionError(problem.extra.get('updateUrl'));
   }
-  if (status === 422) {
-    return new RemoteError(error?.message, error, status);
-  }
-  console.error('Response had non-OK value', { status, data: err.response?.data });
-  return new RemoteError(generalErrorMessage, error, status);
+
+  console.error('Response had non-OK value', problem);
+  return problem;
 };
 
 export class CentralServerConnection {
@@ -117,7 +121,8 @@ export class CentralServerConnection {
           const { data } = await this.client.request(configAxios);
           return data;
         } catch (e) {
-          throw toRemoteError(e as AxiosError, isLogin);
+          const problem = diagnoseProblem(e as AxiosError, isLogin);
+          throw problem;
         }
       }, backoff);
       return response;
