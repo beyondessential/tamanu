@@ -344,8 +344,10 @@ export class AllPatientsPage extends BasePage {
 
     const sortedValues = [...dateValues].sort((a, b) => {
       // Convert MM/DD/YYYY to YYYY-MM-DD for proper date comparison
-      const dateA = a.split('/').reverse().join('-');
-      const dateB = b.split('/').reverse().join('-');
+      const [monthA, dayA, yearA] = a.split('/');
+      const [monthB, dayB, yearB] = b.split('/');
+      const dateA = `${yearA}-${monthA.padStart(2, '0')}-${dayA.padStart(2, '0')}`;
+      const dateB = `${yearB}-${monthB.padStart(2, '0')}-${dayB.padStart(2, '0')}`;
       return isAscending 
         ? new Date(dateA).getTime() - new Date(dateB).getTime()
         : new Date(dateB).getTime() - new Date(dateA).getTime();
