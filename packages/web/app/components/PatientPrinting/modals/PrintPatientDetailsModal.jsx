@@ -419,7 +419,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
       <Button size="small" onClick={openModal} data-testid="button-kdtv">
         <TranslatedText
           stringId="patient.detailsSidebar.action.printIdForms"
-          fallback="ID forms"
+          fallback="Patient resources"
           data-testid="translatedtext-wcdb"
         />
       </Button>
