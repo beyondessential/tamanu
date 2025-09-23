@@ -30,6 +30,14 @@ const readAllFilesRecursive = (directoryPath: string) => {
   return filePaths;
 };
 
+// Remove any newlines in the default text
+const flattenDefaultText = (defaultText: string) => {
+  return defaultText
+    .split('\n')
+    .map(line => line.trim())
+    .join(' ');
+};
+
 const files = readAllFilesRecursive(tamanuPackagesPath);
 
 const translatedTextRegex = /stringId="([^"]*)"\s*?fallback="([^"]*)"/gms;
@@ -39,13 +47,17 @@ const translations = new Map<string, { stringId: string; defaultText: string; fi
 const duplicates = new Map<string, { stringId: string; defaultText: string; fileName: string }[]>();
 
 const addTranslation = (stringId: string, defaultText: string, fileName: string) => {
-  if (translations.has(stringId) && translations.get(stringId)?.defaultText !== defaultText) {
+  const sanitizedDefaultText = flattenDefaultText(defaultText);
+  if (
+    translations.has(stringId) &&
+    translations.get(stringId)?.defaultText !== sanitizedDefaultText
+  ) {
     duplicates.set(stringId, [
       ...(duplicates.get(stringId) || []),
-      { stringId, defaultText, fileName },
+      { stringId, defaultText: sanitizedDefaultText, fileName },
     ]);
   } else {
-    translations.set(stringId, { stringId, defaultText, fileName });
+    translations.set(stringId, { stringId, defaultText: sanitizedDefaultText, fileName });
   }
 };
 
@@ -67,24 +79,17 @@ for (const file of files) {
 }
 
 if (duplicates.size > 0) {
-  const errorMessage = `Duplicates found: ${Array.from(duplicates.entries())
-    .map(([stringId, duplicates]) => `${stringId}: ${duplicates.map(d => d.fileName).join(', ')}`)
-    .join('\n')}`;
+  const errorMessage = `Duplicates found: ${Array.from(
+    duplicates.entries(),
+    ([stringId, duplicates]) => `${stringId}: ${duplicates.map(d => d.fileName).join(', ')}`,
+  ).join('\n')}`;
   throw new Error(errorMessage);
 }
-
-// Remove any newlines in the default text
-const flattenDefaultText = (defaultText: string) => {
-  return defaultText
-    .split('\n')
-    .map(line => line.trim())
-    .join(' ');
-};
 
 const translationRows = Array.from(translations.values())
   .map(({ stringId, defaultText }) => ({
     stringId,
-    [DEFAULT_LANGUAGE_CODE]: flattenDefaultText(defaultText),
+    [DEFAULT_LANGUAGE_CODE]: defaultText,
   }))
   .sort((a, b) => a.stringId.localeCompare(b.stringId));
 
