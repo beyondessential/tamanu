@@ -12,11 +12,11 @@ export const stripUser = user => {
   return userData;
 };
 
-export const buildToken = async (
-  data,
-  secret = config.auth.secret ?? crypto.randomUUID(),
-  options,
-) => {
+export const buildToken = async (data, secret, options) => {
+  if (!secret) {
+    secret = config.auth.secret ?? crypto.randomUUID();
+  }
+
   if (typeof secret === 'string') {
     secret = createSecretKey(new TextEncoder().encode(secret));
   }
