@@ -8,7 +8,6 @@
     "name": "tamanu-facility-test",
     "migrateOnStartup": true,
     "reportSchemas": {
-      "enabled": false,
       "connections": {
         "reporting": {
           "username": "tamanu_reporting",
