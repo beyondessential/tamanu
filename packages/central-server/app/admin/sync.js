@@ -12,8 +12,22 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
 
   const { page, rowsPerPage, order, orderBy } = await z
     .object({
-      page: z.number().min(1).default(1),
-      rowsPerPage: z.number().min(1).max(50).default(10),
+      page: z
+        .preprocess(val => {
+          if (typeof val === 'string') {
+            return Number.parseInt(val);
+          }
+          return val;
+        }, z.int().min(1))
+        .default(1),
+      rowsPerPage: z
+        .preprocess(val => {
+          if (typeof val === 'string') {
+            return Number.parseInt(val);
+          }
+          return val;
+        }, z.int().min(1).max(50))
+        .default(10),
       order: z.enum(['asc', 'desc']).default('desc'),
       orderBy: z
         .enum([
