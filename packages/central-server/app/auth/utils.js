@@ -17,6 +17,10 @@ export const buildToken = async (
   secret = config.auth.secret ?? crypto.randomUUID(),
   options,
 ) => {
+  if (typeof secret === 'string') {
+    secret = createSecretKey(new TextEncoder().encode(secret));
+  }
+
   return await new jose.SignJWT(data)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()

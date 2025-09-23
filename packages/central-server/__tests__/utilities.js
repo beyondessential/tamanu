@@ -59,7 +59,7 @@ export async function createTestContext() {
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
-    const token = await buildToken({ userId: user.id }, config.auth.secret || crypto.randomUUID(), {
+    const token = await buildToken({ userId: user.id }, null, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,

@@ -20,7 +20,7 @@ export const genToken = async (email, { expiresIn }) => {
     {
       userId: user.id,
     },
-    config.auth.secret || crypto.randomUUID(),
+    null,
     { expiresIn, audience: JWT_TOKEN_TYPES.ACCESS, issuer: config.canonicalHostName },
   );
 
