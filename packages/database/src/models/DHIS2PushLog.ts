@@ -13,7 +13,7 @@ export class DHIS2PushLog extends Model {
   declare updated: number;
   declare ignored: number;
   declare deleted: number;
-  declare conflicts: string[];
+  declare conflicts: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -41,23 +41,23 @@ export class DHIS2PushLog extends Model {
         },
         message: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         imported: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         updated: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         ignored: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         deleted: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
         conflicts: {
           type: DataTypes.TEXT,

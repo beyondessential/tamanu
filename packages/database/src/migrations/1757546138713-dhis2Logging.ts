@@ -30,21 +30,25 @@ export async function up(query: QueryInterface) {
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
     imported: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     updated: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     ignored: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     deleted: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     conflicts: {
       type: DataTypes.TEXT,
