@@ -1,4 +1,4 @@
-import { ERROR_TYPE, getLoginErrorMessage } from '@tamanu/errors';
+import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -118,12 +118,7 @@ export const requestPasswordReset =
       await api.requestPasswordReset(email);
       dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
     } catch (error) {
-      let message = error.message;
-      if (error.type === ERROR_TYPE.RATE_LIMITED) {
-        message = `User locked out. ${Math.ceil(
-          error.extra.get('retry-after') / 60,
-        )} minutes remaining.`;
-      }
+      const message = getResetPasswordErrorMessage(error);
       dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
     }
   };
