@@ -77,7 +77,7 @@ export class DHIS2PushLog extends Model {
   static initRelations(models: Models) {
     this.belongsTo(models.ReportDefinition, {
       foreignKey: 'reportId',
-      as: 'user',
+      as: 'report',
     });
   }
 }
