@@ -141,6 +141,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         message,
         importCount,
       });
+
       log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
     } else {
       const warningLog = await this.logDHIS2Push({

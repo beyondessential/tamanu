@@ -10,6 +10,29 @@ import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
 import config from 'config';
 
+const mockSuccessResponse = jest.fn().mockResolvedValue({
+  httpStatusCode: 200,
+  status: 'success',
+  message: 'Report sent to DHIS2 successfully',
+  response: {
+    importCount: { imported: 2, updated: 0, deleted: 0, ignored: 0 },
+    conflicts: [],
+  },
+});
+
+const mockWarningResponse = jest.fn().mockResolvedValue({
+  httpStatusCode: 409,
+  status: 'warning',
+  message: 'Report sent to DHIS2 failed',
+  response: {
+    importCount: { imported: 0, updated: 0, deleted: 0, ignored: 2 },
+    conflicts: [
+      { value: 'Data element not found: DE123' },
+      { value: 'Organisation unit not found: OU456' },
+    ],
+  },
+});
+
 describe('DHIS2 integration processor', () => {
   let ctx;
   let models;
@@ -159,18 +182,7 @@ describe('DHIS2 integration processor', () => {
 
   describe('DHIS2 response', () => {
     it('should log.warn individual conflicts when DHIS2 returns conflicts', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-        httpStatusCode: 409,
-        status: 'warning',
-        message: 'Report sent to DHIS2 failed',
-        response: {
-          importCount: { imported: 0, updated: 0, deleted: 0, ignored: 2 },
-          conflicts: [
-            { value: 'Data element not found: DE123' },
-            { value: 'Organisation unit not found: OU456' },
-          ],
-        },
-      });
+      dhis2IntegrationProcessor.postToDHIS2 = mockWarningResponse;
       await dhis2IntegrationProcessor.run();
 
       expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
@@ -184,15 +196,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-        httpStatusCode: 200,
-        status: 'success',
-        message: 'Report sent to DHIS2 successfully',
-        response: {
-          importCount: { imported: 2, updated: 0, deleted: 0, ignored: 0 },
-          conflicts: [],
-        },
-      });
+      dhis2IntegrationProcessor.postToDHIS2 = mockSuccessResponse;
 
       await dhis2IntegrationProcessor.run();
 
@@ -207,8 +211,49 @@ describe('DHIS2 integration processor', () => {
   });
 
   describe('auditing', () => {
-    it.todo('should create a failure log when cant connect to DHIS2');
-    it.todo('should create a warning log when conflicts are returned in DHIS2');
-    it.todo('should create a success log when report is successfully sent to DHIS2');
+    beforeEach(async () => {
+      await models.DHIS2PushLog.truncate();
+    });
+
+    it('should create a failure log when cant connect to DHIS2', async () => {
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll();
+      expect(pushLogs).toHaveLength(1);
+      expect(pushLogs[0]).toMatchObject({
+        status: 'failure',
+      });
+    });
+
+    it('should create a warning log when conflicts are returned in DHIS2', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = mockWarningResponse;
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll();
+      expect(pushLogs).toHaveLength(1);
+      expect(pushLogs[0]).toMatchObject({
+        status: 'warning',
+        imported: 0,
+        updated: 0,
+        deleted: 0,
+        ignored: 2,
+        conflicts: ['Data element not found: DE123', 'Organisation unit not found: OU456'],
+      });
+    });
+
+    it('should create a success log when report is successfully sent to DHIS2', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = mockSuccessResponse;
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll();
+      expect(pushLogs).toHaveLength(1);
+      expect(pushLogs[0]).toMatchObject({
+        status: 'success',
+        imported: 2,
+        updated: 0,
+        deleted: 0,
+        ignored: 0,
+      });
+    });
   });
 });

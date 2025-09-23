@@ -61,7 +61,7 @@ export class DHIS2PushLog extends Model {
         },
         conflicts: {
           type: DataTypes.TEXT,
-          allowNull: false,
+          allowNull: true,
         },
       },
 
