@@ -1,7 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import { resolve } from 'path';
 import os from 'os';
-import dotenv from 'dotenv';
 
 /**
  * Read environment variables from file.
@@ -21,7 +20,7 @@ module.exports = defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? Math.max(1, Math.floor(os.cpus().length / 2)): undefined,
+  workers: process.env.CI ? 3 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
