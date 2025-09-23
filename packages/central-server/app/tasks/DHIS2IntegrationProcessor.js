@@ -48,11 +48,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async logDHIS2Push({ reportId, status, importCount = {}, conflicts = [], message }) {
-    const {
-      store: { models },
-    } = this.context;
-
-    await models.DHIS2PushLog.create({
+    return await this.context.store.models.DHIS2PushLog.create({
       reportId,
       status,
       message,
@@ -133,41 +129,30 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportCSV = arrayOfArraysToCSV(reportData);
 
     const {
-      status,
       message,
       httpStatusCode,
       response: { importCount, conflicts = [] },
     } = await this.postToDHIS2({ reportId, reportCSV });
 
     if (httpStatusCode === 200) {
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
-        report: reportString,
-        ...importCount,
-      });
-      await this.logDHIS2Push({
+      const successLog = await this.logDHIS2Push({
         reportId,
         status: AUDIT_STATUSES.SUCCESS,
         message,
         importCount,
       });
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
     } else {
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
-        report: reportString,
-        message,
-        status,
-        httpStatusCode,
-      });
-
-      // Value is the error message returned from DHIS2 api for each errored row
-      conflicts.forEach(conflict => log.warn(conflict.value));
-
-      await this.logDHIS2Push({
+      const warningLog = await this.logDHIS2Push({
         reportId,
         status: AUDIT_STATUSES.WARNING,
         message,
         importCount,
         conflicts: conflicts.map(conflict => conflict.value),
       });
+
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
+      conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
 
