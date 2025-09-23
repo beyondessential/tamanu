@@ -2,7 +2,18 @@ import fs from 'fs';
 import path from 'path';
 import { enumTranslations } from '@tamanu/constants/enumRegistry';
 import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
-import { getTamanuPackagesPath } from './getTamanuPackagesPath';
+
+const getTamanuPackagesPath = () => {
+  const updateDistCjsIndexJsPath = require.resolve('@tamanu/upgrade');
+  const tamanuPackagesPath = path.join(
+    updateDistCjsIndexJsPath,
+    '..', // cjs
+    '..', // dist
+    '..', // upgrade
+    '..', // packages
+  );
+  return tamanuPackagesPath;
+};
 
 const tamanuPackagesPath = getTamanuPackagesPath();
 

@@ -28,7 +28,7 @@
     "clean": "rimraf dist *.tsbuildInfo",
     "clean:deps": "rimraf node_modules",
     "test": "vitest run --no-file-parallelism",
-    "package-default-translations": "npx tsx src/steps/scripts/scrapeTranslations.ts > dist/default-translations.json",
+    "package-default-translations": "npx tsx scripts/scrapeTranslations.ts > dist/default-translations.json",
     "test:watch": "vitest watch"
   },
   "devDependencies": {
