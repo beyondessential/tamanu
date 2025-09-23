@@ -1,8 +1,28 @@
 import asyncHandler from 'express-async-handler';
+import { upperFirst } from 'lodash';
 import { log } from '@tamanu/shared/services/logging/index';
 import { CreateSurveyResponseRequestSchema } from '@tamanu/shared/schemas/patientPortal/requests/createSurveyResponse.schema';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { NotFoundError } from '@tamanu/errors';
+
+const getDefaultResourceId = async (models, resource, facilityId) => {
+  const key = `survey.defaultCodes.${resource}`;
+  const code = await models.Setting.get(key, facilityId);
+
+  const modelName = upperFirst(resource);
+  const model = models[modelName];
+  if (!model) {
+    throw new Error(`Model not found: ${modelName}`);
+  }
+
+  const record = await model.findOne({ where: { code } });
+  if (!record) {
+    throw new Error(
+      `Could not find default answer for '${resource}': code '${code}' not found (check survey.defaultCodes.${resource} in the settings)`,
+    );
+  }
+  return record.id;
+};
 
 export const createSurveyResponse = asyncHandler(async (req, res) => {
   const { patient } = req;
@@ -28,15 +48,14 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { locationId, departmentId, ...payload } = body;
-    // const getDefaultId = async type => models.SurveyResponseAnswer.getDefaultId(type, settings);
 
     const updatedBody = {
       patientId: patient.id,
-      // Todo: get location and department from settings
-      // locationId: locationId || (await getDefaultId('location')),
-      // departmentId: departmentId || (await getDefaultId('department')),
-      locationId: locationId || 'location-GeneralClinic',
-      departmentId: departmentId || 'department-GeneralClinic',
+      locationId:
+        locationId || (await getDefaultResourceId(models, 'location', assignedSurvey.facilityId)),
+      departmentId:
+        departmentId ||
+        (await getDefaultResourceId(models, 'department', assignedSurvey.facilityId)),
       userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
       facilityId: assignedSurvey.facilityId,
       ...payload,
