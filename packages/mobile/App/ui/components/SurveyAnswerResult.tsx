@@ -3,17 +3,17 @@ import { useBackend } from '../hooks';
 import { renderAnswer } from '../navigation/screens/programs/SurveyResponseDetailsScreen';
 import { View, Text } from 'react-native';
 
-export const SurveyAnswerResult = ({ question, answer }) => {
+export const SurveyAnswerResult = ({ config, answer }) => {
   const { models } = useBackend();
 
   const [sourceQuestion, setSourceQuestion] = useState<any>();
 
   useEffect(() => {
     (async (): Promise<void> => {
-      if (answer && question.config) {
-        const config = JSON.parse(question.config);
+      if (answer && config) {
+        const parsedConfig = JSON.parse(config);
         const sourceDataElement = await models.ProgramDataElement.findOne({
-          where: { code: config.source || config.Source },
+          where: { code: parsedConfig.source || parsedConfig.Source },
           relations: ['surveyScreenComponent', 'surveyScreenComponent.dataElement'],
         });
 
@@ -22,5 +22,17 @@ export const SurveyAnswerResult = ({ question, answer }) => {
     })();
   }, []);
 
-  return <View>{sourceQuestion ? renderAnswer(sourceQuestion, answer) : <Text>{answer}</Text>}</View>;
+  return (
+    <View>
+      {sourceQuestion ? (
+        renderAnswer({
+          type: sourceQuestion.dataElement.type,
+          config: sourceQuestion.config,
+          answer,
+        })
+      ) : (
+        <Text>{answer}</Text>
+      )}
+    </View>
+  );
 };
