@@ -6,7 +6,6 @@ import { TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useUserPreferencesMutation } from '../../../api/mutations';
-import { debounce } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { useAuth } from '../../../contexts/Auth';
 
@@ -68,13 +67,11 @@ export const ViewTypeToggle = (props) => {
   const { facilityId } = useAuth();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-  const updateUserPreferences = debounce(
-    (viewType) =>
-      mutateUserPreferences({
-        key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_VIEW_TYPE,
-        value: viewType,
-      }),
-    200,
+  const updateUserPreferences = (viewType) =>
+    mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_VIEW_TYPE,
+      value: viewType,
+    }
   );
 
   const handleViewChange = () => {

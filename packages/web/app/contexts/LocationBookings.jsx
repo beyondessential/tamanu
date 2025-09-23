@@ -22,12 +22,14 @@ export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
 export const LocationBookingsContextProvider = ({ children }) => {
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
-  const { data: userPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
   const [filters, setFilters] = useState({
     LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
   });
 
   useEffect(() => {
+    if (isLoadingUserPreferences) return;
+
     if (userPreferences?.locationBookingFilters) {
       setFilters(userPreferences?.locationBookingFilters);
     }
@@ -38,7 +40,7 @@ export const LocationBookingsContextProvider = ({ children }) => {
       setViewType(VIEW_TYPES.DAILY);
     }
     
-  }, [userPreferences]);
+  }, [userPreferences, isLoadingUserPreferences]);
 
   useEffect(() => {
     if (!clinicianId) return;
