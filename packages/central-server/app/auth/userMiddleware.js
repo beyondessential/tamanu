@@ -20,7 +20,7 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
   } = req;
 
   const { token, user, device } = await User.loginFromAuthorizationHeader(
-    req.headers.get('authorization'),
+    req.get('authorization'),
     { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
   );
   const sessionId = createSessionIdentifier(token);

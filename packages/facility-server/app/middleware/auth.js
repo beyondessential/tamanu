@@ -206,7 +206,7 @@ export const authMiddleware = async (req, res, next) => {
   const { models, settings } = req;
   try {
     const { token, user, facility, device } = await models.User.loginFromAuthorizationHeader(
-      req.headers.get('authorization'),
+      req.get('authorization'),
       { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
     );
 
