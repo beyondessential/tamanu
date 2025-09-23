@@ -557,7 +557,7 @@ export class User extends Model {
     }
 
     const prefix = 'Bearer ';
-    if (header.startsWith(prefix)) {
+    if (!header.startsWith(prefix)) {
       throw new InvalidCredentialError('Only Bearer token is supported');
     }
 
