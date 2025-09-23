@@ -22,6 +22,7 @@ import { TranslatedText } from '../Translations/TranslatedText';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
 import { TranslatedReferenceData } from '../Translations/TranslatedReferenceData';
 import { OutdatedVersionError } from '~/services/error';
+import { getLoginErrorMessage } from '@tamanu/errors';
 
 // ErrorBox Component
 interface ErrorBoxProps {
@@ -99,7 +100,8 @@ export const SignInForm: FunctionComponent<any> = ({ onOutdatedVersionError, onS
         if (error instanceof OutdatedVersionError) {
           onOutdatedVersionError(error);
         } else {
-          setErrorMessage(error.message);
+          const message = getLoginErrorMessage(error);
+          setErrorMessage(message);
         }
       }
     },
