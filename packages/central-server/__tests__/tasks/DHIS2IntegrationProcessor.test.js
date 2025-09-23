@@ -122,7 +122,7 @@ describe('DHIS2 integration processor', () => {
   });
 
   describe('connection', () => {
-    it('should log.error if we cant establish a connection to DHIS2', async () => {
+    it("should log.error if we can't establish a connection to DHIS2", async () => {
       await dhis2IntegrationProcessor.run();
 
       expect(logSpy.error).toHaveBeenLastCalledWith(ERROR_LOGS.ERROR_PROCESSING_REPORT, {
@@ -135,7 +135,6 @@ describe('DHIS2 integration processor', () => {
       const { maxAttempts, multiplierMs } = config.integrations.dhis2.backoff;
       await dhis2IntegrationProcessor.run();
 
-      // A warning for each retry, except the last one which is an error
       for (let i = 1; i < maxAttempts; i++) {
         expect(logSpy.warn).toHaveBeenCalledWith('fetchWithRetryBackoff: failed, retrying', {
           attempt: i,
