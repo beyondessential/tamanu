@@ -47,7 +47,7 @@ export const refresh = asyncHandler(async (req, res) => {
     throw new InvalidTokenError('validity');
   }
 
-  const { userId, refreshId } = contents;
+  const { userId, refreshId } = contents.payload;
 
   const user = await store.models.User.findOne({
     where: { id: userId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
