@@ -48,13 +48,22 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async logDHIS2Push({ reportId, status, importCount = {}, conflicts = [], message }) {
-    return await this.context.store.models.DHIS2PushLog.create({
+    const logEntry = await this.context.store.models.DHIS2PushLog.create({
       reportId,
       status,
       message,
       ...(conflicts.length > 0 && { conflicts: JSON.stringify(conflicts) }),
       ...importCount,
     });
+
+    const logEntryPlain = await logEntry.get({
+      plain: true,
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'deletedAt'],
+      },
+    });
+
+    return logEntryPlain;
   }
 
   async postToDHIS2({ reportId, reportCSV }) {
