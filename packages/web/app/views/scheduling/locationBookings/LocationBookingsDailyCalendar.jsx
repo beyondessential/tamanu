@@ -336,48 +336,6 @@ export const LocationBookingsDailyCalendar = ({
 
   const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(selectedDate);
 
-
-  // Helper function to find assigned user for a time slot
-  const getAssignedUserForSlot = (locationId, slotIndex) => {
-    if (!bookingSlots || slotIndex >= bookingSlots.length) return null;
-
-    const locationAssignments = assignmentsByLocation[locationId] || [];
-    const slot = bookingSlots[slotIndex];
-
-    const assignment = locationAssignments.find(assignment => {
-      const assignmentStart = parseISO(assignment.startTime);
-      const assignmentEnd = parseISO(assignment.endTime);
-
-      // Check if assignment overlaps with this slot
-      return assignmentStart < slot.end && assignmentEnd > slot.start;
-    });
-
-    return assignment?.user;
-  };
-
-  const handleCellClick = (locationId, slotIndex) => {
-    if (!bookingSlots || slotIndex >= bookingSlots.length) return;
-
-    const slot = bookingSlots[slotIndex];
-    const assignedUser = getAssignedUserForSlot(locationId, slotIndex);
-
-    setSelectedTimeCell({ locationId, slotIndex });
-
-    updateSelectedCell({ locationId, date: slot.start });
-
-    const initialValues = {
-      locationId,
-      startDate: toDateString(slot.start),
-    };
-
-    // Add clinician if user clicked on allocated time
-    if (assignedUser) {
-      initialValues.clinicianId = assignedUser.id;
-    }
-
-    openBookingForm(initialValues);
-  };
-
   // Generate hourly time slots based on booking slot time range
   const timeSlots = useMemo(() => {
     if (!bookingSlots || bookingSlots.length === 0) {
@@ -406,6 +364,47 @@ export const LocationBookingsDailyCalendar = ({
   }, [bookingSlots, selectedDate]);
   
   const hourCount = timeSlots.length;
+
+  // Helper function to find assigned user for a time slot
+  const getAssignedUserForSlot = (locationId, slotIndex) => {
+    if (!timeSlots || slotIndex >= timeSlots.length) return null;
+
+    const locationAssignments = assignmentsByLocation[locationId] || [];
+    const slot = timeSlots[slotIndex];
+
+    const assignment = locationAssignments.find(assignment => {
+      const assignmentStart = parseISO(assignment.startTime);
+      const assignmentEnd = parseISO(assignment.endTime);
+
+      // Check if assignment overlaps with this slot
+      return assignmentStart < slot.end && assignmentEnd > slot.start;
+    });
+
+    return assignment?.user;
+  };
+
+  const handleCellClick = (locationId, slotIndex) => {
+    if (!timeSlots || slotIndex >= timeSlots.length) return;
+
+    const slot = timeSlots[slotIndex];
+    const assignedUser = getAssignedUserForSlot(locationId, slotIndex);
+
+    setSelectedTimeCell({ locationId, slotIndex });
+
+    updateSelectedCell({ locationId, date: slot.start });
+
+    const initialValues = {
+      locationId,
+      startDate: toDateString(slot.start),
+    };
+
+    // Add clinician if user clicked on allocated time
+    if (assignedUser) {
+      initialValues.clinicianId = assignedUser.id;
+    }
+
+    openBookingForm(initialValues);
+  };
 
   // Helper function to calculate appointment position and height
   const getAppointmentStyle = appointment => {
