@@ -38,7 +38,7 @@ const getRefreshToken = async (models, { refreshSecret, userId, deviceId }) => {
     ),
   ]);
 
-  // Extract expiry as set by jwt.sign
+  // Extract expiry as set by jose.SignJWT
   const { exp } = jose.decodeJwt(refreshToken);
   await RefreshToken.upsert(
     {

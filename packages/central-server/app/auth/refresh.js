@@ -114,7 +114,7 @@ export const refresh = asyncHandler(async (req, res) => {
       ...(!absoluteExpiration && { expiresIn: refreshTokenDuration }),
     },
   );
-  // Extract expiry as set by jwt.sign
+  // Extract expiry as set by jose.SignJWT
   const { exp } = jose.decodeJwt(newRefreshToken);
 
   await store.models.RefreshToken.upsert(
