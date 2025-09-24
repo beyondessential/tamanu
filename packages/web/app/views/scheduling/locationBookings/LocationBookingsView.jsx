@@ -156,7 +156,7 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationBookingsTopBar data-testid="locationbookingstopbar-0w60">
-        <ViewTypeToggle data-testid="viewtypetoggle-main" disabled={isDrawerOpen} />
+        <ViewTypeToggle data-testid="viewtypetoggle-main" />
         <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
           <Button onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">

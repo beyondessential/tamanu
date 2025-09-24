@@ -56,7 +56,6 @@ const AnimatedBackground = styled('div')`
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
 export const ViewTypeToggle = props => {
-  const { disabled } = props;
   const { viewType = VIEW_TYPES.DAILY, setViewType } = useLocationBookingsContext();
   const { facilityId } = useAuth();
 
@@ -68,7 +67,6 @@ export const ViewTypeToggle = props => {
     });
 
   const handleViewChange = () => {
-    if (disabled) return;
     const newViewType = viewType === VIEW_TYPES.WEEKLY ? VIEW_TYPES.DAILY : VIEW_TYPES.WEEKLY;
     setViewType(newViewType);
 
@@ -89,7 +87,6 @@ export const ViewTypeToggle = props => {
       <ToggleButton
         aria-checked={viewType === VIEW_TYPES.DAILY}
         data-testid="daily-view-button"
-        disabled={disabled}
       >
         <TranslatedText
           stringId="locationBooking.calendar.view.daily"
@@ -100,7 +97,6 @@ export const ViewTypeToggle = props => {
       <ToggleButton
         aria-checked={viewType === VIEW_TYPES.WEEKLY}
         data-testid="weekly-view-button"
-        disabled={disabled}
       >
         <TranslatedText
           stringId="locationBooking.calendar.view.weekly"
