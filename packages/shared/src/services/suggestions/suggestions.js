@@ -72,9 +72,7 @@ const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
 
 // Overwrite the default search column with translation if it exists
 const getTranslationAttributes = (endpoint, modelName, searchColumn = 'name') => ({
-  include: [
-    [translationCoalesceLiteral(endpoint, modelName, searchColumn), camelCase(searchColumn)],
-  ],
+  include: [[translationCoalesceLiteral(endpoint, modelName, searchColumn), searchColumn]],
 });
 
 export const suggestions = express.Router();
@@ -996,7 +994,7 @@ createSuggester(
     mapper: encounter => ({
       id: encounter.id,
       patientId: encounter.patientId,
-      encounterType: encounter.encounterType,
+      encounterType: encounter.get('encounter_type'),
       startDate: encounter.startDate,
       endDate: encounter.endDate,
       location: encounter.location,
