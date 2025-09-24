@@ -1,5 +1,5 @@
-import { endOfDay, startOfDay, format, addHours, parseISO } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import { endOfDay, startOfDay, format, addHours, parseISO, setHours, setMinutes, differenceInMinutes } from 'date-fns';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -90,7 +90,7 @@ const AppointmentWrapper = styled.div`
   &::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 1px;
     left: 0;
     right: 0;
     bottom: 1px;
@@ -100,9 +100,9 @@ const AppointmentWrapper = styled.div`
   }
 
   .appointment-tile {
-    height: calc(100% - 5px);
+    height: calc(100% - 4px);
     margin-top: 2px;
-    margin-bottom: 3px;
+    margin-bottom: 2px;
     width: 100%;
     font-size: 11px;
     padding-inline: 5px;
@@ -182,18 +182,12 @@ const TimeGridCell = styled(Box)`
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: ${Colors.primary10};
+    background-color: ${Colors.veryLightBlue};
   }
 
   &.selected {
     border: 1px solid ${Colors.primary};
   }
-
-  ${props =>
-    props.$hasAppointment &&
-    `
-    pointer-events: none;
-  `}
 `;
 
 const LoadingSkeleton = styled(Skeleton).attrs({
@@ -342,23 +336,6 @@ export const LocationBookingsDailyCalendar = ({
 
   const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(selectedDate);
 
-  // Helper function to check if a time slot has an appointment
-  const hasAppointmentInSlot = (locationId, slotIndex) => {
-    if (!bookingSlots || slotIndex >= bookingSlots.length) return false;
-
-    const locationAppointments = appointmentsByLocation[locationId] || [];
-    const slot = bookingSlots[slotIndex];
-
-    return locationAppointments.some(appointment => {
-      const appointmentStart = parseISO(appointment.startTime);
-      const appointmentEnd = appointment.endTime
-        ? parseISO(appointment.endTime)
-        : addHours(appointmentStart, 1);
-
-      // Check if appointment overlaps with this slot
-      return appointmentStart < slot.end && appointmentEnd > slot.start;
-    });
-  };
 
   // Helper function to find assigned user for a time slot
   const getAssignedUserForSlot = (locationId, slotIndex) => {
@@ -390,8 +367,7 @@ export const LocationBookingsDailyCalendar = ({
 
     const initialValues = {
       locationId,
-      startTime: toDateTimeString(slot.start),
-      endTime: toDateTimeString(slot.end),
+      startDate: toDateString(slot.start),
     };
 
     // Add clinician if user clicked on allocated time
@@ -402,44 +378,50 @@ export const LocationBookingsDailyCalendar = ({
     openBookingForm(initialValues);
   };
 
-  const timeSlots = bookingSlots || [];
+  // Generate hourly time slots based on booking slot time range
+  const timeSlots = useMemo(() => {
+    if (!bookingSlots || bookingSlots.length === 0) {
+      // Fallback to 24-hour schedule if no booking slots
+      const slots = [];
+      for (let hour = 0; hour < 24; hour++) {
+        const slotTime = setMinutes(setHours(selectedDate, hour), 0);
+        slots.push({ start: slotTime, end: addHours(slotTime, 1) });
+      }
+      return slots;
+    }
+    
+    // Use booking slots range but create 1-hour increments
+    const startTime = bookingSlots[0].start;
+    const endTime = bookingSlots[bookingSlots.length - 1].end;
+    const slots = [];
+    
+    let currentHour = startTime;
+    while (currentHour < endTime) {
+      const nextHour = addHours(currentHour, 1);
+      slots.push({ start: currentHour, end: nextHour });
+      currentHour = nextHour;
+    }
+    
+    return slots;
+  }, [bookingSlots, selectedDate]);
+  
   const hourCount = timeSlots.length;
 
   // Helper function to calculate appointment position and height
   const getAppointmentStyle = appointment => {
-    if (!bookingSlots || bookingSlots.length === 0) return { top: 0, height: 70 };
+    if (!timeSlots || timeSlots.length === 0) return { top: 0, height: 70 };
 
     const startTime = parseISO(appointment.startTime);
     const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
-    
-    // Find which slot(s) the appointment overlaps with
-    let startSlotIndex = -1;
-    let endSlotIndex = -1;
-    
-    for (let i = 0; i < bookingSlots.length; i++) {
-      const slot = bookingSlots[i];
-      
-      // Find the first slot that the appointment starts in or overlaps with
-      if (startSlotIndex === -1 && startTime < slot.end && endTime > slot.start) {
-        startSlotIndex = i;
-      }
-      
-      // Find the last slot that the appointment ends in or overlaps with
-      if (startTime < slot.end && endTime > slot.start) {
-        endSlotIndex = i;
-      }
-    }
-    
-    // Fallback if appointment doesn't overlap with any slots
-    if (startSlotIndex === -1 || endSlotIndex === -1) {
-      return { top: 0, height: 70 };
-    }
-    
-    // Calculate position based on slot grid (70px per slot)
-    const slotHeight = 70;
-    const top = startSlotIndex * slotHeight;
-    const slotsSpanned = endSlotIndex - startSlotIndex + 1;
-    const height = Math.max(30, slotsSpanned * slotHeight);
+    const dayStart = timeSlots[0].start; // Start of first hour slot
+
+    // Calculate position based on minutes from day start
+    const startOffset = differenceInMinutes(startTime, dayStart);
+    const duration = differenceInMinutes(endTime, startTime);
+
+    const pixelsPerMinute = 70 / 60; // 70px per hour = 1.167px per minute
+    const top = Math.max(0, startOffset * pixelsPerMinute);
+    const height = Math.max(20, duration * pixelsPerMinute); // Minimum 20px height
 
     return { top, height };
   };
@@ -512,7 +494,6 @@ export const LocationBookingsDailyCalendar = ({
                 <LocationSchedule>
                   {/* Time slot background grid */}
                   {timeSlots.map((_, slotIndex) => {
-                    const hasAppointment = hasAppointmentInSlot(location.id, slotIndex);
                     const isSelected =
                       selectedTimeCell?.locationId === location.id &&
                       selectedTimeCell?.slotIndex === slotIndex;
@@ -520,7 +501,6 @@ export const LocationBookingsDailyCalendar = ({
                     return (
                       <TimeGridCell
                         key={slotIndex}
-                        $hasAppointment={hasAppointment}
                         className={isSelected ? 'selected' : ''}
                         sx={{
                           top: slotIndex * 70,
@@ -531,7 +511,6 @@ export const LocationBookingsDailyCalendar = ({
                         }}
                         onClick={() =>
                           canCreateAppointment &&
-                          !hasAppointment &&
                           handleCellClick(location.id, slotIndex)
                         }
                         data-testid={`time-grid-${locationIndex}-${slotIndex}`}

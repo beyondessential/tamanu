@@ -15,7 +15,6 @@ import { useLocationBookingsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
-import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
