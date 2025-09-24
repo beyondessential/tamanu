@@ -18,9 +18,10 @@ const Wrapper = styled(Box)`
   padding: 0.125rem;
   background-color: ${Colors.white};
   border-radius: calc(infinity * 1px);
-  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  border: max(0.0625rem, 1px) solid ${Colors.primary};
   user-select: none;
-  margin-right: 0.275rem;
+  margin-right: 16px;
+  margin-inline-end: auto;
 `;
 
 const ToggleButton = styled('button')`
@@ -34,7 +35,6 @@ const ToggleButton = styled('button')`
   text-align: center;
   font-weight: 500;
   font-family: inherit;
-  font-size: 0.75rem;
   transition: color 0.3s cubic-bezier(0.4, 0, 0.28, 1.13);
   &[aria-checked='true'] {
     color: ${Colors.white};

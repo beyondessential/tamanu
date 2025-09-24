@@ -39,9 +39,11 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
 })`
   h3 {
     min-width: 78px;
+    flex: 0;
   }
   .MuiToolbar-root {
-    padding-inline: 20px;
+    justify-content: flex-start;
+    gap: 1rem;
   }
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;
@@ -69,10 +71,6 @@ const CalendarInnerWrapper = styled.div`
   flex: 1;
   overflow: auto;
   border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
-`;
-
-const NewBookingButton = styled(Button)`
-  margin-inline-start: 1rem;
 `;
 
 const EmptyStateLabel = styled(Typography).attrs({
@@ -161,14 +159,14 @@ export const LocationBookingsView = () => {
         <ViewTypeToggle data-testid="viewtypetoggle-main" disabled={isDrawerOpen} />
         <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
-          <NewBookingButton onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
+          <Button onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
             <PlusIcon data-testid="plusicon-ufmc" />
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
               data-testid="translatedtext-feur"
             />
-          </NewBookingButton>
+          </Button>
         )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
