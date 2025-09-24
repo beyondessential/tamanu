@@ -20,7 +20,7 @@ const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
 
 export const PrivateRoute = (props: RouteProps) => {
   const { component: Component, ...restProps } = props;
-  const { data: user, isError, isPending } = useCurrentUserQuery();
+  const { data: user, isError, isPending, error } = useCurrentUserQuery();
 
   return (
     <Route
@@ -30,6 +30,9 @@ export const PrivateRoute = (props: RouteProps) => {
           return <CircularProgress />;
         }
 
+        if (isError && (error as any)?.status === 401) {
+          return <Redirect to="/login?reason=expired" />;
+        }
         if (isError || !user) {
           return <Redirect to="/login" />;
         }
