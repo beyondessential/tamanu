@@ -43,6 +43,13 @@ describe('MobileSyncManager', () => {
       maxRecordsPerInsertBatch: 100,
       maxRecordsPerSnapshotBatch: 1000,
       useUnsafeSchemaForInitialSync: false,
+      dynamicLimiter: {
+        initialLimit: 10000,
+        minLimit: 1000,
+        maxLimit: 40000,
+        maxLimitChangePerPage: 0.3,
+        optimalTimePerPage: 500,
+      },
     }),
   };
   let mobileSyncManager;

@@ -8,6 +8,7 @@ import {
 import { CentralServerConnection } from './CentralServerConnection';
 import axios from 'axios';
 import { sleepAsync } from './utils';
+import { ERROR_TYPE } from '@tamanu/errors';
 
 jest.mock('~/infra/db', () => ({
   Database: {
@@ -276,7 +277,15 @@ describe('CentralServerConnection', () => {
        * 3. Third call will be the original request with new token
        */
       mockAxiosRequest
-        .mockRejectedValueOnce({ response: { status: 401 } })
+        .mockRejectedValueOnce({
+          response: {
+            data: {
+              status: 401,
+              type: ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+              title: 'Invalid token',
+            },
+          },
+        })
         .mockResolvedValueOnce({ data: { token: mockNewToken, refreshToken: mockNewRefreshToken } })
         .mockResolvedValueOnce({ data: 'test-result' });
       const mockPath = 'test-path';
@@ -355,7 +364,11 @@ describe('CentralServerConnection', () => {
     });
 
     it('should not call refresh if skipAttemptRefresh is true', async () => {
-      mockAxiosRequest.mockRejectedValueOnce({ response: { status: 401 } });
+      mockAxiosRequest.mockRejectedValueOnce({
+        response: {
+          data: { status: 401, type: ERROR_TYPE.AUTH_TOKEN_INVALID, title: 'Invalid token' },
+        },
+      });
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       await expect(
         centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
@@ -367,10 +380,11 @@ describe('CentralServerConnection', () => {
       const mockUpdateUrl = 'test-update-url';
       mockAxiosRequest.mockRejectedValueOnce({
         response: {
-          status: 400,
           data: {
-            error: {
-              name: 'InvalidClientVersion',
+            status: 400,
+            type: ERROR_TYPE.CLIENT_INCOMPATIBLE,
+            title: 'Client incompatible',
+            extra: {
               updateUrl: mockUpdateUrl,
             },
           },

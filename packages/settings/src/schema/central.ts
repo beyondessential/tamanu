@@ -61,6 +61,12 @@ export const centralSettings = {
       description: 'Settings related to mobile sync',
       highRisk: true,
       properties: {
+        useUnsafeSchemaForInitialSync: {
+          description:
+            'Use unsafe schema for initial sync which is faster but should be turned off if large initial syncs over 3 million records',
+          type: yup.boolean(),
+          defaultValue: true,
+        },
         maxBatchesToKeepInMemory: {
           description:
             'The number of batches to keep in memory during saveChanges, currently equal to n * pullIncomingChanges.maxRecordsPerSnapshotBatch',
@@ -69,6 +75,11 @@ export const centralSettings = {
         },
         maxRecordsPerInsertBatch: {
           description: 'The number of records to insert in a single batch',
+          type: yup.number().positive().integer(),
+          defaultValue: 2000,
+        },
+        maxRecordsPerUpdateBatch: {
+          description: 'The number of records to update in a single batch',
           type: yup.number().positive().integer(),
           defaultValue: 2000,
         },
