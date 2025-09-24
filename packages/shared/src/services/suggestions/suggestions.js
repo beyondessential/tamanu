@@ -61,10 +61,10 @@ const translationCoalesce = (endpoint, modelName, searchColumn) => {
   if (endpoint === 'encounter') {
     // For encounter endpoint, fall back to ENCOUNTER_TYPE_LABELS mapping using JSON
     const encounterLabelsJson = JSON.stringify(ENCOUNTER_TYPE_LABELS);
-    
+
     return `COALESCE(${getTranslationSubquery(endpoint, modelName)}, ('${encounterLabelsJson}'::jsonb ->> "${modelName}"."${searchColumn}"))`;
   }
-  
+
   return `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`;
 };
 const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
@@ -994,7 +994,7 @@ createSuggester(
     mapper: encounter => ({
       id: encounter.id,
       patientId: encounter.patientId,
-      encounterType: encounter.get('encounter_type'),
+      encounterType: encounter.encounterType,
       startDate: encounter.startDate,
       endDate: encounter.endDate,
       location: encounter.location,
