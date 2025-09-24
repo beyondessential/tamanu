@@ -540,9 +540,14 @@ export class User extends Model {
       });
     }
 
+    // Get the user as a plain object
+    const plainUser = user.get({ plain: true });
+    // Set the prototype to the User constructor (to perform permission checks)
+    Object.setPrototypeOf(plainUser, { constructor: { name: 'User' } });
+
     return {
       token,
-      user: user.get({ plain: true }),
+      user: plainUser,
       device,
       facility,
     };
