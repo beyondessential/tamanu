@@ -46,14 +46,16 @@ describe('Auth', () => {
     const { Role, User, Facility, Device } = store.models;
     const [, user] = await Promise.all([
       Role.create(fake(Role, { id: TEST_ROLE_ID })),
-      ...USERS.map((r) => User.create(r)),
+      ...USERS.map(r => User.create(r)),
       Facility.create(TEST_FACILITY),
     ]);
     userId = user.id;
-    await Device.create(fake(Device, {
-      id: TEST_DEVICE_ID,
-      registeredById: user.id,
-    }));
+    await Device.create(
+      fake(Device, {
+        id: TEST_DEVICE_ID,
+        registeredById: user.id,
+      }),
+    );
   });
 
   beforeEach(async () => {
@@ -195,12 +197,12 @@ describe('Auth', () => {
           deviceId: TEST_DEVICE_ID,
           outcome: LOGIN_ATTEMPT_OUTCOMES.LOCKED,
         });
-  
+
         const response = await baseApp.post('/api/resetPassword').send({
           email: TEST_EMAIL,
           deviceId: TEST_DEVICE_ID,
         });
-  
+
         const otl = await store.models.OneTimeLogin.findOne({
           include: [
             {
@@ -209,8 +211,9 @@ describe('Auth', () => {
             },
           ],
         });
-  
-        expect(response).toHaveSucceeded();
+
+        expect(response).not.toHaveSucceeded();
+        expect(response._body).toHaveProperty('type', '/problems/rate-limited');
         expect(otl).toBeNull();
       });
     });
