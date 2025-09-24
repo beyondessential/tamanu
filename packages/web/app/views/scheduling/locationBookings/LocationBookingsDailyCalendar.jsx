@@ -277,6 +277,7 @@ export const LocationBookingsDailyCalendar = ({
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
     selectedCell,
     updateSelectedCell,
+    viewType,
   } = useLocationBookingsContext();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
@@ -297,6 +298,7 @@ export const LocationBookingsDailyCalendar = ({
       clinicianId,
       bookingTypeId,
       patientNameOrId,
+      view: viewType,
     },
     { keepPreviousData: true },
   );

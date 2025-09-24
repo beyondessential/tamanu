@@ -40,6 +40,7 @@ export const LocationInput = React.memo(
     isMulti = false,
     'data-testid': dataTestId,
     showAllLocations = false,
+    locationGroupBaseQueryParameters = {},
   }) => {
     const { facilityId } = useAuth();
     const [groupId, setGroupId] = useState('');
@@ -54,13 +55,16 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: { 
-        ...(facilityId && facilityId.trim() && { filterByFacility: true, facilityId }), 
+      baseQueryParameters: {
+        ...(facilityId && facilityId.trim() && { filterByFacility: true, facilityId }),
         ...(groupId && { locationGroupId: groupId })
       },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
-      baseQueryParameters: (facilityId && facilityId.trim()) ? { facilityId } : {},
+      baseQueryParameters: {
+        ...(facilityId && facilityId.trim() && { facilityId }),
+        ...locationGroupBaseQueryParameters,
+      },
     });
     const { data: location } = useLocationSuggestion(locationId);
     const { initialValues } = form;

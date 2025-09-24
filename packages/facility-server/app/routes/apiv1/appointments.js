@@ -359,7 +359,7 @@ appointments.post(
     req.checkPermission('create', 'Appointment');
 
     const { models, body } = req;
-    const { startTime, endTime, locationId, patientId } = body;
+    const { startTime, endTime, locationId, patientId, procedureTypeIds } = body;
     const { Appointment, PatientFacility, Location } = models;
 
     try {
@@ -389,7 +389,13 @@ appointments.post(
           transaction,
         });
 
-        return await Appointment.create(body, { transaction });
+        const appointment = await Appointment.create(body, { transaction });
+
+        if (procedureTypeIds) {
+          await appointment.setProcedureTypes(procedureTypeIds);
+        }
+
+        return appointment;
       });
 
       res.status(201).send(result);
@@ -407,7 +413,7 @@ appointments.put(
     const { models, body, params, query } = req;
     const { id } = params;
     const { skipConflictCheck = false } = query;
-    const { startTime, endTime, locationId } = body;
+    const { startTime, endTime, locationId, procedureTypeIds } = body;
     const { Appointment } = models;
 
     try {
@@ -440,6 +446,9 @@ appointments.put(
         }
 
         const updatedRecord = await existingBooking.update(body, { transaction });
+
+        await updatedRecord.setProcedureTypes(procedureTypeIds);
+
         return updatedRecord;
       });
 
