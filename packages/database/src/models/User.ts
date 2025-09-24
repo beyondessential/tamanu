@@ -361,7 +361,7 @@ export class User extends Model {
     password: z.string().min(1),
     facilityIds: z.array(z.string().min(1)).min(1).optional(),
     deviceId: z.string().optional(),
-    scopes: z.array(z.enum(DEVICE_SCOPES)).optional(),
+    scopes: z.array(z.nativeEnum(DEVICE_SCOPES)).optional(),
     clientHeader: z.string().min(1).optional(),
   });
 

@@ -19,7 +19,8 @@ describe('apiKeys issue', () => {
 
     // handle off-by-one error when the second ticks over
     const expectedExp = Math.floor(Date.now() / 1000) + 24 * 60 * 60;
-    expect(result.exp).toBeLessThanOrEqual(expectedExp);
-    expect(result.exp).toBeGreaterThanOrEqual(expectedExp - 1);
+    const expValue = result.payload?.exp || result.exp;
+    expect(expValue).toBeLessThanOrEqual(expectedExp);
+    expect(expValue).toBeGreaterThanOrEqual(expectedExp - 1);
   });
 });
