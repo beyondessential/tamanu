@@ -15,6 +15,7 @@ import { useLocationBookingsQuery } from '../../../api/queries';
 import { TranslatedText } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { Colors } from '../../../constants';
+import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { CarouselComponents as CarouselGrid } from './CarouselComponents';
 import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
@@ -115,9 +116,15 @@ export const LocationBookingsCalendar = ({
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  const filteredLocations = areNonLocationFiltersActive
+  let filteredLocations = areNonLocationFiltersActive
     ? locations?.filter((location) => appointmentsByLocation[location.id])
     : locations;
+
+  // Only show locations that are bookable for 'all' views or specifically for 'weekly' view
+  filteredLocations = filteredLocations?.filter(location => {
+    const isBookable = location.locationGroup?.isBookable;
+    return isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.WEEKLY;
+  });
 
   return (
     <>

@@ -5,8 +5,6 @@ import {
   addHours,
   differenceInMinutes,
   parseISO,
-  setHours,
-  setMinutes,
 } from 'date-fns';
 import React from 'react';
 import styled from 'styled-components';
@@ -23,9 +21,11 @@ import { TranslatedText, TranslatedReferenceData } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
+import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { partitionAppointmentsByLocation } from './utils';
 import { useAuth } from '../../../contexts/Auth';
+import { useBookingSlots } from '../../../hooks/useBookingSlots';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -179,6 +179,29 @@ const ErrorText = styled(StatusText)`
   color: ${Colors.alert};
 `;
 
+const TimeGridCell = styled(Box)`
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: ${Colors.white};
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: ${Colors.primary10};
+  }
+
+  &.selected {
+    border: 1px solid ${Colors.primary};
+  }
+
+  ${props => props.$hasAppointment && `
+    pointer-events: none;
+  `}
+`;
+
 const LoadingSkeleton = styled(Skeleton).attrs({
   animation: 'wave',
   variant: 'rectangular',
@@ -257,7 +280,10 @@ export const LocationBookingsDailyCalendar = ({
   const { ability } = useAuth();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
+    updateSelectedCell,
   } = useLocationBookingsContext();
+  
+  const [selectedTimeCell, setSelectedTimeCell] = React.useState(null);
 
   const { data: locations } = locationsQuery;
 
@@ -299,7 +325,7 @@ export const LocationBookingsDailyCalendar = ({
     assignmentsByLocation[locationId].push(assignment);
   });
 
-  // Filter locations based on location group filter
+  // Filter locations based on location group filter and bookable setting
   let filteredLocations = locations || [];
 
   // Apply location group filter if set
@@ -309,39 +335,106 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
 
+  // Only show locations that are bookable for 'all' views or specifically for 'daily' view
+  filteredLocations = filteredLocations.filter(location => {
+    const isBookable = location.locationGroup?.isBookable;
+    return isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.DAILY;
+  });
+
   const locationsToShow = filteredLocations;
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  // Generate 24-hour time slots (12:00 AM to 11:00 PM)
-  const timeSlots = React.useMemo(() => {
-    const slots = [];
-    for (let hour = 0; hour < 24; hour++) {
-      const timeSlot = setMinutes(setHours(selectedDate, hour), 0);
-      slots.push(timeSlot);
-    }
-    return slots;
-  }, [selectedDate]);
+  // Get booking slots from facility settings
+  const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(selectedDate);
 
+  // Helper function to check if a time slot has an appointment
+  const hasAppointmentInSlot = (locationId, slotIndex) => {
+    if (!bookingSlots || slotIndex >= bookingSlots.length) return false;
+    
+    const locationAppointments = appointmentsByLocation[locationId] || [];
+    const slot = bookingSlots[slotIndex];
+    
+    return locationAppointments.some(appointment => {
+      const appointmentStart = parseISO(appointment.startTime);
+      const appointmentEnd = appointment.endTime ? parseISO(appointment.endTime) : addHours(appointmentStart, 1);
+      
+      // Check if appointment overlaps with this slot
+      return appointmentStart < slot.end && appointmentEnd > slot.start;
+    });
+  };
+
+  // Helper function to find assigned user for a time slot
+  const getAssignedUserForSlot = (locationId, slotIndex) => {
+    if (!bookingSlots || slotIndex >= bookingSlots.length) return null;
+    
+    const locationAssignments = assignmentsByLocation[locationId] || [];
+    const slot = bookingSlots[slotIndex];
+    
+    const assignment = locationAssignments.find(assignment => {
+      const assignmentStart = parseISO(assignment.startTime);
+      const assignmentEnd = parseISO(assignment.endTime);
+      
+      // Check if assignment overlaps with this slot
+      return assignmentStart < slot.end && assignmentEnd > slot.start;
+    });
+    
+    return assignment?.user;
+  };
+
+  // Handle cell click
+  const handleCellClick = (locationId, slotIndex) => {
+    if (!bookingSlots || slotIndex >= bookingSlots.length) return;
+    
+    const slot = bookingSlots[slotIndex];
+    const assignedUser = getAssignedUserForSlot(locationId, slotIndex);
+    
+    // Update selected cell state for visual feedback
+    setSelectedTimeCell({ locationId, slotIndex });
+    
+    // Update the location booking context
+    updateSelectedCell({ locationId, date: slot.start });
+    
+    // Prepare initial values for the booking form
+    // Convert Date objects to ISO strings as expected by the form
+    const initialValues = {
+      locationId,
+      startTime: toDateTimeString(slot.start),
+      endTime: toDateTimeString(slot.end),
+    };
+    
+    // Add clinician if user clicked on allocated time
+    if (assignedUser) {
+      initialValues.clinicianId = assignedUser.id;
+    }
+    
+    // Open booking form
+    openBookingForm(initialValues);
+  };
+
+  // Use booking slots from facility settings instead of 24-hour schedule
+  const timeSlots = bookingSlots || [];
   const hourCount = timeSlots.length;
 
   // Helper function to calculate appointment position and height
   const getAppointmentStyle = appointment => {
+    if (!bookingSlots || bookingSlots.length === 0) return { top: 0, height: 70 };
+    
     const startTime = parseISO(appointment.startTime);
     const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
-    const dayStart = setMinutes(setHours(selectedDate, 0), 0); // Start at 12:00 AM
+    const dayStart = bookingSlots[0].start; // Start at first booking slot
 
     const startOffset = differenceInMinutes(startTime, dayStart);
     const duration = differenceInMinutes(endTime, startTime);
 
-    const pixelsPerMinute = 70 / 60; // 70px per hour
+    const pixelsPerMinute = 70 / 60; // 70px per slot (assuming 1 hour slots)
     const top = Math.max(0, startOffset * pixelsPerMinute);
     const height = Math.max(30, duration * pixelsPerMinute); // Minimum 30px height
 
     return { top, height };
   };
 
-  if (isLoading || isAssignmentsLoading) {
+  if (isLoading || isAssignmentsLoading || isBookingSlotsLoading) {
     return <LoadingSkeleton data-testid="loadingskeleton-daily" />;
   }
 
@@ -390,7 +483,7 @@ export const LocationBookingsDailyCalendar = ({
             {/* Time slots */}
             {timeSlots.map((slot, index) => (
               <TimeSlot key={index} data-testid={`time-slot-${index}`}>
-                {format(slot, 'h:mm a')}
+                {format(slot.start, 'h:mm a')}
               </TimeSlot>
             ))}
           </TimeColumn>
@@ -408,24 +501,28 @@ export const LocationBookingsDailyCalendar = ({
 
                 <LocationSchedule>
                   {/* Time slot background grid */}
-                  {timeSlots.map((_, slotIndex) => (
-                    <Box
-                      key={slotIndex}
-                      sx={{
-                        position: 'absolute',
-                        top: slotIndex * 70,
-                        left: 0,
-                        right: 0,
-                        height: 70,
-                        background: Colors.white,
-                        borderBlockEnd:
-                          slotIndex < timeSlots.length - 1
-                            ? `max(0.0625rem, 1px) solid ${Colors.outline}`
-                            : 'none',
-                      }}
-                      data-testid={`time-grid-${locationIndex}-${slotIndex}`}
-                    />
-                  ))}
+                  {timeSlots.map((_, slotIndex) => {
+                    const hasAppointment = hasAppointmentInSlot(location.id, slotIndex);
+                    const isSelected = selectedTimeCell?.locationId === location.id && 
+                                       selectedTimeCell?.slotIndex === slotIndex;
+                    
+                    return (
+                      <TimeGridCell
+                        key={slotIndex}
+                        $hasAppointment={hasAppointment}
+                        className={isSelected ? 'selected' : ''}
+                        sx={{
+                          top: slotIndex * 70,
+                          borderBlockEnd:
+                            slotIndex < timeSlots.length - 1
+                              ? `max(0.0625rem, 1px) solid ${Colors.outline}`
+                              : 'none',
+                        }}
+                        onClick={() => canCreateAppointment && !hasAppointment && handleCellClick(location.id, slotIndex)}
+                        data-testid={`time-grid-${locationIndex}-${slotIndex}`}
+                      />
+                    );
+                  })}
 
                   {/* Appointments positioned by time */}
                   {locationAppointments.map((appointment, appointmentIndex) => {
