@@ -54,10 +54,10 @@ build_server() {
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  remove_irrelevant_packages "$package"
-
   # build the world
   npm run build
+
+  remove_irrelevant_packages "$package"
 
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
