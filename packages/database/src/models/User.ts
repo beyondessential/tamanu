@@ -510,7 +510,7 @@ export class User extends Model {
       facilityId: z.string().min(1).optional(),
     });
 
-    const { userId, deviceId, facilityId } = await TokenPayload.parseAsync(contents).catch(
+    const { userId, deviceId, facilityId } = await TokenPayload.parseAsync(contents.payload).catch(
       error => {
         throw new InvalidTokenError('Invalid token payload').withCause(error);
       },
