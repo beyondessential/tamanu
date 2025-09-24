@@ -16,7 +16,7 @@ import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
 
-const jwtSecretKey = secret || crypto.randomUUID();
+const jwtSecretKey = secret || crypto.randomBytes(32).toString('hex');
 
 export async function buildToken(user, facilityId, expiresIn) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
