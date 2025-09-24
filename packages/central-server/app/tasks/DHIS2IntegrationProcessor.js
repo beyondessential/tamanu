@@ -1,4 +1,5 @@
 import config from 'config';
+import { pick } from 'lodash';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 
@@ -34,6 +35,17 @@ const AUDIT_STATUSES = {
   WARNING: 'warning',
 };
 
+export const LOG_FIELDS = [
+  'reportId',
+  'status',
+  'message',
+  'imported',
+  'updated',
+  'ignored',
+  'deleted',
+  'conflicts',
+];
+
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
     return 'DHIS2IntegrationProcessor';
@@ -56,14 +68,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       ...importCount,
     });
 
-    const logEntryPlain = await logEntry.get({
-      plain: true,
-      attributes: {
-        exclude: ['createdAt', 'updatedAt', 'deletedAt'],
-      },
-    });
+    const logEntryPlain = logEntry.get({ plain: true });
 
-    return logEntryPlain;
+    return pick(logEntryPlain, LOG_FIELDS);
   }
 
   async postToDHIS2({ reportId, reportCSV }) {
