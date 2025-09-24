@@ -327,19 +327,18 @@ export const LocationBookingsDailyCalendar = ({
     assignmentsByLocation[locationId].push(assignment);
   });
 
-  let filteredLocations = locations || [];
-
-  // Apply location group filter if set
-  if (locationGroupIds?.length > 0) {
-    filteredLocations = filteredLocations.filter(location =>
-      locationGroupIds.includes(location.locationGroup?.id),
-    );
-  }
-
-  // Only show locations that are bookable for 'all' or 'daily' view
-  filteredLocations = filteredLocations.filter(location => {
+  // Filter locations based on location group and bookable view settings
+  const filteredLocations = (locations || []).filter(location => {
+    // Check location group filter if set
+    const matchesLocationGroup = locationGroupIds?.length > 0 
+      ? locationGroupIds.includes(location.locationGroup?.id)
+      : true;
+    
+    // Check bookable view setting for daily view
     const isBookable = location.locationGroup?.isBookable;
-    return isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.DAILY;
+    const isViewable = isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.DAILY;
+    
+    return matchesLocationGroup && isViewable;
   });
 
   const locationsToShow = filteredLocations;

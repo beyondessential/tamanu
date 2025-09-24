@@ -22,7 +22,7 @@ import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 import { partitionAppointmentsByLocation } from './utils';
 
-const getDisplayableDates = (date) => {
+const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
   return eachDayOfInterval({ start, end });
@@ -116,14 +116,15 @@ export const LocationBookingsCalendar = ({
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  let filteredLocations = areNonLocationFiltersActive
-    ? locations?.filter((location) => appointmentsByLocation[location.id])
-    : locations;
+  // Filter locations based on appointments (when other filters are active) and bookable view settings
+  const filteredLocations = (locations || []).filter(location => {
+    const hasAppointments = !areNonLocationFiltersActive || appointmentsByLocation[location.id];
 
-  // Only show locations that are bookable for 'all' views or specifically for 'weekly' view
-  filteredLocations = filteredLocations?.filter(location => {
     const isBookable = location.locationGroup?.isBookable;
-    return isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.WEEKLY;
+    const isViewable =
+      isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.WEEKLY;
+
+    return hasAppointments && isViewable;
   });
 
   return (
