@@ -257,6 +257,7 @@ export const LocationBookingsDailyCalendar = ({
   const { ability } = useAuth();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
+    viewType,
   } = useLocationBookingsContext();
 
   const { data: locations } = locationsQuery;
@@ -269,6 +270,7 @@ export const LocationBookingsDailyCalendar = ({
       clinicianId,
       bookingTypeId,
       patientNameOrId,
+      view: viewType,
     },
     { keepPreviousData: true },
   );
