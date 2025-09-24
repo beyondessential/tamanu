@@ -1,3 +1,5 @@
+import config from 'config';
+
 import { createTestContext } from '../utilities';
 import {
   DHIS2IntegrationProcessor,
@@ -8,9 +10,8 @@ import {
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
-import config from 'config';
 
-const mockSuccessResponse = jest.fn().mockResolvedValue({
+const mockSuccessResponse = {
   httpStatusCode: 200,
   status: 'success',
   message: 'Report sent to DHIS2 successfully',
@@ -18,9 +19,9 @@ const mockSuccessResponse = jest.fn().mockResolvedValue({
     importCount: { imported: 2, updated: 0, deleted: 0, ignored: 0 },
     conflicts: [],
   },
-});
+};
 
-const mockWarningResponse = jest.fn().mockResolvedValue({
+const mockWarningResponse = {
   httpStatusCode: 409,
   status: 'warning',
   message: 'Report sent to DHIS2 failed',
@@ -31,7 +32,7 @@ const mockWarningResponse = jest.fn().mockResolvedValue({
       { value: 'Organisation unit not found: OU456' },
     ],
   },
-});
+};
 
 describe('DHIS2 integration processor', () => {
   let ctx;
@@ -82,6 +83,7 @@ describe('DHIS2 integration processor', () => {
     await setHost('test host');
     await setReportIds([report.id]);
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
+    await models.DHIS2PushLog.truncate();
   });
 
   afterEach(() => {
@@ -182,56 +184,78 @@ describe('DHIS2 integration processor', () => {
 
   describe('DHIS2 response', () => {
     it('should log.warn individual conflicts when DHIS2 returns conflicts', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = mockWarningResponse;
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
-        report: `Test Report (${report.id})`,
-        message: 'Report sent to DHIS2 failed',
-        status: 'warning',
-        httpStatusCode: 409,
+      const pushLogs = await models.DHIS2PushLog.findAll();
+      expect(pushLogs).toHaveLength(1);
+      const pushLog = pushLogs[0].get({
+        plain: true,
+        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
       });
+
+      expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, pushLog);
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
       expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
     });
 
     it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = mockSuccessResponse;
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
 
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
-        report: `Test Report (${report.id})`,
+      const pushLogs = await models.DHIS2PushLog.findAll();
+      expect(pushLogs).toHaveLength(1);
+
+      const pushLog = pushLogs[0].get({
+        plain: true,
+        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+      });
+
+      expect(pushLog).toMatchObject({
+        status: 'success',
         imported: 2,
         updated: 0,
         deleted: 0,
         ignored: 0,
       });
+      expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, pushLog);
     });
   });
 
   describe('auditing', () => {
-    beforeEach(async () => {
-      await models.DHIS2PushLog.truncate();
-    });
-
     it('should create a failure log when cant connect to DHIS2', async () => {
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll();
       expect(pushLogs).toHaveLength(1);
-      expect(pushLogs[0]).toMatchObject({
+
+      const pushLog = pushLogs[0].get({
+        plain: true,
+        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+      });
+
+      console.log('pushLog', pushLog);
+
+      expect(pushLog).toMatchObject({
         status: 'failure',
       });
     });
 
     it('should create a warning log when conflicts are returned in DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = mockWarningResponse;
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll();
+      console.log('pushLogs', pushLogs);
       expect(pushLogs).toHaveLength(1);
-      expect(pushLogs[0]).toMatchObject({
+
+      const pushLog = pushLogs[0].get({
+        plain: true,
+        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
+      });
+
+      expect(pushLog).toMatchObject({
         status: 'warning',
         imported: 0,
         updated: 0,
@@ -242,7 +266,7 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should create a success log when report is successfully sent to DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = mockSuccessResponse;
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll();
