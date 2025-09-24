@@ -45,7 +45,6 @@ describe('DHIS2 integration processor', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
 
     logSpy = {
       info: jest.spyOn(log, 'info'),
@@ -84,14 +83,15 @@ describe('DHIS2 integration processor', () => {
     await setReportIds([report.id]);
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
     await models.DHIS2PushLog.truncate();
+    dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
   });
 
   afterEach(() => {
-    Object.values(logSpy).forEach(spy => spy.mockClear());
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
-    Object.values(logSpy).forEach(spy => spy.mockRestore());
+    jest.restoreAllMocks();
     ctx.close();
   });
 
@@ -247,7 +247,6 @@ describe('DHIS2 integration processor', () => {
       await dhis2IntegrationProcessor.run();
 
       const pushLogs = await models.DHIS2PushLog.findAll();
-      console.log('pushLogs', pushLogs);
       expect(pushLogs).toHaveLength(1);
 
       const pushLog = pushLogs[0].get({
@@ -261,7 +260,10 @@ describe('DHIS2 integration processor', () => {
         updated: 0,
         deleted: 0,
         ignored: 2,
-        conflicts: ['Data element not found: DE123', 'Organisation unit not found: OU456'],
+        conflicts: JSON.stringify([
+          'Data element not found: DE123',
+          'Organisation unit not found: OU456',
+        ]),
       });
     });
 
