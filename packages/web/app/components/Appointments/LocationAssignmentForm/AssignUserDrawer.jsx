@@ -622,11 +622,13 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
           data-testid="delete-assignment-modal"
         />
       )}
-      <ModifyRepeatingAssignmentModal
-        open={isConfirmModifyRepeatingAssignmentModalOpen}
-        onClose={() => setIsConfirmModifyRepeatingAssignmentModalOpen(false)}
-        onConfirm={handleConfirmModifyRepeatingAssignment}
-      />
+      {isConfirmModifyRepeatingAssignmentModalOpen && (
+        <ModifyRepeatingAssignmentModal
+          open
+          onClose={() => setIsConfirmModifyRepeatingAssignmentModalOpen(false)}
+          onConfirm={handleConfirmModifyRepeatingAssignment}
+        />
+      )}
       <OverlappingRepeatingAssignmentModal
         open={!!overlappingRepeatingAssignments}
         onClose={() => setOverlappingRepeatingAssignments(null)}
