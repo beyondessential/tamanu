@@ -1,3 +1,13 @@
+// SLOW UTILITIES - Original implementation without optimization
+//
+// These utilities are preserved for cases where you need the original behavior:
+// - Testing migration logic itself
+// - Debugging database-related issues
+// - Tests that require completely isolated database instances
+// - Benchmarking and performance comparisons
+//
+// For normal test usage, import from './utilities' instead for better performance.
+
 import config from 'config';
 import supertest from 'supertest';
 
@@ -8,108 +18,23 @@ import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase, initReporting } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
 
-// Global database instance for reuse across test contexts
-let globalStore = null;
-let globalInitTime = 0;
-let testCount = 0;
-
-// Fast table truncation function
-async function fastResetDatabase(store) {
-  const startTime = Date.now();
-
-  // Get all user tables (excluding system tables and critical data)
-  const [tables] = await store.sequelize.query(`
-    SELECT tablename
-    FROM pg_tables
-    WHERE schemaname = 'public'
-    AND tablename NOT IN (
-      'SequelizeMeta',
-      'migration_audit_logs',
-      'settings',
-      'reference_data',
-      'localisation'
-    )
-    ORDER BY tablename
-  `);
-
-  if (tables.length === 0) {
-    console.log('No tables to truncate');
-    return;
-  }
-
-  // Temporarily disable foreign key checks
-  await store.sequelize.query('SET session_replication_role = replica;');
-
-  try {
-    // Build list of table names for single TRUNCATE command
-    const tableNames = tables.map(({ tablename }) => `"${tablename}"`).join(', ');
-
-    if (tableNames) {
-      // Truncate all tables in one command with CASCADE
-      await store.sequelize.query(`TRUNCATE TABLE ${tableNames} RESTART IDENTITY CASCADE`);
-    }
-  } finally {
-    // Re-enable foreign key checks
-    await store.sequelize.query('SET session_replication_role = DEFAULT;');
-  }
-
-  const endTime = Date.now();
-}
-
-class MockApplicationContext {
+class SlowMockApplicationContext {
   closeHooks = [];
-  isReusedStore = false;
 
-  async init({ reuseDatabase = true } = {}) {
-    const startTime = Date.now();
-    testCount++;
-
-    if (
-      reuseDatabase &&
-      globalStore &&
-      globalStore.sequelize &&
-      !globalStore.sequelize.connectionManager.pool.destroyed
-    ) {
-      // Reuse existing database connection
-
-      this.store = globalStore;
-      this.isReusedStore = true;
-
-      // Quick reset: truncate all tables (excluding settings and reference data)
-      await fastResetDatabase(this.store);
-
-      // Settings and reference data preserved, no need to re-seed
-    } else {
-      // Create new database connection (first time or fallback)
-      const dbStartTime = Date.now();
-
-      this.store = await initDatabase({ testMode: true });
-      await seedSettings(this.store.models);
-
-      const dbEndTime = Date.now();
-      const dbInitTime = dbEndTime - dbStartTime;
-      globalInitTime = dbInitTime;
-
-      if (reuseDatabase) {
-        globalStore = this.store;
-      }
-    }
-
+  async init() {
+    this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
+    await seedSettings(this.store.models);
 
-    // Initialize reporting if enabled
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
       this.reportSchemaStores = await initReporting();
     }
-
-    // Mock email service
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -118,11 +43,7 @@ class MockApplicationContext {
         }),
       ),
     };
-
     await initIntegrations(this);
-
-    const endTime = Date.now();
-
     return this;
   }
 
@@ -134,31 +55,12 @@ class MockApplicationContext {
     for (const hook of this.closeHooks) {
       await hook();
     }
-
-    // Don't close the global database connection when reusing
-    // Only close individual connections that aren't global
-    if (!this.isReusedStore) {
-      // This was not a reused store, so we can close it
-      // But first check if it became the global store
-      if (globalStore !== this.store) {
-        await closeDatabase();
-      }
-    }
+    await closeDatabase();
   };
-
-  // Static method to force cleanup of global resources
-  static async forceCleanup() {
-    if (globalStore) {
-      await closeDatabase();
-      globalStore = null;
-      globalInitTime = 0;
-      testCount = 0;
-    }
-  }
 }
 
-export async function createTestContext(options = {}) {
-  const ctx = await new MockApplicationContext().init(options);
+export async function createSlowTestContext() {
+  const ctx = await new SlowMockApplicationContext().init();
   const { models } = ctx.store;
   const { express: expressApp, server: appServer } = await createApp(ctx);
   const baseApp = supertest.agent(appServer);
@@ -167,7 +69,7 @@ export async function createTestContext(options = {}) {
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
-    const token = await buildToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
+    const token = await buildToken({ userId: user.id }, null, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,
@@ -179,6 +81,7 @@ export async function createTestContext(options = {}) {
 
   baseApp.asRole = async role => {
     const newUser = await models.User.create(fake(models.User, { role }));
+
     return baseApp.asUser(newUser);
   };
 
@@ -258,18 +161,5 @@ export const initializeCentralSyncManagerWithContext = (ctx, config) => {
   return new TestCentralSyncManager(ctx);
 };
 
-// Global cleanup for Jest
-if (typeof afterAll !== 'undefined') {
-  afterAll(async () => {
-    await MockApplicationContext.forceCleanup();
-  });
-}
-
-process.on('SIGTERM', async () => {
-  await MockApplicationContext.forceCleanup();
-});
-
-process.on('SIGINT', async () => {
-  await MockApplicationContext.forceCleanup();
-  process.exit(0);
-});
+// Alias for backward compatibility and explicit usage
+export { createSlowTestContext as createTestContext };
