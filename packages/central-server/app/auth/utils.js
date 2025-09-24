@@ -45,7 +45,7 @@ export const getRandomU32 = () => {
 
 export const verifyToken = async (token, tokenSecret, options) => {
   const secret = createSecretKey(new TextEncoder().encode(tokenSecret));
-  return await new jose.jwtVerify(token, secret, options);
+  return await jose.jwtVerify(token, secret, options);
 };
 
 export const findUserById = async (models, id) => {
