@@ -1,12 +1,5 @@
-import {
-  endOfDay,
-  startOfDay,
-  format,
-  addHours,
-  differenceInMinutes,
-  parseISO,
-} from 'date-fns';
-import React from 'react';
+import { endOfDay, startOfDay, format, addHours, parseISO } from 'date-fns';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -108,9 +101,9 @@ const AppointmentWrapper = styled.div`
   }
 
   .appointment-tile {
-    height: calc(100% - 4px);
+    height: calc(100% - 5px);
     margin-top: 2px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
     width: 100%;
     font-size: 11px;
     padding-inline: 5px;
@@ -197,7 +190,9 @@ const TimeGridCell = styled(Box)`
     border: 1px solid ${Colors.primary};
   }
 
-  ${props => props.$hasAppointment && `
+  ${props =>
+    props.$hasAppointment &&
+    `
     pointer-events: none;
   `}
 `;
@@ -280,10 +275,17 @@ export const LocationBookingsDailyCalendar = ({
   const { ability } = useAuth();
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId, locationGroupIds },
+    selectedCell,
     updateSelectedCell,
   } = useLocationBookingsContext();
-  
-  const [selectedTimeCell, setSelectedTimeCell] = React.useState(null);
+
+  const [selectedTimeCell, setSelectedTimeCell] = useState(null);
+
+  useEffect(() => {
+    if (!selectedCell || (!selectedCell.locationId && !selectedCell.date)) {
+      setSelectedTimeCell(null);
+    }
+  }, [selectedCell]);
 
   const { data: locations } = locationsQuery;
 
@@ -325,7 +327,6 @@ export const LocationBookingsDailyCalendar = ({
     assignmentsByLocation[locationId].push(assignment);
   });
 
-  // Filter locations based on location group filter and bookable setting
   let filteredLocations = locations || [];
 
   // Apply location group filter if set
@@ -335,7 +336,7 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
 
-  // Only show locations that are bookable for 'all' views or specifically for 'daily' view
+  // Only show locations that are bookable for 'all' or 'daily' view
   filteredLocations = filteredLocations.filter(location => {
     const isBookable = location.locationGroup?.isBookable;
     return isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.DAILY;
@@ -345,20 +346,21 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  // Get booking slots from facility settings
   const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(selectedDate);
 
   // Helper function to check if a time slot has an appointment
   const hasAppointmentInSlot = (locationId, slotIndex) => {
     if (!bookingSlots || slotIndex >= bookingSlots.length) return false;
-    
+
     const locationAppointments = appointmentsByLocation[locationId] || [];
     const slot = bookingSlots[slotIndex];
-    
+
     return locationAppointments.some(appointment => {
       const appointmentStart = parseISO(appointment.startTime);
-      const appointmentEnd = appointment.endTime ? parseISO(appointment.endTime) : addHours(appointmentStart, 1);
-      
+      const appointmentEnd = appointment.endTime
+        ? parseISO(appointment.endTime)
+        : addHours(appointmentStart, 1);
+
       // Check if appointment overlaps with this slot
       return appointmentStart < slot.end && appointmentEnd > slot.start;
     });
@@ -367,69 +369,83 @@ export const LocationBookingsDailyCalendar = ({
   // Helper function to find assigned user for a time slot
   const getAssignedUserForSlot = (locationId, slotIndex) => {
     if (!bookingSlots || slotIndex >= bookingSlots.length) return null;
-    
+
     const locationAssignments = assignmentsByLocation[locationId] || [];
     const slot = bookingSlots[slotIndex];
-    
+
     const assignment = locationAssignments.find(assignment => {
       const assignmentStart = parseISO(assignment.startTime);
       const assignmentEnd = parseISO(assignment.endTime);
-      
+
       // Check if assignment overlaps with this slot
       return assignmentStart < slot.end && assignmentEnd > slot.start;
     });
-    
+
     return assignment?.user;
   };
 
-  // Handle cell click
   const handleCellClick = (locationId, slotIndex) => {
     if (!bookingSlots || slotIndex >= bookingSlots.length) return;
-    
+
     const slot = bookingSlots[slotIndex];
     const assignedUser = getAssignedUserForSlot(locationId, slotIndex);
-    
-    // Update selected cell state for visual feedback
+
     setSelectedTimeCell({ locationId, slotIndex });
-    
-    // Update the location booking context
+
     updateSelectedCell({ locationId, date: slot.start });
-    
-    // Prepare initial values for the booking form
-    // Convert Date objects to ISO strings as expected by the form
+
     const initialValues = {
       locationId,
       startTime: toDateTimeString(slot.start),
       endTime: toDateTimeString(slot.end),
     };
-    
+
     // Add clinician if user clicked on allocated time
     if (assignedUser) {
       initialValues.clinicianId = assignedUser.id;
     }
-    
-    // Open booking form
+
     openBookingForm(initialValues);
   };
 
-  // Use booking slots from facility settings instead of 24-hour schedule
   const timeSlots = bookingSlots || [];
   const hourCount = timeSlots.length;
 
   // Helper function to calculate appointment position and height
   const getAppointmentStyle = appointment => {
     if (!bookingSlots || bookingSlots.length === 0) return { top: 0, height: 70 };
-    
+
     const startTime = parseISO(appointment.startTime);
     const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
-    const dayStart = bookingSlots[0].start; // Start at first booking slot
-
-    const startOffset = differenceInMinutes(startTime, dayStart);
-    const duration = differenceInMinutes(endTime, startTime);
-
-    const pixelsPerMinute = 70 / 60; // 70px per slot (assuming 1 hour slots)
-    const top = Math.max(0, startOffset * pixelsPerMinute);
-    const height = Math.max(30, duration * pixelsPerMinute); // Minimum 30px height
+    
+    // Find which slot(s) the appointment overlaps with
+    let startSlotIndex = -1;
+    let endSlotIndex = -1;
+    
+    for (let i = 0; i < bookingSlots.length; i++) {
+      const slot = bookingSlots[i];
+      
+      // Find the first slot that the appointment starts in or overlaps with
+      if (startSlotIndex === -1 && startTime < slot.end && endTime > slot.start) {
+        startSlotIndex = i;
+      }
+      
+      // Find the last slot that the appointment ends in or overlaps with
+      if (startTime < slot.end && endTime > slot.start) {
+        endSlotIndex = i;
+      }
+    }
+    
+    // Fallback if appointment doesn't overlap with any slots
+    if (startSlotIndex === -1 || endSlotIndex === -1) {
+      return { top: 0, height: 70 };
+    }
+    
+    // Calculate position based on slot grid (70px per slot)
+    const slotHeight = 70;
+    const top = startSlotIndex * slotHeight;
+    const slotsSpanned = endSlotIndex - startSlotIndex + 1;
+    const height = Math.max(30, slotsSpanned * slotHeight);
 
     return { top, height };
   };
@@ -503,9 +519,10 @@ export const LocationBookingsDailyCalendar = ({
                   {/* Time slot background grid */}
                   {timeSlots.map((_, slotIndex) => {
                     const hasAppointment = hasAppointmentInSlot(location.id, slotIndex);
-                    const isSelected = selectedTimeCell?.locationId === location.id && 
-                                       selectedTimeCell?.slotIndex === slotIndex;
-                    
+                    const isSelected =
+                      selectedTimeCell?.locationId === location.id &&
+                      selectedTimeCell?.slotIndex === slotIndex;
+
                     return (
                       <TimeGridCell
                         key={slotIndex}
@@ -518,7 +535,11 @@ export const LocationBookingsDailyCalendar = ({
                               ? `max(0.0625rem, 1px) solid ${Colors.outline}`
                               : 'none',
                         }}
-                        onClick={() => canCreateAppointment && !hasAppointment && handleCellClick(location.id, slotIndex)}
+                        onClick={() =>
+                          canCreateAppointment &&
+                          !hasAppointment &&
+                          handleCellClick(location.id, slotIndex)
+                        }
                         data-testid={`time-grid-${locationIndex}-${slotIndex}`}
                       />
                     );
