@@ -219,6 +219,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
     }),
     {},
   );
+  settings.global = new ReadSettings(models);
   const centralServer = new CentralServerConnection({ deviceId: 'test' });
 
   context.onClose(async () => {

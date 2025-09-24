@@ -10,6 +10,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { ReadSettings } from '@tamanu/settings';
 import { version } from '../../package.json';
 import { CentralServerConnection } from '../sync';
 
@@ -136,8 +137,13 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
+    // For facility servers, settings is a map of facilityId -> ReadSettings
+    // For login, we need global settings since there's no facility context yet
+    const globalSettings =
+      settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
+
     const { central, user, localisation, allowedFacilities } =
-      await centralServerLoginWithLocalFallback(models, settings, email, password, deviceId);
+      await centralServerLoginWithLocalFallback(models, globalSettings, email, password, deviceId);
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
@@ -207,7 +213,13 @@ export const authMiddleware = async (req, res, next) => {
   try {
     const { token, user, facility, device } = await models.User.loginFromAuthorizationHeader(
       req.get('authorization'),
-      { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+      {
+        log,
+        settings: settings.global ?? settings,
+        tokenDuration,
+        tokenIssuer: canonicalHostName,
+        tokenSecret: secret,
+      },
     );
 
     if (!facility) {
