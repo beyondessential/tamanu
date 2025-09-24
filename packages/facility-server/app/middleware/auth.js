@@ -106,12 +106,19 @@ export async function centralServerLogin(models, email, password, deviceId) {
 }
 
 async function localLogin(models, settings, email, password) {
+  const {
+    auth: {
+      secret,
+      tokenDuration,
+    },
+    canonicalHostName,
+  } = config;
   const { user } = await models.User.loginFromCredential(
     {
       email,
       password,
     },
-    { log, settings },
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
   );
 
   const allowedFacilities = await user.allowedFacilities();
