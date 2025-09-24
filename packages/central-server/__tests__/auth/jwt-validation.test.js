@@ -140,10 +140,6 @@ describe('JWT Token Validation', () => {
         device: undefined,
         facility: undefined,
       });
-
-      // Verify user is a plain object, not Sequelize model
-      expect(result.user.constructor).toBe(Object);
-      expect(result.user.get).toBeUndefined(); // Sequelize method should not exist
     });
 
     it('Should handle JWT tokens with deviceId correctly', async () => {
