@@ -209,7 +209,8 @@ export async function setFacilityHandler(req, res, next) {
     // Run after auth middleware, requires valid token but no other permission
     req.flagPermissionChecked();
 
-    const hasAccess = await user.canAccessFacility(facilityId);
+    const userInstance = await req.models.User.findByPk(user.id);
+    const hasAccess = await userInstance.canAccessFacility(facilityId);
     if (!hasAccess) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
