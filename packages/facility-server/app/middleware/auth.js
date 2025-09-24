@@ -1,8 +1,9 @@
 import crypto from 'node:crypto';
-import { promisify } from 'node:util';
 import { compare } from 'bcrypt';
 import config from 'config';
-import { sign as signCallback } from 'jsonwebtoken';
+import * as jose from 'jose';
+import ms from 'ms';
+import { JWT_TOKEN_TYPES } from '@tamanu/constants';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { SERVER_TYPES } from '@tamanu/constants';
 import { AuthPermissionError, ERROR_TYPE, InvalidTokenError } from '@tamanu/errors';
@@ -19,17 +20,39 @@ const { tokenDuration, secret } = config.auth;
 // regenerate the secret key whenever the server restarts.
 // this will invalidate all current tokens, but they're meant to expire fairly quickly anyway.
 const jwtSecretKey = secret || crypto.randomUUID();
-const sign = promisify(signCallback);
 
-export async function buildToken(user, facilityId, expiresIn = tokenDuration) {
-  return sign(
-    {
-      userId: user.id,
-      facilityId,
-    },
-    jwtSecretKey,
-    { expiresIn },
-  );
+export async function buildToken(user, facilityId, expiresIn) {
+  const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
+  const { canonicalHostName = 'localhost' } = config;
+
+  // Use default tokenDuration if expiresIn is not provided, with fallback
+  const duration = expiresIn ?? tokenDuration ?? '1h';
+
+  // Convert time period to seconds for jose library
+  let expirationTime;
+  try {
+    if (!duration) {
+      throw new Error('No duration provided');
+    }
+    const timeMs = ms(duration);
+    if (timeMs === undefined || timeMs === null) {
+      throw new Error(`ms() returned ${timeMs} for duration: ${duration}`);
+    }
+    expirationTime = Math.floor((Date.now() + timeMs) / 1000);
+  } catch (error) {
+    throw new Error(`Invalid time period format: ${duration} (${error.message})`);
+  }
+
+  return await new jose.SignJWT({
+    userId: user.id,
+    facilityId,
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuer(canonicalHostName)
+    .setIssuedAt()
+    .setExpirationTime(expirationTime)
+    .setAudience(JWT_TOKEN_TYPES.ACCESS)
+    .sign(secretKey);
 }
 
 export async function comparePassword(user, password) {
@@ -205,10 +228,7 @@ export async function refreshHandler(req, res) {
 }
 
 export const authMiddleware = async (req, res, next) => {
-  const {
-    auth: { secret },
-    canonicalHostName,
-  } = config;
+  const { canonicalHostName = 'localhost' } = config;
   const { models, settings } = req;
   try {
     const { token, user, facility, device } = await models.User.loginFromAuthorizationHeader(
@@ -218,7 +238,7 @@ export const authMiddleware = async (req, res, next) => {
         settings: settings.global ?? settings,
         tokenDuration,
         tokenIssuer: canonicalHostName,
-        tokenSecret: secret,
+        tokenSecret: jwtSecretKey,
       },
     );
 
