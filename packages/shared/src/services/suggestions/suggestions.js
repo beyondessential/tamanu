@@ -953,12 +953,12 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
 createSuggester(
   'encounter',
   'Encounter',
-  ({ endpoint, modelName, query }) => {
+  ({ endpoint, modelName, query, searchColumn }) => {
     const { patientId, after, before, encounterTypes } = query;
 
     const whereConditions = {
       [Op.or]: [
-        getTranslationWhereLiteral(endpoint, modelName, 'encounter_type'),
+        getTranslationWhereLiteral(endpoint, modelName, searchColumn),
         getTranslationWhereLiteral('facility', 'location->facility', 'name'),
         {
           startDate: {
