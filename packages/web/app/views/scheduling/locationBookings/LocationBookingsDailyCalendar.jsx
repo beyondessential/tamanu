@@ -14,7 +14,6 @@ import { TranslatedText, TranslatedReferenceData } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
-import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { partitionAppointmentsByLocation } from './utils';
 import { useAuth } from '../../../contexts/Auth';
@@ -329,21 +328,15 @@ export const LocationBookingsDailyCalendar = ({
     assignmentsByLocation[locationId].push(assignment);
   });
 
-  // Filter locations based on location group and bookable view settings
-  const filteredLocations = (locations || []).filter(location => {
-    // Check location group filter if set
-    const matchesLocationGroup = locationGroupIds?.length > 0 
-      ? locationGroupIds.includes(location.locationGroup?.id)
-      : true;
-    
-    // Check bookable view setting for daily view
-    const isBookable = location.locationGroup?.isBookable;
-    const isViewable = isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.DAILY;
-    
-    return matchesLocationGroup && isViewable;
-  });
+  // Filter locations based on location group filter
+  let filteredLocations = locations || [];
 
-  const locationsToShow = filteredLocations;
+  // Apply location group filter if set
+  if (locationGroupIds?.length > 0) {
+    filteredLocations = filteredLocations.filter(location =>
+      locationGroupIds.includes(location.locationGroup?.id),
+    );
+  }
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
@@ -467,7 +460,7 @@ export const LocationBookingsDailyCalendar = ({
     );
   }
 
-  if (locationsToShow.length === 0) {
+  if (filteredLocations.length === 0) {
     return (
       <StatusText data-testid="statustext-daily-no-locations">
         <TranslatedText
@@ -491,7 +484,7 @@ export const LocationBookingsDailyCalendar = ({
       {...props}
     >
       <ScrollWrapper>
-        <CalendarGrid $locationCount={locationsToShow.length} style={{ '--hour-count': hourCount }}>
+        <CalendarGrid $locationCount={filteredLocations.length} style={{ '--hour-count': hourCount }}>
           {/* Time column */}
           <TimeColumn>
             {/* Empty header space */}
@@ -506,7 +499,7 @@ export const LocationBookingsDailyCalendar = ({
           </TimeColumn>
 
           {/* Location columns */}
-          {locationsToShow.map((location, locationIndex) => {
+          {filteredLocations.map((location, locationIndex) => {
             const locationAppointments = appointmentsByLocation[location.id] || [];
 
             return (

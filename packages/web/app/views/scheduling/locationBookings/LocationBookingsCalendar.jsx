@@ -95,7 +95,8 @@ export const LocationBookingsCalendar = ({
   const displayedDates = getDisplayableDates(monthOf);
 
   const {
-    filters: { bookingTypeId, clinicianId, patientNameOrId }, viewType
+    filters: { bookingTypeId, clinicianId, patientNameOrId },
+    viewType,
   } = useLocationBookingsContext();
   // When filtering only by location, don’t hide locations that contain no appointments
   const areNonLocationFiltersActive =
@@ -117,16 +118,9 @@ export const LocationBookingsCalendar = ({
   const appointments = appointmentsData?.data ?? [];
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
-  // Filter locations based on appointments (when other filters are active) and bookable view settings
-  const filteredLocations = (locations || []).filter(location => {
-    const hasAppointments = !areNonLocationFiltersActive || appointmentsByLocation[location.id];
-
-    const isBookable = location.locationGroup?.isBookable;
-    const isViewable =
-      isBookable === LOCATION_BOOKABLE_VIEW.ALL || isBookable === LOCATION_BOOKABLE_VIEW.WEEKLY;
-
-    return hasAppointments && isViewable;
-  });
+  const filteredLocations = areNonLocationFiltersActive
+    ? locations?.filter(location => appointmentsByLocation[location.id])
+    : locations;
 
   return (
     <>
