@@ -542,7 +542,7 @@ export class User extends Model {
 
     return {
       token,
-      user,
+      user: user.get({ plain: true }),
       device,
       facility,
     };
