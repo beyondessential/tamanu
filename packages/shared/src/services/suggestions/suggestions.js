@@ -950,23 +950,81 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
   };
 });
 
+// Build date search conditions for encounter suggester from a free-form query
+function buildDateSearchConditions(searchQuery) {
+  const conditions = [];
+  const sq = (searchQuery || '').trim();
+  if (!sq) return conditions;
+
+  // 1) Direct string search (matches full timestamp/date substrings)
+  conditions.push({ startDate: { [Op.iLike]: `%${sq.replaceAll('/', '-')}%` } });
+
+  // Normalize delimiter detection
+  const hasDash = sq.includes('-');
+  const hasSlash = sq.includes('/');
+  const delim = hasDash ? '-' : hasSlash ? '/' : null;
+  if (!delim) {
+    return conditions;
+  }
+
+  const parts = sq.split(delim);
+
+  // Helper to zero-pad
+  const zp = v => (v.length ? v.padStart(2, '0') : '');
+
+  if (parts.length === 2) {
+    const [a, b] = parts;
+    // Interpret as DD-MM and MM-DD (ambiguous)
+    const ddmm = `%-${zp(b)}-${zp(a)} %`;
+    const mmdd = `%-${zp(a)}-${zp(b)} %`;
+    conditions.push({ startDate: { [Op.iLike]: ddmm } });
+    conditions.push({ startDate: { [Op.iLike]: mmdd } });
+
+    // Interpret as YYYY-MM where applicable (only when first segment is 4 digits)
+    if (/^\d{4}$/.test(a)) {
+      conditions.push({ startDate: { [Op.iLike]: `${a}-${zp(b)}-%` } });
+    }
+    return conditions;
+  }
+
+  if (parts.length === 3) {
+    const [p1, p2, p3] = parts;
+
+    if (/^\d{4}$/.test(p1)) {
+      // YYYY-MM-DD (or YYYY/MM/DD)
+      conditions.push({ startDate: { [Op.iLike]: `${p1}-${zp(p2)}-${zp(p3)}%` } });
+    } else {
+      // DD-MM-YYYY and MM-DD-YYYY (ambiguous when last is year)
+      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p2)}-${zp(p1)}%` } });
+      // Interpret as DD-MM-YYYY
+      // Interpret as MM-DD-YYYY
+      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p1)}-${zp(p2)}%` } });
+    }
+    return conditions;
+  }
+
+  return conditions;
+}
+
 createSuggester(
   'encounter',
   'Encounter',
   ({ endpoint, modelName, query, searchColumn }) => {
     const { patientId, after, before, encounterTypes } = query;
+    const searchQuery = (query.q || '').trim();
 
     const whereConditions = {
       [Op.or]: [
         getTranslationWhereLiteral(endpoint, modelName, searchColumn),
         getTranslationWhereLiteral('facility', 'location->facility', 'name'),
-        {
-          startDate: {
-            [Op.iLike]: `%${query.q}%`,
-          },
-        },
       ],
     };
+
+    // Add date search if there's a search query
+    if (searchQuery) {
+      const dateSearchConditions = buildDateSearchConditions(searchQuery);
+      whereConditions[Op.or].push(...dateSearchConditions);
+    }
 
     if (patientId) {
       whereConditions.patientId = patientId;
