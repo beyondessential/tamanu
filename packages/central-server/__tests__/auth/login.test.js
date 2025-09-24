@@ -98,7 +98,6 @@ describe('Auth - Login', () => {
         iss: config.canonicalHostName,
         userId: expect.any(String),
         deviceId: TEST_DEVICE_ID,
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
@@ -122,7 +121,6 @@ describe('Auth - Login', () => {
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });

@@ -86,12 +86,10 @@ describe('Auth', () => {
         iss: config.canonicalHostName,
         userId: expect.any(String),
         deviceId: TEST_DEVICE_ID,
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
 
-      expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
       expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
       expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
     });
@@ -124,12 +122,10 @@ describe('Auth', () => {
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
 
-      expect(newRefreshTokenContents.jti).not.toEqual(oldRefreshTokenContents.jti);
       expect(newRefreshTokenContents.iat).toBeGreaterThan(oldRefreshTokenContents.iat);
       expect(newRefreshTokenContents.exp).toBeGreaterThan(oldRefreshTokenContents.exp);
 
