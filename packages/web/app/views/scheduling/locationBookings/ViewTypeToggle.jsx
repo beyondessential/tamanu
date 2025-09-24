@@ -75,8 +75,6 @@ export const ViewTypeToggle = props => {
     updateUserPreferences(newViewType);
   };
 
-  if (!viewType) return null;
-
   return (
     <Wrapper
       onClick={handleViewChange}

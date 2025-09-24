@@ -22,29 +22,22 @@ export const LOCATION_BOOKINGS_EMPTY_FILTER_STATE = {
 export const LocationBookingsContextProvider = ({ children }) => {
   const queryParams = useUrlSearchParams();
   const clinicianId = queryParams.get('clinicianId');
-  const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const { data: userPreferences } = useUserPreferencesQuery();
   const [filters, setFilters] = useState({
     LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
   });
 
   useEffect(() => {
-    if (isLoadingUserPreferences) return;
-
-    if (userPreferences?.locationBookingFilters) {
-      setFilters(userPreferences?.locationBookingFilters);
-    }
-
+    if (!userPreferences?.locationBookingFilters) return;
+    setFilters(userPreferences?.locationBookingFilters);
     if (userPreferences?.locationBookingViewType) {
       setViewType(userPreferences?.locationBookingViewType);
-    } else {
-      setViewType(VIEW_TYPES.DAILY);
     }
-    
-  }, [userPreferences, isLoadingUserPreferences]);
+  }, [userPreferences]);
 
   useEffect(() => {
     if (!clinicianId) return;
-    setFilters((filters) => ({ ...filters, clinicianId: [clinicianId] }));
+    setFilters(filters => ({ ...filters, clinicianId: [clinicianId] }));
   }, [clinicianId]);
 
   const [selectedCell, setSelectedCell] = useState({
@@ -53,7 +46,9 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
-  const [viewType, setViewType] = useState(null);
+  const [viewType, setViewType] = useState(
+    userPreferences?.locationBookingViewType || VIEW_TYPES.DAILY,
+  );
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   useEffect(
     () => {
@@ -69,8 +64,8 @@ export const LocationBookingsContextProvider = ({ children }) => {
     [monthOf],
   );
 
-  const updateSelectedCell = (newCellData) => {
-    setSelectedCell((prevCell) => {
+  const updateSelectedCell = newCellData => {
+    setSelectedCell(prevCell => {
       const updatedCell = { ...prevCell, ...newCellData };
 
       const { date, locationId } = updatedCell;
