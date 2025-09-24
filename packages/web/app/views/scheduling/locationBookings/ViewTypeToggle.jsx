@@ -1,11 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
-import { VIEW_TYPES } from '@tamanu/constants';
+import { VIEW_TYPES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { useUserPreferencesMutation } from '../../../api/mutations';
+import { useAuth } from '../../../contexts/Auth';
 
 const Wrapper = styled(Box)`
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
@@ -20,7 +22,6 @@ const Wrapper = styled(Box)`
   border-radius: calc(infinity * 1px);
   border: max(0.0625rem, 1px) solid ${Colors.primary};
   user-select: none;
-  margin-right: 16px;
   margin-inline-end: auto;
 `;
 
@@ -57,11 +58,21 @@ AnimatedBackground.defaultProps = { 'aria-hidden': true };
 export const ViewTypeToggle = props => {
   const { disabled } = props;
   const { viewType = VIEW_TYPES.DAILY, setViewType } = useLocationBookingsContext();
+  const { facilityId } = useAuth();
+
+  const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
+  const updateUserPreferences = viewType =>
+    mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_VIEW_TYPE,
+      value: viewType,
+    });
 
   const handleViewChange = () => {
     if (disabled) return;
     const newViewType = viewType === VIEW_TYPES.WEEKLY ? VIEW_TYPES.DAILY : VIEW_TYPES.WEEKLY;
     setViewType(newViewType);
+
+    updateUserPreferences(newViewType);
   };
 
   return (

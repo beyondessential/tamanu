@@ -30,11 +30,14 @@ export const LocationBookingsContextProvider = ({ children }) => {
   useEffect(() => {
     if (!userPreferences?.locationBookingFilters) return;
     setFilters(userPreferences?.locationBookingFilters);
+    if (userPreferences?.locationBookingViewType) {
+      setViewType(userPreferences?.locationBookingViewType);
+    }
   }, [userPreferences]);
 
   useEffect(() => {
     if (!clinicianId) return;
-    setFilters((filters) => ({ ...filters, clinicianId: [clinicianId] }));
+    setFilters(filters => ({ ...filters, clinicianId: [clinicianId] }));
   }, [clinicianId]);
 
   const [selectedCell, setSelectedCell] = useState({
@@ -43,7 +46,9 @@ export const LocationBookingsContextProvider = ({ children }) => {
   });
 
   const [monthOf, setMonthOf] = useState(startOfToday());
-  const [viewType, setViewType] = useState(VIEW_TYPES.DAILY);
+  const [viewType, setViewType] = useState(
+    userPreferences?.locationBookingViewType || VIEW_TYPES.DAILY,
+  );
   const [selectedDate, setSelectedDate] = useState(startOfDay(new Date()));
   useEffect(
     () => {
@@ -59,8 +64,8 @@ export const LocationBookingsContextProvider = ({ children }) => {
     [monthOf],
   );
 
-  const updateSelectedCell = (newCellData) => {
-    setSelectedCell((prevCell) => {
+  const updateSelectedCell = newCellData => {
+    setSelectedCell(prevCell => {
       const updatedCell = { ...prevCell, ...newCellData };
 
       const { date, locationId } = updatedCell;
