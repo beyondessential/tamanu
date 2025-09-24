@@ -52,6 +52,12 @@ describe('User', () => {
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
 
+    // Mock UserLoginAttempt.checkIsUserLockedOut to focus tests here; lockout tests are elsewhere
+    jest.spyOn(models.UserLoginAttempt, 'checkIsUserLockedOut').mockResolvedValue({
+      isUserLockedOut: false,
+      remainingLockout: 0,
+    });
+
     await models.Facility.create(
       fake(models.Facility, { ...sensitiveFacility1, isSensitive: true }),
     );
