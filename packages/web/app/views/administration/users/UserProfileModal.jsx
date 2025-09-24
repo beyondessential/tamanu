@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -96,6 +96,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
+  const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
 
   const statusOptions = [
     {
@@ -109,46 +110,43 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   ];
 
   const handleSubmit = async values => {
-    updateUser(
-      {
-        ...values,
-        designations: values.designations || [],
+    updateUser(values, {
+      onSuccess: () => {
+        handleRefresh();
+        if (values.newPassword && values.confirmPassword) {
+          toast.success(
+            getTranslation(
+              'admin.users.profile.successWithPassword',
+              'User updated successfully! Password changed.',
+            ),
+          );
+        } else {
+          toast.success(
+            getTranslation('admin.users.profile.success', 'User updated successfully!'),
+          );
+        }
+        onClose();
       },
-      {
-        onSuccess: () => {
-          handleRefresh();
-          if (values.newPassword && values.confirmPassword) {
-            toast.success(
-              getTranslation(
-                'admin.users.profile.successWithPassword',
-                'User updated successfully! Password changed.',
-              ),
-            );
-          } else {
-            toast.success(
-              getTranslation('admin.users.profile.success', 'User updated successfully!'),
-            );
-          }
-          onClose();
-        },
-        onError: error => {
-          toast.error(error.message);
-        },
+      onError: error => {
+        toast.error(error.message);
       },
-    );
+    });
   };
 
-  const initialValues = {
-    visibilityStatus: user?.visibilityStatus,
-    displayName: user?.displayName,
-    displayId: user?.displayId,
-    role: user?.role,
-    designations: user?.designations?.map(d => d.designationId) || [],
-    email: user?.email,
-    phoneNumber: user?.phoneNumber,
-    newPassword: '',
-    confirmPassword: '',
-  };
+  const initialValues = useMemo(() => {
+    return {
+      visibilityStatus: user?.visibilityStatus,
+      displayName: user?.displayName,
+      displayId: user?.displayId,
+      role: user?.role,
+      designations: user?.designations?.map(d => d.designationId) || [],
+      email: user?.email,
+      phoneNumber: user?.phoneNumber,
+      newPassword: '',
+      confirmPassword: '',
+      allowedFacilityIds: user?.facilities?.map(f => f.id) || [],
+    };
+  }, [user]);
 
   return (
     <StyledFormModal
@@ -162,6 +160,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
         formType={FORM_TYPES.EDIT_FORM}
+        enableReinitialize
         render={({ submitForm, dirty }) => {
           const allowSave = dirty && canUpdateUser;
           return (
@@ -245,6 +244,19 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     component={TextField}
                     disabled={!canUpdateUser}
                   />
+                  <Field
+                    name="allowedFacilityIds"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.allowedFacilities.label"
+                        fallback="Allowed facilities"
+                      />
+                    }
+                    component={MultiAutocompleteField}
+                    allowSelectAll
+                    suggester={facilitySuggester}
+                    style={{ gridColumn: 'span 2' }}
+                  />
                 </FormGrid>
                 {canUpdateUser && (
                   <>
@@ -285,12 +297,12 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         name="confirmPassword"
                         label={
                           <TranslatedText
-                            stringId="admin.users.confirmPassword.label"
+                            stringId="admin.users.confirmNewPassword.label"
                             fallback="Confirm new password"
                           />
                         }
                         placeholder={getTranslation(
-                          'admin.users.confirmPassword.placeholder',
+                          'admin.users.confirmNewPassword.placeholder',
                           'Confirm new password',
                         )}
                         component={TextField}

@@ -28,4 +28,5 @@ export const SUGGESTER_ENDPOINTS = [
   'sensitiveLabTestCategory',
   'nonSensitiveLabTestCategory',
   'role',
+  'encounter',
 ];

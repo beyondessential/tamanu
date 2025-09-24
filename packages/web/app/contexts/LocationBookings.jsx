@@ -1,6 +1,7 @@
 import { isSameMonth, isThisMonth, startOfToday, startOfDay } from 'date-fns';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+import { VIEW_TYPES } from '@tamanu/constants';
 import {
   scrollToBeginning,
   scrollToCell,
@@ -8,7 +9,6 @@ import {
 } from '../views/scheduling/locationBookings/utils';
 import { useUserPreferencesQuery } from '../api/queries';
 import { useUrlSearchParams } from '../utils/useUrlSearchParams';
-import { VIEW_TYPES } from '../views/scheduling/locationBookings/ViewTypeToggle';
 
 const LocationBookingsContext = createContext(null);
 

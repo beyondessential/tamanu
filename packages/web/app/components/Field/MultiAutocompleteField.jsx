@@ -52,7 +52,7 @@ const StyledSelect = styled(Select)`
   .react-select__multi-value {
     padding: 6px 11px;
     background-color: transparent;
-    border-radius: 50px;
+    border-radius: 20px;
     border: 1px solid ${Colors.primary};
     max-width: 80%;
     margin: 0;
@@ -62,6 +62,7 @@ const StyledSelect = styled(Select)`
     font-size: 11px;
     line-height: 15px;
     padding: 0;
+    white-space: pre-line;
   }
   .react-select__multi-value__remove {
     cursor: pointer;

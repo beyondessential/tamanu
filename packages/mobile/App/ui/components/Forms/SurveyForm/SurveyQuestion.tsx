@@ -5,6 +5,7 @@ import { Field } from '../FormField';
 import { FieldTypes } from '~/ui/helpers/fields';
 import { FieldByType } from '~/ui/helpers/fieldComponents';
 import { useBackendEffect } from '~/ui/hooks';
+import { PatientDataDisplayField } from '../../PatientDataDisplayField/PatientDataDisplayField';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
@@ -17,7 +18,7 @@ interface SurveyQuestionProps {
 
 function getField(
   type: string,
-  { writeToPatient: { fieldType = '' } = {}, source }: SurveyScreenConfig = {},
+  { writeToPatient: { fieldType = '' } = {} }: SurveyScreenConfig = {},
 ): Element {
   let field = FieldByType[type];
 
@@ -26,11 +27,8 @@ function getField(
     if (fieldType) {
       // PatientData specifically can overwrite field type if we are writing back to patient record
       field = FieldByType[fieldType];
-    } else if (source) {
-      // we're displaying a relation, so use a disabled Autocomplete
-      // (using a standard field will just display the bare id)
-      const Autocomplete = FieldByType[FieldTypes.AUTOCOMPLETE];
-      field = props => <Autocomplete {...props} readOnly />;
+    } else {
+      field = PatientDataDisplayField;
     }
   }
   if (field || field === null) return field;
