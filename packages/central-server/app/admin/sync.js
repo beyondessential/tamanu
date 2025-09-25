@@ -19,7 +19,7 @@ export const syncLastCompleted = asyncHandler(async (req, res) => {
           }
           return val;
         }, z.int().min(0))
-        .default(1),
+        .default(0),
       rowsPerPage: z
         .preprocess(val => {
           if (typeof val === 'string') {
