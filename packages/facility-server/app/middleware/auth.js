@@ -3,6 +3,7 @@ import { compare } from 'bcrypt';
 import config from 'config';
 import * as jose from 'jose';
 import ms from 'ms';
+import * as z from 'zod';
 import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { AuthPermissionError, ERROR_TYPE, MissingCredentialError } from '@tamanu/errors';
@@ -158,7 +159,9 @@ async function centralServerLoginWithLocalFallback(models, settings, email, pass
 
 export async function loginHandler(req, res, next) {
   const { body, models, deviceId, settings } = req;
-  const { email, password } = body;
+  const { email, password } = await z
+    .object({ email: z.email(), password: z.string().min(1) })
+    .parseAsync(body);
 
   // no permission needed for login
   req.flagPermissionChecked();
@@ -202,21 +205,20 @@ export async function loginHandler(req, res, next) {
 }
 
 export async function setFacilityHandler(req, res, next) {
-  const {
-    user,
-    body: { facilityId },
-    device,
-  } = req;
+  const { user, body, device } = req;
 
   try {
     // Run after auth middleware, requires valid token but no other permission
     req.flagPermissionChecked();
 
     const userInstance = await req.models.User.findByPk(user.id);
+
+    const { facilityId } = await z.object({ facilityId: z.string().min(1) }).parseAsync(body);
     const hasAccess = await userInstance.canAccessFacility(facilityId);
     if (!hasAccess) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
+
     const token = await buildToken({ user, deviceId: device.id, facilityId });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
