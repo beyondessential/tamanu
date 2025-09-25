@@ -31,28 +31,6 @@ export const centralSettings = {
         },
       },
     },
-    survey: {
-      name: 'Survey settings',
-      description: '_',
-      properties: {
-        defaultCodes: {
-          description:
-            'Default reference data codes to use when creating a survey encounter on patient portal',
-          properties: {
-            department: {
-              description: 'Default department code',
-              type: yup.string(),
-              defaultValue: 'GeneralClinic',
-            },
-            location: {
-              description: 'Default location code',
-              type: yup.string(),
-              defaultValue: 'GeneralClinic',
-            },
-          },
-        },
-      },
-    },
     questionCodeIds: {
       deprecated: true,
       description: questionCodeIdsDescription,
