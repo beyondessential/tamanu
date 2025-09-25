@@ -13,3 +13,4 @@ export {
   useLocationAssignmentOverlappingAssignmentsMutation,
 } from './useLocationAssignmentMutation';
 export { useLocationAssignmentDeleteMutation } from './useLocationAssignmentDeleteMutation';
+export { useRegisterPatientPortal } from './useRegisterPatientPortal';
