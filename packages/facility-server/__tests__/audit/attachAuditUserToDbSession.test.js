@@ -50,6 +50,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
