@@ -46,7 +46,7 @@ patientProgramRegistration.post(
 
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async transaction => {
-      let registration;
+      let registrationRecord;
 
       // Check if this PPR has been previously deleted
       const existingRecordedInErrorRegistration = await models.PatientProgramRegistration.findOne({
@@ -59,11 +59,11 @@ patientProgramRegistration.post(
 
       // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
       if (existingRecordedInErrorRegistration) {
-        registration = await existingRecordedInErrorRegistration.update(registrationData, {
+        registrationRecord = await existingRecordedInErrorRegistration.update(registrationData, {
           transaction,
         });
       } else {
-        registration = await models.PatientProgramRegistration.create(
+        registrationRecord = await models.PatientProgramRegistration.create(
           {
             patientId,
             programRegistryId,
@@ -77,7 +77,7 @@ patientProgramRegistration.post(
         conditions
           .filter(condition => condition.conditionId)
           .map(condition => ({
-            patientProgramRegistrationId: registration.id,
+            patientProgramRegistrationId: registrationRecord.id,
             clinicianId: registrationData.clinicianId,
             date: registrationData.date,
             programRegistryConditionId: condition.conditionId,
@@ -94,7 +94,7 @@ patientProgramRegistration.post(
         { transaction },
       );
 
-      return [registration, newConditions];
+      return [registrationRecord, newConditions];
     });
 
     // Convert Sequelize model to use a custom object as response
