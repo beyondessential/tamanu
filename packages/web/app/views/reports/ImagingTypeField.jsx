@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Field } from '../../components';
-import { SelectField } from '@tamanu/ui-components';
+import { Field, SelectField } from '../../components';
 import { useLocalisation } from '../../contexts/Localisation';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 

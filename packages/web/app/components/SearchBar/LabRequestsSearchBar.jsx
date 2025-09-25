@@ -278,9 +278,9 @@ export const LabRequestsSearchBar = ({ statuses }) => {
               />
             }
             component={TranslatedSelectField}
-            transformOptions={options =>
+            transformOptions={(options) =>
               options.filter(
-                option =>
+                (option) =>
                   ![
                     LAB_REQUEST_STATUSES.PUBLISHED,
                     LAB_REQUEST_STATUSES.DELETED,

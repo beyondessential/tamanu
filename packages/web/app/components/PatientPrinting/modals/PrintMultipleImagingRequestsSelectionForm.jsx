@@ -2,10 +2,11 @@ import React, { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/constants/statuses';
-import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
 
 import { useSelectableColumn } from '../../Table';
+import { ConfirmCancelRow } from '../../ButtonRow';
 import { useApi } from '../../../api';
+import { Colors } from '../../../constants';
 
 import { MultipleImagingRequestsPrintoutModal } from './MultipleImagingRequestsPrintoutModal';
 import { COLUMN_KEYS, FORM_COLUMNS } from './multipleImagingRequestsColumns';
@@ -58,7 +59,7 @@ export const PrintMultipleImagingRequestsSelectionForm = React.memo(({ encounter
             data-testid="translatedtext-7iz8"
           />
         }
-        headerColor={TAMANU_COLORS.white}
+        headerColor={Colors.white}
         columns={columns}
         data={imagingRequestsData || []}
         elevated={false}

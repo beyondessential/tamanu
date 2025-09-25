@@ -203,9 +203,9 @@ export const ImagingRequestsSearchBar = ({ memoryKey, statuses = [], advancedFie
           }
           component={TranslatedSelectField}
           enumValues={IMAGING_REQUEST_STATUS_LABELS}
-          transformOptions={options =>
+          transformOptions={(options) =>
             options.filter(
-              option =>
+              (option) =>
                 ![
                   IMAGING_REQUEST_STATUS_TYPES.DELETED,
                   IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,

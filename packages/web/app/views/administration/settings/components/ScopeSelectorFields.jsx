@@ -43,7 +43,7 @@ export const ScopeSelectorFields = React.memo(
       },
     );
 
-    const facilityOptions = facilitiesArray.map(facility => ({
+    const facilityOptions = facilitiesArray.map((facility) => ({
       label: facility.name,
       value: facility.id,
     }));

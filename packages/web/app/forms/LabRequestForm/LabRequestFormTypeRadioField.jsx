@@ -103,7 +103,7 @@ const useLabRequestFormTypeOptions = () => {
   );
   const options =
     isSuccess && !isFetching
-      ? POSSIBLE_OPTIONS_LIST.filter(option => {
+      ? POSSIBLE_OPTIONS_LIST.filter((option) => {
           if (option.value === LAB_REQUEST_FORM_TYPES.PANEL) return data?.length > 0;
           if (option.value === LAB_REQUEST_FORM_TYPES.INDIVIDUAL) return !onlyAllowLabPanels;
           return true;

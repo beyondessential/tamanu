@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Box, Tabs } from '@material-ui/core';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import cn from 'classnames';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import grabCursor from '../assets/images/grab_cursor.svg?url';
 
 const TabBar = styled.div`
@@ -13,11 +13,11 @@ const TabBar = styled.div`
 `;
 
 const TabContainer = styled(Tabs)`
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   position: relative;
 
   .MuiTabs-indicator {
-    background-color: ${TAMANU_COLORS.primary};
+    background-color: ${Colors.primary};
   }
   * {
     cursor: url("${grabCursor}"), auto !important;
@@ -42,7 +42,7 @@ const StyledTab = styled(Box)`
 
   &:hover {
     opacity: 1;
-    background-color: ${TAMANU_COLORS.veryLightBlue};
+    background-color: ${Colors.veryLightBlue};
   }
 
   &.selected {
@@ -52,7 +52,7 @@ const StyledTab = styled(Box)`
       position: absolute;
       bottom: 0;
       padding-top: 2px;
-      background-color: ${TAMANU_COLORS.primary};
+      background-color: ${Colors.primary};
       width: 100%;
     }
   }
@@ -132,7 +132,7 @@ export const TabDisplayDraggable = ({
                       {icon && (
                         <Icon
                           className={icon}
-                          color={currentTabData?.key === key ? TAMANU_COLORS.primary : TAMANU_COLORS.softText}
+                          color={currentTabData?.key === key ? Colors.primary : Colors.softText}
                           data-testid={`icon-1iqd-${key}`}
                         />
                       )}

@@ -52,17 +52,13 @@ export const ComplexChartModal = ({
         onSubmit={onSubmit}
         patient={patient}
         chartSurveyId={chartSurveyId}
-        confirmText={
-          isChartInstance ? (
-            <TranslatedText
-              stringId="general.action.submit"
-              fallback="Submit"
-              data-testid="translatedtext-miac"
-            />
-          ) : (
-            undefined
-          )
-        }
+        confirmText={isChartInstance ? (
+          <TranslatedText
+            stringId="general.action.submit"
+            fallback="Submit"
+            data-testid="translatedtext-miac"
+          />
+        ) : undefined}
         data-testid="chartform-iquz"
       />
     </FormModal>

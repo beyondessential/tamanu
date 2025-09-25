@@ -156,7 +156,7 @@ export const Paginator = React.memo(
             disabled={!isDataInTable}
             data-testid="styledselectfield-lunn"
           >
-            {rowsPerPageOptions.map(option => (
+            {rowsPerPageOptions.map((option) => (
               <StyledMenuItem
                 key={option}
                 value={option}
@@ -171,7 +171,7 @@ export const Paginator = React.memo(
             count={numberOfPages}
             variant="outlined"
             onChange={onPageChange}
-            renderItem={item => {
+            renderItem={(item) => {
               // Set custom icons for navigation buttons
               if (item.type === 'previous') {
                 return (

@@ -3,13 +3,13 @@ import styled from 'styled-components';
 
 import { LAB_TEST_RESULT_TYPES } from '@tamanu/constants';
 
-import { TextField, TAMANU_COLORS } from '@tamanu/ui-components';
-import { Field, NumberField } from '../../../components/Field';
+import { Field, NumberField, TextField } from '../../../components/Field';
+import { Colors } from '../../../constants';
 import { TranslatedOptionSelectField } from '../../../components/Translation/TranslatedOptions';
 
 const StyledField = styled(Field)`
   .Mui-disabled {
-    background: ${TAMANU_COLORS.softOutline};
+    background: ${Colors.softOutline};
     .MuiOutlinedInput-notchedOutline {
       border-color: #dedede;
     }

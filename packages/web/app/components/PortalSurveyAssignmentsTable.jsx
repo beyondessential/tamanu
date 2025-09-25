@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/Auth';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { DeletePortalSurveyAssignmentModal } from '../views/patients/components/DeletePortalSurveyAssignmentModal';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { Heading4 } from './Typography';
 
 const getDateRequested = ({ assignedAt }) => <DateDisplay date={assignedAt} />;
@@ -18,7 +18,7 @@ const getForm = ({ survey }) => survey?.name || '';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   h4 {
     margin: 0;
   }
@@ -45,7 +45,7 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setDeleteModalOpen(true),
-      permissionCheck: () => ability?.can('delete', 'PatientPortalForm'),
+      permissionCheck: () => ability?.can('delete', 'PortalSurveyAssignment'),
       wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => (permissionCheck ? permissionCheck() : true));
@@ -74,13 +74,18 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
     {
       key: 'program',
       title: (
-        <TranslatedText stringId="portalSurveyAssignment.table.column.program" fallback="Program" />
+        <TranslatedText
+          stringId="portalSurveyAssignment.table.column.program"
+          fallback="Program"
+        />
       ),
       accessor: getProgram,
     },
     {
       key: 'form',
-      title: <TranslatedText stringId="portalSurveyAssignment.table.column.form" fallback="Form" />,
+      title: (
+        <TranslatedText stringId="portalSurveyAssignment.table.column.form" fallback="Form" />
+      ),
       accessor: getForm,
     },
   ];

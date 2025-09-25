@@ -95,7 +95,7 @@ export const FORM_TYPE_TO_FIELD_CONFIG = {
   },
 };
 
-export const LabRequestFormScreen2 = props => {
+export const LabRequestFormScreen2 = (props) => {
   const {
     values: { requestFormType },
     onSelectionChange,

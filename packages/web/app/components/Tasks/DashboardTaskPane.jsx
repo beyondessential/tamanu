@@ -63,7 +63,7 @@ export const DashboardTaskPane = React.memo(() => {
   const clinicianDashboardTaskingTableFilter =
     userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const onLocationIdChange = e => {
+  const onLocationIdChange = (e) => {
     const { value } = e.target;
 
     const newParams = value
@@ -76,7 +76,7 @@ export const DashboardTaskPane = React.memo(() => {
     });
   };
 
-  const onHighPriorityOnlyChange = e => {
+  const onHighPriorityOnlyChange = (e) => {
     const { checked } = e.target;
 
     const newParams = checked
