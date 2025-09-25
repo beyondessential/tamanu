@@ -516,38 +516,38 @@ appointments.put(
           [Op.and]: [
             { locationId: appointmentToMove.locationId },
             { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } },
-            { startTime: { [Op.between]: [toDateTimeString(startOfDay(newStartTime)), toDateTimeString(endOfDay(newEndTime))] } },
+            { startTime: { [Op.between]: [toDateTimeString(startOfDay(newStartTime)), toDateTimeString(endOfDay(newStartTime))] } },
             { id: { [Op.ne]: id } },
           ],
         },
         order: [['startTime', 'ASC']],
       });
 
-      let shiftedAppointment = appointmentToMove;
+      let lastAppointmentEndTime = new Date(appointmentToMove.endTime);
+
       for (const appointment of appointmentsInDay) {
-        const isOverlap = (appointment.startTime < appointmentToMove.endTime && appointment.endTime > appointmentToMove.startTime)
-          || (appointment.startTime < shiftedAppointment.endTime && appointment.endTime > shiftedAppointment.startTime);
-        
-        if (!isOverlap) continue;
+        const appointmentStartTime = new Date(appointment.startTime);
 
-        const duration = differenceInMilliseconds(new Date(appointment.endTime), new Date(appointment.startTime));
-        const startTime = new Date(shiftedAppointment.endTime);
-        const endTime = addMilliseconds(startTime, duration);
+        if (appointmentStartTime < lastAppointmentEndTime) {
+          const duration = differenceInMilliseconds(new Date(appointment.endTime), appointmentStartTime);
+          const newStartTime = lastAppointmentEndTime;
+          const newEndTime = addMilliseconds(newStartTime, duration);
 
-        if (!isValidBookingTime(startTime, endTime, bookingSlotStartTime, bookingSlotEndTime)) {
-          throw new InvalidOperationError(`Shifted appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
+          if (!isValidBookingTime(newStartTime, newEndTime, bookingSlotStartTime, bookingSlotEndTime)) {
+            throw new InvalidOperationError(`Shifted appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
+          }
+
+          if (!isSameClinicianAllocation(appointment.startTime, newStartTime, locationAssignments)) {
+            throw new InvalidOperationError('Shifted appointment time must be within the same clinician allocation');
+          }
+
+          await appointment.update({
+            startTime: toDateTimeString(newStartTime),
+            endTime: toDateTimeString(newEndTime),
+          });
+
+          lastAppointmentEndTime = newEndTime;
         }
-
-        if (!isSameClinicianAllocation(appointment.startTime, startTime, locationAssignments)) {
-          throw new InvalidOperationError('Shifted appointment time must be within the same clinician allocation');
-        }
-
-        await appointment.update({
-          startTime: toDateTimeString(startTime),
-          endTime: toDateTimeString(endTime),
-        });
-
-        shiftedAppointment = appointment;
       }
     });
 
@@ -569,23 +569,14 @@ const isValidBookingTime = (startTime, endTime, bookingSlotStartTime, bookingSlo
 };
 
 const isSameClinicianAllocation = (oldStartTime, newStartTime, locationAssignments) => {
-  const oldAllocation = locationAssignments.find(assignment => {
-    const assignmentStartTime = parse(assignment.startTime, 'HH:mm:ss', assignment.date);
-    const assignmentEndTime = parse(assignment.endTime, 'HH:mm:ss', assignment.date);
-
-    return isWithinInterval(oldStartTime, { start: assignmentStartTime, end: assignmentEndTime });
+  const findAllocation = (time, assignments) => assignments.find(assignment => {
+    const assignmentStartTime = parse(assignment.startTime, 'HH:mm:ss', new Date(assignment.date));
+    const assignmentEndTime = parse(assignment.endTime, 'HH:mm:ss', new Date(assignment.date));
+    return isWithinInterval(new Date(time), { start: assignmentStartTime, end: assignmentEndTime });
   });
 
-  const newAllocation = locationAssignments.find(assignment => {
-    const assignmentStartTime = parse(assignment.startTime, 'HH:mm:ss', assignment.date);
-    const assignmentEndTime = parse(assignment.endTime, 'HH:mm:ss', assignment.date);
-
-    return isWithinInterval(newStartTime, { start: assignmentStartTime, end: assignmentEndTime });
-  });
-
-  if (!oldAllocation || !newAllocation) {
-    return true;
-  }
+  const oldAllocation = findAllocation(oldStartTime, locationAssignments);
+  const newAllocation = findAllocation(newStartTime, locationAssignments);
 
   return oldAllocation?.userId === newAllocation?.userId;
 };
