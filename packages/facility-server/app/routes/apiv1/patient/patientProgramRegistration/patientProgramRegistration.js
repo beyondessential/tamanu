@@ -36,18 +36,7 @@ patientProgramRegistration.post(
 
     await validatePatientProgramRegistrationRequest(req, patientId, programRegistryId);
 
-    const existingRegistration = await models.PatientProgramRegistration.findOne({
-      where: {
-        programRegistryId,
-        patientId,
-      },
-    });
-
-    if (existingRegistration) {
-      req.checkPermission('write', 'PatientProgramRegistration');
-    } else {
-      req.checkPermission('create', 'PatientProgramRegistration');
-    }
+    req.checkPermission('create', 'PatientProgramRegistration');
 
     const { conditions = [], ...registrationData } = body;
 
@@ -58,6 +47,15 @@ patientProgramRegistration.post(
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async transaction => {
       let registration;
+      const existingRegistration = await models.PatientProgramRegistration.findOne({
+        where: {
+          programRegistryId,
+          patientId,
+          registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
+        },
+      });
+
+      // If the registration was previously recorded in error, update that record. Otherwise, create a new one.
       if (existingRegistration) {
         registration = await existingRegistration.update(registrationData, { transaction });
       } else {
