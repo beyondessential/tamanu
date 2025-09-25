@@ -47,7 +47,8 @@ patientProgramRegistration.post(
     // Run in a transaction so it either fails or succeeds together
     const [registration, conditionsRecords] = await db.transaction(async transaction => {
       let registration;
-      const existingRegistration = await models.PatientProgramRegistration.findOne({
+
+      const existingRecordedInErrorRegistration = await models.PatientProgramRegistration.findOne({
         where: {
           programRegistryId,
           patientId,
@@ -56,8 +57,10 @@ patientProgramRegistration.post(
       });
 
       // If the registration was previously recorded in error, update that record. Otherwise, create a new one.
-      if (existingRegistration) {
-        registration = await existingRegistration.update(registrationData, { transaction });
+      if (existingRecordedInErrorRegistration) {
+        registration = await existingRecordedInErrorRegistration.update(registrationData, {
+          transaction,
+        });
       } else {
         registration = await models.PatientProgramRegistration.create(
           {
