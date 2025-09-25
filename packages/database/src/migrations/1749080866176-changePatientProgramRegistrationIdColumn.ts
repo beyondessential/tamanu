@@ -13,7 +13,7 @@ export async function up(query: QueryInterface): Promise<void> {
       );
   `);
 
-  // First, check we have no remaining duplicates
+  // First, check for duplicates
   const duplicates = await query.sequelize.query(
     `
     SELECT program_registry_id, patient_id, COUNT(*) as count
