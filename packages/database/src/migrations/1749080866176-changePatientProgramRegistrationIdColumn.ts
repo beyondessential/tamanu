@@ -1,16 +1,33 @@
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
+  // Delete duplicate records with a status of recordedInError, keeping only the most recent one for each patient/program combination
+  await query.sequelize.query(`
+    DELETE FROM patient_program_registrations
+    WHERE registration_status = 'recordedInError'
+      AND id NOT IN (
+        SELECT DISTINCT ON (patient_id, program_registry_id) id
+        FROM patient_program_registrations
+        WHERE registration_status = 'recordedInError'
+        ORDER BY patient_id, program_registry_id, updated_at DESC
+      );
+  `);
+
   // First, check for duplicates
-  const duplicates = await query.sequelize.query(`
+  const duplicates = await query.sequelize.query(
+    `
     SELECT program_registry_id, patient_id, COUNT(*) as count
     FROM patient_program_registrations
     GROUP BY program_registry_id, patient_id
     HAVING COUNT(*) > 1;
-  `, { type: QueryTypes.SELECT });
-  
+  `,
+    { type: QueryTypes.SELECT },
+  );
+
   if (duplicates.length > 0) {
-    throw new Error(`Found patient program registrations that would violate unique constraint: ${JSON.stringify(duplicates)}`);
+    throw new Error(
+      `Found patient program registrations that would violate unique constraint: ${JSON.stringify(duplicates)}`,
+    );
   }
 
   // Add new id column to patient_program_registrations
