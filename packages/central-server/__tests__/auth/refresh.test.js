@@ -83,6 +83,7 @@ describe('Auth', () => {
 
       expect(newTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.ACCESS,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         deviceId: TEST_DEVICE_ID,
@@ -119,6 +120,7 @@ describe('Auth', () => {
 
       expect(newRefreshTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.REFRESH,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
