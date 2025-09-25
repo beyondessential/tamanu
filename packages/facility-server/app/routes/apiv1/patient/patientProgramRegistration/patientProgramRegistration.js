@@ -48,6 +48,7 @@ patientProgramRegistration.post(
     const [registration, conditionsRecords] = await db.transaction(async transaction => {
       let registration;
 
+      // Check if this PPR has been previously deleted
       const existingRecordedInErrorRegistration = await models.PatientProgramRegistration.findOne({
         where: {
           programRegistryId,
@@ -56,7 +57,7 @@ patientProgramRegistration.post(
         },
       });
 
-      // If the registration was previously recorded in error, update that record. Otherwise, create a new one.
+      // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
       if (existingRecordedInErrorRegistration) {
         registration = await existingRecordedInErrorRegistration.update(registrationData, {
           transaction,
@@ -185,7 +186,7 @@ patientProgramRegistration.delete(
     }
 
     await db.transaction(async transaction => {
-      // Update the status to recordedInError and soft delete the registration
+      // Update the status to recordedInError
       await existingRegistration.update(
         { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         { transaction },
