@@ -73,18 +73,10 @@ export async function comparePassword(user, password) {
 export async function centralServerLogin(models, email, password, deviceId) {
   // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
-  const response = await centralServer.fetch('login', {
-    awaitConnection: false,
-    retryAuth: false,
-    method: 'POST',
+  const response = await centralServer.login(email, password, {
+    scopes: [],
     body: {
-      email,
-      password,
-      deviceId,
       facilityIds: selectFacilityIds(config),
-    },
-    backoff: {
-      maxAttempts: 1,
     },
   });
 
