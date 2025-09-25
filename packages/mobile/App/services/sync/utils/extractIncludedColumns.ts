@@ -11,7 +11,7 @@ export const extractIncludedColumns = (
   model: typeof BaseModel,
   excludedColumns?: string[],
 ): string[] => {
-  const { metadata } = model.getRepository();
+  const { metadata } = (model as any).getRepository();
   const excludes = excludedColumns || model.excludedSyncColumns;
   // find columns to include
   const allColumns = [

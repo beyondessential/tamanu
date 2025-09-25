@@ -3,7 +3,7 @@ import { beforeAll, describe } from '@jest/globals';
 import {
   getModelsForPull,
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   SYNC_SESSION_DIRECTION,
 } from '@tamanu/database/sync';
 import { fake } from '@tamanu/fake-data/fake';
@@ -115,8 +115,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -179,8 +179,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -247,8 +247,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -371,8 +371,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -491,8 +491,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -621,8 +621,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -749,8 +749,8 @@ describe('snapshotOutgoingChanges', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
