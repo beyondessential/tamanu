@@ -70,7 +70,13 @@ export class Appointment extends Model {
       'locationGroup',
       'appointmentType',
       'bookingType',
-      'encounter',
+      {
+        association: 'encounter',
+        include: [{
+          association: 'location',
+          include: ['facility'],
+        }],
+      },
       'schedule',
       {
         association: 'appointmentProcedureTypes',
