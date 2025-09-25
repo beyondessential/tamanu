@@ -5,7 +5,7 @@ import { VIEW_TYPES, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { TranslatedText } from '../../../components';
 import { Colors } from '../../../constants';
-import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
+import { LOCATION_BOOKINGS_EMPTY_FILTER_STATE, useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useUserPreferencesMutation } from '../../../api/mutations';
 import { useAuth } from '../../../contexts/Auth';
 
@@ -57,20 +57,26 @@ AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
 export const ViewTypeToggle = props => {
   const { disabled } = props;
-  const { viewType = VIEW_TYPES.DAILY, setViewType } = useLocationBookingsContext();
+  const { viewType = VIEW_TYPES.DAILY, setViewType, setFilters } = useLocationBookingsContext();
   const { facilityId } = useAuth();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
-  const updateUserPreferences = viewType =>
+  const updateUserPreferences = viewType => {
     mutateUserPreferences({
       key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_VIEW_TYPE,
       value: viewType,
     });
+    mutateUserPreferences({
+      key: USER_PREFERENCES_KEYS.LOCATION_BOOKING_FILTERS,
+      value: LOCATION_BOOKINGS_EMPTY_FILTER_STATE,
+    });
+  };
 
   const handleViewChange = () => {
     if (disabled) return;
     const newViewType = viewType === VIEW_TYPES.WEEKLY ? VIEW_TYPES.DAILY : VIEW_TYPES.WEEKLY;
     setViewType(newViewType);
+    setFilters(LOCATION_BOOKINGS_EMPTY_FILTER_STATE);
 
     updateUserPreferences(newViewType);
   };
