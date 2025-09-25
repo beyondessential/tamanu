@@ -28,9 +28,9 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
   }
 
   const { facilityId } = assignedSurvey;
-  const settings = new ReadSettings(models, facilityId);
+  const settingsReader = new ReadSettings(models, facilityId);
   const getDefaultId = async resource =>
-    models.SurveyResponseAnswer.getDefaultId(resource, settings);
+    models.SurveyResponseAnswer.getDefaultId(resource, settingsReader);
 
   const responseRecord = await req.store.sequelize.transaction(async () => {
     const { locationId, departmentId, ...payload } = body;
@@ -40,7 +40,7 @@ export const createSurveyResponse = asyncHandler(async (req, res) => {
       locationId: locationId || (await getDefaultId('location')),
       departmentId: departmentId || (await getDefaultId('department')),
       userId: SYSTEM_USER_UUID, // Submit as system-user since the logged-in user is the patient
-      facilityId: facilityId,
+      facilityId,
       ...payload,
     };
     const surveyResponse = await models.SurveyResponse.createWithAnswers(updatedBody);
