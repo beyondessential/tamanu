@@ -534,6 +534,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             type={BOOKING_SLOT_TYPES.ASSIGNMENTS}
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
+            bookingSlotSettingsOverride={initialValues?.bookingSlots}
           />
           {!hideRepeatingFields && (
             <Field

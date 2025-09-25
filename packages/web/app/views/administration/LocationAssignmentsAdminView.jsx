@@ -13,6 +13,7 @@ import { ASSIGNMENT_SCHEDULE_INITIAL_VALUES } from '../../constants/locationAssi
 import { useSuggester } from '../../api';
 import { useAdminUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useAdminUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
+import { useAdminSettingsQuery } from '../../api/queries/useAdminSettingsQuery';
 import { useTranslation } from '../../contexts/Translation';
 
 const PlusIcon = styled(AddRounded)`
@@ -69,6 +70,13 @@ export const LocationAssignmentsAdminView = () => {
   const [selectedFacilityId, setSelectedFacilityId] = useState('');
   const { mutateAsync: saveUserPref } = useAdminUserPreferencesMutation();
   const facilitySuggester = useSuggester('facility');
+
+  // Load booking slot settings for selected facility
+  const { data: facilitySettings } = useAdminSettingsQuery(
+    'facility',
+    selectedFacilityId,
+  );
+  const bookingSlots = facilitySettings?.appointments?.bookingSlots;
 
   useEffect(() => {
     const pref = userPreferences?.[USER_PREFERENCES_KEYS.LOCATION_ASSIGNMENT_SELECTED_FACILITY];
@@ -187,7 +195,7 @@ export const LocationAssignmentsAdminView = () => {
       <AssignUserDrawer
         open={isDrawerOpen}
         onClose={closeAssignmentDrawer}
-        initialValues={{ ...drawerInitialValues, facilityId: selectedFacilityId }}
+        initialValues={{ ...drawerInitialValues, facilityId: selectedFacilityId, bookingSlots }}
         data-testid="assignuserdrawer-location-assignments"
       />
     </Wrapper>
