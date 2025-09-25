@@ -177,6 +177,8 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
     }),
   );
 
+  const device = await models.Device.create();
+
   const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
   // ensure there's a corresponding local system fact for it too
   await models.LocalSystemFact.set(FACT_FACILITY_IDS, facilityIdsString);
@@ -189,7 +191,12 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await buildToken({ user, facilityId: facilityIds[0], expiresIn: '1d' });
+    const token = await buildToken({
+      user,
+      deviceId: device.id,
+      facilityId: facilityIds[0],
+      expiresIn: '1d',
+    });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
