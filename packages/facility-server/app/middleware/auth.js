@@ -5,7 +5,7 @@ import * as jose from 'jose';
 import ms from 'ms';
 import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { context, propagation, trace } from '@opentelemetry/api';
-import { AuthPermissionError, ERROR_TYPE, InvalidTokenError } from '@tamanu/errors';
+import { AuthPermissionError, ERROR_TYPE } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -108,10 +108,7 @@ export async function centralServerLogin(models, email, password, deviceId) {
 
 async function localLogin(models, settings, email, password) {
   const {
-    auth: {
-      secret,
-      tokenDuration,
-    },
+    auth: { secret, tokenDuration },
     canonicalHostName,
   } = config;
   const { user } = await models.User.loginFromCredential(
