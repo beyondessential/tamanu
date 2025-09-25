@@ -261,7 +261,7 @@ describe('User', () => {
       });
 
       it('should fail to get the user with an expired token', async () => {
-        const expiredToken = await buildToken(authUser, null, '-1s');
+        const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
         const result = await baseApp
           .get('/api/user/me')
           .set('authorization', `Bearer ${expiredToken}`);
@@ -284,7 +284,7 @@ describe('User', () => {
         });
 
         it('should fail to get the user with an expired token', async () => {
-          const expiredToken = await buildToken(authUser, null, '-1s');
+          const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
           const result = await baseApp
             .get('/api/user/me')
             .set('authorization', `Bearer ${expiredToken}`);

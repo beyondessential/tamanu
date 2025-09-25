@@ -189,7 +189,7 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await buildToken(user, facilityIds[0], '1d');
+    const token = await buildToken({ user, facilityId: facilityIds[0], expiresIn: '1d' });
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;

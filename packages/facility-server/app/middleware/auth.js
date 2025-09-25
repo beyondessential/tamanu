@@ -5,7 +5,7 @@ import * as jose from 'jose';
 import ms from 'ms';
 import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { context, propagation, trace } from '@opentelemetry/api';
-import { AuthPermissionError, ERROR_TYPE } from '@tamanu/errors';
+import { AuthPermissionError, ERROR_TYPE, MissingCredentialError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { getPermissionsForRoles } from '@tamanu/shared/permissions/rolesToPermissions';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
@@ -18,30 +18,32 @@ const { tokenDuration, secret } = config.auth;
 
 const jwtSecretKey = secret || crypto.randomBytes(32).toString('hex');
 
-export async function buildToken(user, facilityId, expiresIn) {
+export async function buildToken({
+  user,
+  expiresIn = tokenDuration ?? '1h',
+  deviceId = undefined,
+  facilityId = undefined,
+}) {
   const secretKey = crypto.createSecretKey(new TextEncoder().encode(jwtSecretKey));
   const { canonicalHostName = 'localhost' } = config;
 
-  // Use default tokenDuration if expiresIn is not provided, with fallback
-  const duration = expiresIn ?? tokenDuration ?? '1h';
-
-  // Convert time period to seconds for jose library
   let expirationTime;
   try {
-    if (!duration) {
+    if (!expiresIn) {
       throw new Error('No duration provided');
     }
-    const timeMs = ms(duration);
+    const timeMs = ms(expiresIn);
     if (timeMs === undefined || timeMs === null) {
-      throw new Error(`ms() returned ${timeMs} for duration: ${duration}`);
+      throw new Error(`ms() returned ${timeMs} for duration: ${expiresIn}`);
     }
     expirationTime = Math.floor((Date.now() + timeMs) / 1000);
   } catch (error) {
-    throw new Error(`Invalid time period format: ${duration} (${error.message})`);
+    throw new Error(`Invalid time period format: ${expiresIn} (${error.message})`);
   }
 
   return await new jose.SignJWT({
     userId: user.id,
+    deviceId,
     facilityId,
   })
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
@@ -182,7 +184,7 @@ export async function loginHandler(req, res, next) {
 
     const [permissions, token, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
-      buildToken(user),
+      buildToken({ user, deviceId }),
       models.Role.findByPk(user.role),
     ]);
     res.send({
@@ -200,8 +202,11 @@ export async function loginHandler(req, res, next) {
 }
 
 export async function setFacilityHandler(req, res, next) {
-  const { user, body } = req;
-  const { facilityId } = body;
+  const {
+    user,
+    body: { facilityId },
+    device,
+  } = req;
 
   try {
     // Run after auth middleware, requires valid token but no other permission
@@ -212,7 +217,7 @@ export async function setFacilityHandler(req, res, next) {
     if (!hasAccess) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
-    const token = await buildToken(user, facilityId);
+    const token = await buildToken({ user, deviceId: device.id, facilityId });
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
     res.send({ token, settings });
   } catch (e) {
@@ -226,7 +231,7 @@ export async function refreshHandler(req, res) {
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken(user, facilityId);
+  const token = await buildToken({ user, facilityId });
   res.send({ token });
 }
 
@@ -245,6 +250,10 @@ export const authMiddleware = async (req, res, next) => {
       },
     );
 
+    if (!device) {
+      throw new MissingCredentialError('Missing deviceId');
+    }
+
     // when we login to a multi-facility server, we don't initially have a facilityId
     if (facility) {
       req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
@@ -252,6 +261,7 @@ export const authMiddleware = async (req, res, next) => {
 
     const sessionId = createSessionIdentifier(token);
     req.user = user; // eslint-disable-line require-atomic-updates
+    req.userDevice = device; // eslint-disable-line require-atomic-updates
     req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
@@ -276,17 +286,18 @@ export const authMiddleware = async (req, res, next) => {
           backEndContext: { endpoint: req.originalUrl },
           loggedAt: new Date(),
           facilityId: facility.id,
-          deviceId: device?.id ?? req.deviceId ?? 'unknown-device',
+          deviceId: device.id,
           version,
         });
       },
     };
 
-    const spanAttributes = {};
-    if (req.user) {
-      spanAttributes['enduser.id'] = req.user.id;
-      spanAttributes['enduser.role'] = req.user.role;
-    }
+    const spanAttributes = {
+      'enduser.id': user.id,
+      'enduser.role': user.role,
+      'session.deviceId': device.id,
+    };
+
     if (facility) {
       spanAttributes['session.facilityId'] = facility.id;
     }
