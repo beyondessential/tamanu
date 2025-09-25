@@ -184,7 +184,6 @@ patientProgramRegistration.delete(
         { registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR },
         { transaction },
       );
-      await existingRegistration.destroy({ transaction });
 
       // Soft delete all related conditions
       await PatientProgramRegistrationCondition.destroy({
