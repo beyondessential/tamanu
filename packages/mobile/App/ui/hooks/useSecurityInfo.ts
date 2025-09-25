@@ -74,8 +74,9 @@ export const useSecurityInfo = () => {
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
-  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
-  const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
+  // Fallback is for the first time the app is opened, when the settings are not yet loaded
+  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE) ?? true;
+  const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED) ?? true;
 
   const fetchSecurityInfo = useCallback(async () => {
     setIsLoading(true);
