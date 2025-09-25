@@ -48,14 +48,14 @@ export const DailySchedule = ({
   onAppointmentUpdated,
 }) => {
   const appointmentGroups = groupBy(
-    appointments.filter(appointment => {
+    appointments.filter((appointment) => {
       // don't show canceled appointment
       if (appointment.status === APPOINTMENT_STATUSES.CANCELLED) {
         return false;
       }
       return true;
     }),
-    appt => appt[activeFilter].id,
+    (appt) => appt[activeFilter].id,
   );
   const columns = Object.entries(appointmentGroups)
     .filter(([key]) => {
@@ -72,7 +72,7 @@ export const DailySchedule = ({
       // location has name, while clinician has displayName;
       const header = filterObject.name || filterObject.displayName;
 
-      const displayAppointments = appts.filter(appointment => {
+      const displayAppointments = appts.filter((appointment) => {
         // if no appointmentType selected, show all
         if (!appointmentType.length) {
           return true;
@@ -87,7 +87,7 @@ export const DailySchedule = ({
     });
   return (
     <Container data-testid="container-xxnp">
-      {columns.map(props => (
+      {columns.map((props) => (
         <Column
           key={props.key}
           onAppointmentUpdated={onAppointmentUpdated}

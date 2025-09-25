@@ -61,7 +61,7 @@ export const AppointmentDetailPopper = ({
     dispatch(push(`/patients/all/${patientId}`));
   }, [dispatch, patientId]);
 
-  const handleClickAway = e => {
+  const handleClickAway = (e) => {
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
@@ -94,7 +94,7 @@ export const AppointmentDetailPopper = ({
       anchorEl={anchorEl}
       modifiers={modifiers}
       // Prevent the popper from closing when clicked
-      onClick={e => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
       open={open}
       placement="bottom-start"
       sx={{ zIndex: 10 }}

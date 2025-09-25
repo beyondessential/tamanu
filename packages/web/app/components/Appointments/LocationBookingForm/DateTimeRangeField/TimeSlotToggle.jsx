@@ -40,7 +40,10 @@ const Toggle = styled(ToggleButton)`
     padding: 0.25rem;
     text-transform: none;
     touch-action: manipulation;
-    transition: background-color 100ms ease, border-color 100ms ease, color 100ms ease;
+    transition:
+      background-color 100ms ease,
+      border-color 100ms ease,
+      color 100ms ease;
 
     &.${toggleButtonClasses.selected} {
       background-color: oklch(from ${Colors.primary} l c h / 10%);
@@ -226,7 +229,7 @@ const SkeletonTimeSlotToggles = ({ count = 16 }) => {
 export const PlaceholderTimeSlotToggles = memo(() => {
   const { isPending, slots } = useBookingSlots(startOfToday());
   if (isPending) return <SkeletonTimeSlotToggles data-testid="skeletontimeslottoggles-9a22" />;
-  return slots?.map(slot => (
+  return slots?.map((slot) => (
     <TimeSlotToggle
       disabled
       key={idOfTimeSlot(slot)}

@@ -1,12 +1,12 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { InputAdornment } from '@material-ui/core';
 import styled from 'styled-components';
+import { Colors } from '../../constants';
 import { ChevronIcon } from '../Icons';
 
 export const Icon = styled(InputAdornment)`
   margin-inline-start: 0;
   .MuiSvgIcon-root {
-    color: ${TAMANU_COLORS.darkText};
+    color: ${Colors.darkText};
   }
 `;
 

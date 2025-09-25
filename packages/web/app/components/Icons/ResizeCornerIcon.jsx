@@ -1,8 +1,8 @@
 import React from 'react';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 
 export const ResizeCornerIcon = ({
-  htmlColor = TAMANU_COLORS.primary,
+  htmlColor = Colors.primary,
   width = 24,
   height = 24,
   ...props
