@@ -23,6 +23,7 @@ export const buildToken = async (data, secret, options) => {
 
   return await new jose.SignJWT(data)
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
+    .setJti(randomBytes(32).toString('base64url'))
     .setIssuedAt()
     .setIssuer(options.issuer)
     .setAudience(options.audience)

@@ -1,4 +1,4 @@
-import { createSecretKey } from 'node:crypto';
+import { createSecretKey, randomBytes } from 'node:crypto';
 import { compare, hash } from 'bcrypt';
 import * as jose from 'jose';
 import { unionBy } from 'lodash';
@@ -459,6 +459,7 @@ export class User extends Model {
       deviceId: device?.id,
     })
       .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
+      .setJti(randomBytes(32).toString('base64url'))
       .setIssuedAt()
       .setIssuer(tokenIssuer)
       .setAudience(JWT_TOKEN_TYPES.ACCESS)

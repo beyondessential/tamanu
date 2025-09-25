@@ -45,6 +45,7 @@ export async function buildToken(user, facilityId, expiresIn) {
     facilityId,
   })
     .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
+    .setJti(crypto.randomBytes(32).toString('base64url'))
     .setIssuer(canonicalHostName)
     .setIssuedAt()
     .setExpirationTime(expirationTime)
