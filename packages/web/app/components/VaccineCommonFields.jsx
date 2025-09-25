@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
 import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
-
+import { Colors } from '../constants';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
   AutocompleteField,

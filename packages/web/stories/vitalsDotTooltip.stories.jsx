@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
-import { Colors, TAMANU_COLORS } from '../app/constants/styles';
+import { Colors } from '../app/constants/styles';
 import {
   InwardArrowVectorTooltipContent,
   TooltipContent,
@@ -17,7 +17,7 @@ const Wrapper = styled(FlexColumn)`
 `;
 
 const TooltipWrapper = styled.div`
-  backgroundcolor: ${TAMANU_COLORS.white};
+  backgroundcolor: ${Colors.white};
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   width: 250px;
@@ -31,7 +31,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
         <TooltipContent
           name={name}
           value="36.4"
-          dotColor={TAMANU_COLORS.blue}
+          dotColor={Colors.blue}
           visualisationConfig={{ config: { unit: '°C' } }}
         />
       </TooltipWrapper>
@@ -40,7 +40,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
         <TooltipContent
           name={name}
           value="39.1"
-          dotColor={TAMANU_COLORS.alert}
+          dotColor={Colors.alert}
           description="(Outside normal range >39°C)"
           visualisationConfig={{ config: { unit: '°C' } }}
         />
@@ -50,7 +50,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
         <TooltipContent
           name={name}
           value="42.2"
-          dotColor={TAMANU_COLORS.darkestText}
+          dotColor={Colors.darkestText}
           description="(Outside normal range >39°C) (Outside graph range)"
           visualisationConfig={{ config: { unit: '°C' } }}
         />
@@ -60,7 +60,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
         <InwardArrowVectorTooltipContent
           name={name}
           value="36"
-          dotColor={TAMANU_COLORS.darkestText}
+          dotColor={Colors.darkestText}
           inwardArrowVector={{ top: 36, bottom: 30 }}
           visualisationConfig={{ config: { unit: 'mm Hg' } }}
         />
@@ -70,7 +70,7 @@ storiesOf('Vitals', module).add('Vital Tooltip', () => {
         <InwardArrowVectorTooltipContent
           name={name}
           value="42.2"
-          dotColor={TAMANU_COLORS.alert}
+          dotColor={Colors.alert}
           inwardArrowVector={{ top: 42.2, bottom: 30 }}
           description="(Outside normal range >39) (Outside graph range)"
           visualisationConfig={{ config: { unit: 'mm Hg' } }}
