@@ -247,13 +247,13 @@ export const authMiddleware = async (req, res, next) => {
       },
     );
 
-    if (!facility) {
-      throw new InvalidTokenError('Missing facilityId in token');
+    // when we login to a multi-facility server, we don't initially have a facilityId
+    if (facility) {
+      req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
     }
 
     const sessionId = createSessionIdentifier(token);
     req.user = user; // eslint-disable-line require-atomic-updates
-    req.facilityId = facility.id; // eslint-disable-line require-atomic-updates
     req.sessionId = sessionId; // eslint-disable-line require-atomic-updates
     req.getLocalisation = async () =>
       req.models.UserLocalisationCache.getLocalisation({
