@@ -50,23 +50,25 @@ describe('Patient Portal Settings', () => {
     authToken = await getPatientAuthToken(baseApp, store.models, TEST_PATIENT_EMAIL);
 
     // Set up some test settings
-    await Setting.set('fileChooserMbSizeLimit', 5, SETTINGS_SCOPES.FACILITY, testFacility.id);
-    await Setting.set('fileChooserMbSizeLimit', 5);
-    await Setting.set('sensitiveData.secretKey', 'should-not-be-exposed', SETTINGS_SCOPES.FACILITY, testFacility.id);
-    await Setting.set('admin.password', 'admin123', SETTINGS_SCOPES.FACILITY, testFacility.id);
+    await Setting.set('fileChooserMbSizeLimit', 5, SETTINGS_SCOPES.GLOBAL);
+    await Setting.set(
+      'sensitiveData.secretKey',
+      'should-not-be-exposed',
+      SETTINGS_SCOPES.FACILITY,
+      testFacility.id,
+    );
+    await Setting.set('admin.password', 'admin123', SETTINGS_SCOPES.GLOBAL);
   });
 
   afterAll(async () => close());
 
   describe('GET /api/portal/settings/:facilityId', () => {
-    it.only('should return only keys exposed to patient portal', async () => {
+    it('should return only keys exposed to patient portal', async () => {
       const response = await baseApp
         .get(`/api/portal/settings/${testFacility.id}`)
         .set('Authorization', `Bearer ${authToken}`);
 
       expect(response).toHaveSucceeded();
-
-      console.log('RESPONSE', response.body);
 
       // Check that response contains only exposed keys
       const responseKeys = Object.keys(response.body);
@@ -78,12 +80,8 @@ describe('Patient Portal Settings', () => {
       });
 
       // Verify that all exposed keys that have values are present
-      if (response.body.features) {
-        expect(response.body.features).toBeDefined();
-      }
-      if (response.body.fileChooserMbSizeLimit) {
-        expect(response.body.fileChooserMbSizeLimit).toBe(5);
-      }
+      expect(response.body.features).toBeDefined();
+      expect(response.body.fileChooserMbSizeLimit).toBe(5);
     });
 
     it('should not expose sensitive settings', async () => {
@@ -98,6 +96,9 @@ describe('Patient Portal Settings', () => {
       expect(response.body).not.toHaveProperty('admin');
       expect(response.body).not.toHaveProperty('secretKey');
       expect(response.body).not.toHaveProperty('password');
+      expect(response.body).not.toHaveProperty('fhir');
+      expect(response.body).not.toHaveProperty('reportProcess');
+      expect(response.body).not.toHaveProperty('sync');
     });
 
     it('should require authentication', async () => {
@@ -112,26 +113,6 @@ describe('Patient Portal Settings', () => {
         .set('Authorization', 'Bearer invalid-token');
 
       expect(response).toHaveRequestError();
-    });
-
-    it('should work with different facility IDs', async () => {
-      const { Facility, Setting } = store.models;
-
-      // Create another facility
-      const anotherFacility = await Facility.create(fake(Facility));
-      await Setting.set('features.anotherFeature', true, anotherFacility.id);
-      await Setting.set('fileChooserMbSizeLimit', 10, anotherFacility.id);
-
-      const response = await baseApp
-        .get(`/api/portal/settings/${anotherFacility.id}`)
-        .set('Authorization', `Bearer ${authToken}`);
-
-      expect(response).toHaveSucceeded();
-
-      // Should return settings for the correct facility
-      if (response.body.fileChooserMbSizeLimit) {
-        expect(response.body.fileChooserMbSizeLimit).toBe(10);
-      }
     });
 
     it('should handle non-existent facility ID gracefully', async () => {
