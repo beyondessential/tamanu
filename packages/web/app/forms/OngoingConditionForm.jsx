@@ -12,7 +12,8 @@ import {
   DateField,
   Field,
 } from '../components/Field';
-import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, FormCancelButton, FormSubmitButton, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { foreignKey } from '../utils/validation';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { NoteModalActionBlocker } from '../components/NoteModalActionBlocker';
@@ -21,7 +22,7 @@ import { DeleteOngoingConditionModal } from '../components/PatientInfoPane/Delet
 const Link = styled.span`
   text-decoration: underline;
   cursor: pointer;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   font-size: 12px;
 `;
 

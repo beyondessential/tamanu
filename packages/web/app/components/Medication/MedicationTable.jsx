@@ -5,7 +5,8 @@ import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
 import { useLocation, useHistory } from 'react-router-dom';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { DataFetchingTable } from '../Table';
 import { formatShortest } from '../DateDisplay';
@@ -25,7 +26,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: ${props => (props.$noData ? 'unset' : '51vh')};
   border: none;
   border-radius: 0;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   margin-top: 8px;
   .MuiTableHead-root {
     ${props => props.$noData && 'display: none;'}
@@ -33,12 +34,12 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
     top: 0;
   }
   .MuiTableCell-head {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
     padding-top: 12px;
     padding-bottom: 12px;
     span {
       font-weight: 400;
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
     }
     padding-left: 10px;
     padding-right: 10px;
@@ -62,7 +63,7 @@ const StyledDataFetchingTable = styled(DataFetchingTable)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${TAMANU_COLORS.veryLightBlue};
+      background-color: ${Colors.veryLightBlue};
     }
   }
   .MuiTableBody-root {
@@ -84,8 +85,8 @@ const NoDataContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${TAMANU_COLORS.hoverGrey};
-  color: ${TAMANU_COLORS.primary};
+  background: ${Colors.hoverGrey};
+  color: ${Colors.primary};
   padding: 0 120px;
 `;
 
@@ -108,7 +109,7 @@ const getMedicationName = (
 
   return (
     <Box
-      color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+      color={isPausing ? Colors.softText : 'inherit'}
       fontStyle={isPausing ? 'italic' : 'normal'}
     >
       <TranslatedReferenceData
@@ -138,7 +139,7 @@ const getFrequency = ({ frequency, encounterPrescription, discontinued }, getTra
   const isPausing = !!pauseData && !discontinued;
   return (
     <Box
-      color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+      color={isPausing ? Colors.softText : 'inherit'}
       fontStyle={isPausing ? 'italic' : 'normal'}
     >
       {getTranslatedFrequency(frequency, getTranslation)}
@@ -167,7 +168,7 @@ const getMedicationColumns = (
         const isPausing = !!pauseData && !data.discontinued;
         return (
           <NoWrapCell
-            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+            color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             {getMedicationDoseDisplay(data, getTranslation, getEnumTranslation)}
@@ -193,7 +194,7 @@ const getMedicationColumns = (
 
         return (
           <NoWrapCell
-            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+            color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />
@@ -231,7 +232,7 @@ const getMedicationColumns = (
         }
         return (
           <NoWrapCell
-            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+            color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <ConditionalTooltip
@@ -252,7 +253,7 @@ const getMedicationColumns = (
         const isPausing = !!pauseData && !discontinued;
         return (
           <Box
-            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+            color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             {prescriber?.displayName ?? ''}
@@ -285,7 +286,7 @@ const getMedicationColumns = (
         if (!lastOrderedAt) {
           return (
             <NoWrapCell
-              color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+              color={isPausing ? Colors.softText : 'inherit'}
               fontStyle={isPausing ? 'italic' : 'normal'}
             >
               <TranslatedText
@@ -301,12 +302,12 @@ const getMedicationColumns = (
         const orderDate = new Date(lastOrderedAt);
         return (
           <NoWrapCell
-            color={isPausing ? TAMANU_COLORS.softText : 'inherit'}
+            color={isPausing ? Colors.softText : 'inherit'}
             fontStyle={isPausing ? 'italic' : 'normal'}
           >
             <Box>
               {formatShortest(orderDate)}
-              <Box fontSize="12px" color={TAMANU_COLORS.softText}>
+              <Box fontSize="12px" color={Colors.softText}>
                 {format(orderDate, 'h:mma').toLowerCase()}
               </Box>
             </Box>
@@ -409,7 +410,7 @@ export const EncounterMedicationTable = ({
           <NoDataContainer>
             {canCreatePrescription && canImportOngoingPrescriptions ? (
               <Box
-                color={TAMANU_COLORS.darkestText}
+                color={Colors.darkestText}
                 display="flex"
                 flexDirection="column"
                 justifyContent="center"

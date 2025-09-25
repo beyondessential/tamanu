@@ -4,11 +4,12 @@ import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
-import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   padding-bottom: 1.2rem;
 `;
 

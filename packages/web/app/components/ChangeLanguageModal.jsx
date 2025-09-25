@@ -7,10 +7,10 @@ import {
   SelectInput,
   useTranslation,
   TranslatedText,
-  TAMANU_COLORS,
 } from '@tamanu/ui-components';
 import { useTranslationLanguagesQuery } from '../api/queries';
 import { ModalActionRow } from './ModalActionRow';
+import { Colors } from '../constants';
 
 const LanguageSelectorContainer = styled.div`
   margin: 10px auto 50px;
@@ -19,7 +19,7 @@ const LanguageSelectorContainer = styled.div`
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
-    color: ${TAMANU_COLORS.midText};
+    color: ${Colors.midText};
   }
 `;
 
@@ -33,14 +33,14 @@ const customStyles = {
   control: (provided, state) => ({
     ...provided,
     '&:hover': {
-      borderColor: TAMANU_COLORS.primary,
+      borderColor: Colors.primary,
     },
-    border: `1px solid ${TAMANU_COLORS.outline}`,
+    border: `1px solid ${Colors.outline}`,
     borderRadius: '4px',
     boxShadow: 'none',
     cursor: 'pointer',
     fontSize: '14px',
-    ...(state.isSelected && { borderColor: TAMANU_COLORS.primary }),
+    ...(state.isSelected && { borderColor: Colors.primary }),
   }),
   indicatorSeparator: () => ({ display: 'none' }),
   menu: provided => ({
@@ -49,13 +49,13 @@ const customStyles = {
     marginBottom: 0,
     boxShadow: 'none',
     borderWidth: '1px',
-    border: `1px solid ${TAMANU_COLORS.primary}`,
+    border: `1px solid ${Colors.primary}`,
   }),
   option: (provided, state) => ({
     ...provided,
     backgroundColor:
-      state.isFocused || state.isSelected ? TAMANU_COLORS.hoverGrey : TAMANU_COLORS.white,
-    ...(state.isDisabled ? {} : { color: TAMANU_COLORS.darkestText }),
+      state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+    ...(state.isDisabled ? {} : { color: Colors.darkestText }),
     cursor: 'pointer',
     fontSize: '11px',
   }),

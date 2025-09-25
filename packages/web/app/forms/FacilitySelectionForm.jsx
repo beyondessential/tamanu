@@ -3,7 +3,14 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
-import { Form, ButtonRow, FormGrid, FormSubmitButton, FormCancelButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  Form,
+  ButtonRow,
+  FormGrid,
+  FormSubmitButton,
+  FormCancelButton,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import {
   BodyText,
   Field,
@@ -13,12 +20,12 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const FormSubtext = styled(BodyText)`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   padding: 10px 0;
 `;
 
 const Heading = styled(Typography)`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;

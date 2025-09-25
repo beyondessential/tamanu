@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { DischargeSummaryPrintout } from '@tamanu/shared/utils/patientCertificates';
 
 import { useEncounter } from '../../contexts/Encounter';
@@ -21,7 +22,7 @@ import { useEncounterDischargeQuery } from '../../api/queries/useEncounterDischa
 import { useSettings } from '../../contexts/Settings';
 
 const Container = styled.div`
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   height: calc(100vh - 142px);
 `;
 

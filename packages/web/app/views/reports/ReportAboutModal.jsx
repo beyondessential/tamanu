@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { OutlinedButton, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 const TextContainer = styled.div`
   padding: 15px;
@@ -8,8 +9,8 @@ const TextContainer = styled.div`
 `;
 
 const StyledButtonRow = styled.div`
-  background-color: ${TAMANU_COLORS.background};
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.background};
+  border-top: 1px solid ${Colors.outline};
   padding: 30px;
   display: flex;
   justify-content: flex-end;

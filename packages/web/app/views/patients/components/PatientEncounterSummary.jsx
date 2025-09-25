@@ -2,7 +2,8 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
@@ -20,14 +21,14 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const Border = css`
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
 `;
 
 const Container = styled.div`
   ${Border};
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   transition: color 0.2s ease;
 `;
 
@@ -36,7 +37,7 @@ const NoVisitContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   padding: 28px 30px;
 `;
 
@@ -82,12 +83,12 @@ const NoVisitTitle = styled(BoldTitle)`
 
 const ContentLabel = styled.span`
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkContentText};
+  color: ${Colors.darkContentText};
   margin-right: 5px;
 `;
 
 const ContentText = styled.span`
-  color: ${TAMANU_COLORS.midContentText};
+  color: ${Colors.midContentText};
   text-transform: capitalize;
 `;
 

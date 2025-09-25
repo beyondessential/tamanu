@@ -3,7 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;
 
-export { TAMANU_COLORS, MUI_SPACING_UNIT };
+export { MUI_SPACING_UNIT };
 
 // For existing imports of Colors
 export const Colors = TAMANU_COLORS;
@@ -23,7 +23,7 @@ export const denseTableStyle = {
   `,
   head: `
     .MuiTableCell-head {
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
       font-weight: 400;
       padding: 8px 30px 8px 0px;
       &:last-child {
@@ -31,7 +31,7 @@ export const denseTableStyle = {
       }
     }
     .MuiTableSortLabel-root.MuiTableSortLabel-active {
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
       font-weight: 400;
     }
   `,

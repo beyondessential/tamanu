@@ -2,7 +2,8 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { LAB_REQUEST_FORM_TYPES } from '@tamanu/constants/labs';
-import { Button, OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { MultipleLabRequestsPrintoutModal } from '../../../components/PatientPrinting/modals/MultipleLabRequestsPrintoutModal';
 import {
   BodyText,
@@ -43,10 +44,10 @@ const CardTable = styled(Table)`
 `;
 
 const Card = styled.div`
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   border-radius: 5px;
   padding: 32px 30px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
 `;
 
 const Actions = styled.div`
@@ -256,7 +257,7 @@ export const LabRequestSummaryPane = React.memo(
             />
           </StyledInfoCard>
           <CardTable
-            headerColor={TAMANU_COLORS.white}
+            headerColor={Colors.white}
             columns={[selectableColumn, ...getColumns(requestFormType)]}
             data={labRequests}
             elevated={false}

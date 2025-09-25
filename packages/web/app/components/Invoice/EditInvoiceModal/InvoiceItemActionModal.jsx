@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 
 import { InvoiceItemCard } from './InvoiceItemCard';
-import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
 import { Field, NumberField } from '../../Field';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../VaccineCommonFields';
-import { TextField, SelectField, Form, FormGrid, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { TextField, SelectField, Form, FormGrid, Modal, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
 
@@ -193,7 +193,7 @@ const AddNoteForm = () => {
             textAlign="right"
             fontSize="11px"
             fontWeight={400}
-            color={TAMANU_COLORS.midText}
+            color={Colors.midText}
             data-testid="box-xi3i"
           >
             <TranslatedText

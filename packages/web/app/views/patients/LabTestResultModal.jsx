@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 import { DateDisplay } from '../../components/DateDisplay';
@@ -12,8 +13,8 @@ const ModalBody = styled.div`
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
   grid-column-gap: 30px;
-  background-color: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 20px 30px 0px;
   margin: 20px 0px 40px;
@@ -25,7 +26,7 @@ const ModalHeader = styled.div`
 `;
 
 const VerticalDivider = styled.div`
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${Colors.outline};
   height: 60%;
 `;
 
@@ -33,7 +34,7 @@ const ValueContainer = styled.div`
   margin-bottom: 20px;
 `;
 const TitleLabel = styled(BodyText)`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 const ValueLabel = styled(BodyText)`
   font-weight: 500;

@@ -1,13 +1,14 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import { TextField, Form, FormSubmitButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, FormSubmitButton } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const Container = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
-  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
 `;
 
 const SearchInputContainer = styled.div`

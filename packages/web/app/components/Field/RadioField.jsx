@@ -6,14 +6,15 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
-import { TAMANU_COLORS, TranslatedEnumField } from '@tamanu/ui-components';
+import { TranslatedEnumField } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 
 const DEFAULT_LABEL_THEME = {
-  color: { default: TAMANU_COLORS.outline, selected: TAMANU_COLORS.primary },
-  background: { default: TAMANU_COLORS.white, selected: TAMANU_COLORS.white },
-  border: { default: TAMANU_COLORS.outline, selected: TAMANU_COLORS.primary },
-  text: { default: TAMANU_COLORS.darkText, selected: TAMANU_COLORS.darkestText },
+  color: { default: Colors.outline, selected: Colors.primary },
+  background: { default: Colors.white, selected: Colors.white },
+  border: { default: Colors.outline, selected: Colors.primary },
+  text: { default: Colors.darkText, selected: Colors.darkestText },
 };
 
 const StyledFormControl = styled(FormControl)`
@@ -78,7 +79,7 @@ const ControlLabel = styled(FormControlLabel)`
 
 const StyledLabelDescription = styled.p`
   font-size: 11px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   margin: 0;
   padding-right: 10px;
   width: 200px;
@@ -86,7 +87,7 @@ const StyledLabelDescription = styled.p`
 
 const StyledLabelTitle = styled.p`
   font-size: 14px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   margin: 0;
   margin-bottom: 8px;
   font-weight: bold;
@@ -152,7 +153,7 @@ export const RadioInput = ({
               <ControlLabel
                 key={option.value}
                 labelPlacement={option.description ? 'start' : 'end'}
-                $color={error ? TAMANU_COLORS.alert : null}
+                $color={error ? Colors.alert : null}
                 control={
                   <Radio
                     value={option.value}
@@ -184,10 +185,10 @@ export const RadioInput = ({
                 theme={
                   option.color
                     ? {
-                        color: { default: TAMANU_COLORS.midText, selected: option.color },
-                        background: { default: TAMANU_COLORS.white, selected: `${option.color}11` },
+                        color: { default: Colors.midText, selected: option.color },
+                        background: { default: Colors.white, selected: `${option.color}11` },
                         border: { default: option.color, selected: option.color },
-                        text: { default: TAMANU_COLORS.darkText, selected: TAMANU_COLORS.darkestText },
+                        text: { default: Colors.darkText, selected: Colors.darkestText },
                       }
                     : DEFAULT_LABEL_THEME
                 }

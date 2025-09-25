@@ -6,7 +6,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Field, NumberField, AutocompleteField } from '../../Field';
-import { TextField, TranslatedSelectField, Form, FormGrid, TAMANU_COLORS, ConfirmCancelRow, TranslatedText } from '@tamanu/ui-components';
+import {
+  TextField,
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { FormModal } from '../../FormModal';
 import { useAuth } from '../../../contexts/Auth';
 import { useSuggester } from '../../../api';
@@ -26,22 +34,22 @@ const StyledFormModal = styled(FormModal)`
 
 const StatusAlert = styled.div`
   font-size: 11px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const TimeGivenTitle = styled.div`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 3px;
 `;
 
 const RequiredMark = styled.span`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
 `;
 
 const ErrorMessage = styled.div`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 12px;
   margin: 4px 2px 2px;
   font-weight: 500;
@@ -52,13 +60,13 @@ const StyledTimePickerField = styled(Field)`
   width: 100%;
   .MuiInputBase-root {
     font-size: 14px;
-    color: ${TAMANU_COLORS.darkestText};
-    background-color: ${TAMANU_COLORS.white};
+    color: ${Colors.darkestText};
+    background-color: ${Colors.white};
     &.Mui-disabled {
       background-color: inherit;
     }
     &.Mui-disabled .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.outline};
+      border-color: ${Colors.outline};
     }
     .MuiSvgIcon-root {
       font-size: 22px;
@@ -72,10 +80,10 @@ const StyledTimePickerField = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.primary} !important;
+      border-color: ${Colors.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.softText};
+      border-color: ${Colors.softText};
     }
   }
 `;

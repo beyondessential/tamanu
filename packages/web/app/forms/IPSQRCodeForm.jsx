@@ -1,4 +1,5 @@
 import React from 'react';
+import { Colors } from '../constants/styles';
 import * as Yup from 'yup';
 import styled from 'styled-components';
 
@@ -7,7 +8,6 @@ import {
   Form,
   FormGrid,
   FormSubmitCancelRow,
-  TAMANU_COLORS,
 } from '@tamanu/ui-components';
 import { Field } from '../components/Field';
 import { DateDisplay } from '../components';
@@ -22,7 +22,7 @@ const StyledPatientDetailsLink = styled.span`
   text-decoration: underline;
 
   &:hover {
-    color: ${TAMANU_COLORS.primary};
+    color: ${Colors.primary};
   }
 `;
 
@@ -33,12 +33,12 @@ const StyledDateOfBirthWrapper = styled.div`
 
 const StyledDateOfBirthContainer = styled.div`
   padding: 10px 20px;
-  background-color: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
 `;
 
 const StyledDateOfBirthText = styled.span`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const IPSQRCodeFormComponent = ({ patient, onSubmit, confirmDisabled, onCancel }) => {

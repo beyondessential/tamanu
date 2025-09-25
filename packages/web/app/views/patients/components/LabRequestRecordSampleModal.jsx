@@ -2,7 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
-import { Form, FormGrid, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Form, FormGrid, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import {
   AutocompleteField,
   DateTimeField,
@@ -58,20 +59,20 @@ const StyledField = styled(Field)`
     margin-bottom: 31px;
   }
   .MuiInputBase-root.Mui-disabled {
-    background: ${TAMANU_COLORS.background};
+    background: ${Colors.background};
   }
   .MuiOutlinedInput-root:hover.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${TAMANU_COLORS.softOutline};
+    border-color: ${Colors.softOutline};
   }
   .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
-    border-color: ${TAMANU_COLORS.softOutline};
+    border-color: ${Colors.softOutline};
   }
 `;
 
 const FieldContainer = styled.div`
   position: relative;
-  background-color: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 18px;
   margin-bottom: 28px;
@@ -79,7 +80,7 @@ const FieldContainer = styled.div`
 
 const HorizontalLine = styled.div`
   height: 1px;
-  background-color: ${TAMANU_COLORS.outline};
+  background-color: ${Colors.outline};
   position: absolute;
   top: 61px;
   left: 0;

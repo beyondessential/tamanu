@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, TranslatedText, TAMANU_COLORS, Modal } from '@tamanu/ui-components';
+import { ConfirmCancelRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
@@ -13,11 +14,11 @@ const LogContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   padding: 20px 40px;
   margin-top: 16px;
   border-radius: 3px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   overflow-y: auto;
 `;
 
@@ -28,16 +29,16 @@ const LogItem = styled.div`
   gap: 3px;
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const NoteText = styled.span`
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
   font-size: 11px;
 `;
 
 const DoseLabel = styled.span`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   font-size: 14px;
   font-weight: 500;
   position: absolute;
@@ -346,7 +347,7 @@ export const ChangeLogModal = ({ open, onClose, medication, marId }) => {
                 </LogItem>
               ))}
             </Box>
-            {idx < changeLogList.length - 1 && <Divider color={TAMANU_COLORS.outline} />}
+            {idx < changeLogList.length - 1 && <Divider color={Colors.outline} />}
           </Fragment>
         ))}
       </LogContainer>

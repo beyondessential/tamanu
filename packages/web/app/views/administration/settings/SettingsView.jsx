@@ -5,7 +5,8 @@ import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { applyDefaults, validateSettings } from '@tamanu/settings';
-import { Form, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
@@ -26,7 +27,7 @@ const SETTING_TABS = {
 
 const StyledTabDisplay = styled(TabDisplay)`
   height: 100%;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   > div:last-child {
     flex: 1;
   }
@@ -38,7 +39,7 @@ const TabContainer = styled.div`
   padding-top: 0.75rem;
   display: flex;
   flex-direction: column;
-  background-color: ${TAMANU_COLORS.background};
+  background-color: ${Colors.background};
 `;
 
 const tabs = [

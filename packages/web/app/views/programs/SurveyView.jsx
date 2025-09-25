@@ -7,13 +7,13 @@ import {
   getFormInitialValues,
   getValidationSchema,
   SurveyScreenPaginator,
-  TAMANU_COLORS,
   TranslatedReferenceData,
 } from '@tamanu/ui-components';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { getComponentForQuestionType } from '../../components/Surveys';
 import { useTranslation } from '../../contexts/Translation';
 import { useEncounter } from '../../contexts/Encounter';
+import { Colors } from '../../constants';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
@@ -23,7 +23,7 @@ export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
 `;
 
 export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
 `;
 
 const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {

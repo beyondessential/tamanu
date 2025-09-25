@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ApiContext, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ApiContext } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
+import { Colors } from '../constants';
 
 const Container = styled.div`
   position: absolute;
@@ -16,7 +17,7 @@ const Container = styled.div`
   p {
     margin: 0;
   }
-  background: ${TAMANU_COLORS.alert};
+  background: ${Colors.alert};
 `;
 
 export const SyncHealthNotificationComponent = () => {

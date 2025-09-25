@@ -5,7 +5,8 @@ import * as yup from 'yup';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants';
-import { Form, FormGrid, FormSubmitCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useLocationBookingMutation } from '../../../api/mutations';
@@ -285,7 +286,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
                 />
                 <OvernightIcon
                   aria-hidden
-                  htmlColor={TAMANU_COLORS.primary}
+                  htmlColor={Colors.primary}
                   style={{ fontSize: 18 }}
                   data-testid="overnighticon-mjii"
                 />

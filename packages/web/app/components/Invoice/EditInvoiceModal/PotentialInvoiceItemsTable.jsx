@@ -5,7 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
@@ -30,7 +31,7 @@ const PaneHeader = styled.div`
   padding-top: 8px;
   padding-bottom: 8px;
   background: white;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const BulkAddButton = styled(Button)`
@@ -46,7 +47,7 @@ const Container = styled.div`
   padding-right: 15px;
   background: white;
   border-radius: 4px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
 
   ::-webkit-scrollbar {
     width: 5px;
@@ -60,13 +61,13 @@ const Container = styled.div`
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    background: ${TAMANU_COLORS.softText};
+    background: ${Colors.softText};
     border-radius: 5px;
   }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
-    background: ${TAMANU_COLORS.softText};
+    background: ${Colors.softText};
   }
 `;
 
@@ -232,7 +233,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
         allowExport={false}
         rowStyle={potentialInvoiceItemRowStyle}
         onDataFetched={onPotentialInvoiceItemsFetched}
-        headerColor={TAMANU_COLORS.white}
+        headerColor={Colors.white}
         fetchOptions={{ page: undefined }}
         elevated={false}
         isEmpty={isEmptyPotentialInvoiceItems}

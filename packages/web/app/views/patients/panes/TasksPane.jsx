@@ -1,4 +1,5 @@
-import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { omit } from 'lodash';
@@ -14,7 +15,7 @@ import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlock
 
 const TabPane = styled.div`
   margin: 20px 24px 24px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 4px;
   padding: 6px 12px;
   min-height: 460px;

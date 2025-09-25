@@ -4,7 +4,8 @@ import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { Form, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 
 import { Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
@@ -27,7 +28,7 @@ import { useSettings } from '../contexts/Settings';
 const StyledImageButton = styled(Button)`
   min-width: 30px;
   margin-right: 5px;
-  background: ${TAMANU_COLORS.background};
+  background: ${Colors.background};
 `;
 
 const IdBannerContainer = styled.div`
@@ -37,7 +38,7 @@ const IdBannerContainer = styled.div`
 
 const AdditionalInformationRow = styled.div`
   grid-column: 1 / -1;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   margin-top: 30px;
   margin-bottom: 20px;
   padding: 10px 0;
@@ -48,12 +49,12 @@ const AdditionalInformationRow = styled.div`
   div {
     font-weight: 500;
     font-size: 17px;
-    color: ${TAMANU_COLORS.darkestText};
+    color: ${Colors.darkestText};
   }
 
   button {
     padding: 0;
-    color: ${TAMANU_COLORS.primary};
+    color: ${Colors.primary};
   }
 
   div span {

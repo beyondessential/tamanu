@@ -1,4 +1,4 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { createTheme } from '@material-ui/core/styles';
 import { MUI_SPACING_UNIT } from '../constants';
 
@@ -6,27 +6,27 @@ const themeConfig = {
   themeName: 'Tamanu',
   palette: {
     primary: {
-      main: TAMANU_COLORS.primary,
-      dark: TAMANU_COLORS.primaryDark,
+      main: Colors.primary,
+      dark: Colors.primaryDark,
     },
     secondary: {
-      main: TAMANU_COLORS.secondary,
+      main: Colors.secondary,
       dark: '#905a00',
     },
     error: {
-      main: TAMANU_COLORS.alert,
+      main: Colors.alert,
     },
     success: {
-      main: TAMANU_COLORS.safe,
+      main: Colors.safe,
     },
     text: {
-      primary: TAMANU_COLORS.darkestText,
-      secondary: TAMANU_COLORS.darkText,
-      tertiary: TAMANU_COLORS.midText,
+      primary: Colors.darkestText,
+      secondary: Colors.darkText,
+      tertiary: Colors.midText,
     },
     background: {
-      default: TAMANU_COLORS.background,
-      paper: TAMANU_COLORS.white,
+      default: Colors.background,
+      paper: Colors.white,
       header: '#EAF2FF', // taken from colors.scss::$main-light-blue-color
       light: '#F4F6F8', // taken from colors.scss::$main-light-gray-color
       main: '#eff2f5', // taken from colors.scss::$main-bg-color
@@ -44,12 +44,12 @@ const themeConfig = {
   overrides: {
     MuiCard: {
       root: {
-        borderColor: TAMANU_COLORS.outline,
+        borderColor: Colors.outline,
       },
     },
     MuiOutlinedInput: {
       notchedOutline: {
-        borderColor: TAMANU_COLORS.outline,
+        borderColor: Colors.outline,
       },
     },
   },
@@ -57,12 +57,12 @@ const themeConfig = {
   components: {
     MuiCard: {
       root: {
-        borderColor: TAMANU_COLORS.outline,
+        borderColor: Colors.outline,
       },
     },
     MuiOutlinedInput: {
       notchedOutline: {
-        borderColor: TAMANU_COLORS.outline,
+        borderColor: Colors.outline,
       },
     },
   },

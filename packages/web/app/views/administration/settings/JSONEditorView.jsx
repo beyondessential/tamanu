@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { Settings } from '@material-ui/icons';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
-import { TextButton, ButtonRow, Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextButton, ButtonRow, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { JSONEditor } from './components/JSONEditor';
 import { DefaultSettingsModal } from './components/DefaultSettingsModal';
@@ -12,8 +13,8 @@ import { TranslatedText } from '../../../components/Translation';
 import { isNull } from 'lodash';
 
 const SettingsWrapper = styled.div`
-  background-color: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.white};
+  border: 1px solid ${Colors.outline};
   margin-top: 1.25rem;
   flex: 1;
   display: flex;

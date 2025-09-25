@@ -8,7 +8,8 @@ import { useLocationsQuery } from '../../../api/queries';
 import { PageContainer, TopBar } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
-import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
@@ -33,7 +34,7 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
     />
   ),
 })`
-  border-block-end: max(0.0625rem, 1px) ${TAMANU_COLORS.outline} solid;
+  border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;
 
 const Wrapper = styled(PageContainer)`
@@ -51,7 +52,7 @@ const EmptyStateLabel = styled(Typography).attrs({
   color: 'textSecondary',
   variant: 'body1',
 })`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   font-size: 2rem;
   font-weight: 400;
   place-self: center;

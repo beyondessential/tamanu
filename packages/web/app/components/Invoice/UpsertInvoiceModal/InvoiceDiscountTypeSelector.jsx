@@ -4,17 +4,18 @@ import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../../Typography';
 import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
-import { ConfirmCancelBackRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ConfirmCancelBackRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
-  background: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
   border-radius: 4px;
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${(p) => (p.checked ? `border: 1px solid ${TAMANU_COLORS.primary};` : '')}
+  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;
@@ -63,7 +64,7 @@ export const InvoiceDiscountTypeSelector = ({
           data-testid="translatedtext-0mos"
         />
       </BodyText>
-      <Heading5 mb="12px" color={TAMANU_COLORS.midText} data-testid="heading5-7pnz">
+      <Heading5 mb="12px" color={Colors.midText} data-testid="heading5-7pnz">
         <TranslatedText
           stringId="invoice.modal.selectDiscount.label"
           fallback="Select your discount type"

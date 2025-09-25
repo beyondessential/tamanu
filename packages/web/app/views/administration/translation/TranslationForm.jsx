@@ -13,7 +13,8 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { TextField, Form, TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
+import { TextField, Form, Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { SearchInput, TableFormFields } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
@@ -42,7 +43,7 @@ const StyledTableFormFields = styled(TableFormFields)`
 `;
 
 const ReservedText = styled.p`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   margin-right: 6px;
   font-weight: 500;
   font-size: 14px;
@@ -242,7 +243,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
                   }
                   data-testid="tooltip-brb2"
                 >
-                  <HelpIcon style={{ color: TAMANU_COLORS.primary }} data-testid="helpicon-py2n" />
+                  <HelpIcon style={{ color: Colors.primary }} data-testid="helpicon-py2n" />
                 </Tooltip>
               </Box>
             );

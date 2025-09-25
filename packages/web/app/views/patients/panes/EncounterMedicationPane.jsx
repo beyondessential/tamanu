@@ -4,7 +4,8 @@ import PrintIcon from '@material-ui/icons/Print';
 import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
-import { ButtonWithPermissionCheck, Button, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ButtonWithPermissionCheck, Button, TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
@@ -62,7 +63,7 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
 `;
 
 const TableContainer = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   padding: 8px 10px;
   border-radius: 3px;
 `;

@@ -2,7 +2,14 @@ import React from 'react';
 import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { TextField, Form, FormGrid, TAMANU_COLORS, ConfirmCancelRow, TranslatedText } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { Field } from '../../Field';
 import { FormModal } from '../..';
 import { useDeleteDoseMutation } from '../../../api/mutations/useMarMutation';
@@ -23,28 +30,28 @@ const StyledDivider = styled(Divider)`
 
 const DetailsContainer = styled(Box)`
   padding: 12px 16px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   position: relative;
 `;
 
 const MidText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const VerticalSeparator = styled.div`
   width: 1px;
-  background-color: ${TAMANU_COLORS.outline};
+  background-color: ${Colors.outline};
   margin: 0 20px;
 `;
 export const RemoveAdditionalDoseModal = ({ open, onClose, medication, dose }) => {

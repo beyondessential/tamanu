@@ -13,7 +13,8 @@ import {
   NoteModalActionBlocker,
   NumberField,
 } from '../components';
-import { TextField, Form, DefaultIconButton, TAMANU_COLORS, TranslatedText, Button } from '@tamanu/ui-components';
+import { TextField, Form, DefaultIconButton, TranslatedText, Button } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useSuggester } from '../api';
 import { CHEQUE_PAYMENT_METHOD_ID } from '../constants';
 import { FORM_TYPES } from '@tamanu/constants';
@@ -23,7 +24,7 @@ import { ThemedTooltip } from '../components/Tooltip';
 
 const IconButton = styled(DefaultIconButton)`
   cursor: pointer;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   position: absolute;
   top: 6px;
   right: -23px;

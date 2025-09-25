@@ -2,7 +2,8 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
 import { NewTemplateForm } from './NewTemplateForm';
@@ -16,8 +17,8 @@ import { useRefreshCount } from '../../../hooks/useRefreshCount';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;
-  border: 1px solid ${TAMANU_COLORS.outline};
-  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
   border-radius: 5px;
   margin-bottom: 20px;
 `;

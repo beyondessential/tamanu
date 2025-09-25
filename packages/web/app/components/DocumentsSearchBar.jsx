@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Form, FormSubmitButton, TextButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, FormSubmitButton, TextButton, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import Typography from '@material-ui/core/Typography';
 import { DynamicSelectField, Field, SearchField } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
@@ -14,7 +15,7 @@ const Container = styled.div`
   padding: 2rem;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const HeaderBar = styled.div`

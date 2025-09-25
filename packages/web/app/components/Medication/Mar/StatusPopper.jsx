@@ -7,7 +7,8 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
 import { addHours, set } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Form, Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import * as yup from 'yup';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ADMINISTRATION_STATUS, DRUG_UNIT_SHORT_LABELS } from '@tamanu/constants';
@@ -96,7 +97,7 @@ const DoseButton = styled(IconButton)`
   padding: 5px;
   margin: -5px;
   svg {
-    color: ${p => (p.disabled ? TAMANU_COLORS.softText : TAMANU_COLORS.primary)};
+    color: ${p => (p.disabled ? Colors.softText : Colors.primary)};
     width: 14px;
     height: 14px;
   }
@@ -104,14 +105,14 @@ const DoseButton = styled(IconButton)`
 `;
 
 const TimeGivenTitle = styled.div`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 3px;
 `;
 
 const RequiredMark = styled.span`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
 `;
 
 const ConfirmButton = styled(Button)`
@@ -149,7 +150,7 @@ const InputSuffix = styled.span`
   position: absolute;
   right: 3px;
   top: 1.7px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const StyledTimePicker = styled(Field)`
@@ -158,8 +159,8 @@ const StyledTimePicker = styled(Field)`
     font-size: 12px;
     height: 32px;
     width: 100%;
-    color: ${TAMANU_COLORS.darkestText};
-    background-color: ${TAMANU_COLORS.white};
+    color: ${Colors.darkestText};
+    background-color: ${Colors.white};
     .MuiButtonBase-root {
       padding: 5px;
     }
@@ -173,16 +174,16 @@ const StyledTimePicker = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.primary} !important;
+      border-color: ${Colors.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.softText};
+      border-color: ${Colors.softText};
     }
   }
 
   /* Add error message styling */
   .error-message {
-    color: ${TAMANU_COLORS.alert};
+    color: ${Colors.alert};
     font-size: 10px;
     margin-top: 2px;
   }
@@ -194,7 +195,7 @@ const FormContainer = styled.div`
 `;
 
 const ErrorMessage = styled.div`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 12px;
   margin: 4px 2px 2px;
   font-weight: 500;
@@ -205,13 +206,13 @@ const MainScreen = ({ onGivenClick, onNotGivenClick }) => {
   return (
     <PopperContent>
       <NoteModalActionBlocker>
-        <StyledButton onClick={onGivenClick} variant="outlined" $color={TAMANU_COLORS.green}>
+        <StyledButton onClick={onGivenClick} variant="outlined" $color={Colors.green}>
           <TranslatedText stringId="medication.status.given" fallback="Given" />
         </StyledButton>
       </NoteModalActionBlocker>
-      <Divider color={TAMANU_COLORS.outline} />
+      <Divider color={Colors.outline} />
       <NoteModalActionBlocker>
-        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={TAMANU_COLORS.alert}>
+        <StyledButton onClick={onNotGivenClick} variant="outlined" $color={Colors.alert}>
           <TranslatedText stringId="medication.status.notGiven" fallback="Not given" />
         </StyledButton>
       </NoteModalActionBlocker>

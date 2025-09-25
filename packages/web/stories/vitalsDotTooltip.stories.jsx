@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors, TAMANU_COLORS } from '../app/constants/styles';
 import {
   InwardArrowVectorTooltipContent,
   TooltipContent,

@@ -8,7 +8,15 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
-import { Button, DeleteButton, TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData, TranslatedSex } from '@tamanu/ui-components';
+import {
+  Button,
+  DeleteButton,
+  Modal,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedSex,
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
@@ -25,11 +33,11 @@ const Heading = styled.div`
 `;
 
 const PatientInfoContainer = styled.div`
-  border: 2px solid ${TAMANU_COLORS.outline};
+  border: 2px solid ${Colors.outline};
   padding: 1rem 0.75rem;
 
   &:hover {
-    background-color: ${TAMANU_COLORS.veryLightBlue};
+    background-color: ${Colors.veryLightBlue};
     cursor: pointer;
   }
 `;
@@ -46,7 +54,7 @@ const PatientName = styled.div`
 
 const PatientInfoLabel = styled.td`
   padding-right: 1rem;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const PatientInfoValue = styled.td`
@@ -228,7 +236,7 @@ const FirstRow = styled(Section)`
   justify-content: space-between;
   align-items: flex-start;
   padding-bottom: 1rem;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   column-gap: 2rem;
 `;
 
@@ -356,35 +364,35 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
           styles={{
             placeholder: baseStyles => ({
               ...baseStyles,
-              color: TAMANU_COLORS.white,
+              color: Colors.white,
             }),
             valueContainer: baseStyles => ({
               ...baseStyles,
-              color: TAMANU_COLORS.white,
+              color: Colors.white,
             }),
             dropdownIndicator: baseStyles => ({
               ...baseStyles,
-              color: TAMANU_COLORS.white,
+              color: Colors.white,
             }),
             singleValue: baseStyles => ({
               ...baseStyles,
-              color: TAMANU_COLORS.white,
+              color: Colors.white,
             }),
             control: baseStyles => ({
               ...baseStyles,
-              backgroundColor: TAMANU_COLORS.primary,
-              color: TAMANU_COLORS.white,
+              backgroundColor: Colors.primary,
+              color: Colors.white,
               borderColor: 'transparent',
             }),
             menu: baseStyles => ({
               ...baseStyles,
-              backgroundColor: TAMANU_COLORS.primary,
-              color: TAMANU_COLORS.white,
+              backgroundColor: Colors.primary,
+              color: Colors.white,
             }),
             option: (baseStyles, state) => ({
               ...baseStyles,
-              backgroundColor: (state.isSelected || state.isFocused) && TAMANU_COLORS.veryLightBlue,
-              color: (state.isSelected || state.isFocused) && TAMANU_COLORS.darkText,
+              backgroundColor: (state.isSelected || state.isFocused) && Colors.veryLightBlue,
+              color: (state.isSelected || state.isFocused) && Colors.darkText,
             }),
           }}
           data-testid="select-mkhv"

@@ -4,13 +4,19 @@ import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
 import { FORM_TYPES } from '@tamanu/constants';
-import { TextField, Form, FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const SubmitError = styled.div`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   padding: 0.25rem;
 `;
 

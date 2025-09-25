@@ -13,7 +13,6 @@ import {
   FormGrid,
   FormConfirmCancelBackRow,
   FormSubmitButton,
-  TAMANU_COLORS,
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
 } from '@tamanu/ui-components';
@@ -21,7 +20,7 @@ import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/util
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-
+import { Colors} from '../constants';
 import {
   AutocompleteField,
   CheckField,
@@ -64,7 +63,7 @@ const ConfirmContent = styled.div`
   text-align: left;
   padding: ${40 - MODAL_PADDING_TOP_AND_BOTTOM}px ${80 - MODAL_PADDING_LEFT_AND_RIGHT}px;
   h3 {
-    color: ${TAMANU_COLORS.alert};
+    color: ${Colors.alert};
     font-size: 16px;
     font-weight: 500;
   }
@@ -89,20 +88,20 @@ const StyledDivider = styled(Divider)`
 `;
 
 const MedicationContainer = styled(Box)`
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 const DarkestText = styled(Box)`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-size: 14px;
 `;
 
 const MedicationHeader = styled(Box)`
   font-size: 14px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   padding: 12px 20px;
   line-height: 18px;
 `;
@@ -114,14 +113,14 @@ const TableContainer = styled(Box)`
     border: none;
   }
   .MuiTableHead-root {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
     .MuiTableCell-head {
       padding: 0 30px 5px 0;
       text-align: left;
       font-size: 14px;
       font-weight: 500;
       line-height: 18px;
-      color: ${TAMANU_COLORS.darkText};
+      color: ${Colors.darkText};
       &:nth-child(4) {
         padding-right: 0;
       }
@@ -267,7 +266,7 @@ const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) 
           category={medicationReferenceData.type}
         />
       </DarkestText>
-      <Box fontSize={'14px'} color={TAMANU_COLORS.midText}>
+      <Box fontSize={'14px'} color={Colors.midText}>
         {[
           getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
           getTranslatedFrequency(medication.frequency, getTranslation),
@@ -461,7 +460,7 @@ const EncounterOverview = ({
         data-testid="outerlabelfieldwrapper-2u7q"
       >
         {!currentDiagnoses.length && dischargeDiagnosisMandatory ? (
-          <BodyText color={TAMANU_COLORS.alert} data-testid="bodytext-lhri">
+          <BodyText color={Colors.alert} data-testid="bodytext-lhri">
             <TranslatedText
               stringId="discharge.diagnosis.empty"
               fallback="No diagnosis recorded. A diagnosis must be recorded in order to finalise a discharge."
@@ -894,7 +893,7 @@ export const DischargeForm = ({
             data-testid="outerlabelfieldwrapper-axm9"
           >
             <MedicationContainer>
-              <MedicationHeader borderBottom={`1px solid ${TAMANU_COLORS.outline}`}>
+              <MedicationHeader borderBottom={`1px solid ${Colors.outline}`}>
                 <TranslatedText
                   stringId="discharge.encounterMedication"
                   fallback="Encounter medication"
@@ -914,8 +913,8 @@ export const DischargeForm = ({
                 />
               </TableContainer>
               <MedicationHeader
-                borderTop={`1px solid ${TAMANU_COLORS.outline}`}
-                borderBottom={`1px solid ${TAMANU_COLORS.outline}`}
+                borderTop={`1px solid ${Colors.outline}`}
+                borderBottom={`1px solid ${Colors.outline}`}
               >
                 <TranslatedText
                   stringId="discharge.otherOngoingMedication"

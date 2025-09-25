@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEncounterDataQuery } from '../../../api/queries';
-import { Button, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { MultipleImagingRequestsWrapper } from '../../../components/PatientPrinting/modals/MultipleImagingRequestsPrintoutModal';
 import { printPDF } from '../../../components/PatientPrinting/PDFLoader';
@@ -48,7 +49,7 @@ export const PrintModalButton = (props) => {
         open={isModalOpen}
         onClose={closeModal}
         width="md"
-        color={TAMANU_COLORS.white}
+        color={Colors.white}
         printable
         onPrint={() => printPDF('imaging-request-printout')}
         data-testid="modal-tdx7"

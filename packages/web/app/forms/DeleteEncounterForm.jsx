@@ -2,7 +2,8 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
-import { Form, FormGrid, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, FormGrid, ConfirmCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 
@@ -29,13 +30,13 @@ const GridItem = styled.div`
 `;
 
 const GridContent = styled.div`
-  border-right: 1px solid ${TAMANU_COLORS.outline};
+  border-right: 1px solid ${Colors.outline};
 `;
 
 const WarningTitle = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
 `;
 
 const Paragraph = styled.p`

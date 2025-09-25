@@ -2,7 +2,13 @@ import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { Button, TAMANU_COLORS, Modal, TranslatedText, TranslatedEnum } from '@tamanu/ui-components';
+import {
+  Button,
+  Modal,
+  TranslatedText,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { ENCOUNTER_OPTIONS } from '../constants';
 
 const SelectorGrid = styled.div`
@@ -16,7 +22,7 @@ const TypeImage = styled(Avatar)`
 `;
 
 const EncounterOptionTypeButton = styled(Button)`
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   display: grid;
   justify-content: center;
   text-align: -webkit-center;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
-import { TAMANU_COLORS, TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { TranslatedText, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { Typography } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
@@ -22,7 +23,7 @@ const SubText = styled(Typography)`
 
 const StyledAlert = styled(Alert)`
   background-color: ${({ theme }) => theme.palette.background.paper};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   font-size: 14px;
   color: ${props => props.theme.palette.text.primary};
 `;
