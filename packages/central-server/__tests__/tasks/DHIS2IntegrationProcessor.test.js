@@ -1,3 +1,5 @@
+import { pick } from 'lodash';
+
 import config from 'config';
 
 import { createTestContext } from '../utilities';
@@ -6,6 +8,7 @@ import {
   INFO_LOGS,
   WARNING_LOGS,
   ERROR_LOGS,
+  LOG_FIELDS,
 } from '../../dist/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
@@ -187,14 +190,13 @@ describe('DHIS2 integration processor', () => {
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
-      const pushLogs = await models.DHIS2PushLog.findAll();
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
       expect(pushLogs).toHaveLength(1);
-      const pushLog = pushLogs[0].get({
-        plain: true,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
-      });
 
-      expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, pushLog);
+      expect(logSpy.warn).toHaveBeenCalledWith(
+        WARNING_LOGS.FAILED_TO_SEND_REPORT,
+        pick(pushLogs[0], LOG_FIELDS),
+      );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
       expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
     });
@@ -204,22 +206,18 @@ describe('DHIS2 integration processor', () => {
 
       await dhis2IntegrationProcessor.run();
 
-      const pushLogs = await models.DHIS2PushLog.findAll();
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
       expect(pushLogs).toHaveLength(1);
 
-      const pushLog = pushLogs[0].get({
-        plain: true,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
-      });
-
-      expect(pushLog).toMatchObject({
+      const { importCount } = mockSuccessResponse.response;
+      expect(pushLogs[0]).toMatchObject({
         status: 'success',
-        imported: 2,
-        updated: 0,
-        deleted: 0,
-        ignored: 0,
+        ...importCount,
       });
-      expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, pushLog);
+      expect(logSpy.info).toHaveBeenLastCalledWith(
+        INFO_LOGS.SUCCESSFULLY_SENT_REPORT,
+        pick(pushLogs[0], LOG_FIELDS),
+      );
     });
   });
 
@@ -227,17 +225,10 @@ describe('DHIS2 integration processor', () => {
     it('should create a failure log when cant connect to DHIS2', async () => {
       await dhis2IntegrationProcessor.run();
 
-      const pushLogs = await models.DHIS2PushLog.findAll();
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
       expect(pushLogs).toHaveLength(1);
 
-      const pushLog = pushLogs[0].get({
-        plain: true,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
-      });
-
-      console.log('pushLog', pushLog);
-
-      expect(pushLog).toMatchObject({
+      expect(pushLogs[0]).toMatchObject({
         status: 'failure',
       });
     });
@@ -246,24 +237,16 @@ describe('DHIS2 integration processor', () => {
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
-      const pushLogs = await models.DHIS2PushLog.findAll();
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
       expect(pushLogs).toHaveLength(1);
 
-      const pushLog = pushLogs[0].get({
-        plain: true,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'deletedAt'] },
-      });
-
-      expect(pushLog).toMatchObject({
+      const {
+        response: { importCount, conflicts },
+      } = mockWarningResponse;
+      expect(pushLogs[0]).toMatchObject({
         status: 'warning',
-        imported: 0,
-        updated: 0,
-        deleted: 0,
-        ignored: 2,
-        conflicts: JSON.stringify([
-          'Data element not found: DE123',
-          'Organisation unit not found: OU456',
-        ]),
+        conflicts: JSON.stringify(conflicts.map(conflict => conflict.value)),
+        ...importCount,
       });
     });
 
@@ -271,14 +254,13 @@ describe('DHIS2 integration processor', () => {
       dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
       await dhis2IntegrationProcessor.run();
 
-      const pushLogs = await models.DHIS2PushLog.findAll();
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
       expect(pushLogs).toHaveLength(1);
+
+      const { importCount } = mockSuccessResponse.response;
       expect(pushLogs[0]).toMatchObject({
         status: 'success',
-        imported: 2,
-        updated: 0,
-        deleted: 0,
-        ignored: 0,
+        ...importCount,
       });
     });
   });
