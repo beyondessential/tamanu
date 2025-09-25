@@ -45,7 +45,7 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
     {
       label: <TranslatedText stringId="general.action.delete" fallback="Delete" />,
       action: () => setDeleteModalOpen(true),
-      permissionCheck: () => ability?.can('delete', 'PortalSurveyAssignment'),
+      permissionCheck: () => ability?.can('delete', 'PatientPortalForm'),
       wrapper: menuItem => <NoteModalActionBlocker>{menuItem}</NoteModalActionBlocker>,
     },
   ].filter(({ permissionCheck }) => (permissionCheck ? permissionCheck() : true));
@@ -74,18 +74,13 @@ export const PortalSurveyAssignmentsTable = ({ patient }) => {
     {
       key: 'program',
       title: (
-        <TranslatedText
-          stringId="portalSurveyAssignment.table.column.program"
-          fallback="Program"
-        />
+        <TranslatedText stringId="portalSurveyAssignment.table.column.program" fallback="Program" />
       ),
       accessor: getProgram,
     },
     {
       key: 'form',
-      title: (
-        <TranslatedText stringId="portalSurveyAssignment.table.column.form" fallback="Form" />
-      ),
+      title: <TranslatedText stringId="portalSurveyAssignment.table.column.form" fallback="Form" />,
       accessor: getForm,
     },
   ];

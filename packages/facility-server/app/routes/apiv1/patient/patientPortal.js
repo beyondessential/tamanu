@@ -101,7 +101,7 @@ const sendPortalEmail = async ({ patient, email, models, settings, facilityId, e
 patientPortal.get(
   '/:id/portal/status',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortal');
+    req.checkPermission('read', 'PatientPortalRegistration');
 
     const { models } = req;
     const { id: patientId } = req.params;
@@ -129,7 +129,7 @@ patientPortal.get(
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'PatientPortal');
+    req.checkPermission('create', 'PatientPortalRegistration');
     const { models, settings, body } = req;
     const { id: patientId } = req.params;
     const { email, facilityId } = body;
@@ -178,6 +178,7 @@ patientPortal.post(
       if (!email) {
         throw new ValidationError('You must provide an email to send the form.');
       }
+      req.checkPermission('create', 'PatientPortalRegistration');
       await registerPatient({ patientId: patient.id, models, email });
       await sendPortalEmail({
         patient,
@@ -230,7 +231,7 @@ patientPortal.post(
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortalForm');
+    req.checkPermission('list', 'PatientPortalForm');
 
     const { models, query } = req;
     const { id: patientId } = req.params;

@@ -4,15 +4,11 @@ import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { TAMANU_COLORS, Button, TranslatedText } from '@tamanu/ui-components';
-import {
-  ContentPane,
-  Heading4,
-  NoteModalActionBlocker,
-  TableButtonRow,
-} from '../../../components';
+import { ContentPane, Heading4, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { PortalSurveyAssignmentsTable } from '../../../components/PortalSurveyAssignmentsTable';
 import { useSettings } from '../../../contexts/Settings';
+import { useAuth } from '../../../contexts/Auth';
 
 const TableWrapper = styled.div`
   margin-bottom: 1.5rem;
@@ -37,8 +33,10 @@ const TableHeader = () => (
 export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
   const dispatch = useDispatch();
   const params = useParams();
+  const { ability } = useAuth();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
+  const canListPortalForms = ability?.can('list', 'PatientPortalForm');
 
   const handleNewSurvey = () =>
     dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
@@ -65,7 +63,9 @@ export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
           data-testid="datafetchingprogramstable-uytn"
         />
       </TableWrapper>
-      {isPatientPortalEnabled && <PortalSurveyAssignmentsTable patient={patient} />}
+      {isPatientPortalEnabled && canListPortalForms && (
+        <PortalSurveyAssignmentsTable patient={patient} />
+      )}
     </ContentPane>
   );
 });
