@@ -8,25 +8,32 @@ import {
   CheckField,
   Field,
 } from '../components';
-import { TextField, Form, FormGrid, FormSubmitButton, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+  TextButton,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const FormSubtext = styled(BodyText)`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   padding: 10px 0;
 `;
 
 const LoginHeading = styled(Typography)`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
   font-size: 38px;
   line-height: 32px;
 `;
 
 const LoginSubtext = styled(BodyText)`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   padding-top: 10px;
 `;
 
@@ -43,7 +50,7 @@ const ForgotPasswordButton = styled(TextButton)`
   font-weight: 400;
 
   :hover {
-    color: ${TAMANU_COLORS.primary};
+      color: ${Colors.primary};
     font-weight: 500;
     text-decoration: underline;
   }

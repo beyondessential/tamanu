@@ -12,7 +12,7 @@ const Text = styled.text`
   font-weight: 500;
 `;
 
-export const CustomisedXAxisTick = props => {
+export const CustomisedXAxisTick = (props) => {
   const { x, y, payload } = props;
   const { value } = payload;
   const date = new Date(value);
@@ -35,7 +35,7 @@ export const CustomisedXAxisTick = props => {
   );
 };
 
-export const CustomisedYAxisTick = props => {
+export const CustomisedYAxisTick = (props) => {
   const { x, y, payload, visibleTicksCount, index } = props;
   const { value } = payload;
   let textY = 4;

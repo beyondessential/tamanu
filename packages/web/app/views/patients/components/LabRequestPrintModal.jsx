@@ -7,7 +7,8 @@ import {
   usePatientAdditionalDataQuery,
 } from '../../../api/queries';
 import { useCertificate } from '../../../utils/useCertificate';
-import { TAMANU_COLORS, Modal } from '@tamanu/ui-components';
+import { Modal } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { PDFLoader, printPDF } from '../../../components/PatientPrinting/PDFLoader';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -57,7 +58,7 @@ export const LabRequestPrintModal = React.memo(({ labRequest, patient, open, onC
       open={open}
       onClose={onClose}
       width="md"
-      color={TAMANU_COLORS.white}
+      color={Colors.white}
       printable
       onPrint={() => printPDF('lab-request-printout')}
       data-testid="modal-wdy6"

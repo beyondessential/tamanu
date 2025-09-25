@@ -6,7 +6,8 @@ import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { getCurrentRoute } from '../../store/router';
-import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
@@ -23,19 +24,19 @@ import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background: ${TAMANU_COLORS.primaryDark};
+  background: ${Colors.primaryDark};
   min-width: ${props => (props.$retracted ? '60px' : '260px')};
   max-width: ${props => (props.$retracted ? '86px' : '280px')};
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
   overflow-y: auto;
   overflow-x: hidden;
   height: 100vh;
   transition: ${props => props.theme.transitions.create(['min-width', 'max-width'])};
 
   i {
-    color: ${TAMANU_COLORS.white};
+    color: ${Colors.white};
   }
 `;
 
@@ -50,7 +51,7 @@ const HeaderContainer = styled.div`
 
 const RetractExtendButton = styled(IconButton)`
   padding: 8px;
-  background-color: ${TAMANU_COLORS.primaryDark};
+  background-color: ${Colors.primaryDark};
 
   &.MuiIconButton-root:hover {
     background-color: #4e5f71;
@@ -118,7 +119,7 @@ const Version = styled.div`
   line-height: 15px;
   font-weight: 400;
   margin-top: 6px;
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
 `;
 
 const LogoutButton = styled(Button)`
@@ -127,7 +128,7 @@ const LogoutButton = styled(Button)`
   line-height: 15px;
   text-transform: none;
   text-decoration: underline;
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
   margin-left: 10px;
   min-height: 0;
   min-width: 0;

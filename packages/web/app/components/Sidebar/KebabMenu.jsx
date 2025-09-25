@@ -63,7 +63,7 @@ export const KebabMenu = () => {
     };
   });
 
-  const onOpenKebabMenu = event => {
+  const onOpenKebabMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 

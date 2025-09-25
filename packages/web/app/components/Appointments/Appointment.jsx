@@ -65,7 +65,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
     >
       <StyledAppointment
         className={`status-${status}`}
-        onClick={() => setDetailOpen(open => !open)}
+        onClick={() => setDetailOpen((open) => !open)}
         data-testid="styledappointment-ii9x"
       >
         <div>

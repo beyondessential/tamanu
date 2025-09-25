@@ -9,7 +9,8 @@ import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { getAnswersFromData, ButtonWithPermissionCheck, TAMANU_COLORS } from '@tamanu/ui-components';
+import { getAnswersFromData, ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { TabPane } from '../components';
 import { TableButtonRow } from '../../../components';
@@ -45,12 +46,12 @@ const StyledButtonGroup = styled(ButtonGroup)`
 
 const TableButtonRowWrapper = styled.div`
   margin-bottom: 15px;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   overflow-x: auto;
 `;
 
 const AddComplexChartButton = styled.span`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
@@ -65,8 +66,8 @@ const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
   }
   button&:disabled {
     opacity: 0.5;
-    background-color: ${TAMANU_COLORS.primary};
-    color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.primary};
+    color: ${Colors.white};
   }
 `;
 

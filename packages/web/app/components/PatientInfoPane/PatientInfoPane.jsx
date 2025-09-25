@@ -2,7 +2,8 @@ import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { OutlinedButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
 import { PrintPatientDetailsModal } from '../PatientPrinting';
@@ -222,7 +223,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
   z-index: 10;
   overflow: auto;

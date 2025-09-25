@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 
-import { UnstyledHtmlButton, TAMANU_COLORS} from '@tamanu/ui-components';
+import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 const Grid = styled.div`
   --header-col-width: 11.5rem;
@@ -8,8 +9,8 @@ const Grid = styled.div`
   --col-width: 12rem;
   --row-height: calc(1lh + 1rem);
 
-  --border-style: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
-  --weekend-color: color-mix(in oklab, white 100%, ${TAMANU_COLORS.softOutline} 30%);
+  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
+  --weekend-color: color-mix(in oklab, white 100%, ${Colors.softOutline} 30%);
 
   display: grid;
   font-size: 0.875rem;
@@ -103,7 +104,7 @@ const BodyCell = styled(BaseCell).attrs({
     $selected &&
     css`
       && {
-        border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.primary};
+        border: max(0.0625rem, 1px) solid ${Colors.primary};
       }
     `}
 
@@ -114,7 +115,7 @@ const BodyCell = styled(BaseCell).attrs({
   // When hovering directly over this element, not any children of it
   &:hover:not(:has(:hover)),
   &:focus-visible {
-    background-color: ${TAMANU_COLORS.veryLightBlue};
+    background-color: ${Colors.veryLightBlue};
   }
 `;
 

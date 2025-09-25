@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
@@ -33,7 +34,7 @@ const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
 `;
 
 const InvoiceTitle = styled(Typography)`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
   font-size: 18px;
 `;
@@ -43,13 +44,13 @@ const InvoiceTopBar = styled.div`
   justify-content: space-between;
   align-items: center;
   padding-bottom: 8px;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const InvoiceContainer = styled.div`
   padding: 8px 16px;
   margin-bottom: 5px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {

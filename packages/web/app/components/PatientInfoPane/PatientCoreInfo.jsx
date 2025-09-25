@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { Button, Typography } from '@material-ui/core';
-import { TAMANU_COLORS, TranslatedSex, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedSex, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { useSettings } from '../../contexts/Settings';
@@ -42,14 +43,14 @@ const NameContainer = styled.div`
 const CoreInfoSection = styled.div`
   display: grid;
   grid-template-columns: 2fr 3.5fr;
-  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
-  border-top: 1px solid ${TAMANU_COLORS.softOutline};
+  border-bottom: 1px solid ${Colors.softOutline};
+  border-top: 1px solid ${Colors.softOutline};
   padding-left: 10px;
 `;
 
 const CoreInfoCellContainer = styled.div`
   :first-of-type {
-    border-right: 1px solid ${TAMANU_COLORS.softOutline};
+    border-right: 1px solid ${Colors.softOutline};
   }
 
   padding: 10px 15px;
@@ -82,7 +83,7 @@ const HealthIdContainer = styled.div`
 
 const HealthId = styled.div`
   background: ${(props) => props.theme.palette.primary.main};
-  color: ${TAMANU_COLORS.white};
+  color: ${Colors.white};
   font-weight: 600;
   display: flex;
   flex-direction: row;
@@ -99,7 +100,7 @@ const HealthIdText = styled(Typography)`
 `;
 
 const AgeDisplay = styled.span`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   font-size: 14px;
   font-weight: 400;
   text-transform: none;

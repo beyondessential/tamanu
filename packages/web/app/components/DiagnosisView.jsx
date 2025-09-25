@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 
-import { Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
+import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { TranslatedText } from './Translation/TranslatedText';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
@@ -13,7 +14,7 @@ const DiagnosisHeading = styled.div`
   margin-right: 1rem;
   margin-top: 15px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 `;
 
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {

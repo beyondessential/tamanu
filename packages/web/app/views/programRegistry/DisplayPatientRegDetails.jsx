@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { OutlinedButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { OutlinedButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { programsIcon } from '../../constants/images';
 import {
@@ -25,7 +26,7 @@ const Container = styled(Row)`
   justify-content: space-between;
   padding: 6px 0 12px;
   margin-bottom: 12px;
-  border-bottom: 1px solid ${TAMANU_COLORS.softOutline};
+  border-bottom: 1px solid ${Colors.softOutline};
 `;
 
 const TreeIcon = styled.img`
@@ -35,7 +36,7 @@ const TreeIcon = styled.img`
 `;
 
 const DividerVertical = styled.div`
-  border-left: 1px solid ${TAMANU_COLORS.softOutline};
+  border-left: 1px solid ${Colors.softOutline};
   height: 44px;
   margin-right: 10px;
 `;
@@ -127,7 +128,7 @@ export const DisplayPatientRegDetails = ({ patientProgramRegistration }) => {
       >
         <TreeIcon src={programsIcon} />
         <TextColumnsContainer>
-          <TextColumns style={{ color: TAMANU_COLORS.midText }}>
+          <TextColumns style={{ color: Colors.midText }}>
             <div>
               <TranslatedText
                 stringId="programRegistry.registrationDate.label"

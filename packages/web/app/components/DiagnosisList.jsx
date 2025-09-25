@@ -16,12 +16,12 @@ const DiagnosisListContainer = styled.div`
 
 const DiagnosisChip = styled.div`
   margin: 0.3rem;
-  ${p => (p.onClick ? `cursor: pointer;` : '')}
+  ${(p) => (p.onClick ? `cursor: pointer;` : '')}
   display: flex;
 `;
 
 const Category = styled.div`
-  background: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
+  background: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 900;
   padding: 10px 5px;
   color: ${Colors.white};
@@ -29,9 +29,9 @@ const Category = styled.div`
 `;
 
 const DiagnosisName = styled.span`
-  background: ${props =>
+  background: ${(props) =>
     props.isPrimary ? `${hexToRgba(Colors.primary, 0.1)}` : `${hexToRgba(Colors.alert, 0.1)}`};
-  color: ${props => (props.isPrimary ? Colors.primary : Colors.alert)};
+  color: ${(props) => (props.isPrimary ? Colors.primary : Colors.alert)};
   font-weight: 500;
   padding: 10px;
   border-radius: 0 3px 3px 0;

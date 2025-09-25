@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
-import { FormSubmitCancelRow, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import {
   NoteContentField, NoteDateTimeField, NoteTemplateField, NoteTypeField, WrittenByField, } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
@@ -48,7 +49,7 @@ export const CreateEditNoteForm = ({
   return (
     <>
       <NoteModalDialogContent>
-        <DisabledWrapper color={TAMANU_COLORS.background}>
+        <DisabledWrapper color={Colors.background}>
           <FormGrid columns={2} style={{ marginTop: 0 }}>
             <NoteTypeField
               required

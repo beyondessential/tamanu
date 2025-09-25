@@ -5,7 +5,8 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import { Box, IconButton } from '@material-ui/core';
 
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { TranslationContext, useTranslation, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TranslationContext, useTranslation } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { MarkPatientForSync } from './MarkPatientForSync';
@@ -44,13 +45,13 @@ const StyledTable = styled(DataFetchingTable)`
   box-shadow: none;
   padding: 0 21px;
   .MuiTableCell-head {
-    border-top: 1px solid ${TAMANU_COLORS.outline};
-    background-color: ${TAMANU_COLORS.white};
+    border-top: 1px solid ${Colors.outline};
+    background-color: ${Colors.white};
     padding-top: 8px;
     padding-bottom: 8px;
     span {
       font-weight: 400;
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
     }
     padding-left: 6px;
     padding-right: 6px;
@@ -75,7 +76,7 @@ const StyledTable = styled(DataFetchingTable)`
             display: block;
             width: 6px;
             height: 100%;
-            background-color: ${TAMANU_COLORS.veryLightBlue};
+            background-color: ${Colors.veryLightBlue};
           }
         }
         &:last-child {
@@ -88,7 +89,7 @@ const StyledTable = styled(DataFetchingTable)`
             display: block;
             width: 6px;
             height: 100%;
-            background-color: ${TAMANU_COLORS.veryLightBlue};
+            background-color: ${Colors.veryLightBlue};
           }
         }
       }
@@ -114,7 +115,7 @@ const StyledTable = styled(DataFetchingTable)`
     }
   }
   .MuiTableFooter-root {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
     .MuiPagination-root {
       padding-top: 6px;
       padding-bottom: 6px;
@@ -134,7 +135,7 @@ const StatusIndicator = styled.div`
   height: 44px;
   border-radius: 10px;
   background-color: ${p =>
-    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : TAMANU_COLORS.white};
+    p.patientStatus ? PATIENT_STATUS_COLORS[p.patientStatus] : Colors.white};
   ${p => (!p.patientStatus ? `border: 1px solid ${PATIENT_STATUS_COLORS[p.patientStatus]};` : '')}
 `;
 

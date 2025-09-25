@@ -7,7 +7,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
 import { TableFormFields } from '../../../components/Table';
@@ -32,10 +33,10 @@ const StyledModal = styled(FormModal)`
 const StyledTableFormFields = styled(TableFormFields)`
   thead tr th {
     text-align: left;
-    background: ${TAMANU_COLORS.white};
+    background: ${Colors.white};
     font-size: 14px;
     font-weight: 500;
-    color: ${TAMANU_COLORS.midText};
+    color: ${Colors.midText};
   }
 
   tbody tr td {
@@ -47,7 +48,7 @@ const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
   padding-right: 30px;
   padding-top: 18px;
   margin-top: 20px;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
 `;
 
 const LAB_TEST_PROPERTIES = {

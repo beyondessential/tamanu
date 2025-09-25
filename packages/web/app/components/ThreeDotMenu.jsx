@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, Menu, MenuItem } from '@material-ui/core';
 import { MoreVert } from '@material-ui/icons';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 const ThreeDotMenuItem = styled(MenuItem)`
   width: 124px;
@@ -14,7 +14,7 @@ const ThreeDotMenuItem = styled(MenuItem)`
   margin-right: 4px;
   white-space: normal;
   ${props => (props.$color ? `color: ${props.$color};` : '')} :hover {
-    background: ${TAMANU_COLORS.veryLightBlue};
+    background: ${Colors.veryLightBlue};
   }
 `;
 

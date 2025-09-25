@@ -9,10 +9,10 @@ import {
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
-import { TAMANU_COLORS, TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
 
-import { INVOICE_MODAL_TYPES } from '../../constants';
+import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
 import { DataFetchingTable } from '../Table';
+import { TranslatedEnum, TranslatedText } from '../Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
@@ -32,7 +32,7 @@ const TableTitle = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
   padding: 15px 20px;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,12 +41,12 @@ const TableTitle = styled(Typography)`
 
 const Table = styled(DataFetchingTable)`
   .MuiTableCell-head {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
     padding-top: 8px !important;
     padding-bottom: 8px !important;
     span {
       font-weight: 400;
-      color: ${TAMANU_COLORS.midText} !important;
+      color: ${Colors.midText} !important;
     }
     padding-left: 11px;
     padding-right: 11px;
@@ -72,7 +72,7 @@ const Table = styled(DataFetchingTable)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${props => (props.onClickRow ? TAMANU_COLORS.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
 `;

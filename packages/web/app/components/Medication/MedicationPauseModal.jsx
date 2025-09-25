@@ -11,11 +11,10 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  TAMANU_COLORS,
   BaseModal,
   TranslatedText,
 } from '@tamanu/ui-components';
-
+import { Colors } from '../../constants';
 import { Field, NumberField } from '..';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
@@ -33,20 +32,20 @@ const StyledBaseModal = styled(BaseModal)`
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const StyledFormActions = styled(Box)`
   margin: 0 -32px -12px;
   padding: 20px 40px 0;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   display: flex;
   justify-content: flex-end;
   gap: 16px;
 `;
 
 const ExtendBeyondEndDateError = styled(Box)`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 11px;
   line-height: 15px;
   font-weight: 500;

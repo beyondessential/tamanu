@@ -4,8 +4,9 @@ import { add, endOfYear, isValid, parse, startOfToday, startOfYear } from 'date-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import { Colors } from '../../constants';
 import { ExpandLessIcon, ExpandMoreIcon } from './FieldCommonComponents';
-import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextInput } from './TextField';
 
 const getMaxDate = () => {
   return endOfYear(add(new Date(), { years: 4 }));
@@ -21,7 +22,7 @@ const StyledPopper = styled(Popper)`
   font-variant-numeric: lining-nums tabular-nums;
 
   .MuiPaper-root {
-    border: max(0.0625rem, 1px) solid ${TAMANU_COLORS.outline};
+    border: max(0.0625rem, 1px) solid ${Colors.outline};
     box-shadow: none;
   }
 
@@ -58,7 +59,7 @@ const StyledPopper = styled(Popper)`
   .MuiPickersYear-yearButton,
   .MuiPickersMonth-monthButton {
     block-size: fit-content;
-    color: ${TAMANU_COLORS.darkestText};
+    color: ${Colors.darkestText};
     font-size: inherit;
     font-weight: 500;
     inline-size: 4.5em;
@@ -70,12 +71,12 @@ const StyledPopper = styled(Popper)`
   }
 
   .Mui-selected {
-    background-color: ${TAMANU_COLORS.primary};
+    background-color: ${Colors.primary};
     color: white;
 
     &:hover,
     &:focus-visible {
-      background-color: ${TAMANU_COLORS.primary};
+      background-color: ${Colors.primary};
     }
   }
 
@@ -125,7 +126,7 @@ export const MonthPicker = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleMonthChange = monthString => {
+  const handleMonthChange = (monthString) => {
     const parsedDateString = parse(monthString, 'MMMM yyyy', new Date());
     if (isValid(parsedDateString)) onChange?.(parsedDateString);
   };
@@ -145,8 +146,8 @@ export const MonthPicker = ({
       }}
       slotProps={{
         textField: {
-          onBlur: e => handleMonthChange(e.target.value),
-          onKeyDown: e => {
+          onBlur: (e) => handleMonthChange(e.target.value),
+          onKeyDown: (e) => {
             if (e.key === 'Enter') {
               handleMonthChange(e.target.value);
             }
@@ -154,7 +155,7 @@ export const MonthPicker = ({
           ...props,
         },
       }}
-      onAccept={date => {
+      onAccept={(date) => {
         if (isValid(date)) onChange?.(date);
       }}
       minDate={minDate}

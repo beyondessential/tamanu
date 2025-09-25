@@ -66,7 +66,7 @@ const ChequeNumberDisplay = ({ patientPayment, setShowRowTooltip }) => {
   );
 };
 
-const getRowTooltipText = updatedByUser =>
+const getRowTooltipText = (updatedByUser) =>
   updatedByUser?.displayName ? (
     <TooltipContainer data-testid="tooltipcontainer-kw8l">
       <TranslatedText
@@ -80,7 +80,7 @@ const getRowTooltipText = updatedByUser =>
 
 export const PatientPaymentsTable = ({ invoice }) => {
   const patientPayments = invoice.payments
-    .filter(payment => !!payment?.patientPayment)
+    .filter((payment) => !!payment?.patientPayment)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const [refreshCount, setRefreshCount] = useState(0);
@@ -93,7 +93,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const [showRowTooltip, setShowRowTooltip] = useState(false);
 
   const hasChequePaymentMethod = patientPayments.some(
-    payment => !!payment.patientPayment?.chequeNumber,
+    (payment) => !!payment.patientPayment?.chequeNumber,
   );
   const showChequeNumberColumn =
     [
@@ -105,8 +105,11 @@ export const PatientPaymentsTable = ({ invoice }) => {
   const canCreatePayment = ability.can('create', 'InvoicePayment');
   const canEditPayment = ability.can('write', 'InvoicePayment');
 
-  const updateRefreshCount = useCallback(() => setRefreshCount(prev => prev + 1), []);
-  const updateEditingPayment = useCallback(editingPayment => setEditingPayment(editingPayment), []);
+  const updateRefreshCount = useCallback(() => setRefreshCount((prev) => prev + 1), []);
+  const updateEditingPayment = useCallback(
+    (editingPayment) => setEditingPayment(editingPayment),
+    [],
+  );
 
   const hideRecordPaymentForm =
     round(new Decimal(patientPaymentRemainingBalance).toNumber(), 2) <= 0 ||
@@ -148,7 +151,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
               />
             ),
             sortable: false,
-            accessor: prop => (
+            accessor: (prop) => (
               <ChequeNumberDisplay
                 {...prop}
                 setShowRowTooltip={setShowRowTooltip}
@@ -184,7 +187,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     {
       key: '',
       sortable: false,
-      accessor: row =>
+      accessor: (row) =>
         !hideRecordPaymentForm &&
         canEditPayment && (
           <Box display="flex" justifyContent="flex-end" data-testid="box-nleu">
@@ -200,7 +203,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     },
   ];
 
-  const sliceIndex = patientPayments.findIndex(payment => payment.id === editingPayment.id);
+  const sliceIndex = patientPayments.findIndex((payment) => payment.id === editingPayment.id);
 
   const cellsWidthString = `
     &:nth-child(1) {
@@ -240,10 +243,10 @@ export const PatientPaymentsTable = ({ invoice }) => {
     rowIdKey: 'id',
   };
 
-  const onCreateDataChange = data => {
+  const onCreateDataChange = (data) => {
     setSelectedCreatePayment(data);
   };
-  const onEditDataChange = data => {
+  const onEditDataChange = (data) => {
     setSelectedEditPayment(data);
   };
   const getRowTooltip = ({ updatedByUser }) => getRowTooltipText(updatedByUser);

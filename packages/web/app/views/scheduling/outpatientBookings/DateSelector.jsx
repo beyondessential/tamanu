@@ -21,7 +21,8 @@ import {
 import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
 import { BodyText, MonthPicker } from '../../../components';
-import { TAMANU_COLORS, TextButton } from '@tamanu/ui-components';
+import { TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`
   display: flex;
@@ -57,24 +58,24 @@ const DayWrapper = styled('button')`
   user-select: none;
 
   &:hover {
-    background-color: ${TAMANU_COLORS.veryLightBlue};
+    background-color: ${Colors.veryLightBlue};
   }
 
   ${({ $selected }) =>
     $selected &&
     css`
-      color: ${TAMANU_COLORS.white};
+      color: ${Colors.white};
 
       &,
       &:hover {
-        background-color: ${TAMANU_COLORS.primary};
+        background-color: ${Colors.primary};
       }
     `}
 
   ${({ $isToday }) =>
     $isToday &&
     css`
-      border-color: ${TAMANU_COLORS.primary};
+      border-color: ${Colors.primary};
     `}
 `;
 
@@ -82,18 +83,18 @@ const DateText = styled(BodyText)`
   min-inline-size: 1.125rem;
   text-align: center;
   color: ${({ $selected, $isWeekend }) => {
-    if ($selected) return TAMANU_COLORS.white;
-    if ($isWeekend) return TAMANU_COLORS.midText;
-    return TAMANU_COLORS.darkestText;
+    if ($selected) return Colors.white;
+    if ($isWeekend) return Colors.midText;
+    return Colors.darkestText;
   }};
 `;
 
 const WeekdayText = styled(DateText)`
   font-size: 0.688rem;
   color: ${({ $selected, $isWeekend }) => {
-    if ($selected) return TAMANU_COLORS.white;
-    if ($isWeekend) return TAMANU_COLORS.softText;
-    return TAMANU_COLORS.midText;
+    if ($selected) return Colors.white;
+    if ($isWeekend) return Colors.softText;
+    return Colors.midText;
   }};
 `;
 

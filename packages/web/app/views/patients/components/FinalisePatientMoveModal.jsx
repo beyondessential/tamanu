@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
-import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { BodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
@@ -22,7 +23,7 @@ const Container = styled.div`
 `;
 
 const BedIcon = styled(SingleBedIcon)`
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
@@ -35,14 +36,14 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${TAMANU_COLORS.darkText};
+  background: ${Colors.darkText};
   border-radius: 50%;
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
   border-radius: 5px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   font-size: 14px;
   line-height: 21px;
 

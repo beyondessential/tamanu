@@ -9,7 +9,8 @@ import {
   ModalFormActionRow,
   TranslatedReferenceData,
 } from '../../components';
-import { TextField, Form, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { TextField, Form, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { FormTable } from './FormTable';
@@ -28,7 +29,7 @@ const StyledFormTable = styled(FormTable)`
 
 const StyledTextField = styled(TextField)`
   .Mui-disabled {
-    background-color: ${TAMANU_COLORS.hoverGrey};
+    background-color: ${Colors.hoverGrey};
   }
 `;
 
@@ -145,7 +146,7 @@ export const UpdateConditionFormModal = ({ onClose, open, condition = {} }) => {
                     stringId="programRegistry.updateConditionModal.category"
                     fallback="Category"
                   />
-                  <span style={{ color: TAMANU_COLORS.alert }}> *</span>
+                  <span style={{ color: Colors.alert }}> *</span>
                 </span>
               ),
               width: 180,

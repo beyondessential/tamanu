@@ -4,7 +4,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { FormControl, IconButton } from '@material-ui/core';
 import { Close as CloseIcon } from '@material-ui/icons';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 
 export const StyledCheckboxControl = styled(Checkbox)`
   padding-top: 0;
@@ -37,13 +37,13 @@ const LabelText = styled.span`
   font-size: 14px;
   line-height: 18px;
   flex: 1;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const CategoryText = styled.span`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.softText};
+  color: ${Colors.softText};
 `;
 
 const RemoveIconButton = styled(IconButton)`

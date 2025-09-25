@@ -7,7 +7,8 @@ import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { ModalCancelRow } from '../../components/index.js';
 import { useApi } from '../../api/index.js';
-import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PANE_SECTION_IDS } from '../../components/PatientInfoPane/paneSections.jsx';
 import { useTranslation } from '../../contexts/Translation.jsx';
 
@@ -15,7 +16,7 @@ const Body = styled.div`
   padding: 40px 20px 50px;
 
   h3 {
-    color: ${TAMANU_COLORS.alert};
+    color: ${Colors.alert};
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 16px;

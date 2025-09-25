@@ -94,8 +94,7 @@ export const CoreComplexChartData = ({
                 value={dateDataElement?.id}
                 fallback={dateDataElement?.name}
                 data-testid="translatedreferencedata-moh0"
-              />
-              {dateDataElement ? ':' : null}
+              />{dateDataElement ? ':' : null}
             </CoreComplexChartInfoHeader>
             <DateDisplay date={date} showTime data-testid="datedisplay-hnbz" />
           </CoreComplexChartSingleInfoWrapper>
@@ -108,8 +107,7 @@ export const CoreComplexChartData = ({
                   value={typeDataElement?.id}
                   fallback={typeDataElement?.name}
                   data-testid="translatedreferencedata-4z04"
-                />
-                {typeDataElement ? ':' : null}
+                />{typeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
 
               <>{type || '-'}</>
@@ -124,8 +122,7 @@ export const CoreComplexChartData = ({
                   value={subtypeDataElement?.id}
                   fallback={subtypeDataElement?.name}
                   data-testid="translatedreferencedata-9x05"
-                />
-                {subtypeDataElement ? ':' : null}
+                />{subtypeDataElement ? ':' : null}
               </CoreComplexChartInfoHeader>
               <>{subtype || '-'}</>
             </CoreComplexChartSingleInfoWrapper>

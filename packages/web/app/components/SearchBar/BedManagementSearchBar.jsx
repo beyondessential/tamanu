@@ -38,13 +38,15 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
 
   const [handoverNotesModalShown, setHandoverNotesModalShown] = useState(false);
 
-  const handleHandoverNotesButtonClick = useCallback(() => setHandoverNotesModalShown(true), [
-    setHandoverNotesModalShown,
-  ]);
+  const handleHandoverNotesButtonClick = useCallback(
+    () => setHandoverNotesModalShown(true),
+    [setHandoverNotesModalShown],
+  );
 
-  const handleHandoverNotesModalClose = useCallback(() => setHandoverNotesModalShown(false), [
-    setHandoverNotesModalShown,
-  ]);
+  const handleHandoverNotesModalClose = useCallback(
+    () => setHandoverNotesModalShown(false),
+    [setHandoverNotesModalShown],
+  );
 
   const handoverNotesButtonDisabled = !searchParameters?.area;
 
@@ -127,7 +129,7 @@ export const BedManagementSearchBar = React.memo(({ onSearch, searchParameters }
           }
           size="small"
           component={TranslatedSelectField}
-          transformOptions={options => [
+          transformOptions={(options) => [
             { value: '', label: getTranslation('general.select.all', 'All') },
             ...options,
           ]}

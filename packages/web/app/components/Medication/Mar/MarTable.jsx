@@ -7,8 +7,9 @@ import {
   findAdministrationTimeSlotFromIdealTime,
 } from '@tamanu/shared/utils/medication';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 
+import { Colors } from '../../../constants';
+import { TranslatedText } from '../..';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useEncounterMedicationQuery } from '../../../api/queries/useEncounterMedicationQuery';
 import { MarTableRow } from './MarTableRow';
@@ -25,7 +26,7 @@ const MedicationContainer = styled.div`
   display: flex;
   flex-direction: column;
   max-height: calc(100vh - 221px);
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 // Header row for the time slots
@@ -39,7 +40,7 @@ const HeaderRow = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 const ScrollableContent = styled.div`
@@ -56,7 +57,7 @@ const ScrollableContent = styled.div`
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: ${TAMANU_COLORS.softText};
+    background-color: ${Colors.softText};
     border-radius: 4px;
   }
 `;
@@ -67,9 +68,9 @@ const HeadingCell = styled.div`
   padding: 12px;
   font-size: 16px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkestText};
-  border-top: 1px solid ${TAMANU_COLORS.outline};
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  color: ${Colors.darkestText};
+  border-top: 1px solid ${Colors.outline};
+  border-left: 1px solid ${Colors.outline};
   height: 100%;
 `;
 
@@ -79,12 +80,12 @@ const TimeSlotHeaderContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
+  border-left: 1px solid ${Colors.outline};
   ${props =>
     props.isCurrentTimeSlot
-      ? `background: #EBF0F5; color: ${TAMANU_COLORS.primary};`
-      : `color: ${TAMANU_COLORS.midText};`}
+      ? `background: #EBF0F5; color: ${Colors.primary};`
+      : `color: ${Colors.midText};`}
 `;
 
 const TimeSlotText = styled.div`
@@ -96,31 +97,31 @@ const TimeSlotText = styled.div`
 
 const TimeSlotLabel = styled.div`
   text-transform: capitalize;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const SubHeader = styled.div`
   font-size: 14px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   padding: 10px 8px;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
-  border-left: 1px solid ${TAMANU_COLORS.outline};
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
+  border-left: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
   grid-column: 1 / -1;
   position: sticky;
   top: 0;
   z-index: 5;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 const EmptyMessage = styled.div`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-size: 14px;
   font-weight: 500;
   padding: 10px 8px;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
+  border-left: 1px solid ${Colors.outline};
   grid-column: 1 / -1;
 `;
 
@@ -137,7 +138,7 @@ const CurrentTimeOverlay = styled.div`
   height: ${p => p.$height || '100%'};
   z-index: 11;
   right: ${p => (p.$length - p.$index - 1) * MEDICATION_CELL_WIDTH + 5}px;
-  border: 1px solid ${TAMANU_COLORS.primary};
+  border: 1px solid ${Colors.primary};
   pointer-events: none;
 `;
 
@@ -146,7 +147,7 @@ const LoadingContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: 100%;
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${Colors.outline};
   height: 42px;
 `;
 

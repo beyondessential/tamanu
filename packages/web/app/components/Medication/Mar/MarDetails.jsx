@@ -7,7 +7,14 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { MarInfoPane } from './MarInfoPane';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
-import { TextField, Form, Button, OutlinedButton, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
@@ -42,33 +49,33 @@ const Container = styled.div`
 
 const DetailsContainer = styled(Box)`
   padding: 12px 16px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 3px;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   position: relative;
 `;
 
 const MidText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const DarkestText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const StyledPriorityHighIcon = styled(PriorityHighIcon)`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 16px;
 `;
 
@@ -81,29 +88,29 @@ const StyledEditButton = styled(IconButton)`
 `;
 
 const StyledEditIcon = styled(Edit)`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   font-size: 20px;
 `;
 
 const HorizontalSeparator = styled.hr`
   border: none;
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   margin: 14px 0;
 `;
 
 const VerticalSeparator = styled.div`
   width: 1px;
-  background-color: ${TAMANU_COLORS.outline};
+  background-color: ${Colors.outline};
   margin: 0 20px;
 `;
 
 const StyledAddIcon = styled(Add)`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   font-size: 18px;
 `;
 
 const AddAdditionalDoseButton = styled.a`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -122,13 +129,13 @@ const StyledTimePickerField = styled(Field)`
   width: 100%;
   .MuiInputBase-root {
     font-size: 14px;
-    color: ${TAMANU_COLORS.darkestText};
-    background-color: ${TAMANU_COLORS.white};
+    color: ${Colors.darkestText};
+    background-color: ${Colors.white};
     &.Mui-disabled {
       background-color: inherit;
     }
     &.Mui-disabled .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.outline};
+      border-color: ${Colors.outline};
     }
     .MuiSvgIcon-root {
       font-size: 22px;
@@ -142,10 +149,10 @@ const StyledTimePickerField = styled(Field)`
       border-width: 1px !important;
     }
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.primary} !important;
+      border-color: ${Colors.primary} !important;
     }
     :not(.Mui-disabled):hover .MuiOutlinedInput-notchedOutline {
-      border-color: ${TAMANU_COLORS.softText};
+      border-color: ${Colors.softText};
     }
   }
 `;
@@ -153,7 +160,7 @@ const StyledTimePickerField = styled(Field)`
 const DoseIndex = styled(Box)`
   font-size: 16px;
   line-height: 21px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   font-weight: 500;
 `;
 
@@ -161,7 +168,7 @@ const RemoveDoseText = styled.div`
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -174,11 +181,11 @@ const RemoveDoseText = styled.div`
 `;
 
 const RequiredMark = styled.span`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
 `;
 
 const ErrorMessage = styled.div`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
   font-size: 12px;
   margin: 4px 2px 2px;
   font-weight: 500;
@@ -473,7 +480,7 @@ export const MarDetails = ({
                               replacements={{ index: dose.doseIndex + 1 }}
                             />
                             {dose.isRemoved && (
-                              <Box sx={{ color: TAMANU_COLORS.midText }}>
+                              <Box sx={{ color: Colors.midText }}>
                                 <TranslatedText
                                   stringId="medication.mar.removed"
                                   fallback="(removed)"
@@ -673,7 +680,7 @@ export const MarDetails = ({
                 mx={-4}
                 px={4}
                 pt={2.5}
-                borderTop={`1px solid ${TAMANU_COLORS.outline}`}
+                borderTop={`1px solid ${Colors.outline}`}
                 display={'flex'}
                 justifyContent={'flex-end'}
               >

@@ -2,12 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
-import { TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
 
 import { useOutpatientAppointmentsQuery } from '../../../api/queries';
+import { Colors } from '../../../constants';
 import { LimitedLinesCell } from '../../FormattedTableCell';
+import { Modal } from '../../Modal';
 import { Table } from '../../Table';
 import { useTableSorting } from '../../Table/useTableSorting';
+import { TranslatedText } from '../../Translation';
 import { APPOINTMENT_STATUS_COLORS } from '../appointmentStatusIndicators';
 
 const StyledModal = styled(Modal)`
@@ -51,12 +53,12 @@ const StyledTable = styled(Table)`
     top: 0;
   }
   .MuiTableCell-head {
-    border-top: 1px solid ${TAMANU_COLORS.outline};
-    background-color: ${TAMANU_COLORS.white};
+    border-top: 1px solid ${Colors.outline};
+    background-color: ${Colors.white};
     padding: 8px;
     span {
       font-weight: 400;
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
     }
     &:last-child {
       padding-right: 30px;

@@ -12,7 +12,7 @@ const StyledTranslatedSelectField = styled(SelectField)`
 export const ChartDropdown = ({ selectedChartTypeId, setSelectedChartTypeId, chartTypes }) => {
   const userPreferencesMutation = useUserPreferencesMutation();
 
-  const handleChange = newValues => {
+  const handleChange = (newValues) => {
     const newSelectedChartType = newValues.target.value;
 
     setSelectedChartTypeId(newSelectedChartType);

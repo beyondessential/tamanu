@@ -12,7 +12,8 @@ import {
   REPORT_EXPORT_FORMATS,
   FORM_TYPES,
 } from '@tamanu/constants';
-import { Form, FormGrid, TextButton, Button, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, FormGrid, TextButton, Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
@@ -42,7 +43,7 @@ const DateRangeLabel = styled(Typography)`
   font-weight: 500;
   margin-bottom: 5px;
   padding-top: 30px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const EmailInputContainer = styled.div`
@@ -55,13 +56,13 @@ const AboutReportButton = styled(TextButton)`
   font-size: 15px;
   justify-content: start;
   font-weight: normal;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   width: fit-content;
   text-transform: none;
 
   :hover {
     font-weight: 500;
-    color: ${TAMANU_COLORS.primary};
+    color: ${Colors.primary};
     cursor: pointer;
     text-decoration: underline;
   }

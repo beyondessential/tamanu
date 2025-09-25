@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants/labs';
-import { ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import { ConfirmCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { useSelectableColumn } from '../../Table';
 import { DateDisplay } from '../../DateDisplay';
@@ -165,7 +166,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
             data-testid="translatedtext-url5"
           />
         }
-        headerColor={TAMANU_COLORS.white}
+        headerColor={Colors.white}
         columns={[selectableColumn, ...COLUMNS]}
         data={labRequestsData || []}
         elevated={false}

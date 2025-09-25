@@ -1,6 +1,5 @@
 import React from 'react';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
-
+import { Colors } from '../../../constants';
 import { getHeightPerYAxisInterval } from '../helpers/getHeightPerYAxisInterval';
 
 const calculateBandsStartPointAndHeight = ({
@@ -48,7 +47,7 @@ export const ReferenceBands = (props) => {
           y={y}
           width={width}
           height={height}
-          fill={TAMANU_COLORS.alert}
+          fill={Colors.alert}
           fillOpacity={0.1}
         />
       ))}

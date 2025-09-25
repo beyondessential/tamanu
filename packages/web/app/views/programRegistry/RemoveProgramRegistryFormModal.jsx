@@ -5,7 +5,13 @@ import {
   DateDisplay,
   FormSeparatorLine,
 } from '../../components';
-import { TAMANU_COLORS, ConfirmCancelRow, TranslatedReferenceData, Modal, TranslatedText } from '@tamanu/ui-components';
+import {
+  ConfirmCancelRow,
+  TranslatedReferenceData,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { useAuth } from '../../contexts/Auth';
 
@@ -20,12 +26,12 @@ const WarningDiv = styled.div`
 `;
 
 const InfoDiv = styled.div`
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
   padding: 22px 30px;
 `;
@@ -41,7 +47,7 @@ export const FormSeparatorVerticalLine = styled.hr`
   display: flex;
   flex-direction: column;
   align-items: center;
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${Colors.outline};
   margin: 22px;
 `;
 
@@ -50,11 +56,11 @@ const Info = styled.div`
 `;
 
 const Label = styled.div`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const Value = styled.div`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
 `;
 

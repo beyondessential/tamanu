@@ -4,7 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
-import { Form, Button, FormSubmitCancelRow, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import {
+  Form,
+  Button,
+  FormSubmitCancelRow,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
@@ -24,7 +31,7 @@ const LinkText = styled.div`
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   cursor: pointer;
   width: fit-content;
 `;
@@ -424,7 +431,7 @@ export const EditInvoiceModal = ({
                         ) : (
                           <CircularProgress
                             size={14}
-                            color={TAMANU_COLORS.white}
+                            color={Colors.white}
                             data-testid="circularprogress-b1j8"
                           />
                         )
@@ -434,8 +441,8 @@ export const EditInvoiceModal = ({
                       confirmDisabled={isUpdatingInvoice}
                       confirmStyle={css`
                         &.Mui-disabled {
-                          color: ${TAMANU_COLORS.white};
-                          background-color: ${TAMANU_COLORS.primary};
+                          color: ${Colors.white};
+                          background-color: ${Colors.primary};
                           opacity: 0.3;
                         }
                       `}

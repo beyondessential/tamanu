@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-
+import { Colors } from '../../constants';
 import {
   TextField,
   ConfirmCancelBackRow,
   ConfirmCancelRow,
-  TAMANU_COLORS,
   BaseModal,
   TranslatedText,
 } from '@tamanu/ui-components';
@@ -31,7 +30,7 @@ const StyledModal = styled(BaseModal)`
 `;
 
 const SubmitButtonsWrapper = styled.div`
-  border-top: 1px solid ${TAMANU_COLORS.outline};
+  border-top: 1px solid ${Colors.outline};
   padding-top: 10px;
   margin-top: 20px;
 `;
@@ -75,19 +74,19 @@ const AlreadyOrderedPrimaryText = styled(DialogPrimaryText)`
 
 const DischargePrescriptionMessage = styled.div`
   font-weight: 500;
-  color: ${TAMANU_COLORS.textSecondary};
+  color: ${Colors.textSecondary};
   margin-bottom: 6px;
 `;
 
 const DischargePrescriptionLabel = styled.div`
   font-size: 14px;
-  color: ${TAMANU_COLORS.textSecondary};
+  color: ${Colors.textSecondary};
 `;
 
 const DialogSecondaryText = styled.div`
   font-size: 14px;
   text-align: center;
-  color: ${TAMANU_COLORS.textSecondary};
+  color: ${Colors.textSecondary};
   line-height: 1.4;
 `;
 
@@ -466,7 +465,7 @@ export const PharmacyOrderModal = React.memo(({ encounter, open, onClose, onSubm
         />
       </CommentsWrapper>
 
-      <HorizontalDivider color={TAMANU_COLORS.outline} />
+      <HorizontalDivider color={Colors.outline} />
 
       <DischargePrescriptionWrapper>
         <DischargePrescriptionMessage>

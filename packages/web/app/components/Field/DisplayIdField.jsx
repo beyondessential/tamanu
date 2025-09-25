@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormikContext } from 'formik';
-import { TextField } from '@tamanu/ui-components';
+import { TextField } from './TextField';
 import { LocalisedField } from './LocalisedField';
 import { useTranslation } from '../../contexts/Translation';
 import { useSettings } from '../../contexts/Settings';

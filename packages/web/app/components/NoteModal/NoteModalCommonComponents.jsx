@@ -2,7 +2,8 @@ import React from 'react';
 import { DialogTitle, Box, IconButton, DialogContent, DialogActions } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import styled from 'styled-components';
-import { FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 
 const StyledTitleContents = styled(Box)`
@@ -15,7 +16,7 @@ const StyledTitleContents = styled(Box)`
 
 export const NoteModalDialogTitle = ({ title, onClose }) => {
   return (
-    <DialogTitle style={{ borderBottom: `1px solid ${TAMANU_COLORS.softOutline}`, padding: 0 }}>
+    <DialogTitle style={{ borderBottom: `1px solid ${Colors.softOutline}`, padding: 0 }}>
       <StyledTitleContents>
         {title}
         <IconButton onClick={onClose} size="small">
@@ -36,7 +37,7 @@ export const NoteModalDialogContent = styled(DialogContent)`
 export const NoteModalDialogActions = styled(DialogActions)`
   padding: 10px 20px;
   background: none;
-  border-top: 1px solid ${TAMANU_COLORS.softOutline};
+  border-top: 1px solid ${Colors.softOutline};
   position: sticky;
   bottom: 0;
 `;

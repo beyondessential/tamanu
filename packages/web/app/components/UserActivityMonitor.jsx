@@ -12,9 +12,10 @@ import styled from 'styled-components';
 import { useSettings } from '../contexts/Settings';
 import { useAuth } from '../contexts/Auth';
 import { checkIsLoggedIn } from '../store/auth';
-import { TranslatedText, Modal } from '@tamanu/ui-components';
+import { TranslatedText } from './Translation/TranslatedText';
 
 import { ModalActionRow } from './ModalActionRow';
+import { Modal } from './Modal';
 
 const WarningModalContainer = styled.div`
   padding-top: 2rem;

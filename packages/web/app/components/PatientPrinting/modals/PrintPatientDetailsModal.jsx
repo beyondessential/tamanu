@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
-import { OutlinedButton, TAMANU_COLORS, Modal, TranslatedText } from '@tamanu/ui-components';
+import { OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { BookUserIcon } from '../../Icons/BookUserIcon';
@@ -252,7 +253,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
 
 const StyledDivider = styled.div`
   height: 1px;
-  background-color: ${TAMANU_COLORS.outline};
+  background-color: ${Colors.outline};
   margin-top: 16px;
   margin-bottom: 22px;
 `;
@@ -269,7 +270,7 @@ const Header = styled.span`
   line-height: 21px;
   letter-spacing: 0px;
   text-align: left;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const StyledPrintOptionsRow = styled.div`
@@ -286,13 +287,13 @@ const StyledHeading = styled(Typography)`
   font-size: 16px;
   font-weight: 500;
   line-height: 21px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
 `;
 
 const StyledSubHeading = styled(Typography)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const PrintOptionButton = styled(ButtonBase)`
@@ -304,10 +305,10 @@ const PrintOptionButton = styled(ButtonBase)`
   margin: 14px 0;
   align-items: center;
   text-align: left;
-  background: ${TAMANU_COLORS.white};
-  border: 2px solid ${TAMANU_COLORS.outline};
+  background: ${Colors.white};
+  border: 2px solid ${Colors.outline};
   border-radius: 5px;
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
 
   svg {
     width: 45px;
@@ -315,7 +316,7 @@ const PrintOptionButton = styled(ButtonBase)`
   }
 
   &:hover {
-    background: ${TAMANU_COLORS.veryLightBlue};
+    background: ${Colors.veryLightBlue};
   }
 `;
 
@@ -439,7 +440,7 @@ export const PrintPatientDetailsModal = ({ patient }) => {
     <>
       <OutlinedButton onClick={openModal} data-testid="button-kdtv">
         <BookUserIcon
-          htmlColor={TAMANU_COLORS.primary}
+          htmlColor={Colors.primary}
           width={20}
           height={20}
           style={{ marginRight: 8 }}

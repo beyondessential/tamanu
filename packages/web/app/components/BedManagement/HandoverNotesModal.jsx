@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TranslatedText, Modal } from '@tamanu/ui-components';
 import { HandoverNotesPDF } from '@tamanu/shared/utils/handoverNotes';
 import { getDisplayDate } from '@tamanu/shared/utils/patientCertificates/getDisplayDate';
+import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useSettings } from '../../contexts/Settings';
 import { useCertificate } from '../../utils/useCertificate';
+import { TranslatedText } from '../Translation/TranslatedText';
 import { PDFLoader, printPDF } from '../PatientPrinting/PDFLoader';
 import { useAuth } from '../../contexts/Auth';
 

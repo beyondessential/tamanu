@@ -27,15 +27,13 @@ export const CovidTestCertificateModal = React.memo(({ patient }) => {
     patient.id,
     CertificateTypes.test,
   );
-  const {
-    data: additionalData,
-    isLoading: isAdditionalDataLoading,
-  } = usePatientAdditionalDataQuery(patient.id);
+  const { data: additionalData, isLoading: isAdditionalDataLoading } =
+    usePatientAdditionalDataQuery(patient.id);
 
   const isLoading = isLabTestsLoading || isAdditionalDataLoading || isCertificateFetching;
 
   const createCovidTestCertNotification = useCallback(
-    data =>
+    (data) =>
       api.post('certificateNotification', {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requireSigning: false,

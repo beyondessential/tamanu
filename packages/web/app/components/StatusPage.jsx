@@ -1,7 +1,7 @@
 import React from 'react';
 import { LargeBodyText } from './Typography';
 import styled, { keyframes } from 'styled-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { LogoDark } from './Logo';
 import { Typography } from '@material-ui/core';
 import HeroImg from '../assets/images/splashscreens/screen_4.png';
@@ -15,7 +15,7 @@ const FlexContainer = styled.div`
 const Container = styled.div`
   padding: 25px 35px;
   height: 100vh;
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   flex: 1;
 `;
 

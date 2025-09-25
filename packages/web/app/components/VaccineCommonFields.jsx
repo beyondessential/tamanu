@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
 import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
-
+import { Colors } from '../constants';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
   AutocompleteField,
@@ -20,7 +20,6 @@ import {
   TextField,
   BaseSelectField,
   FormSubmitCancelRow,
-  TAMANU_COLORS,
 } from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
@@ -304,7 +303,7 @@ export const AdministeredVaccineScheduleField = ({ schedules }) => {
       schedules?.map(s => ({
         value: s.scheduledVaccineId,
         label: s.doseLabel,
-        icon: s.administered ? <CheckCircleRounded style={{ color: TAMANU_COLORS.safe }} /> : null,
+        icon: s.administered ? <CheckCircleRounded style={{ color: Colors.safe }} /> : null,
         disabled: s.administered,
       })) || [];
     setScheduledOptions(options);

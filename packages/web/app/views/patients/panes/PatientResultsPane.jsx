@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
@@ -11,8 +12,8 @@ import { useAuth } from '../../../contexts/Auth';
 
 const MessageContainer = styled.div`
   padding: 30px;
-  background: ${TAMANU_COLORS.white};
-  border: 1px solid ${TAMANU_COLORS.outline};
+  background: ${Colors.white};
+  border: 1px solid ${Colors.outline};
   border-radius: 5px;
 `;
 
@@ -22,15 +23,15 @@ const MessageInner = styled.div`
   justify-content: center;
   height: 100%;
   border-radius: 3px;
-  background: ${TAMANU_COLORS.background};
-  color: ${TAMANU_COLORS.primary};
+  background: ${Colors.background};
+  color: ${Colors.primary};
   font-weight: 500;
   text-align: center;
   padding: 70px 190px;
 `;
 
 const WrongPermissionInner = styled(MessageInner)`
-  color: ${TAMANU_COLORS.alert};
+  color: ${Colors.alert};
 `;
 
 const NoResultsMessage = () => (

@@ -2,22 +2,22 @@ import React from 'react';
 import styled from 'styled-components';
 import { DEPRECATED_PRCC_LABELS } from '@tamanu/constants';
 import {
-  TAMANU_COLORS,
   TranslatedEnum,
   TranslatedReferenceData,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { DateDisplay, Heading5 } from '../../components';
 import { useProgramRegistryConditionCategoriesQuery } from '../../api/queries/usePatientProgramRegistryConditionsQuery';
+import { Colors } from '../../constants';
 
 const HistorySection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   padding: 1rem;
   border-radius: 3px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   margin-bottom: 2rem;
 `;
 
@@ -32,17 +32,17 @@ const HistoryItemRow = styled.div`
 `;
 
 const HistoryItemLabel = styled.div`
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
   margin-right: 1ch;
 `;
 
 const HistoryItemValue = styled.div`
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
 `;
 
 const SmallText = styled.div`
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   font-size: 11px;
   span {
     margin-right: 1ch;

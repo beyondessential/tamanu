@@ -21,7 +21,7 @@ import { Y_AXIS_WIDTH } from './constants';
 import { InwardArrowVectorDot } from './components/InwardArrowVectorDot';
 import { CustomTooltip } from './components/CustomTooltip';
 
-export const LineChart = props => {
+export const LineChart = (props) => {
   const {
     isVital = false,
     chartData,
@@ -82,7 +82,7 @@ export const LineChart = props => {
           />
         )}
         <ReferenceArea
-          shape={shapeProps => (
+          shape={(shapeProps) => (
             <ReferenceBands
               {...shapeProps}
               rangesToHighlight={[
@@ -124,11 +124,7 @@ export const LineChart = props => {
         {(chartData.length === 0 || isLoading) && (
           <Customized
             component={
-              <NoDataStateScreen
-                isLoading={isLoading}
-                isVital={isVital}
-                data-testid="nodatastatescreen-v4iv"
-              />
+              <NoDataStateScreen isLoading={isLoading} isVital={isVital} data-testid="nodatastatescreen-v4iv" />
             }
             data-testid="customized-11uz"
           />

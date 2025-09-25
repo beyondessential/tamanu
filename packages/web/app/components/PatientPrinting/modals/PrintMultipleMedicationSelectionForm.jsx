@@ -4,7 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { intersectionBy } from 'lodash';
-import { OuterLabelFieldWrapper, TextField, TextInput, ConfirmCancelRow, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  OuterLabelFieldWrapper,
+  TextField,
+  TextInput,
+  ConfirmCancelRow,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { Table, useSelectableColumn } from '../../Table';
 import { AutocompleteInput, NumberInput } from '../../Field';
 import { DateDisplay } from '../../DateDisplay';
@@ -279,7 +285,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         data-testid="outerlabelfieldwrapper-r5kq"
       >
         <StyledTable
-          headerColor={TAMANU_COLORS.white}
+          headerColor={Colors.white}
           columns={[selectableColumn, ...COLUMNS]}
           data={medicationData || []}
           elevated={false}
@@ -297,7 +303,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           data-testid="table-3r2b"
         />
       </OuterLabelFieldWrapper>
-      <HorizontalDivider color={TAMANU_COLORS.outline} />
+      <HorizontalDivider color={Colors.outline} />
       <ConfirmCancelRow
         cancelText={
           <TranslatedText

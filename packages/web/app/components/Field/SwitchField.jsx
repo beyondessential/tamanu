@@ -2,7 +2,7 @@ import React from 'react';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { styled } from '@mui/material/styles';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants';
 
 const StyledSwitch = styled(Switch)`
   padding: 0;
@@ -24,22 +24,22 @@ const StyledSwitch = styled(Switch)`
     width: 0.875rem;
     height: 0.875rem;
     box-shadow: none;
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
   }
   .MuiSwitch-track {
     height: 1.25rem;
     width: 2.5rem;
-    background-color: ${TAMANU_COLORS.softText};
+    background-color: ${Colors.softText};
     opacity: 1;
     border-radius: 1.25rem;
   }
 
   .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track {
-    background-color: ${TAMANU_COLORS.primary};
+    background-color: ${Colors.primary};
     opacity: 1;
   }
   .MuiSwitch-switchBase.Mui-disabled.Mui-checked + .MuiSwitch-track {
-    background-color: ${TAMANU_COLORS.primary30};
+    background-color: ${Colors.primary30};
     opacity: 1;
   }
 `;
@@ -47,7 +47,7 @@ const StyledSwitch = styled(Switch)`
 const StyledFormControlLabel = styled(FormControlLabel)`
   margin-left: 0;
   .MuiFormControlLabel-label.Mui-disabled {
-    color: ${TAMANU_COLORS.darkestText};
+    color: ${Colors.darkestText};
   }
 `;
 

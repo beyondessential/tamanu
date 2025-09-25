@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { labsIcon } from '../../../constants/images';
 import { DateDisplay } from '../../../components';
+import { Colors } from '../../../constants';
+import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
 
 const Container = styled.div`
   display: flex;
@@ -35,7 +36,7 @@ const CardItem = styled.div`
 const BorderSection = styled(CardItem)`
   margin-left: 45px;
   padding: 0 10px;
-  border-left: 1px solid ${TAMANU_COLORS.outline};
+  border-left: 1px solid ${Colors.outline};
 `;
 
 const CardLabel = styled.span`

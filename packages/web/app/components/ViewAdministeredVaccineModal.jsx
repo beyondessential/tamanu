@@ -5,7 +5,8 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
-import { TAMANU_COLORS, Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
@@ -16,36 +17,36 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   ${(props) => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
 `;
 
 const DisplayField = styled.div`
   width: 50%;
   padding-right: 15px;
   padding-bottom: 20px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   font-weight: 500;
 
   &:nth-child(2n) {
-    ${(props) => (props.$editMode ? `border-left: 1px solid ${TAMANU_COLORS.outline};` : '')}
+    ${(props) => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
     ${(props) => (props.$editMode ? `padding-left: 15px;` : '')}
   }
 `;
 
 const Label = styled.div`
   font-weight: 400;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
 `;
 
 const FieldGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
   width: 90%;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 
   &:last-of-type {
     border-bottom: none;

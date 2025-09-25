@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
 import { IconButton } from '@material-ui/core';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, Button, TextButton, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Form, Button, TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import doubleDown from '../../assets/images/double_down.svg';
 import doubleUp from '../../assets/images/double_up.svg';
 import { TranslatedText } from '../Translation/TranslatedText';
@@ -12,10 +13,10 @@ import { withPermissionCheck } from '../withPermissionCheck';
 import { withPermissionTooltip } from '../withPermissionTooltip';
 
 const Container = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  background: ${TAMANU_COLORS.white};
+  background: ${Colors.white};
   padding: 16px 25px 10px;
   font-size: 11px;
 

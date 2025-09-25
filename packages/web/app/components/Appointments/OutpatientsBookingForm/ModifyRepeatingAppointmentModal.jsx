@@ -1,15 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { ConfirmModal } from '../../ConfirmModal';
+import { TranslatedText } from '../../Translation';
 import { BodyText } from '../../Typography';
 import { ModifyModeRadioGroup } from '../ModifyModeRadioGroup';
+import { Colors } from '../../../constants';
 
 const RadioGroupWrapper = styled.div`
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   border-radius: 3px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   padding: 16px;
 `;
 

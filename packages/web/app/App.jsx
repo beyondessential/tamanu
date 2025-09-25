@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Bowser from 'bowser';
 import 'typeface-roboto';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView, FacilitySelectionView } from './views';
@@ -30,7 +30,7 @@ const AppContentsContainer = styled.div`
   height: 100vh;
   overflow: auto;
   flex: 1;
-  border-top: 1px solid ${TAMANU_COLORS.softOutline};
+  border-top: 1px solid ${Colors.softOutline};
 `;
 
 export function App({ sidebar, children }) {

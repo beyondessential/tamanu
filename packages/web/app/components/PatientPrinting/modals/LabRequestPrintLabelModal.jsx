@@ -28,7 +28,7 @@ const Container = styled.div`
 `;
 
 export const LabRequestPrintLabelModal = ({ open, onClose, labRequests }) => {
-  const patient = useSelector(state => state.patient);
+  const patient = useSelector((state) => state.patient);
   const { getSetting } = useSettings();
   const labelWidth = getSetting('printMeasures.labRequestPrintLabel.width');
 

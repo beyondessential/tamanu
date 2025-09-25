@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { TopBar } from '../../../components';
 import { TabDisplay } from '../../../components/TabDisplay';
 import { ExportReportView } from './ExportReportView';
@@ -10,14 +11,14 @@ import { SelectReportView } from './SelectReportView';
 
 const OuterContainer = styled.div`
   position: relative;
-  background-color: ${TAMANU_COLORS.background};
+  background-color: ${Colors.background};
   min-height: 100%;
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
   .MuiTabs-root {
     padding: 0px 20px;
-    border-bottom: 1px solid ${TAMANU_COLORS.outline};
+    border-bottom: 1px solid ${Colors.outline};
   }
 `;
 

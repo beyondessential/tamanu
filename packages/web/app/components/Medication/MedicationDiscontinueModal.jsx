@@ -10,12 +10,11 @@ import {
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  TAMANU_COLORS,
   BaseModal,
   TranslatedText,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
-
+import { Colors } from '../../constants';
 import { MedicationSummary } from './MedicationSummary';
 import { AutocompleteField, Field } from '..';
 import { useApi, useSuggester } from '../../api';
@@ -31,7 +30,7 @@ const StyledBaseModal = styled(BaseModal)`
 const DarkText = styled(Box)`
   font-size: 14px;
   line-height: 18px;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const validationSchema = yup.object().shape({
@@ -136,7 +135,7 @@ export const MedicationDiscontinueModal = ({ medication, onDiscontinue, onClose 
               mb={-1.5}
               px={5}
               pt={2.5}
-              borderTop={`1px solid ${TAMANU_COLORS.outline}`}
+              borderTop={`1px solid ${Colors.outline}`}
               display={'flex'}
               justifyContent={'flex-end'}
               gap={2}

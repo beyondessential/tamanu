@@ -118,8 +118,9 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
-    .length;
+  const totalSeenAppointments = appointments.filter(
+    (appointment) => appointment.status === 'Seen',
+  ).length;
 
   const onViewAll = () => {
     history.push(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);

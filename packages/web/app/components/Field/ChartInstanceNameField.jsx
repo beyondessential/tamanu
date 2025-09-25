@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { LimitedTextField } from '@tamanu/ui-components';
+import { LimitedTextField } from './TextField';
 
 const StyledLimitedTextField = styled(LimitedTextField)`
   .MuiFormHelperText-root.MuiFormHelperText-contained {

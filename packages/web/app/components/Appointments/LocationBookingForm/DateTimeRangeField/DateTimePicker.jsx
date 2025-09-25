@@ -45,7 +45,7 @@ const DateTimePicker = ({
   const isValidDate = isValid(parseISO(dateFieldValue));
 
   /** Keep startDate synchronised with date field for non-overnight bookings */
-  const flushChangeToDateField = e => {
+  const flushChangeToDateField = (e) => {
     if (datePickerName === 'startDate') {
       setFieldValue('date', e.target.value);
     }
@@ -87,7 +87,7 @@ const DateTimePicker = ({
         label={datePickerLabel}
         min={minDate}
         name={datePickerName}
-        onChange={e => {
+        onChange={(e) => {
           flushChangeToDateField(e);
           onChange?.(e);
         }}

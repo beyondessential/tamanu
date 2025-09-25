@@ -11,11 +11,11 @@ import {
   MODAL_PADDING_LEFT_AND_RIGHT,
   MODAL_PADDING_TOP_AND_BOTTOM,
   TranslatedText,
-  TAMANU_COLORS,
 } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 const TypographyLink = styled(Typography)`
-  color: ${TAMANU_COLORS.primary};
+  color: ${Colors.primary};
   font-weight: 500;
   font-size: 14px;
   line-height: 18px;

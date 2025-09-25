@@ -47,11 +47,7 @@ export const GenericLocationFields = ({ filterByMandatory }) => {
         component: AutocompleteField,
         suggester: divisionSuggester,
         label: (
-          <TranslatedText
-            stringId="general.localisedField.divisionId.label"
-            fallback="Division"
-            data-testid="translatedtext-s0p5"
-          />
+          <TranslatedText stringId="general.localisedField.divisionId.label" fallback="Division" data-testid="translatedtext-s0p5" />
         ),
       },
     }),

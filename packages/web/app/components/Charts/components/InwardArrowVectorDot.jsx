@@ -2,7 +2,7 @@ import React from 'react';
 import { Colors } from '../../../constants';
 import { getHeightPerYAxisInterval } from '../helpers/getHeightPerYAxisInterval';
 
-export const InwardArrowVectorDot = props => {
+export const InwardArrowVectorDot = (props) => {
   // cx, cy is the position of the current dot
   const { cx, cy, payload, active, tableHeight } = props;
   if (!payload || !tableHeight) {

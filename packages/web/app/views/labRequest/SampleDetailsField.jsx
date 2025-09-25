@@ -1,4 +1,4 @@
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { Typography } from '@material-ui/core';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -11,8 +11,8 @@ import { useSettings } from '../../contexts/Settings';
 import { TranslatedReferenceData } from '../../components/Translation/index.js';
 
 const Container = styled.div`
-  border: 1px solid ${TAMANU_COLORS.outline};
-  background: ${TAMANU_COLORS.white};
+  border: 1px solid ${Colors.outline};
+  background: ${Colors.white};
   border-radius: 5px;
   display: grid;
   grid-template-columns: ${(props) =>
@@ -27,8 +27,8 @@ const Container = styled.div`
 const HeaderCell = styled(Heading4)`
   font-size: 14px;
   padding: 15px 16px 15px 0px;
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
-  color: ${TAMANU_COLORS.midText};
+  border-bottom: 1px solid ${Colors.outline};
+  color: ${Colors.midText};
   &:first-of-type {
     padding-left: 32px;
   }
@@ -42,13 +42,13 @@ const Cell = styled.div`
     width: 100%;
   }
 
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const StyledField = styled(Field)`
   width: 100%;
   .Mui-disabled {
-    background: ${TAMANU_COLORS.softOutline};
+    background: ${Colors.softOutline};
     .MuiOutlinedInput-notchedOutline {
       border-color: #dedede;
     }
@@ -96,7 +96,7 @@ export const SampleDetailsField = ({
         fallback="Specimen type"
         data-testid="translatedtext-tznt"
       />
-      {mandateSpecimenType && <span style={{ color: TAMANU_COLORS.alert }}> *</span>}
+      {mandateSpecimenType && <span style={{ color: Colors.alert }}> *</span>}
     </>,
     <TranslatedText
       key="site"

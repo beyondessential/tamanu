@@ -10,7 +10,6 @@ import {
 } from '@tamanu/constants';
 import {
   OutlinedButton,
-  TAMANU_COLORS,
   Button,
   MODAL_TRANSITION_DURATION,
   TranslatedText,
@@ -48,6 +47,7 @@ import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/moda
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   display: flex;
@@ -58,11 +58,11 @@ const Container = styled.div`
 
 const TopContainer = styled.div`
   padding: 18px 30px;
-  background-color: ${TAMANU_COLORS.background};
+  background-color: ${Colors.background};
 `;
 
 const BottomContainer = styled.div`
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
   padding: 18px 30px;
   display: flex;
   flex-direction: column;
@@ -70,7 +70,7 @@ const BottomContainer = styled.div`
 `;
 
 const LabelContainer = styled.div`
-  color: ${p => p.color || TAMANU_COLORS.darkestText};
+  color: ${p => p.color || Colors.darkestText};
 `;
 
 const FixedTileRow = styled(TileContainer)`
@@ -365,7 +365,7 @@ export const LabRequestView = () => {
                       <LabelContainer
                         color={
                           labRequest.status === LAB_REQUEST_STATUSES.SAMPLE_NOT_COLLECTED &&
-                          TAMANU_COLORS.softText
+                          Colors.softText
                         }
                         data-testid="labelcontainer-mjji"
                       >
@@ -405,7 +405,7 @@ export const LabRequestView = () => {
             main={
               <>
                 <DateDisplay
-                  color={labRequest.sampleTime ? 'unset' : TAMANU_COLORS.softText}
+                  color={labRequest.sampleTime ? 'unset' : Colors.softText}
                   date={labRequest.sampleTime}
                   showTime
                   data-testid="datedisplay-h6el"

@@ -5,7 +5,8 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { TextInput, TAMANU_COLORS } from '@tamanu/ui-components';
+import { TextInput } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
@@ -28,7 +29,7 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableCell-head {
-    background-color: ${TAMANU_COLORS.white};
+    background-color: ${Colors.white};
     padding-top: 12px;
     padding-bottom: 12px;
     span,
@@ -37,7 +38,7 @@ const StyledTable = styled(Table)`
     }
     span:not(.required-indicator),
     div {
-      color: ${TAMANU_COLORS.midText};
+      color: ${Colors.midText};
     }
     padding-left: 10px;
     padding-right: 10px;
@@ -61,7 +62,7 @@ const StyledTable = styled(Table)`
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
     cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover {
-      background-color: ${TAMANU_COLORS.veryLightBlue};
+      background-color: ${Colors.veryLightBlue};
     }
   }
   .MuiTableBody-root {
@@ -207,7 +208,7 @@ const getColumns = (
           <NoWrapCell color={'inherit'} fontStyle={'normal'}>
             <Box>
               {formatShortest(orderDate)}
-              <Box fontSize="12px" color={TAMANU_COLORS.softText}>
+              <Box fontSize="12px" color={Colors.softText}>
                 {format(orderDate, 'h:mma').toLowerCase()}
               </Box>
             </Box>
@@ -291,7 +292,7 @@ export const PharmacyOrderMedicationTable = ({
   const { getTranslation, getEnumTranslation } = useTranslation();
   return (
     <StyledTable
-      headerColor={TAMANU_COLORS.white}
+      headerColor={Colors.white}
       columns={getColumns(
         getTranslation,
         getEnumTranslation,

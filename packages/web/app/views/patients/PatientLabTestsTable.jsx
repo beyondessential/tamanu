@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
-import { TAMANU_COLORS, TranslatedText, TranslatedReferenceData, TranslatedOption } from '@tamanu/ui-components';
+import { TranslatedText, TranslatedReferenceData, TranslatedOption } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
 import { LabTestResultModal } from './LabTestResultModal';
@@ -20,12 +21,12 @@ const StyledTable = styled(Table)`
     tbody tr td:nth-child(-n + ${props => props.$stickyColumns}) {
       position: sticky;
       z-index: 1;
-      border-right: 1px solid ${TAMANU_COLORS.outline};
+      border-right: 1px solid ${Colors.outline};
     }
 
     thead tr th:nth-child(${props => props.$stickyColumns}),
     tbody tr td:nth-child(${props => props.$stickyColumns}) {
-      border-right: 2px solid ${TAMANU_COLORS.outline};
+      border-right: 2px solid ${Colors.outline};
     }
 
     ${props =>
@@ -59,7 +60,7 @@ const StyledTable = styled(Table)`
 
     thead tr th {
       color: ${props => props.theme.palette.text.secondary};
-      background: ${TAMANU_COLORS.background};
+      background: ${Colors.background};
       white-space: break-spaces;
     }
 
@@ -68,7 +69,7 @@ const StyledTable = styled(Table)`
     }
 
     tbody tr td.MuiTableCell-body {
-      background: ${TAMANU_COLORS.white};
+      background: ${Colors.white};
       padding: 7px 15px;
 
       &:first-child {
@@ -85,7 +86,7 @@ const StyledTable = styled(Table)`
 
 const CategoryCell = styled.div`
   font-weight: 500;
-  color: ${TAMANU_COLORS.darkText};
+  color: ${Colors.darkText};
 `;
 
 const StyledButton = styled(Button)`

@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Autorenew } from '@material-ui/icons';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 
+import { Autorenew } from '@material-ui/icons';
+import { Colors } from '../../constants';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { TranslatedText } from '../Translation/TranslatedText';
 
 const IdControl = styled.div`
   display: flex;
-  color: ${TAMANU_COLORS.primaryDark};
+  color: ${Colors.primaryDark};
 `;
 
 const Id = styled(InvertedDisplayIdLabel)`
@@ -27,7 +27,7 @@ const RegenerateId = styled.div`
   cursor: pointer;
 
   svg {
-    color: ${TAMANU_COLORS.primaryDark};
+    color: ${Colors.primaryDark};
     padding: 0;
     margin-right: 5px;
   }

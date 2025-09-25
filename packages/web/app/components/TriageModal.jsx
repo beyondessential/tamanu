@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { FormModal } from './FormModal';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedSex, TranslatedText } from './Translation';
@@ -19,7 +19,7 @@ const PatientDetails = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 15px;
-  border: 1px solid ${TAMANU_COLORS.outline};
+  border: 1px solid ${Colors.outline};
   border-radius: 3px;
   margin-bottom: 15px;
 `;

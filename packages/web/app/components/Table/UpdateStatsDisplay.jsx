@@ -40,7 +40,7 @@ export const UpdateStatsDisplay = ({
   const { getTranslation } = useTranslation();
 
   const dateAsDistanceToNow = useCallback(
-    date =>
+    (date) =>
       formatDistanceToNow(new Date(date), {
         addSuffix: getTranslation('schedule.distanceFromNow.suffix', 'ago'),
       }),

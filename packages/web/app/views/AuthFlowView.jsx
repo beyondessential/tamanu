@@ -2,15 +2,17 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { Launch } from '@material-ui/icons';
-import { Typography } from '@material-ui/core';
-import { TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 import { LogoDark } from '../components';
 import { splashImages } from '../constants/images';
 import { restartPasswordResetFlow } from '../store';
 import { useApi } from '../api';
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
+import { Typography } from '@material-ui/core';
 import { getBrandId } from '../utils';
 import { FULL_VERSION } from '../utils/env';
+
+import { TranslatedText } from '../components/Translation/TranslatedText';
 
 const Container = styled.div`
   display: flex;
@@ -39,7 +41,7 @@ const ContentContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${TAMANU_COLORS.white};
+  background-color: ${Colors.white};
 `;
 
 const LogoContainer = styled.div`
@@ -61,7 +63,7 @@ const SupportDesktopLink = styled.a`
   font-size: 9px;
   line-height: 15px;
   text-decoration: underline;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${Colors.darkestText};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +81,7 @@ const FormContainer = styled.div`
 
 const DesktopVersionText = styled(Typography)`
   font-size: 9px;
-  color: ${TAMANU_COLORS.midText};
+  color: ${Colors.midText};
   position: absolute;
   bottom: 15px;
   right: 20px;

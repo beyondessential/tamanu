@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Redirect, useParams } from 'react-router-dom';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
@@ -10,8 +10,8 @@ import { ProgramRegistryTable } from './ProgramRegistryTable';
 import { TranslatedReferenceData, TranslatedText } from '../../components';
 
 const ViewHeader = styled.div`
-  background-color: ${TAMANU_COLORS.white};
-  border-bottom: 1px solid ${TAMANU_COLORS.outline};
+  background-color: ${Colors.white};
+  border-bottom: 1px solid ${Colors.outline};
   padding: 20px 30px;
   display: flex;
   flex-direction: row;
