@@ -3,7 +3,7 @@ import { compare } from 'bcrypt';
 import config from 'config';
 import * as jose from 'jose';
 import ms from 'ms';
-import { JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
+import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES, SERVER_TYPES } from '@tamanu/constants';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { AuthPermissionError, ERROR_TYPE, InvalidTokenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
@@ -44,7 +44,7 @@ export async function buildToken(user, facilityId, expiresIn) {
     userId: user.id,
     facilityId,
   })
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
     .setIssuer(canonicalHostName)
     .setIssuedAt()
     .setExpirationTime(expirationTime)

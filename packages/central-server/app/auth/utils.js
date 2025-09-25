@@ -2,7 +2,7 @@ import { createSecretKey, randomBytes, randomInt } from 'node:crypto';
 import config from 'config';
 import * as jose from 'jose';
 
-import { SERVER_TYPES } from '@tamanu/constants';
+import { JWT_KEY_ALG, JWT_KEY_ID, SERVER_TYPES } from '@tamanu/constants';
 
 const MAX_U32_VALUE = 2 ** 32 - 1;
 
@@ -22,7 +22,7 @@ export const buildToken = async (data, secret, options) => {
   }
 
   return await new jose.SignJWT(data)
-    .setProtectedHeader({ alg: 'HS256' })
+    .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
     .setIssuedAt()
     .setIssuer(options.issuer)
     .setAudience(options.audience)

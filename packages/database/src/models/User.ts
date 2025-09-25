@@ -9,6 +9,8 @@ import type { Subject } from '@casl/ability';
 import {
   CAN_ACCESS_ALL_FACILITIES,
   DEVICE_SCOPES,
+  JWT_KEY_ALG,
+  JWT_KEY_ID,
   JWT_TOKEN_TYPES,
   LOCKED_OUT_ERROR_MESSAGE,
   LOGIN_ATTEMPT_OUTCOMES,
@@ -451,13 +453,12 @@ export class User extends Model {
       outcome: LOGIN_ATTEMPT_OUTCOMES.SUCCEEDED,
     });
 
-    const alg = 'HS256';
     const secret = createSecretKey(new TextEncoder().encode(tokenSecret));
     const token = await new jose.SignJWT({
       userId: user.id,
       deviceId: device?.id,
     })
-      .setProtectedHeader({ alg })
+      .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
       .setIssuedAt()
       .setIssuer(tokenIssuer)
       .setAudience(JWT_TOKEN_TYPES.ACCESS)

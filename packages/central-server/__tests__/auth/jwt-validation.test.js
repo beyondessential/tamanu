@@ -1,4 +1,4 @@
-import { JWT_TOKEN_TYPES } from '@tamanu/constants';
+import { JWT_KEY_ALG, JWT_KEY_ID, JWT_TOKEN_TYPES } from '@tamanu/constants';
 import * as jose from 'jose';
 import config from 'config';
 import { createTestContext } from '../utilities';
@@ -179,7 +179,7 @@ describe('JWT Token Validation', () => {
 
       // Create a token with invalid payload (missing userId)
       const invalidToken = await new jose.SignJWT({ invalidField: 'test' })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -293,7 +293,7 @@ describe('JWT Token Validation', () => {
 
       // Test with empty string userId
       const emptyUserIdToken = await new jose.SignJWT({ userId: '' })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -309,7 +309,7 @@ describe('JWT Token Validation', () => {
 
       // Test with null userId
       const nullUserIdToken = await new jose.SignJWT({ userId: null })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -339,7 +339,7 @@ describe('JWT Token Validation', () => {
         userId: user.id,
         deviceId: '',
       })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -358,7 +358,7 @@ describe('JWT Token Validation', () => {
         userId: user.id,
         facilityId: '',
       })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -380,7 +380,7 @@ describe('JWT Token Validation', () => {
 
       // Test with wrong secret
       const wrongSecretToken = await new jose.SignJWT({ userId: 'test-user-id' })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -396,7 +396,7 @@ describe('JWT Token Validation', () => {
 
       // Test with wrong issuer
       const wrongIssuerToken = await new jose.SignJWT({ userId: 'test-user-id' })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer('wrong-issuer')
         .setAudience(JWT_TOKEN_TYPES.ACCESS)
@@ -412,7 +412,7 @@ describe('JWT Token Validation', () => {
 
       // Test with wrong audience
       const wrongAudienceToken = await new jose.SignJWT({ userId: 'test-user-id' })
-        .setProtectedHeader({ alg: 'HS256' })
+        .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
         .setIssuedAt()
         .setIssuer(config.canonicalHostName)
         .setAudience('wrong-audience')
