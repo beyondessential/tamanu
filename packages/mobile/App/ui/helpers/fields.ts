@@ -1,7 +1,10 @@
-import { inRange, isNil } from 'lodash';
+import { camelCase, inRange, isNil } from 'lodash';
 import { formatISO9075 } from 'date-fns';
 import { DataElementType, ISurveyScreenComponent } from '~/types/ISurvey';
-import { PATIENT_DATA_FIELD_LOCATIONS } from '~/constants';
+import { formatDate, parseDate } from './date';
+import { DateFormats } from './constants';
+import { getPatientNameAsString } from './patient';
+import { PATIENT_DATA_FIELD_LOCATIONS, SEX_LABELS } from '@tamanu/constants';
 
 export const FieldTypes = {
   TEXT: 'FreeText',
@@ -288,18 +291,39 @@ export function checkMandatory(mandatory: boolean | Record<string, any>, values:
   return checkJSONCriteria(JSON.stringify(mandatory), [], values);
 }
 
-// also update getNameColumnForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
-export function getNameColumnForModel(modelName: string): string {
+// also update getDisplayNameForModel in /packages/shared/src/reports/utilities/transformAnswers.js when this changes
+export function getDisplayNameForModel({
+  modelName,
+  record,
+  getReferenceDataTranslation,
+  getEnumTranslation,
+}: {
+  modelName: string;
+  record: any;
+  getReferenceDataTranslation: (data: any) => string;
+  getEnumTranslation: (options: any, value: string) => string;
+}): string {
   switch (modelName) {
+    case 'ReferenceData':
+      return getReferenceDataTranslation({
+        value: record.id,
+        category: record.type,
+        fallback: record.name,
+      });
     case 'User':
-      return 'displayName';
-    default:
-      return 'name';
+      return record.displayName;
+    case 'Patient':
+      return `${getPatientNameAsString(record)} (${record.displayId}) - ${getEnumTranslation(
+        SEX_LABELS,
+        record.sex,
+      )} - ${record.dateOfBirth ? formatDate(parseDate(record.dateOfBirth), DateFormats.DDMMYY) : ''}`;
+    default: {
+      const category = camelCase(modelName);
+      return getReferenceDataTranslation({
+        value: record.id,
+        category,
+        fallback: record.name || record.id,
+      });
+    }
   }
-}
-
-// also update getDisplayNameForModel in /packages/facility-server/app/routes/apiv1/surveyResponse.js when this changes
-export function getDisplayNameForModel(modelName: string, record: any): string {
-  const columnName = getNameColumnForModel(modelName);
-  return record[columnName] || record.id;
 }
