@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { ResizeCornerIcon } from './Icons/ResizeCornerIcon';
 import { ResizeHorizontalIcon } from './Icons/ResizeHorizontalIcon';
 import { ResizeVerticalIcon } from './Icons/ResizeVerticalIcon';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from '../constants';
 
 export const withModalFloating = ModalComponent => {
   const StyledModalComponent = styled(ModalComponent)`
@@ -139,11 +139,11 @@ export const withModalFloating = ModalComponent => {
     maxConstraints: [900, 600],
     enableResizeHandle: { right: true, bottom: true, bottomRight: true },
     handleComponent: {
-      left: <ResizeVerticalIcon width={20} height={20} htmlColor={TAMANU_COLORS.darkestText} />,
-      right: <ResizeVerticalIcon width={20} height={20} htmlColor={TAMANU_COLORS.darkestText} />,
-      top: <ResizeHorizontalIcon width={20} height={20} htmlColor={TAMANU_COLORS.darkestText} />,
-      bottom: <ResizeHorizontalIcon width={20} height={20} htmlColor={TAMANU_COLORS.darkestText} />,
-      bottomRight: <ResizeCornerIcon width={20} height={20} htmlColor={TAMANU_COLORS.darkestText} />,
+      left: <ResizeVerticalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      right: <ResizeVerticalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      top: <ResizeHorizontalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      bottom: <ResizeHorizontalIcon width={20} height={20} htmlColor={Colors.darkestText} />,
+      bottomRight: <ResizeCornerIcon width={20} height={20} htmlColor={Colors.darkestText} />,
     },
     handleStyles: {
       left: { position: 'absolute', left: 4, top: '50%', cursor: 'ew-resize' },

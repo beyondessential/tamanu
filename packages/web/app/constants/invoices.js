@@ -1,10 +1,10 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Colors } from './styles';
 
 export const INVOICE_STATUS_COLORS = {
-  [INVOICE_STATUSES.CANCELLED]: TAMANU_COLORS.darkestText,
-  [INVOICE_STATUSES.IN_PROGRESS]: TAMANU_COLORS.darkOrange,
-  [INVOICE_STATUSES.FINALISED]: TAMANU_COLORS.green,
+  [INVOICE_STATUSES.CANCELLED]: Colors.darkestText,
+  [INVOICE_STATUSES.IN_PROGRESS]: Colors.darkOrange,
+  [INVOICE_STATUSES.FINALISED]: Colors.green,
 };
 
 export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
