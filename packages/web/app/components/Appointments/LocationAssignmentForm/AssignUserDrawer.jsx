@@ -131,9 +131,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     setSelectedModifyRepeatingAssignmentMode(undefined);
   }, [open, initialValues?.id]);
 
-  const userSuggester = useSuggester('practitioner', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const userSuggester = useSuggester('practitioner');
 
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
   const {
@@ -503,6 +501,8 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             }}
             data-testid="field-lmrx"
             showAllLocations
+            // Filter Area/Location by selected facility if provided
+            facilityIdOverride={initialValues?.facilityId}
           />
           <Field
             name="date"

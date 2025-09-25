@@ -1,15 +1,19 @@
 import { Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Button, PageContainer, TopBar, TranslatedText } from '../../components';
+import { Button, PageContainer, TopBar, TranslatedText, AutocompleteInput } from '../../components';
 import { AssignUserDrawer } from '../../components/Appointments/LocationAssignmentForm/AssignUserDrawer';
 import { Colors } from '../../constants';
 import { LocationAssignmentsCalendar } from './locationAssignments/LocationAssignmentsCalendar';
 import { useSuggestionsQuery } from '../../api/queries/useSuggestionsQuery';
-import { LOCATION_BOOKABLE_VIEW } from '@tamanu/constants';
+import { LOCATION_BOOKABLE_VIEW, USER_PREFERENCES_KEYS } from '@tamanu/constants';
 import { ASSIGNMENT_SCHEDULE_INITIAL_VALUES } from '../../constants/locationAssignments';
+import { useSuggester } from '../../api';
+import { useAdminUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
+import { useAdminUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
+import { useTranslation } from '../../contexts/Translation';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -57,15 +61,50 @@ const EmptyStateLabel = styled(Typography).attrs({
 export const LocationAssignmentsAdminView = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerInitialValues, setDrawerInitialValues] = useState({});
+
+  const { getTranslation } = useTranslation();
+
+  // Facility selection persistence
+  const { data: userPreferences } = useAdminUserPreferencesQuery();
+  const [selectedFacilityId, setSelectedFacilityId] = useState('');
+  const { mutateAsync: saveUserPref } = useAdminUserPreferencesMutation();
+  const facilitySuggester = useSuggester('facility');
+
+  useEffect(() => {
+    const pref = userPreferences?.[USER_PREFERENCES_KEYS.LOCATION_ASSIGNMENT_SELECTED_FACILITY];
+    if (pref?.id) setSelectedFacilityId(pref.id);
+  }, [userPreferences]);
+
+  // Autoselect if only one current facility
+  const { data: allFacilities } = useSuggestionsQuery('facility', { select: d => d });
+  useEffect(() => {
+    if (!selectedFacilityId && Array.isArray(allFacilities)) {
+      const currentFacilities = allFacilities?.filter(f => f?.id && f?.name);
+      if (currentFacilities?.length === 1) {
+        setSelectedFacilityId(currentFacilities[0].id);
+      }
+    }
+  }, [allFacilities, selectedFacilityId]);
+
+  const handleFacilityChange = async e => {
+    const id = e?.target?.value ?? '';
+    setSelectedFacilityId(id);
+    await saveUserPref({
+      key: USER_PREFERENCES_KEYS.LOCATION_ASSIGNMENT_SELECTED_FACILITY,
+      value: { id },
+    });
+  };
+
   const { data: locations, isLoading: isLocationsLoading } = useSuggestionsQuery('location/all', {
     // Filter and sort locations to only show those that have a location group (bookable locations)
     select: data => {
-      return data
+      const filtered = data
         .filter(
           location =>
             location.locationGroup &&
             location.locationGroup.isBookable !== LOCATION_BOOKABLE_VIEW.NO,
         )
+        .filter(location => (selectedFacilityId ? location.facilityId === selectedFacilityId : true))
         .sort((a, b) => {
           const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
           if (locationGroupComparison !== 0) {
@@ -73,6 +112,7 @@ export const LocationAssignmentsAdminView = () => {
           }
           return a.name.localeCompare(b.name);
         });
+      return filtered;
     },
   });
   const hasNoLocations = !isLocationsLoading && locations?.length === 0;
@@ -107,8 +147,16 @@ export const LocationAssignmentsAdminView = () => {
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60">
+        <AutocompleteInput
+          name="facilityId"
+          suggester={facilitySuggester}
+          value={selectedFacilityId}
+          onChange={handleFacilityChange}
+          placeholder={getTranslation('admin.locationAssignments.facility.placeholder', 'Select a facility')}
+        />
         <NewAssignmentButton
           onClick={() => openAssignmentDrawer()}
+          disabled={!selectedFacilityId}
           data-testid="newassignmentbutton-sl1p"
         >
           <PlusIcon data-testid="plusicon-ufmc" />
@@ -132,13 +180,14 @@ export const LocationAssignmentsAdminView = () => {
           locations={locations}
           isLocationsLoading={isLocationsLoading}
           openAssignmentDrawer={openAssignmentDrawer}
+          selectedFacilityId={selectedFacilityId}
           data-testid="locationassignmentscalendar-s3yu"
         />
       )}
       <AssignUserDrawer
         open={isDrawerOpen}
         onClose={closeAssignmentDrawer}
-        initialValues={drawerInitialValues}
+        initialValues={{ ...drawerInitialValues, facilityId: selectedFacilityId }}
         data-testid="assignuserdrawer-location-assignments"
       />
     </Wrapper>
