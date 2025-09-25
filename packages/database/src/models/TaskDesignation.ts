@@ -4,8 +4,8 @@ import {
   buildEncounterLinkedSyncFilter,
   buildEncounterLinkedSyncFilterJoins,
 } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import type { InitOptions, Models } from '../types/model';
+import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export class TaskDesignation extends Model {
   declare id: string;
@@ -45,9 +45,7 @@ export class TaskDesignation extends Model {
 
   static async buildSyncLookupQueryDetails() {
     return {
-      select: await buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
-      }),
+      select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'tasks', 'encounters']),
     };
   }
