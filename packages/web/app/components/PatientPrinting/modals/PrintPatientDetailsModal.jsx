@@ -157,7 +157,7 @@ const PRINT_OPTIONS = {
 const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
-  const isDeceased = Boolean(patient?.dateOfDeath); 
+  const isDeceased = Boolean(patient?.dateOfDeath);
   const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (
