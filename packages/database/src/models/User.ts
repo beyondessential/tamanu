@@ -18,6 +18,7 @@ import {
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
   VISIBILITY_STATUSES,
+  type JwtTokenType,
 } from '@tamanu/constants';
 import {
   AuthPermissionError,
@@ -483,6 +484,7 @@ export class User extends Model {
   static async loginFromToken(
     token: string,
     { tokenSecret, tokenIssuer }: LoginContext,
+    audience: JwtTokenType = JWT_TOKEN_TYPES.ACCESS,
   ): Promise<LoginReturn> {
     const { Device, Facility } = this.sequelize.models;
 
@@ -498,7 +500,7 @@ export class User extends Model {
         },
         {
           issuer: tokenIssuer,
-          audience: JWT_TOKEN_TYPES.ACCESS,
+          audience,
           clockTolerance: 10,
         },
       )
@@ -558,6 +560,7 @@ export class User extends Model {
   static async loginFromAuthorizationHeader(
     header: string | undefined | null,
     context: LoginContext,
+    audience: JwtTokenType = JWT_TOKEN_TYPES.ACCESS,
   ): Promise<LoginReturn> {
     if (!header) {
       throw new MissingCredentialError('Missing authorization header');
@@ -573,7 +576,7 @@ export class User extends Model {
       throw new MissingCredentialError('Missing authorization token');
     }
 
-    return await this.loginFromToken(token, context);
+    return await this.loginFromToken(token, context, audience);
   }
 }
 

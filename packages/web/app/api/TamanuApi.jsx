@@ -9,6 +9,7 @@ import { ERROR_TYPE } from '@tamanu/errors';
 
 const {
   TOKEN,
+  REFRESH_TOKEN,
   LOCALISATION,
   SERVER,
   AVAILABLE_FACILITIES,
@@ -29,6 +30,7 @@ function safeGetStoredJSON(key) {
 
 function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
+  const refreshToken = localStorage.getItem(REFRESH_TOKEN);
   const facilityId = localStorage.getItem(FACILITY_ID);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
@@ -39,6 +41,7 @@ function restoreFromLocalStorage() {
 
   return {
     token,
+    refreshToken,
     localisation,
     server,
     availableFacilities,
@@ -83,6 +86,7 @@ function saveToLocalStorage({
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
+  localStorage.removeItem(REFRESH_TOKEN);
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
   localStorage.removeItem(AVAILABLE_FACILITIES);
@@ -110,6 +114,8 @@ export function isErrorUnknownAllow404s(error) {
 }
 
 export class TamanuApi extends ApiClient {
+  #facilityId = null;
+
   constructor(appVersion) {
     const host = new URL(location);
     host.pathname = '';
@@ -137,27 +143,28 @@ export class TamanuApi extends ApiClient {
     } else {
       localStorage.removeItem(TOKEN);
     }
+    if (refreshToken) {
+      localStorage.setItem(REFRESH_TOKEN, refreshToken);
+    } else {
+      localStorage.removeItem(REFRESH_TOKEN);
+    }
     return super.setToken(token, refreshToken);
   }
 
-  // Overwrite base method to integrate with the facility-server refresh endpoint which just
-  // checks for an apiToken and returns a new one. This should be removed when refresh tokens are
-  // set up in facility-server
-  async refreshToken(config = {}) {
-    const response = await this.post(
-      'refresh',
-      {
-        deviceId: this.deviceId,
+  async refreshToken({ body = {}, ...config } = {}) {
+    return await super.refreshToken({
+      body: {
+        facilityId: this.#facilityId,
+        ...body,
       },
-      config,
-    );
-    const { token, refreshToken: newRefreshToken } = response;
-    this.setToken(token, newRefreshToken);
+      ...config,
+    });
   }
 
   async restoreSession() {
     const {
       token,
+      refreshToken,
       localisation,
       server,
       availableFacilities,
@@ -170,13 +177,20 @@ export class TamanuApi extends ApiClient {
       throw new Error('No stored session found.');
     }
 
-    this.setToken(token);
-    const config = { showUnknownErrorToast: false };
-    const { user, ability } = await this.fetchUserData(permissions, config);
+    this.#facilityId = facilityId;
+    this.setToken(token, refreshToken);
+    if (refreshToken) {
+      await this.refreshToken();
+    }
+
+    const { user, ability } = await this.fetchUserData(permissions, {
+      showUnknownErrorToast: false,
+    });
 
     return {
       user,
       token,
+      refreshToken,
       localisation,
       server,
       availableFacilities,
@@ -201,7 +215,9 @@ export class TamanuApi extends ApiClient {
   }
 
   async setFacility(facilityId) {
-    const { settings } = await this.post('setFacility', { facilityId });
+    const { token, refreshToken, settings } = await this.post('setFacility', { facilityId });
+    this.#facilityId = facilityId;
+    this.setToken(token, refreshToken);
     saveToLocalStorage({
       facilityId,
       settings,

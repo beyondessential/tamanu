@@ -69,6 +69,7 @@ const syncRoutes = express.Router();
 apiv1.post('/login', loginHandler);
 apiv1.use('/resetPassword', resetPassword);
 apiv1.use('/changePassword', changePassword);
+apiv1.post('/refresh', refreshHandler);
 
 apiv1.get(
   '/public/ping',
@@ -120,7 +121,6 @@ apiv1.delete(
   }),
 );
 
-apiv1.post('/refresh', refreshHandler);
 apiv1.post('/setFacility', setFacilityHandler);
 apiv1.use(patientDataRoutes); // see below for specifics
 apiv1.use(referenceDataRoutes); // see below for specifics

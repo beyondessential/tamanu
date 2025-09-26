@@ -1,7 +1,8 @@
 export const JWT_TOKEN_TYPES = {
   REFRESH: 'refresh',
   ACCESS: 'access',
-};
+} as const;
+export type JwtTokenType = (typeof JWT_TOKEN_TYPES)[keyof typeof JWT_TOKEN_TYPES];
 
 // we hardcode this as we don't support multiple keys yet, but still want
 // to produce the `kid` clain in JWTs so we can smoothly rotate in future
