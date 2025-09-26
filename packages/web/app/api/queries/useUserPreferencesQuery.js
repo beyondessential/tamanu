@@ -12,15 +12,3 @@ export const useUserPreferencesQuery = (queryOptions) => {
     queryOptions,
   );
 };
-
-// Admin variant uses central-server admin route
-export const useAdminUserPreferencesQuery = (queryOptions) => {
-  const api = useApi();
-  const { currentUser, facilityId } = useAuth();
-
-  return useQuery(
-    ['adminUserPreferences', currentUser?.id],
-    () => api.get(`admin/user/userPreferences/${encodeURIComponent(facilityId)}`),
-    queryOptions,
-  );
-};

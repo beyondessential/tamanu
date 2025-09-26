@@ -12,7 +12,7 @@ import { Form, TranslatedText } from '../../../components';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { useAdminSettingsQuery } from '../../../api/queries/useAdminSettingsQuery';
+import { useAdminSettingsQuery } from '../../../api/queries';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
 import { Colors } from '../../../constants';

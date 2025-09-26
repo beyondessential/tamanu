@@ -12,8 +12,7 @@ import { LOCATION_BOOKABLE_VIEW, USER_PREFERENCES_KEYS } from '@tamanu/constants
 import { ASSIGNMENT_SCHEDULE_INITIAL_VALUES } from '../../constants/locationAssignments';
 import { useSuggester } from '../../api';
 import { useAdminUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
-import { useAdminUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
-import { useAdminSettingsQuery } from '../../api/queries/useAdminSettingsQuery';
+import { useAdminUserPreferencesQuery, useAdminSettingsQuery } from '../../api/queries';
 import { useTranslation } from '../../contexts/Translation';
 
 const PlusIcon = styled(AddRounded)`

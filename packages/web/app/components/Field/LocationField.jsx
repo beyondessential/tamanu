@@ -45,6 +45,7 @@ export const LocationInput = React.memo(
   }) => {
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
+
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
@@ -57,17 +58,11 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: {
-        ...(facilityId && {
-          filterByFacility: true,
-          facilityId: facilityId,
-        }),
-        ...(groupId && { locationGroupId: groupId }),
-      },
+      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
       baseQueryParameters: {
-        ...(facilityId && { facilityId: facilityId }),
+        facilityId: facilityId,
         ...locationGroupBaseQueryParameters,
       },
     });
