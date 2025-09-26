@@ -150,9 +150,13 @@ async function centralServerLoginWithLocalFallback(models, settings, email, pass
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, deviceId, settings } = req;
-  const { email, password } = await z
-    .object({ email: z.email(), password: z.string().min(1) })
+  const { body, models, settings } = req;
+  const { deviceId, email, password } = await z
+    .object({
+      deviceId: z.string().min(1),
+      email: z.email(),
+      password: z.string().min(1),
+    })
     .parseAsync(body);
 
   // no permission needed for login
