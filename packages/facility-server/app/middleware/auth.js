@@ -197,7 +197,7 @@ export async function loginHandler(req, res, next) {
 }
 
 export async function setFacilityHandler(req, res, next) {
-  const { user, body, device } = req;
+  const { user, body, userDevice: device } = req;
 
   try {
     // Run after auth middleware, requires valid token but no other permission

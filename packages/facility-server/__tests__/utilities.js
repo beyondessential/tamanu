@@ -177,7 +177,20 @@ export async function createTestContext({ enableReportInstances, databaseOverrid
     }),
   );
 
-  const device = await models.Device.create();
+  // Create a system user for device registration
+  const systemUser = await models.User.create({
+    email: 'system@test.com',
+    displayName: 'System User',
+    password: 'test123',
+    role: 'practitioner',
+  });
+
+  const device = await models.Device.create({
+    registeredById: systemUser.id,
+  });
+
+  // Add deviceId to context for createApiApp
+  context.deviceId = device.id;
 
   const facilityIdsString = JSON.stringify(facilities.map(facility => facility.id));
   // ensure there's a corresponding local system fact for it too
