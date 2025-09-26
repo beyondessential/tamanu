@@ -40,7 +40,7 @@ export const useSocket = () => {
       setSocket(cached.instance);
     }
 
-    const newSocket = io(connectionUrl, { transports: ['websocket'] });
+    const newSocket = io(connectionUrl, { transports: ['webtransport', 'websocket'] });
     cachedWebSocketInstances[connectionUrl] = {
       instance: newSocket,
       count: 1,
