@@ -54,13 +54,13 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null, // intentionally null
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
-  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
+  [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_DATE]: unsupportedField,
@@ -68,19 +68,17 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: unsupportedField,
 };
 
-interface GetComponentForQuestionTypeArgs {
-  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
+interface GetComponentForQuestionTypeOptions {
   source?: string;
   writeToPatient?: {
     fieldType?: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
   };
 }
 
-export function getComponentForQuestionType({
-  type,
-  source,
-  writeToPatient: { fieldType } = {},
-}: GetComponentForQuestionTypeArgs) {
+export function getComponentForQuestionType(
+  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES,
+  { source, writeToPatient: { fieldType } = {} }: GetComponentForQuestionTypeOptions = {},
+) {
   let Component = QUESTION_COMPONENTS[type];
 
   if (Component === PlaceholderField || Component === unsupportedField) {
@@ -98,8 +96,6 @@ export function getComponentForQuestionType({
       Component = PatientDataDisplayField as any;
     }
   }
-  if (Component === undefined || Component === null) {
-    return LimitedTextField;
-  }
+
   return Component as React.ComponentType<any>;
 }
