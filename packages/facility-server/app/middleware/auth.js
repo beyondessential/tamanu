@@ -252,12 +252,12 @@ export async function setFacilityHandler(req, res, next) {
 }
 
 export async function refreshHandler(req, res) {
-  const { user, facilityId } = req;
+  const { user, userDevice, facilityId } = req;
 
   // Run after auth middleware, requires valid token but no other permission
   req.flagPermissionChecked();
 
-  const token = await buildToken({ user, facilityId });
+  const token = await buildToken({ user, facilityId, deviceId: userDevice.id });
   res.send({ token });
 }
 
