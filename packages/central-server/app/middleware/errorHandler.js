@@ -20,6 +20,7 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     error instanceof Problem ? error : Problem.fromError(error)
   ).excludeSensitiveFields(
     process.env.NODE_ENV === 'production' &&
+      config.debugging.apiErrorsToken &&
       req.get('tamanu-debug') !== config.debugging.apiErrorsToken,
   );
 
