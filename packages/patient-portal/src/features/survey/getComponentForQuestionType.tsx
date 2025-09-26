@@ -12,6 +12,7 @@ import {
   DateField,
   DateTimeField,
   NullableBooleanField,
+  PhotoField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -57,7 +58,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
-  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: unsupportedField,

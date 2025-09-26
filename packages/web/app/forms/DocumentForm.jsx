@@ -9,9 +9,15 @@ import { FORM_TYPES } from '@tamanu/constants/forms';
 
 import { useApi, useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
-import { TextField, Form, FormGrid, ConfirmCancelRow, FormSubmitCancelRow } from '@tamanu/ui-components';
+import {
+  FileChooserField,
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  FormSubmitCancelRow,
+} from '@tamanu/ui-components';
 import { AutocompleteField, Field } from '../components/Field';
-import { FileChooserField } from '../components/Field/FileChooserField';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -26,12 +32,12 @@ const MessageTitle = styled(Typography)`
   font-size: 18px;
   line-height: 21px;
   margin-bottom: 10px;
-  color: ${(props) => props.theme.palette.error.main};
+  color: ${props => props.theme.palette.error.main};
 `;
 
 const Message = styled(Typography)`
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   font-size: 16px;
   line-height: 18px;
   margin-bottom: 30px;

@@ -7,6 +7,7 @@ import {
   ReadOnlyTextField,
   BaseSelectField,
   InstructionField,
+  PhotoField,
 } from '@tamanu/ui-components';
 import {
   DateField,
@@ -15,7 +16,6 @@ import {
   NumberField,
   PatientDataDisplayField,
   SurveyResponseSelectField,
-  PhotoField,
   ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
