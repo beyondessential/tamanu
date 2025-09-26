@@ -7,6 +7,7 @@ export * from './MultiselectField';
 export * from './NullableBooleanField';
 export * from './NumberField';
 export * from './OuterLabelFieldWrapper';
+export * from './PatientDataDisplayField';
 export * from './PhotoField';
 export * from './Select';
 export * from './SelectField';
