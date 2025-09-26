@@ -48,7 +48,7 @@ const getLocationAssignmentsSchema = z.object({
 locationAssignmentsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'LocationSchedule');
+    req.checkPermission('list', 'LocationSchedule');
 
     const { LocationAssignment, LocationAssignmentTemplate, User, Location, LocationGroup } =
       req.models;
