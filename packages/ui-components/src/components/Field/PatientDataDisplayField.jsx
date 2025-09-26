@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getPatientDataDisplayValue } from '@tamanu/ui-components';
-import { useTranslation } from '../../contexts/Translation';
-import { useApi } from '../../api/useApi';
+import { getPatientDataDisplayValue } from '../../utils';
+import { useTranslation, useApi } from '../../contexts';
 
 const Container = styled.div`
   display: flex;

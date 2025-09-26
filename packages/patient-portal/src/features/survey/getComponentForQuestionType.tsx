@@ -68,20 +68,24 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: unsupportedField,
 };
 
-interface GetComponentOptions {
+interface GetComponentForQuestionTypeArgs {
+  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
   source?: string;
   writeToPatient?: {
     fieldType?: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
   };
 }
 
-export function getComponentForQuestionType(
-  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES,
-  { source, writeToPatient: { fieldType } = {} }: GetComponentOptions = {},
-) {
+export function getComponentForQuestionType({
+  type,
+  source,
+  writeToPatient: { fieldType } = {},
+}: GetComponentForQuestionTypeArgs) {
   let Component = QUESTION_COMPONENTS[type];
+
   if (Component === PlaceholderField || Component === unsupportedField) {
-    return (props: any) => <Component {...props} type={type} />;
+    const TypedComponent = Component as React.ComponentType<any>;
+    return (props: any) => <TypedComponent {...props} type={type} />;
   }
 
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
@@ -91,11 +95,11 @@ export function getComponentForQuestionType(
     } else if (source) {
       // we're displaying a relation, so use PatientDataDisplayField
       // (using a LimitedTextField will just display the bare id)
-      Component = PatientDataDisplayField;
+      Component = PatientDataDisplayField as any;
     }
   }
-  if (Component === undefined) {
+  if (Component === undefined || Component === null) {
     return LimitedTextField;
   }
-  return Component;
+  return Component as React.ComponentType<any>;
 }
