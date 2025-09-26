@@ -59,7 +59,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
 const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
     const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
     const COLUMNS = useMemo(
@@ -130,7 +130,7 @@ export const ImmunisationsTable = React.memo(
           )
         }
         disablePagination={disablePagination}
-        data-testid="immunisations-table"
+        data-testid={dataTestId}
       />
     );
   },
