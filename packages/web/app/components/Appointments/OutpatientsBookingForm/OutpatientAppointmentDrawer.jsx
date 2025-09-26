@@ -19,6 +19,7 @@ import {
   DAYS_OF_WEEK,
   MODIFY_REPEATING_APPOINTMENT_MODE,
   REPEAT_FREQUENCY,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
@@ -26,10 +27,8 @@ import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useAppointmentMutation } from '../../../api/mutations';
 import { usePatientDataQuery } from '../../../api/queries/usePatientDataQuery';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
-import { FormSubmitCancelRow } from '../../ButtonRow';
 import { ConfirmModal } from '../../ConfirmModal';
 import { Drawer } from '../../Drawer';
 import {
@@ -37,11 +36,10 @@ import {
   CheckField,
   DynamicSelectField,
   Field,
-  Form,
-  TextField,
   SwitchField,
 } from '../../Field';
-import { FormGrid } from '../../FormGrid';
+import { TextField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeFieldWithSameDayWarning } from './DateTimeFieldWithSameDayWarning';
 import { TimeWithFixedDateField } from './TimeWithFixedDateField';

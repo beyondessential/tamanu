@@ -10,6 +10,7 @@ export class PortalSurveyAssignment extends Model {
   declare id: string;
   declare patientId: string;
   declare surveyId: string;
+  declare facilityId: string;
   declare status: string;
   declare assignedAt: string;
   declare assignedById?: string;
@@ -36,6 +37,14 @@ export class PortalSurveyAssignment extends Model {
           allowNull: false,
           references: {
             model: 'surveys',
+            key: 'id',
+          },
+        },
+        facilityId: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          references: {
+            model: 'facilities',
             key: 'id',
           },
         },
@@ -89,6 +98,11 @@ export class PortalSurveyAssignment extends Model {
     this.belongsTo(models.SurveyResponse, {
       foreignKey: 'surveyResponseId',
       as: 'surveyResponse',
+    });
+
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
     });
   }
 

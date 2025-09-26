@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { ConfirmCancelRow, Modal, TranslatedText } from '../..';
+import { ConfirmCancelRow, TranslatedText, Modal } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import styled from 'styled-components';
-import { Colors } from '../../../constants';
 import { Divider } from '@material-ui/core';
 import { useMarChangelogQuery } from '../../../api/queries/useMarChangelogQuery';
 import { formatShortest } from '@tamanu/utils/dateTime';

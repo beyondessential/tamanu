@@ -1,5 +1,6 @@
 import React from 'react';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -16,7 +17,6 @@ import {
   NoteModalFormGrid,
 } from '../components/NoteModal/NoteModalCommonComponents';
 import { TranslatedText } from '../components';
-import { Colors } from '../constants';
 
 export const EditTreatmentPlanNoteForm = ({
   note,

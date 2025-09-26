@@ -1,13 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { TranslatedSelectField, ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import {
-  ButtonWithPermissionCheck,
-  TableButtonRow,
-  TranslatedSelectField,
-} from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';

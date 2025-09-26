@@ -1,20 +1,18 @@
 import React from 'react';
 import { Divider } from '@material-ui/core';
 import * as yup from 'yup';
-import { TASK_DELETE_BY_SYSTEM_REASON } from '@tamanu/constants';
+
+import { TASK_DELETE_BY_SYSTEM_REASON, FORM_TYPES } from '@tamanu/constants';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
-  FormSubmitCancelRow,
   TranslatedText,
 } from '../components';
 import { useSuggester } from '../api';
 import { useDeleteTask } from '../api/mutations/useTaskMutation';
-import { FORM_TYPES } from '../constants';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 import { useAuth } from '../contexts/Auth';
 import { useTranslation } from '../contexts/Translation';

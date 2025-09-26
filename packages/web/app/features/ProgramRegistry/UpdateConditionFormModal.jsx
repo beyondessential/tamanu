@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  TextField,
   Field,
-  Form,
-  Modal,
-  TranslatedText,
   DateDisplay,
   ModalFormActionRow,
   TranslatedReferenceData,
 } from '../../components';
+import { TextField, Form, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
-import { Colors, FORM_TYPES } from '../../constants';
 import { FormTable } from './FormTable';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { useTranslation } from '../../contexts/Translation';

@@ -3,10 +3,15 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
-import { FormGrid } from './FormGrid';
+import { FORM_TYPES } from '@tamanu/constants';
+import {
+  TextField,
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 

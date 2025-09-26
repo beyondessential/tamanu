@@ -3,13 +3,17 @@ import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { omit } from 'lodash';
 import { Box, Typography } from '@material-ui/core';
+import {
+  Form,
+  Button,
+  OutlinedButton,
+  ButtonRow,
+  usePaginatedForm,
+  TranslatedText,
+} from '@tamanu/ui-components';
 
-import { Button, OutlinedButton } from '../Button';
-import { Form } from './Form';
-import { ButtonRow } from '../ButtonRow';
 import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
@@ -137,30 +141,6 @@ export const DefaultFormScreen = ({
       )}
     </>
   );
-};
-
-export const usePaginatedForm = () => {
-  const [screenIndex, setScreenIndex] = useState(0);
-
-  const onStepBack = () => {
-    setScreenIndex(screenIndex - 1);
-  };
-
-  const onStepForward = () => {
-    setScreenIndex(screenIndex + 1);
-  };
-
-  const handleStep = step => () => {
-    setScreenIndex(step);
-  };
-
-  return {
-    onStepBack,
-    onStepForward,
-    handleStep,
-    screenIndex,
-    setScreenIndex,
-  };
 };
 
 const FORM_STATES = {

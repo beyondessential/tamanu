@@ -2,7 +2,8 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import styled from 'styled-components';
-import { Button, Field, Form, FormGrid, TextField } from '../../app/components';
+import { TextField, Form, Button, FormGrid } from '@tamanu/ui-components';
+import { Field } from '../../app/components';
 
 async function asyncSubmit(data) {
   action('submitStart')(data);

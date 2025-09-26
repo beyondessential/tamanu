@@ -11,7 +11,6 @@ import { BUGSNAG_API_KEY, NODE_ENV, FULL_VERSION } from './utils/env';
 import { authFailure, initStore, restoreSession, versionIncompatible } from './store';
 
 import '@fortawesome/fontawesome-free/css/all.css';
-import 'react-toastify/dist/ReactToastify.css';
 import './fonts.css';
 
 function initPersistor(api, store) {

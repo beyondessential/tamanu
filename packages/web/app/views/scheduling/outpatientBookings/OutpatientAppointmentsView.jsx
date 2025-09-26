@@ -10,10 +10,11 @@ import styled from 'styled-components';
 import { parseDate } from '@tamanu/utils/dateTime';
 import { MODIFY_REPEATING_APPOINTMENT_MODE } from '@tamanu/constants';
 
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { PageContainer, TopBar } from '../../../components';
 import { CancelAppointmentModal } from '../../../components/Appointments/CancelModal/CancelAppointmentModal';
 import { OutpatientAppointmentDrawer } from '../../../components/Appointments/OutpatientsBookingForm/OutpatientAppointmentDrawer';
-import { Colors } from '../../../constants';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { OutpatientAppointmentsContextProvider } from '../../../contexts/OutpatientAppointments';
 import { DateSelector } from './DateSelector';
 import { GroupByAppointmentToggle } from './GroupAppointmentToggle';

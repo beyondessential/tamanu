@@ -11,9 +11,9 @@ import {
   DRUG_UNIT_SHORT_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
 } from '@tamanu/constants';
+import { TranslatedEnum, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { getDateFromTimeString } from '@tamanu/shared/utils/medication';
-import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { ConditionalTooltip } from '../../Tooltip';
 import { useTranslation } from '../../../contexts/Translation';
 import { StatusPopper } from './StatusPopper';
