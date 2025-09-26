@@ -70,13 +70,14 @@ export async function comparePassword(user, password) {
   }
 }
 
-export async function centralServerLogin(models, email, password, deviceId) {
+export async function centralServerLogin(models, email, password, deviceId, facilityDeviceId) {
   // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
   const response = await centralServer.login(email, password, {
     scopes: [],
     body: {
       facilityIds: selectFacilityIds(config),
+      facilityDeviceId,
     },
   });
 
@@ -129,14 +130,21 @@ async function localLogin(models, settings, email, password) {
   };
 }
 
-async function centralServerLoginWithLocalFallback(models, settings, email, password, deviceId) {
+async function centralServerLoginWithLocalFallback(
+  models,
+  settings,
+  email,
+  password,
+  deviceId,
+  facilityDeviceId,
+) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
     return localLogin(models, settings, email, password);
   }
 
   try {
-    return await centralServerLogin(models, email, password, deviceId);
+    return await centralServerLogin(models, email, password, deviceId, facilityDeviceId);
   } catch (e) {
     // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
@@ -150,7 +158,7 @@ async function centralServerLoginWithLocalFallback(models, settings, email, pass
 }
 
 export async function loginHandler(req, res, next) {
-  const { body, models, settings } = req;
+  const { body, deviceId: facilityDeviceId, models, settings } = req;
   const { deviceId, email, password } = await z
     .object({
       deviceId: z.string().min(1),
@@ -169,7 +177,14 @@ export async function loginHandler(req, res, next) {
       settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
     const { central, user, localisation, allowedFacilities } =
-      await centralServerLoginWithLocalFallback(models, globalSettings, email, password, deviceId);
+      await centralServerLoginWithLocalFallback(
+        models,
+        globalSettings,
+        email,
+        password,
+        deviceId,
+        facilityDeviceId,
+      );
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
