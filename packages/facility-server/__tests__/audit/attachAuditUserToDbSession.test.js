@@ -67,7 +67,12 @@ describe('Attach audit user to DB session', () => {
 
     const asUser = async user => {
       const agent = _agent(mockApp);
-      const token = await buildToken({ user, facilityId: facilityIds[0], expiresIn: '1d' });
+      const token = await buildToken({
+        user,
+        deviceId: ctx.deviceId,
+        facilityId: facilityIds[0],
+        expiresIn: '1d',
+      });
       agent.set('authorization', `Bearer ${token}`);
       agent.user = user;
       return agent;
