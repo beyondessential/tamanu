@@ -191,9 +191,14 @@ describe('User', () => {
       });
 
       it('should pass feature flags through from a central server login request', async () => {
-        centralServer.fetch.mockResolvedValueOnce({
+        centralServer.login.mockResolvedValueOnce({
           user: pick(authUser, ['id', 'role', 'email', 'displayName']),
           localisation,
+          allowedFacilities: [],
+          token: 'mock-token',
+          refreshToken: 'mock-refresh-token',
+          permissions: [],
+          server: { type: 'central' },
         });
         const result = await centralServerLogin(models, authUser.email, rawPassword);
         expect(result).toHaveProperty('localisation', localisation);

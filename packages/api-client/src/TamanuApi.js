@@ -62,10 +62,10 @@ export class TamanuApi {
 
   async login(email, password, { scopes = [], body = {}, ...config } = {}) {
     if (this.#ongoingAuth) {
-      await this.#ongoingAuth;
+      return await this.#ongoingAuth;
     }
 
-    return (this.#ongoingAuth = (async () => {
+    return await (this.#ongoingAuth = (async () => {
       const response = await this.post(
         'login',
         {
