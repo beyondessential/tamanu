@@ -5,6 +5,7 @@ import {
   ERROR_TYPE,
   extractErrorFromFetchResponse,
   Problem,
+  RemoteCallError,
   RemoteIncompatibleError,
 } from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -93,6 +94,13 @@ export class TamanuApi {
         serverType: responseServerType,
         ...loginData
       } = await response.json();
+
+      if (loginData.deviceId !== this.deviceId) {
+        // If this happens, either something is seriously wrong or the server has a bug.
+        const problem = Problem.fromError(new RemoteCallError('Device ID mismatch'));
+        problem.response = response;
+        throw problem;
+      }
 
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
