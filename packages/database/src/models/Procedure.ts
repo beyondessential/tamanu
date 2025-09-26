@@ -29,11 +29,11 @@ export class Procedure extends Model {
   declare timeOut?: string;
 
   declare encounter?: Encounter;
-  declare Location?: Location;
-  declare Department?: Department;
-  declare LeadClinician?: User;
-  declare Anaesthetist?: User;
-  declare AssistantAnaesthetist?: User;
+  declare location?: Location;
+  declare department?: Department;
+  declare leadClinician?: User;
+  declare anaesthetist?: User;
+  declare assistantAnaesthetist?: User;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -57,12 +57,12 @@ export class Procedure extends Model {
 
   static getListReferenceAssociations() {
     return [
-      'Location',
-      'ProcedureType',
-      'Anaesthetic',
-      'Department',
-      'AssistantClinicians',
-      'SurveyResponses',
+      'location',
+      'procedureType',
+      'anaesthetic',
+      'department',
+      'assistantClinicians',
+      'surveyResponses',
     ];
   }
 
@@ -73,41 +73,41 @@ export class Procedure extends Model {
     });
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
-      as: 'Location',
+      as: 'location',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'procedureTypeId',
-      as: 'ProcedureType',
+      as: 'procedureType',
     });
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
-      as: 'LeadClinician',
+      as: 'leadClinician',
     });
     this.belongsTo(models.User, {
       foreignKey: 'anaesthetistId',
-      as: 'Anaesthetist',
+      as: 'anaesthetist',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'anaestheticId',
-      as: 'Anaesthetic',
+      as: 'anaesthetic',
     });
     this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
-      as: 'Department',
+      as: 'department',
     });
     this.belongsTo(models.User, {
       foreignKey: 'assistantAnaesthetistId',
-      as: 'AssistantAnaesthetist',
+      as: 'assistantAnaesthetist',
     });
 
     this.belongsToMany(models.User, {
       through: 'ProcedureAssistantClinician',
-      as: 'AssistantClinicians',
+      as: 'assistantClinicians',
       foreignKey: 'procedureId',
     });
     this.belongsToMany(models.SurveyResponse, {
       through: 'ProcedureSurveyResponse',
-      as: 'SurveyResponses',
+      as: 'surveyResponses',
       foreignKey: 'procedureId',
     });
   }
@@ -140,7 +140,7 @@ export class Procedure extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

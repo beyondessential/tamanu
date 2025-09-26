@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ensurePermissionCheck } from '@tamanu/shared/permissions/middleware';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { simpleGetList } from '@tamanu/shared/utils/crudHelpers';
 import { settingsCache } from '@tamanu/settings';
 
@@ -47,7 +47,7 @@ adminRoutes.get(
 
     await req.audit.access({
       recordId: patient.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: Patient,
     });
 

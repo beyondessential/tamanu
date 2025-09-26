@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError, NotFoundError } from '@tamanu/shared/errors';
+import { ForbiddenError, NotFoundError } from '@tamanu/errors';
 import { NOTE_RECORD_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 import { checkNotePermission } from '../../../utils/checkNotePermission';
@@ -58,7 +58,7 @@ noteRoute.get(
 
     await req.audit.access({
       recordId: noteId,
-      params,
+      frontEndContext: params,
       model: models.Note,
     });
 

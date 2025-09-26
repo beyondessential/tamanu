@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.41.0",
+  "version": "2.42.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -21,6 +21,7 @@
     "lint-fix": "npm run lint-all -- --fix",
     "admin-panel-start-dev": "npm run admin-start-dev --workspace @tamanu/web-frontend",
     "web-start-dev": "npm run client-start-dev --workspace @tamanu/web-frontend",
+    "patient-portal-start-dev": "npm run start-dev --workspace @tamanu/patient-portal",
     "storybook": "npm run watch-shared-and @tamanu/web-frontend storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "web-unit-test": "npm run build-shared && npm run --workspace @tamanu/web-frontend test",
@@ -61,6 +62,7 @@
       "packages/constants",
       "packages/database",
       "packages/e2e-tests",
+      "packages/errors",
       "packages/facility-server",
       "packages/fake-data",
       "packages/mobile",
@@ -70,6 +72,8 @@
       "packages/upgrade",
       "packages/utils",
       "packages/web",
+      "packages/patient-portal",
+      "packages/ui-components",
       "packages/synthetic-tests"
     ]
   },

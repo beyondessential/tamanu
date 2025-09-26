@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { subject } from '@casl/ability';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { Op } from 'sequelize';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -227,7 +227,7 @@ patientProgramRegistration.get(
 
     await req.audit.access({
       recordId: registration.id,
-      params,
+      frontEndContext: params,
       model: PatientProgramRegistration,
       facilityId,
     });
