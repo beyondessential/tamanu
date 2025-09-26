@@ -9,10 +9,7 @@ export const useSocket = () => {
   const [connectionUrl, setConnectionUrl] = useState('');
 
   const setupConnectionUrl = async () => {
-    const syncServerLocation = await readConfig('syncServerLocation');
-    const url = new URL(syncServerLocation);
-    url.pathname = '/api';
-    setConnectionUrl(url.toString());
+    setConnectionUrl(await readConfig('syncServerLocation'));
   };
 
   useEffect(() => {
