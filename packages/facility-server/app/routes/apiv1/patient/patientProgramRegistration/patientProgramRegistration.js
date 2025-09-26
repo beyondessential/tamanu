@@ -61,7 +61,12 @@ patientProgramRegistration.post(
       // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
       if (existingRecordedInErrorRegistration) {
         registrationRecord = await existingRecordedInErrorRegistration.update(
-          { ...registrationData, deactivatedDate: null, deactivatedClinicianId: null },
+          {
+            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
+            deactivatedDate: null,
+            deactivatedClinicianId: null,
+            ...registrationData,
+          },
           {
             transaction,
           },
