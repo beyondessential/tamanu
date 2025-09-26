@@ -1,4 +1,5 @@
 import qs from 'qs';
+import { decodeJwt } from 'jose/jwt/decode';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import {
@@ -81,11 +82,9 @@ export class TamanuApi {
 
       const serverType = response.headers.get('x-tamanu-server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        const problem = Problem.fromError(
+        throw Problem.fromError(
           new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
-        );
-        problem.response = response;
-        throw problem;
+        ).withResponse(response);
       }
 
       const {
@@ -95,11 +94,15 @@ export class TamanuApi {
         ...loginData
       } = await response.json();
 
-      if (loginData.deviceId !== this.deviceId) {
+      const claims = decodeJwt(loginData.token);
+      if (claims.deviceId !== this.deviceId) {
         // If this happens, either something is seriously wrong or the server has a bug.
-        const problem = Problem.fromError(new RemoteCallError('Device ID mismatch'));
-        problem.response = response;
-        throw problem;
+        throw Problem.fromError(
+          new RemoteCallError('Device ID mismatch').withExtraData({
+            deviceIdSent: this.deviceId,
+            deviceIdRecv: claims.deviceId,
+          }),
+        ).withResponse(response);
       }
 
       server.type = responseServerType ?? serverType;
