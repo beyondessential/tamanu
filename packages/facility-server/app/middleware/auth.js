@@ -17,7 +17,7 @@ import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
 
-const jwtSecretKey = secret || crypto.randomBytes(32).toString('hex');
+const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
 
 export async function buildToken({
   user,
@@ -58,19 +58,22 @@ export async function buildToken({
 
 export async function comparePassword(user, password) {
   try {
-    const passwordHash = user && user.password;
-
     // do the password comparison even if the user is invalid so
     // that the login check doesn't reveal whether a user exists or not
-    const passwordMatch = await compare(password, passwordHash || 'invalid-hash');
-
-    return user && passwordMatch;
+    return await compare(password, user?.passwordHash ?? 'invalid-hash');
   } catch (e) {
     return false;
   }
 }
 
-export async function centralServerLogin(models, email, password, deviceId, facilityDeviceId) {
+export async function centralServerLogin({
+  models,
+  email,
+  password,
+  deviceId,
+  facilityDeviceId,
+  settings,
+}) {
   // try logging in to central server
   const centralServer = new CentralServerConnection({ deviceId });
   const response = await centralServer.login(email, password, {
@@ -86,12 +89,13 @@ export async function centralServerLogin(models, email, password, deviceId, faci
   const { id, ...userDetails } = user;
 
   await models.User.sequelize.transaction(async () => {
-    await models.User.upsert({
+    const [user] = await models.User.upsert({
       id,
       ...userDetails,
       password,
       deletedAt: null,
     });
+    await models.Device.ensureRegistration({ settings, user, deviceId, scopes: [] });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
@@ -102,7 +106,7 @@ export async function centralServerLogin(models, email, password, deviceId, faci
   return { central: true, user, localisation, allowedFacilities };
 }
 
-async function localLogin(models, settings, email, password) {
+async function localLogin({ models, settings, email, password }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
@@ -130,21 +134,28 @@ async function localLogin(models, settings, email, password) {
   };
 }
 
-async function centralServerLoginWithLocalFallback(
+async function centralServerLoginWithLocalFallback({
   models,
   settings,
   email,
   password,
   deviceId,
   facilityDeviceId,
-) {
+}) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
-    return localLogin(models, settings, email, password);
+    return await localLogin({ models, settings, email, password });
   }
 
   try {
-    return await centralServerLogin(models, email, password, deviceId, facilityDeviceId);
+    return await centralServerLogin({
+      models,
+      email,
+      password,
+      deviceId,
+      facilityDeviceId,
+      settings,
+    });
   } catch (e) {
     // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
@@ -153,7 +164,7 @@ async function centralServerLoginWithLocalFallback(
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
-    return localLogin(models, settings, email, password);
+    return await localLogin({ models, settings, email, password });
   }
 }
 
