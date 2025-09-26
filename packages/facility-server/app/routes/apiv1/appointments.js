@@ -499,10 +499,10 @@ appointments.put(
       });
 
       if (!isValidBookingTime(newStartTime, newEndTime, bookingSlotStartTime, bookingSlotEndTime)) {
-        throw new Error(`Appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
+        throw new InvalidOperationError(`Appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
       }
 
-      if (!isSameClinicianAllocation(appointmentToMove.startTime, newStartTime, locationAssignments)) {
+      if (!isSameClinicianAllocation(appointmentToMove.startTime, locationAssignments, appointmentToMove.clinicianId)) {
         throw new InvalidOperationError('Appointment time must be within the same clinician allocation');
       }
 
@@ -537,7 +537,7 @@ appointments.put(
             throw new InvalidOperationError(`Shifted appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
           }
 
-          if (!isSameClinicianAllocation(appointment.startTime, newStartTime, locationAssignments)) {
+          if (!isSameClinicianAllocation(appointment.startTime, locationAssignments, appointment.clinicianId)) {
             throw new InvalidOperationError('Shifted appointment time must be within the same clinician allocation');
           }
 
@@ -568,15 +568,16 @@ const isValidBookingTime = (startTime, endTime, bookingSlotStartTime, bookingSlo
   return isStartTimeValid && isEndTimeValid;
 };
 
-const isSameClinicianAllocation = (oldStartTime, newStartTime, locationAssignments) => {
-  const findAllocation = (time, assignments) => assignments.find(assignment => {
+const isSameClinicianAllocation = (startTime, locationAssignments, clinicianId) => {
+  if (!clinicianId) return true;
+
+  const allocation = locationAssignments.find(assignment => {
     const assignmentStartTime = parse(assignment.startTime, 'HH:mm:ss', new Date(assignment.date));
     const assignmentEndTime = parse(assignment.endTime, 'HH:mm:ss', new Date(assignment.date));
-    return isWithinInterval(new Date(time), { start: assignmentStartTime, end: assignmentEndTime });
+    return isWithinInterval(new Date(startTime), { start: assignmentStartTime, end: assignmentEndTime });
   });
 
-  const oldAllocation = findAllocation(oldStartTime, locationAssignments);
-  const newAllocation = findAllocation(newStartTime, locationAssignments);
+  if (!allocation) return true;
 
-  return oldAllocation?.userId === newAllocation?.userId;
+  return allocation.userId === clinicianId;
 };
