@@ -39,7 +39,8 @@ export class VitalsPane extends BasePatientPage {
     return this.recordVitalsModal;
   }
 
-  async assertVitals(vitals: Vitals) {
+  //TODO: JSdocs
+  async assertVitals(vitals: Vitals, editedVitals?: Vitals) {
     const {
       date,
       locatorKey,
@@ -120,12 +121,16 @@ export class VitalsPane extends BasePatientPage {
       } else if (value === undefined) {
         await expect(cellLocator).toContainText('—');
       }
+      // Assert that an * displays next to fields that have been edited
+      if (editedVitals && editedVitals[field as keyof Vitals]) {
+        await expect(cellLocator).toContainText(`${value}*`);
+      }
     }
 
     return {
       date,
       locatorKey,
-      ...fieldValues
+      ...vitals
     };
   }
 
@@ -168,16 +173,35 @@ export class VitalsPane extends BasePatientPage {
     return value;
   }
 
-  //TODO: update types for vitals
+  //TODO: update types for vitals?
   async editVitals(recordedVitals: { locatorKey: string }, specificEdits: Partial<Vitals>) {
+    const { locatorKey } = recordedVitals;
     const edits = Object.entries(specificEdits).filter(([, value]) => value !== undefined);
     
     for (const [editField, editValue] of edits) {
-      const { locatorKey } = recordedVitals;
       const row = FIELD_ROWS[editField as keyof typeof FIELD_ROWS];
       const cellLocator = `${row}-${locatorKey}`;
       await this.editSpecificVital(cellLocator, editValue);
     }
+    
+    const updatedVitals = { ...recordedVitals, ...specificEdits };
+    
+    // Recalculate BMI if height or weight are edited
+    if (specificEdits.height || specificEdits.weight) {
+      await expect(this.editVitalModal!.modalTitle).not.toBeVisible();
+      const newBMI = await this.page.getByTestId(`${this.tableCellPrefix}${FIELD_ROWS.BMI}-${locatorKey}`).textContent();
+      updatedVitals.BMI = newBMI ?? undefined
+    }
+
+    // Recalculate MAP if SBP or DBP are edited
+    if (specificEdits.SBP || specificEdits.DBP) {
+      await expect(this.editVitalModal!.modalTitle).not.toBeVisible();
+      const newMAP = await this.page.getByTestId(`${this.tableCellPrefix}${FIELD_ROWS.MAP}-${locatorKey}`).textContent();
+      updatedVitals.MAP = newMAP ?? undefined
+    }
+      
+    // Return the entire recordedVitals object overwritten with the new values
+    return updatedVitals;
   }
 
   async editSpecificVital(cellLocator: string, editValue: string) {

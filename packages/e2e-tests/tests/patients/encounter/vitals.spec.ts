@@ -11,7 +11,15 @@ import { format, subWeeks } from 'date-fns';
 //TODO: history of edits in edit vitals modal
 //TODO: modal heading (includes OG date), test for asserting that?
 
-async function generateTestData() {
+//TODO: move this generator function and it's type to somewhere separate?
+type VitalField = 
+  | 'height' | 'weight' | 'SBP' | 'DBP' | 'heartRate' | 'respiratoryRate' 
+  | 'temperature' | 'spo2' | 'spo2Oxygen' | 'AVPU' | 'TEW' | 'GCS' 
+  | 'painScale' | 'capillaryRefillTime' | 'randomBGL' | 'fastingBGL' 
+  | 'ventilatorLitresPerMinute' | 'ventilatorMode' | 'FIO2' | 'PIP' 
+  | 'PEEP' | 'Rate' | 'iTime' | 'tVolume' | 'mVLitresPerMinute';
+
+async function generateTestData(specificFields?: VitalField[]) {
   const generateRandomNumber = (
     min: number,
     max: number,
@@ -26,62 +34,53 @@ async function generateTestData() {
       return Math.round(randomValue).toString();
     }
   };
-  const height = generateRandomNumber(1, 250);
-  const weight = generateRandomNumber(1, 250);
-  const SBP = generateRandomNumber(90, 120);
-  const DBP = generateRandomNumber(60, 80);
-  const heartRate = generateRandomNumber(120, 185);
-  const respiratoryRate = generateRandomNumber(1, 70);
-  const temperature = generateRandomNumber(32, 44, { useDecimal: true });
-  const spo2 = generateRandomNumber(97, 100);
-  const spo2Oxygen = generateRandomNumber(97, 100);
-  const AVPUOptions = ['Alert', 'Verbal', 'Pain', 'Unresponsive'] as const;
-  const AVPU = AVPUOptions[Math.floor(Math.random() * AVPUOptions.length)];
-  const TEW = generateRandomNumber(0, 10);
-  const GCS = generateRandomNumber(3, 15);
-  const painScale = generateRandomNumber(0, 10);
-  const capillaryRefillTime = generateRandomNumber(1, 4);
-  const randomBGL = generateRandomNumber(1, 10);
-  const fastingBGL = generateRandomNumber(1, 10);
-  const ventilatorLitresPerMinute = generateRandomNumber(1, 10);
-  const ventilatorModeOptions = ['SIMV PC', 'AC VC', 'AC PC', 'AC PRVC', 'SBT', 'NIV'] as const;
-  const ventilatorMode =
-    ventilatorModeOptions[Math.floor(Math.random() * ventilatorModeOptions.length)];
-  const FIO2 = generateRandomNumber(1, 10);
-  const PIP = generateRandomNumber(1, 10);
-  const PEEP = generateRandomNumber(1, 10);
-  const Rate = generateRandomNumber(1, 10);
-  const iTime = generateRandomNumber(1, 10);
-  const tVolume = generateRandomNumber(1, 10);
-  const mVLitresPerMinute = generateRandomNumber(1, 10);
 
-  return {
-    height,
-    weight,
-    SBP,
-    DBP,
-    heartRate,
-    respiratoryRate,
-    temperature,
-    spo2,
-    spo2Oxygen,
-    AVPU,
-    TEW,
-    GCS,
-    painScale,
-    capillaryRefillTime,
-    randomBGL,
-    fastingBGL,
-    ventilatorLitresPerMinute,
-    ventilatorMode,
-    FIO2,
-    PIP,
-    PEEP,
-    Rate,
-    iTime,
-    tVolume,
-    mVLitresPerMinute,
+  const testDataConfig = {
+    height: () => generateRandomNumber(1, 250),
+    weight: () => generateRandomNumber(1, 250),
+    SBP: () => generateRandomNumber(90, 120),
+    DBP: () => generateRandomNumber(60, 80),
+    heartRate: () => generateRandomNumber(120, 185),
+    respiratoryRate: () => generateRandomNumber(1, 70),
+    temperature: () => generateRandomNumber(32, 44, { useDecimal: true }),
+    spo2: () => generateRandomNumber(97, 100),
+    spo2Oxygen: () => generateRandomNumber(97, 100),
+    AVPU: () => (['Alert', 'Verbal', 'Pain', 'Unresponsive'] as const)[Math.floor(Math.random() * 4)],
+    TEW: () => generateRandomNumber(0, 10),
+    GCS: () => generateRandomNumber(3, 15),
+    painScale: () => generateRandomNumber(0, 10),
+    capillaryRefillTime: () => generateRandomNumber(1, 4),
+    randomBGL: () => generateRandomNumber(1, 10),
+    fastingBGL: () => generateRandomNumber(1, 10),
+    ventilatorLitresPerMinute: () => generateRandomNumber(1, 10),
+    ventilatorMode: () => (['SIMV PC', 'AC VC', 'AC PC', 'AC PRVC', 'SBT', 'NIV'] as const)[Math.floor(Math.random() * 6)],
+    FIO2: () => generateRandomNumber(1, 10),
+    PIP: () => generateRandomNumber(1, 10),
+    PEEP: () => generateRandomNumber(1, 10),
+    Rate: () => generateRandomNumber(1, 10),
+    iTime: () => generateRandomNumber(1, 10),
+    tVolume: () => generateRandomNumber(1, 10),
+    mVLitresPerMinute: () => generateRandomNumber(1, 10),
   };
+
+  // If no specific fields requested, generate test data for all vitals
+  if (!specificFields) {
+    const result: Record<string, string> = {};
+    for (const [field, generator] of Object.entries(testDataConfig)) {
+      result[field] = generator();
+    }
+    return result;
+  }
+
+  // If specific fields requested, generate test data for only those fields
+  const result: Record<string, string> = {};
+  for (const field of specificFields) {
+    if (field in testDataConfig) {
+      result[field] = testDataConfig[field as keyof typeof testDataConfig]();
+    }
+  }
+
+  return result;
 }
 
 test.describe('Vitals', () => {
@@ -311,11 +310,21 @@ test.describe('Vitals', () => {
       throw new Error('Vital failed to be recorded');
     }
 
+    console.log('vital', vital);
+
+    //TODO: need to make it so the edited data cannot be the same as the recorded data
+    const editedData = {
+      height: (await generateTestData(['height'])).height,
+      weight: (await generateTestData(['weight'])).weight,
+    }
+
+    console.log('editedData', editedData);
+
     const recordedVitals = await vitalsPane.assertVitals(vital);
 
-    await vitalsPane.editVitals(recordedVitals, { height: '186', weight: '71'});
+    const editedVitals = await vitalsPane.editVitals(recordedVitals, editedData);
 
-    //TODO: assert edits
+    await vitalsPane.assertVitals(editedVitals, editedData);
 
   });
 
