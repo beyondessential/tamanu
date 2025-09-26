@@ -96,7 +96,7 @@ export class Problem extends Error {
 
   toJSON(): Record<string, any> {
     return {
-      extra: { ...Object.fromEntries(this.extra.entries()) },
+      ...Object.fromEntries(this.extra.entries()),
       type: isKnownErrorType(this.type)
         ? IANA_TYPES.includes(this.type)
           ? `${IANA}${this.type}`
