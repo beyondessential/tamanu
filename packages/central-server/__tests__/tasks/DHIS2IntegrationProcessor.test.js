@@ -55,6 +55,10 @@ describe('DHIS2 integration processor', () => {
     await models.Setting.set('integrations.dhis2.reportIds', reportIds, SETTINGS_SCOPES.CENTRAL);
   };
 
+  const setBackoff = async backoff => {
+    await models.Setting.set('integrations.dhis2.backoff', backoff, SETTINGS_SCOPES.CENTRAL);
+  };
+
   beforeEach(async () => {
     await setHost('test host');
     await setReportIds([report.id]);
@@ -132,7 +136,10 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should retry based on the backoff settings in config', async () => {
-      const { maxAttempts, multiplierMs } = config.integrations.dhis2.backoff;
+      const { maxAttempts, multiplierMs } = await models.Setting.get(
+        'integrations.dhis2.backoff',
+        SETTINGS_SCOPES.CENTRAL,
+      );
       await dhis2IntegrationProcessor.run();
 
       for (let i = 1; i < maxAttempts; i++) {

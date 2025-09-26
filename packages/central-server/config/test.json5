@@ -124,12 +124,7 @@
     "dhis2": {
       "enabled": true,
       "username": "admin",
-      "password": "district",
-      "backoff": {
-        "multiplierMs": 50,
-        "maxAttempts": 2,
-        "maxWaitMs": 10000
-      }
+      "password": "district"
     }
   },
   "notifications": {

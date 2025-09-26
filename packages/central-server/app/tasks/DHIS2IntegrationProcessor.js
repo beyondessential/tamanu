@@ -42,8 +42,8 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
   }
 
   async postToDHIS2(reportCSV) {
-    const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
-    const { username, password, backoff } = config.integrations.dhis2;
+    const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });

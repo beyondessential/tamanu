@@ -155,6 +155,30 @@ export const centralSettings = {
                 },
               },
             },
+            backoff: {
+              name: 'Backoff',
+              description: 'Backoff settings',
+              properties: {
+                maxAttempts: {
+                  name: 'Max attempts',
+                  description: 'The maximum number of connection attempts',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 15,
+                },
+                multiplierMs: {
+                  name: 'Multiplier (ms)',
+                  description: 'The multiplier for the delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 300,
+                },
+                maxWaitMs: {
+                  name: 'Max wait (ms)',
+                  description: 'The delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 10000,
+                },
+              },
+            },
           },
         },
       },
