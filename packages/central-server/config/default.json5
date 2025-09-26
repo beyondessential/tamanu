@@ -366,13 +366,6 @@
         }
       }
     },
-    "omniLab": {
-      "enabled": false,
-      // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
-      // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
-      // If this is changed, all API keys using this secret will be revoked and must be reissued
-      "secret": null
-    }
   },
   // on the central-server, don't read these values from config!
   // use the getLocalisation() helper in packages/central-server/app/localisation.js

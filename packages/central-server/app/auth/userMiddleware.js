@@ -1,106 +1,76 @@
 import { context, propagation, trace } from '@opentelemetry/api';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
-
-import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import {
-  ForbiddenError,
-  InvalidCredentialError,
-  InvalidTokenError,
-  MissingCredentialError,
-} from '@tamanu/errors';
-import { findUserById, stripUser, verifyToken } from './utils';
+import { ForbiddenError } from '@tamanu/errors';
+import { log } from '@tamanu/shared/services/logging';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
-
+import { stripUser } from './utils';
 import { version } from '../../package.json';
 
-export const userMiddleware = ({ secret }) =>
-  asyncHandler(async (req, res, next) => {
-    const { store, headers, settings } = req;
+export const userMiddleware = asyncHandler(async (req, res, next) => {
+  const {
+    auth: { secret, tokenDuration },
+    canonicalHostName,
+  } = config;
+  const {
+    store: {
+      models: { User },
+    },
+    settings,
+  } = req;
 
-    const { canonicalHostName } = config;
+  const { token, user, device } = await User.loginFromAuthorizationHeader(
+    req.get('authorization'),
+    { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
+  );
+  const sessionId = createSessionIdentifier(token);
 
-    // get token
-    const { authorization } = headers;
-    if (!authorization) {
-      throw new MissingCredentialError('Missing authorization header');
-    }
+  /* eslint-disable require-atomic-updates */
+  // in this case we don't care if we're overwriting the user/deviceId
+  // and express also guarantees execution order for middlewares
+  req.user = user;
+  req.deviceId = device?.id;
+  req.device = device;
+  req.sessionId = sessionId;
+  /* eslint-enable require-atomic-updates */
 
-    // verify token
-    const [bearer, token] = authorization.split(/\s/);
-    const sessionId = createSessionIdentifier(token);
+  const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
-    if (bearer.toLowerCase() !== 'bearer') {
-      throw new InvalidCredentialError('Only Bearer token is supported');
-    }
-
-    let contents = null;
-    try {
-      contents = await verifyToken(token, secret, {
-        issuer: canonicalHostName,
-        audience: JWT_TOKEN_TYPES.ACCESS,
+  // Auditing middleware
+  // eslint-disable-next-line require-atomic-updates
+  req.audit = {
+    access: async ({ recordId, params, model }) => {
+      if (!auditSettings?.accesses.enabled) return;
+      return req.models.AccessLog.create({
+        userId: user.id,
+        recordId,
+        recordType: model.name,
+        sessionId,
+        isMobile: false,
+        frontEndContext: params,
+        backEndContext: { endpoint: req.originalUrl },
+        loggedAt: new Date(),
+        facilityId: null,
+        deviceId: req.deviceId ?? 'unknown-device',
+        version,
       });
-    } catch (e) {
-      throw new InvalidTokenError();
-    }
+    },
+  };
 
-    const { userId, deviceId } = contents;
+  const spanAttributes = user
+    ? {
+        'app.user.id': user.id,
+        'app.user.role': user.role,
+      }
+    : {};
 
-    const user = await findUserById(store.models, userId);
-    if (!user) {
-      throw new InvalidTokenError('User specified in token does not exist').withExtraData({
-        userId,
-      });
-    }
-
-    const device = deviceId && (await store.models.Device.findByPk(deviceId));
-
-    /* eslint-disable require-atomic-updates */
-    // in this case we don't care if we're overwriting the user/deviceId
-    // and express also guarantees execution order for middlewares
-    req.user = user;
-    req.deviceId = deviceId;
-    req.device = device;
-    req.sessionId = sessionId;
-    /* eslint-enable require-atomic-updates */
-
-    const auditSettings = await settings?.[req.facilityId]?.get('audit');
-
-    // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        });
-      },
-    };
-
-    const spanAttributes = user
-      ? {
-          'app.user.id': user.id,
-          'app.user.role': user.role,
-        }
-      : {};
-
-    // eslint-disable-next-line no-unused-expressions
-    trace.getActiveSpan()?.setAttributes(spanAttributes);
-    context.with(
-      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
-      () => next(),
-    );
-  });
+  // eslint-disable-next-line no-unused-expressions
+  trace.getActiveSpan()?.setAttributes(spanAttributes);
+  context.with(
+    propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+    () => next(),
+  );
+});
 
 export const userInfo = asyncHandler(async (req, res) => {
   if (!req.user) {

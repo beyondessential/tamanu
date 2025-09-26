@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -78,20 +78,19 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('token');
 
-      const oldTokenContents = jwt.decode(token);
-      const newTokenContents = jwt.decode(refreshResponse.body.token);
+      const oldTokenContents = jose.decodeJwt(token);
+      const newTokenContents = jose.decodeJwt(refreshResponse.body.token);
 
       expect(newTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.ACCESS,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         deviceId: TEST_DEVICE_ID,
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
 
-      expect(newTokenContents.jti).not.toEqual(oldTokenContents.jti);
       expect(newTokenContents.iat).toBeGreaterThan(oldTokenContents.iat);
       expect(newTokenContents.exp).toBeGreaterThan(oldTokenContents.exp);
     });
@@ -116,20 +115,19 @@ describe('Auth', () => {
       expect(refreshResponse).toHaveSucceeded();
       expect(refreshResponse.body).toHaveProperty('refreshToken');
 
-      const newRefreshTokenContents = jwt.decode(refreshResponse.body.refreshToken);
-      const oldRefreshTokenContents = jwt.decode(refreshToken);
+      const newRefreshTokenContents = jose.decodeJwt(refreshResponse.body.refreshToken);
+      const oldRefreshTokenContents = jose.decodeJwt(refreshToken);
 
       expect(newRefreshTokenContents).toEqual({
         aud: JWT_TOKEN_TYPES.REFRESH,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
 
-      expect(newRefreshTokenContents.jti).not.toEqual(oldRefreshTokenContents.jti);
       expect(newRefreshTokenContents.iat).toBeGreaterThan(oldRefreshTokenContents.iat);
       expect(newRefreshTokenContents.exp).toBeGreaterThan(oldRefreshTokenContents.exp);
 
