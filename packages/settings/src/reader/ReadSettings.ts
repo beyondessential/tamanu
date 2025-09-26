@@ -62,10 +62,10 @@ export class ReadSettings<Path = SettingPath> {
 
   async getAll() {
     let settings = settingsCache.getAllSettings();
-    if (!settings) {
-      settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.setAllSettings(settings);
-    }
+    // if (!settings) {
+    settings = await buildSettings(this.models, this.facilityId);
+    settingsCache.setAllSettings(settings);
+    // }
     return settings;
   }
 }
