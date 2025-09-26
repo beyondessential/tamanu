@@ -106,7 +106,9 @@ export const centralSettings = {
           properties: {
             host: {
               description: 'The host of the DHIS2 instance',
-              type: yup.string(),
+              type: yup
+                .string()
+                .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
               defaultValue: '',
             },
             reportIds: {
@@ -150,6 +152,30 @@ export const centralSettings = {
                   description: 'Property of the data element object to use to map the data values.',
                   type: dhis2IdSchemeSchema,
                   defaultValue: 'uid',
+                },
+              },
+            },
+            backoff: {
+              name: 'Backoff',
+              description: 'Backoff settings',
+              properties: {
+                maxAttempts: {
+                  name: 'Max attempts',
+                  description: 'The maximum number of connection attempts',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 15,
+                },
+                multiplierMs: {
+                  name: 'Multiplier (ms)',
+                  description: 'The multiplier for the delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 300,
+                },
+                maxWaitMs: {
+                  name: 'Max wait (ms)',
+                  description: 'The delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 10000,
                 },
               },
             },
