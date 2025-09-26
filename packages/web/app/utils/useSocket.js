@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 const cachedWebSocketInstances = {};
 
 export const useSocket = (props = {}) => {
-  const { uri = '' } = props;
+  const { uri = '/api' } = props;
   const connectionUrl = uri;
 
   const initializeSocketInstance = () => {

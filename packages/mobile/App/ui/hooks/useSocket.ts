@@ -2,14 +2,9 @@ import io, { Socket } from 'socket.io-client';
 import { useEffect, useState } from 'react';
 import { readConfig } from '~/services/config';
 
-interface Props {
-  uri?: string;
-}
-
 const cachedWebSocketInstances: Record<string, { instance: Socket; count: number }> = {};
 
-export const useSocket = (props: Props = {}) => {
-  const { uri } = props;
+export const useSocket = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connectionUrl, setConnectionUrl] = useState('');
 
@@ -33,8 +28,9 @@ export const useSocket = (props: Props = {}) => {
 
   const setupConnectionUrl = async () => {
     const syncServerLocation = await readConfig('syncServerLocation');
-    const connectionUrl = uri || syncServerLocation;
-    setConnectionUrl(connectionUrl);
+    const url = new URL(syncServerLocation);
+    url.pathname = '/api';
+    setConnectionUrl(url.toString());
   };
 
   const initSocket = async () => {
