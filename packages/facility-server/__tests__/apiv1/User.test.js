@@ -93,6 +93,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body.role).toMatchObject({
@@ -105,6 +106,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('availableFacilities');
@@ -151,6 +153,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('token');
@@ -160,6 +163,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
       });
@@ -168,6 +172,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: 'PASSWARD',
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -176,6 +181,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: 'test@toast.com',
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -184,6 +190,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('localisation');
@@ -221,6 +228,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('permissions');
@@ -231,6 +239,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: authUser.email,
             password: 'PASSWARD',
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -239,6 +248,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: 'test@toast.com',
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -247,6 +257,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: deactivatedUser.email,
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
