@@ -13,7 +13,8 @@ export default function errorHandler(error, req, res, _) {
 
   const exposeSensitive =
     process.env.NODE_ENV !== 'production' ||
-    (config.debugging.apiErrorsToken &&
+    (typeof config.debugging.apiErrorsToken === 'string' &&
+      config.debugging.apiErrorsToken.length > 0 &&
       timingSafeEqual(
         Buffer.from(req.get('tamanu-debug') ?? ''),
         Buffer.from(config.debugging.apiErrorsToken ?? ''),

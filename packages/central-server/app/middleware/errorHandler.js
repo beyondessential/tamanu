@@ -19,7 +19,8 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
 
   const exposeSensitive =
     process.env.NODE_ENV !== 'production' ||
-    (config.debugging.apiErrorsToken &&
+    (typeof config.debugging.apiErrorsToken === 'string' &&
+      config.debugging.apiErrorsToken.length > 0 &&
       timingSafeEqual(
         Buffer.from(req.get('tamanu-debug') ?? ''),
         Buffer.from(config.debugging.apiErrorsToken ?? ''),
