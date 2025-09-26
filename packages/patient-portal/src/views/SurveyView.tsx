@@ -9,6 +9,8 @@ import { useCurrentUser } from '@routes/PrivateRoute';
 import { useSurveyQuery } from '@api/queries/useSurveyQuery';
 import { useSubmitSurveyResponse } from '@api/mutations';
 import { SurveyForm } from '../features/survey/SurveyForm';
+import { StyledCircularProgress } from '@components/StyledCircularProgress';
+import { SettingsProvider } from '../contexts';
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -60,7 +62,7 @@ export const SurveyView = () => {
   };
 
   if (isPending) {
-    return null;
+    return <StyledCircularProgress />;
   }
 
   if (!survey || !survey.portalSurveyAssignment) {
@@ -85,14 +87,16 @@ export const SurveyView = () => {
       </Header>
       <Box p={2}>
         <AuthContext.Provider value={{ facilityId }}>
-          <SurveyForm
-            patientAdditionalData={additionalData}
-            encounterType={encounterType}
-            patient={patient}
-            survey={survey}
-            onSubmit={onSubmit}
-            onCancel={onCancel}
-          />
+          <SettingsProvider facilityId={facilityId}>
+            <SurveyForm
+              patientAdditionalData={additionalData}
+              encounterType={encounterType}
+              patient={patient}
+              survey={survey}
+              onSubmit={onSubmit}
+              onCancel={onCancel}
+            />
+          </SettingsProvider>
         </AuthContext.Provider>
       </Box>
     </Container>
