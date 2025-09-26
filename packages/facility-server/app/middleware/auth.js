@@ -88,20 +88,22 @@ export async function centralServerLogin({
   const { user, localisation, allowedFacilities } = response;
   const { id, ...userDetails } = user;
 
-  await models.User.sequelize.transaction(async () => {
+  const userModel = await models.User.sequelize.transaction(async () => {
     const [user] = await models.User.upsert({
       id,
       ...userDetails,
       password,
       deletedAt: null,
     });
-    await models.Device.ensureRegistration({ settings, user, deviceId, scopes: [] });
     await models.UserLocalisationCache.upsert({
       userId: id,
       localisation: JSON.stringify(localisation),
       deletedAt: null,
     });
+    return user;
   });
+
+  await models.Device.ensureRegistration({ settings, user: userModel, deviceId, scopes: [] });
 
   return { central: true, user, localisation, allowedFacilities };
 }
