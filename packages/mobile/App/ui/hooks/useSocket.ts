@@ -20,7 +20,7 @@ export const useSocket = () => {
     if (!connectionUrl) return;
     setSocket(
       (cachedSocket = io(connectionUrl, {
-        path: '/api',
+        path: '/api/socket.io/',
         transports: ['webtransport', 'websocket'],
       })),
     );
