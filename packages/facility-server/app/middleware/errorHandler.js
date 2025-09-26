@@ -1,3 +1,4 @@
+import config from 'config';
 import { BaseError as SequelizeError } from 'sequelize';
 import { convertDatabaseError } from '@tamanu/database';
 import { Problem } from '@tamanu/errors';
@@ -11,7 +12,10 @@ export default function errorHandler(error, req, res, _) {
 
   const problem = (
     error instanceof Problem ? error : Problem.fromError(error)
-  ).excludeSensitiveFields(process.env.NODE_ENV === 'production');
+  ).excludeSensitiveFields(
+    process.env.NODE_ENV === 'production' &&
+      req.get('tamanu-debug') === config.debugging.apiErrorsToken,
+  );
 
   if (problem.type.includes('auth')) {
     log.warn(`Error ${problem.status} (${problem.type}): ${error.message}`);
