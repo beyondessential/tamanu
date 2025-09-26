@@ -10,13 +10,13 @@ export default function errorHandler(error, req, res, _) {
     error = convertDatabaseError(error);
   }
 
+  const exposeSensitive =
+    process.env.NODE_ENV !== 'production' ||
+    (config.debugging.apiErrorsToken &&
+      req.get('tamanu-debug') === config.debugging.apiErrorsToken);
   const problem = (
     error instanceof Problem ? error : Problem.fromError(error)
-  ).excludeSensitiveFields(
-    process.env.NODE_ENV === 'production' &&
-      config.debugging.apiErrorsToken &&
-      req.get('tamanu-debug') !== config.debugging.apiErrorsToken,
-  );
+  ).excludeSensitiveFields(!exposeSensitive);
 
   if (problem.type.includes('auth')) {
     log.warn(`Error ${problem.status} (${problem.type}): ${error.message}`);

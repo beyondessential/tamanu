@@ -16,13 +16,13 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     error = convertDatabaseError(error);
   }
 
+  const exposeSensitive =
+    process.env.NODE_ENV !== 'production' ||
+    (config.debugging.apiErrorsToken &&
+      req.get('tamanu-debug') === config.debugging.apiErrorsToken);
   const problem = (
     error instanceof Problem ? error : Problem.fromError(error)
-  ).excludeSensitiveFields(
-    process.env.NODE_ENV === 'production' &&
-      config.debugging.apiErrorsToken &&
-      req.get('tamanu-debug') !== config.debugging.apiErrorsToken,
-  );
+  ).excludeSensitiveFields(!exposeSensitive);
 
   if (problem.status >= 500) {
     log.error(`Error ${problem.status} (${problem.type}): `, error);
