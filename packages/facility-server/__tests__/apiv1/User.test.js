@@ -200,7 +200,11 @@ describe('User', () => {
           permissions: [],
           server: { type: 'central' },
         });
-        const result = await centralServerLogin(models, authUser.email, rawPassword);
+        const result = await centralServerLogin({
+          models,
+          email: authUser.email,
+          password: rawPassword,
+        });
         expect(result).toHaveProperty('localisation', localisation);
         const cache = await models.UserLocalisationCache.findOne({
           where: {

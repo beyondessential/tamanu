@@ -190,14 +190,14 @@ export async function loginHandler(req, res, next) {
       settings.global ?? (typeof settings.get === 'function' ? settings : new ReadSettings(models));
 
     const { central, user, localisation, allowedFacilities } =
-      await centralServerLoginWithLocalFallback(
+      await centralServerLoginWithLocalFallback({
         models,
         globalSettings,
         email,
         password,
         deviceId,
         facilityDeviceId,
-      );
+      });
 
     // check if user has access to any facilities on this server
     const serverFacilities = selectFacilityIds(config);
