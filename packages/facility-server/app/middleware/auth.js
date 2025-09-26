@@ -192,7 +192,7 @@ export async function loginHandler(req, res, next) {
     const { central, user, localisation, allowedFacilities } =
       await centralServerLoginWithLocalFallback({
         models,
-        globalSettings,
+        settings: globalSettings,
         email,
         password,
         deviceId,
