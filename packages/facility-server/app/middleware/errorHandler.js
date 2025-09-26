@@ -14,7 +14,7 @@ export default function errorHandler(error, req, res, _) {
     error instanceof Problem ? error : Problem.fromError(error)
   ).excludeSensitiveFields(
     process.env.NODE_ENV === 'production' &&
-      req.get('tamanu-debug') === config.debugging.apiErrorsToken,
+      req.get('tamanu-debug') !== config.debugging.apiErrorsToken,
   );
 
   if (problem.type.includes('auth')) {
