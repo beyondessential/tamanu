@@ -95,7 +95,7 @@ const StyledButton = styled(Button)`
   min-width: 0px;
 `;
 
-export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
+export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const isViewing = Boolean(initialValues?.id);
@@ -501,8 +501,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             }}
             data-testid="field-lmrx"
             showAllLocations
-            // Filter Area/Location by selected facility if provided
-            facilityIdOverride={initialValues?.facilityId}
+            facilityId={facilityId}
           />
           <Field
             name="date"

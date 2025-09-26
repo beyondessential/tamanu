@@ -195,8 +195,9 @@ export const LocationAssignmentsAdminView = () => {
       <AssignUserDrawer
         open={isDrawerOpen}
         onClose={closeAssignmentDrawer}
-        initialValues={{ ...drawerInitialValues, facilityId: selectedFacilityId, bookingSlots }}
+        initialValues={{ ...drawerInitialValues, bookingSlots }}
         data-testid="assignuserdrawer-location-assignments"
+        facilityId={selectedFacilityId}
       />
     </Wrapper>
   );
