@@ -41,10 +41,10 @@ export const LocationInput = React.memo(
     'data-testid': dataTestId,
     showAllLocations = false,
     locationGroupBaseQueryParameters = {},
-    facilityId,
+    facilityId: facilityIdOverride,
   }) => {
     const { facilityId: currentFacilityId } = useAuth();
-    const finalFacilityId = (facilityId ?? currentFacilityId) || '';
+    const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
@@ -58,17 +58,16 @@ export const LocationInput = React.memo(
         };
       },
       baseQueryParameters: {
-        ...(finalFacilityId &&
-          finalFacilityId.trim() && {
-            filterByFacility: true,
-            facilityId: finalFacilityId,
-          }),
+        ...(facilityId && {
+          filterByFacility: true,
+          facilityId: facilityId,
+        }),
         ...(groupId && { locationGroupId: groupId }),
       },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
       baseQueryParameters: {
-        ...(finalFacilityId && finalFacilityId.trim() && { facilityId: finalFacilityId }),
+        ...(facilityId && { facilityId: facilityId }),
         ...locationGroupBaseQueryParameters,
       },
     });
@@ -121,7 +120,7 @@ export const LocationInput = React.memo(
     // 2. The existing location has a different facility than the current facility
     // Disable just the location field if location group has not been chosen or pre-filled
     const existingLocationHasSameFacility =
-      (value && location?.facilityId ? finalFacilityId === location.facilityId : true) ||
+      (value && location?.facilityId ? facilityId === location.facilityId : true) ||
       showAllLocations;
     const locationSelectIsDisabled = !groupId || !existingLocationHasSameFacility;
     const locationGroupSelectIsDisabled = !existingLocationHasSameFacility;

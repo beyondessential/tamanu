@@ -597,7 +597,7 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
   ...filterByFacilityWhereBuilder({
     endpoint,
     modelName,
-    query: { ...query, filterByFacility: !!query.facilityId },
+    query: { ...query, filterByFacility: true },
   }),
   ...([LOCATION_BOOKABLE_VIEW.DAILY, LOCATION_BOOKABLE_VIEW.WEEKLY].includes(query.isBookable)
     ? {
