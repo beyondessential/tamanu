@@ -133,7 +133,7 @@ export class TamanuApi {
     return this.post('changePassword', args);
   }
 
-  async refreshToken(config = {}) {
+  async refreshToken({ body = {}, ...config } = {}) {
     if (!this.#refreshToken) {
       throw new Error('No refresh token available');
     }
@@ -143,6 +143,7 @@ export class TamanuApi {
       {
         deviceId: this.deviceId,
         refreshToken: this.#refreshToken,
+        ...body,
       },
       { ...config, useAuthToken: false, waitForAuth: false },
     );

@@ -20,6 +20,7 @@ const { tokenDuration, secret } = config.auth;
 const jwtSecretKey = secret ?? crypto.randomBytes(32).toString('hex');
 
 export async function buildToken({
+  audience = JWT_TOKEN_TYPES.ACCESS,
   user,
   expiresIn = tokenDuration ?? '1h',
   deviceId = undefined,
@@ -52,7 +53,7 @@ export async function buildToken({
     .setIssuer(canonicalHostName)
     .setIssuedAt()
     .setExpirationTime(expirationTime)
-    .setAudience(JWT_TOKEN_TYPES.ACCESS)
+    .setAudience(audience)
     .sign(secretKey);
 }
 
@@ -209,13 +210,19 @@ export async function loginHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to any facilities on this server');
     }
 
-    const [permissions, token, role] = await Promise.all([
+    const [permissions, token, refreshToken, role] = await Promise.all([
       getPermissionsForRoles(models, user.role),
       buildToken({ user, deviceId }),
+      buildToken({
+        audience: JWT_TOKEN_TYPES.REFRESH,
+        user,
+        deviceId,
+      }),
       models.Role.findByPk(user.role),
     ]);
     res.send({
       token,
+      refreshToken,
       central,
       localisation,
       permissions,
@@ -243,25 +250,54 @@ export async function setFacilityHandler(req, res, next) {
       throw new AuthPermissionError('User does not have access to this facility');
     }
 
-    const token = await buildToken({ user, deviceId: device.id, facilityId });
+    const [token, refreshToken] = await Promise.all([
+      buildToken({ user, deviceId: device.id, facilityId }),
+      buildToken({
+        audience: JWT_TOKEN_TYPES.REFRESH,
+        user,
+        deviceId: device.id,
+        facilityId,
+      }),
+    ]);
     const settings = await req.settings[facilityId]?.getFrontEndSettings();
-    res.send({ token, settings });
+    res.send({ token, refreshToken, settings });
   } catch (e) {
     next(e);
   }
 }
 
 export async function refreshHandler(req, res) {
-  const { user, facilityId } = req;
+  const { canonicalHostName = 'localhost' } = config;
+  const { models, settings } = req;
+  const { user, facility, device } = await models.User.loginFromAuthorizationHeader(
+    req.get('authorization'),
+    {
+      log,
+      settings: settings.global ?? settings,
+      tokenDuration,
+      tokenIssuer: canonicalHostName,
+      tokenSecret: jwtSecretKey,
+    },
+    JWT_TOKEN_TYPES.REFRESH,
+  );
 
-  // Run after auth middleware, requires valid token but no other permission
-  req.flagPermissionChecked();
+  if (!device) {
+    throw new MissingCredentialError('Missing deviceId');
+  }
 
-  const token = await buildToken({ user, facilityId });
-  res.send({ token });
+  const [token, refreshToken] = await Promise.all([
+    buildToken({ user, deviceId: device.id, facilityId: facility?.id }),
+    buildToken({
+      audience: JWT_TOKEN_TYPES.REFRESH,
+      user,
+      deviceId: device.id,
+      facilityId: facility?.id,
+    }),
+  ]);
+  res.send({ token, refreshToken });
 }
 
-export const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, _res, next) => {
   const { canonicalHostName = 'localhost' } = config;
   const { models, settings } = req;
   try {

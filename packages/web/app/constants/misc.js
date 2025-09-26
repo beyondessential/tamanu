@@ -1,5 +1,6 @@
 export const LOCAL_STORAGE_KEYS = {
   TOKEN: 'apiToken',
+  REFRESH_TOKEN: 'refreshToken',
   LOCALISATION: 'localisation',
   SERVER: 'server',
   AVAILABLE_FACILITIES: 'availableFacilities',
