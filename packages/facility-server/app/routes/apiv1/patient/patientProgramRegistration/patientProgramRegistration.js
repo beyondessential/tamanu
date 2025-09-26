@@ -62,8 +62,6 @@ patientProgramRegistration.post(
       if (existingRecordedInErrorRegistration) {
         registrationRecord = await existingRecordedInErrorRegistration.update(
           {
-            // This field currently is not required so we need to set the default manually in order to not default to the old status
-            registrationStatus: REGISTRATION_STATUSES.ACTIVE,
             deactivatedDate: null,
             deactivatedClinicianId: null,
             ...registrationData,
