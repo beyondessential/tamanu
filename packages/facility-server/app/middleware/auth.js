@@ -60,7 +60,7 @@ export async function comparePassword(user, password) {
   try {
     // do the password comparison even if the user is invalid so
     // that the login check doesn't reveal whether a user exists or not
-    return await compare(password, user?.passwordHash ?? 'invalid-hash');
+    return await compare(password, user?.password ?? 'invalid-hash');
   } catch (e) {
     return false;
   }

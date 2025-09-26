@@ -339,7 +339,7 @@ describe('User', () => {
       });
       const doesPwMatch = async pw => {
         const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
-        return comparePassword(user, pw);
+        return await comparePassword(user, pw);
       };
 
       it('succeeds if the central succeeds', async () => {
