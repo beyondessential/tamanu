@@ -7,7 +7,7 @@ export const useSocket = () => {
   const [socket] = useState(() => {
     return (cachedSocket = io('', {
       path: '/api/socket.io/',
-      transports: ['webtransport', 'websocket'],
+      transports: ['websocket'],
     }));
   });
 
