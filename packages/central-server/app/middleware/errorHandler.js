@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import config from 'config';
 import { BaseError as SequelizeError } from 'sequelize';
 import { convertDatabaseError } from '@tamanu/database';
@@ -19,7 +20,10 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
   const exposeSensitive =
     process.env.NODE_ENV !== 'production' ||
     (config.debugging.apiErrorsToken &&
-      req.get('tamanu-debug') === config.debugging.apiErrorsToken);
+      timingSafeEqual(
+        Buffer.from(req.get('tamanu-debug') ?? ''),
+        Buffer.from(config.debugging.apiErrorsToken ?? ''),
+      ));
   const problem = (
     error instanceof Problem ? error : Problem.fromError(error)
   ).excludeSensitiveFields(!exposeSensitive);
