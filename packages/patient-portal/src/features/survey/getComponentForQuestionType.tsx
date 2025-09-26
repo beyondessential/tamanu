@@ -13,6 +13,7 @@ import {
   DateTimeField,
   NullableBooleanField,
   PhotoField,
+  PatientDataDisplayField,
 } from '@tamanu/ui-components';
 import { SurveyQuestionAutocompleteField } from './SurveyQuestionAutocompleteField';
 
@@ -55,7 +56,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: PlaceholderField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: PlaceholderField,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: PlaceholderField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: unsupportedField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
@@ -67,10 +68,34 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_SUBTYPE]: unsupportedField,
 };
 
-export function getComponentForQuestionType(type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES) {
-  const Component = QUESTION_COMPONENTS[type];
+interface GetComponentOptions {
+  source?: string;
+  writeToPatient?: {
+    fieldType?: keyof typeof PROGRAM_DATA_ELEMENT_TYPES;
+  };
+}
+
+export function getComponentForQuestionType(
+  type: keyof typeof PROGRAM_DATA_ELEMENT_TYPES,
+  { source, writeToPatient: { fieldType } = {} }: GetComponentOptions = {},
+) {
+  let Component = QUESTION_COMPONENTS[type];
   if (Component === PlaceholderField || Component === unsupportedField) {
     return (props: any) => <Component {...props} type={type} />;
+  }
+
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
+    if (fieldType && fieldType in QUESTION_COMPONENTS) {
+      // PatientData specifically can overwrite field type if we are writing back to patient record
+      Component = QUESTION_COMPONENTS[fieldType];
+    } else if (source) {
+      // we're displaying a relation, so use PatientDataDisplayField
+      // (using a LimitedTextField will just display the bare id)
+      Component = PatientDataDisplayField;
+    }
+  }
+  if (Component === undefined) {
+    return LimitedTextField;
   }
   return Component;
 }
