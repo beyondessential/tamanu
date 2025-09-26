@@ -161,7 +161,7 @@ async function centralServerLoginWithLocalFallback({
   } catch (e) {
     // if we get an authentication or forbidden error when login to central server,
     // throw the error instead of proceeding to local login
-    if (e.type.startsWith(ERROR_TYPE.AUTH) || e.type === ERROR_TYPE.FORBIDDEN) {
+    if (e.type && (e.type.startsWith(ERROR_TYPE.AUTH) || e.type === ERROR_TYPE.FORBIDDEN)) {
       throw e;
     }
 
