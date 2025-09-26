@@ -33,7 +33,7 @@ export default function errorHandler(error, req, res, _) {
     ...problem.toJSON(),
     error: {
       message: error.message,
-      ...error,
+      name: error.name,
     },
   });
 }
