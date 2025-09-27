@@ -89,11 +89,13 @@ export const SettingsView = () => {
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
 
-  const { data: settingsRaw = {}, error: settingsFetchError } = useAdminSettingsQuery(
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useAdminSettingsQuery(
     scope,
     facilityId,
+    {
+      select: (data) => applyDefaults(data, scope),
+    },
   );
-  const settingsSnapshot = applyDefaults(settingsRaw, scope);
 
   const queryClient = useQueryClient();
 
