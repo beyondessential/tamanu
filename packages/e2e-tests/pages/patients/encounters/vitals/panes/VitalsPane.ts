@@ -40,7 +40,7 @@ export class VitalsPane extends BasePatientPage {
   }
 
   //TODO: JSdocs
-  async assertVitals(vitals: Vitals, editedVitals?: Vitals) {
+  async assertVitalsTable(vitals: Vitals, editedVitals?: Vitals) {
     const {
       date,
       locatorKey,
@@ -212,5 +212,39 @@ export class VitalsPane extends BasePatientPage {
     }
     //TODO: call an editVital function which is written  the editvitalmodal pom?
     await this.editVitalModal.editVital(editValue);
+  }
+
+  //TODO: rather than check just value also check full string (e.g. Height (cm): 221 rather than just 221)
+  //TODO: account for reason for change
+  async assertEditedVitalModal(recordedVitals: Vitals, editedVitals: Vitals, originalVitals: Vitals) {
+    const { locatorKey } = recordedVitals;
+    const edits = Object.entries(editedVitals).filter(([, value]) => value !== undefined);
+    
+    for (const [editField, editValue] of edits) {
+      const row = FIELD_ROWS[editField as keyof typeof FIELD_ROWS];
+      const cellLocator = `${row}-${locatorKey}`;
+      const vitalToAssert = this.page.getByTestId(`${this.tableCellPrefix}${cellLocator}`).getByTestId(this.editVitalContainer);
+      await vitalToAssert.click();
+      if (!this.editVitalModal) {
+        this.editVitalModal = new EditVitalModal(this.page);
+      }
+      // Assert the edited value is the most recent record in the history
+      const mostRecentHistoryValue = await this.editVitalModal.mostRecentHistory.textContent();
+      expect(mostRecentHistoryValue).toContain(editValue);
+      const mostRecentHistoryDetails = await this.editVitalModal.mostRecentHistoryDetails.textContent();
+      const dateEdited = format(new Date(recordedVitals.date!), 'MM/dd/yy h:mm a');
+      expect(mostRecentHistoryDetails).toContain(`Initial Admin ${dateEdited}`);
+
+      // Assert the original value is the oldest record in the history
+      const oldestRecentHistoryValue = await this.editVitalModal.oldestRecentHistory.textContent();
+      expect(oldestRecentHistoryValue).toContain(originalVitals[editField as keyof Vitals]);
+      const oldestRecentHistoryDetails = await this.editVitalModal.oldestRecentHistoryDetails.textContent();
+      const initialDateRecorded = format(new Date(originalVitals.date!), 'MM/dd/yy h:mm a');
+      expect(oldestRecentHistoryDetails).toContain(`Initial Admin ${initialDateRecorded}`);
+
+      await this.editVitalModal.closeModal.click();
+    }
+
+
   }
 }

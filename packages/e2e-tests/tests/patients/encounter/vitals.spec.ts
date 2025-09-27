@@ -19,6 +19,13 @@ type VitalField =
   | 'ventilatorLitresPerMinute' | 'ventilatorMode' | 'FIO2' | 'PIP' 
   | 'PEEP' | 'Rate' | 'iTime' | 'tVolume' | 'mVLitresPerMinute';
 
+async function generateDifferentValue(field: VitalField, exclude: string) {
+    let value: string;
+    do { value = (await generateTestData([field]))[field]; } 
+    while (value === exclude);
+    return value;
+  }
+
 async function generateTestData(specificFields?: VitalField[]) {
   const generateRandomNumber = (
     min: number,
@@ -102,7 +109,7 @@ test.describe('Vitals', () => {
     if (!vital) {
       throw new Error('Vital failed to be recorded');
     }
-    await vitalsPane.assertVitals(vital);
+    await vitalsPane.assertVitalsTable(vital);
   });
 
   test('Record vital with all fields filled and assert table displays correct values', async ({
@@ -118,7 +125,7 @@ test.describe('Vitals', () => {
     if (!vital) {
       throw new Error('Vital failed to be recorded');
     }
-    await vitalsPane.assertVitals(vital);
+    await vitalsPane.assertVitalsTable(vital);
   });
 
   test('Record multiple vitals and assert table displays correct values', async ({
@@ -135,7 +142,7 @@ test.describe('Vitals', () => {
     if (!vitalOne) {
       throw new Error('Vital failed to be recorded');
     }
-    await vitalsPane.assertVitals(vitalOne);
+    await vitalsPane.assertVitalsTable(vitalOne);
 
     //Create and assert second vital
     await vitalsPane.clickRecordVitalsButton();
@@ -147,7 +154,7 @@ test.describe('Vitals', () => {
     if (!vitalTwo) {
       throw new Error('Vital failed to be recorded');
     }
-    await vitalsPane.assertVitals(vitalTwo);
+    await vitalsPane.assertVitalsTable(vitalTwo);
   });
 
   test('Calculated questions are disabled and can only be answered based on the answer to other questions', async ({
@@ -197,7 +204,7 @@ test.describe('Vitals', () => {
     if (!vital) {
       throw new Error('Vital failed to be recorded');
     }
-    await vitalsPane.assertVitals(vital);
+    await vitalsPane.assertVitalsTable(vital);
   });
 
   test('Cannot record vitals with values outside of the defined min and max', async ({
@@ -270,7 +277,7 @@ test.describe('Vitals', () => {
 
     // Assert the date in the vitals table is today's date
     expect(vital.date).toBe(currentDateTime);
-    await vitalsPane.assertVitals(vital);
+    await vitalsPane.assertVitalsTable(vital);
   });
 
   test('Can create vital with custom date', async ({vitalsPane, api}) => {
@@ -296,7 +303,7 @@ test.describe('Vitals', () => {
 
     // Assert the date in the vitals table is the custom date
     expect(vital.date).toBe(dateTwoWeeksAgoFormatted);
-    await vitalsPane.assertVitals(vital);
+    await vitalsPane.assertVitalsTable(vital);
   });
 
   test('Edit a vital', async ({vitalsPane, api}) => {
@@ -310,21 +317,19 @@ test.describe('Vitals', () => {
       throw new Error('Vital failed to be recorded');
     }
 
-    console.log('vital', vital);
-
-    //TODO: need to make it so the edited data cannot be the same as the recorded data
     const editedData = {
-      height: (await generateTestData(['height'])).height,
-      weight: (await generateTestData(['weight'])).weight,
+      height: await generateDifferentValue('height', vital.height!),
+      weight: await generateDifferentValue('weight', vital.weight!),
     }
 
-    console.log('editedData', editedData);
-
-    const recordedVitals = await vitalsPane.assertVitals(vital);
+    const recordedVitals = await vitalsPane.assertVitalsTable(vital);
 
     const editedVitals = await vitalsPane.editVitals(recordedVitals, editedData);
 
-    await vitalsPane.assertVitals(editedVitals, editedData);
+    await vitalsPane.assertVitalsTable(editedVitals, editedData);
+
+    //TODO: more asserts in below function, e.g. "reason for change" etc
+    await vitalsPane.assertEditedVitalModal(editedVitals, editedData, recordedVitals);
 
   });
 
