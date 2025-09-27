@@ -12,20 +12,30 @@ import { CarouselComponents as CarouselGrid } from '../../scheduling/locationBoo
 import { LocationAssignmentsCalendarBody } from './LocationAssignmentsCalendarBody';
 import { LocationAssignmentsCalendarHeader } from './LocationAssignmentsCalendarHeader';
 import { getDisplayableDates } from './utils';
+import { TranslatedText } from '../../../components';
+import { Box } from '@material-ui/core';
+
+const EmptyStateWrapper = styled.div`
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  background-color: ${Colors.white};
+  margin: 12px;
+  padding: 20px;
+  height: calc(100vh - 92px);
+`;
 
 const EmptyState = styled.div`
-  --border-style: max(0.0625rem, 1px) solid ${Colors.outline};
-  background-color: ${Colors.white};
-  border-block-end: var(--border-style);
-  border-end-end-radius: 0.2rem;
-  border-end-start-radius: 0.2rem;
-  border-inline: var(--border-style);
+  background-color: ${Colors.background};
+
   color: ${Colors.primary};
   font-weight: 500;
-  margin-inline: 1rem;
-  padding-block: 0.75rem;
-  padding-inline: 0.5rem;
   text-align: center;
+  border: 1px solid ${Colors.outline};
+  border-radius: 3px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Carousel = styled.div`
@@ -58,6 +68,7 @@ export const LocationAssignmentsCalendar = ({
   locations,
   isLocationsLoading,
   openAssignmentDrawer,
+  selectedFacilityId,
   ...props
 }) => {
   const { monthOf, setMonthOf, setIsCalendarLoaded } = useLocationAssignmentsContext();
@@ -85,6 +96,22 @@ export const LocationAssignmentsCalendar = ({
 
   if (isLocationsLoading || isAssignmentsLoading) {
     return <LoadingIndicator />;
+  }
+
+  // If no facility selected, show helper empty state matching design
+  if (!selectedFacilityId) {
+    return (
+      <EmptyStateWrapper>
+        <EmptyState>
+          <Box width="370px">
+            <TranslatedText
+              stringId="admin.locationAssignments.emptyState"
+              fallback="Please select a facility from the field above to view the location assignment table or assign a user"
+            />
+          </Box>
+        </EmptyState>
+      </EmptyStateWrapper>
+    );
   }
 
   return (

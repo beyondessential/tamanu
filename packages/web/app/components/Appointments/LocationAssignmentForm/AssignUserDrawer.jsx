@@ -95,7 +95,7 @@ const StyledButton = styled(Button)`
   min-width: 0px;
 `;
 
-export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
+export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
   const isViewing = Boolean(initialValues?.id);
@@ -131,9 +131,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
     setSelectedModifyRepeatingAssignmentMode(undefined);
   }, [open, initialValues?.id]);
 
-  const userSuggester = useSuggester('practitioner', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const userSuggester = useSuggester('practitioner');
 
   const { mutateAsync: checkOverlappingLeaves } = useOverlappingLeavesQuery();
   const {
@@ -503,6 +501,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             }}
             data-testid="field-lmrx"
             showAllLocations
+            facilityId={facilityId}
           />
           <Field
             name="date"
@@ -534,6 +533,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues }) => {
             type={BOOKING_SLOT_TYPES.ASSIGNMENTS}
             variant={TIME_SLOT_PICKER_VARIANTS.RANGE}
             data-testid="timeslotpicker-assignment"
+            bookingSlotSettingsOverride={initialValues?.bookingSlots}
           />
           {!hideRepeatingFields && (
             <Field

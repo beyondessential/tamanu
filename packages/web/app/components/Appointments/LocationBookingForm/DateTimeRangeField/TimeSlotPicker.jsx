@@ -80,10 +80,12 @@ export const TimeSlotPicker = ({
   variant = TIME_SLOT_PICKER_VARIANTS.RANGE,
   name,
   type = 'bookings',
+  bookingSlotSettingsOverride,
   ...props
 }) => {
   const [dayStart, dayEnd] = useMemo(() => {
-    return date ? endpointsOfDay(parseISO(date)) : [null, null];
+    const baseDate = date ? parseISO(date) : new Date();
+    return endpointsOfDay(baseDate);
   }, [date]);
 
   const {
@@ -99,7 +101,7 @@ export const TimeSlotPicker = ({
     isPending: isTimeSlotsPending,
     slotContaining,
     endOfSlotContaining,
-  } = useBookingSlots(dayStart, type);
+  } = useBookingSlots(dayStart, type, bookingSlotSettingsOverride);
   const initialInterval = useMemo(
     () => appointmentToInterval({ startTime: initialStart, endTime: initialEnd }),
     [initialStart, initialEnd],
@@ -444,7 +446,7 @@ export const TimeSlotPicker = ({
         {...props}
         data-testid="togglegroup-fxn9"
       >
-        {!date || isFetchingExistingBookings || isTimeSlotsPending ? (
+        {isFetchingExistingBookings || isTimeSlotsPending ? (
           <PlaceholderTimeSlotToggles type={type} data-testid="placeholdertimeslottoggles-l1fr" />
         ) : (
           timeSlots?.map((timeSlot) => {
