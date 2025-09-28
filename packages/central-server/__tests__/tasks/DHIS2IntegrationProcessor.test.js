@@ -8,7 +8,6 @@ import {
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
-import config from 'config';
 
 describe('DHIS2 integration processor', () => {
   let ctx;
@@ -62,6 +61,7 @@ describe('DHIS2 integration processor', () => {
   beforeEach(async () => {
     await setHost('test host');
     await setReportIds([report.id]);
+    await setBackoff({ multiplierMs: 50, maxAttempts: 2, maxWaitMs: 10000 });
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
   });
 
