@@ -6,12 +6,12 @@ import { Link, generatePath } from 'react-router-dom';
 
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
-import { formatDateTimeRange } from '../../../utils/dateTime';
-import { TranslatedReferenceData, TranslatedText, TranslatedEnum } from '../../Translation';
-import { ThemedTooltip } from '../../Tooltip';
-import { getDateDisplay } from '../../DateDisplay';
+import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
+import { TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
+import { LimitedLinesCell } from '../../FormattedTableCell';
+import { useTranslation } from '../../../contexts/Translation';
 
 const AppointmentDetailsContainer = styled('div')`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -30,101 +30,76 @@ const Tag = styled('div')`
   position: absolute;
 `;
 
-const TruncatedText = styled('div')`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-`;
-
-const TooltipContainer = styled('div')`
-  max-width: 200px;
-`;
-
 const EncounterLink = styled(Link)`
-  color: ${Colors.primary};
-  text-decoration: none;
   cursor: pointer;
+  text-decoration: underline;
   &:hover {
-    text-decoration: underline;
+    color: ${Colors.primary};
   }
 `;
 
 const ClinicianContainer = styled('div')`
   display: flex;
   justify-content: space-between;
+  gap: 16px;
+  > div {
+    flex: 1;
+    flex-shrink: 0;
+    width: 0;
+  }
 `;
 
-const ProcedureTypes = ({ appointmentProcedureTypes }) => {
-  return appointmentProcedureTypes.length > 0 ? appointmentProcedureTypes.map((appointmentProcedureType, index) => (
-    <span key={appointmentProcedureType.id}>
-      <TranslatedReferenceData
-        value={appointmentProcedureType.procedureType.id}
-        fallback={appointmentProcedureType.procedureType.name}
-        category="procedureType"
-        data-testid={`tooltip-translatedreferencedata-${index}`}
-      />
-      {index < appointmentProcedureTypes.length - 1 && ', '}
-    </span>
-  )) : <>&mdash;</>;
-};
-
 const LinkedEncounter = ({ encounter }) => {
-  if (!encounter) return <>&mdash;</>;
-  
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  if (!encounter) return null;
+
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
     category: PATIENT_CATEGORIES.ALL,
     patientId: encounter.patientId,
     encounterId: encounter.id,
   });
-  
-  const formattedDate = getDateDisplay(encounter.startDate, {
-    showDate: true,
-    showTime: false,
-  });
-  
+
+  const encounterLabel = `${formatShort(encounter.startDate)}${
+    encounter.endDate ? '' : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()
+  } | ${getEnumTranslation(
+    ENCOUNTER_TYPE_LABELS,
+    encounter.encounterType,
+  )} | ${getReferenceDataTranslation({
+    value: encounter?.location?.facility.id,
+    category: 'facility',
+    fallback: encounter?.location?.facility.name,
+  })}`;
+
   return (
     <EncounterLink to={encounterPath}>
-      <ThemedTooltip title={
-        <TooltipContainer>
-          {formattedDate} | <TranslatedEnum value={encounter.encounterType} enumValues={ENCOUNTER_TYPE_LABELS} /> | <TranslatedReferenceData value={encounter.location?.facility?.id} fallback={encounter.location?.facility?.name} category="facility" />
-        </TooltipContainer>
-      }>
-      <TruncatedText> 
-      {formattedDate} | <TranslatedEnum value={encounter.encounterType} enumValues={ENCOUNTER_TYPE_LABELS} /> | <TranslatedReferenceData value={encounter.location?.facility?.id} fallback={encounter.location?.facility?.name} category="facility" />
-      </TruncatedText>
-      </ThemedTooltip>
+      <LimitedLinesCell
+        value={encounterLabel}
+        maxLines={1}
+        isOneLine
+        PopperProps={{ style: { maxWidth: '200px' } }}
+      />
     </EncounterLink>
   );
 };
 
-const AdditionalClinician = ({ additionalClinician }) => {
-  return (
-    <div style={{ maxWidth: '8rem' }}>
-      <DetailsDisplay
-        label={
-          <TranslatedText
-            stringId="appointment.additionalClinician.label"
-            fallback="Additional Clinician"
-            data-testid="translatedtext-additionalClinician"
-          />
-        }
-        value={
-          <TooltipContainer>
-            <ThemedTooltip title={additionalClinician?.displayName}>
-              <TruncatedText>
-                {additionalClinician?.displayName || <>&mdash;</>}
-              </TruncatedText>
-            </ThemedTooltip>
-          </TooltipContainer>
-        }
-        data-testid="detailsdisplay-additionalClinician"
-      />
-    </div>
-  );
-};
+const LocationBookingDetails = ({
+  location,
+  bookingType,
+  isOvernight,
+  appointmentProcedureTypes,
+  linkEncounter,
+}) => {
+  const { getReferenceDataTranslation } = useTranslation();
+  const appointmentProcedureTypesValue = appointmentProcedureTypes
+    ?.map(({ procedureType }) =>
+      getReferenceDataTranslation({
+        value: procedureType.id,
+        category: procedureType.type,
+        fallback: procedureType.name,
+      }),
+    )
+    .join(', ');
 
-const LocationBookingDetails = ({ location, locationGroup, bookingType, isOvernight, appointmentProcedureTypes, encounter }) => {
   return (
     <>
       {location && (
@@ -137,25 +112,12 @@ const LocationBookingDetails = ({ location, locationGroup, bookingType, isOverni
             />
           }
           value={
-            <div>
-              {(location?.locationGroup?.name || locationGroup?.name) && (
-                <span>
-                  <TranslatedReferenceData
-                    fallback={location?.locationGroup?.name || locationGroup?.name}
-                    value={location?.locationGroup?.id || locationGroup?.id}
-                    category="locationGroup"
-                    data-testid="translatedreferencedata-area"
-                  />
-                  {', '}
-                </span>
-              )}
-              <TranslatedReferenceData
-                fallback={location?.name}
-                value={location?.id}
-                category="location"
-                data-testid="translatedreferencedata-505o"
-              />
-            </div>
+            <TranslatedReferenceData
+              fallback={location?.name}
+              value={location?.id}
+              category="location"
+              data-testid="translatedreferencedata-505o"
+            />
           }
           data-testid="detailsdisplay-zzp3"
         />
@@ -184,36 +146,32 @@ const LocationBookingDetails = ({ location, locationGroup, bookingType, isOverni
         label={
           <TranslatedText
             stringId="appointment.procedureType.label"
-            fallback="Procedure type"
+            fallback="Procedure"
             data-testid="translatedtext-v4x2"
           />
         }
         value={
-          <ThemedTooltip 
-            title={
-              <TooltipContainer>
-                <ProcedureTypes appointmentProcedureTypes={appointmentProcedureTypes} />
-              </TooltipContainer>
-            }
-            data-testid="procedure-types-tooltip"
-          >
-            <TruncatedText>
-              <ProcedureTypes appointmentProcedureTypes={appointmentProcedureTypes} />
-            </TruncatedText>
-          </ThemedTooltip>
+          appointmentProcedureTypesValue && (
+            <LimitedLinesCell
+              value={appointmentProcedureTypesValue}
+              maxLines={1}
+              isOneLine
+              PopperProps={{ style: { maxWidth: '200px' } }}
+            />
+          )
         }
         data-testid="detailsdisplay-ll5z"
       />
       <DetailsDisplay
         label={
           <TranslatedText
-            stringId="appointment.encounter.label"
-            fallback="Related Encounter"
-            data-testid="translatedtext-encounter"
+            stringId="appointment.linkedEncounter.label"
+            fallback="Linked encounter"
+            data-testid="translatedtext-linkedencounter"
           />
         }
-        value={<LinkedEncounter encounter={encounter} />}
-        data-testid="detailsdisplay-encounter"
+        value={<LinkedEncounter encounter={linkEncounter} />}
+        data-testid="detailsdisplay-linkedencounter"
       />
       {isOvernight && (
         <Tag data-testid="tag-j3j7">
@@ -287,8 +245,8 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     appointmentType,
     appointmentProcedureTypes,
     isHighPriority,
-    encounter,
-    additionalClinician
+    linkEncounter,
+    additionalClinician,
   } = appointment;
 
   return (
@@ -316,37 +274,53 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           value={clinician?.displayName}
           data-testid="detailsdisplay-an8y"
         />
-        {bookingType && <AdditionalClinician additionalClinician={additionalClinician} />}
-      </ClinicianContainer>
-      {!bookingType && (
         <DetailsDisplay
           label={
             <TranslatedText
-              stringId="general.localisedField.locationGroupId.label"
-              fallback="Area"
-              data-testid="translatedtext-f8to"
+              stringId="general.localisedField.additionalClinician.label.short"
+              fallback="Additional clinician"
+              data-testid="translatedtext-additionalclinician"
             />
           }
           value={
-            <TranslatedReferenceData
-              fallback={location?.locationGroup?.name || locationGroup?.name}
-              value={location?.locationGroup?.id || locationGroup?.id}
-              category="locationGroup"
-              data-testid="translatedreferencedata-gbn6"
-            />
+            additionalClinician?.displayName && (
+              <LimitedLinesCell
+                value={additionalClinician?.displayName}
+                maxLines={1}
+                isOneLine
+                PopperProps={{ style: { maxWidth: '140px' } }}
+              />
+            )
           }
-          data-testid="detailsdisplay-w60y"
+          data-testid="detailsdisplay-additionalclinician"
         />
-      )}
+      </ClinicianContainer>
+      <DetailsDisplay
+        label={
+          <TranslatedText
+            stringId="general.localisedField.locationGroupId.label"
+            fallback="Area"
+            data-testid="translatedtext-f8to"
+          />
+        }
+        value={
+          <TranslatedReferenceData
+            fallback={location?.locationGroup?.name || locationGroup?.name}
+            value={location?.locationGroup?.id || locationGroup?.id}
+            category="locationGroup"
+            data-testid="translatedreferencedata-gbn6"
+          />
+        }
+        data-testid="detailsdisplay-w60y"
+      />
       {/* Location booking specific data */}
       {location && bookingType && (
         <LocationBookingDetails
           location={location}
-          locationGroup={locationGroup}
           bookingType={bookingType}
           isOvernight={isOvernight}
           appointmentProcedureTypes={appointmentProcedureTypes}
-          encounter={encounter}
+          linkEncounter={linkEncounter}
           data-testid="locationbookingdetails-g1r6"
         />
       )}
