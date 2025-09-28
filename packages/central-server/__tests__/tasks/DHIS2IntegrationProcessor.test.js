@@ -1,7 +1,5 @@
 import { pick } from 'lodash';
 
-import config from 'config';
-
 import { createTestContext } from '../utilities';
 import {
   DHIS2IntegrationProcessor,

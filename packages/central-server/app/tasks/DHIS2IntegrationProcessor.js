@@ -43,7 +43,6 @@ export const LOG_FIELDS = [
   'updated',
   'ignored',
   'deleted',
-  'conflicts',
 ];
 
 export class DHIS2IntegrationProcessor extends ScheduledTask {
@@ -144,7 +143,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         importCount,
       });
 
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, pick(successLog, LOG_FIELDS));
     } else {
       const warningLog = await this.logDHIS2Push({
         reportId,
@@ -154,7 +153,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         conflicts: conflicts.map(conflict => conflict.value),
       });
 
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, pick(warningLog, LOG_FIELDS));
       conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
