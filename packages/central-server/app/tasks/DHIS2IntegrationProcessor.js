@@ -59,6 +59,18 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
+  async logDHIS2Push({ reportId, status, importCount = {}, conflicts = [], message }) {
+    const logEntry = await this.context.store.models.DHIS2PushLog.create({
+      reportId,
+      status,
+      message,
+      ...(conflicts.length > 0 && { conflicts: JSON.stringify(conflicts) }),
+      ...importCount,
+    });
+
+    return pick(logEntry.get({ plain: true }), LOG_FIELDS);
+  }
+
   async postToDHIS2({ reportId, reportCSV }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
@@ -144,7 +156,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         importCount,
       });
 
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, pick(successLog, LOG_FIELDS));
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
     } else {
       const warningLog = await this.logDHIS2Push({
         reportId,
@@ -154,7 +166,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
         conflicts: conflicts.map(conflict => conflict.value),
       });
 
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, pick(warningLog, LOG_FIELDS));
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
       conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
