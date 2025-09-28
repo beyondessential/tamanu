@@ -8,4 +8,5 @@ export const USER_PREFERENCES_KEYS = {
   LOCATION_BOOKING_VIEW_TYPE: 'locationBookingViewType',
   OUTPATIENT_APPOINTMENT_FILTERS: 'outpatientAppointmentFilters',
   OUTPATIENT_APPOINTMENT_GROUP_BY: 'outpatientAppointmentGroupBy',
+  LOCATION_ASSIGNMENT_SELECTED_FACILITY: 'locationAssignmentSelectedFacility',
 };

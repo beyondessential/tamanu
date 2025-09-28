@@ -9,6 +9,7 @@ import { SkeletonRows } from '../../scheduling/locationBookings/Skeletons';
 import { generateIdFromCell } from './utils';
 import { TranslatedReferenceData } from '../../../components';
 import { Colors } from '../../../constants';
+import { useAuth } from '../../../contexts/Auth';
 
 const AssignmentTile = styled.div`
   background: ${Colors.white};
@@ -42,13 +43,20 @@ const formatTime = (time) => {
 
 export const LocationAssignmentTile = ({ assignment, onClick }) => {
   const { user, startTime, endTime } = assignment;
+  const { ability } = useAuth();
+  const hasReadPermission = ability?.can?.('read', 'LocationSchedule');
   
   return (
     <AssignmentTile
       className="assignment-tile"
       onClick={(e) => {
         e.stopPropagation();
-        onClick?.(assignment);
+        if (hasReadPermission) {
+          onClick?.(assignment);
+        }
+      }}
+      style={{
+        cursor: hasReadPermission ? 'pointer' : 'default',
       }}
       data-testid="assignment-tile"
     >
