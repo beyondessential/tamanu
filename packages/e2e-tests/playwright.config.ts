@@ -28,6 +28,7 @@ module.exports = defineConfig({
   use: {
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    timezoneId: process.env.TZ,
   },
 
   /* Configure projects for major browsers */

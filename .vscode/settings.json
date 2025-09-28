@@ -36,4 +36,8 @@
   "yaml.format.enable": true,
   "yaml.customTags": [],
   "yaml.schemaStore.enable": false
+  },
+  "yaml.schemas": {
+    "https://www.artillery.io/schema.json": []
+  }
 }

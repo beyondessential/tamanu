@@ -37,5 +37,6 @@ export const defaultErrorHandler = buildErrorHandler((error, problem) => ({
   error: {
     message: error.message,
     name: error.name,
+    status: problem.status,
   },
 }));

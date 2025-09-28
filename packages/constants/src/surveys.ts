@@ -226,3 +226,9 @@ export const RESULT_COLORS = {
   deepred: '#971a1a',
   purple: '#971a1a',
 };
+
+export const PORTAL_SURVEY_ASSIGNMENTS_STATUSES = {
+  OUTSTANDING: 'outstanding',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+};
