@@ -247,7 +247,7 @@ describe('DHIS2 integration processor', () => {
       } = mockWarningResponse;
       expect(pushLogs[0]).toMatchObject({
         status: 'warning',
-        conflicts: JSON.stringify(conflicts.map(conflict => conflict.value)),
+        conflicts: conflicts.map(conflict => conflict.value),
         ...importCount,
       });
     });

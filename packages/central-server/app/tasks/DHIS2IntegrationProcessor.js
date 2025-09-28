@@ -64,7 +64,7 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
       reportId,
       status,
       message,
-      ...(conflicts.length > 0 && { conflicts: JSON.stringify(conflicts) }),
+      ...(conflicts.length > 0 && { conflicts }),
       ...importCount,
     });
 
