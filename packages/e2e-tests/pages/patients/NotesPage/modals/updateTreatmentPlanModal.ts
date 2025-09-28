@@ -5,15 +5,22 @@ import * as fieldHelpers from '@utils/fieldHelpers';
 
 export class UpdateTreatmentPlanModal extends BaseNoteModal {
   // Additional fields specific to update treatment plan
-  readonly updatedByInput: Locator;
-  readonly updatedByDropdownList: Locator;
+  readonly updatedByInput!: Locator;
+  readonly updatedByDropdownList!: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    // Additional fields specific to update treatment plan
-    this.updatedByInput = page.getByTestId('field-ar9q-input');
-    this.updatedByDropdownList = page.getByTestId('field-ar9q-suggestionslist');
+    // TestId mapping for UpdateTreatmentPlanModal elements
+    const testIds = {
+      updatedByInput: 'field-ar9q-input',
+      updatedByDropdownList: 'field-ar9q-suggestionslist',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
   }
 
 

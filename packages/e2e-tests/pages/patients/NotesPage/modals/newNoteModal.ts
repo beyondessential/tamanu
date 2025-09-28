@@ -7,16 +7,25 @@ export class NewNoteModal extends BaseNoteModal {
   readonly discardNoteModal: DiscardNoteModal;
   
   // New note specific fields
-  readonly typeSelect: Locator;
-  readonly noteTypeRequiredIndicator: Locator;
-  readonly noteContentRequiredIndicator: Locator;
+  readonly typeSelect!: Locator;
+  readonly noteTypeRequiredIndicator!: Locator;
+  readonly noteContentRequiredIndicator!: Locator;
 
   constructor(page: Page) {
     super(page);
     this.discardNoteModal = new DiscardNoteModal(page);
     
-    // New note specific locators
-    this.typeSelect = page.getByTestId('field-a0mv-select');
+    // TestId mapping for NewNoteModal elements
+    const testIds = {
+      typeSelect: 'field-a0mv-select',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.noteTypeRequiredIndicator = page.getByTestId('field-a0mv-formhelptertext').getByText('*Required');
     this.noteContentRequiredIndicator = page.getByTestId('field-wxzr').locator('p').getByText('*Required');
   }

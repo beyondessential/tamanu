@@ -2,13 +2,22 @@ import { Page, Locator } from '@playwright/test';
 
 export class DiscardNoteModal {
   readonly page: Page;
-  readonly cancelButton: Locator;
-  readonly confirmButton: Locator;
+  readonly cancelButton!: Locator;
+  readonly confirmButton!: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.cancelButton = page.getByTestId('outlinedbutton-p957');
-    this.confirmButton = page.getByTestId('confirmbutton-y3tb');
+    
+    // TestId mapping for DiscardNoteModal elements
+    const testIds = {
+      cancelButton: 'outlinedbutton-p957',
+      confirmButton: 'confirmbutton-y3tb',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
   }
 
   async waitForModalToLoad() {

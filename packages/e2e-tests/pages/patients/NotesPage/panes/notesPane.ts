@@ -9,24 +9,24 @@ import { ChangeLogTreatmentPlanModal } from '../modals/ChangeLogTreatmentPlanMod
 export class NotesPane {
   readonly page: Page;
 
-  readonly notesTab: Locator;
+  readonly notesTab!: Locator;
 
   // Notes section controls
-  readonly noteTypeSelect: Locator;
-  readonly newNoteButton: Locator;
-  readonly noteTypeOptions: Locator;
+  readonly noteTypeSelect!: Locator;
+  readonly newNoteButton!: Locator;
+  readonly noteTypeOptions!: Locator;
 
   // Individual note elements
-  readonly noteRows: Locator;
-  readonly noteHeaderTexts: Locator;
-  readonly noteContents: Locator;
-  readonly readMoreButton: Locator;
-  readonly showLessButton: Locator;
-  readonly editIcons: Locator;
-  readonly editedButtons: Locator;
-  readonly tooltips: Locator;
-  readonly noDataMessage: Locator;
-  notesContainer: Locator;
+  readonly noteRows!: Locator;
+  readonly noteHeaderTexts!: Locator;
+  readonly noteContents!: Locator;
+  readonly readMoreButton!: Locator;
+  readonly showLessButton!: Locator;
+  readonly editIcons!: Locator;
+  readonly editedButtons!: Locator;
+  readonly tooltips!: Locator;
+  readonly noDataMessage!: Locator;
+  notesTable!: Locator;
 
   // Modal properties
   newNoteModal?: NewNoteModal;
@@ -39,30 +39,35 @@ export class NotesPane {
   constructor(page: Page) {
     this.page = page;
 
-    // Tab elements
-    this.notesTab = page.getByTestId('styledtab-ccs8-notes');
+    // TestId mapping for NotesPane elements
+    const testIds = {
+      notesTab: 'styledtab-ccs8-notes',
+      noteTypeSelect: 'styledtranslatedselectfield-oy9y-select',
+      newNoteButton: 'component-enxe',
+      readMoreButton: 'readmorespan-dpwv',
+      showLessButton: 'showlessspan-7kuw',
+      editIcons: 'styledediticon-nmdz',
+      editedButtons: 'editedbutton-jn5i',
+      tooltips: 'tooltip-b4e8',
+      notesTable: 'datafetchingtable-qdej',
+      noteTypeOptions: 'styledtranslatedselectfield-oy9y-optioncontainer',
+      noDataMessage: 'nodatamessage-78ud',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
     
-    // Notes section controls
-    this.noteTypeSelect = page.getByTestId('styledtranslatedselectfield-oy9y-select');
-    this.newNoteButton = page.getByTestId('component-enxe');
-    
-    // Individual note elements
+    // Special cases that need additional processing
     this.noteRows = page.getByTestId('styledtable-1dlu').locator('tbody').locator('tr');
     this.noteHeaderTexts = page.getByTestId('styledtablebody-a0jz').getByTestId('noteheadertext-e3kq');
     this.noteContents = page.getByTestId('styledtablebody-a0jz').getByTestId('notecontentcontainer-cgxg');
-    this.readMoreButton = page.getByTestId('readmorespan-dpwv');
-    this.showLessButton = page.getByTestId('showlessspan-7kuw');
-    this.editIcons = page.getByTestId('styledediticon-nmdz');
-    this.editedButtons = page.getByTestId('editedbutton-jn5i');
-    this.tooltips = page.getByTestId('tooltip-b4e8');
-    this.notesContainer= page.getByTestId('styledtablecontainer-3ttp');
-    this.noteTypeOptions = page.getByTestId('styledtranslatedselectfield-oy9y-optioncontainer');
-    this.noDataMessage = page.getByTestId('nodatamessage-78ud');
   }
 
   // Wait for the notes pane to load
   async waitForNotesPaneToLoad() {
-    await this.notesContainer.waitFor({ state: 'visible' });
+    await this.notesTable.waitFor({ state: 'visible' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
