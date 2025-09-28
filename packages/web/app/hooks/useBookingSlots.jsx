@@ -36,15 +36,23 @@ const calculateTimeSlots = (bookingSlotSettings, date) => {
  * Returns the bookable time slots for the provided date, or `null` if the date is invalid. If the
  * booking slot settings are still pending, returns `undefined`.
  */
-export const useBookingSlots = (date, type = BOOKING_SLOT_TYPES.BOOKINGS) => {
+export const useBookingSlots = (date, type = BOOKING_SLOT_TYPES.BOOKINGS, bookingSlotSettingsOverride) => {
   const { getSetting, isSettingsLoaded } = useSettings();
 
-  const bookingSlotSettings =
-    type === BOOKING_SLOT_TYPES.BOOKINGS
-      ? getSetting('appointments.bookingSlots')
-      : getSetting('locationAssignments.assignmentSlots');
+  // Prefer explicit settings passed from caller (e.g., facility selected in admin view)
+  const rawSettings = bookingSlotSettingsOverride ?? getSetting('appointments.bookingSlots');
 
-  const isPending = !isSettingsLoaded || bookingSlotSettings === undefined;
+  // For allocation time (assignments), default to 9am-5pm if settings not provided
+  const bookingSlotSettings =
+    type === BOOKING_SLOT_TYPES.ASSIGNMENTS
+      ? {
+          startTime: rawSettings?.startTime || '09:00',
+          endTime: rawSettings?.endTime || '17:00',
+          slotDuration: rawSettings?.slotDuration || '30m',
+        }
+      : rawSettings;
+
+  const isPending = !isSettingsLoaded && !bookingSlotSettingsOverride || bookingSlotSettings === undefined;
   // "Pointless" destructure so we can use primitives as `useMemo` dependencies
   const { startTime, endTime, slotDuration } = bookingSlotSettings || {};
   const slots = useMemo(

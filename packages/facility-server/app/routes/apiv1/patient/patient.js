@@ -34,6 +34,7 @@ import { PATIENT_SORT_KEYS } from './constants';
 import { getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 import { validate } from '../../../utils/validate';
 import { patientContact } from './patientContact';
+import { patientPortal } from './patientPortal';
 
 const patientRoute = express.Router();
 
@@ -78,7 +79,7 @@ patientRoute.get(
 
     await req.audit.access({
       recordId: params.id,
-      params,
+      frontEndContext: params,
       model: Patient,
     });
 
@@ -218,7 +219,7 @@ patientRoute.get(
     if (currentEncounter) {
       await req.audit.access({
         recordId: currentEncounter.id,
-        params,
+        frontEndContext: params,
         model: Encounter,
         facilityId,
       });
@@ -663,5 +664,6 @@ patientRoute.use(patientLocations);
 patientRoute.use(patientProgramRegistration);
 patientRoute.use('/programRegistration', patientProgramRegistrationConditions);
 patientRoute.use(patientContact);
+patientRoute.use(patientPortal);
 
 export { patientRoute as patient };

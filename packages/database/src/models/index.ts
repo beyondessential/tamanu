@@ -2,6 +2,7 @@ export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
+export * from './PortalUser';
 export * from './Device';
 
 export * from './Patient';
@@ -72,6 +73,7 @@ export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
+export * from './PortalSurveyAssignment';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
@@ -97,10 +99,12 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './AppointmentSchedule';
+export * from './AppointmentProcedureType';
 export * from './DocumentMetadata';
 export * from './Template';
 
 export * from './OneTimeLogin';
+export * from './PortalOneTimeToken';
 export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
