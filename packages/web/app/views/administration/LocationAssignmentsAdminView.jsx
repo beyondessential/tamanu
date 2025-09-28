@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import { AddRounded } from '@material-ui/icons';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
@@ -14,6 +14,8 @@ import { useSuggester } from '../../api';
 import { useAdminUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useAdminUserPreferencesQuery, useAdminSettingsQuery } from '../../api/queries';
 import { useTranslation } from '../../contexts/Translation';
+import { useAuth } from '../../contexts/Auth';
+import { NoPermissionScreen } from '../NoPermissionScreen';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -63,6 +65,10 @@ export const LocationAssignmentsAdminView = () => {
   const [drawerInitialValues, setDrawerInitialValues] = useState({});
 
   const { getTranslation } = useTranslation();
+  const { ability } = useAuth();
+
+  const hasListPermission = ability?.can?.('list', 'LocationSchedule');
+  const hasCreatePermission = ability?.can?.('create', 'LocationSchedule');
 
   // Facility selection persistence
   const { data: userPreferences } = useAdminUserPreferencesQuery();
@@ -151,6 +157,17 @@ export const LocationAssignmentsAdminView = () => {
     setDrawerInitialValues({});
   };
 
+  if (!hasListPermission) {
+    return (
+      <div>
+        <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60"/>
+        <Box height="calc(100vh - 107px)">
+          <NoPermissionScreen showBackgroundImage={false} />
+        </Box>
+      </div>
+    );
+  }
+
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60">
@@ -161,18 +178,20 @@ export const LocationAssignmentsAdminView = () => {
           onChange={handleFacilityChange}
           placeholder={getTranslation('admin.locationAssignments.facility.placeholder', 'Select a facility')}
         />
-        <NewAssignmentButton
-          onClick={() => openAssignmentDrawer()}
-          disabled={!selectedFacilityId}
-          data-testid="newassignmentbutton-sl1p"
-        >
-          <PlusIcon data-testid="plusicon-ufmc" />
-          <TranslatedText
-            stringId="locationAssignment.calendar.assignUser"
-            fallback="Assign user"
-            data-testid="translatedtext-feur"
-          />
-        </NewAssignmentButton>
+        {hasCreatePermission && (
+          <NewAssignmentButton
+            onClick={() => openAssignmentDrawer()}
+            disabled={!selectedFacilityId}
+            data-testid="newassignmentbutton-sl1p"
+          >
+            <PlusIcon data-testid="plusicon-ufmc" />
+            <TranslatedText
+              stringId="locationAssignment.calendar.assignUser"
+              fallback="Assign user"
+              data-testid="translatedtext-feur"
+            />
+          </NewAssignmentButton>
+        )}
       </LocationAssignmentsTopBar>
       {hasNoLocations ? (
         <EmptyStateLabel data-testid="emptystatelabel-5iov">

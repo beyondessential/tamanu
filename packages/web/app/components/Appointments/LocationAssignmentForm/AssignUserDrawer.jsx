@@ -50,6 +50,7 @@ import { toast } from 'react-toastify';
 import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
 import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
 import { OverlappingLeavesModal } from './OverlappingLeavesModal';
+import { useAuth } from '../../../contexts/Auth';
 
 const formStyles = {
   zIndex: 1000,
@@ -98,6 +99,11 @@ const StyledButton = styled(Button)`
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
+
+  const { ability } = useAuth();
+  const hasWritePermission = ability?.can?.('write', 'LocationSchedule');
+  const hasDeletePermission = ability?.can?.('delete', 'LocationSchedule');
+
   const isViewing = Boolean(initialValues?.id);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -466,7 +472,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
             />
           )
         }
-        onEdit={isViewing ? onEdit : undefined}
+        onEdit={isViewing && hasWritePermission ? onEdit : undefined}
         data-testid="drawer-au2a"
       >
         <FormGrid nested columns={1} data-testid="formgrid-71fd">
@@ -562,18 +568,22 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           )}
           {isViewing && !isEditMode ? (
             <StyledButtonRow>
-              <StyledButton
-                variant="outlined"
-                onClick={handleDeleteClick}
-                data-testid="delete-button"
-              >
-                <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
-                <TranslatedText
-                  stringId="general.action.delete"
-                  fallback="Delete"
-                  data-testid="translatedtext-delete"
-                />
-              </StyledButton>
+              <div>
+                {hasDeletePermission && (
+                  <StyledButton
+                    variant="outlined"
+                    onClick={handleDeleteClick}
+                    data-testid="delete-button"
+                  >
+                    <DeleteOutlined style={{ marginRight: '4px', fontSize: '16px' }} />
+                    <TranslatedText
+                      stringId="general.action.delete"
+                      fallback="Delete"
+                      data-testid="translatedtext-delete"
+                    />
+                  </StyledButton>
+                )}
+              </div>
               <StyledButton onClick={handleClose} data-testid="close-button">
                 <TranslatedText
                   stringId="general.action.close"
