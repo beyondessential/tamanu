@@ -13,7 +13,7 @@ import './fonts.css';
 import { App } from './App';
 import { theme } from './theme/theme';
 import { TamanuApi } from '@api/TamanuApi';
-import { SettingsProvider, TranslationProvider } from './contexts';
+import { TranslationProvider } from './contexts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,21 +28,19 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ApiContext.Provider value={new TamanuApi(__VERSION__)}>
-        <SettingsProvider>
-          <TranslationProvider>
-            <StylesProvider injectFirst>
-              <MuiLatestThemeProvider theme={theme}>
-                <MuiThemeProvider theme={theme}>
-                  <ThemeProvider theme={theme}>
-                    <CustomToastContainer />
-                    <CssBaseline />
-                    <App />
-                  </ThemeProvider>
-                </MuiThemeProvider>
-              </MuiLatestThemeProvider>
-            </StylesProvider>
-          </TranslationProvider>
-        </SettingsProvider>
+        <TranslationProvider>
+          <StylesProvider injectFirst>
+            <MuiLatestThemeProvider theme={theme}>
+              <MuiThemeProvider theme={theme}>
+                <ThemeProvider theme={theme}>
+                  <CustomToastContainer />
+                  <CssBaseline />
+                  <App />
+                </ThemeProvider>
+              </MuiThemeProvider>
+            </MuiLatestThemeProvider>
+          </StylesProvider>
+        </TranslationProvider>
       </ApiContext.Provider>
     </QueryClientProvider>
   </StrictMode>,
