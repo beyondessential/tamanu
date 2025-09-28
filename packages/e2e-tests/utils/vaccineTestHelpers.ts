@@ -1,6 +1,18 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
+import { addWeeks, startOfWeek, format } from 'date-fns';
+
+interface AddVaccineOptions {
+  specificVaccine?: string | null;
+  fillOptionalFields?: boolean;
+  viewVaccineRecord?: boolean;
+  isFollowUpVaccine?: boolean;
+  specificScheduleOption?: string;
+  specificDate?: string;
+  recordScheduledVaccine?: boolean;
+  vaccineGivenElsewhere?: string;
+}
 
 /**
  * Adds a vaccine to the patient's vaccine record and asserts the vaccine was added successfully
@@ -27,16 +39,21 @@ export async function addVaccineAndAssert(
     isFollowUpVaccine = false,
     specificScheduleOption = undefined,
     specificDate = undefined,
-  }: {
-    specificVaccine?: string | null;
-    fillOptionalFields?: boolean;
-    viewVaccineRecord?: boolean;
-    isFollowUpVaccine?: boolean;
-    specificScheduleOption?: string;
-    specificDate?: string;
-  } = {},
+    recordScheduledVaccine = false,
+    vaccineGivenElsewhere = undefined,
+  }: AddVaccineOptions = {},
 ) {
-  await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+  if (recordScheduledVaccine) {
+    if (!specificVaccine || !specificScheduleOption) {
+      throw new Error('Vaccine and schedule are required when recordScheduledVaccine is true');
+    }
+    await patientDetailsPage.patientVaccinePane?.recordScheduledVaccine(
+      specificVaccine,
+      specificScheduleOption,
+    );
+  } else {
+    await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+  }
 
   expect(patientDetailsPage.patientVaccinePane?.recordVaccineModal).toBeDefined();
 
@@ -50,6 +67,8 @@ export async function addVaccineAndAssert(
       isFollowUpVaccine,
       specificScheduleOption,
       specificDate,
+      recordScheduledVaccine,
+      vaccineGivenElsewhere,
     },
   );
 
@@ -112,10 +131,9 @@ export async function editVaccine(
   specificEdits: Partial<Vaccine> = {},
   onlyEditSpecificFields?: boolean,
 ) {
-
   const edits = {
     ...vaccine,
-    ...specificEdits
+    ...specificEdits,
   };
 
   await patientDetailsPage.patientVaccinePane?.clickEditVaccineButton(vaccine);
@@ -141,6 +159,69 @@ export async function editVaccine(
   return editedVaccine;
 }
 
+interface RecordScheduledVaccineOptions {
+  given?: boolean;
+  category?: 'Routine' | 'Catchup' | 'Campaign' | 'Other';
+  count?: number;
+}
+
+/**
+ * Records a vaccine from the scheduled vaccines table and asserts the vaccine was recorded successfully
+ * @param patientDetailsPage - The patient details page
+ * @param vaccine - The vaccine to record
+ * @param schedule - The schedule to record the vaccine on, e.g. 'Birth', '6 weeks' etc
+ * @param dueDate - The due date of the vaccine
+ * @param status - The status of the vaccine, e.g. 'Overdue', 'Upcoming' etc
+ * @param given - Optional: Whether the vaccine was given, e.g. true or false. Defaults to true if no value is provided
+ * @param specificCategory - Optional: The specific category to use, e.g. 'Routine', 'Catchup', 'Campaign', 'Other'. Defaults to 'Routine' if no value is provided
+ */
+export async function recordScheduledVaccine(
+  patientDetailsPage: PatientDetailsPage,
+  vaccine: string,
+  schedule: string,
+  dueDate: string,
+  status: string,
+  options: RecordScheduledVaccineOptions = {},
+) {
+  await patientDetailsPage.patientVaccinePane?.assertScheduledVaccinesTable(
+    vaccine,
+    schedule,
+    dueDate,
+    status,
+  );
+
+  const isGiven = options.given ?? true;
+  const category = options.category ?? 'Routine';
+  const defaultCount = isGiven ? 1 : 0;
+  const count = options.count ?? defaultCount;
+
+  await addVaccineAndAssert(patientDetailsPage, isGiven, category, count, {
+    recordScheduledVaccine: true,
+    specificVaccine: vaccine,
+    specificScheduleOption: schedule,
+    viewVaccineRecord: true,
+  });
+}
+
+/**
+ * Confirms a vaccine no longer appears in the scheduled vaccines table
+ * @param patientDetailsPage - The patient details page
+ * @param vaccine - The vaccine to confirm is no longer scheduled
+ * @param schedule - The schedule the vaccine was scheduled on, e.g. 'Birth', '6 weeks' etc
+ */
+export async function confirmVaccineNoLongerScheduled(
+  patientDetailsPage: PatientDetailsPage,
+  vaccine: string,
+  schedule: string,
+) {
+  const vaccineNoLongerScheduled =
+    await patientDetailsPage.patientVaccinePane?.confirmScheduledVaccineDoesNotExist(
+      vaccine,
+      schedule,
+    );
+  expect(vaccineNoLongerScheduled).toBe(true);
+}
+
 /**
  * Asserts the edited vaccine is reflected in the patient's vaccine record and when viewing the vaccine record modal
  * @param patientDetailsPage - The patient details page
@@ -162,4 +243,33 @@ export async function assertEditedVaccine(
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertUneditableFields(vaccine);
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertEditableFields(vaccine);
   await patientDetailsPage.patientVaccinePane?.editVaccineModal?.closeModalButton.click();
+}
+
+/**
+ * Calculates the expected week a scheduled vaccine is due
+ * @param date - The date to calculate the due date from
+ * @param unit - The unit of time to add, e.g. 'weeks' or 'months'
+ * @param unitsToAdd - The number of units to add to the date
+ * @returns The expected due date in the format of "MM/dd/yyyy"
+ */
+export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
+  const dueDate = addWeeks(date, weeksToAdd);
+
+  // Extract just the date components to avoid timezone issues
+  const year = dueDate.getFullYear();
+  const month = dueDate.getMonth();
+  const day = dueDate.getDate();
+
+  // Create a local date object for startOfWeek
+  const localDate = new Date(year, month, day);
+  const weekStart = startOfWeek(localDate, { weekStartsOn: 1 });
+
+  // Convert result back to UTC
+  const utcWeekStart = new Date(
+    Date.UTC(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate()),
+  );
+
+  const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
+
+  return formattedUtcWeekStart;
 }

@@ -63,11 +63,10 @@ surveyResponseAnswer.get(
       { notTransformDate: true },
     );
     answer.dataValues.displayAnswer = transformedAnswers[0]?.body;
-    answer.dataValues.sourceType = transformedAnswers[0]?.sourceType;
 
     await req.audit.access({
       recordId: answer.id,
-      params,
+      frontEndContext: params,
       model: models.SurveyResponseAnswer,
       facilityId,
     });
