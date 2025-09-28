@@ -59,23 +59,9 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async logDHIS2Push({ reportId, status, importCount = {}, conflicts = [], message }) {
-    const logEntry = await this.context.store.models.DHIS2PushLog.create({
-      reportId,
-      status,
-      message,
-      ...(conflicts.length > 0 && { conflicts: JSON.stringify(conflicts) }),
-      ...importCount,
-    });
-
-    const logEntryPlain = logEntry.get({ plain: true });
-
-    return pick(logEntryPlain, LOG_FIELDS);
-  }
-
   async postToDHIS2({ reportId, reportCSV }) {
-    const { idSchemes, host } = await this.context.settings.get('integrations.dhis2');
-    const { username, password, backoff } = config.integrations.dhis2;
+    const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
+    const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });

@@ -81,9 +81,14 @@ describe('DHIS2 integration processor', () => {
     await models.Setting.set('integrations.dhis2.reportIds', reportIds, SETTINGS_SCOPES.CENTRAL);
   };
 
+  const setBackoff = async backoff => {
+    await models.Setting.set('integrations.dhis2.backoff', backoff, SETTINGS_SCOPES.CENTRAL);
+  };
+
   beforeEach(async () => {
     await setHost('test host');
     await setReportIds([report.id]);
+    await setBackoff({ multiplierMs: 50, maxAttempts: 2, maxWaitMs: 10000 });
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
     await models.DHIS2PushLog.truncate();
     dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
@@ -160,14 +165,13 @@ describe('DHIS2 integration processor', () => {
     });
 
     it('should retry based on the backoff settings in config', async () => {
-      const { maxAttempts, multiplierMs } = config.integrations.dhis2.backoff;
       await dhis2IntegrationProcessor.run();
 
-      for (let i = 1; i < maxAttempts; i++) {
+      for (let i = 1; i < 2; i++) {
         expect(logSpy.warn).toHaveBeenCalledWith('fetchWithRetryBackoff: failed, retrying', {
           attempt: i,
-          maxAttempts: maxAttempts,
-          retryingIn: `${multiplierMs}ms`,
+          maxAttempts: 2,
+          retryingIn: `50ms`,
           url: expect.any(String),
           stack: expect.any(String),
         });
@@ -176,8 +180,8 @@ describe('DHIS2 integration processor', () => {
       expect(logSpy.error).toHaveBeenCalledWith(
         'fetchWithRetryBackoff: failed, max retries exceeded',
         {
-          attempt: maxAttempts,
-          maxAttempts: maxAttempts,
+          attempt: 2,
+          maxAttempts: 2,
           url: expect.any(String),
           stack: expect.any(String),
         },
