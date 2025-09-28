@@ -29,6 +29,7 @@ export * from './DisplayIdField';
 export * from './DOBFields';
 export * from './LocationField';
 export * from './DynamicSelectField';
+export * from './PatientDataDisplayField';
 
 // form helpers
 export * from './Form';
