@@ -45,18 +45,12 @@ sources:
           - name: imported
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__imported') }}"
-            data_tests:
-              - not_null
           - name: updated
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__updated') }}"
-            data_tests:
-              - not_null
           - name: deleted
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__deleted') }}"
-            data_tests:
-              - not_null
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('logs__generic__updated_at_sync_tick') }} in dhis2_pushes."
@@ -65,11 +59,11 @@ sources:
           - name: ignored
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__ignored') }}"
-            data_tests:
-              - not_null
           - name: updated_at
             data_type: timestamp with time zone
             description: "{{ doc('logs__dhis2_pushes__updated_at') }}"
+            data_tests:
+              - not_null
           - name: deleted_at
             data_type: timestamp with time zone
             description: "{{ doc('logs__dhis2_pushes__deleted_at') }}"
