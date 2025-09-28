@@ -24,7 +24,13 @@ export const getUser = async (api: APIRequestContext): Promise<User> => {
   return user.json();
 };
 
-export const createPatient = async (api: APIRequestContext, page: Page): Promise<Patient> => {
+export const createPatient = async (
+  api: APIRequestContext,
+  page: Page,
+  options: Partial<{
+    dateOfBirth: Date;
+  }> = {},
+): Promise<Patient> => {
   const patientUrl = constructFacilityUrl('/api/patient');
 
   const facilityId = await getItemFromLocalStorage(page, 'facilityId');
@@ -32,7 +38,7 @@ export const createPatient = async (api: APIRequestContext, page: Page): Promise
 
   const patientData = {
     birthFacilityId: null,
-    dateOfBirth: faker.date.birthdate(),
+    dateOfBirth: options.dateOfBirth || faker.date.birthdate(),
     displayId: generateNHN(),
     facilityId,
     firstName: faker.person.firstName(),
@@ -116,7 +122,7 @@ export const createTriageEncounterViaApi = async (
   const triageData = {
     chiefComplaintId: 'triage-Abdominalpaindistension',
     facilityId,
-    locationId: 'location-EDBed1',
+    locationId: 'location-EDBed1-tamanu',
     patientId,
     practitionerId: user.id,
     score: '1',
@@ -157,7 +163,7 @@ export const createClinicEncounterViaApi = async (
     departmentId: 'department-GeneralMedicine',
     encounterType: 'clinic',
     examinerId: user.id,
-    locationId: 'location-EDBed1',
+    locationId: 'location-EDBed1-tamanu',
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
