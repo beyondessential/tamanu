@@ -4,6 +4,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { SendStatusToMetaServer } from '@tamanu/shared/tasks/SendStatusToMetaServer';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { PortalCommunicationProcessor } from './PortalCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
@@ -39,6 +40,7 @@ export async function startScheduledTasks(context) {
     OutpatientDischarger,
     DeceasedPatientDischarger,
     PatientEmailCommunicationProcessor,
+    PortalCommunicationProcessor,
     ReportRequestProcessor,
     CertificateNotificationProcessor,
     IPSRequestProcessor,
