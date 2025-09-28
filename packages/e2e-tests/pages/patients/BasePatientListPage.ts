@@ -15,54 +15,65 @@ export interface BaseSearchCriteria {
 
 export abstract class BasePatientListPage extends BasePage {
   readonly patientTable: PatientTable;
-  searchTitle: Locator;
-  searchForm: Locator;
-  nhnInput: Locator;
-  firstNameInput: Locator;
-  lastNameInput: Locator;
-  hideAdvancedSearchBtn: Locator;
-  searchButton: Locator;
-  clearButton: Locator;
-  tableContainer: Locator;
-  table: Locator;
-  tableHead: Locator;
-  tableBody: Locator;
-  tableFooter: Locator;
-  tableRows: Locator;
-  downloadButton: Locator;
-  pageRecordCount: Locator;
-  pagination: Locator;
-  pageRecordCountDropdown: Locator;
-  previousPageButton: Locator;
-  nextPageButton: Locator;
-  pageButtons: Locator;
-  sortButtons: Locator;
+  searchTitle!: Locator;
+  searchForm!: Locator;
+  nhnInput!: Locator;
+  firstNameInput!: Locator;
+  lastNameInput!: Locator;
+  hideAdvancedSearchBtn!: Locator;
+  searchButton!: Locator;
+  clearButton!: Locator;
+  tableContainer!: Locator;
+  table!: Locator;
+  tableHead!: Locator;
+  tableBody!: Locator;
+  tableFooter!: Locator;
+  tableRows!: Locator;
+  downloadButton!: Locator;
+  pageRecordCount!: Locator;
+  pagination!: Locator;
+  pageRecordCountDropdown!: Locator;
+  previousPageButton!: Locator;
+  nextPageButton!: Locator;
+  pageButtons!: Locator;
+  sortButtons!: Locator;
   _patientData?: Patient;
 
   constructor(page: Page, url: string) {
     super(page, url);
     this.patientTable = new PatientTable(page);
-    this.searchTitle = page.getByTestId('searchtabletitle-09n6'); // Default, can be overridden
-    this.searchForm = page.getByTestId('styledform-5o5i');
-    this.nhnInput = page.getByTestId('localisedfield-4cb5-input');
-    this.firstNameInput = page.getByTestId('localisedfield-0m33-input');
-    this.lastNameInput = page.getByTestId('localisedfield-26d7-input');
-    this.hideAdvancedSearchBtn = page.getByTestId('iconbutton-zrkv');
-    this.searchButton = page.getByTestId('searchbutton-nt24');
-    this.clearButton = page.getByTestId('clearbutton-z9x3');
-    this.tableContainer = page.getByTestId('styledtablecontainer-3ttp');
-    this.table = page.getByTestId('styledtable-1dlu');
-    this.tableHead = page.getByTestId('styledtablehead-ays3');
-    this.tableBody = page.getByTestId('styledtablebody-a0jz');
-    this.tableFooter = page.getByTestId('styledtablefooter-0eff'); // Default, can be overridden
+    
+    // TestId mapping for base patient list page elements
+    const testIds = {
+      searchTitle: 'searchtabletitle-09n6',
+      searchForm: 'styledform-5o5i',
+      nhnInput: 'localisedfield-4cb5-input',
+      firstNameInput: 'localisedfield-0m33-input',
+      lastNameInput: 'localisedfield-26d7-input',
+      hideAdvancedSearchBtn: 'iconbutton-zrkv',
+      searchButton: 'searchbutton-nt24',
+      clearButton: 'clearbutton-z9x3',
+      tableContainer: 'styledtablecontainer-3ttp',
+      table: 'styledtable-1dlu',
+      tableHead: 'styledtablehead-ays3',
+      tableBody: 'styledtablebody-a0jz',
+      tableFooter: 'styledtablefooter-0eff',
+      downloadButton: 'downloadbutton-0eff',
+      pageRecordCount: 'pagerecordcount-m8ne',
+      pagination: 'styledpagination-fbr1',
+      pageRecordCountDropdown: 'styledselectfield-lunn',
+      previousPageButton: 'paginationitem-hcui',
+      nextPageButton: 'paginationitem-d791',
+      pageButtons: 'paginationitem-c5vg',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.tableRows = this.tableBody.locator('tr');
-    this.downloadButton = page.getByTestId('downloadbutton-0eff'); // Default, can be overridden
-    this.pageRecordCount = page.getByTestId('pagerecordcount-m8ne');
-    this.pagination = page.getByTestId('styledpagination-fbr1');
-    this.pageRecordCountDropdown = page.getByTestId('styledselectfield-lunn');
-    this.previousPageButton = page.getByTestId('paginationitem-hcui');
-    this.nextPageButton = page.getByTestId('paginationitem-d791');
-    this.pageButtons = page.getByTestId('paginationitem-c5vg');
     this.sortButtons = page.locator('[data-testid^="tablesortlabel-"]');
   }
 

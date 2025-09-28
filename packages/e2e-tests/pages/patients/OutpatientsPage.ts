@@ -11,22 +11,30 @@ export interface OutpatientSearchCriteria extends BaseSearchCriteria {
 }
 
 export class OutpatientsPage extends BasePatientListPage {
-  readonly areaInput: Locator;
-  readonly departmentInput: Locator;
-  readonly clinicianInput: Locator;
+  readonly areaInput!: Locator;
+  readonly departmentInput!: Locator;
+  readonly clinicianInput!: Locator;
 
   constructor(page: Page) {
     super(page, routes.patients.outpatients);
-    // Override specific locators for outpatients
-    this.searchTitle = page.getByTestId('searchtabletitle-09n6');
-    this.tableFooter = page.getByTestId('styledtablefooter-0eff');
-    this.tableRows = this.tableBody.locator('tr');
-    this.downloadButton = page.getByTestId('downloadbutton-0eff');
     
-    // Outpatient-specific locators
-    this.areaInput = page.getByTestId('localisedfield-p72m-input');
-    this.departmentInput = page.getByTestId('localisedfield-50wl-input');
-    this.clinicianInput = page.getByTestId('localisedfield-8w55-input');
+    // TestId mapping for OutpatientsPage elements
+    const testIds = {
+      searchTitle: 'searchtabletitle-09n6',
+      tableFooter: 'styledtablefooter-0eff',
+      downloadButton: 'downloadbutton-0eff',
+      areaInput: 'localisedfield-p72m-input',
+      departmentInput: 'localisedfield-50wl-input',
+      clinicianInput: 'localisedfield-8w55-input',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
+    this.tableRows = this.tableBody.locator('tr');
   }
 
   // Implement abstract method from base class

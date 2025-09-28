@@ -126,39 +126,39 @@ test.describe('outpatient table tests', () => {
 
   test.describe('sorting', () => {
 
-  test('Sort table by NHN in descending order', async ({ outpatientsPage }) => {
+  test('Sort table by NHN in descending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
     await outpatientsPage.sortByNHN();
     await outpatientsPage.patientTable.waitForTableToLoad();
     await outpatientsPage.validateSortOrder(false, 'displayId');
   });
 
-  test('Sort table by NHN in ascending order', async ({ outpatientsPage }) => {
+  test('Sort table by NHN in ascending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
     await outpatientsPage.sortByNHN();
     await outpatientsPage.sortByNHN();
     await outpatientsPage.patientTable.waitForTableToLoad();
     await outpatientsPage.validateSortOrder(true, 'displayId');
   });
 
-  test('Sort table by First name in descending order', async ({ outpatientsPage }) => {
+  test('Sort table by First name in descending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
     await outpatientsPage.sortByFirstName();
     await outpatientsPage.patientTable.waitForTableToLoad();
     await outpatientsPage.validateSortOrder(false, 'firstName');
   });
 
-  test('Sort table by First name in ascending order', async ({ outpatientsPage }) => {
+  test('Sort table by First name in ascending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
     await outpatientsPage.sortByFirstName();
     await outpatientsPage.sortByFirstName();
     await outpatientsPage.patientTable.waitForTableToLoad();
     await outpatientsPage.validateSortOrder(true, 'firstName');
   });
 
-  test('Sort table by Last name in descending order', async ({ outpatientsPage }) => {
+  test('Sort table by Last name in descending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
     await outpatientsPage.sortByLastName();
     await outpatientsPage.patientTable.waitForTableToLoad();
     await outpatientsPage.validateSortOrder(false, 'lastName');
   });
 
-    test('Sort table by Last name in ascending order', async ({ outpatientsPage }) => {
+    test('Sort table by Last name in ascending order', async ({ outpatientsPage, newPatientWithClinicAdmission: _newPatientWithClinicAdmission }) => {
       await outpatientsPage.sortByLastName();
       await outpatientsPage.sortByLastName();
       await outpatientsPage.patientTable.waitForTableToLoad();

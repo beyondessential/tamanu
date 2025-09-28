@@ -154,52 +154,52 @@ test.describe('inpatient table tests', () => {
 
   test.describe('sorting', () => {
 
-  test('Sort table by NHN in descending order', async ({ inpatientsPage }) => {
+  test('Sort table by NHN in descending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByNHN();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(false, 'displayId');
   });
 
-  test('Sort table by NHN in ascending order', async ({ inpatientsPage }) => {
+  test('Sort table by NHN in ascending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByNHN();
     await inpatientsPage.sortByNHN();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(true, 'displayId');
   });
 
-  test('Sort table by First name in descending order', async ({ inpatientsPage }) => {
+  test('Sort table by First name in descending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByFirstName();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(false, 'firstName');
   });
 
-  test('Sort table by First name in ascending order', async ({ inpatientsPage }) => {
+  test('Sort table by First name in ascending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByFirstName();
     await inpatientsPage.sortByFirstName();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(true, 'firstName');
   });
 
-  test('Sort table by Last name in descending order', async ({ inpatientsPage }) => {
+  test('Sort table by Last name in descending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByLastName();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(false, 'lastName');
   });
 
-  test('Sort table by Last name in ascending order', async ({ inpatientsPage }) => {
+  test('Sort table by Last name in ascending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByLastName();
     await inpatientsPage.sortByLastName();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(true, 'lastName');
   });
 
-  test('Sort table by DOB in descending order', async ({ inpatientsPage }) => {
+  test('Sort table by DOB in descending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByDOB();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateDateSortOrder(false);
   });
 
-  test('Sort table by DOB in ascending order', async ({ inpatientsPage }) => {
+  test('Sort table by DOB in ascending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortByDOB();
     await inpatientsPage.sortByDOB();
     await inpatientsPage.patientTable.waitForTableToLoad();
@@ -207,14 +207,14 @@ test.describe('inpatient table tests', () => {
   });
   
   //sorting by sex is opposite of other sorting in the app, with one click it is sorting in ascending.
-  test('Sort table by Sex in ascending order', async ({ inpatientsPage }) => {
+  test('Sort table by Sex in ascending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await inpatientsPage.sortBySex();
     await inpatientsPage.patientTable.waitForTableToLoad();
     await inpatientsPage.validateSortOrder(true, 'sex');
   });
 
 //sorting by sex is opposite of other sorting in the app, with two clicks it is sorting in descending.
-    test('Sort table by Sex in descending order', async ({ inpatientsPage }) => {
+    test('Sort table by Sex in descending order', async ({ inpatientsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
       await inpatientsPage.sortBySex();
       await inpatientsPage.sortBySex();
       await inpatientsPage.patientTable.waitForTableToLoad();

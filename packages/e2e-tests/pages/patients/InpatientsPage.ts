@@ -12,24 +12,32 @@ export interface InpatientSearchCriteria extends BaseSearchCriteria {
 }
 
 export class InpatientsPage extends BasePatientListPage {
-  readonly areaInput: Locator;
-  readonly departmentInput: Locator;
-  readonly clinicianInput: Locator;
-  readonly dietInput: Locator;
+  readonly areaInput!: Locator;
+  readonly departmentInput!: Locator;
+  readonly clinicianInput!: Locator;
+  readonly dietInput!: Locator;
 
   constructor(page: Page) {
     super(page, routes.patients.inpatients);
-    // Override specific locators for inpatients
-    this.searchTitle = page.getByTestId('searchtabletitle-v9md');
-    this.tableFooter = page.getByTestId('styledtablefooter-7pgn');
-    this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.downloadButton = page.getByTestId('download-data-button');
     
-    // Inpatient-specific locators
-    this.areaInput = page.getByTestId('localisedfield-p72m-input');
-    this.departmentInput = page.getByTestId('localisedfield-50wl-input');
-    this.clinicianInput = page.getByTestId('localisedfield-8w55-input');
-    this.dietInput = page.getByTestId('localisedfield-gzn5-input');
+    // TestId mapping for InpatientsPage elements
+    const testIds = {
+      searchTitle: 'searchtabletitle-v9md',
+      tableFooter: 'styledtablefooter-7pgn',
+      downloadButton: 'download-data-button',
+      areaInput: 'localisedfield-p72m-input',
+      departmentInput: 'localisedfield-50wl-input',
+      clinicianInput: 'localisedfield-8w55-input',
+      dietInput: 'localisedfield-gzn5-input',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
+    this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
   }
 
   async clickOnFirstRow() {

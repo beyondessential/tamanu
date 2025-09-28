@@ -19,94 +19,116 @@ export interface PatientSearchCriteria extends BaseSearchCriteria {
 
 export class AllPatientsPage extends BasePatientListPage {
   readonly recentlyViewedPatientsList: RecentlyViewedPatientsList;
-  readonly addNewPatientBtn: Locator;
-  readonly NewPatientFirstName: Locator;
-  readonly NewPatientLastName: Locator;
-  readonly NewPatientDOBtxt: Locator;
-  readonly NewPatientMaleChk: Locator;
-  readonly NewPatientFemaleChk: Locator;
-  readonly NewPatientNHN: Locator;
-  readonly NewPatientConfirmBtn: Locator;
-  readonly nhnSearchInput: Locator;
-  readonly patientSearchButton: Locator;
-  readonly patientListingsHeader: Locator;
-  readonly searchResultsPagination: Locator;
-  readonly searchResultsPaginationOneOfOne: Locator;
-  readonly nhnResultCell: Locator;
-  readonly secondNHNResultCell: Locator;
-  readonly NHNInput: Locator;
-  readonly DOBInput: Locator;
-  readonly culturalNameInput: Locator;
-  readonly villageSearchBox: Locator;
-  readonly newPatientVillageSearchBox: Locator;
-  readonly includeDeceasedChk: Locator;
-  readonly advanceSearchIcon: Locator;
-  readonly searchBtn: Locator;
-  readonly villageSuggestionList: Locator;
-  readonly sexDropDownIcon: Locator;
-  readonly sexDropDownCrossIcon: Locator;
-  readonly DOBFromTxt: Locator;
-  readonly DOBToTxt: Locator;
-  readonly clearSearchBtn: Locator;
-  readonly patientPageRecordCount25: Locator;
-  readonly patientPageRecordCount50: Locator;
-  readonly patientPage2: Locator;
-  readonly firstNameSortButton: Locator;
-  readonly lastNameSortButton: Locator;
-  readonly culturalNameSortButton: Locator;
-  readonly villageSortButton: Locator;
-  readonly dobSortButton: Locator;
+  readonly addNewPatientBtn!: Locator;
+  readonly NewPatientFirstName!: Locator;
+  readonly NewPatientLastName!: Locator;
+  readonly NewPatientDOBtxt!: Locator;
+  readonly NewPatientMaleChk!: Locator;
+  readonly NewPatientFemaleChk!: Locator;
+  readonly NewPatientNHN!: Locator;
+  readonly NewPatientConfirmBtn!: Locator;
+  readonly nhnSearchInput!: Locator;
+  readonly patientSearchButton!: Locator;
+  readonly patientListingsHeader!: Locator;
+  readonly searchResultsPagination!: Locator;
+  readonly searchResultsPaginationOneOfOne!: Locator;
+  readonly nhnResultCell!: Locator;
+  readonly secondNHNResultCell!: Locator;
+  readonly NHNInput!: Locator;
+  readonly DOBInput!: Locator;
+  readonly culturalNameInput!: Locator;
+  readonly villageSearchBox!: Locator;
+  readonly newPatientVillageSearchBox!: Locator;
+  readonly includeDeceasedChk!: Locator;
+  readonly advanceSearchIcon!: Locator;
+  readonly searchBtn!: Locator;
+  readonly villageSuggestionList!: Locator;
+  readonly sexDropDownIcon!: Locator;
+  readonly sexDropDownCrossIcon!: Locator;
+  readonly DOBFromTxt!: Locator;
+  readonly DOBToTxt!: Locator;
+  readonly clearSearchBtn!: Locator;
+  readonly patientPageRecordCount25!: Locator;
+  readonly patientPageRecordCount50!: Locator;
+  readonly patientPage2!: Locator;
+  readonly firstNameSortButton!: Locator;
+  readonly lastNameSortButton!: Locator;
+  readonly culturalNameSortButton!: Locator;
+  readonly villageSortButton!: Locator;
+  readonly dobSortButton!: Locator;
 
   constructor(page: Page) {
     super(page, routes.patients.all);
     this.recentlyViewedPatientsList = new RecentlyViewedPatientsList(page);
     
-    // Override specific locators for all patients - using correct test IDs from HTML
-    this.searchTitle = page.getByTestId('searchtabletitle-09n6'); // Default from base
-    this.tableFooter = page.getByTestId('styledtablefooter-0eff'); // Default from base
+    // TestId mapping for AllPatients page elements
+    const testIds = {
+      // Override base locators with AllPatients-specific test IDs
+      searchTitle: 'searchtabletitle-09n6',
+      tableFooter: 'styledtablefooter-0eff',
+      downloadButton: 'downloadbutton-0eff',
+      hideAdvancedSearchBtn: 'iconbutton-zrkv',
+      searchButton: 'searchbutton-nt24',
+      clearButton: 'clearbutton-z9x3',
+      nhnInput: 'localisedfield-dzml-input',
+      firstNameInput: 'localisedfield-i9br-input',
+      lastNameInput: 'localisedfield-ngsn-input',
+      
+      // AllPatients-specific locators
+      addNewPatientBtn: 'component-enxe',
+      NewPatientFirstName: 'localisedfield-cqua-input',
+      NewPatientLastName: 'localisedfield-41un-input',
+      NewPatientDOBtxt: 'localisedfield-oafl-input',
+      NewPatientMaleChk: 'controllabel-kkx2-male',
+      NewPatientFemaleChk: 'controllabel-kkx2-female',
+      NewPatientNHN: 'id-8niy',
+      NewPatientConfirmBtn: 'formsubmitbutton-ygc6',
+      searchResultsPagination: 'pagerecordcount-m8ne',
+      nhnResultCell: 'styledtablecell-2gyy-0-displayId',
+      secondNHNResultCell: 'styledtablecell-2gyy-1-displayId',
+      NHNInput: 'localisedfield-dzml-input',
+      DOBInput: 'field-qk60-input',
+      culturalNameInput: 'localisedfield-epbq-input',
+      villageSearchBox: 'villagelocalisedfield-mcri-input',
+      newPatientVillageSearchBox: 'localisedfield-rpma-input',
+      includeDeceasedChk: 'field-ngy7-controlcheck',
+      advanceSearchIcon: 'iconbutton-zrkv',
+      searchBtn: 'searchbutton-nt24',
+      villageSuggestionList: 'villagelocalisedfield-mcri-suggestionslist',
+      sexDropDownIcon: 'sexlocalisedfield-7lm9-expandmoreicon-h115',
+      sexDropDownCrossIcon: 'stylediconbutton-6vh3',
+      DOBFromTxt: 'joinedfield-swzm-input',
+      DOBToTxt: 'field-aax5-input',
+      clearSearchBtn: 'clearbutton-z9x3',
+      patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
+      patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
+      patientPage2: 'paginationitem-c5vg',
+      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
+      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
+      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
+      villageSortButton: 'tablesortlabel-0qxx-villageName',
+      dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Override specific locators that need additional processing
     this.tableRows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.downloadButton = page.getByTestId('downloadbutton-0eff'); // Default from base
-    this.hideAdvancedSearchBtn = page.getByTestId('iconbutton-zrkv'); // Same as advanceSearchIcon
-    this.searchButton = page.getByTestId('searchbutton-nt24'); // Same as searchBtn
-    this.clearButton = page.getByTestId('clearbutton-z9x3'); // Same as clearSearchBtn
-    
-    // Override base search field locators with correct AllPatients test IDs
-    this.nhnInput = page.getByTestId('localisedfield-dzml-input');
-    this.firstNameInput = page.getByTestId('localisedfield-i9br-input');
-    this.lastNameInput = page.getByTestId('localisedfield-ngsn-input');
-    
-    // AllPatients-specific locators
-    this.addNewPatientBtn = page.getByTestId('component-enxe');
-    this.NewPatientFirstName = page.getByTestId('localisedfield-cqua-input');
-    this.NewPatientLastName = page.getByTestId('localisedfield-41un-input');
     this.NewPatientDOBtxt = page.getByTestId('localisedfield-oafl-input').getByRole('textbox');
-    this.NewPatientMaleChk = page.getByTestId('controllabel-kkx2-male');
-    this.NewPatientFemaleChk = page.getByTestId('controllabel-kkx2-female');
-    this.NewPatientNHN = page.getByTestId('id-8niy');
-    this.NewPatientConfirmBtn = page.getByTestId('formsubmitbutton-ygc6');
     this.nhnSearchInput = page.getByRole('textbox', { name: 'NHN' });
     this.patientSearchButton = page.getByRole('button', { name: 'Search', exact: true });
     this.patientListingsHeader = page.getByRole('heading', { name: 'Patient listing' });
-    this.searchResultsPagination = page.getByTestId('pagerecordcount-m8ne');
     this.searchResultsPaginationOneOfOne = page
       .getByTestId('pagerecordcount-m8ne')
       .filter({ hasText: '1–1 of 1' });
-    this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
-    this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
-    this.NHNInput = page.getByTestId('localisedfield-dzml-input');
     this.DOBInput = page.getByTestId('field-qk60-input').locator('input[type="date"]');
-    this.culturalNameInput = page.getByTestId('localisedfield-epbq-input');
-    this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input');
     this.newPatientVillageSearchBox = page.getByTestId('localisedfield-rpma-input').locator('input');
-    this.includeDeceasedChk = page.getByTestId('field-ngy7-controlcheck');
-    this.advanceSearchIcon = page.getByTestId('iconbutton-zrkv');
-    this.searchBtn = page.getByTestId('searchbutton-nt24');
     this.villageSuggestionList = page.getByTestId('villagelocalisedfield-mcri-suggestionslist').locator('ul').locator('li');
-    this.sexDropDownIcon = page.getByTestId('sexlocalisedfield-7lm9-expandmoreicon-h115');
-    this.sexDropDownCrossIcon = page.getByTestId('stylediconbutton-6vh3');
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
-    this.clearSearchBtn = page.getByTestId('clearbutton-z9x3');
     this.patientPageRecordCount25 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('25');
     this.patientPageRecordCount50 = page.getByTestId('styledmenuitem-fkrw-undefined').getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2');

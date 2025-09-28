@@ -10,52 +10,90 @@ type PatientTableRow = Locator & {
 
 export class PatientTable {
   readonly page: Page;
-  readonly table: Locator;
-  readonly loadingCell: Locator;
-  readonly rows: Locator;
-  readonly nhnResultCell: Locator;
-  readonly secondNHNResultCell: Locator;
-  readonly villageSuggestionList: Locator;
-  readonly searchBtn: Locator;
-  readonly clearSearchBtn: Locator;
-  readonly firstNameSortButton: Locator;
-  readonly lastNameSortButton: Locator;
-  readonly culturalNameSortButton: Locator;
-  readonly villageSortButton: Locator;
-  readonly dobSortButton: Locator;
-  readonly NHNTxt: Locator;
-  readonly firstNameTxt: Locator;
-  readonly lastNameTxt: Locator;
-  readonly DOBTxt: Locator;
-  readonly CulturalNameTxt: Locator;
-  readonly villageSearchBox: Locator;
-  readonly includeDeceasedChk: Locator;
-  readonly advanceSearchIcon: Locator;
-  readonly sexDropDownIcon: Locator;
-  readonly sexDropDownCrossIcon: Locator;
-  readonly DOBFromTxt: Locator;
-  readonly DOBToTxt: Locator;
-  readonly downloadBtn: Locator;
-  readonly pageRecordCountDropDown: Locator;
-  readonly patientPageRecordCount25: Locator;
-  readonly patientPageRecordCount50: Locator;
-  readonly patientPage2: Locator;
-  readonly pageRecordCount: Locator;
-  readonly pageRecordCountDropDownOptions: Locator;
+  readonly table!: Locator;
+  readonly loadingCell!: Locator;
+  readonly rows!: Locator;
+  readonly nhnResultCell!: Locator;
+  readonly secondNHNResultCell!: Locator;
+  readonly villageSuggestionList!: Locator;
+  readonly searchBtn!: Locator;
+  readonly clearSearchBtn!: Locator;
+  readonly firstNameSortButton!: Locator;
+  readonly lastNameSortButton!: Locator;
+  readonly culturalNameSortButton!: Locator;
+  readonly villageSortButton!: Locator;
+  readonly dobSortButton!: Locator;
+  readonly NHNTxt!: Locator;
+  readonly firstNameTxt!: Locator;
+  readonly lastNameTxt!: Locator;
+  readonly DOBTxt!: Locator;
+  readonly CulturalNameTxt!: Locator;
+  readonly villageSearchBox!: Locator;
+  readonly includeDeceasedChk!: Locator;
+  readonly advanceSearchIcon!: Locator;
+  readonly sexDropDownIcon!: Locator;
+  readonly sexDropDownCrossIcon!: Locator;
+  readonly DOBFromTxt!: Locator;
+  readonly DOBToTxt!: Locator;
+  readonly downloadBtn!: Locator;
+  readonly pageRecordCountDropDown!: Locator;
+  readonly patientPageRecordCount25!: Locator;
+  readonly patientPageRecordCount50!: Locator;
+  readonly patientPage2!: Locator;
+  readonly pageRecordCount!: Locator;
+  readonly pageRecordCountDropDownOptions!: Locator;
 
   constructor(page: Page) {
     this.page = page;
+    
+    // TestId mapping for PatientTable elements
+    const testIds = {
+      loadingCell: 'statustablecell-rwkq',
+      rows: 'styledtablebody-a0jz',
+      nhnResultCell: 'styledtablecell-2gyy-0-displayId',
+      secondNHNResultCell: 'styledtablecell-2gyy-1-displayId',
+      villageSuggestionList: 'villagelocalisedfield-mcri-suggestionslist',
+      searchBtn: 'searchbutton-nt24',
+      clearSearchBtn: 'clearbutton-z9x3',
+      firstNameSortButton: 'tablesortlabel-0qxx-firstName',
+      lastNameSortButton: 'tablesortlabel-0qxx-lastName',
+      culturalNameSortButton: 'tablesortlabel-0qxx-culturalName',
+      villageSortButton: 'tablesortlabel-0qxx-villageName',
+      dobSortButton: 'tablesortlabel-0qxx-dateOfBirth',
+      NHNTxt: 'localisedfield-dzml-input',
+      firstNameTxt: 'localisedfield-i9br-input',
+      lastNameTxt: 'localisedfield-ngsn-input',
+      DOBTxt: 'field-qk60-input',
+      CulturalNameTxt: 'localisedfield-epbq-input',
+      villageSearchBox: 'villagelocalisedfield-mcri-input',
+      includeDeceasedChk: 'field-ngy7-controlcheck',
+      advanceSearchIcon: 'iconbutton-zrkv',
+      sexDropDownIcon: 'sexlocalisedfield-7lm9-expandmoreicon-h115',
+      sexDropDownCrossIcon: 'stylediconbutton-6vh3',
+      DOBFromTxt: 'joinedfield-swzm-input',
+      DOBToTxt: 'field-aax5-input',
+      downloadBtn: 'download-data-button',
+      pageRecordCountDropDown: 'styledselectfield-lunn',
+      pageRecordCountDropDownOptions: 'styledmenuitem-fkrw-undefined',
+      patientPageRecordCount25: 'styledmenuitem-fkrw-undefined',
+      patientPageRecordCount50: 'styledmenuitem-fkrw-undefined',
+      patientPage2: 'paginationitem-c5vg',
+      pageRecordCount: 'pagerecordcount-m8ne',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.table = page.getByRole('table');
     this.loadingCell = page.getByTestId('statustablecell-rwkq').filter({ hasText: 'Loading' });
     this.rows = page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.nhnResultCell = page.getByTestId('styledtablecell-2gyy-0-displayId');
-    this.secondNHNResultCell = page.getByTestId('styledtablecell-2gyy-1-displayId');
     this.villageSuggestionList = page
       .getByTestId('villagelocalisedfield-mcri-suggestionslist')
       .locator('ul')
       .locator('li');
-    this.searchBtn = page.getByTestId('searchbutton-nt24');
-    this.clearSearchBtn = page.getByTestId('clearbutton-z9x3');
     this.firstNameSortButton = page.getByTestId('tablesortlabel-0qxx-firstName').locator('svg');
     this.lastNameSortButton = page.getByTestId('tablesortlabel-0qxx-lastName').locator('svg');
     this.culturalNameSortButton = page
@@ -63,22 +101,11 @@ export class PatientTable {
       .locator('svg');
     this.villageSortButton = page.getByTestId('tablesortlabel-0qxx-villageName').locator('svg');
     this.dobSortButton = page.getByTestId('tablesortlabel-0qxx-dateOfBirth').locator('svg');
-    this.NHNTxt = page.getByTestId('localisedfield-dzml-input');
-    this.firstNameTxt = page.getByTestId('localisedfield-i9br-input');
-    this.lastNameTxt = page.getByTestId('localisedfield-ngsn-input');
     this.DOBTxt = page.getByTestId('field-qk60-input').locator('input[type="date"]');
-    this.CulturalNameTxt = page.getByTestId('localisedfield-epbq-input');
     this.villageSearchBox = page.getByTestId('villagelocalisedfield-mcri-input').locator('input');
-    this.includeDeceasedChk = page.getByTestId('field-ngy7-controlcheck');
-    this.advanceSearchIcon = page.getByTestId('iconbutton-zrkv');
-    this.sexDropDownIcon = page.getByTestId('sexlocalisedfield-7lm9-expandmoreicon-h115');
-    this.sexDropDownCrossIcon = page.getByTestId('stylediconbutton-6vh3');
     this.DOBFromTxt = page.getByTestId('joinedfield-swzm-input').locator('input[type="date"]');
     this.DOBToTxt = page.getByTestId('field-aax5-input').locator('input[type="date"]');
-    this.downloadBtn = page.getByTestId('download-data-button');
     this.pageRecordCountDropDown = page.getByTestId('styledselectfield-lunn').locator('div');
-    this.pageRecordCountDropDownOptions = page
-      .getByTestId('styledmenuitem-fkrw-undefined');
     this.patientPageRecordCount25 = page
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('25');
@@ -86,7 +113,6 @@ export class PatientTable {
       .getByTestId('styledmenuitem-fkrw-undefined')
       .getByText('50');
     this.patientPage2 = page.getByTestId('paginationitem-c5vg').getByText('2', { exact: true });
-    this.pageRecordCount = page.getByTestId('pagerecordcount-m8ne');
   }
 
   async waitForTableToLoad() {
