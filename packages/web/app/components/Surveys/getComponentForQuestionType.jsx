@@ -8,13 +8,13 @@ import {
   BaseSelectField,
   InstructionField,
   PhotoField,
+  PatientDataDisplayField,
 } from '@tamanu/ui-components';
 import {
   DateField,
   DateTimeField,
   NullableBooleanField,
   NumberField,
-  PatientDataDisplayField,
   SurveyResponseSelectField,
   ChartInstanceNameField,
   SurveyAnswerField,
