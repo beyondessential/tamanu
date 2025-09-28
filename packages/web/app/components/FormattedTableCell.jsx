@@ -97,11 +97,11 @@ export const DateHeadCell = React.memo(({ value }) => (
 export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
-    <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-3knb">
-      <CellContainer
-        onClick={onClick}
-        data-testid="cellcontainer-slh4"
-      >
+    <TableTooltip
+      title={DateDisplay.stringFormat(value, formatLong)}
+      data-testid="tabletooltip-3knb"
+    >
+      <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
         <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
         <div>{DateDisplay.stringFormat(value, formatTime)}</div>
       </CellContainer>
@@ -135,6 +135,7 @@ export const LimitedLinesCell = ({
   isOneLine = false,
   disableTooltip = false,
   isEdited = false,
+  ...tooltipProps
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -179,6 +180,7 @@ export const LimitedLinesCell = ({
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         data-testid="tabletooltip-fs9r"
+        {...tooltipProps}
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>

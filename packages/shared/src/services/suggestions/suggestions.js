@@ -157,7 +157,7 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn }) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn, includeBuilder }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -168,8 +168,11 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn 
       } = req;
       req.checkPermission('list', modelName);
 
+      const include = includeBuilder?.(req);
+
       const record = await models[modelName].findOne({
         where: { id: params.id },
+        include,
         bind: {
           language,
         },

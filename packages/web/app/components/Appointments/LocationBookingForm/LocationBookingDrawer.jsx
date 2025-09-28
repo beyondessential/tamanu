@@ -134,7 +134,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
-  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [selectedPatientId, setSelectedPatientId] = useState(initialValues?.patientId ?? null);
   const [selectedClinicianId, setSelectedClinicianId] = useState(null);
   const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -145,6 +145,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
+  const additionalClinicianSuggester = useSuggester('practitioner');
   const bookingTypeSuggester = useSuggester('bookingType');
   const procedureTypeSuggester = useSuggester('procedureType');
   const encounterSuggester = useSuggester('encounter', {
@@ -159,9 +160,9 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         ENCOUNTER_TYPE_LABELS,
         encounter.encounterType,
       )} | ${getReferenceDataTranslation({
-        value: encounter.location.facility.id,
+        value: encounter?.location?.facility.id,
         category: 'facility',
-        fallback: encounter.location.facility.name,
+        fallback: encounter?.location?.facility.name,
       })}`,
     }),
     baseQueryParameters: {
@@ -254,7 +255,17 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   );
 
   const handleSubmit = async (
-    { locationId, startTime, endTime, patientId, bookingTypeId, clinicianId },
+    {
+      locationId,
+      startTime,
+      endTime,
+      patientId,
+      bookingTypeId,
+      clinicianId,
+      additionalClinicianId,
+      procedureTypeIds,
+      linkEncounterId,
+    },
     { resetForm },
   ) => {
     mutateBooking(
@@ -266,6 +277,9 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         patientId,
         bookingTypeId,
         clinicianId,
+        additionalClinicianId,
+        procedureTypeIds,
+        linkEncounterId,
       },
       {
         onSuccess: () => {
@@ -500,7 +514,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
                 />
               }
               component={AutocompleteField}
-              suggester={clinicianSuggester}
+              suggester={additionalClinicianSuggester}
               onChange={e => setSelectedAdditionalClinicianId(e.target.value)}
               data-testid="field-additionalclinician"
             />

@@ -71,6 +71,14 @@ export class Appointment extends Model {
       'appointmentType',
       'bookingType',
       'encounter',
+      {
+        association: 'linkEncounter',
+        as: 'linkEncounter',
+        include: [{
+          association: 'location',
+          include: ['facility'],
+        }],
+      },
       'schedule',
       {
         association: 'appointmentProcedureTypes',
