@@ -10,7 +10,6 @@ import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdent
 import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../serverInfo';
-import { findPortalUserById } from './utils';
 import { verifyToken } from '../../auth/utils';
 
 export const patientPortalMiddleware = ({ secret }) =>
@@ -47,7 +46,7 @@ export const patientPortalMiddleware = ({ secret }) =>
 
     const { portalUserId } = contents;
 
-    const portalUser = await findPortalUserById(store.models, portalUserId);
+    const portalUser = await store.models.PortalUser.findByPk(portalUserId);
     if (!portalUser) {
       throw new BadAuthenticationError(
         `Portal user specified in token (${portalUserId}) does not exist`,
