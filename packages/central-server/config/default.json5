@@ -387,12 +387,7 @@
     "dhis2": {
       "enabled": false,
       "username": "",
-      "password": "",
-      "backoff": {
-        "multiplierMs": 300,
-        "maxAttempts": 15,
-        "maxWaitMs": 10000
-      }
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!
