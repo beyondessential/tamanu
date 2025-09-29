@@ -118,9 +118,6 @@ describe('Read Settings', () => {
     const contextSettingValue = await settings.get('survey.defaultCodes.location');
     const readerAValue = await settingsReaderA.get('survey.defaultCodes.location');
 
-    console.log('context', contextSettingValue);
-    console.log('A', readerAValue);
-
     expect(contextSettingValue).toEqual('GeneralClinic');
     expect(readerAValue).toEqual('Facility1Clinic');
   });

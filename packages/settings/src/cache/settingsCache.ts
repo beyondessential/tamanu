@@ -14,12 +14,12 @@ export class SettingsCache {
     return facilityId ?? 'central';
   }
 
-  getAllSettings(facilityId?: string) {
+  getAllSettings(facilityId: string) {
     const key = this.getCacheKey(facilityId);
 
     // If cache is expired, reset it.
     if (!this.isValid(facilityId)) {
-      this.reset();
+      this.reset(facilityId);
     }
 
     return this.allSettingsCache.get(key) || null;
@@ -32,9 +32,16 @@ export class SettingsCache {
     this.expirationTimestamps.set(key, Date.now() + this.ttl);
   }
 
-  reset() {
-    this.allSettingsCache = null;
-    this.expirationTimestamps = null;
+  reset(facilityId?: string) {
+    if (facilityId === undefined) {
+      this.allSettingsCache = null;
+      this.expirationTimestamps = null;
+    } else {
+      // Clear specific facility cache
+      const key = this.getCacheKey(facilityId);
+      this.allSettingsCache.delete(key);
+      this.expirationTimestamps.delete(key);
+    }
   }
 
   isValid(facilityId?: string) {
