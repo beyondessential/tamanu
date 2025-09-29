@@ -7,6 +7,7 @@ import {
   WARNING_LOGS,
   ERROR_LOGS,
   LOG_FIELDS,
+  AUDIT_STATUSES,
 } from '../../dist/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
@@ -231,7 +232,7 @@ describe('DHIS2 integration processor', () => {
       expect(pushLogs).toHaveLength(1);
 
       expect(pushLogs[0]).toMatchObject({
-        status: 'failure',
+        status: AUDIT_STATUSES.FAILURE,
       });
     });
 
@@ -246,7 +247,7 @@ describe('DHIS2 integration processor', () => {
         response: { importCount, conflicts },
       } = mockWarningResponse;
       expect(pushLogs[0]).toMatchObject({
-        status: 'warning',
+        status: AUDIT_STATUSES.WARNING,
         conflicts: conflicts.map(conflict => conflict.value),
         ...importCount,
       });
@@ -261,7 +262,7 @@ describe('DHIS2 integration processor', () => {
 
       const { importCount } = mockSuccessResponse.response;
       expect(pushLogs[0]).toMatchObject({
-        status: 'success',
+        status: AUDIT_STATUSES.SUCCESS,
         ...importCount,
       });
     });

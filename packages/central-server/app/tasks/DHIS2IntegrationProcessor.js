@@ -29,7 +29,7 @@ export const ERROR_LOGS = {
   ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
 };
 
-const AUDIT_STATUSES = {
+export const AUDIT_STATUSES = {
   SUCCESS: 'success',
   FAILURE: 'failure',
   WARNING: 'warning',
