@@ -4,29 +4,36 @@ import { SettingPath } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
+import { globalSettings } from '../schema/global';
+import { facilitySettings } from '../schema/facility';
 
-export const KEYS_EXPOSED_TO_FRONT_END = [
-  'audit',
-  'appointments',
-  'ageDisplayFormat',
-  'customisations',
-  'features',
-  'fields',
-  'imagingCancellationReasons',
-  'imagingPriorities',
-  'insurer',
-  'customisations',
-  'printMeasures',
-  'invoice',
-  'labsCancellationReasons',
-  'templates',
-  'layouts',
-  'triageCategories',
-  'upcomingVaccinations',
-  'vaccinations',
-  'vitalEditReasons',
-  'medications',
-] as const;
+// Function to extract keys from settings that have exposedToWeb: true
+const extractExposedKeys = (schema: any, prefix = ''): string[] => {
+  const keys: string[] = [];
+
+  if (schema && typeof schema === 'object') {
+    // Check if this setting has exposedToWeb: true
+    if (schema.exposedToWeb === true) {
+      keys.push(prefix);
+    }
+
+    // Recursively check properties
+    if (schema.properties) {
+      for (const [key, value] of Object.entries(schema.properties)) {
+        const newPrefix = prefix ? `${prefix}.${key}` : key;
+        keys.push(...extractExposedKeys(value, newPrefix));
+      }
+    }
+  }
+
+  return keys;
+};
+
+const getExposedKeys = (): string[] => {
+  const globalKeys = extractExposedKeys(globalSettings);
+  const facilityKeys = extractExposedKeys(facilitySettings);
+  return [...globalKeys, ...facilityKeys];
+};
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -43,13 +50,13 @@ export class ReadSettings<Path = SettingPath> {
 
   // This is what is called on login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
-  // TODO: Settings to go to front end should come from schema rather than constant
-  // Make sure to delete the constant type when done
+  // Settings are automatically extracted based on exposedToWeb: true in the schema
   async getFrontEndSettings() {
     let settings = settingsCache.getFrontEndSettings();
     if (!settings) {
       const allSettings = await this.getAll();
-      settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+      const exposedKeys = getExposedKeys();
+      settings = pick(allSettings, exposedKeys);
       settingsCache.setFrontEndSettings(settings);
     }
     return settings;
