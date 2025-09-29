@@ -140,6 +140,28 @@ export const STEPS: Steps = [
         if (translationRows.length > 0) {
           await apply('translations', translationRows, args);
 
+          // Set english language name and country code to default if not present
+          const englishLanguageName = await args.models.TranslatedString.findOne({
+            where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+          });
+          if (!englishLanguageName) {
+            await args.models.TranslatedString.create({
+              stringId: LANGUAGE_NAME_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_LANGUAGE_NAME,
+            });
+          }
+          const englishCountryCode = await args.models.TranslatedString.findOne({
+            where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+          });
+          if (!englishCountryCode) {
+            await args.models.TranslatedString.create({
+              stringId: COUNTRY_CODE_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_COUNTRY_CODE,
+            });
+          }
+
           args.log.info('Successfully imported default translations');
         }
       } catch (error) {
