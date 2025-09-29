@@ -1,4 +1,13 @@
-import { endOfDay, startOfDay, format, addHours, parseISO, setHours, setMinutes, differenceInMinutes } from 'date-fns';
+import {
+  endOfDay,
+  startOfDay,
+  format,
+  addHours,
+  parseISO,
+  setHours,
+  setMinutes,
+  differenceInMinutes,
+} from 'date-fns';
 import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
@@ -18,6 +27,8 @@ import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { partitionAppointmentsByLocation } from './utils';
 import { useAuth } from '../../../contexts/Auth';
 import { useBookingSlots } from '../../../hooks/useBookingSlots';
+import useOverflow from '../../../hooks/useOverflow';
+import { ConditionalTooltip } from '../../../components/Tooltip';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -73,6 +84,30 @@ const LocationHeader = styled.div`
   top: 0;
   z-index: 10;
   height: 140px;
+`;
+
+const LocationTitle = styled.div`
+  padding: 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const LocationGroupText = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: ${Colors.midText};
+`;
+
+const LocationNameText = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: ${Colors.darkestText};
 `;
 
 const LocationSchedule = styled.div`
@@ -206,57 +241,98 @@ const formatTime = time => {
   return format(new Date(time), 'h:mma').toLowerCase();
 };
 
-const LocationHeaderContent = ({ location, assignments = [] }) => (
-  <LocationHeader data-testid="location-header">
-    <AssignmentSection data-testid="assignment-section">
-      {assignments.length > 0 ? (
-        assignments.map((assignment, index) => (
-          <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
-            <AssignmentTime data-testid="assignment-time">
-              {formatTime(assignment.startTime)}-
-              <br />
-              {formatTime(assignment.endTime)}
-            </AssignmentTime>
-            <AssignmentDivider data-testid="assignment-divider" />
-            <AssignmentName data-testid="assignment-name">
-              {assignment.user?.displayName || 'Unknown User'}
-            </AssignmentName>
-          </AssignmentItem>
-        ))
-      ) : (
-        <NoAssignmentText data-testid="no-assignment-text">
-          <TranslatedText
-            stringId="locationBooking.calendar.noClinicianAssigned"
-            fallback="No clinician assigned"
-            data-testid="no-clinician-assigned-text"
-          />
-        </NoAssignmentText>
-      )}
-    </AssignmentSection>
+const LocationHeaderContent = ({ location, assignments = [] }) => {
+  const [locationGroupRef, isLocationGroupOverflowing] = useOverflow();
+  const [locationRef, isLocationOverflowing] = useOverflow();
+  const popperProps = {
+    popperOptions: {
+      modifiers: {
+        offset: {
+          enabled: true,
+          offset: '0, -8',
+        },
+        flip: {
+          enabled: false,
+        },
+      },
+    },
+  };
 
-    <Box
-      sx={{
-        padding: '0.5rem',
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '2px',
-      }}
-      data-testid="location-title"
-    >
-      <Box sx={{ fontSize: '11px', color: Colors.midText }} data-testid="locationgroup-name">
-        <TranslatedReferenceData
-          category="locationGroup"
-          value={location.locationGroup.id}
-          fallback={location.locationGroup.name}
-        />
-      </Box>
-      <Box sx={{ fontSize: '14px', color: Colors.darkestText }} data-testid="location-name">
-        <TranslatedReferenceData category="location" value={location.id} fallback={location.name} />
-      </Box>
-    </Box>
-  </LocationHeader>
-);
+  return (
+    <LocationHeader data-testid="location-header">
+      <AssignmentSection data-testid="assignment-section">
+        {assignments.length > 0 ? (
+          assignments.map((assignment, index) => (
+            <AssignmentItem key={assignment.id || index} data-testid="assignment-item">
+              <AssignmentTime data-testid="assignment-time">
+                {formatTime(assignment.startTime)}-
+                <br />
+                {formatTime(assignment.endTime)}
+              </AssignmentTime>
+              <AssignmentDivider data-testid="assignment-divider" />
+              <AssignmentName data-testid="assignment-name">
+                {assignment.user?.displayName || 'Unknown User'}
+              </AssignmentName>
+            </AssignmentItem>
+          ))
+        ) : (
+          <NoAssignmentText data-testid="no-assignment-text">
+            <TranslatedText
+              stringId="locationBooking.calendar.noClinicianAssigned"
+              fallback="No clinician assigned"
+              data-testid="no-clinician-assigned-text"
+            />
+          </NoAssignmentText>
+        )}
+      </AssignmentSection>
+
+      <LocationTitle data-testid="location-title">
+        <ConditionalTooltip
+          visible={isLocationGroupOverflowing}
+          PopperProps={popperProps}
+          title={
+            <Box maxWidth="130px">
+              <TranslatedReferenceData
+                category="locationGroup"
+                value={location.locationGroup.id}
+                fallback={location.locationGroup.name}
+              />
+            </Box>
+          }
+        >
+          <LocationGroupText data-testid="locationgroup-name" ref={locationGroupRef}>
+            <TranslatedReferenceData
+              category="locationGroup"
+              value={location.locationGroup.id}
+              fallback={location.locationGroup.name}
+            />
+          </LocationGroupText>
+        </ConditionalTooltip>
+        <ConditionalTooltip
+          visible={isLocationOverflowing}
+          PopperProps={popperProps}
+          title={
+            <Box maxWidth="130px">
+              <TranslatedReferenceData
+                category="location"
+                value={location.id}
+                fallback={location.name}
+              />
+            </Box>
+          }
+        >
+          <LocationNameText data-testid="location-name" ref={locationRef}>
+            <TranslatedReferenceData
+              category="location"
+              value={location.id}
+              fallback={location.name}
+            />{' '}
+          </LocationNameText>
+        </ConditionalTooltip>
+      </LocationTitle>
+    </LocationHeader>
+  );
+};
 
 export const LocationBookingsDailyCalendar = ({
   locationsQuery,
@@ -347,22 +423,22 @@ export const LocationBookingsDailyCalendar = ({
       }
       return slots;
     }
-    
+
     // Use booking slots range but create 1-hour increments
     const startTime = bookingSlots[0].start;
     const endTime = bookingSlots[bookingSlots.length - 1].end;
     const slots = [];
-    
+
     let currentHour = startTime;
     while (currentHour < endTime) {
       const nextHour = addHours(currentHour, 1);
       slots.push({ start: currentHour, end: nextHour });
       currentHour = nextHour;
     }
-    
+
     return slots;
   }, [bookingSlots, selectedDate]);
-  
+
   const hourCount = timeSlots.length;
 
   // Helper function to find assigned user for a time slot
@@ -477,7 +553,10 @@ export const LocationBookingsDailyCalendar = ({
       {...props}
     >
       <ScrollWrapper>
-        <CalendarGrid $locationCount={filteredLocations.length} style={{ '--hour-count': hourCount }}>
+        <CalendarGrid
+          $locationCount={filteredLocations.length}
+          style={{ '--hour-count': hourCount }}
+        >
           {/* Time column */}
           <TimeColumn>
             {/* Empty header space */}
@@ -521,8 +600,7 @@ export const LocationBookingsDailyCalendar = ({
                               : 'none',
                         }}
                         onClick={() =>
-                          canCreateAppointment &&
-                          handleCellClick(location.id, slotIndex)
+                          canCreateAppointment && handleCellClick(location.id, slotIndex)
                         }
                         data-testid={`time-grid-${locationIndex}-${slotIndex}`}
                       />
