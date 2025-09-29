@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep } from 'lodash';
 import { Op } from 'sequelize';
+import { read, readFile } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -18,7 +19,72 @@ import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
-export async function provision(provisioningFile, { skipIfNotNeeded }) {
+/**
+ * Validates that all sheets in the workbook contain data
+ * @param {string|Buffer} fileOrData - File path or data buffer
+ * @param {string} fileType - 'file' or 'data' to indicate the type
+ * @param {string} sourceName - Name of the source for logging (file path or URL)
+ * @returns {Promise<Array<string>>} Array of empty sheet names
+ */
+async function validateSheetsHaveData(fileOrData, fileType, sourceName) {
+  log.info('Validating sheets contain data', { source: sourceName });
+
+  const workbook =
+    fileType === 'file' ? readFile(fileOrData) : read(fileOrData, { type: 'buffer' });
+  const emptySheets = [];
+
+  for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
+    // Check if sheet has any data by looking at the range
+    const range = sheet['!ref'];
+    if (!range) {
+      emptySheets.push(sheetName);
+      log.warn('Empty sheet found', { sheet: sheetName, source: sourceName });
+      continue;
+    }
+
+    // Parse the range to get actual data rows
+    const [startCell, endCell] = range.split(':');
+    const startRow = parseInt(startCell.replace(/\D/g, ''), 10);
+    const endRow = parseInt(endCell.replace(/\D/g, ''), 10);
+
+    // Check if there are any rows with actual data (skip header row)
+    let hasData = false;
+    for (let row = startRow + 1; row <= endRow; row++) {
+      const rowHasData = Object.keys(sheet).some(key => {
+        if (key.startsWith('!')) return false; // Skip metadata keys
+        const cellRow = parseInt(key.replace(/\D/g, ''), 10);
+        return cellRow === row && sheet[key].v !== undefined && sheet[key].v !== '';
+      });
+
+      if (rowHasData) {
+        hasData = true;
+        break;
+      }
+    }
+
+    if (!hasData) {
+      emptySheets.push(sheetName);
+      log.warn('Sheet contains no data rows', { sheet: sheetName, source: sourceName });
+    }
+  }
+
+  if (emptySheets.length > 0) {
+    log.error('Found empty sheets', {
+      emptySheets,
+      source: sourceName,
+      totalSheets: Object.keys(workbook.Sheets).length,
+    });
+  } else {
+    log.info('All sheets contain data', {
+      source: sourceName,
+      totalSheets: Object.keys(workbook.Sheets).length,
+    });
+  }
+
+  return emptySheets;
+}
+
+export async function provision(provisioningFile, { skipIfNotNeeded, validateSheets = false }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count({
     where: {
@@ -73,6 +139,15 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     if (referenceDataFile) {
       const realpath = resolve(provisioningFile, referenceDataFile);
       log.info('Importing reference data file', { file: realpath });
+
+      // Validate sheets if requested
+      if (validateSheets) {
+        const emptySheets = await validateSheetsHaveData(realpath, 'file', realpath);
+        if (emptySheets.length > 0) {
+          throw new Error(`Reference data file contains empty sheets: ${emptySheets.join(', ')}`);
+        }
+      }
+
       await referenceDataImporter({
         file: realpath,
         ...importerOptions,
@@ -82,6 +157,15 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       const file = await fetch(referenceDataUrl);
       const data = Buffer.from(await (await file.blob()).arrayBuffer());
       log.info('Importing reference data', { size: data.byteLength });
+
+      // Validate sheets if requested
+      if (validateSheets) {
+        const emptySheets = await validateSheetsHaveData(data, 'data', referenceDataUrl);
+        if (emptySheets.length > 0) {
+          throw new Error(`Reference data URL contains empty sheets: ${emptySheets.join(', ')}`);
+        }
+      }
+
       await referenceDataImporter({
         data,
         file: referenceDataUrl,
@@ -200,6 +284,15 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     if (programFile) {
       const realpath = resolve(provisioningFile, programFile);
       log.info('Importing program file', { file: realpath });
+
+      // Validate sheets if requested
+      if (validateSheets) {
+        const emptySheets = await validateSheetsHaveData(realpath, 'file', realpath);
+        if (emptySheets.length > 0) {
+          throw new Error(`Program file contains empty sheets: ${emptySheets.join(', ')}`);
+        }
+      }
+
       await programImporter({
         file: realpath,
         ...programOptions,
@@ -209,6 +302,15 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       const file = await fetch(programUrl);
       const data = Buffer.from(await (await file.blob()).arrayBuffer());
       log.info('Importing program', { size: data.byteLength });
+
+      // Validate sheets if requested
+      if (validateSheets) {
+        const emptySheets = await validateSheetsHaveData(data, 'data', programUrl);
+        if (emptySheets.length > 0) {
+          throw new Error(`Program URL contains empty sheets: ${emptySheets.join(', ')}`);
+        }
+      }
+
       await programImporter({
         data,
         file: programUrl,
@@ -237,5 +339,9 @@ export const provisionCommand = new Command('provision')
   .option(
     '--skip-if-not-needed',
     'If there are already users in the database, exit(0) instead of aborting',
+  )
+  .option(
+    '--validate-sheets',
+    'Validate that all sheets in Excel files contain data before importing',
   )
   .action(provision);
