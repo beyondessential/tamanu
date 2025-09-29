@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 import HelpIcon from '@material-ui/icons/HelpOutlined';
 import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
-  ENGLISH_LANGUAGE_CODE,
   DEFAULT_LANGUAGE_CODE,
   COUNTRY_CODE_STRING_ID,
   LANGUAGE_NAME_STRING_ID,
@@ -60,23 +59,6 @@ const SearchArea = styled.div`
 const StyledSearchInput = styled(SearchInput)`
   width: 340px;
 `;
-
-const translationToFormValue = ({ [DEFAULT_LANGUAGE_CODE]: defaultText, ...rest }) => ({
-  ...rest,
-  // Display default translations in english column
-  [ENGLISH_LANGUAGE_CODE]: rest[ENGLISH_LANGUAGE_CODE] || defaultText,
-  [DEFAULT_LANGUAGE_CODE]: defaultText,
-});
-
-const formValuesToTranslation = ({
-  [DEFAULT_LANGUAGE_CODE]: defaultText,
-  [ENGLISH_LANGUAGE_CODE]: enText,
-  ...rest
-}) => ({
-  ...rest,
-  // Remove en translations that are the same as the default text so they are not saved
-  [ENGLISH_LANGUAGE_CODE]: defaultText === enText ? null : enText,
-});
 
 /**
  *
@@ -267,9 +249,7 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
         ),
         accessor: row => `${row[DEFAULT_LANGUAGE_CODE]}`,
       },
-      ...Object.keys(
-        omit(translationToFormValue(data[0]), ['stringId', DEFAULT_LANGUAGE_CODE]),
-      ).map(code => ({
+      ...Object.keys(omit(data[0], ['stringId', DEFAULT_LANGUAGE_CODE])).map(code => ({
         key: code,
         title: languageNames[code] || code,
         accessor: row => (
@@ -358,19 +338,16 @@ export const TranslationForm = () => {
   const initialValues = useMemo(() => {
     const values = {};
     for (const { stringId, ...rest } of translations) {
-      values[stringId] = translationToFormValue(rest);
+      values[stringId] = rest;
     }
     return values;
   }, [translations]);
 
   const handleSubmit = async payload => {
     const submitData = Object.fromEntries(
-      Object.entries(payload).map(([key, { stringId, ...rest }]) => [
-        stringId || key,
-        formValuesToTranslation(rest),
-      ]),
+      Object.entries(payload).map(([key, { stringId, ...rest }]) => [stringId || key, rest]),
     );
-    await saveTranslations(submitData);
+    saveTranslations(submitData);
   };
 
   if (isLoading) return <LoadingIndicator data-testid="loadingindicator-ka7i" />;
@@ -406,7 +383,7 @@ export const TranslationForm = () => {
           <FormContents
             {...props}
             data={sortedTranslations}
-            languageNames={translationToFormValue(languageNames)}
+            languageNames={languageNames}
             data-testid="formcontents-s4pk"
           />
         )}
