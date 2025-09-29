@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES, LOGIN_ATTEMPT_OUTCOMES } from '@tamanu/constants/auth';
 import { SETTING_KEYS } from '@tamanu/constants';
@@ -91,14 +91,14 @@ describe('Auth - Login', () => {
 
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
-      const contents = jwt.decode(response.body.token);
+      const contents = jose.decodeJwt(response.body.token);
 
       expect(contents).toEqual({
         aud: JWT_TOKEN_TYPES.ACCESS,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         deviceId: TEST_DEVICE_ID,
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });
@@ -115,14 +115,14 @@ describe('Auth - Login', () => {
 
       const { refreshToken, user } = response.body;
 
-      const contents = jwt.decode(refreshToken);
+      const contents = jose.decodeJwt(refreshToken);
 
       expect(contents).toEqual({
         aud: JWT_TOKEN_TYPES.REFRESH,
+        jti: expect.any(String),
         iss: config.canonicalHostName,
         userId: expect.any(String),
         refreshId: expect.any(String),
-        jti: expect.any(String),
         iat: expect.any(Number),
         exp: expect.any(Number),
       });

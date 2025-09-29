@@ -38,7 +38,7 @@ describe('Attach audit user to DB session', () => {
     });
     models = ctx.models;
 
-    await models.Setting.set('audit.changes.enabled', true)
+    await models.Setting.set('audit.changes.enabled', true);
 
     // Setup a mock express app with a route that updates a user
     // and includes the attachAuditUserToDbSession middleware
@@ -50,6 +50,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -64,9 +65,14 @@ describe('Attach audit user to DB session', () => {
       }),
     );
 
-    const asUser = async (user) => {
+    const asUser = async user => {
       const agent = _agent(mockApp);
-      const token = await buildToken(user, facilityIds[0], '1d');
+      const token = await buildToken({
+        user,
+        deviceId: ctx.deviceId,
+        facilityId: facilityIds[0],
+        expiresIn: '1d',
+      });
       agent.set('authorization', `Bearer ${token}`);
       agent.user = user;
       return agent;
@@ -110,12 +116,12 @@ describe('Attach audit user to DB session', () => {
       {
         type: QueryTypes.SELECT,
         replacements: {
-          userIds: [user1, user2, user3, user4].map((user) => user.id),
+          userIds: [user1, user2, user3, user4].map(user => user.id),
         },
       },
     );
     expect(changes).toHaveLength(4);
     // Each user should be shown to have updated their own record in the audit log
-    expect(changes.every((change) => change.updated_by_user_id === change.record_id)).toBeTruthy();
+    expect(changes.every(change => change.updated_by_user_id === change.record_id)).toBeTruthy();
   });
 });

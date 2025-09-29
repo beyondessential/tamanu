@@ -36,6 +36,11 @@ export class Problem extends Error {
     this.detail = detail;
   }
 
+  withResponse(response: Response): Problem {
+    this.response = response;
+    return this;
+  }
+
   public static fromError(error: Error): Problem {
     if (error instanceof YupValidationError || error instanceof $ZodError) {
       error = new ValidationError(error.message).withCause(error);
@@ -91,7 +96,7 @@ export class Problem extends Error {
 
   toJSON(): Record<string, any> {
     return {
-      extra: { ...Object.fromEntries(this.extra.entries()) },
+      ...Object.fromEntries(this.extra.entries()),
       type: isKnownErrorType(this.type)
         ? IANA_TYPES.includes(this.type)
           ? `${IANA}${this.type}`
