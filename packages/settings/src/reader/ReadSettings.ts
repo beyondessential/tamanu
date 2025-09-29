@@ -13,7 +13,7 @@ const extractExposedKeys = (schema: any, prefix = ''): string[] => {
 
   if (schema && typeof schema === 'object') {
     const { exposedToWeb, properties } = schema;
-    if (exposedToWeb) keys.push(prefix);
+    if (exposedToWeb && prefix) keys.push(prefix);
     if (properties) {
       for (const [key, value] of Object.entries(properties)) {
         const newPrefix = prefix ? `${prefix}.${key}` : key;
