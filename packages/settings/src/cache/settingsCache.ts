@@ -34,7 +34,7 @@ export class SettingsCache {
 
   reset(facilityId?: string) {
     const key = this.getCacheKey(facilityId);
-    this.allSettingsCache.set(key, null);
+    this.allSettingsCache.delete(key);
     this.expirationTimestamps.delete(key);
   }
 
