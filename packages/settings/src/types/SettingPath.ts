@@ -3,7 +3,6 @@ import { facilitySettings } from '../schema/facility';
 import { globalSettings } from '../schema/global';
 import { Setting } from './Setting';
 import { SettingsSchema } from './SettingsSchema';
-import { KEYS_EXPOSED_TO_FRONT_END } from '../reader/ReadSettings'
 
 // Type to generate the dot prefix
 type Subscript<T extends string> = T extends '' ? '' : `.${T}`;
@@ -38,5 +37,6 @@ type CentralScopedProperties = typeof centralSettings.properties | typeof global
 export type SettingPath = RemoveSchemaKeys<SchemaProperties>
 export type FacilitySettingPath = RemoveSchemaKeys<FacilityScopedProperties>
 export type CentralSettingPath = RemoveSchemaKeys<CentralScopedProperties>
+// Generate this based on the schema
 export type FrontEndExposedSettingPath = StartsWith<FacilitySettingPath, typeof KEYS_EXPOSED_TO_FRONT_END[number]>;
 
