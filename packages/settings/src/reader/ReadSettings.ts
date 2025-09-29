@@ -12,20 +12,15 @@ const extractExposedKeys = (schema: any, prefix = ''): string[] => {
   const keys: string[] = [];
 
   if (schema && typeof schema === 'object') {
-    // Check if this setting has exposedToWeb: true
-    if (schema.exposedToWeb === true) {
-      keys.push(prefix);
-    }
-
-    // Recursively check properties
-    if (schema.properties) {
-      for (const [key, value] of Object.entries(schema.properties)) {
+    const { exposedToWeb, properties } = schema;
+    if (exposedToWeb) keys.push(prefix);
+    if (properties) {
+      for (const [key, value] of Object.entries(properties)) {
         const newPrefix = prefix ? `${prefix}.${key}` : key;
         keys.push(...extractExposedKeys(value, newPrefix));
       }
     }
   }
-
   return keys;
 };
 
