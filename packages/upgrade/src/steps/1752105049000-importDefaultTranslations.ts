@@ -143,6 +143,7 @@ export const STEPS: Steps = [
           // Set english language name and country code to default if not present
           const englishLanguageName = await args.models.TranslatedString.findOne({
             where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
           });
           if (!englishLanguageName) {
             await args.models.TranslatedString.create({
@@ -153,6 +154,7 @@ export const STEPS: Steps = [
           }
           const englishCountryCode = await args.models.TranslatedString.findOne({
             where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
           });
           if (!englishCountryCode) {
             await args.models.TranslatedString.create({
