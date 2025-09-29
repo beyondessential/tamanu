@@ -1,3 +1,4 @@
+import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 
 const LANGUAGE_CODES = {
@@ -11,11 +12,12 @@ describe('Translation', () => {
   let baseApp;
   let adminApp;
 
-  const mockTranslatedString = async (stringId, text, language) => {
+  const mockTranslatedString = async (stringId, text, language, deletedAt = null) => {
     await models.TranslatedString.create({
       stringId,
       text,
       language,
+      deletedAt,
     });
   };
 
@@ -36,6 +38,7 @@ describe('Translation', () => {
     await mockTranslatedString('login.password', 'អ៊ីមែល', LANGUAGE_CODES.KHMER);
     await mockTranslatedString('languageName', 'English', LANGUAGE_CODES.ENGLISH);
     await mockTranslatedString('languageName', 'ខ្មែរ', LANGUAGE_CODES.KHMER);
+    await mockTranslatedString('login.noMore', 'No more', LANGUAGE_CODES.ENGLISH, new Date());
   });
 
   afterAll(async () => {
@@ -44,7 +47,7 @@ describe('Translation', () => {
   });
 
   describe('GET /', () => {
-    it('should return all translated strings', async () => {
+    it('should return all translated strings, except for soft deleted ones', async () => {
       const result = await adminApp.get('/v1/admin/translation');
       expect(result).toHaveSucceeded();
       expect(result.body).toEqual({
@@ -60,6 +63,21 @@ describe('Translation', () => {
   });
 
   describe('PUT /', () => {
+    it('should ignore translations for default language', async () => {
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'login.email': { [DEFAULT_LANGUAGE_CODE]: 'Default email' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual({ ok: 'ok' });
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'login.email', language: DEFAULT_LANGUAGE_CODE },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(updatedTranslatedStrings.length).toEqual(0);
+    });
+
     it('should create new translated strings if not existing', async () => {
       const result = await adminApp.put('/v1/admin/translation').send({
         'login.email': { km: 'អ៊ីមែល' },
@@ -203,6 +221,32 @@ describe('Translation', () => {
         attributes: ['stringId', 'text', 'language'],
       });
       expect(updatedTranslatedStrings.length).toEqual(0);
+    });
+
+    it('should restore soft deleted translations if they are present in the body', async () => {
+      const result = await adminApp.put('/v1/admin/translation').send({
+        'login.noMore': { en: 'No more' },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.status).toEqual(201);
+      expect(result.body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            stringId: 'login.noMore',
+            text: 'No more',
+            language: LANGUAGE_CODES.ENGLISH,
+          }),
+        ]),
+      );
+      const updatedTranslatedStrings = await models.TranslatedString.findAll({
+        where: { stringId: 'login.noMore' },
+        order: [['stringId', 'ASC']],
+        attributes: ['stringId', 'text', 'language'],
+      });
+      expect(updatedTranslatedStrings.length).toEqual(1);
+      expect(updatedTranslatedStrings[0].text).toEqual('No more');
+      expect(updatedTranslatedStrings[0].language).toEqual(LANGUAGE_CODES.ENGLISH);
+      expect(updatedTranslatedStrings[0].deletedAt).toBeUndefined();
     });
   });
 });

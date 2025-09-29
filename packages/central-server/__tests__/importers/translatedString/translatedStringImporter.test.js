@@ -162,6 +162,26 @@ describe('Translated String import', () => {
       where: { language: 'km' },
     });
     expect(deletedStrings.length).toEqual(0);
+
+    // Should restore deleted translations
+    const { errors: errors3, stats: stats3 } = await doImport({
+      file: 'translated-string-valid',
+    });
+    expect(errors3).toBeEmpty();
+    expect(stats3).toMatchObject({
+      TranslatedString: {
+        created: 0,
+        updated: 2,
+        errored: 0,
+        deleted: 0,
+        restored: 2,
+        skipped: 2,
+      },
+    });
+    const restoredStrings = await TranslatedString.findAll({
+      where: { language: 'km' },
+    });
+    expect(restoredStrings.length).toEqual(2);
   });
 
   it('should ignore default translations', async () => {
