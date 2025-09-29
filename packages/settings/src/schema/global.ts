@@ -51,6 +51,7 @@ export const globalSettings = {
     audit: {
       description: 'Audit settings',
       highRisk: true,
+      exposedToWeb: true,
       properties: {
         accesses: {
           description: 'Audit accesses',
@@ -92,11 +93,13 @@ export const globalSettings = {
     },
     ageDisplayFormat: {
       description: 'Defines the unit with which to display patient ages, depending on their age',
+      exposedToWeb: true,
       type: ageDisplayFormatSchema,
       defaultValue: ageDisplayFormatDefault,
     },
     appointments: {
       description: 'Appointment settings',
+      exposedToWeb: true,
       properties: {
         maxRepeatingAppointmentsPerGeneration: {
           description: 'The maximum number of appointments that can be generated at once',
@@ -107,6 +110,7 @@ export const globalSettings = {
     },
     features: {
       description: 'Toggle features on/off',
+      exposedToWeb: true,
       properties: {
         mandateSpecimenType: {
           description: 'Make specimen type a required field when creating a new lab request',
@@ -361,6 +365,7 @@ export const globalSettings = {
     customisations: {
       name: 'Customisations',
       description: 'Customisation of the application',
+      exposedToWeb: true,
       properties: {
         componentVersions: {
           description: '_',
@@ -395,6 +400,7 @@ export const globalSettings = {
     fields: {
       name: 'Fields (Previously localised fields)',
       description: 'Customise form fields behavior across the application',
+      exposedToWeb: true,
       properties: {
         emergencyContactName: {
           name: 'Emergency contact name',
@@ -991,6 +997,7 @@ export const globalSettings = {
       },
     },
     invoice: {
+      exposedToWeb: true,
       properties: {
         slidingFeeScale: {
           name: 'Sliding fee scale',
@@ -1002,22 +1009,26 @@ export const globalSettings = {
     },
     imagingCancellationReasons: {
       description: 'Customise the options available for imaging request cancellation reason',
+      exposedToWeb: true,
       type: imagingCancellationReasonsSchema,
       defaultValue: imagingCancellationReasonsDefault,
     },
     imagingPriorities: {
       name: 'Imaging priorities',
       description: 'List with each entry being an available imaging priority option',
+      exposedToWeb: true,
       type: imagingPrioritiesSchema,
       defaultValue: imagingPrioritiesDefault,
     },
     labsCancellationReasons: {
       description: 'Customise the options available for lab request cancellation reasons',
+      exposedToWeb: true,
       type: labsCancellationReasonsSchema,
       defaultValue: labsCancellationReasonsDefault,
     },
     printMeasures: {
       description: 'Custom dimensions for PDFs',
+      exposedToWeb: true,
       properties: {
         labRequestPrintLabel: {
           description: 'Lab request label with basic info + barcode',
@@ -1092,6 +1103,7 @@ export const globalSettings = {
     },
     layouts: {
       description: 'Customise the layout of modules',
+      exposedToWeb: true,
       properties: {
         mobilePatientModules: {
           description: 'The homepage modules on mobile',
@@ -1235,6 +1247,7 @@ export const globalSettings = {
     },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
+      exposedToWeb: true,
       properties: {
         patientPortalLoginEmail: {
           description: 'The email sent to the patient with their login code',
@@ -1428,12 +1441,14 @@ export const globalSettings = {
     triageCategories: {
       name: 'Triage categories',
       description: 'Customise triage scale',
+      exposedToWeb: true,
       type: triageCategoriesSchema,
       defaultValue: triageCategoriesDefault,
     },
     upcomingVaccinations: {
       name: 'Upcoming vaccinations',
       description: 'Settings related to upcoming vaccinations',
+      exposedToWeb: true,
       properties: {
         ageLimit: {
           description: '_',
@@ -1449,6 +1464,7 @@ export const globalSettings = {
     },
     vitalEditReasons: {
       description: 'Customise the options available for vital reason for edit',
+      exposedToWeb: true,
       type: vitalEditReasonsSchema,
       defaultValue: vitalEditReasonsDefault,
     },
@@ -1464,6 +1480,7 @@ export const globalSettings = {
     },
     medications: {
       description: 'Medication settings',
+      exposedToWeb: true,
       properties: {
         frequenciesEnabled: {
           description: 'Enable medication frequencies',
