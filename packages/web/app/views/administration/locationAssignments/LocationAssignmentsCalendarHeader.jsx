@@ -35,7 +35,7 @@ const HeaderCell = styled(CarouselGrid.ColHeaderCell).attrs({ as: 'time' })`
     $isToday &&
     css`
       --base-font-weight: 500;
-      background-color: ${Colors.primary};
+      background-color: ${Colors.primary} !important;
       color: ${Colors.white};
     `}
 `;
