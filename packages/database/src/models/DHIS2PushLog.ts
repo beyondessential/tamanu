@@ -9,12 +9,12 @@ export class DHIS2PushLog extends Model {
   declare id: string;
   declare reportId: string;
   declare status: string;
-  declare message: string;
-  declare imported: number;
-  declare updated: number;
-  declare ignored: number;
-  declare deleted: number;
-  declare conflicts: string;
+  declare message?: string;
+  declare imported?: number;
+  declare updated?: number;
+  declare ignored?: number;
+  declare deleted?: number;
+  declare conflicts?: JSON;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
