@@ -19,7 +19,7 @@ export class SettingsCache {
 
     // If cache is expired, reset it.
     if (!this.isValid(facilityId)) {
-      this.reset(facilityId);
+      this.reset();
     }
 
     return this.allSettingsCache.get(key) || null;
@@ -32,10 +32,9 @@ export class SettingsCache {
     this.expirationTimestamps.set(key, Date.now() + this.ttl);
   }
 
-  reset(facilityId?: string) {
-    const key = this.getCacheKey(facilityId);
-    this.allSettingsCache.delete(key);
-    this.expirationTimestamps.delete(key);
+  reset() {
+    this.allSettingsCache.clear();
+    this.expirationTimestamps.clear();
   }
 
   isValid(facilityId?: string) {
