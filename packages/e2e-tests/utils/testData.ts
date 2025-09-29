@@ -1,4 +1,7 @@
+import { noteContent } from './noteContent';
+
 export const testData = {
+  noteContent,
   village: "Dama",
   villageId: "village-Dama",
   department: "Cardiology",
@@ -11,5 +14,5 @@ export const testData = {
   dietName:"Carbohydrate controlled",
   dietName2:"Citrus free",
   dietSearchResult1:"CarbControlled",
-  dietSearchResult2:"Citrusfree",
+  dietSearchResult2:"Citrusfree"
 };
