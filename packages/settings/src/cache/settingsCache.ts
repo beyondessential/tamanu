@@ -1,7 +1,7 @@
 type Cache = Record<string, string | number | object>;
 
 export class SettingsCache {
-  // Map of facilityId (or 'undefined' for no facility) to cache objects
+  // Map of facilityId (or 'central' for no facility) to cache objects
   allSettingsCache: Map<string, Cache | null> = new Map();
 
   // Map of facilityId to expiration timestamps
@@ -11,7 +11,7 @@ export class SettingsCache {
   ttl = 60000;
 
   private getCacheKey(facilityId?: string): string {
-    return facilityId ?? 'undefined';
+    return facilityId ?? 'central';
   }
 
   getAllSettings(facilityId?: string) {
