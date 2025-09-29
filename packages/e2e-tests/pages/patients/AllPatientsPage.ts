@@ -4,6 +4,8 @@ import { BasePatientListPage, BaseSearchCriteria } from './BasePatientListPage';
 import { selectAutocompleteFieldOption } from '../../utils/fieldHelpers';
 import { RecentlyViewedPatientsList } from './RecentlyViewedPatientsList';
 import { expect } from '../../fixtures/baseFixture';
+import { convertDateFormat, STYLED_TABLE_CELL_PREFIX } from '../../utils/testHelper';
+import { ERROR_RED_RGB } from '@utils/testColors';
 
 export const TWO_COLUMNS_FIELD_TEST_ID = 'twocolumnsfield-wg4x';
 
@@ -261,7 +263,7 @@ export class AllPatientsPage extends BasePatientListPage {
   // Validate date in all rows for a specific column
   async validateAllRowsDateMatches(expectedDate: string) {
     const rowCount = await this.tableRows.count();
-    const convertedExpectedDate = await convertDateFormat(expectedDate);
+    const convertedExpectedDate = await convertDateFormat(expectedDate);  
     
     for (let i = 0; i < rowCount; i++) {
       const row = await this.tableRows.nth(i);
