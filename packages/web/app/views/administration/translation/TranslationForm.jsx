@@ -140,12 +140,14 @@ const useTranslationMutation = () => {
       queryClient.invalidateQueries(['translation']);
     },
     onError: err => {
-      <TranslatedText
-        stringId="admin.translation.notification.savingFailed"
-        fallback={`Error saving translations: ${err.message}`}
-        replacements={{ message: err.message }}
-        data-testid="translatedtext-8708"
-      />;
+      toast.error(
+        <TranslatedText
+          stringId="admin.translation.notification.savingFailed"
+          fallback={`Error saving translations: ${err.message}`}
+          replacements={{ message: err.message }}
+          data-testid="translatedtext-8708"
+        />,
+      );
     },
   });
 };
