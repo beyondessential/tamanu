@@ -7,7 +7,7 @@ import { Models } from './readers/SettingsDBReader';
 import { globalSettings } from '../schema/global';
 import { facilitySettings } from '../schema/facility';
 
-// Function to extract keys from settings that have exposedToWeb: true
+// Extract keys from settings that have exposedToWeb: true
 const extractExposedKeys = (schema: any, prefix = ''): string[] => {
   const keys: string[] = [];
 
