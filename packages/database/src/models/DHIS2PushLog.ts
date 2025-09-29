@@ -9,6 +9,7 @@ export class DHIS2PushLog extends Model {
   declare id: string;
   declare reportId: string;
   declare status: string;
+  declare message: string;
   declare imported: number;
   declare updated: number;
   declare ignored: number;
@@ -19,18 +20,6 @@ export class DHIS2PushLog extends Model {
     super.init(
       {
         id: primaryKey,
-        createdAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-        },
         reportId: {
           type: DataTypes.TEXT,
           allowNull: false,
