@@ -1,13 +1,40 @@
+import { pick } from 'lodash';
+
 import { createTestContext } from '../utilities';
 import {
   DHIS2IntegrationProcessor,
   INFO_LOGS,
   WARNING_LOGS,
   ERROR_LOGS,
+  LOG_FIELDS,
+  AUDIT_STATUSES,
 } from '../../dist/tasks/DHIS2IntegrationProcessor';
 import { REPORT_DB_SCHEMAS, REPORT_STATUSES, SETTINGS_SCOPES } from '@tamanu/constants';
 import { fake } from '../../../fake-data/dist/mjs/fake/fake';
 import { log } from '@tamanu/shared/services/logging';
+
+const mockSuccessResponse = {
+  httpStatusCode: 200,
+  status: 'success',
+  message: 'Report sent to DHIS2 successfully',
+  response: {
+    importCount: { imported: 2, updated: 0, deleted: 0, ignored: 0 },
+    conflicts: [],
+  },
+};
+
+const mockWarningResponse = {
+  httpStatusCode: 409,
+  status: 'warning',
+  message: 'Report sent to DHIS2 failed',
+  response: {
+    importCount: { imported: 0, updated: 0, deleted: 0, ignored: 2 },
+    conflicts: [
+      { value: 'Data element not found: DE123' },
+      { value: 'Organisation unit not found: OU456' },
+    ],
+  },
+};
 
 describe('DHIS2 integration processor', () => {
   let ctx;
@@ -20,7 +47,6 @@ describe('DHIS2 integration processor', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
 
     logSpy = {
       info: jest.spyOn(log, 'info'),
@@ -63,14 +89,16 @@ describe('DHIS2 integration processor', () => {
     await setReportIds([report.id]);
     await setBackoff({ multiplierMs: 50, maxAttempts: 2, maxWaitMs: 10000 });
     await reportVersion.update({ status: REPORT_STATUSES.PUBLISHED });
+    await models.DHIS2PushLog.truncate();
+    dhis2IntegrationProcessor = new DHIS2IntegrationProcessor(ctx);
   });
 
   afterEach(() => {
-    Object.values(logSpy).forEach(spy => spy.mockClear());
+    jest.clearAllMocks();
   });
 
   afterAll(() => {
-    Object.values(logSpy).forEach(spy => spy.mockRestore());
+    jest.restoreAllMocks();
     ctx.close();
   });
 
@@ -162,49 +190,80 @@ describe('DHIS2 integration processor', () => {
 
   describe('DHIS2 response', () => {
     it('should log.warn individual conflicts when DHIS2 returns conflicts', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-        httpStatusCode: 409,
-        status: 'warning',
-        message: 'Report sent to DHIS2 failed',
-        response: {
-          importCount: { imported: 0, updated: 0, deleted: 0, ignored: 2 },
-          conflicts: [
-            { value: 'Data element not found: DE123' },
-            { value: 'Organisation unit not found: OU456' },
-          ],
-        },
-      });
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.warn).toHaveBeenCalledWith(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
-        report: `Test Report (${report.id})`,
-        message: 'Report sent to DHIS2 failed',
-        status: 'warning',
-        httpStatusCode: 409,
-      });
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+
+      expect(logSpy.warn).toHaveBeenCalledWith(
+        WARNING_LOGS.FAILED_TO_SEND_REPORT,
+        pick(pushLogs[0], LOG_FIELDS),
+      );
       expect(logSpy.warn).toHaveBeenCalledWith('Data element not found: DE123');
       expect(logSpy.warn).toHaveBeenCalledWith('Organisation unit not found: OU456');
     });
 
     it('should log.info with the importCount if we get a 200 response from DHIS2', async () => {
-      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue({
-        httpStatusCode: 200,
-        status: 'success',
-        message: 'Report sent to DHIS2 successfully',
-        response: {
-          importCount: { imported: 2, updated: 0, deleted: 0, ignored: 0 },
-          conflicts: [],
-        },
-      });
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
 
       await dhis2IntegrationProcessor.run();
 
-      expect(logSpy.info).toHaveBeenLastCalledWith(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
-        report: `Test Report (${report.id})`,
-        imported: 2,
-        updated: 0,
-        deleted: 0,
-        ignored: 0,
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+
+      const { importCount } = mockSuccessResponse.response;
+      expect(pushLogs[0]).toMatchObject({
+        status: 'success',
+        ...importCount,
+      });
+      expect(logSpy.info).toHaveBeenLastCalledWith(
+        INFO_LOGS.SUCCESSFULLY_SENT_REPORT,
+        pick(pushLogs[0], LOG_FIELDS),
+      );
+    });
+  });
+
+  describe('auditing', () => {
+    it('should create a failure log when cant connect to DHIS2', async () => {
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+
+      expect(pushLogs[0]).toMatchObject({
+        status: AUDIT_STATUSES.FAILURE,
+      });
+    });
+
+    it('should create a warning log when conflicts are returned in DHIS2', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockWarningResponse);
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+
+      const {
+        response: { importCount, conflicts },
+      } = mockWarningResponse;
+      expect(pushLogs[0]).toMatchObject({
+        status: AUDIT_STATUSES.WARNING,
+        conflicts: conflicts.map(conflict => conflict.value),
+        ...importCount,
+      });
+    });
+
+    it('should create a success log when report is successfully sent to DHIS2', async () => {
+      dhis2IntegrationProcessor.postToDHIS2 = jest.fn().mockResolvedValue(mockSuccessResponse);
+      await dhis2IntegrationProcessor.run();
+
+      const pushLogs = await models.DHIS2PushLog.findAll({ raw: true });
+      expect(pushLogs).toHaveLength(1);
+
+      const { importCount } = mockSuccessResponse.response;
+      expect(pushLogs[0]).toMatchObject({
+        status: AUDIT_STATUSES.SUCCESS,
+        ...importCount,
       });
     });
   });

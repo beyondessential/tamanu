@@ -1,4 +1,5 @@
 import config from 'config';
+import { pick } from 'lodash';
 import { fetch } from 'undici';
 import { utils } from 'xlsx';
 
@@ -28,6 +29,24 @@ export const ERROR_LOGS = {
   ERROR_PROCESSING_REPORT: 'DHIS2IntegrationProcessor: Error processing report',
 };
 
+export const AUDIT_STATUSES = {
+  SUCCESS: 'success',
+  FAILURE: 'failure',
+  WARNING: 'warning',
+};
+
+// Fields from the DHIS2PushLog model to show in the logger
+export const LOG_FIELDS = [
+  'reportId',
+  'status',
+  'message',
+  'imported',
+  'updated',
+  'ignored',
+  'deleted',
+];
+
+// Designed to post to a DHIS2 instance using the API https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_sending_bulks_data_values
 export class DHIS2IntegrationProcessor extends ScheduledTask {
   getName() {
     return 'DHIS2IntegrationProcessor';
@@ -41,28 +60,49 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     this.context = context;
   }
 
-  async postToDHIS2(reportCSV) {
+  async logDHIS2Push({ reportId, status, importCount = {}, conflicts = [], message }) {
+    const logEntry = await this.context.store.models.DHIS2PushLog.create({
+      reportId,
+      status,
+      message,
+      ...(conflicts.length > 0 && { conflicts }),
+      ...importCount,
+    });
+
+    return pick(logEntry.get({ plain: true }), LOG_FIELDS);
+  }
+
+  async postToDHIS2({ reportId, reportCSV }) {
     const { idSchemes, host, backoff } = await this.context.settings.get('integrations.dhis2');
     const { username, password } = config.integrations.dhis2;
     const authHeader = Buffer.from(`${username}:${password}`).toString('base64');
 
     const params = new URLSearchParams({ ...idSchemes, importStrategy: 'CREATE_AND_UPDATE' });
-    const response = await fetchWithRetryBackoff(
-      `${host}/api/dataValueSets?${params.toString()}`,
-      {
-        fetch,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/csv',
-          Accept: 'application/json',
-          Authorization: `Basic ${authHeader}`,
+    try {
+      const response = await fetchWithRetryBackoff(
+        `${host}/api/dataValueSets?${params.toString()}`,
+        {
+          fetch,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/csv',
+            Accept: 'application/json',
+            Authorization: `Basic ${authHeader}`,
+          },
+          body: reportCSV,
         },
-        body: reportCSV,
-      },
-      { ...backoff, log },
-    );
+        { ...backoff, log },
+      );
 
-    return await response.json();
+      return await response.json();
+    } catch (error) {
+      await this.logDHIS2Push({
+        reportId,
+        status: AUDIT_STATUSES.FAILURE,
+        message: error.message,
+      });
+      throw error;
+    }
   }
 
   async processReport(reportId) {
@@ -103,23 +143,31 @@ export class DHIS2IntegrationProcessor extends ScheduledTask {
     const reportData = await latestVersion.dataGenerator({ ...this.context, sequelize }, {}); // We don't support parameters in this task
     const reportCSV = arrayOfArraysToCSV(reportData);
 
-    const { status, message, httpStatusCode, response } = await this.postToDHIS2(reportCSV);
+    const {
+      message,
+      httpStatusCode,
+      response: { importCount, conflicts = [] },
+    } = await this.postToDHIS2({ reportId, reportCSV });
 
     if (httpStatusCode === 200) {
-      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, {
-        report: reportString,
-        ...response.importCount,
-      });
-    } else {
-      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, {
-        report: reportString,
+      const successLog = await this.logDHIS2Push({
+        reportId,
+        status: AUDIT_STATUSES.SUCCESS,
         message,
-        status,
-        httpStatusCode,
+        importCount,
       });
 
-      // Value is the error message returned from DHIS2 api for each errored row
-      const { conflicts = [] } = response;
+      log.info(INFO_LOGS.SUCCESSFULLY_SENT_REPORT, successLog);
+    } else {
+      const warningLog = await this.logDHIS2Push({
+        reportId,
+        status: AUDIT_STATUSES.WARNING,
+        message,
+        importCount,
+        conflicts: conflicts.map(conflict => conflict.value),
+      });
+
+      log.warn(WARNING_LOGS.FAILED_TO_SEND_REPORT, warningLog);
       conflicts.forEach(conflict => log.warn(conflict.value));
     }
   }
