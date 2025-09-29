@@ -33,8 +33,8 @@ export class SettingsCache {
   }
 
   reset() {
-    this.allSettingsCache.clear();
-    this.expirationTimestamps.clear();
+    this.allSettingsCache = null;
+    this.expirationTimestamps = null;
   }
 
   isValid(facilityId?: string) {
