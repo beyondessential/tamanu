@@ -1,7 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
 import { isEmpty } from 'lodash';
+import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
+import { LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
 
 export const translationRouter = express.Router();
 
@@ -13,7 +14,7 @@ translationRouter.get(
     req.flagPermissionChecked();
     const languageNames = await store.models.TranslatedString.findAll({
       attributes: ['language', 'text'],
-      where: { stringId: 'languageName' },
+      where: { stringId: LANGUAGE_NAME_STRING_ID },
     });
     const translations = await queryTranslatedStringsByLanguage(store);
     res.send({
