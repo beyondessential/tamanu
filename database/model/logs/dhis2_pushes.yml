@@ -68,7 +68,7 @@ sources:
             data_type: timestamp with time zone
             description: "{{ doc('logs__dhis2_pushes__deleted_at') }}"
           - name: conflicts
-            data_type: text
+            data_type: json
             description: "{{ doc('logs__dhis2_pushes__conflicts') }}"
             config:
               meta:
