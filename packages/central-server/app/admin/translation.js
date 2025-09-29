@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { isEmpty } from 'lodash';
 import { queryTranslatedStringsByLanguage } from '@tamanu/shared/utils/translation/queryTranslatedStringsByLanguage';
-import { LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
+import { LANGUAGE_NAME_STRING_ID, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
 
 export const translationRouter = express.Router();
 
@@ -37,6 +37,17 @@ translationRouter.put(
     } = store;
     req.checkPermission('translation', 'write');
     const upsertTranslation = async ({ stringId, language, text }) => {
+      if (language === DEFAULT_LANGUAGE_CODE) return []; // Ignore default translations
+
+      const updateAndRestore = async (existing, text) => {
+        let restored = false;
+        if (existing.deletedAt) {
+          await existing.restore();
+          restored = true;
+        }
+        return [await existing.update({ text }), restored];
+      };
+
       // Postgres doesn't return any information about whether an upserted row was created or updated
       // so we have to check for an existing row first and match the return style of upsert i.e [record, isCreate].
       const existing = await TranslatedString.findOne({
@@ -44,11 +55,12 @@ translationRouter.put(
           stringId,
           language,
         },
+        paranoid: false, // Find soft deleted translations so that we can restore them instead of creating a new one
       });
       if (isEmpty(text) && !existing) return [];
       if (isEmpty(text) && existing) return [await existing.destroy(), false];
-      if (existing?.text === text) return [];
-      if (existing) return [await existing.update({ text }), false];
+      if (existing?.text === text && !existing.deletedAt) return [];
+      if (existing) return await updateAndRestore(existing, text);
       return [await TranslatedString.create({ stringId, language, text }), true];
     };
     const results = await sequelize.transaction(async () => {
