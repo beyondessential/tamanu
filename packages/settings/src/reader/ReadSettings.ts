@@ -43,6 +43,8 @@ export class ReadSettings<Path = SettingPath> {
 
   // This is what is called on login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
+  // TODO: Settings to go to front end should come from schema rather than constant
+  // Make sure to delete the constant type when done
   async getFrontEndSettings() {
     let settings = settingsCache.getFrontEndSettings();
     if (!settings) {
