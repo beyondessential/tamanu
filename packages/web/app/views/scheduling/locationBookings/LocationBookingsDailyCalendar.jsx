@@ -412,14 +412,26 @@ export const LocationBookingsDailyCalendar = ({
 
     const startTime = parseISO(appointment.startTime);
     const endTime = appointment.endTime ? parseISO(appointment.endTime) : addHours(startTime, 1);
-    const dayStart = timeSlots[0].start; // Start of first hour slot
 
-    // Calculate position based on minutes from day start
-    const startOffset = differenceInMinutes(startTime, dayStart);
-    const duration = differenceInMinutes(endTime, startTime);
+    // Visible window of the daily grid based on generated time slots
+    const visibleStart = timeSlots[0].start;
+    const visibleEnd = timeSlots[timeSlots.length - 1].end;
+
+    // Clamp appointment to visible window (handles overnight bookings and partial overlaps)
+    const clampedStart = startTime < visibleStart ? visibleStart : startTime;
+    const clampedEnd = endTime > visibleEnd ? visibleEnd : endTime;
+
+    // If no overlap with visible window, don't render
+    if (clampedEnd <= clampedStart || clampedEnd <= visibleStart || clampedStart >= visibleEnd) {
+      return null;
+    }
+
+    // Calculate position based on minutes from visible window start
+    const startOffset = differenceInMinutes(clampedStart, visibleStart);
+    const duration = differenceInMinutes(clampedEnd, clampedStart);
 
     const pixelsPerMinute = 70 / 60; // 70px per hour = 1.167px per minute
-    const top = Math.max(0, startOffset * pixelsPerMinute);
+    const top = startOffset * pixelsPerMinute;
     const height = Math.max(20, duration * pixelsPerMinute); // Minimum 20px height
 
     return { top, height };
@@ -520,6 +532,7 @@ export const LocationBookingsDailyCalendar = ({
                   {/* Appointments positioned by time */}
                   {locationAppointments.map((appointment, appointmentIndex) => {
                     const style = getAppointmentStyle(appointment);
+                    if (!style) return null;
                     return (
                       <AppointmentWrapper
                         key={appointment.id}
