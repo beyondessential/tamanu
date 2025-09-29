@@ -27,7 +27,6 @@ describe('Settings', () => {
       expect(settingsCache).toEqual(
         expect.objectContaining({
           allSettingsCache: null,
-          frontEndSettingsCache: null,
           expirationTimestamp: null,
         }),
       );

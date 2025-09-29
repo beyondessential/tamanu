@@ -1,5 +1,7 @@
 import { settingsCache } from '@tamanu/settings';
+import { fake } from '@tamanu/fake-data/fake';
 import { SETTINGS_SCOPES } from '@tamanu/constants';
+import { ReadSettings } from '@tamanu/settings';
 import { createTestContext } from '../utilities';
 import { createSetting } from './settingsUtils';
 
@@ -100,5 +102,27 @@ describe('Read Settings', () => {
 
     const centralFileValue = await settings.get('specific.to.central-file');
     expect(centralFileValue).toEqual('file-central-value');
+  });
+
+  it('Get settings from the correct cache', async () => {
+    const { id: facilityA } = await models.Facility.create(fake(models.Facility));
+
+    await models.Setting.set(
+      'survey.defaultCodes.location',
+      'Facility1Clinic',
+      SETTINGS_SCOPES.FACILITY,
+      facilityA,
+    );
+
+    const settingsReaderA = new ReadSettings(models, facilityA);
+
+    const contextSettingValue = await settings.get('survey.defaultCodes.location');
+    const readerAValue = await settingsReaderA.get('survey.defaultCodes.location');
+
+    console.log('context', contextSettingValue);
+    console.log('A', readerAValue);
+
+    expect(contextSettingValue).toEqual('GeneralClinic');
+    expect(readerAValue).toEqual('Facility1Clinic');
   });
 });
