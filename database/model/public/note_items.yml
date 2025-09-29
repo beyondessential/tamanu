@@ -52,7 +52,7 @@ sources:
             data_tests:
               - relationships:
                   arguments:
-                    to: source('tamanu', 'note_items')
+                    to: source('tamanu', 'users')
                     field: id
           - name: author_id
             data_type: character varying(255)
