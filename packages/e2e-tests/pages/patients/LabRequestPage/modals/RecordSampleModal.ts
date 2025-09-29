@@ -3,39 +3,47 @@ import { selectFirstFromDropdown } from '@utils/testHelper';
 
 export class RecordSampleModal {
   readonly page: Page;
-  readonly form: Locator;
+  readonly form!: Locator;
   
   // Form fields
-  readonly dateTimeCollectedInput: Locator;
-  readonly collectedByInput: Locator;
-  readonly collectedByDropdown: Locator;
-  readonly specimenTypeInput: Locator;
-  readonly specimenTypeDropdown: Locator;
-  readonly siteInputDropdownIcon: Locator;
+  readonly dateTimeCollectedInput!: Locator;
+  readonly collectedByInput!: Locator;
+  readonly collectedByDropdown!: Locator;
+  readonly specimenTypeInput!: Locator;
+  readonly specimenTypeDropdown!: Locator;
+  readonly siteInputDropdownIcon!: Locator;
   
   // Action buttons
-  readonly recordSampleConfirmButton: Locator;
-  readonly closeButton: Locator;
-  readonly cancelButton: Locator;
+  readonly recordSampleConfirmButton!: Locator;
+  readonly closeButton!: Locator;
+  readonly cancelButton!: Locator;
 
   constructor(page: Page) {
     this.page = page;
     
-    // Main form container
-    this.form = page.getByTestId('formgrid-3btd');
+    // TestId mapping for RecordSampleModal elements
+    const testIds = {
+      form: 'formgrid-3btd',
+      dateTimeCollectedInput: 'styledfield-dmjl-input',
+      collectedByInput: 'styledfield-v88m-input',
+      collectedByDropdown: 'styledfield-v88m-input-expandmoreicon',
+      specimenTypeInput: 'styledfield-0950-input',
+      specimenTypeDropdown: 'styledfield-0950-input-expandmoreicon',
+      siteInputDropdownIcon: 'selectinput-phtg-expandmoreicon-h115',
+      recordSampleConfirmButton: 'row-vpng-confirmButton',
+      closeButton: 'close-button',
+      cancelButton: 'cancel-button',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
     
-    // Form fields
+    // Special cases that need additional processing
     this.dateTimeCollectedInput = page.getByTestId('styledfield-dmjl-input').locator('input');
     this.collectedByInput = page.getByTestId('styledfield-v88m-input').locator('input');
-    this.collectedByDropdown = page.getByTestId('styledfield-v88m-input-expandmoreicon');
     this.specimenTypeInput = page.getByTestId('styledfield-0950-input').locator('input');
-    this.specimenTypeDropdown = page.getByTestId('styledfield-0950-input-expandmoreicon');
-    this.siteInputDropdownIcon = page.getByTestId('selectinput-phtg-expandmoreicon-h115');
-    
-    // Action buttons (these would need to be updated with actual test IDs from the modal)
-    this.recordSampleConfirmButton = page.getByTestId('row-vpng-confirmButton');
-    this.closeButton = page.getByTestId('close-button');
-    this.cancelButton = page.getByTestId('cancel-button');
   }
 
   async waitForModalToLoad() {

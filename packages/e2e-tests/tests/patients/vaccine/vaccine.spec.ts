@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/baseFixture';
-import { convertDateFormat, offsetYear } from '../../utils/testHelper';
+import { convertDateFormat, offsetYear } from '@utils/testHelper';
 import {
   addVaccineAndAssert,
   triggerDateError,
@@ -174,7 +174,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add multiple doses of the same vaccine and view each of their vaccine records', async ({
+  test('Add multiple doses of the same vaccine and confirm the first dose is disabled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -188,6 +188,30 @@ test.describe('Vaccines', () => {
       specificScheduleOption: '10 weeks',
       viewVaccineRecord: true,
     });
+  });
+
+  test('When a vaccine has all doses administered remove it from dropdown', async ({
+    patientDetailsPage,
+  }) => {
+    const category = 'Routine';
+    const vaccineName = 'Rotavirus';
+    await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+      specificVaccine: vaccineName,
+    });
+
+    await addVaccineAndAssert(patientDetailsPage, true, category, 2, {
+      specificVaccine: vaccineName,
+      isFollowUpVaccine: true,
+      specificScheduleOption: '10 weeks',
+    });
+
+    const recordVaccineModal =
+      await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    if (!recordVaccineModal) {
+      throw new Error('Record vaccine modal failed to open');
+    }
+
+    await recordVaccineModal.assertVaccineNotSelectable(vaccineName, category);
   });
 
   test('Select not given when giving the second scheduled dose of a vaccine', async ({
@@ -593,5 +617,78 @@ test.describe('Vaccines', () => {
     //Clicks the date column header to sort the table in ascending order by date
     await patientDetailsPage.patientVaccinePane?.dateColumnHeader.click();
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
+  });
+
+  test('Location is prefilled for patients with active encounter', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    //These locations match the defaults for newPatientWithHospitalAdmission
+    const prefilledLocations = {
+      area: 'Emergency Department',
+      location: 'Bed 1',
+      department: 'Cardiology',
+    };
+
+    const given = true;
+    const category = 'Routine';
+    const count = 1;
+
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    const recordVaccineModal =
+      await patientDetailsPage.patientVaccinePane?.clickRecordVaccineButton();
+    if (!recordVaccineModal) {
+      throw new Error('Record vaccine modal failed to open');
+    }
+
+    await recordVaccineModal.assertLocationPrefilled(prefilledLocations);
+
+    const vaccine = await recordVaccineModal.recordVaccine(given, category, count, {
+      prefilledLocations: prefilledLocations,
+    });
+
+    if (!vaccine) {
+      throw new Error('Vaccine record was not created successfully');
+    }
+
+    await patientDetailsPage.patientVaccinePane?.recordVaccineModal?.waitForModalToClose();
+
+    //Assert the vaccine in the recorded vaccines table was created successfully
+    await patientDetailsPage.patientVaccinePane?.assertRecordedVaccineTable(vaccine);
+
+    //Assert the vaccine in the view vaccine record modal was created successfully
+    await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
+  });
+
+  test('Record given elsewhere for patient with active encounter', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    const givenElsewhereReason = 'Given overseas';
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      vaccineGivenElsewhere: givenElsewhereReason,
+      specificDate: currentBrowserDate,
+      viewVaccineRecord: true,
+    });
+  });
+
+  test('Date field can be empty when vaccine is given elsewhere', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    const givenElsewhereReason = 'Given overseas';
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
+      vaccineGivenElsewhere: givenElsewhereReason,
+      viewVaccineRecord: true,
+    });
   });
 });
