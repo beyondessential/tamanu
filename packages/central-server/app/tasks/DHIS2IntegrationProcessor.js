@@ -35,6 +35,7 @@ export const AUDIT_STATUSES = {
   WARNING: 'warning',
 };
 
+// Fields from the DHIS2PushLog model to show in the logger
 export const LOG_FIELDS = [
   'reportId',
   'status',
