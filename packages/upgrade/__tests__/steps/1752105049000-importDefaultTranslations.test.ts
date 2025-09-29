@@ -102,9 +102,11 @@ describe('1752105049000-importDefaultTranslations', () => {
       // Checks for and creates missing English language name and country code
       expect(mockStepArgs.models.TranslatedString.findOne).toHaveBeenCalledWith({
         where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+        paranoid: false,
       });
       expect(mockStepArgs.models.TranslatedString.findOne).toHaveBeenCalledWith({
         where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+        paranoid: false,
       });
       expect(mockStepArgs.models.TranslatedString.create).toHaveBeenCalledWith({
         stringId: LANGUAGE_NAME_STRING_ID,
