@@ -54,6 +54,7 @@ export const createPatient = async (
     data: patientData,
   });
 
+
   return response.json();
 };
 
@@ -83,6 +84,7 @@ export const createHospitalAdmissionEncounterViaAPI = async (
     patientId: testData.patientId || patientId  ,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
+    dietIds: JSON.stringify(['diet-Carb-Controlled', 'diet-Citrusfree']),
   };
 
   const response = await api.post(encounterUrl, {
@@ -160,10 +162,10 @@ export const createClinicEncounterViaApi = async (
   const user = await getUser(api);
 
   const encounterData = {
-    departmentId: 'department-GeneralMedicine',
+    departmentId: testData.departmentId,
     encounterType: 'clinic',
     examinerId: user.id,
-    locationId: 'location-EDBed1-tamanu',
+    locationId: testData.locationId,
     patientId,
     startDate: new Date().toISOString().replace('T', ' ').substring(0, 19),
     ...overrides,
