@@ -5,7 +5,7 @@ import { convertDatabaseError } from '@tamanu/database';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { log } from '../services/logging';
 
-export function errorHandlerProblem(req, error) {
+export function errorHandlerProblem(error, req) {
   if (error instanceof SequelizeError) {
     error = convertDatabaseError(error);
   }
