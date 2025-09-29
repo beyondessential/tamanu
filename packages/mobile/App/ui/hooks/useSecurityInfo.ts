@@ -67,16 +67,16 @@ function getSecurityIssues(
 }
 
 export const useSecurityInfo = () => {
-  const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(false);
-  const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isStorageEncrypted, setIsStorageEncrypted] = useState<boolean>(true);
+  const [isDeviceSecure, setIsDeviceSecure] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { getTranslation } = useTranslation();
   const { getSetting } = useSettings();
   const { signedIn } = useAuth();
   const isForeground = useOnForeground();
-  // Fallback is for the first time the app is opened, when the settings are not yet loaded
-  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE) ?? true;
-  const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED) ?? true;
+
+  const allowUnencryptedStorage = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNENCRYPTED_STORAGE);
+  const allowUnprotected = getSetting(SETTING_KEYS.SECURITY_MOBILE_ALLOW_UNPROTECTED);
 
   const fetchSecurityInfo = useCallback(async () => {
     setIsLoading(true);
@@ -91,8 +91,6 @@ export const useSecurityInfo = () => {
   useEffect(() => {
     if (signedIn && isForeground) {
       fetchSecurityInfo();
-    } else {
-      setIsLoading(false);
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
 
