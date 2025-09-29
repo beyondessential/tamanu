@@ -1,3 +1,4 @@
+import { convertDatabaseError } from '@tamanu/database';
 import { errorHandlerProblem } from '@tamanu/shared/utils';
 
 export default function errorHandler(error, req, res, next) {
@@ -7,7 +8,7 @@ export default function errorHandler(error, req, res, next) {
     return;
   }
 
-  const { problem, json } = errorHandlerProblem(error, req);
+  const { problem, json } = errorHandlerProblem(error, req, { convertDatabaseError });
 
   // we're past the point of permission checking; this just
   // makes sure the error send doesn't get intercepted by the

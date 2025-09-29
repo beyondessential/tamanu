@@ -1,11 +1,10 @@
 import { timingSafeEqual } from 'node:crypto';
 import config from 'config';
 import { BaseError as SequelizeError } from 'sequelize';
-import { convertDatabaseError } from '@tamanu/database';
 import { ERROR_TYPE, Problem } from '@tamanu/errors';
 import { log } from '../services/logging';
 
-export function errorHandlerProblem(error, req) {
+export function errorHandlerProblem(error, req, { convertDatabaseError }) {
   if (error instanceof SequelizeError) {
     error = convertDatabaseError(error);
   }

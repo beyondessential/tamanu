@@ -1,3 +1,4 @@
+import { convertDatabaseError } from '@tamanu/database';
 import { errorHandlerProblem } from '@tamanu/shared/utils';
 
 // eslint-disable-next-line no-unused-vars
@@ -8,7 +9,7 @@ export const buildErrorHandler = getResponse => (error, req, res, next) => {
     return;
   }
 
-  const { problem, json } = errorHandlerProblem(error, req);
+  const { problem, json } = errorHandlerProblem(error, req, { convertDatabaseError });
 
   res.set(problem.headers);
   res.status(problem.status).send(getResponse(error, json));
