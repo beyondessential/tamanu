@@ -21,7 +21,6 @@ describe('Settings', () => {
     });
     it('clears the settings cache', async () => {
       settingsCache.setAllSettings({ dog: 'woof' });
-      settingsCache.setFrontEndSettings({ cat: 'meow' });
       const res = await adminApp.delete('/v1/admin/settings/cache');
       expect(res).toHaveSucceeded();
       expect(res.status).toEqual(204);
