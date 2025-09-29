@@ -2,27 +2,33 @@ import { Page, Locator } from '@playwright/test';
 
 export class ChangePriorityModal {
   readonly page: Page;
-  readonly form: Locator;
+  readonly form!: Locator;
   
   // Form fields
-  readonly prioritySelect: Locator;
+  readonly prioritySelect!: Locator;
   
   // Action buttons
-  readonly confirmButton: Locator;
-  readonly cancelButton: Locator;
+  readonly confirmButton!: Locator;
+  readonly cancelButton!: Locator;
 
   constructor(page: Page) {
     this.page = page;
     
-    // Main form container
-    this.form = page.getByTestId('formgrid-3btd');
+    // TestId mapping for ChangePriorityModal elements
+    const testIds = {
+      form: 'formgrid-3btd',
+      prioritySelect: 'autocompleteinput-lob3-input',
+      confirmButton: 'confirmbutton-tok1',
+      cancelButton: 'outlinedbutton-95wy',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
     
-    // Form fields
+    // Special cases that need additional processing
     this.prioritySelect = page.getByTestId('autocompleteinput-lob3-input').locator('input');
-    
-    // Action buttons (these would need to be updated with actual test IDs from the modal)
-    this.confirmButton = page.getByTestId('confirmbutton-tok1');
-    this.cancelButton = page.getByTestId('outlinedbutton-95wy');
   }
 
   async waitForModalToLoad() {
