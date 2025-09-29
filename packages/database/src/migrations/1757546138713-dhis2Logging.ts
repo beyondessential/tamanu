@@ -55,8 +55,22 @@ export async function up(query: QueryInterface) {
       allowNull: true,
     },
   });
+
+  // Add foreign key constraint to report_definitions table in the public schema
+  await query.addConstraint(TABLE, {
+    fields: ['report_id'],
+    type: 'foreign key',
+    name: 'dhis2_pushes_report_id_fkey',
+    references: {
+      table: { tableName: 'report_definitions', schema: 'public' },
+      field: 'id',
+    },
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
+  });
 }
 
 export async function down(query: QueryInterface) {
+  await query.removeConstraint(TABLE, 'dhis2_pushes_report_id_fkey');
   await query.dropTable(TABLE);
 }
