@@ -11,6 +11,8 @@ import {
   REFERENCE_DATA_TRANSLATION_PREFIX,
   ENGLISH_LANGUAGE_CODE,
   DEFAULT_LANGUAGE_CODE,
+  COUNTRY_CODE_STRING_ID,
+  LANGUAGE_NAME_STRING_ID,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
 import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
@@ -218,21 +220,21 @@ export const FormContents = ({ data, languageNames, isSubmitting, submitForm, di
           </Box>
         ),
         accessor: ({ stringId }) => {
-          if (stringId === 'languageName' || stringId === 'countryCode')
+          if (stringId === LANGUAGE_NAME_STRING_ID || stringId === COUNTRY_CODE_STRING_ID)
             return (
               <Box display="flex" alignItems="center" data-testid="box-40cb">
                 <ReservedText data-testid="reservedtext-e0pc">{stringId}</ReservedText>
                 <Tooltip
                   title={
                     <>
-                      {stringId === 'languageName' && (
+                      {stringId === LANGUAGE_NAME_STRING_ID && (
                         <TranslatedText
                           stringId="admin.translation.table.languageName.toolTip"
                           fallback="Language name is a reserved translation ID used for displaying language in selector"
                           data-testid="translatedtext-rxfz"
                         />
                       )}
-                      {stringId === 'countryCode' && (
+                      {stringId === COUNTRY_CODE_STRING_ID && (
                         <TranslatedText
                           stringId="admin.translation.table.countryCode.toolTip"
                           fallback="Country code is a reserved translation ID used for displaying the country flag the language selector. This should be set to a valid ISO 3166-1 alpha-2 country code."
@@ -389,7 +391,7 @@ export const TranslationForm = () => {
 
   const sortedTranslations = sortBy(
     translations,
-    obj => obj.stringId !== 'languageName' && obj.stringId !== 'countryCode',
+    obj => obj.stringId !== LANGUAGE_NAME_STRING_ID && obj.stringId !== COUNTRY_CODE_STRING_ID,
   ); // Ensure languageName and countryCode stays on top
 
   return (
