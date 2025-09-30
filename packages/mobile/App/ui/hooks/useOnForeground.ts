@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 export const useOnForeground = () => {
-  const [isForeground, setIsForeground] = useState(false);
+  const [isForeground, setIsForeground] = useState(true);
   const appState = useRef(AppState.currentState);
 
   useEffect(() => {
