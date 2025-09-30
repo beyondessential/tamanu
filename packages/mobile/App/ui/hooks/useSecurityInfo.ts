@@ -88,8 +88,12 @@ export const useSecurityInfo = () => {
     setIsLoading(false);
   }, []);
 
+  console.log('signedIn', signedIn);
+  console.log('isForeground', isForeground);
   useEffect(() => {
+    console.log('running')
     if (signedIn && isForeground) {
+      console.log('running fetchSecurityInfo')
       fetchSecurityInfo();
     }
   }, [fetchSecurityInfo, signedIn, isForeground]);
