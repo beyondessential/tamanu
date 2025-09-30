@@ -26,8 +26,8 @@ describe('Settings', () => {
       expect(res.status).toEqual(204);
       expect(settingsCache).toEqual(
         expect.objectContaining({
-          allSettingsCache: null,
-          expirationTimestamp: null,
+          allSettingsCache: new Map(),
+          expirationTimestamps: new Map(),
         }),
       );
     });

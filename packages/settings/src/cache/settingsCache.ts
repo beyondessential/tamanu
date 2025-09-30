@@ -34,8 +34,8 @@ export class SettingsCache {
 
   reset(facilityId?: string) {
     if (facilityId === undefined) {
-      this.allSettingsCache = null;
-      this.expirationTimestamps = null;
+      this.allSettingsCache.clear();
+      this.expirationTimestamps.clear();
     } else {
       // Clear specific facility cache
       const key = this.getCacheKey(facilityId);
