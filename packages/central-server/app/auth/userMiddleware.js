@@ -5,7 +5,10 @@ import { ForbiddenError } from '@tamanu/errors';
 import { log } from '@tamanu/shared/services/logging';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
 import { stripUser } from './utils';
+import { initAuditActions } from '@tamanu/database/utils/audit';
+
 import { version } from '../../package.json';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 export const userMiddleware = asyncHandler(async (req, res, next) => {
   const {
@@ -36,41 +39,28 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
 
   const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
-  // Auditing middleware
-  // eslint-disable-next-line require-atomic-updates
-  req.audit = {
-    access: async ({ recordId, params, model }) => {
-      if (!auditSettings?.accesses.enabled) return;
-      return req.models.AccessLog.create({
-        userId: user.id,
-        recordId,
-        recordType: model.name,
-        sessionId,
-        isMobile: false,
-        frontEndContext: params,
-        backEndContext: { endpoint: req.originalUrl },
-        loggedAt: new Date(),
-        facilityId: null,
-        deviceId: req.deviceId ?? 'unknown-device',
-        version,
-      });
-    },
-  };
+    // Auditing middleware
+    req.audit = initAuditActions(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId: user.id,
+      version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL },
+    });
 
-  const spanAttributes = user
-    ? {
-        'app.user.id': user.id,
-        'app.user.role': user.role,
-      }
-    : {};
+    const spanAttributes = user
+      ? {
+          'app.user.id': user.id,
+          'app.user.role': user.role,
+        }
+      : {};
 
-  // eslint-disable-next-line no-unused-expressions
-  trace.getActiveSpan()?.setAttributes(spanAttributes);
-  context.with(
-    propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
-    () => next(),
-  );
-});
+    // eslint-disable-next-line no-unused-expressions
+    trace.getActiveSpan()?.setAttributes(spanAttributes);
+    context.with(
+      propagation.setBaggage(context.active(), propagation.createBaggage(spanAttributes)),
+      () => next(),
+    );
+  });
 
 export const userInfo = asyncHandler(async (req, res) => {
   if (!req.user) {

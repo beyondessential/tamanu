@@ -129,11 +129,9 @@ export class Problem extends Error {
 
     const problem = new Problem(type, json.title, json.status, json.detail);
 
-    if (json.extra) {
-      for (const [key, value] of Object.entries(json.extra)) {
-        if (WELL_KNOWN_PROBLEM_KEYS.includes(key)) continue;
-        problem.extra.set(kebabCase(key), value);
-      }
+    for (const [key, value] of Object.entries(json)) {
+      if (WELL_KNOWN_PROBLEM_KEYS.includes(key)) continue;
+      problem.extra.set(kebabCase(key), value);
     }
 
     return problem;

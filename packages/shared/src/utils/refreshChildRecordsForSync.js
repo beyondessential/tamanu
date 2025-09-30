@@ -1,6 +1,7 @@
 import { snakeCase } from 'lodash';
 
 import { getDependentAssociations } from '@tamanu/database';
+import { SYNC_DIRECTIONS } from '@tamanu/constants';
 
 /**
  * Update child records by setting updated_at_sync_tick = 1
@@ -14,6 +15,10 @@ export async function refreshChildRecordsForSync(model, instanceId) {
 
   for (const association of dependantAssociations) {
     const { target, foreignKey } = association;
+
+    if (target.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      continue;
+    }
 
     // We need to go via a raw query as Model.update({}) performs validation on the
     // whole record, so we'll be rejected for failing to include required fields -

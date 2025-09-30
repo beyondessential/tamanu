@@ -1,6 +1,8 @@
 export const JWT_TOKEN_TYPES = {
   REFRESH: 'refresh',
   ACCESS: 'access',
+  PATIENT_PORTAL_ACCESS: 'patient_portal_access',
+  PATIENT_PORTAL_REFRESH: 'patient_portal_refresh',
 };
 
 // we hardcode this as we don't support multiple keys yet, but still want

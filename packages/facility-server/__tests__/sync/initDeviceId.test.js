@@ -18,12 +18,13 @@ describe('initDeviceId', () => {
   const deviceIdRegex = /^facility-.+$/;
 
   it('should generate a deviceId if one does not exist', async () => {
-    await models.LocalSystemFact.set(FACT_DEVICE_ID, null);
+    await models.LocalSystemFact.delete(FACT_DEVICE_ID);
     await initDeviceId({ context: ctx, deviceType: DEVICE_TYPES.FACILITY_SERVER });
     const newDeviceId = await models.LocalSystemFact.get(FACT_DEVICE_ID);
     expect(ctx.deviceId).toMatch(deviceIdRegex);
     expect(newDeviceId).toMatch(deviceIdRegex);
   });
+
   it('should use existing deviceId if one already exists', async () => {
     const testDeviceId = 'test-device-id-existing';
     await models.LocalSystemFact.set(FACT_DEVICE_ID, testDeviceId);

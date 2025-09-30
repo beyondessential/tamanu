@@ -13,6 +13,8 @@ import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdent
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { ReadSettings } from '@tamanu/settings';
 import { version } from '../../package.json';
+import { initAuditActions } from '@tamanu/database/utils/audit';
+
 import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
@@ -299,24 +301,12 @@ export const authMiddleware = async (req, res, next) => {
 
     // Auditing middleware
     // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId: user.id,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: facility.id,
-          deviceId: device.id,
-          version,
-        });
-      },
-    };
+    req.audit = initAuditActions(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId: user.id,
+      version,
+      backEndContext: { serverType: SERVER_TYPES.FACILITY },
+    });
 
     const spanAttributes = {
       'enduser.id': user.id,
