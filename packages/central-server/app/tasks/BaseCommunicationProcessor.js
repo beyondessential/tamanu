@@ -1,7 +1,10 @@
 import config from 'config';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { ScheduledTask } from '@tamanu/shared/tasks';
 import { log } from '@tamanu/shared/services/logging';
 import { removeFile } from '../utils/files';
+import path from 'path';
+import fs from 'fs';
 
 const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
 const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
@@ -59,11 +62,18 @@ export class BaseCommunicationProcessor extends ScheduledTask {
 
     const transformedContent = await this.transformContent(emailPlain);
 
+    const templatePath = path.resolve(__dirname, './templates/wrapper.html');
+    const mainTemplate = fs.readFileSync(templatePath);
+
+    const html = replaceInTemplate(mainTemplate, {
+      content: transformedContent,
+    });
+
     const result = await this.context.emailService.sendEmail({
       to: toAddress,
       from: config.mailgun.from,
       subject: emailPlain.subject,
-      text: transformedContent,
+      html,
       attachment: emailPlain.attachment,
     });
 

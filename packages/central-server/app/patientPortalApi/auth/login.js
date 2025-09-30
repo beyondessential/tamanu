@@ -1,6 +1,9 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { z } from 'zod';
+import path from 'path';
+import fs from 'fs';
 
 import { COMMUNICATION_STATUSES, PORTAL_USER_STATUSES } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
@@ -9,7 +12,6 @@ import { BadAuthenticationError } from '@tamanu/errors';
 
 import { buildToken, getRandomU32 } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
-import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
 const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const template = await settings.get('templates.patientPortalLoginEmail');
@@ -20,11 +22,18 @@ const getOneTimeTokenEmail = async ({ email, token, settings }) => {
   const subject = replaceInTemplate(template.subject, templateData);
   const content = replaceInTemplate(template.body, templateData);
 
+  const templatePath = path.resolve(__dirname, './wrapper.html');
+  const mainTemplate = fs.readFileSync(templatePath);
+
+  const html = replaceInTemplate(mainTemplate.toString(), {
+    content,
+  });
+
   return {
     to: email,
     from: config.mailgun.from,
     subject,
-    text: content,
+    html,
   };
 };
 
