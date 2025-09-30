@@ -38,6 +38,11 @@
       }
     }
   },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
+  },
   "metaServer": {
     "host": "https://meta.tamanu.app",
     "serverId": null,

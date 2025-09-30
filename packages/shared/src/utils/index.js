@@ -19,3 +19,4 @@ export * from './enumRegistry';
 export * from './invoice';
 export * from './medication';
 export * from './initDeviceId';
+export * from './errorHandlerProblem';
