@@ -1,10 +1,12 @@
 import qs from 'qs';
+import { decodeJwt } from 'jose/jwt/decode';
 
 import { SERVER_TYPES } from '@tamanu/constants';
 import {
   ERROR_TYPE,
   extractErrorFromFetchResponse,
   Problem,
+  RemoteCallError,
   RemoteIncompatibleError,
 } from '@tamanu/errors';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -60,12 +62,12 @@ export class TamanuApi {
     this.#onVersionIncompatible = handler;
   }
 
-  async login(email, password, { scopes = [], ...config } = {}) {
+  async login(email, password, { scopes = [], body = {}, ...config } = {}) {
     if (this.#ongoingAuth) {
-      await this.#ongoingAuth;
+      return await this.#ongoingAuth;
     }
 
-    return (this.#ongoingAuth = (async () => {
+    return await (this.#ongoingAuth = (async () => {
       const response = await this.post(
         'login',
         {
@@ -73,17 +75,16 @@ export class TamanuApi {
           password,
           deviceId: this.deviceId,
           scopes,
+          ...body,
         },
         { ...config, returnResponse: true, useAuthToken: false, waitForAuth: false },
       );
 
       const serverType = response.headers.get('x-tamanu-server');
       if (![SERVER_TYPES.FACILITY, SERVER_TYPES.CENTRAL].includes(serverType)) {
-        const problem = Problem.fromError(
+        throw Problem.fromError(
           new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
-        );
-        problem.response = response;
-        throw problem;
+        ).withResponse(response);
       }
 
       const {
@@ -92,6 +93,17 @@ export class TamanuApi {
         serverType: responseServerType,
         ...loginData
       } = await response.json();
+
+      const claims = decodeJwt(loginData.token);
+      if (claims.deviceId !== this.deviceId) {
+        // If this happens, either something is seriously wrong or the server has a bug.
+        throw Problem.fromError(
+          new RemoteCallError('Device ID mismatch').withExtraData({
+            deviceIdSent: this.deviceId,
+            deviceIdRecv: claims.deviceId,
+          }),
+        ).withResponse(response);
+      }
 
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
@@ -114,7 +126,7 @@ export class TamanuApi {
   }
 
   async requestPasswordReset(email) {
-    return this.post('resetPassword', { email });
+    return this.post('resetPassword', { email, deviceId: this.deviceId });
   }
 
   async changePassword(args) {
