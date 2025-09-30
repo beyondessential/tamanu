@@ -3,10 +3,10 @@ import * as Yup from 'yup';
 import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { TextField, Form, FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+
 import { useTranslation } from '../contexts/Translation';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { Field, Form, TextField } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
+import { Field } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const EmailAddressConfirmationForm = React.memo(

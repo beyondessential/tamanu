@@ -28,6 +28,8 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'medications',
 ] as const;
 
+export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
+
 export class ReadSettings<Path = SettingPath> {
   models: Models;
   facilityId?: string;
@@ -53,12 +55,17 @@ export class ReadSettings<Path = SettingPath> {
     return settings;
   }
 
+  async getPatientPortalSettings() {
+    const allSettings = await this.getAll();
+    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
+  }
+
   async getAll() {
-    let settings = settingsCache.getAllSettings();
-    if (!settings) {
-      settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.setAllSettings(settings);
-    }
-    return settings;
+    // let settings = settingsCache.getAllSettings();
+    // if (!settings) {
+    return await buildSettings(this.models, this.facilityId);
+    // settingsCache.setAllSettings(settings);
+    // }
+    // return settings;
   }
 }

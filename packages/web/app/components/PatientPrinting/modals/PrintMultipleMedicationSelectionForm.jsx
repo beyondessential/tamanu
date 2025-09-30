@@ -4,20 +4,19 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
 import { intersectionBy } from 'lodash';
-
-import { Table, useSelectableColumn } from '../../Table';
 import {
-  AutocompleteInput,
-  NumberInput,
   OuterLabelFieldWrapper,
   TextField,
   TextInput,
-} from '../../Field';
-import { ConfirmCancelRow } from '../../ButtonRow';
+  ConfirmCancelRow,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Table, useSelectableColumn } from '../../Table';
+import { AutocompleteInput, NumberInput } from '../../Field';
 import { DateDisplay } from '../../DateDisplay';
 import { useApi, useSuggester } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
-import { MAX_AGE_TO_RECORD_WEIGHT, Colors } from '../../../constants';
+import { MAX_AGE_TO_RECORD_WEIGHT } from '../../../constants';
 
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { TranslatedText, TranslatedReferenceData } from '../../Translation';

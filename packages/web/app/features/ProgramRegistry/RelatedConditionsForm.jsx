@@ -3,26 +3,23 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import MuiDivider from '@material-ui/core/Divider';
 import { Add } from '@material-ui/icons';
-import { Colors, FORM_TYPES } from '../../constants';
 import {
-  Button,
   DateDisplay,
   DateField,
   Field,
   Heading5,
-  TextButton,
-  TextField,
   TranslatedText,
-  Form,
   TranslatedReferenceData,
 } from '../../components';
+import { TextField, Form, Button, TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { ProgramRegistryConditionField } from './ProgramRegistryConditionField';
 import { ProgramRegistryConditionCategoryField } from './ProgramRegistryConditionCategoryField';
 import { RecordedInErrorWarningModal } from './RecordedInErrorWarningModal';
 import { FormTable } from './FormTable';
 import { useTranslation } from '../../contexts/Translation';
 import { optionalForeignKey } from '../../utils/validation';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORIES } from '@tamanu/constants';
+import { PROGRAM_REGISTRY_CONDITION_CATEGORIES, FORM_TYPES } from '@tamanu/constants';
 import { usePatientProgramRegistryConditionsQuery } from '../../api/queries';
 import { ConditionHistoryModal } from './ConditionHistoryModal';
 import { useSettings } from '../../contexts/Settings';

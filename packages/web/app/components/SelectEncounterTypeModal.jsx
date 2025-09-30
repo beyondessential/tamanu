@@ -1,12 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
-import { Colors, ENCOUNTER_OPTIONS } from '../constants';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { Button } from './Button';
-import { Modal } from './Modal';
-import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedEnum } from './Translation/TranslatedEnum';
+import {
+  Button,
+  Modal,
+  TranslatedText,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { ENCOUNTER_OPTIONS } from '../constants';
 
 const SelectorGrid = styled.div`
   display: grid;

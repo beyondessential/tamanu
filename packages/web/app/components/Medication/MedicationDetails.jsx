@@ -7,6 +7,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -17,11 +18,16 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors, FORM_TYPES } from '../../constants';
-import { CheckField, Field, Form, TextField } from '../Field';
+import {
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';
-import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';

@@ -20,7 +20,8 @@ import {
 
 import { eachDayInMonth } from '@tamanu/utils/dateTime';
 
-import { BodyText, MonthPicker, TextButton } from '../../../components';
+import { BodyText, MonthPicker } from '../../../components';
+import { TextButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 
 const Wrapper = styled(Box)`

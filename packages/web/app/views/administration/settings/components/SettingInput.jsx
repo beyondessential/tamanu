@@ -3,15 +3,10 @@ import { isEqual, isString, isUndefined } from 'lodash';
 import styled from 'styled-components';
 import { Switch } from '@material-ui/core';
 
-import {
-  LargeBodyText,
-  NumberInput,
-  TextButton,
-  TextInput,
-  TranslatedText,
-} from '../../../../components';
+import { TextInput, TextButton, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../../constants/styles';
+import { LargeBodyText, NumberInput } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
-import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 
 const Unit = styled.div`

@@ -5,11 +5,10 @@ import { Box } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { INJECTION_SITE_LABELS, VACCINE_STATUS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
 import { ModalActionRow } from './ModalActionRow';
-import { Colors } from '../constants';
+import { Modal, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useApi } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Modal } from './Modal';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from './Translation';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 
 import { useTranslation } from '../contexts/Translation.jsx';
@@ -19,7 +18,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${Colors.white};
-  ${props => (props.$editMode ? 'margin-bottom: 20px;' : '')}
+  ${(props) => (props.$editMode ? 'margin-bottom: 20px;' : '')}
   position: relative;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
@@ -33,8 +32,8 @@ const DisplayField = styled.div`
   font-weight: 500;
 
   &:nth-child(2n) {
-    ${props => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
-    ${props => (props.$editMode ? `padding-left: 15px;` : '')}
+    ${(props) => (props.$editMode ? `border-left: 1px solid ${Colors.outline};` : '')}
+    ${(props) => (props.$editMode ? `padding-left: 15px;` : '')}
   }
 `;
 
