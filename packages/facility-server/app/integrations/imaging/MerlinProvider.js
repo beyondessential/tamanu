@@ -25,8 +25,10 @@ export class MerlinProvider extends Provider {
     } = this.config;
 
     const url = new URL(urlgen);
-    url.username = username;
-    url.password = password;
+    url.headers.set(
+      'Authorization',
+      `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`,
+    );
     url.searchParams.set('accession', externalCode);
 
     url.searchParams.set('patIdType', type);
