@@ -17,6 +17,7 @@ import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+import { readFile } from 'xlsx';
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -61,34 +62,52 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     checkPermission: () => true,
   };
 
-  for (const {
-    file: referenceDataFile = null,
-    url: referenceDataUrl = null,
-    ...rest
-  } of referenceData ?? []) {
-    if (!referenceDataFile && !referenceDataUrl) {
-      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
-    }
+  // Check for auto-deploy-provisioning.xlsx in the same directory as provision.js
+  const autoDeployFile = resolve(__dirname, 'auto-deploy-provisioning.xlsx');
 
-    if (referenceDataFile) {
-      const realpath = resolve(provisioningFile, referenceDataFile);
-      log.info('Importing reference data file', { file: realpath });
-      await referenceDataImporter({
-        file: realpath,
-        ...importerOptions,
-      });
-    } else if (referenceDataUrl) {
-      log.info('Downloading reference data file', { url: referenceDataUrl });
-      const file = await fetch(referenceDataUrl);
-      const data = Buffer.from(await (await file.blob()).arrayBuffer());
-      log.info('Importing reference data', { size: data.byteLength });
-      await referenceDataImporter({
-        data,
-        file: referenceDataUrl,
-        ...importerOptions,
-      });
-    }
+  try {
+    log.info('No reference data specified, attempting to use auto-deploy-provisioning.xlsx', {
+      file: autoDeployFile,
+    });
+    const workbook = readFile(autoDeployFile);
+    await referenceDataImporter({
+      data: workbook,
+      file: autoDeployFile,
+      ...importerOptions,
+    });
+    return;
+  } catch (error) {
+    log.warn('Could not load auto-deploy-provisioning.xlsx', { error: error.message });
   }
+
+  // for (const {
+  //   file: referenceDataFile = null,
+  //   url: referenceDataUrl = null,
+  //   ...rest
+  // } of referenceData ?? []) {
+  //   if (!referenceDataFile && !referenceDataUrl) {
+  //     throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
+  //   }
+
+  //   if (referenceDataFile) {
+  //     const realpath = resolve(provisioningFile, referenceDataFile);
+  //     log.info('Importing reference data file', { file: realpath });
+  //     await referenceDataImporter({
+  //       file: realpath,
+  //       ...importerOptions,
+  //     });
+  //   } else if (referenceDataUrl) {
+  //     log.info('Downloading reference data file', { url: referenceDataUrl });
+  //     const file = await fetch(referenceDataUrl);
+  //     const data = Buffer.from(await (await file.blob()).arrayBuffer());
+  //     log.info('Importing reference data', { size: data.byteLength });
+  //     await referenceDataImporter({
+  //       data,
+  //       file: referenceDataUrl,
+  //       ...importerOptions,
+  //     });
+  //   }
+  // }
 
   if (errors.length) {
     for (const error of errors) {
