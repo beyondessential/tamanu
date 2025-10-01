@@ -112,7 +112,7 @@ export const SurveyQuestion = ({
         value,
       };
     });
-  }, [getTranslation, dataElement.id, options, dataElement.type, getEnumTranslation, component]);
+  }, [getTranslation, dataElement.id, options, dataElement.type, getEnumTranslation, component.config]);
 
   if (!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
