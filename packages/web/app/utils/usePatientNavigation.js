@@ -10,12 +10,8 @@ export const usePatientNavigation = () => {
 
   const navigate = url => dispatch(push(url));
 
-  const getParams = path =>
-    matchPath(location.pathname, {
-      path,
-      exact: false,
-      strict: false,
-    })?.params ?? {};
+  const getParams = (path) =>
+    matchPath({ path, end: false }, location.pathname)?.params ?? {};
 
   const navigateToCategory = category => {
     navigate(

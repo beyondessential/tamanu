@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Route, Switch, useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams, useMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -161,12 +161,12 @@ export const usePatientRoutes = () => {
   ];
 };
 
-const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextProps.match.path;
+const isPathUnchanged = () => true;
 
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
-    <Route exact path={path} component={component} />
-    {routes?.map(subRoute => (
+    <Route path={path} element={React.createElement(component)} />
+    {routes?.map((subRoute) => (
       <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
     ))}
   </>
@@ -188,7 +188,7 @@ const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
-  const isProgramRegistry = !!useRouteMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
+  const isProgramRegistry = !!useMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
 
   return (
     <>
@@ -201,11 +201,11 @@ const PatientRoutesContent = () => {
             {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
          that they have access to the programRegistryId url param */}
             {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
-            <Switch>
-              {patientRoutes.map(route => (
+            <Routes>
+              {patientRoutes.map((route) => (
                 <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
               ))}
-            </Switch>
+            </Routes>
           </PatientPaneInner>
         </PatientPane>
       </TwoColumnDisplay>
