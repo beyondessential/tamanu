@@ -1,4 +1,4 @@
-import { push, replace } from 'connected-react-router';
+import { push, replace } from 'redux-first-history';
 import { useDispatch } from 'react-redux';
 import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';

@@ -2,7 +2,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 

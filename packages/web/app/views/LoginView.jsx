@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
@@ -21,17 +21,17 @@ const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
-  const loginError = useSelector((state) => state.auth.error);
-  const requestPasswordResetError = useSelector((state) => state.auth.resetPassword.error);
-  const requestPasswordResetSuccess = useSelector((state) => state.auth.resetPassword.success);
-  const resetPasswordEmail = useSelector((state) => state.auth.resetPassword.lastEmailUsed);
-  const changePasswordError = useSelector((state) => state.auth.changePassword.error);
-  const changePasswordSuccess = useSelector((state) => state.auth.changePassword.success);
+  const loginError = useSelector(state => state.auth.error);
+  const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
+  const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
+  const resetPasswordEmail = useSelector(state => state.auth.resetPassword.lastEmailUsed);
+  const changePasswordError = useSelector(state => state.auth.changePassword.error);
+  const changePasswordSuccess = useSelector(state => state.auth.changePassword.success);
 
   const rememberEmail = localStorage.getItem(REMEMBER_EMAIL);
 
   const [screen, setScreen] = useState('login');
-  const submitLogin = async (data) => {
+  const submitLogin = async data => {
     const { email, password, rememberMe } = data;
 
     // If a different user logs in, reset patient state and navigate to index
@@ -81,7 +81,7 @@ export const LoginView = () => {
       )}
       {screen === 'changePassword' && (
         <ChangePasswordForm
-          onSubmit={(data) => dispatch(changePassword(data))}
+          onSubmit={data => dispatch(changePassword(data))}
           onRestartFlow={() => dispatch(restartPasswordResetFlow())}
           errorMessage={changePasswordError}
           success={changePasswordSuccess}
@@ -90,7 +90,7 @@ export const LoginView = () => {
             setScreen('login');
           }}
           onNavToResetPassword={() => setScreen('resetPassword')}
-          onValidateResetCode={(data) => dispatch(validateResetCode(data))}
+          onValidateResetCode={data => dispatch(validateResetCode(data))}
           data-testid="changepasswordform-2331"
         />
       )}

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { idleTimeout, logout } from '../store';
 import { useApi } from '../api';
@@ -15,7 +15,7 @@ export const useAuth = () => {
   const api = useApi();
   const queries = useQueryClient();
   const { resetNoteContext } = useEncounterNotesQuery();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const cleanupSession = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TOKEN);
@@ -24,7 +24,7 @@ export const useAuth = () => {
     // Excluding serverAlive query which only should fire on first load
     queries.removeQueries({ predicate: ({ queryKey }) => queryKey[0] !== 'serverAlive' });
     resetNoteContext();
-    history.push('/');
+    navigate('/');
   };
 
   return {

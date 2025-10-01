@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';

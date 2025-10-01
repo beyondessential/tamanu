@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
@@ -26,18 +26,13 @@ export const SelectReportView = () => {
     dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
   };
 
-  const {
-    data: reportList = [],
-    isLoading: isReportLoading,
-    error: reportError,
-  } = useQuery(['reportList'], () => api.get('admin/reports'));
+  const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(
+    ['reportList'],
+    () => api.get('admin/reports'),
+  );
 
   const showVersions = !!report?.id;
-  const {
-    data: versionData,
-    isLoading: areVersionsLoading,
-    error: versionsError,
-  } = useQuery(
+  const { data: versionData, isLoading: areVersionsLoading, error: versionsError } = useQuery(
     ['reportVersions', report?.id],
     () => api.get(`admin/reports/${report?.id}/versions`),
     {

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { useParams } from 'react-router-dom';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
@@ -165,9 +165,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
           let actions = [
             {
-              label: (
-                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
-              ),
+              label: <TranslatedText stringId="programRegistry.action.update" fallback="Update" />,
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },

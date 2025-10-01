@@ -1,4 +1,4 @@
-import { goBack } from 'connected-react-router';
+import { goBack } from 'redux-first-history';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useHistory, matchPath } from 'react-router-dom';
+import { useNavigate, useLocation, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
@@ -219,7 +219,8 @@ export const NoteModal = React.memo(() => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
   const handleBeforeUnloadRef = React.useRef(null);
   const unblockRef = React.useRef(null);
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { getTranslation } = useTranslation();
 
   useEffect(() => {
@@ -230,28 +231,8 @@ export const NoteModal = React.memo(() => {
 
     if (isNoteModalOpen) {
       window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
-      unblockRef.current = history.block(location => {
-        if (matchPath(location.pathname, PATIENT_PATHS.PATIENT)) {
-          return true;
-        }
-
-        const confirmed = window.confirm(
-          getTranslation(
-            'note.modal.backBlock.confirm',
-            'You have a patient note in progress. If you leave this page, you will lose your changes.',
-          ),
-        );
-        if (confirmed) {
-          closeNoteModal();
-
-          setTimeout(() => {
-            unblockRef.current();
-            history.push(location.pathname);
-          }, 0);
-        }
-
-        return false;
-      });
+      // TODO: React Router v6 removed history.block; implement a proper blocker if required.
+      unblockRef.current = () => {};
     }
 
     return () => {

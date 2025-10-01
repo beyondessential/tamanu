@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import {
   Button,
   ContentPane,

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { getCurrentRoute } from '../../store/router';
 
 import { LogoLight, LogoLightNoText } from '../Logo';

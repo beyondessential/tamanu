@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ConnectedRouter } from 'connected-react-router';
+import { HistoryRouter } from 'redux-first-history/rr6';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
@@ -67,7 +67,7 @@ function Root({ api, store, history }) {
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <ApiContext.Provider value={api}>
-          <ConnectedRouter history={history}>
+          <HistoryRouter history={history}>
             <StylesProvider injectFirst>
               <MuiLatestThemeProvider theme={theme}>
                 <MuiThemeProvider theme={theme}>
@@ -96,7 +96,7 @@ function Root({ api, store, history }) {
                 </MuiThemeProvider>
               </MuiLatestThemeProvider>
             </StylesProvider>
-          </ConnectedRouter>
+          </HistoryRouter>
         </ApiContext.Provider>
       </Provider>
     </QueryClientProvider>

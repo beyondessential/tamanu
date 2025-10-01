@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { DataFetchingTable } from '../../components';
 import { reloadPatient } from '../../store/patient';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -92,7 +92,7 @@ export const EncounterLabRequestsTable = React.memo(({ encounterId }) => {
   const dispatch = useDispatch();
   const { loadLabRequest } = useLabRequest();
 
-  const selectLab = async (lab) => {
+  const selectLab = async lab => {
     if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
     await loadLabRequest(lab.id);
     dispatch(

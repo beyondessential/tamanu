@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 

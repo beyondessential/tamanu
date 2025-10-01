@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
+import { ConnectedRouter } from 'redux-first-history';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'styled-components';
 import { CssBaseline } from '@material-ui/core';
@@ -23,7 +23,7 @@ const queryClient = new QueryClient({
 
 const preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>

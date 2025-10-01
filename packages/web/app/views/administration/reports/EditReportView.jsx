@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';

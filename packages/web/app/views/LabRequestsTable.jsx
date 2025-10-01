@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';

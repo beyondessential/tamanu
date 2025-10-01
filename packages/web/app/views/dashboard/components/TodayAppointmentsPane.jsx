@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { endOfDay, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
@@ -102,7 +102,7 @@ const NoDataContainer = styled.div`
 `;
 
 export const TodayAppointmentsPane = ({ showTasks }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { currentUser, facilityId } = useAuth();
   const appointments =
     useAutoUpdatingQuery(
@@ -123,7 +123,7 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
   ).length;
 
   const onViewAll = () => {
-    history.push(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
+    navigate(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);
   };
 
   return (

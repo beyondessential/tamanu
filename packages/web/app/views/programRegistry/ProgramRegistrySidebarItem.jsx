@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { push } from 'redux-first-history';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem';
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
