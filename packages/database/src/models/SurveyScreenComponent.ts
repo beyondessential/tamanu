@@ -90,20 +90,6 @@ export class SurveyScreenComponent extends Model {
     return this.getComponentsForSurveys([surveyId], options);
   }
 
-  getOptions() {
-    try {
-      const optionString = this.options || this.dataElement?.defaultOptions || '';
-      if (!optionString) {
-        return [];
-      }
-      const optionArray = JSON.parse(optionString);
-      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
-    } catch (e) {
-      log.error(e);
-      return [];
-    }
-  }
-
   forResponse() {
     const { options, ...values } = this.dataValues;
     return {
