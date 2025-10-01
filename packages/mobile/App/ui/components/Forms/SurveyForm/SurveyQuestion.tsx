@@ -95,7 +95,7 @@ export const SurveyQuestion = ({
     if (dataElement.type === FieldTypes.PATIENT_DATA) {
       const config = component.getConfigObject();
       const { writeToPatient, column } = config;
-      if (writeToPatient.fieldType === FieldTypes.SELECT) {
+      if (writeToPatient?.fieldType === FieldTypes.SELECT) {
         const [, , constantOptions] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
         if (constantOptions) {
           return Object.keys(constantOptions).map(value => ({
