@@ -133,7 +133,7 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
       try {
         const config = JSON.parse(componentConfig);
         const { writeToPatient, column } = config;
-        if (writeToPatient.fieldType === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
+        if (writeToPatient?.fieldType === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
           const [, , options] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
           if (options) {
             return Object.keys(options).map(value => ({
