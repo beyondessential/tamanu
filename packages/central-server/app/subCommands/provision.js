@@ -2,7 +2,6 @@ import { resolve } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep } from 'lodash';
 import { Op } from 'sequelize';
-import { readFile } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -62,54 +61,32 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     checkPermission: () => true,
   };
 
-  // Check for auto-deploy-provisioning.xlsx in the same directory as provision.js
-  const autoDeployFile = resolve(__dirname, 'auto-deploy-provisioning.xlsx');
+  for (const {
+    file: referenceDataFile = null,
+    url: referenceDataUrl = null,
+    ...rest
+  } of referenceData ?? []) {
+    if (!referenceDataFile && !referenceDataUrl) {
+      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
+    }
 
-  // If no reference data is specified, try to use the auto-deploy file
-    try {
-      log.info('No reference data specified, attempting to use auto-deploy-provisioning.xlsx', {
-        file: autoDeployFile,
-      });
-      const workbook = readFile(autoDeployFile);
+    if (referenceDataFile) {
+      const realpath = resolve(provisioningFile, referenceDataFile);
+      log.info('Importing reference data file', { file: realpath });
       await referenceDataImporter({
-        data: workbook,
-        file: autoDeployFile,
+        file: realpath,
         ...importerOptions,
       });
-      return;
-    } catch (error) {
-      log.warn('Could not load auto-deploy-provisioning.xlsx', { error: error.message });
-    }
-    
-    // Process the specified reference data
-    for (const {
-      file: referenceDataFile = null,
-      url: referenceDataUrl = null,
-      ...rest
-    } of referenceData) {
-      if (!referenceDataFile && !referenceDataUrl) {
-        throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
-      }
-
-      if (referenceDataFile) {
-        const realpath = resolve(provisioningFile, referenceDataFile);
-        log.info('Importing reference data file', { file: realpath }); {
-          await referenceDataImporter({
-            file: realpath,
-            ...importerOptions,
-          });
-        }
-      } else if (referenceDataUrl) {
-        log.info('Downloading reference data file', { url: referenceDataUrl });
-        const file = await fetch(referenceDataUrl);
-        const data = Buffer.from(await (await file.blob()).arrayBuffer());
-        log.info('Importing reference data', { size: data.byteLength });
-        await referenceDataImporter({
-          data,
-          file: referenceDataUrl,
-          ...importerOptions,
-        });
-      }
+    } else if (referenceDataUrl) {
+      log.info('Downloading reference data file', { url: referenceDataUrl });
+      const file = await fetch(referenceDataUrl);
+      const data = Buffer.from(await (await file.blob()).arrayBuffer());
+      log.info('Importing reference data', { size: data.byteLength });
+      await referenceDataImporter({
+        data,
+        file: referenceDataUrl,
+        ...importerOptions,
+      });
     }
   }
 
