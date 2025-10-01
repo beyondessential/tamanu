@@ -1,25 +1,17 @@
 /* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
-import { SettingPath } from '../types';
+import { SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
 import { globalSettings } from '../schema/global';
 import { facilitySettings } from '../schema/facility';
 
-// Recursively extract keys from settings schema that have exposedToWeb: true
-const extractExposedKeys = (schema: any, prefix = ''): string[] => {
+// Extract top-level keys from settings schema that have exposedToWeb: true
+const extractExposedKeys = (schema: SettingsSchema): string[] => {
   const keys: string[] = [];
-
-  if (schema && typeof schema === 'object') {
-    const { exposedToWeb, properties } = schema;
-    if (exposedToWeb && prefix) keys.push(prefix);
-    if (properties) {
-      for (const [key, value] of Object.entries(properties)) {
-        const newPrefix = prefix ? `${prefix}.${key}` : key;
-        keys.push(...extractExposedKeys(value, newPrefix));
-      }
-    }
+  for (const [key, value] of Object.entries(schema.properties)) {
+    if (value.exposedToWeb) keys.push(key);
   }
   return keys;
 };

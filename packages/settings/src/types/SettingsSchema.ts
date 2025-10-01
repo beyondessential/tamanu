@@ -5,4 +5,5 @@ export interface SettingsSchema {
   description?: string;
   highRisk?: boolean;
   properties: Record<string, Setting | SettingsSchema>;
+  exposedToWeb?: boolean;
 }
