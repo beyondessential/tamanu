@@ -44,7 +44,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     users = {},
     facilities = {},
     programs = [],
-    referenceData = [],
+    // referenceData = [],
     settings = {},
   } = await loadSettingFile(provisioningFile);
 
