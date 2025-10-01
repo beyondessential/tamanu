@@ -8,6 +8,8 @@ export const useOnForeground = () => {
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      console.log('appState.current', appState.current);
+      console.log('nextAppState', nextAppState);
       if (
         appState.current.match(/inactive|background/) &&
         nextAppState === 'active'
