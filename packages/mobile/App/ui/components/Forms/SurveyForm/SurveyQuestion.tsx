@@ -60,14 +60,19 @@ const useGetConfig = component => {
 };
 
 // Keep in sync with web/app/utils/survey.jsx
-function mapOptionsToValues(options) {
-  if (!options) return null;
-  if (typeof options === 'object') {
-    // sometimes this is a map of value => value
-    return Object.values(options).map(x => ({ label: x, value: x }));
+function mapOptionsToValues(optionsString: string) {
+  if (!optionsString) return null;
+  try {
+    const options = JSON.parse(optionsString);
+    if (typeof options === 'object') {
+      // sometimes this is a map of value => value
+      return Object.values(options).map(x => ({ label: x, value: x }));
+    }
+    if (!Array.isArray(options)) return null;
+    return options.map(x => ({ label: x, value: x }));
+  } catch (e) {
+    return null;
   }
-  if (!Array.isArray(options)) return null;
-  return options.map(x => ({ label: x, value: x }));
 }
 
 export const SurveyQuestion = ({
@@ -91,10 +96,10 @@ export const SurveyQuestion = ({
       const config = component.getConfigObject();
       const { writeToPatient, column } = config;
       if (writeToPatient.fieldType === FieldTypes.SELECT) {
-        const [, , options] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
-        if (options) {
-          return Object.keys(options).map(value => ({
-            label: getEnumTranslation(options, value),
+        const [, , constantOptions] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
+        if (constantOptions) {
+          return Object.keys(constantOptions).map(value => ({
+            label: getEnumTranslation(constantOptions, value),
             value,
           }));
         }

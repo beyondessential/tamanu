@@ -1,7 +1,6 @@
 import { Op, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { ProgramDataElement } from './ProgramDataElement';
