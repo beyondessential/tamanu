@@ -50,7 +50,7 @@ export class ContributingDeathCause extends Model {
     });
 
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'conditionId',
+      foreignKey: 'diagnosisId',
       as: 'condition',
     });
   }
