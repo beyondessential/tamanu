@@ -66,7 +66,9 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     url: referenceDataUrl = null,
     default: isUsingDefaultSpreadsheet = false,
   } of referenceData ?? []) {
-    const argCount = [!!referenceDataFile, !!referenceDataUrl, !!isUsingDefaultSpreadsheet].length;
+    const argCount = [referenceDataFile, referenceDataUrl, isUsingDefaultSpreadsheet].filter(
+      Boolean,
+    ).length;
     if (argCount !== 1) {
       throw new Error(
         `Exactly one of file, url, or default must be specified, but ${argCount} were provided`,
