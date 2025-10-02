@@ -146,7 +146,16 @@ const ALL_OPTIONS_VALUE = 'ALL_OPTIONS';
 
 const MultiValue = props => {
   const { getTranslation } = useTranslation();
-  const { index, clearValue, removeProps, getValue, data, selectProps } = props;
+  const {
+    index,
+    clearValue,
+    removeProps,
+    getValue,
+    data,
+    selectProps,
+    isAllOptionsSelected,
+    allowSelectAll,
+  } = props;
   const selected = getValue();
   const [label, setLabel] = useState(data?.label);
 
@@ -160,18 +169,22 @@ const MultiValue = props => {
 
   if (index !== 0) return null;
 
+  const children =
+    isAllOptionsSelected && allowSelectAll
+      ? getTranslation('general.multiAutocompleteField.allSelected', 'All selected')
+      : selected.length === 1
+      ? label
+      : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
+          replacements: {
+            items: selected.length,
+          },
+        });
+
   return (
     <components.MultiValue
       {...{
         ...props,
-        children:
-          selected.length === 1
-            ? label
-            : getTranslation('general.multiAutocompleteField.selected', ':items selected', {
-                replacements: {
-                  items: selected.length,
-                },
-              }),
+        children,
         removeProps: {
           ...removeProps,
           onClick: () => clearValue(),
@@ -248,9 +261,8 @@ export const MultiAutocompleteInput = ({
   const [inputValue, setInputValue] = useState('');
   const [selected, setSelected] = useState([]);
 
-  const isAllOptionsSelected = options.every(option =>
-    selected.some(s => s.value === option.value),
-  );
+  const isAllOptionsSelected =
+    options.length && options.every(option => selected.some(s => s.value === option.value));
 
   const groupedOptions = useMemo(() => {
     if (!allowSelectAll) return options;
@@ -299,6 +311,10 @@ export const MultiAutocompleteInput = ({
     );
   }, [value]);
 
+  useEffect(() => {
+    handleLoadOption();
+  }, []);
+
   const handleChange = useCallback(
     selectedOptions => {
       if (allowSelectAll && selectedOptions.some(s => s.value === ALL_OPTIONS_VALUE)) {
@@ -332,7 +348,7 @@ export const MultiAutocompleteInput = ({
 
   const handleInputChange = (value, { action }) => {
     if (action === 'menu-close') {
-      return setOptions([]);
+      return;
     }
     if (action !== 'input-change' && action !== 'set-value') return;
     setInputValue(value);
@@ -362,7 +378,13 @@ export const MultiAutocompleteInput = ({
           filterOption={null}
           components={{
             DropdownIndicator: SelectDropdownIndicator,
-            MultiValue,
+            MultiValue: props => (
+              <MultiValue
+                {...props}
+                isAllOptionsSelected={isAllOptionsSelected}
+                allowSelectAll={allowSelectAll}
+              />
+            ),
             MultiValueRemove: SelectMultiValueRemove,
             Option: props => (
               <Option
