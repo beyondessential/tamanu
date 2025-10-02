@@ -19,7 +19,7 @@ const normMapping = {
   vaccineSchedule: OTHER_REFERENCE_TYPES.SCHEDULED_VACCINE,
   procedure: 'procedureType',
   // This is needed to handle the way we are exporting that data
-  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFININION_CATEGORY,
+  patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFINITION_CATEGORY,
   // We need mapping for program registry imports because program registry data is imported in the
   // worksheet sheets called registry and registryCondition but the full model names
   // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
@@ -33,7 +33,7 @@ export function normaliseSheetName(name, modelName) {
   const norm = camelCase(
     lowerCase(name)
       .split(/\s+/)
-      .map((word) => singularize(word))
+      .map(word => singularize(word))
       .join(' '),
   );
 
@@ -77,7 +77,7 @@ export async function importerTransaction({
         // strongest level to be sure to read/write good data
         isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
       },
-      async (transaction) => {
+      async transaction => {
         // acquire a lock on the sync time row in the local system facts table, so that all imported
         // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
         // import is still in progress
@@ -162,11 +162,11 @@ export function createDataImporterEndpoint(importer) {
     // we don't need the file any more
     if (deleteFileAfterImport) {
       // eslint-disable-next-line no-unused-vars
-      await fs.unlink(file).catch((ignore) => {});
+      await fs.unlink(file).catch(ignore => {});
     }
 
     result.errors =
-      result.errors?.map((err) =>
+      result.errors?.map(err =>
         (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
           ? new DataImportError('(general)', -3, err)
           : err,

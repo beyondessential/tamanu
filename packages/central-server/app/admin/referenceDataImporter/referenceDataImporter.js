@@ -1,8 +1,8 @@
-import { upperFirst } from 'lodash';
+import { upperFirst, startCase } from 'lodash';
 import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
-import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { GENERAL_IMPORTABLE_DATA_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { normaliseSheetName } from '../importer/importerEndpoint';
 
@@ -42,12 +42,41 @@ export async function referenceDataImporter({
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
-  // Check all sheets are included in the workbook
+  // TODO: I dont actually know if these should be here
+  const IMPORTED_OUTSIDE_OF_REF_DATA_IMPORTER = [
+    'program',
+    'programRegistry',
+    'programRegistryClinicalStatus',
+    'programRegistryCondition',
+    'programRegistryConditionCategory',
+    'programDataElement',
+    'programDataElementCategory',
+    'survey',
+    'surveyScreenComponent',
+  ];
+
+  // Check all sheets are included in the workbook and have at least one row
   if (enforceFullImport) {
-    for (const sheetName of includedDataTypes) {
-      if (!workbook.Sheets[sheetName]) {
-        throw new Error(`Sheet ${sheetName} is not included in the workbook`);
+    const sheetNameDictionary = Object.fromEntries(
+      Object.keys(workbook.Sheets).map(sheetName => {
+        return [normaliseSheetName(sheetName), sheetName];
+      }),
+    );
+    const missingSheets = [];
+    for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
+      dataType => !IMPORTED_OUTSIDE_OF_REF_DATA_IMPORTER.includes(dataType),
+    )) {
+      const sheetName = sheetNameDictionary[importableDataType];
+      if (!sheetName) {
+        missingSheets.push(importableDataType);
+      } else {
+        if (workbook.Sheets[sheetName].length === 0) {
+          missingSheets.push(importableDataType);
+        }
       }
+    }
+    if (missingSheets.length > 0) {
+      throw new Error(`Missing or empty sheets for dataTypes:\n${missingSheets.join('\n')}`);
     }
   }
 
