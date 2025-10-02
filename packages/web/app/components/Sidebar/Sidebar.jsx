@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'redux-first-history';
-import { getCurrentRoute } from '../../store/router';
+import { useDispatch } from 'react-redux';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
@@ -169,11 +168,13 @@ export const Sidebar = React.memo(({ items }) => {
   const [isRetracted, setIsRetracted] = useState(false);
   const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
-  const currentPath = useSelector(getCurrentRoute);
+  const location = useLocation();
+  const currentPath = location.pathname;
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = newPath => dispatch(push(newPath));
+  const onPathChanged = (newPath) => navigate(newPath);
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {

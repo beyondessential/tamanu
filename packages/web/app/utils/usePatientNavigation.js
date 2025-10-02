@@ -1,19 +1,18 @@
-import { push, replace } from 'redux-first-history';
-import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
-  const dispatch = useDispatch();
+  const navigateHook = useNavigate();
   const params = useParams();
   const location = useLocation();
 
-  const navigate = url => dispatch(push(url));
+  const navigate = (url, options) => navigateHook(url, options);
 
   const getParams = (path) =>
     matchPath({ path, end: false }, location.pathname)?.params ?? {};
 
-  const navigateToCategory = category => {
+  const navigateToCategory = (category) => {
     navigate(
       generatePath(PATIENT_PATHS.CATEGORY, {
         category,
@@ -37,11 +36,7 @@ export const usePatientNavigation = () => {
       ...existingParams,
       encounterId,
     });
-    if (replaceInHistory) {
-      dispatch(replace(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`));
-    } else {
-      navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
-    }
+    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}` , { replace: !!replaceInHistory });
   };
 
   const navigateToSummary = () => {
@@ -82,7 +77,7 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToProgramRegistry = programRegistryId => {
+  const navigateToProgramRegistry = (programRegistryId) => {
     if (programRegistryId) {
       const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
         ...params,

@@ -1,6 +1,5 @@
-import { goBack } from 'redux-first-history';
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { BackButton } from './Button';
@@ -32,8 +31,8 @@ const VerticalDivider = styled.div`
 `;
 
 export const PatientNavigation = ({ patientRoutes }) => {
-  const dispatch = useDispatch();
-  const navigateBack = () => dispatch(goBack());
+  const navigate = useNavigate();
+  const navigateBack = () => navigate(-1);
   return (
     <StickyContainer data-testid="stickycontainer-ju8w">
       <NoteModalActionBlocker isNavigationBlock>

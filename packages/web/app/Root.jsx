@@ -2,8 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { HistoryRouter } from 'redux-first-history/rr6';
-import { createHashHistory } from 'history';
+import { BrowserRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
@@ -63,15 +62,12 @@ const queryClient = new QueryClient({
   },
 });
 
-const fallbackHistory = createHashHistory();
-
-function Root({ api, store, history }) {
-  const routerHistory = history || fallbackHistory;
+function Root({ api, store }) {
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <ApiContext.Provider value={api}>
-          <HistoryRouter history={routerHistory}>
+          <BrowserRouter>
             <StylesProvider injectFirst>
               <MuiLatestThemeProvider theme={theme}>
                 <MuiThemeProvider theme={theme}>
@@ -100,7 +96,7 @@ function Root({ api, store, history }) {
                 </MuiThemeProvider>
               </MuiLatestThemeProvider>
             </StylesProvider>
-          </HistoryRouter>
+          </BrowserRouter>
         </ApiContext.Provider>
       </Provider>
     </QueryClientProvider>
@@ -109,7 +105,6 @@ function Root({ api, store, history }) {
 
 Root.propTypes = {
   store: PropTypes.instanceOf(Object).isRequired,
-  history: PropTypes.instanceOf(Object),
 };
 
 export function renderRootInto(root, props) {

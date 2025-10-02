@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'redux-first-history';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { DateDisplay } from './DateDisplay';
@@ -133,11 +132,12 @@ export const TriageTable = React.memo(() => {
   const { category } = useParams();
   const dispatch = useDispatch();
   const columns = useColumns();
+  const navigate = useNavigate();
 
   const viewEncounter = async (triage) => {
     await dispatch(reloadPatient(triage.patientId));
     await loadEncounter(triage.encounterId);
-    dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
+    navigate(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`);
   };
 
   return (

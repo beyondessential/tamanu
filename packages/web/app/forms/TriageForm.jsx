@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { push } from 'redux-first-history';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
