@@ -4,6 +4,7 @@ import {
   FACT_DEVICE_ID,
   FACT_CURRENT_VERSION,
   AUDIT_MIGRATION_CONTEXT_KEY,
+  AUDIT_REASON_KEY,
 } from '@tamanu/constants';
 
 const TABLE = {
@@ -33,6 +34,7 @@ export async function up(query: QueryInterface): Promise<void> {
         record_id,
         device_id,
         version,
+        reason,
         migration_context,
         record_created_at,
         record_updated_at,
@@ -46,6 +48,7 @@ export async function up(query: QueryInterface): Promise<void> {
         NEW.id,                   -- record_id
         local_system_fact('${FACT_DEVICE_ID}', 'unknown'), -- device_id,
         local_system_fact('${FACT_CURRENT_VERSION}', 'unknown'), -- version,
+        get_session_config('${AUDIT_REASON_KEY}', NULL), -- reason,
         get_session_config('${AUDIT_MIGRATION_CONTEXT_KEY}', NULL), -- migration_context,
         NEW.created_at,           -- created_at
         NEW.updated_at,           -- updated_at
@@ -77,6 +80,7 @@ export async function down(query: QueryInterface): Promise<void> {
         record_id,
         device_id,
         version,
+        reason,
         record_created_at,
         record_updated_at,
         record_deleted_at,
@@ -89,6 +93,7 @@ export async function down(query: QueryInterface): Promise<void> {
         NEW.id,                   -- record_id
         local_system_fact('${FACT_DEVICE_ID}', 'unknown'), -- device_id,
         local_system_fact('${FACT_CURRENT_VERSION}', 'unknown'), -- version,
+        get_session_config('${AUDIT_REASON_KEY}', NULL), -- reason,
         NEW.created_at,           -- created_at
         NEW.updated_at,           -- updated_at
         NEW.deleted_at,           -- deleted_at
