@@ -15,43 +15,50 @@ export interface ValidateRequestFinalisedPageParams {
 export class IndividualLabRequestModal extends LabRequestModalBase {
   
   // Page 2: Individual test selection (different from panel)
-  readonly individualTestSearchInput: Locator;
-  readonly individualTestCheckboxes: Locator;
-  readonly selectedTestsSection: Locator;
-  readonly selectedTestsLabels: Locator;
-  readonly individualTestNotesTextarea: Locator;
+  readonly individualTestSearchInput!: Locator;
+  readonly individualTestCheckboxes!: Locator;
+  readonly selectedTestsSection!: Locator;
+  readonly selectedTestsLabels!: Locator;
+  readonly individualTestNotesTextarea!: Locator;
   
   // Page 3: Sample details (same as panel)
-  readonly dateTimeCollectedInputs: Locator;
-  readonly collectedByInputs: Locator;
-  readonly collectedByExpandIcons: Locator;
-  readonly specimenTypeInputs: Locator;
-  readonly specimenTypeExpandIcons: Locator;
-  readonly siteInputs: Locator;
-  readonly siteExpandIcons: Locator;
-  readonly categoryDropdown: Locator;
-  readonly categoryListItems: Locator;
+  readonly dateTimeCollectedInputs!: Locator;
+  readonly collectedByInputs!: Locator;
+  readonly collectedByExpandIcons!: Locator;
+  readonly specimenTypeInputs!: Locator;
+  readonly specimenTypeExpandIcons!: Locator;
+  readonly siteInputs!: Locator;
+  readonly siteExpandIcons!: Locator;
 
   constructor(page: Page) {
     super(page);
     
-    // Page 2: Individual test selection
-    this.individualTestSearchInput = page.getByTestId('styledsearchfield-92y3-input');
-    this.individualTestCheckboxes = page.getByTestId('styledcheckboxcontrol-6oiy');
-    this.selectedTestsSection = page.getByTestId('selectorcontainer-gewc');
-    this.selectedTestsLabels = page.getByTestId('selectortable-6eaw').getByTestId('labeltext-6stl');
-    this.individualTestNotesTextarea = page.getByTestId('field-3t0x-input');
+    // TestId mapping for IndividualLabRequestModal elements
+    const testIds = {
+      // Page 2: Individual test selection
+      individualTestSearchInput: 'styledsearchfield-92y3-input',
+      individualTestCheckboxes: 'styledcheckboxcontrol-6oiy',
+      selectedTestsSection: 'selectorcontainer-gewc',
+      selectedTestsLabels: 'selectortable-6eaw',
+      individualTestNotesTextarea: 'field-3t0x-input',
+      
+      // Page 3: Sample details
+      dateTimeCollectedInputs: 'styledfield-ratc-input',
+      collectedByInputs: 'styledfield-wifm-input',
+      collectedByExpandIcons: 'styledfield-wifm-input-expandmoreicon',
+      specimenTypeInputs: 'styledfield-8g4b-input',
+      specimenTypeExpandIcons: 'styledfield-8g4b-input-expandmoreicon',
+      siteInputs: 'styledfield-mog8-input',
+      siteExpandIcons: 'styledfield-mog8-input-expandmoreicon',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
     
-    // Page 3: Sample details
-    this.dateTimeCollectedInputs = page.getByTestId('styledfield-ratc-input');
-    this.collectedByInputs = page.getByTestId('styledfield-wifm-input');
-    this.collectedByExpandIcons = page.getByTestId('styledfield-wifm-input-expandmoreicon');
-    this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input');
-    this.specimenTypeExpandIcons = page.getByTestId('styledfield-8g4b-input-expandmoreicon');
-    this.siteInputs = page.getByTestId('styledfield-mog8-input');
-    this.siteExpandIcons = page.getByTestId('styledfield-mog8-input-expandmoreicon');
-    this.categoryDropdown = page.getByTestId('selectinput-phtg-select');  
-    this.categoryListItems = page.getByTestId('selectortable-dwrp').getByTestId('categorytext-jno3');
+    // Special cases that need additional processing
+    this.selectedTestsLabels = page.getByTestId('selectortable-6eaw').getByTestId('labeltext-6stl');
   }
 
   /**
@@ -67,17 +74,6 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
-  /**
-   * Validate the selected tests in the table
-   * @param selectedTests - The tests to validate
-   */
-  async validateSelectedTestsInTable(selectedTests: string[]) {
-    // Validate that the selected tests are displayed in the table
-    for (let i=0; i<selectedTests.length; i++) {
-      const testName=await this.selectedTestsLabels.nth(i).textContent();
-      await expect(testName).toBe(selectedTests[i]);
-    }
-  }
 
   /**
    * Validate the request finalised page
@@ -121,24 +117,4 @@ export class IndividualLabRequestModal extends LabRequestModalBase {
     }
   }
 
-  /**
-   * Select a category
-   * @param category - The category to select
-   */
-  async selectCategory(category: string) {
-    await this.categoryDropdown.click();
-    await this.page.getByText(category).first().waitFor({ state: 'visible' });
-    await this.page.getByText(category).first().click();
-  }
-
-  /**
-   * Validate the tests category
-   * @param category - The category to validate
-   */
-  async validateTestsCategory(category: string) {
-    const categoryCount = await this.categoryListItems.count();
-    for (let i = 0; i < categoryCount; i++) {
-      await expect(this.categoryListItems.nth(i)).toHaveText(category);
-    }
-  }
 } 

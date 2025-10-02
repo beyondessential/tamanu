@@ -242,7 +242,7 @@ patientProgramRegistration.get(
 
     await req.audit.access({
       recordId: registration.id,
-      params,
+      frontEndContext: params,
       model: PatientProgramRegistration,
       facilityId,
     });
