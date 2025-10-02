@@ -71,6 +71,7 @@ export const TriageForm = ({
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const triageCategories = getSetting('triageCategories');
@@ -245,7 +246,7 @@ export const TriageForm = ({
     await api.post('triage', newTriage);
 
     if (!noRedirectOnSubmit) {
-      dispatch(push('/patients/emergency'));
+      navigate('/patients/emergency');
     }
   };
 
