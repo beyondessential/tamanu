@@ -65,10 +65,12 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     file: referenceDataFile = null,
     url: referenceDataUrl = null,
     default: isUsingDefaultSpreadsheet = false,
-    ...rest
   } of referenceData ?? []) {
-    if (!referenceDataFile && !referenceDataUrl && !isUsingDefaultSpreadsheet) {
-      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
+    const argCount = [!!referenceDataFile, !!referenceDataUrl, !!isUsingDefaultSpreadsheet].length;
+    if (argCount !== 1) {
+      throw new Error(
+        `Exactly one of file, url, or default must be specified, but ${argCount} were provided`,
+      );
     }
 
     if (isUsingDefaultSpreadsheet) {
