@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { push } from 'redux-first-history';
-import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../../../api';
 import { ReportTable, VersionTable } from './ReportTables';
 
@@ -18,12 +17,12 @@ const VersionsTableContainer = styled.div`
 
 export const SelectReportView = () => {
   const api = useApi();
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [report, setReport] = useState(null);
 
   const handleVersionClick = ({ id }) => {
-    dispatch(push(`/admin/reports/${report.id}/versions/${id}/edit`));
+    navigate(`/admin/reports/${report.id}/versions/${id}/edit`);
   };
 
   const { data: reportList = [], isLoading: isReportLoading, error: reportError } = useQuery(

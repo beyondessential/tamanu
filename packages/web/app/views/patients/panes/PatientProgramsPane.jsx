@@ -1,8 +1,6 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { push } from 'redux-first-history';
 import {
   Button,
   ContentPane,
@@ -37,13 +35,13 @@ const TableHeader = () => (
 );
 
 export const PatientProgramsPane = React.memo(({ endpoint, patient }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const params = useParams();
   const { getSetting } = useSettings();
   const isPatientPortalEnabled = getSetting('features.patientPortal');
 
   const handleNewSurvey = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
+    navigate(`/patients/${params.category}/${params.patientId}/programs/new`);
 
   return (
     <ContentPane data-testid="contentpane-8dfj">

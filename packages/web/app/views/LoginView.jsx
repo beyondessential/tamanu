@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'redux-first-history';
+import { useNavigate } from 'react-router-dom';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
@@ -21,6 +21,7 @@ const { REMEMBER_EMAIL } = LOCAL_STORAGE_KEYS;
 export const LoginView = () => {
   const api = useApi();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
   const requestPasswordResetSuccess = useSelector(state => state.auth.resetPassword.success);
@@ -37,7 +38,7 @@ export const LoginView = () => {
     // If a different user logs in, reset patient state and navigate to index
     if (email !== api.user?.email) {
       dispatch(clearPatient());
-      dispatch(push('/'));
+      navigate('/');
     }
 
     if (rememberMe) {

@@ -76,30 +76,29 @@ export const usePatientRoutes = () => {
     {
       path: 'programs/new',
       component: ProgramsView,
-      breadcrumbs: <Breadcrumb title="New Form" />,
+      breadcrumbs: [<Breadcrumb key="new-form" title="New Form" />],
     },
     { path: 'referrals/new', component: ReferralsView, breadcrumbs: 'New Referral' },
     {
       path: 'encounter/:encounterId/:modal?',
       component: EncounterView,
-      breadcrumbs: <EncounterBreadCrumb />,
+      breadcrumbs: [<EncounterBreadCrumb key="encounter" />],
     },
     {
       path: 'encounter/:encounterId/summary/view',
       component: DischargeSummaryView,
-      breadcrumbs: (
-        <>
-          <EncounterBreadCrumb />
-          <Breadcrumb
-            title={
-              <TranslatedText
-                stringId="encounter.dischargeSummary.title"
-                fallback="Discharge Summary"
-              />
-            }
-          />
-        </>
-      ),
+      breadcrumbs: [
+        <EncounterBreadCrumb key="encounter" />,
+        <Breadcrumb
+          key="discharge-summary"
+          title={
+            <TranslatedText
+              stringId="encounter.dischargeSummary.title"
+              fallback="Discharge Summary"
+            />
+          }
+        />,
+      ],
     },
     ...(canAccessMar
       ? [
@@ -123,48 +122,40 @@ export const usePatientRoutes = () => {
     {
       path: 'encounter/:encounterId/programs/new',
       component: ProgramsView,
-      breadcrumbs: (
-        <>
-          <EncounterBreadCrumb />
-          <Breadcrumb title="New Form" />
-        </>
-      ),
+      breadcrumbs: [
+        <EncounterBreadCrumb key="encounter" />,
+        <Breadcrumb key="new-form" title="New Form" />,
+      ],
     },
     {
       path: 'encounter/:encounterId/lab-request/:labRequestId/:modal?',
       component: LabRequestView,
-      breadcrumbs: (
-        <>
-          <EncounterBreadCrumb />
-          <Breadcrumb title="Lab Request" />
-        </>
-      ),
+      breadcrumbs: [
+        <EncounterBreadCrumb key="encounter" />,
+        <Breadcrumb key="lab-request" title="Lab Request" />,
+      ],
     },
     {
       path: 'encounter/:encounterId/imaging-request/:imagingRequestId/:modal?',
       component: ImagingRequestView,
-      breadcrumbs: (
-        <>
-          <EncounterBreadCrumb />
-          <Breadcrumb title="Imaging Request" />
-        </>
-      ),
+      breadcrumbs: [
+        <EncounterBreadCrumb key="encounter" />,
+        <Breadcrumb key="imaging-request" title="Imaging Request" />,
+      ],
     },
     {
       path: 'program-registry/:programRegistryId',
       component: PatientProgramRegistryView,
       navigateTo: () => navigateToProgramRegistry(),
-      breadcrumbs: <ProgramRegistryTitle />,
+      breadcrumbs: [<ProgramRegistryTitle key="program-registry" />],
     },
     {
       path: 'program-registry/:programRegistryId/survey/:surveyId',
       component: ProgramRegistrySurveyView,
-      breadcrumbs: (
-        <>
-          <ProgramRegistryTitle />
-          <Breadcrumb title="Survey" />
-        </>
-      ),
+      breadcrumbs: [
+        <ProgramRegistryTitle key="program-registry" />,
+        <Breadcrumb key="survey" title="Survey" />,
+      ],
     },
   ];
 };

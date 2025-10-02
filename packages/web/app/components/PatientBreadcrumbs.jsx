@@ -66,16 +66,18 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
     return matchPath({ path: fullPath, exact: false }, location.pathname);
   });
 
-  return matchedRoute?.breadcrumbs ? matchedRoute.breadcrumbs : null;
+  return matchedRoute?.breadcrumbs || [];
 };
 
 export const PatientBreadcrumbs = ({ patientRoutes }) => {
+  const routeBreadcrumbs = RouteBreadcrumbs({ patientRoutes });
+
   return (
     <NoteModalActionBlocker isNavigationBlock>
       <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
         <CategoryBreadcrumb />
         <PatientBreadcrumb />
-        <RouteBreadcrumbs patientRoutes={patientRoutes} />
+        {routeBreadcrumbs}
       </StyledBreadcrumbs>
     </NoteModalActionBlocker>
   );

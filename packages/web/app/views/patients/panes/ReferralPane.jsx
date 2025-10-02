@@ -1,18 +1,16 @@
 import React from 'react';
 
-import { push } from 'redux-first-history';
-import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const ReferralPane = React.memo(({ patient }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const params = useParams();
   const handleNewReferral = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/referrals/new`));
+    navigate(`/patients/${params.category}/${params.patientId}/referrals/new`);
   return (
     <ContentPane data-testid="contentpane-ztqm">
       <TableButtonRow variant="small" data-testid="tablebuttonrow-4sww">
