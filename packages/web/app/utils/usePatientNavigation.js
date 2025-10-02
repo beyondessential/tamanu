@@ -22,12 +22,10 @@ export const usePatientNavigation = () => {
   const navigateToPatient = (patientId, search) => {
     const params = getParams(PATIENT_PATHS.CATEGORY);
     const { category = PATIENT_CATEGORIES.ALL } = params;
-    console.log('params', params, category);
     const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
       category,
       patientId,
     });
-    console.log('params', patientRoute);
     navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 

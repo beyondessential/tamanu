@@ -1,9 +1,7 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Routes, Route, useLocation, useParams, useMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
-import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { useEncounter } from '../contexts/Encounter';
@@ -15,6 +13,7 @@ import {
   LabRequestView,
   PatientView,
 } from '../views';
+import { Breadcrumb } from '../components/PatientBreadcrumbs';
 import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
@@ -50,13 +49,19 @@ const ProgramRegistryTitle = () => {
   );
 };
 
+const EncounterBreadCrumb = () => {
+  const { encounter } = useEncounter();
+  const { navigateToEncounter } = usePatientNavigation();
+  return (
+    <Breadcrumb
+      onClick={() => navigateToEncounter(encounter.id)}
+      title={getEncounterType(encounter || {})}
+    />
+  );
+};
+
 export const usePatientRoutes = () => {
-  const {
-    navigateToEncounter,
-    navigateToPatient,
-    navigateToProgramRegistry,
-  } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
+  const { navigateToEncounter, navigateToProgramRegistry } = usePatientNavigation();
   const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
@@ -67,24 +72,33 @@ export const usePatientRoutes = () => {
     {
       index: true,
       component: PatientView,
-      navigateTo: () => navigateToPatient(patient.id),
-      title: getPatientNameAsString(patient || {}),
     },
-    // Patient-level routes
-    { path: 'programs/new', component: ProgramsView, title: 'New Form' },
-    { path: 'referrals/new', component: ReferralsView, title: 'New Referral' },
-    // Encounter and related
+    {
+      path: 'programs/new',
+      component: ProgramsView,
+      breadcrumbs: <Breadcrumb title="New Form" />,
+    },
+    { path: 'referrals/new', component: ReferralsView, breadcrumbs: 'New Referral' },
     {
       path: 'encounter/:encounterId/:modal?',
       component: EncounterView,
-      navigateTo: () => navigateToEncounter(encounter?.id),
-      title: getEncounterType(encounter || {}),
+      breadcrumbs: <EncounterBreadCrumb />,
     },
     {
       path: 'encounter/:encounterId/summary/view',
       component: DischargeSummaryView,
-      title: (
-        <TranslatedText stringId="encounter.dischargeSummary.title" fallback="Discharge Summary" />
+      breadcrumbs: (
+        <>
+          <EncounterBreadCrumb />
+          <Breadcrumb
+            title={
+              <TranslatedText
+                stringId="encounter.dischargeSummary.title"
+                fallback="Discharge Summary"
+              />
+            }
+          />
+        </>
       ),
     },
     ...(canAccessMar
@@ -106,33 +120,54 @@ export const usePatientRoutes = () => {
           },
         ]
       : []),
-    { path: 'encounter/:encounterId/programs/new', component: ProgramsView, title: 'New Form' },
+    {
+      path: 'encounter/:encounterId/programs/new',
+      component: ProgramsView,
+      breadcrumbs: (
+        <>
+          <EncounterBreadCrumb />
+          <Breadcrumb title="New Form" />
+        </>
+      ),
+    },
     {
       path: 'encounter/:encounterId/lab-request/:labRequestId/:modal?',
       component: LabRequestView,
-      title: 'Lab Request',
+      breadcrumbs: (
+        <>
+          <EncounterBreadCrumb />
+          <Breadcrumb title="Lab Request" />
+        </>
+      ),
     },
     {
       path: 'encounter/:encounterId/imaging-request/:imagingRequestId/:modal?',
       component: ImagingRequestView,
-      title: 'Imaging Request',
+      breadcrumbs: (
+        <>
+          <EncounterBreadCrumb />
+          <Breadcrumb title="Imaging Request" />
+        </>
+      ),
     },
-    // Program registry
     {
       path: 'program-registry/:programRegistryId',
       component: PatientProgramRegistryView,
       navigateTo: () => navigateToProgramRegistry(),
-      title: <ProgramRegistryTitle />,
+      breadcrumbs: <ProgramRegistryTitle />,
     },
     {
       path: 'program-registry/:programRegistryId/survey/:surveyId',
       component: ProgramRegistrySurveyView,
-      title: 'Survey',
+      breadcrumbs: (
+        <>
+          <ProgramRegistryTitle />
+          <Breadcrumb title="Survey" />
+        </>
+      ),
     },
   ];
 };
-
-const isPathUnchanged = () => true;
 
 const PatientPane = styled.div`
   overflow: auto;
@@ -146,7 +181,7 @@ const PatientPaneInner = styled.div`
   min-width: ${PATIENT_PANE_WIDTH};
 `;
 
-const PatientRoutesContent = () => {
+export const PatientRoutes = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
@@ -154,6 +189,7 @@ const PatientRoutesContent = () => {
 
   return (
     <>
+      <NoteModal />
       <TwoColumnDisplay>
         <PatientInfoPane />
         {/* Using contain:size along with overflow: auto here allows sticky navigation section
@@ -164,10 +200,10 @@ const PatientRoutesContent = () => {
          that they have access to the programRegistryId url param */}
             {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
             <Routes>
-              {patientRoutes.map((route, idx) => {
+              {patientRoutes.map(route => {
                 const Element = route.component && React.createElement(route.component);
                 if (route.index) {
-                  return <Route key={`route-index-${idx}`} index element={Element} />;
+                  return <Route key="route-index" index element={Element} />;
                 }
                 return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
               })}
@@ -178,12 +214,3 @@ const PatientRoutesContent = () => {
     </>
   );
 };
-
-export const PatientRoutes = React.memo(() => {
-  return (
-    <>
-      <NoteModal />
-      <PatientRoutesContent />
-    </>
-  );
-}, isPathUnchanged);

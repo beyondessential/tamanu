@@ -10,7 +10,6 @@ import { PatientRoutes } from './PatientRoutes';
 
 const CategoryComponent = () => {
   const { category } = useParams();
-  console.log('category', category);
 
   switch (category) {
     case 'all':

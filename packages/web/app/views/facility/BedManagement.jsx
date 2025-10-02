@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
-import { push } from 'redux-first-history';
+import { useNavigate } from 'react-router-dom';
 
 import { Colors } from '../../constants';
 import { useAuth } from '../../contexts/Auth';
@@ -199,6 +199,7 @@ const DetailedDashboardItem = ({ api, facilityId }) => {
 export const BedManagement = () => {
   const api = useApi();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { facilityId } = useAuth();
 
   const { searchParameters, setSearchParameters } = usePatientSearch(
@@ -258,7 +259,7 @@ export const BedManagement = () => {
       const patientId = row.patientId || row.plannedPatientId;
       if (patientId) {
         await dispatch(reloadPatient(patientId));
-        dispatch(push(`/patients/all/${patientId}`));
+        navigate(`/patients/all/${patientId}`);
       }
     }
   };
