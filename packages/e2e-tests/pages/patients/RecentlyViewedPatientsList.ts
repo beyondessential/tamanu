@@ -3,20 +3,31 @@ import { convertDateFormat } from '../../utils/testHelper';
 import { RecentlyViewedPatient } from '../../types/Patient';
 
 export class RecentlyViewedPatientsList {
-  readonly firstRecentlyViewedName: Locator;
-  readonly firstRecentlyViewedNHN: Locator;
-  readonly firstRecentlyViewedGender: Locator;
-  readonly firstRecentlyViewedBirthDate: Locator;
-  readonly navigateNext: Locator;
+  readonly firstRecentlyViewedName!: Locator;
+  readonly firstRecentlyViewedNHN!: Locator;
+  readonly firstRecentlyViewedGender!: Locator;
+  readonly firstRecentlyViewedBirthDate!: Locator;
+  readonly navigateNext!: Locator;
   private page: Page;
 
   constructor(page: Page) {
     this.page = page;
-    this.firstRecentlyViewedName = page.getByTestId('cardtitle-qqhk-0');
-    this.firstRecentlyViewedNHN = page.getByTestId('cardtext-iro1-0');
-    this.firstRecentlyViewedGender = page.getByTestId('capitalizedcardtext-zu58-0');
+    
+    // TestId mapping for RecentlyViewedPatientsList elements
+    const testIds = {
+      firstRecentlyViewedName: 'cardtitle-qqhk-0',
+      firstRecentlyViewedNHN: 'cardtext-iro1-0',
+      firstRecentlyViewedGender: 'capitalizedcardtext-zu58-0',
+      navigateNext: 'navigatenext-zeo2',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('tooltip-b4e8');
-    this.navigateNext = page.getByTestId('navigatenext-zeo2');
   }
 
   formatDateForRecentlyViewed(dateOfBirth: string): string {
