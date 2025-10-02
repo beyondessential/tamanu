@@ -71,7 +71,7 @@ export class CertifiableVaccine extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'drugId',
+      foreignKey: 'vaccineId',
       as: 'vaccine',
     });
 
