@@ -77,7 +77,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
 
     if (isUsingDefaultSpreadsheet) {
       const autoDeployFile = resolve(__dirname, 'default-provisioning.xlsx');
-      log.info('Using default spreadsheet', { file: autoDeployFile });
+      log.info('Using default spreadsheet from this branch', { file: autoDeployFile });
       await referenceDataImporter({
         file: autoDeployFile,
         ...importerOptions,
