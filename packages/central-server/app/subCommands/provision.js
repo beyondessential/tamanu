@@ -80,6 +80,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       log.info('Using default spreadsheet from this branch', { file: autoDeployFile });
       await referenceDataImporter({
         file: autoDeployFile,
+        enforceFullImport: true,
         ...importerOptions,
       });
     }

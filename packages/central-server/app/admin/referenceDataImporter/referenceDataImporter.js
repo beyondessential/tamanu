@@ -21,6 +21,7 @@ export async function referenceDataImporter({
   includedDataTypes = [],
   checkPermission,
   skipExisting,
+  enforceFullImport = false,
 }) {
   log.info('Importing data definitions from file', { file });
 
@@ -40,6 +41,15 @@ export async function referenceDataImporter({
 
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
+
+  // Check all sheets are included in the workbook
+  if (enforceFullImport) {
+    for (const sheetName of includedDataTypes) {
+      if (!workbook.Sheets[sheetName]) {
+        throw new Error(`Sheet ${sheetName} is not included in the workbook`);
+      }
+    }
+  }
 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
@@ -111,10 +121,8 @@ export async function referenceDataImporter({
   while (nonRefDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 
-    const [
-      dataType,
-      { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
-    ] = nonRefDataTypes.shift();
+    const [dataType, { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] }] =
+      nonRefDataTypes.shift();
 
     log.debug('Look for data type in sheets', { dataType });
     const sheet = sheets.get(dataType);
