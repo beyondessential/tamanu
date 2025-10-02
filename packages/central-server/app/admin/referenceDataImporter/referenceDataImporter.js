@@ -42,18 +42,7 @@ export async function referenceDataImporter({
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
-  // TODO: I dont actually know if these should be here
-  const IMPORTED_OUTSIDE_OF_REF_DATA_IMPORTER = [
-    'program',
-    'programRegistry',
-    'programRegistryClinicalStatus',
-    'programRegistryCondition',
-    'programRegistryConditionCategory',
-    'programDataElement',
-    'programDataElementCategory',
-    'survey',
-    'surveyScreenComponent',
-  ];
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user'];
 
   // Check all sheets are included in the workbook and have at least one row
   if (enforceFullImport) {
@@ -64,7 +53,7 @@ export async function referenceDataImporter({
     );
     const missingSheets = [];
     for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
-      dataType => !IMPORTED_OUTSIDE_OF_REF_DATA_IMPORTER.includes(dataType),
+      dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
     )) {
       const sheetName = sheetNameDictionary[importableDataType];
       if (!sheetName) {
