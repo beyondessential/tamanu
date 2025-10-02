@@ -1,4 +1,4 @@
-import { upperFirst } from 'lodash';
+import { startCase, upperFirst } from 'lodash';
 import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
@@ -51,21 +51,23 @@ export async function referenceDataImporter({
         return [normaliseSheetName(sheetName), sheetName];
       }),
     );
-    const missingSheets = [];
+    const missingDataTypes = [];
     for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
       dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
     )) {
       const sheetName = sheetNameDictionary[importableDataType];
       if (!sheetName) {
-        missingSheets.push(importableDataType);
+        missingDataTypes.push(importableDataType);
       } else {
         if (workbook.Sheets[sheetName].length === 0) {
-          missingSheets.push(importableDataType);
+          missingDataTypes.push(importableDataType);
         }
       }
     }
-    if (missingSheets.length > 0) {
-      throw new Error(`Missing or empty sheets for dataTypes:\n${missingSheets.join('\n')}`);
+    if (missingDataTypes.length > 0) {
+      throw new Error(
+        `default-provisioning.xlsx is missing or has empty sheets:\n${missingDataTypes.map(startCase).join('\n')}`,
+      );
     }
   }
 
