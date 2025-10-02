@@ -1,18 +1,17 @@
-import { useNavigate } from 'react-router-dom';
-import { generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
   const navigateHook = useNavigate();
   const params = useParams();
+
   const location = useLocation();
 
   const navigate = (url, options) => navigateHook(url, options);
 
-  const getParams = (path) =>
-    matchPath({ path, end: false }, location.pathname)?.params ?? {};
+  const getParams = path => matchPath({ path, end: false }, location.pathname)?.params ?? {};
 
-  const navigateToCategory = (category) => {
+  const navigateToCategory = category => {
     navigate(
       generatePath(PATIENT_PATHS.CATEGORY, {
         category,
@@ -23,10 +22,12 @@ export const usePatientNavigation = () => {
   const navigateToPatient = (patientId, search) => {
     const params = getParams(PATIENT_PATHS.CATEGORY);
     const { category = PATIENT_CATEGORIES.ALL } = params;
+    console.log('params', params, category);
     const patientRoute = generatePath(PATIENT_PATHS.PATIENT, {
       category,
       patientId,
     });
+    console.log('params', patientRoute);
     navigate(`${patientRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
@@ -36,7 +37,9 @@ export const usePatientNavigation = () => {
       ...existingParams,
       encounterId,
     });
-    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}` , { replace: !!replaceInHistory });
+    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`, {
+      replace: !!replaceInHistory,
+    });
   };
 
   const navigateToSummary = () => {
@@ -77,7 +80,7 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToProgramRegistry = (programRegistryId) => {
+  const navigateToProgramRegistry = programRegistryId => {
     if (programRegistryId) {
       const programRegistryRoute = generatePath(PATIENT_PATHS.PROGRAM_REGISTRY, {
         ...params,

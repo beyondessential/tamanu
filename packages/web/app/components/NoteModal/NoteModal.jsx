@@ -10,7 +10,6 @@ import { ConfirmModal } from '../ConfirmModal';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { NOTE_FORM_MODES } from '../../constants';
-import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';

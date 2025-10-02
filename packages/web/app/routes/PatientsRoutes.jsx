@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams } from 'react-router-dom';
 import {
   AdmittedPatientsView,
   OutpatientsView,
@@ -8,12 +8,28 @@ import {
 } from '../views';
 import { PatientRoutes } from './PatientRoutes';
 
+const CategoryComponent = () => {
+  const { category } = useParams();
+  console.log('category', category);
+
+  switch (category) {
+    case 'all':
+      return <PatientListingView />;
+    case 'emergency':
+      return <TriageListingView />;
+    case 'inpatient':
+      return <AdmittedPatientsView />;
+    case 'outpatient':
+      return <OutpatientsView />;
+    default:
+      return <Navigate to="/patients/all" replace />;
+  }
+};
+
 export const PatientsRoutes = () => (
   <Routes>
-    <Route path="all" element={<PatientListingView />} />
-    <Route path="emergency" element={<TriageListingView />} />
-    <Route path="inpatient" element={<AdmittedPatientsView />} />
-    <Route path="outpatient" element={<OutpatientsView />} />
+    {/* Parameterized route for category listings */}
+    <Route path=":category" element={<CategoryComponent />} />
 
     {/* Individual patient routes */}
     <Route path=":category/:patientId/*" element={<PatientRoutes />} />
