@@ -1,6 +1,6 @@
 import { Breadcrumbs, Typography } from '@material-ui/core';
 import React from 'react';
-import { matchPath, useLocation, useParams } from 'react-router-dom';
+import { useMatch, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
@@ -43,44 +43,48 @@ const Breadcrumb = ({ onClick, children, path }) => (
 
 const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
   <Breadcrumb
-    path={path}
+    path={path || 'index'}
     onClick={navigateTo}
-    key={`breadcrumb-${path}`}
+    key={`breadcrumb-${path || 'index'}`}
     data-testid="breadcrumb-strg"
   >
     {title}
   </Breadcrumb>
 );
 
+// Utility: count path segments for ordering (index => 0)
+const getDepth = (path) => {
+  if (!path) return 0;
+  return path.split('/').filter(Boolean).length;
+};
+
 export const PatientBreadcrumbs = ({ patientRoutes }) => {
-  const location = useLocation();
   const { navigateToCategory } = usePatientNavigation();
   const params = useParams();
 
   const handleCategoryClick = () => navigateToCategory(params.category);
-  // Navigates down the patientRoutes tree to get the active route hierarchy
-  // and outputs a list of links and titles for these routes.
-  const getPatientCrumbs = (routeList, crumbs = []) => {
-    if (!routeList) return crumbs;
-    for (let i = 0; i < routeList.length; i++) {
-      const routeConfig = routeList[i];
-      const matched = matchPath(location.pathname, {
-        path: routeConfig.path,
-      });
-      if (matched) {
-        let subCrumbs = [];
-        if (routeConfig?.subPaths?.length) {
-          subCrumbs = routeConfig.subPaths.map(subPath => getBreadcrumbFromRoute(subPath));
-        }
-        return getPatientCrumbs(routeConfig.routes, [
-          ...crumbs,
-          ...subCrumbs,
-          getBreadcrumbFromRoute(routeConfig),
-        ]);
-      }
+
+  // Compute breadcrumbs from a flat list using relative matching in the current route context
+  // Use useMatch for each route (stable list) to determine if it contributes to the current path
+  const matches = patientRoutes.map(route => ({
+    route,
+    match: route.index ? useMatch('') : useMatch({ path: route.path, end: false }),
+  }));
+
+  // Keep matched routes only and sort by depth so parents come before children
+  const matchedRoutes = matches
+    .filter(m => !!m.match)
+    .sort((a, b) => getDepth(a.route.path) - getDepth(b.route.path))
+    .map(m => m.route);
+
+  // Build crumbs: include any subPaths for the most specific matched route before its own crumb
+  const crumbs = [];
+  matchedRoutes.forEach((route, idx) => {
+    if (idx === matchedRoutes.length - 1 && route?.subPaths?.length) {
+      route.subPaths.forEach(sub => crumbs.push(getBreadcrumbFromRoute(sub)));
     }
-    return crumbs;
-  };
+    crumbs.push(getBreadcrumbFromRoute(route));
+  });
 
   return (
     <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
@@ -89,7 +93,7 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
           {PATIENT_CATEGORY_LABELS[params.category]}
         </Breadcrumb>
       </NoteModalActionBlocker>
-      {getPatientCrumbs(patientRoutes)}
+      {crumbs}
     </StyledBreadcrumbs>
   );
 };

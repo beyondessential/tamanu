@@ -6,7 +6,6 @@ import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
@@ -64,113 +63,88 @@ export const usePatientRoutes = () => {
   const { ability } = useAuth();
   const canAccessMar = ability.can('read', 'MedicationAdministration');
 
-  return [
+  const basePatient = {
+    index: true,
+    component: PatientView,
+    navigateTo: () => navigateToPatient(patient.id),
+    title: getPatientNameAsString(patient || {}),
+  };
+
+  const routes = [
+    // Base patient view (index)
+    basePatient,
+    // Patient-level routes
+    { path: 'programs/new', component: ProgramsView, title: 'New Form' },
+    { path: 'referrals/new', component: ReferralsView, title: 'New Referral' },
+
+    // Encounter and related
     {
-      path: PATIENT_PATHS.PATIENT,
-      component: PatientView,
-      navigateTo: () => navigateToPatient(patient.id),
-      title: getPatientNameAsString(patient || {}),
-      routes: [
-        {
-          path: `${PATIENT_PATHS.PATIENT}/programs/new`,
-          component: ProgramsView,
-          title: 'New Form',
-        },
-        {
-          path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
-          component: ReferralsView,
-          title: 'New Referral',
-        },
-        {
-          path: `${PATIENT_PATHS.ENCOUNTER}/:modal?`,
-          component: EncounterView,
-          navigateTo: () => navigateToEncounter(encounter.id),
-          title: getEncounterType(encounter || {}),
-          routes: [
-            {
-              path: `${PATIENT_PATHS.SUMMARY}/view`,
-              component: DischargeSummaryView,
-              title: (
-                <TranslatedText
-                  stringId="encounter.dischargeSummary.title"
-                  fallback="Discharge Summary"
-                />
-              ),
-            },
-            ...(canAccessMar
-              ? [
-                  {
-                    path: `${PATIENT_PATHS.MAR}/view`,
-                    component: MarView,
-                    title: (
-                      <TranslatedText
-                        stringId="encounter.mar.title"
-                        fallback="Medication admin record"
-                      />
-                    ),
-                    subPaths: [
-                      {
-                        path: `${PATIENT_PATHS.ENCOUNTER}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
-                        title: (
-                          <TranslatedText
-                            stringId="encounter.medication.title"
-                            fallback="Medication"
-                          />
-                        ),
-                        navigateTo: () =>
-                          navigateToEncounter(encounter.id, {
-                            tab: ENCOUNTER_TAB_NAMES.MEDICATION,
-                          }),
-                      },
-                    ],
-                  },
-                ]
-              : []),
-            {
-              path: `${PATIENT_PATHS.ENCOUNTER}/programs/new`,
-              component: ProgramsView,
-              title: 'New Form',
-            },
-            {
-              path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
-              component: LabRequestView,
-              title: 'Lab Request',
-            },
-            {
-              path: `${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
-              component: ImagingRequestView,
-              title: 'Imaging Request',
-            },
-          ],
-        },
-        {
-          path: PATIENT_PATHS.PROGRAM_REGISTRY,
-          component: PatientProgramRegistryView,
-          navigateTo: () => navigateToProgramRegistry(),
-          title: <ProgramRegistryTitle />,
-          routes: [
-            {
-              path: PATIENT_PATHS.PROGRAM_REGISTRY_SURVEY,
-              component: ProgramRegistrySurveyView,
-              title: 'Survey',
-            },
-          ],
-        },
-      ],
+      path: 'encounter/:encounterId/:modal?',
+      component: EncounterView,
+      navigateTo: () => navigateToEncounter(encounter?.id),
+      title: getEncounterType(encounter || {}),
+    },
+    {
+      path: 'encounter/:encounterId/summary/view',
+      component: DischargeSummaryView,
+      title: (
+        <TranslatedText
+          stringId="encounter.dischargeSummary.title"
+          fallback="Discharge Summary"
+        />
+      ),
+    },
+    ...(canAccessMar
+      ? [
+          {
+            path: 'encounter/:encounterId/mar/view',
+            component: MarView,
+            title: (
+              <TranslatedText
+                stringId="encounter.mar.title"
+                fallback="Medication admin record"
+              />
+            ),
+            subPaths: [
+              {
+                path: 'encounter/:encounterId?tab=' + ENCOUNTER_TAB_NAMES.MEDICATION,
+                title: (
+                  <TranslatedText
+                    stringId="encounter.medication.title"
+                    fallback="Medication"
+                  />
+                ),
+                navigateTo: () =>
+                  navigateToEncounter(encounter?.id, {
+                    tab: ENCOUNTER_TAB_NAMES.MEDICATION,
+                  }),
+              },
+            ],
+          },
+        ]
+      : []),
+    { path: 'encounter/:encounterId/programs/new', component: ProgramsView, title: 'New Form' },
+    { path: 'encounter/:encounterId/lab-request/:labRequestId/:modal?', component: LabRequestView, title: 'Lab Request' },
+    { path: 'encounter/:encounterId/imaging-request/:imagingRequestId/:modal?', component: ImagingRequestView, title: 'Imaging Request' },
+
+    // Program registry
+    {
+      path: 'program-registry/:programRegistryId',
+      component: PatientProgramRegistryView,
+      navigateTo: () => navigateToProgramRegistry(),
+      title: <ProgramRegistryTitle />,
+    },
+    {
+      path: 'program-registry/:programRegistryId/survey/:surveyId',
+      component: ProgramRegistrySurveyView,
+      title: 'Survey',
     },
   ];
+
+  return routes;
 };
 
 const isPathUnchanged = () => true;
-
-const RouteWithSubRoutes = ({ path, component, routes }) => (
-  <>
-    <Route path={path} element={React.createElement(component)} />
-    {routes?.map((subRoute) => (
-      <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
-    ))}
-  </>
-);
 
 const PatientPane = styled.div`
   overflow: auto;
@@ -188,7 +162,7 @@ const PatientRoutesContent = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
-  const isProgramRegistry = !!useMatch(PATIENT_PATHS.PROGRAM_REGISTRY);
+  const isProgramRegistry = !!useMatch('program-registry/:programRegistryId/*');
 
   return (
     <>
@@ -202,9 +176,13 @@ const PatientRoutesContent = () => {
          that they have access to the programRegistryId url param */}
             {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
             <Routes>
-              {patientRoutes.map((route) => (
-                <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-              ))}
+              {patientRoutes.map((route, idx) => {
+                const Element = route.component && React.createElement(route.component);
+                if (route.index) {
+                  return <Route key={`route-index-${idx}`} index element={Element} />;
+                }
+                return <Route key={`route-${route.path}`} path={route.path} element={Element} />;
+              })}
             </Routes>
           </PatientPaneInner>
         </PatientPane>
