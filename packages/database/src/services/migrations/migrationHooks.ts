@@ -119,12 +119,12 @@ export async function runPreMigration(log: Logger, sequelize: Sequelize) {
     'set_',
     '_updated_at_sync_tick',
   )) {
-    log.info(`Removing updated_at_sync_tick trigger from ${schema}.${table}`);
-
     // we need to keep the updated_at_sync_tick trigger on the changes table
     if (schema === 'logs' && table === 'changes') {
       continue;
     }
+
+    log.info(`Removing updated_at_sync_tick trigger from ${schema}.${table}`);
 
     await sequelize.query(
       `DROP TRIGGER set_${table}_updated_at_sync_tick ON "${schema}"."${table}"`,
