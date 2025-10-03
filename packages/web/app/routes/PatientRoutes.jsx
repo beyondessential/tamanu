@@ -1,11 +1,8 @@
 import React from 'react';
-import { Routes, Route, useLocation, useParams, matchPath } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
-import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { useEncounter } from '../contexts/Encounter';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
   DischargeSummaryView,
   EncounterView,
@@ -13,79 +10,23 @@ import {
   LabRequestView,
   PatientView,
 } from '../views';
-import { Breadcrumb } from '../components/PatientBreadcrumbs';
-import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
 import { ProgramRegistrySurveyView } from '../views/programRegistry/ProgramRegistrySurveyView';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
-import { useProgramRegistryQuery } from '../api/queries/useProgramRegistryQuery';
-import { TranslatedReferenceData } from '../components';
 import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
-import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
-import { PATIENT_PATHS } from '../constants/patientPaths';
-
-const ProgramRegistryBreadcrumb = () => {
-  const location = useLocation();
-  const { navigateToProgramRegistry } = usePatientNavigation();
-  const match = matchPath(
-    {
-      path: `${PATIENT_PATHS.PROGRAM_REGISTRY}*`,
-    },
-    location.pathname,
-  );
-  const programRegistryId = match?.params.programRegistryId;
-  const { data: programRegistry } = useProgramRegistryQuery(programRegistryId);
-
-  if (!programRegistry) {
-    return null;
-  }
-
-  return (
-    <Breadcrumb
-      onClick={() => navigateToProgramRegistry(programRegistryId)}
-      title={
-        <TranslatedReferenceData
-          fallback={programRegistry.name}
-          value={programRegistry.id}
-          category="programRegistry"
-        />
-      }
-    />
-  );
-};
-
-const EncounterBreadCrumb = () => {
-  const { encounter } = useEncounter();
-  const { navigateToEncounter } = usePatientNavigation();
-  return (
-    <Breadcrumb
-      onClick={() => navigateToEncounter(encounter.id)}
-      title={getEncounterType(encounter || {})}
-      key="encounter"
-    />
-  );
-};
-
-const MedicationBreadCrumb = () => {
-  const { encounter } = useEncounter();
-  const { navigateToEncounter } = usePatientNavigation();
-  return (
-    <Breadcrumb
-      onClick={() => {
-        navigateToEncounter(encounter?.id, {
-          tab: ENCOUNTER_TAB_NAMES.MEDICATION,
-        });
-      }}
-      title={<TranslatedText stringId="encounter.medication.title" fallback="Medication" />}
-    />
-  );
-};
+import {
+  PatientNavigation,
+  Breadcrumb,
+  EncounterBreadcrumb,
+  MedicationBreadcrumb,
+  ProgramRegistryBreadcrumb,
+} from '../features/Breadcrumbs';
 
 export const usePatientRoutes = () => {
   // prefetch userPreferences
@@ -107,13 +48,13 @@ export const usePatientRoutes = () => {
     {
       path: 'encounter/:encounterId/:modal?',
       component: EncounterView,
-      breadcrumbs: [<EncounterBreadCrumb key="encounter" />],
+      breadcrumbs: [<EncounterBreadcrumb key="encounter" />],
     },
     {
       path: 'encounter/:encounterId/summary/view',
       component: DischargeSummaryView,
       breadcrumbs: [
-        <EncounterBreadCrumb key="encounter" />,
+        <EncounterBreadcrumb key="encounter" />,
         <Breadcrumb
           key="discharge-summary"
           title={
@@ -131,8 +72,8 @@ export const usePatientRoutes = () => {
             path: 'encounter/:encounterId/mar/view',
             component: MarView,
             breadcrumbs: [
-              <EncounterBreadCrumb key="encounter" />,
-              <MedicationBreadCrumb key="medication" />,
+              <EncounterBreadcrumb key="encounter" />,
+              <MedicationBreadcrumb key="medication" />,
               <Breadcrumb
                 key="marview"
                 title={
@@ -150,7 +91,7 @@ export const usePatientRoutes = () => {
       path: 'encounter/:encounterId/programs/new',
       component: ProgramsView,
       breadcrumbs: [
-        <EncounterBreadCrumb key="encounter" />,
+        <EncounterBreadcrumb key="encounter" />,
         <Breadcrumb key="new-form" title="New Form" />,
       ],
     },
@@ -158,7 +99,7 @@ export const usePatientRoutes = () => {
       path: 'encounter/:encounterId/lab-request/:labRequestId/:modal?',
       component: LabRequestView,
       breadcrumbs: [
-        <EncounterBreadCrumb key="encounter" />,
+        <EncounterBreadcrumb key="encounter" />,
         <Breadcrumb key="lab-request" title="Lab Request" />,
       ],
     },
@@ -166,7 +107,7 @@ export const usePatientRoutes = () => {
       path: 'encounter/:encounterId/imaging-request/:imagingRequestId/:modal?',
       component: ImagingRequestView,
       breadcrumbs: [
-        <EncounterBreadCrumb key="encounter" />,
+        <EncounterBreadcrumb key="encounter" />,
         <Breadcrumb key="imaging-request" title="Imaging Request" />,
       ],
     },
