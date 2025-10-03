@@ -11,7 +11,6 @@ export const REFERENCE_TYPES = {
   DESIGNATION: 'designation',
   TRIAGE_REASON: 'triageReason',
   PROCEDURE_TYPE: 'procedureType',
-  IMAGING_TYPE: 'imagingType',
   LAB_SAMPLE_SITE: 'labSampleSite',
   LAB_TEST_CATEGORY: 'labTestCategory',
   LAB_TEST_PRIORITY: 'labTestPriority',
