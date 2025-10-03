@@ -70,11 +70,23 @@ export class FhirJobWorker extends Model {
     });
   }
 
-  async markLastSuccessfulJobTimestamp() {
+  async recordSuccess() {
     await this.update({
       metadata: {
         ...this.metadata,
-        lastSuccessfulJobTimestamp: Sequelize.fn('now'),
+        lastSuccessfulJobTimestamp: new Date(),
+        successfulJobs: (this.metadata.successfulJobs || 0) + 1,
+        totalJobs: (this.metadata.totalJobs || 0) + 1,
+      },
+    });
+  }
+
+  async recordFailure() {
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        failedJobs: (this.metadata.failedJobs || 0) + 1,
+        totalJobs: (this.metadata.totalJobs || 0) + 1,
       },
     });
   }

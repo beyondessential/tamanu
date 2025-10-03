@@ -55,8 +55,12 @@ export class FhirWorker {
     this.log.debug('FhirWorker: scheduling heartbeat', { intervalMs: heartbeat });
     this.heartbeat = setInterval(async () => {
       try {
+        await this.worker.reload();
         this.log.info('FhirWorker: heartbeat:', {
-          totalProcessedJobs: this.totalProcessedJobs,
+          topics: this.worker.metadata.topics,
+          successfulJobs: this.worker.metadata.successfulJobs || 0,
+          failedJobs: this.worker.metadata.failedJobs || 0,
+          totalJobs: this.worker.metadata.totalJobs || 0,
         });
         await this.worker.heartbeat();
       } catch (err) {
@@ -258,8 +262,9 @@ export class FhirWorker {
 
           try {
             await spanWrapFn('FhirJob.complete', () => job.complete(this.worker.id));
-            await this.worker?.markLastSuccessfulJobTimestamp();
+            await this.worker.recordSuccess();
           } catch (err) {
+            await this.worker.recordFailure();
             throw new FhirWorkerError(topic, 'job completed but failed to mark as complete', err);
           }
         } catch (err) {
