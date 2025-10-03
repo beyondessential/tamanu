@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
@@ -170,11 +169,10 @@ export const Sidebar = React.memo(({ items }) => {
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = (newPath) => navigate(newPath);
+  const onPathChanged = newPath => navigate(newPath);
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {

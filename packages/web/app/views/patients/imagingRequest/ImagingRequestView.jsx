@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { pick } from 'lodash';
 import styled from 'styled-components';
@@ -435,7 +435,6 @@ export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
 
-  const dispatch = useDispatch();
   const params = useParams();
   const navigate = useNavigate();
   const onNavigateBackToImaging = () => {

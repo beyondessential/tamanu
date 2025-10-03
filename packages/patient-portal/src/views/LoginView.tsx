@@ -57,13 +57,9 @@ const EmailSection = ({ email }: { email: string }) => {
   );
 };
 
-interface LocationState {
-  email?: string;
-}
-
 export const LoginView = () => {
   const { mutate: login, error: loginError, reset: resetLogin } = useLogin();
-  const location = useLocation<LocationState>();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const storedEmail = location.state?.email;

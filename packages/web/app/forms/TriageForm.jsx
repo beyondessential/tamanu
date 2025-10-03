@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
@@ -70,7 +69,6 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
