@@ -1,5 +1,6 @@
 import { IUser } from '../../types';
 import { callWithBackoffOptions } from './utils/callWithBackoff';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
 export type DownloadRecordsResponse = {
   count: number;
@@ -17,7 +18,9 @@ export interface SyncRecord {
   recordId: string;
   recordType: string;
   data: SyncRecordData;
+  sortOrder?: number;
   isDeleted?: boolean;
+  direction?: SYNC_SESSION_DIRECTION
 }
 
 export type PersistResult = {
@@ -25,6 +28,8 @@ export type PersistResult = {
 };
 
 export type DataToPersist = {
+  id: string;
+  deletedAt: string | null;
   [key: string]: unknown;
 };
 
@@ -40,6 +45,7 @@ export interface LoginResponse {
   localisation: object;
   settings: object;
   permissions: [];
+  allowedFacilities: { id: string }[] | 'ALL';
 }
 
 export type FetchOptions = {

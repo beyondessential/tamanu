@@ -46,6 +46,11 @@ describe('CentralServerConnection', () => {
       displayName: 'Not Real',
       email: 'notreal@example.com',
     },
+    settings: {
+      sync: {
+        streaming: false,
+      },
+    },
   });
   const meSuccess = fakeSuccess({
     id: 'not-real',
@@ -164,6 +169,15 @@ describe('CentralServerConnection', () => {
     it('throws a RemoteCallError if no data is returned with the error', async () => {
       fetch.mockReturnValueOnce(authEmpty);
       await expect(centralServer.connect()).rejects.toBeProblemOfType(ERROR_TYPE.REMOTE);
+    });
+
+    it('retrieves server settings', async () => {
+      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
+      expect((await centralServer.loginData()).settings).toMatchObject({
+        sync: {
+          streaming: false,
+        },
+      });
     });
 
     it('retrieves user data', async () => {

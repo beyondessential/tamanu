@@ -8,7 +8,14 @@ import { completeSyncSession } from '@tamanu/database/sync';
 import { DEVICE_SCOPES } from '@tamanu/constants';
 
 import { CentralSyncManager } from './CentralSyncManager';
+import { startStream, StreamMessage } from './StreamMessage';
+import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
+
+/** @param ctx {ApplicationContext} */
 export const buildSyncRoutes = ctx => {
   const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
@@ -145,6 +152,32 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // wait until session is ready, as a stream
+  syncRoutes.get(
+    '/:sessionId/ready/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+      } = req;
+
+      if (!(await syncManager.sessionExists(sessionId))) {
+        throw new Error('Session not found');
+      }
+
+      startStream(res);
+
+      const interval = await ctx.settings.get('sync.databasePollInterval');
+      while (!(await syncManager.checkSessionReady(sessionId))) {
+        res.write(StreamMessage.sessionWaiting());
+        await sleepAsync(interval);
+      }
+
+      const { startedAtTick } = await syncManager.fetchSyncMetadata(sessionId);
+      res.write(StreamMessage.end({ startedAtTick }));
+      res.end();
+    }),
+  );
+
   // set the since and facilityId for a pull session
   syncRoutes.post(
     '/:sessionId/pull/initiate',
@@ -178,6 +211,32 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // wait until pull snapshot is ready, as a stream
+  syncRoutes.get(
+    '/:sessionId/pull/ready/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+      } = req;
+
+      if (!(await syncManager.sessionExists(sessionId))) {
+        throw new Error('Session not found');
+      }
+
+      startStream(res);
+
+      const interval = await ctx.settings.get('sync.databasePollInterval');
+      while (!(await syncManager.checkPullReady(sessionId))) {
+        res.write(StreamMessage.pullWaiting());
+        await sleepAsync(interval);
+      }
+
+      const { totalToPull, pullUntil } = await syncManager.fetchPullMetadata(sessionId);
+      res.write(StreamMessage.end({ totalToPull, pullUntil }));
+      res.end();
+    }),
+  );
+
   // count the outgoing changes for a session, and grab the sync tick the pull snapshots up until
   syncRoutes.get(
     '/:sessionId/pull/metadata',
@@ -201,6 +260,46 @@ export const buildSyncRoutes = ctx => {
       });
       log.info(`GET /pull : returned ${changes.length} changes`);
       res.json(changes);
+    }),
+  );
+
+  // stream changes down to facility
+  syncRoutes.get(
+    '/:sessionId/pull/stream',
+    asyncHandler(async (req, res) => {
+      const {
+        params: { sessionId },
+        query: { fromId = null },
+      } = req;
+
+      if (!(await syncManager.checkPullReady(sessionId))) {
+        throw new Error('Session not ready');
+      }
+
+      startStream(res);
+
+      let startId = fromId ? parseInt(fromId, 10) : 0;
+      const limit = await ctx.settings.get('sync.databasePollBatchSize');
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        // TODO: change this to a cursor
+        const changes = await syncManager.getOutgoingChanges(sessionId, {
+          fromId: startId,
+          limit,
+        });
+        if (changes.length === 0) {
+          break;
+        }
+        startId = changes[changes.length - 1].id;
+
+        log.info(`STREAM /pull : returning ${changes.length} changes`);
+        for (const change of changes) {
+          res.write(StreamMessage.pullChange(change));
+        }
+      }
+
+      res.write(StreamMessage.end());
+      res.end();
     }),
   );
 

@@ -27,8 +27,9 @@ export class TamanuApi extends BaseTamanuApi {
     return super.setToken(token);
   }
 
-  // Override login for the patient portal authentication flow
-  async login({ loginToken, email }: LoginCredentials, config = {}) {
+  // Using a slightly different login flow for the patient portal authentication flow
+  // Don't use the base login() method, use this instead
+  async tokenLogin({ loginToken, email }: LoginCredentials, config = {}) {
     const response = await this.post('login', { loginToken, email } as any, {
       ...config,
       returnResponse: true,
