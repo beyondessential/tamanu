@@ -35,7 +35,6 @@ export const REFERENCE_TYPES = {
   RELIGION: 'religion',
   REACTION: 'reaction',
   FAMILY_RELATION: 'familyRelation',
-  PATIENT_TYPE: 'patientType',
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
