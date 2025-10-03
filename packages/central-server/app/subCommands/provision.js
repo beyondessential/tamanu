@@ -122,6 +122,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     if (isUsingDefaultSpreadsheet) {
       const autoDeployFile = resolve(__dirname, 'default-provisioning.xlsx');
       log.info('Using reference data spreadsheet from this branch', { file: autoDeployFile });
+      // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
       validateFullImport(autoDeployFile);
       await referenceDataImporter({
         file: autoDeployFile,
