@@ -63,6 +63,7 @@ patientProgramRegistration.post(
       if (existingRecordedInErrorRegistration) {
         registrationRecord = await existingRecordedInErrorRegistration.update(
           {
+            deletedAt: null,
             clinicalStatusId: null,
             deactivatedDate: null,
             deactivatedClinicianId: null,
