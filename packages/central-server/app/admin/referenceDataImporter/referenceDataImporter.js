@@ -1,5 +1,5 @@
 import { startCase, upperFirst } from 'lodash';
-import { read, readFile } from 'xlsx';
+import { read, readFile, utils } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
 import { GENERAL_IMPORTABLE_DATA_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
@@ -59,7 +59,8 @@ export async function referenceDataImporter({
       if (!sheetName) {
         missingDataTypes.push(importableDataType);
       } else {
-        if (workbook.Sheets[sheetName].length === 0) {
+        const sheetData = utils.sheet_to_json(workbook.Sheets[sheetName]);
+        if (sheetData.length === 0) {
           missingDataTypes.push(importableDataType);
         }
       }
