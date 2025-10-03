@@ -22,8 +22,6 @@ export class FhirWorker {
   // in "testMode" it's disabled.
   testMode = false;
 
-  totalProcessedJobs = 0;
-
   constructor(context, log) {
     this.models = context.models;
     this.sequelize = context.sequelize;
@@ -281,7 +279,6 @@ export class FhirWorker {
         span.setStatus({ code: SpanStatusCode.ERROR });
       } finally {
         span.end();
-        this.totalProcessedJobs += 1;
         // immediately process the queue again to work through the backlog
         this.processQueueNow();
       }
