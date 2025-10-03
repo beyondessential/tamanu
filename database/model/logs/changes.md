@@ -66,7 +66,7 @@ This is extracted from the data to make it easier to query on.
 {% enddocs %}
 
 {% docs logs__changes__record_created_at %}
-The `created_at` metadata from record the changelog was recoredd against
+The `created_at` metadata from record the changelog was recorded against
 {% enddocs %}
 
 {% docs logs__changes__record_updated_at %}
@@ -87,4 +87,9 @@ it is expected that all data trivially round-trips via JSON.
 
 {% docs logs__changes__reason %}
 A string representing the reason for the change.
+{% enddocs %}
+
+{% docs logs__changes__migration_context %}
+Stores a JSON string (as type TEXT) with migration context information
+if the changelog was created from a migration.
 {% enddocs %}
