@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
@@ -71,14 +71,14 @@ export const GroupByAppointmentToggle = (props) => {
     200,
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const handleChange = () => {
     const newValue =
       groupBy === APPOINTMENT_GROUP_BY.LOCATION_GROUP
         ? APPOINTMENT_GROUP_BY.CLINICIAN
         : APPOINTMENT_GROUP_BY.LOCATION_GROUP;
     setGroupBy(newValue);
-    history.push(`?groupBy=${newValue}`);
+    navigate(`?groupBy=${newValue}`);
     updateGroupByUserPreferences(newValue);
   };
 

@@ -12,8 +12,6 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { TranslatedReferenceData, TranslatedText } from '../../components';
-import { PatientNavigation } from '../../components/PatientNavigation';
-import { usePatientRoutes } from '../../routes/PatientRoutes';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -70,8 +68,6 @@ export const PatientProgramRegistryView = () => {
     programRegistryId,
   );
 
-  const patientRoutes = usePatientRoutes();
-
   if (isLoading || isFetching) {
     return <LoadingIndicator />;
   }
@@ -89,7 +85,6 @@ export const PatientProgramRegistryView = () => {
 
   return (
     <>
-      <PatientNavigation patientRoutes={patientRoutes} />
       <ViewHeader>
         <h1>
           <TranslatedReferenceData

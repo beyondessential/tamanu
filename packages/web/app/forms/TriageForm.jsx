@@ -2,8 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import { endOfDay, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { foreignKey } from '../utils/validation';
@@ -70,7 +69,7 @@ export const TriageForm = ({
 }) => {
   const api = useApi();
   const { facilityId, currentUser } = useAuth();
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { getSetting } = useSettings();
   const { getTranslation } = useTranslation();
   const triageCategories = getSetting('triageCategories');
@@ -245,7 +244,7 @@ export const TriageForm = ({
     await api.post('triage', newTriage);
 
     if (!noRedirectOnSubmit) {
-      dispatch(push('/patients/emergency'));
+      navigate('/patients/emergency');
     }
   };
 

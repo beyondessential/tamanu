@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
@@ -49,7 +49,7 @@ export const DischargeSummaryView = React.memo(() => {
     usePatientConditionsQuery(patient.id);
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
-    return <Redirect to="/patients/all" data-testid="redirect-imzj" />;
+    return <Navigate to="/patients/all" replace data-testid="redirect-imzj" />;
   }
 
   const isLoading =

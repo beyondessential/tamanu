@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginView, RegistrationView, DashboardView, RequestLoginTokenView } from './views';
 import { PublicRoute } from '@routes/PublicRoute';
 import { PrivateRoute } from '@routes/PrivateRoute';
@@ -7,13 +7,13 @@ import { PrivateRoute } from '@routes/PrivateRoute';
 export const App = () => {
   return (
     <Router>
-      <Switch>
-        <PrivateRoute path="/" exact component={DashboardView} />
-        <PublicRoute path="/login" component={RequestLoginTokenView} />
-        <PublicRoute path="/login-submit" component={LoginView} />
-        <PublicRoute path="/register/:token" component={RegistrationView} />
-        <Redirect to="/" />
-      </Switch>
+      <Routes>
+        <Route path="/" element={<PrivateRoute element={<DashboardView />} />} />
+        <Route path="/login" element={<PublicRoute element={<RequestLoginTokenView />} />} />
+        <Route path="/login-submit" element={<PublicRoute element={<LoginView />} />} />
+        <Route path="/register/:token" element={<PublicRoute element={<RegistrationView />} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 };
