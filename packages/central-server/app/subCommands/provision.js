@@ -125,9 +125,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
         file: realpath,
         ...importerOptions,
       });
-    }
-
-    if (referenceDataUrl) {
+    } else if (referenceDataUrl) {
       log.info('Downloading reference data file', { url: referenceDataUrl });
       const file = await fetch(referenceDataUrl);
       const data = Buffer.from(await (await file.blob()).arrayBuffer());
