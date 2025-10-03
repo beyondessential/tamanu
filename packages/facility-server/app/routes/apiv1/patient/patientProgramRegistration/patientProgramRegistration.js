@@ -56,6 +56,7 @@ patientProgramRegistration.post(
           registrationStatus: REGISTRATION_STATUSES.RECORDED_IN_ERROR,
         },
         transaction,
+        paranoid: false,
       });
 
       // If the registration was previously recorded in error, update that record to preserve the unique id. Otherwise, create a new one.
