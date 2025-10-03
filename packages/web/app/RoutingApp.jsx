@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from '@tamanu/constants';
@@ -25,7 +25,18 @@ import { useSettings } from './contexts/Settings';
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
 
-  return isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+  const router = React.useMemo(
+    () =>
+      createBrowserRouter([
+        {
+          path: '*',
+          element: isCentralServer ? <RoutingAdminApp /> : <RoutingFacilityApp />,
+        },
+      ]),
+    [isCentralServer],
+  );
+
+  return <RouterProvider router={router} />;
 };
 
 export const RoutingFacilityApp = React.memo(() => {
@@ -37,7 +48,9 @@ export const RoutingFacilityApp = React.memo(() => {
       <App sidebar={<Sidebar items={sidebarMenuItems} />}>
         <UserActivityMonitor />
         <Routes>
-          {isSettingsLoaded ? <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} /> : null}
+          {isSettingsLoaded ? (
+            <Route path="/" element={<Navigate to={sidebarMenuItems[0].path} replace />} />
+          ) : null}
           <Route path="/dashboard" element={<DashboardView />} />
           <Route path="/patients/*" element={<PatientsRoutes />} />
           <Route path="/appointments/*" element={<AppointmentRoutes />} />

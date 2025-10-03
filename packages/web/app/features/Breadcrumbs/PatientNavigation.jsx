@@ -5,7 +5,7 @@ import { Breadcrumbs } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { BackButton, NoteModalActionBlocker } from '../../components';
 import { PatientBreadcrumb, CategoryBreadcrumb } from './PatientBreadcrumbs';
-import { PATIENT_PATHS } from '../../constants/patientPaths.js';
+import { PATIENT_PATHS } from '../../constants/patientPaths';
 
 export const NAVIGATION_CONTAINER_HEIGHT = '50px';
 
@@ -71,7 +71,9 @@ export const PatientNavigation = ({ patientRoutes }) => {
       </NoteModalActionBlocker>
       <VerticalDivider data-testid="verticaldivider-yzxo" />
       <StyledBreadcrumbs data-testid="styledbreadcrumbs-68ga">
-        <CategoryBreadcrumb />
+        <NoteModalActionBlocker isNavigationBlock>
+          <CategoryBreadcrumb />
+        </NoteModalActionBlocker>
         <PatientBreadcrumb />
         {routeBreadcrumbs}
       </StyledBreadcrumbs>

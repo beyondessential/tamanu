@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useNavigate, useLocation, matchPath } from 'react-router-dom';
+import { matchPath, useBlocker } from 'react-router-dom';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
@@ -10,6 +10,7 @@ import { ConfirmModal } from '../ConfirmModal';
 import { useAuth } from '../../contexts/Auth';
 import { useTranslation } from '../../contexts/Translation';
 import { NOTE_FORM_MODES } from '../../constants';
+import { PATIENT_PATHS } from '../../constants/patientPaths';
 import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
@@ -214,13 +215,19 @@ export const MuiNoteModalComponent = ({
   );
 };
 
-export const NoteModal = React.memo(() => {
+export const NoteModal = () => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
   const handleBeforeUnloadRef = React.useRef(null);
-  const unblockRef = React.useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
   const { getTranslation } = useTranslation();
+
+  const blocker = useBlocker(({ nextLocation }) => {
+    // Only block when the note modal is open and navigating outside the patient area
+    if (!isNoteModalOpen) {
+      return false;
+    }
+    const nextPath = nextLocation?.pathname || '';
+    return !matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath);
+  }, isNoteModalOpen);
 
   useEffect(() => {
     handleBeforeUnloadRef.current = e => {
@@ -230,23 +237,47 @@ export const NoteModal = React.memo(() => {
 
     if (isNoteModalOpen) {
       window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
-      // TODO: React Router v6 removed history.block; implement a proper blocker if required.
-      unblockRef.current = () => {};
     }
 
     return () => {
       if (handleBeforeUnloadRef.current) {
         window.removeEventListener('beforeunload', handleBeforeUnloadRef.current);
       }
-      if (unblockRef.current) {
-        unblockRef.current();
-      }
     };
-  }, [isNoteModalOpen, history, closeNoteModal]);
+  }, [isNoteModalOpen]);
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const nextPath = blocker.location?.pathname || '';
+
+      // Allow navigation within the patient area without confirmation
+      if (matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath)) {
+        blocker.proceed();
+        return;
+      }
+
+      const confirmed = window.confirm(
+        getTranslation(
+          'note.modal.backBlock.confirm',
+          'You have a patient note in progress. If you leave this page, you will lose your changes.',
+        ),
+      );
+
+      if (confirmed) {
+        closeNoteModal();
+        // Proceed after closing modal to ensure state cleanup occurs first
+        setTimeout(() => {
+          blocker.proceed();
+        }, 0);
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, closeNoteModal, getTranslation]);
 
   return (
     <>
       <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
     </>
   );
-});
+};
