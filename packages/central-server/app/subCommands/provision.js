@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep } from 'lodash';
+import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import { read, readFile, utils } from 'xlsx';
 
@@ -31,26 +31,15 @@ function validateFullReferenceDataImport(fileOrData, isData = false) {
 
   log.debug('Parse XLSX workbook for validation');
   const workbook = isData ? read(fileOrData, { type: 'buffer' }) : readFile(fileOrData);
+  const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
-  const sheetNameDictionary = Object.fromEntries(
-    Object.keys(workbook.Sheets).map(sheetName => {
-      return [normaliseSheetName(sheetName), sheetName];
-    }),
-  );
-
-  // Check all data types in the reference data importer are included in the xlsx file and have at least one row
+  // Check all required data types are present and have data
   const missingDataTypes = [];
-  for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
-    dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
-  )) {
-    const sheetName = sheetNameDictionary[importableDataType];
-    if (!sheetName) {
-      missingDataTypes.push(importableDataType);
-    } else {
-      const sheetData = utils.sheet_to_json(workbook.Sheets[sheetName]);
-      if (sheetData.length === 0) {
-        missingDataTypes.push(importableDataType);
-      }
+  for (const dataType of GENERAL_IMPORTABLE_DATA_TYPES) {
+    if (EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType)) continue;
+    const sheetName = sheetNameDictionary[dataType];
+    if (!sheetName || utils.sheet_to_json(workbook.Sheets[sheetName]).length === 0) {
+      missingDataTypes.push(dataType);
     }
   }
 
@@ -110,16 +99,8 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     file: referenceDataFile = null,
     url: referenceDataUrl = null,
     default: isUsingDefaultSpreadsheet = false,
+    ...rest
   } of referenceData ?? []) {
-    const argCount = [referenceDataFile, referenceDataUrl, isUsingDefaultSpreadsheet].filter(
-      Boolean,
-    ).length;
-    if (argCount !== 1) {
-      throw new Error(
-        `Exactly one of file, url, or default must be specified, but ${argCount} were provided`,
-      );
-    }
-
     if (isUsingDefaultSpreadsheet) {
       const defaultReferenceDataFile = resolve(__dirname, 'default-provisioning.xlsx');
       log.info('Using reference data spreadsheet from this branch', {
@@ -131,6 +112,10 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
         file: defaultReferenceDataFile,
         ...importerOptions,
       });
+    }
+
+    if (!referenceDataFile && !referenceDataUrl) {
+      throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
     if (referenceDataFile) {
