@@ -67,7 +67,7 @@ export async function referenceDataImporter({
     }
     if (missingDataTypes.length > 0) {
       throw new Error(
-        `default-provisioning.xlsx is missing or has empty sheets:\n${missingDataTypes.map(startCase).join('\n')}`,
+        `default-provisioning.xlsx has no rows for the following data types:\n${missingDataTypes.join('\n')}`,
       );
     }
   }
