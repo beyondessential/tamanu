@@ -111,8 +111,10 @@ export async function referenceDataImporter({
   while (nonRefDataTypes.length > 0 && loopProtection > 0) {
     loopProtection -= 1;
 
-    const [dataType, { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] }] =
-      nonRefDataTypes.shift();
+    const [
+      dataType,
+      { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
+    ] = nonRefDataTypes.shift();
 
     log.debug('Look for data type in sheets', { dataType });
     const sheet = sheets.get(dataType);
