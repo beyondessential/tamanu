@@ -71,8 +71,9 @@ export class FhirWorker {
     this.pg.query('LISTEN jobs');
   }
 
-  setHandler(topic, handler) {
+  async setHandler(topic, handler) {
     this.log.info('FhirWorker: setting topic handler', { topic });
+    await this.worker?.markAsHandling(topic);
     this.handlers.set(topic, handler);
   }
 
@@ -253,6 +254,7 @@ export class FhirWorker {
 
           try {
             await spanWrapFn('FhirJob.complete', () => job.complete(this.worker.id));
+            await this.worker?.markLastSuccessfulJobTimestamp();
           } catch (err) {
             throw new FhirWorkerError(topic, 'job completed but failed to mark as complete', err);
           }

@@ -59,4 +59,23 @@ export class FhirJobWorker extends Model {
       bind: { workerId: this.id },
     });
   }
+
+  async markAsHandling(topic: string) {
+    const topics = this.metadata.topics || [];
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        topics: [...topics, topic],
+      },
+    });
+  }
+
+  async markLastSuccessfulJobTimestamp() {
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        lastSuccessfulJobTimestamp: Sequelize.fn('now'),
+      },
+    });
+  }
 }
