@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { PATIENT_CATEGORY_LABELS } from '../constants/patientPaths';
+import { PATIENT_CATEGORY_LABELS, PATIENT_PATHS } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 import { getPatientNameAsString } from './PatientNameDisplay';
@@ -54,7 +54,6 @@ const CategoryBreadcrumb = () => {
 
 const RouteBreadcrumbs = ({ patientRoutes }) => {
   const location = useLocation();
-  const params = useParams();
 
   // Find the matching route based on current location
   const matchedRoute = patientRoutes.find(route => {
@@ -62,7 +61,7 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
       return null;
     }
 
-    const fullPath = `/patients/${params.category}/${params.patientId}/${route.path}`;
+    const fullPath = `${PATIENT_PATHS.PATIENT}/${route.path}`;
     return matchPath({ path: fullPath, exact: false }, location.pathname);
   });
 

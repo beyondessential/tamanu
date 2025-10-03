@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation, useParams, useMatch } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
 import { PatientInfoPane } from '../components/PatientInfoPane';
 import { PatientNavigation } from '../components/PatientNavigation';
@@ -28,12 +28,18 @@ import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 
-// This component gets the programRegistryId and uses it to render the title of the program registry
-// in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
-const ProgramRegistryTitle = () => {
-  const params = useParams();
-  const { programRegistryId } = params;
+const ProgramRegistryBreadcrumb = () => {
+  const location = useLocation();
+  const { navigateToProgramRegistry } = usePatientNavigation();
+  const match = matchPath(
+    {
+      path: `${PATIENT_PATHS.PROGRAM_REGISTRY}*`,
+    },
+    location.pathname,
+  );
+  const programRegistryId = match?.params.programRegistryId;
   const { data: programRegistry } = useProgramRegistryQuery(programRegistryId);
 
   if (!programRegistry) {
@@ -41,10 +47,15 @@ const ProgramRegistryTitle = () => {
   }
 
   return (
-    <TranslatedReferenceData
-      fallback={programRegistry.name}
-      value={programRegistry.id}
-      category="programRegistry"
+    <Breadcrumb
+      onClick={() => navigateToProgramRegistry(programRegistryId)}
+      title={
+        <TranslatedReferenceData
+          fallback={programRegistry.name}
+          value={programRegistry.id}
+          category="programRegistry"
+        />
+      }
     />
   );
 };
@@ -56,13 +67,27 @@ const EncounterBreadCrumb = () => {
     <Breadcrumb
       onClick={() => navigateToEncounter(encounter.id)}
       title={getEncounterType(encounter || {})}
+      key="encounter"
+    />
+  );
+};
+
+const MedicationBreadCrumb = () => {
+  const { encounter } = useEncounter();
+  const { navigateToEncounter } = usePatientNavigation();
+  return (
+    <Breadcrumb
+      onClick={() => {
+        navigateToEncounter(encounter?.id, {
+          tab: ENCOUNTER_TAB_NAMES.MEDICATION,
+        });
+      }}
+      title={<TranslatedText stringId="encounter.medication.title" fallback="Medication" />}
     />
   );
 };
 
 export const usePatientRoutes = () => {
-  const { navigateToEncounter, navigateToProgramRegistry } = usePatientNavigation();
-  const { encounter } = useEncounter();
   // prefetch userPreferences
   useUserPreferencesQuery();
   const { ability } = useAuth();
@@ -105,17 +130,19 @@ export const usePatientRoutes = () => {
           {
             path: 'encounter/:encounterId/mar/view',
             component: MarView,
-            title: (
-              <TranslatedText stringId="encounter.mar.title" fallback="Medication admin record" />
-            ),
-          },
-          {
-            path: 'encounter/:encounterId?tab=' + ENCOUNTER_TAB_NAMES.MEDICATION,
-            title: <TranslatedText stringId="encounter.medication.title" fallback="Medication" />,
-            navigateTo: () =>
-              navigateToEncounter(encounter?.id, {
-                tab: ENCOUNTER_TAB_NAMES.MEDICATION,
-              }),
+            breadcrumbs: [
+              <EncounterBreadCrumb key="encounter" />,
+              <MedicationBreadCrumb key="medication" />,
+              <Breadcrumb
+                key="marview"
+                title={
+                  <TranslatedText
+                    stringId="encounter.mar.title"
+                    fallback="Medication admin record"
+                  />
+                }
+              />,
+            ],
           },
         ]
       : []),
@@ -146,15 +173,14 @@ export const usePatientRoutes = () => {
     {
       path: 'program-registry/:programRegistryId',
       component: PatientProgramRegistryView,
-      navigateTo: () => navigateToProgramRegistry(),
-      breadcrumbs: [<ProgramRegistryTitle key="program-registry" />],
+      breadcrumbs: [<ProgramRegistryBreadcrumb key="program-registry" />],
     },
     {
       path: 'program-registry/:programRegistryId/survey/:surveyId',
       component: ProgramRegistrySurveyView,
       breadcrumbs: [
-        <ProgramRegistryTitle key="program-registry" />,
-        <Breadcrumb key="survey" title="Survey" />,
+        <ProgramRegistryBreadcrumb key="program-registry" />,
+        <Breadcrumb key="new-form" title="New Form" />,
       ],
     },
   ];
@@ -176,7 +202,6 @@ export const PatientRoutes = () => {
   const patientRoutes = usePatientRoutes();
   const location = useLocation();
   const backgroundColor = location.pathname?.endsWith('/mar/view') ? Colors.white : 'initial';
-  const isProgramRegistry = !!useMatch('program-registry/:programRegistryId/*');
 
   return (
     <>
@@ -187,9 +212,7 @@ export const PatientRoutes = () => {
     to have correct scrollable behavior in relation to the patient info pane and switch components */}
         <PatientPane $backgroundColor={backgroundColor}>
           <PatientPaneInner>
-            {/* The breadcrumbs for program registry need to be rendered inside the program registry view so
-         that they have access to the programRegistryId url param */}
-            {isProgramRegistry ? null : <PatientNavigation patientRoutes={patientRoutes} />}
+            <PatientNavigation patientRoutes={patientRoutes} />
             <Routes>
               {patientRoutes.map(route => {
                 const Element = route.component && React.createElement(route.component);
