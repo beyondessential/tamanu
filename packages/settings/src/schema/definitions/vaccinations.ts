@@ -3,6 +3,7 @@ import * as yup from 'yup';
 export const vaccinationsSchema = {
   name: 'Vaccinations',
   description: '_',
+  exposedToWeb: true,
   properties: {
     defaults: {
       description: '_',
