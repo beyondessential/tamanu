@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep } from 'lodash';
 import { Op } from 'sequelize';
+import { read, readFile, utils } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -15,8 +16,51 @@ import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
+import { normaliseSheetName } from '../admin/importer/importerEndpoint';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+
+/**
+ * Validates that a reference data file contains all required sheets with data
+ * @param {string|Buffer} fileOrData - File path or data buffer
+ * @param {boolean} isData - Whether the first parameter is data (true) or file path (false)
+ */
+function validateFullImport(fileOrData, isData = false) {
+  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+
+  log.debug('Parse XLSX workbook for validation');
+  const workbook = isData ? read(fileOrData, { type: 'buffer' }) : readFile(fileOrData);
+
+  const sheetNameDictionary = Object.fromEntries(
+    Object.keys(workbook.Sheets).map(sheetName => {
+      return [normaliseSheetName(sheetName), sheetName];
+    }),
+  );
+
+  const missingDataTypes = [];
+  for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
+    dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
+  )) {
+    const sheetName = sheetNameDictionary[importableDataType];
+    if (!sheetName) {
+      missingDataTypes.push(importableDataType);
+    } else {
+      const sheetData = utils.sheet_to_json(workbook.Sheets[sheetName]);
+      if (sheetData.length === 0) {
+        missingDataTypes.push(importableDataType);
+      }
+    }
+  }
+
+  if (missingDataTypes.length > 0) {
+    throw new Error(
+      `Reference data file has no rows for the following data types:\n${missingDataTypes.join('\n')}`,
+    );
+  }
+
+  log.info('Reference data file validation passed - all required sheets contain data');
+}
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
@@ -78,9 +122,12 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     if (isUsingDefaultSpreadsheet) {
       const autoDeployFile = resolve(__dirname, 'default-provisioning.xlsx');
       log.info('Using default spreadsheet from this branch', { file: autoDeployFile });
+
+      // Validate the default spreadsheet before importing
+      validateFullImport(autoDeployFile);
+
       await referenceDataImporter({
         file: autoDeployFile,
-        enforceFullImport: true,
         ...importerOptions,
       });
     }

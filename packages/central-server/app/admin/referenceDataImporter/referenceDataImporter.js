@@ -1,8 +1,8 @@
-import { startCase, upperFirst } from 'lodash';
-import { read, readFile, utils } from 'xlsx';
+import { upperFirst } from 'lodash';
+import { read, readFile } from 'xlsx';
 
 import { log } from '@tamanu/shared/services/logging';
-import { GENERAL_IMPORTABLE_DATA_TYPES, REFERENCE_TYPE_VALUES } from '@tamanu/constants';
+import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 
 import { normaliseSheetName } from '../importer/importerEndpoint';
 
@@ -21,7 +21,6 @@ export async function referenceDataImporter({
   includedDataTypes = [],
   checkPermission,
   skipExisting,
-  enforceFullImport = false,
 }) {
   log.info('Importing data definitions from file', { file });
 
@@ -41,36 +40,6 @@ export async function referenceDataImporter({
 
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
-
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
-
-  // Check all sheets are included in the workbook and have at least one row
-  if (enforceFullImport) {
-    const sheetNameDictionary = Object.fromEntries(
-      Object.keys(workbook.Sheets).map(sheetName => {
-        return [normaliseSheetName(sheetName), sheetName];
-      }),
-    );
-    const missingDataTypes = [];
-    for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
-      dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
-    )) {
-      const sheetName = sheetNameDictionary[importableDataType];
-      if (!sheetName) {
-        missingDataTypes.push(importableDataType);
-      } else {
-        const sheetData = utils.sheet_to_json(workbook.Sheets[sheetName]);
-        if (sheetData.length === 0) {
-          missingDataTypes.push(importableDataType);
-        }
-      }
-    }
-    if (missingDataTypes.length > 0) {
-      throw new Error(
-        `default-provisioning.xlsx has no rows for the following data types:\n${missingDataTypes.join('\n')}`,
-      );
-    }
-  }
 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
