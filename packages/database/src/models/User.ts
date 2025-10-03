@@ -38,6 +38,11 @@ export class User extends Model {
     return hash(pw, User.SALT_ROUNDS ?? DEFAULT_SALT_ROUNDS);
   }
 
+  static isPasswordHashed(password: string): boolean {
+    // bcrypt hashes start with $2a$, $2b$, or $2y$ followed by cost and salt
+    return /^\$2[aby]\$\d{1,2}\$/.test(password);
+  }
+
   static getSystemUser() {
     return this.findByPk(SYSTEM_USER_UUID);
   }
@@ -56,7 +61,12 @@ export class User extends Model {
     const { password, ...otherValues } = values;
     if (!password) return values;
 
-    return { ...otherValues, password: await User.hashPassword(password) };
+    // Only hash if the password is not already hashed (to avoid rehashing when syncing)
+    const hashedPassword = User.isPasswordHashed(password)
+      ? password
+      : await User.hashPassword(password);
+
+    return { ...otherValues, password: hashedPassword };
   }
 
   static async update(values: any, options: any): Promise<any> {
@@ -146,8 +156,11 @@ export class User extends Model {
         hooks: {
           async beforeUpdate(user: User) {
             if (user.changed('password')) {
-              // eslint-disable-next-line require-atomic-updates
-              user.password = await User.hashPassword(user.password!);
+              // Only hash if the password is not already hashed (to avoid rehashing when syncing)
+              if (!User.isPasswordHashed(user.password!)) {
+                // eslint-disable-next-line require-atomic-updates
+                user.password = await User.hashPassword(user.password!);
+              }
             }
           },
         },
@@ -198,6 +211,11 @@ export class User extends Model {
       through: models.UserDesignation,
       foreignKey: 'userId',
       as: 'designationData',
+    });
+
+    this.hasMany(models.UserLeave, {
+      foreignKey: 'userId',
+      as: 'leaves',
     });
   }
 

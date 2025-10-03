@@ -98,6 +98,7 @@ export async function createApi(ctx) {
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
+    req.db = store.sequelize;
     req.store = store;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;

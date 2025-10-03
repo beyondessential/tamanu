@@ -2,11 +2,16 @@ import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
+import { Link, generatePath } from 'react-router-dom';
 
 import { Colors } from '../../../constants';
-import { formatDateTimeRange } from '../../../utils/dateTime';
+import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
+import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
 import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
+import { LimitedLinesCell } from '../../FormattedTableCell';
+import { useTranslation } from '../../../contexts/Translation';
 
 const AppointmentDetailsContainer = styled('div')`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -25,7 +30,76 @@ const Tag = styled('div')`
   position: absolute;
 `;
 
-const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
+const EncounterLink = styled(Link)`
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover {
+    color: ${Colors.primary};
+  }
+`;
+
+const ClinicianContainer = styled('div')`
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  > div {
+    flex: 1;
+    flex-shrink: 0;
+    width: 0;
+  }
+`;
+
+const LinkedEncounter = ({ encounter }) => {
+  const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  if (!encounter) return null;
+
+  const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
+    category: PATIENT_CATEGORIES.ALL,
+    patientId: encounter.patientId,
+    encounterId: encounter.id,
+  });
+
+  const encounterLabel = `${formatShort(encounter.startDate)}${
+    encounter.endDate ? '' : ' - ' + getTranslation('general.date.current', 'Current').toLowerCase()
+  } | ${getEnumTranslation(
+    ENCOUNTER_TYPE_LABELS,
+    encounter.encounterType,
+  )} | ${getReferenceDataTranslation({
+    value: encounter?.location?.facility.id,
+    category: 'facility',
+    fallback: encounter?.location?.facility.name,
+  })}`;
+
+  return (
+    <EncounterLink to={encounterPath}>
+      <LimitedLinesCell
+        value={encounterLabel}
+        maxLines={1}
+        isOneLine
+        PopperProps={{ style: { maxWidth: '200px' } }}
+      />
+    </EncounterLink>
+  );
+};
+
+const LocationBookingDetails = ({
+  location,
+  bookingType,
+  isOvernight,
+  appointmentProcedureTypes,
+  linkEncounter,
+}) => {
+  const { getReferenceDataTranslation } = useTranslation();
+  const appointmentProcedureTypesValue = appointmentProcedureTypes
+    ?.map(({ procedureType }) =>
+      getReferenceDataTranslation({
+        value: procedureType.id,
+        category: procedureType.type,
+        fallback: procedureType.name,
+      }),
+    )
+    .join(', ');
+
   return (
     <>
       {location && (
@@ -68,6 +142,37 @@ const LocationBookingDetails = ({ location, bookingType, isOvernight }) => {
           data-testid="detailsdisplay-lr0i"
         />
       )}
+      <DetailsDisplay
+        label={
+          <TranslatedText
+            stringId="appointment.procedureType.label"
+            fallback="Procedure"
+            data-testid="translatedtext-v4x2"
+          />
+        }
+        value={
+          appointmentProcedureTypesValue && (
+            <LimitedLinesCell
+              value={appointmentProcedureTypesValue}
+              maxLines={1}
+              isOneLine
+              PopperProps={{ style: { maxWidth: '200px' } }}
+            />
+          )
+        }
+        data-testid="detailsdisplay-ll5z"
+      />
+      <DetailsDisplay
+        label={
+          <TranslatedText
+            stringId="appointment.linkedEncounter.label"
+            fallback="Linked encounter"
+            data-testid="translatedtext-linkedencounter"
+          />
+        }
+        value={<LinkedEncounter encounter={linkEncounter} />}
+        data-testid="detailsdisplay-linkedencounter"
+      />
       {isOvernight && (
         <Tag data-testid="tag-j3j7">
           <Overnight
@@ -138,8 +243,12 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
     location,
     bookingType,
     appointmentType,
+    appointmentProcedureTypes,
     isHighPriority,
+    linkEncounter,
+    additionalClinician,
   } = appointment;
+
   return (
     <AppointmentDetailsContainer data-testid="appointmentdetailscontainer-8rgc">
       <DetailsDisplay
@@ -153,17 +262,39 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
         value={formatDateTimeRange(startTime, endTime)}
         data-testid="detailsdisplay-diun"
       />
-      <DetailsDisplay
-        label={
-          <TranslatedText
-            stringId="general.localisedField.clinician.label.short"
-            fallback="Clinician"
-            data-testid="translatedtext-12cf"
-          />
-        }
-        value={clinician?.displayName}
-        data-testid="detailsdisplay-an8y"
-      />
+      <ClinicianContainer>
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.clinician.label.short"
+              fallback="Clinician"
+              data-testid="translatedtext-12cf"
+            />
+          }
+          value={clinician?.displayName}
+          data-testid="detailsdisplay-an8y"
+        />
+        <DetailsDisplay
+          label={
+            <TranslatedText
+              stringId="general.localisedField.additionalClinician.label.short"
+              fallback="Additional clinician"
+              data-testid="translatedtext-additionalclinician"
+            />
+          }
+          value={
+            additionalClinician?.displayName && (
+              <LimitedLinesCell
+                value={additionalClinician?.displayName}
+                maxLines={1}
+                isOneLine
+                PopperProps={{ style: { maxWidth: '140px' } }}
+              />
+            )
+          }
+          data-testid="detailsdisplay-additionalclinician"
+        />
+      </ClinicianContainer>
       <DetailsDisplay
         label={
           <TranslatedText
@@ -188,6 +319,8 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           location={location}
           bookingType={bookingType}
           isOvernight={isOvernight}
+          appointmentProcedureTypes={appointmentProcedureTypes}
+          linkEncounter={linkEncounter}
           data-testid="locationbookingdetails-g1r6"
         />
       )}
