@@ -21,11 +21,11 @@ import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
 
 /**
- * Validates that a reference data file contains all required sheets with data
+ * Validates that a reference data file contains all sheets importable through the reference data importer
  * @param {string|Buffer} fileOrData - File path or data buffer
  * @param {boolean} isData - Whether the first parameter is data (true) or file path (false)
  */
-function validateFullImport(fileOrData, isData = false) {
+function validateFullReferenceDataImport(fileOrData, isData = false) {
   // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
   const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
 
@@ -38,6 +38,7 @@ function validateFullImport(fileOrData, isData = false) {
     }),
   );
 
+  // Check all data types in the reference data importer are included in the xlsx file and have at least one row
   const missingDataTypes = [];
   for (const importableDataType of GENERAL_IMPORTABLE_DATA_TYPES.filter(
     dataType => !EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType),
@@ -120,12 +121,14 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
     }
 
     if (isUsingDefaultSpreadsheet) {
-      const autoDeployFile = resolve(__dirname, 'default-provisioning.xlsx');
-      log.info('Using reference data spreadsheet from this branch', { file: autoDeployFile });
+      const defaultReferenceDataFile = resolve(__dirname, 'default-provisioning.xlsx');
+      log.info('Using reference data spreadsheet from this branch', {
+        file: defaultReferenceDataFile,
+      });
       // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
-      validateFullImport(autoDeployFile);
+      validateFullReferenceDataImport(defaultReferenceDataFile);
       await referenceDataImporter({
-        file: autoDeployFile,
+        file: defaultReferenceDataFile,
         ...importerOptions,
       });
     }
