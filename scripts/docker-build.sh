@@ -54,10 +54,10 @@ build_server() {
   rm -rf packages/*/coverage || true
   rm -rf packages/*/config/{local,development,test}.* || true
 
-  remove_irrelevant_packages "$package"
-
   # build the world
   npm run build
+
+  remove_irrelevant_packages "$package"
 
   # clear out the build-tooling
   rm -rf node_modules/@tamanu/build-tooling
@@ -88,6 +88,12 @@ build_web() {
   scripts/precompress-assets.sh packages/web/dist
 }
 
+build_patient_portal() {
+  npm run build-shared
+  npm run build --workspace @tamanu/patient-portal
+  scripts/precompress-assets.sh packages/patient-portal/dist
+}
+
 package="${1:?Expected target or package path}"
 
 common
@@ -95,6 +101,9 @@ common
 case "$package" in
   web)
     build_web
+    ;;
+  patient-portal)
+    build_patient_portal
     ;;
   *)
     build_server

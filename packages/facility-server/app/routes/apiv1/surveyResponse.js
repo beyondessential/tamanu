@@ -36,7 +36,7 @@ surveyResponse.get(
 
     await req.audit.access({
       recordId: surveyResponseRecord.id,
-      params,
+      frontEndContext: params,
       model: models.SurveyResponse,
       facilityId: query.facilityId,
     });

@@ -9,47 +9,47 @@ export class LabRequestDetailsPage {
   readonly page: Page;
 
   // Main container
-  readonly container: Locator;
+  readonly container!: Locator;
   
   // Lab request details card
-  readonly labTestIdValue: Locator;
-  readonly requestDateValue: Locator;
-  readonly requestingClinicianValue: Locator;
-  readonly departmentValue: Locator;
+  readonly labTestIdValue!: Locator;
+  readonly requestDateValue!: Locator;
+  readonly requestingClinicianValue!: Locator;
+  readonly departmentValue!: Locator;
   
   // Action buttons
-  readonly cancelRequestButton: Locator;
-  readonly threeDotsButton: Locator;
-  readonly statusThreeDotsbutton: Locator;
-  readonly sampleCollectedThreeDotsbutton: Locator;
-  readonly laboratoryThreeDotsbutton: Locator;
-  readonly priorityThreeDotsbutton: Locator;
-  readonly viewStatusLogsButton: Locator;
-  readonly recordSampleButton: Locator;
-  readonly changeStatusButton: Locator;
-  readonly changeLaboratoryButton: Locator;
-  readonly changePriorityButton: Locator;
-  readonly enterResultsButton: Locator;
-  readonly backButton: Locator;
+  readonly cancelRequestButton!: Locator;
+  readonly threeDotsButton!: Locator;
+  readonly statusThreeDotsbutton!: Locator;
+  readonly sampleCollectedThreeDotsbutton!: Locator;
+  readonly laboratoryThreeDotsbutton!: Locator;
+  readonly priorityThreeDotsbutton!: Locator;
+  readonly viewStatusLogsButton!: Locator;
+  readonly recordSampleButton!: Locator;
+  readonly changeStatusButton!: Locator;
+  readonly changeLaboratoryButton!: Locator;
+  readonly changePriorityButton!: Locator;
+  readonly enterResultsButton!: Locator;
+  readonly backButton!: Locator;
   
   // Notes section
-  readonly notesList: Locator;
+  readonly notesList!: Locator;
   
   // Fixed tile row - lab request status tiles
-  readonly testCategoryValue: Locator;
-  readonly statusValue: Locator;
-  readonly sampleCollectedValue: Locator;
-  readonly laboratoryValue: Locator;
-  readonly priorityValue: Locator;
+  readonly testCategoryValue!: Locator;
+  readonly statusValue!: Locator;
+  readonly sampleCollectedValue!: Locator;
+  readonly laboratoryValue!: Locator;
+  readonly priorityValue!: Locator;
   
   // Results table
-  readonly resultsTable: Locator;
-  readonly resultsTableBody: Locator;
+  readonly resultsTable!: Locator;
+  readonly resultsTableBody!: Locator;
   
 
   //cancel modal
-  readonly reasonForCancellationSelect: Locator;
-  readonly cancelModalConfirmButton: Locator;
+  readonly reasonForCancellationSelect!: Locator;
+  readonly cancelModalConfirmButton!: Locator;
 
   //record sample modal
   readonly recordSampleModal: RecordSampleModal;
@@ -69,20 +69,31 @@ export class LabRequestDetailsPage {
   constructor(page: Page) {
     this.page = page;
     
-    // Main containers
-    this.container = page.getByTestId('container-pag3');
+    // TestId mapping for LabRequestDetailsPage elements
+    const testIds = {
+      container: 'container-pag3',
+      labTestIdValue: 'cardvalue-wpiy',
+      requestDateValue: 'cardvalue-bag0',
+      requestingClinicianValue: 'cardvalue-tin5',
+      departmentValue: 'cardvalue-l8vk',
+      threeDotsButton: 'box-qy3e',
+      changeStatusButton: 'labelcontainer-mjji',
+      notesList: 'list-19gk',
+      resultsTable: 'styledtable-1dlu',
+      resultsTableBody: 'styledtablebody-a0jz',
+      reasonForCancellationSelect: 'field-c7rc-select',
+      cancelModalConfirmButton: 'formsubmitcancelrow-1ync-confirmButton',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
     
-    // Lab request details card
-    this.labTestIdValue = page.getByTestId('cardvalue-wpiy');
-    this.requestDateValue = page.getByTestId('cardvalue-bag0');
-    this.requestingClinicianValue = page.getByTestId('cardvalue-tin5');
-    this.departmentValue = page.getByTestId('cardvalue-l8vk');
-    
-    // Action buttons
+    // Special cases that need additional processing
     this.cancelRequestButton = page.getByTestId('item-8ybn-1').getByText('Cancel request');
     this.threeDotsButton = page.getByTestId('box-qy3e').getByTestId('openbutton-d1ec');
     this.statusThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Status' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
-    this.changeStatusButton = page.getByTestId('labelcontainer-mjji');
     this.viewStatusLogsButton = page.getByTestId('item-8ybn-1').getByText('View status log');
     this.sampleCollectedThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Sample collected' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
     this.laboratoryThreeDotsbutton = page.getByTestId('text-u1af').filter({ hasText: 'Laboratory' }).locator('..').getByTestId('header-7mhd').getByTestId('openbutton-d1ec');
@@ -92,24 +103,11 @@ export class LabRequestDetailsPage {
     this.recordSampleButton = page.getByTestId('item-8ybn-0').getByText('Record sample');
     this.enterResultsButton = page.getByTestId('button-oep6');
     this.backButton = page.getByTestId('backbutton-1n40');
-    // Notes section
-    this.notesList = page.getByTestId('list-19gk');
-    
-    // Fixed tile row - lab request status tiles
     this.testCategoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').first().getByTestId('main-vs6r');
     this.statusValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(1).getByTestId('tiletag-zdg8');
     this.sampleCollectedValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(2).getByTestId('tooltip-b4e8');
     this.laboratoryValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(3).getByTestId('main-vs6r');
     this.priorityValue = page.getByTestId('fixedtilerow-xxmq').locator('[data-testid="container-uk3i"]').nth(4).getByTestId('main-vs6r');
-    
-    // Results table
-    this.resultsTable = page.getByTestId('styledtable-1dlu');
-    this.resultsTableBody = page.getByTestId('styledtablebody-a0jz');
-    
-
-    //cancel modal
-    this.reasonForCancellationSelect = page.getByTestId('field-c7rc-select');
-    this.cancelModalConfirmButton = page.getByTestId('formsubmitcancelrow-1ync-confirmButton');
 
     //record sample modal
     this.recordSampleModal = new RecordSampleModal(page);

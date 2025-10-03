@@ -2,38 +2,47 @@ import { Page, Locator } from '@playwright/test';
 
 export class EnterResultsModal {
   readonly page: Page;
-  readonly form: Locator;
+  readonly form!: Locator;
 
   // Action buttons
-  readonly confirmButton: Locator;
+  readonly confirmButton!: Locator;
   
   // Table constants
   readonly STYLED_TABLE_CELL_PREFIX: string;
-  readonly resultsFirstRowIcon: Locator;        
-  readonly resultsFirstRow: Locator;
-  readonly labTestMethodFirstRow: Locator;
-  readonly labTestMethodFirstRowIcon: Locator;
-  readonly verificationFirstRow: Locator;
-  readonly completedDateFirstRow: Locator;
-  readonly labTestTypeTitle: Locator;
+  readonly resultsFirstRowIcon!: Locator;        
+  readonly resultsFirstRow!: Locator;
+  readonly labTestMethodFirstRow!: Locator;
+  readonly labTestMethodFirstRowIcon!: Locator;
+  readonly verificationFirstRow!: Locator;
+  readonly completedDateFirstRow!: Locator;
+  readonly labTestTypeTitle!: Locator;
  
 
   constructor(page: Page) {
     this.page = page;
     
-    // Main form container
-    this.form = page.getByTestId('modalcontainer-uc2n').getByTestId('styledform-5o5i');
+    // TestId mapping for EnterResultsModal elements
+    const testIds = {
+      form: 'modalcontainer-uc2n',
+      styledForm: 'styledform-5o5i',
+      confirmButton: 'confirmbutton-tok1',
+      labTestTypeTitle: 'styledtableheadercell-wvus-labTestType',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.STYLED_TABLE_CELL_PREFIX = 'styledtabledatacell-bsji';
-    // Action buttons
-    this.confirmButton = page.getByTestId('confirmbutton-tok1');
+    this.form = page.getByTestId('modalcontainer-uc2n').getByTestId('styledform-5o5i');
     this.resultsFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).locator('input').locator('..').locator('div');
     this.resultsFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-result`).getByTestId('styledfield-h653-expandmoreicon-h115');  
     this.labTestMethodFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).locator('input').locator('..').locator('div');
     this.labTestMethodFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).getByTestId('selectinput-phtg-expandmoreicon-h115');
     this.verificationFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-verification`).locator('input');
     this.completedDateFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-completedDate`).locator('input');
-    this.labTestTypeTitle = page.getByTestId('styledtableheadercell-wvus-labTestType');
-
   }
 
   async waitForModalToLoad() {

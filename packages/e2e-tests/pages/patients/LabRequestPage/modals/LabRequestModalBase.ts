@@ -8,104 +8,132 @@ const CATEGORY_TEXT_TEST_ID = 'categorytext-jno3';
 
 export class LabRequestModalBase {
   readonly page: Page;
-  readonly form: Locator;
-  readonly heading: Locator;
-  readonly description: Locator;
+  readonly form!: Locator;
+  readonly heading!: Locator;
+  readonly description!: Locator;
   
   // Page 1: Basic lab request details (shared across all modals)
-  readonly requestingClinicianInput: Locator;
-  readonly requestDateTimeInput: Locator;
-  readonly departmentInput: Locator;
-  readonly prioritySelect: Locator;
-  readonly panelRadioButton: Locator;
-  readonly individualRadioButton: Locator;
+  readonly requestingClinicianInput!: Locator;
+  readonly requestDateTimeInput!: Locator;
+  readonly departmentInput!: Locator;
+  readonly prioritySelect!: Locator;
+  readonly panelRadioButton!: Locator;
+  readonly individualRadioButton!: Locator;
   
   // Action buttons (shared across all modals)
-  readonly backButton: Locator;
-  readonly cancelButton: Locator;
-  readonly nextButton: Locator;
-  readonly finaliseButton: Locator;
+  readonly backButton!: Locator;
+  readonly cancelButton!: Locator;
+  readonly nextButton!: Locator;
+  readonly finaliseButton!: Locator;
   
   // Generic locators for selected items (shared across all modals)
-  readonly selectedItemsList: Locator;
-  readonly selectedItems: Locator;
-  readonly listItems: Locator;
-  readonly selectedCategoryList: Locator;
-  readonly clearAllButton: Locator;
-  readonly testSelectionError: Locator;
+  readonly selectedItemsList!: Locator;
+  readonly selectedItems!: Locator;
+  readonly listItems!: Locator;
+  readonly selectedCategoryList!: Locator;
+  readonly clearAllButton!: Locator;
+  readonly testSelectionError!: Locator;
   
   // Page 3: Sample details (shared across all modals)
-  readonly dateTimeCollectedInputs: Locator;
-  readonly collectedByInputs: Locator;
-  readonly collectedBySuggestionsList: Locator;
-  readonly specimenTypeInputs: Locator;
-  readonly specimenTypeSuggestionsList: Locator;
-  readonly siteInputs: Locator;
-  readonly siteSuggestionsList: Locator;
-  readonly sampleDetailsPanels: Locator;
-  readonly sampleDetailsCategories: Locator;
+  readonly dateTimeCollectedInputs!: Locator;
+  readonly collectedByInputs!: Locator;
+  readonly collectedBySuggestionsList!: Locator;
+  readonly specimenTypeInputs!: Locator;
+  readonly specimenTypeSuggestionsList!: Locator;
+  readonly siteInputs!: Locator;
+  readonly siteSuggestionsList!: Locator;
+  readonly sampleDetailsPanels!: Locator;
+  readonly sampleDetailsCategories!: Locator;
   
   // Page 4: Request Finalised (shared across all modals)
-  readonly requestingClinicianLabel: Locator;
-  readonly requestingClinicianValue: Locator;
-  readonly requestDateTimeLabel: Locator;
-  readonly requestDateTimeValue: Locator;
-  readonly departmentLabel: Locator;
-  readonly departmentValue: Locator;
-  readonly priorityLabel: Locator;
-  readonly priorityValue: Locator;
-  readonly selectAllCheckbox: Locator;
-  readonly testIdColumnHeader: Locator;
-  readonly tableRowCheckboxes: Locator;
-  readonly tableRowTestIds: Locator;
-  readonly tableRowPanels: Locator;
-  readonly tableRowCategories: Locator;
-  readonly tableRowSampleDates: Locator;
-  readonly printLabelButton: Locator;
-  readonly printRequestButton: Locator;
-  readonly closeButton: Locator;
-  readonly notesTextarea: Locator;
-  readonly searchInput: Locator;
+  readonly requestingClinicianLabel!: Locator;
+  readonly requestingClinicianValue!: Locator;
+  readonly requestDateTimeLabel!: Locator;
+  readonly requestDateTimeValue!: Locator;
+  readonly departmentLabel!: Locator;
+  readonly departmentValue!: Locator;
+  readonly priorityLabel!: Locator;
+  readonly priorityValue!: Locator;
+  readonly selectAllCheckbox!: Locator;
+  readonly testIdColumnHeader!: Locator;
+  readonly tableRowCheckboxes!: Locator;
+  readonly tableRowTestIds!: Locator;
+  readonly tableRowPanels!: Locator;
+  readonly tableRowCategories!: Locator;
+  readonly tableRowSampleDates!: Locator;
+  readonly printLabelButton!: Locator;
+  readonly printRequestButton!: Locator;
+  readonly closeButton!: Locator;
+  readonly notesTextarea!: Locator;
+  readonly searchInput!: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.form = page.getByTestId('styledform-5o5i');
-    this.heading = page.getByTestId('heading3-keat');
-    this.description = page.getByTestId('styledbodytext-8egc');
     
-    // Page 1: Basic lab request details
+    // TestId mapping for LabRequestModalBase elements
+    const testIds = {
+      form: 'styledform-5o5i',
+      heading: 'heading3-keat',
+      description: 'styledbodytext-8egc',
+      requestingClinicianInput: 'field-z6gb-input',
+      requestDateTimeInput: 'field-y6ku-input',
+      departmentInput: 'field-wobc-input',
+      prioritySelect: 'selectinput-phtg-select',
+      panelRadioButton: 'radio-il3t-panel',
+      individualRadioButton: 'radio-il3t-individual',
+      backButton: 'styledbackbutton-016f',
+      cancelButton: 'formgrid-wses',
+      nextButton: 'formsubmitcancelrow-aaiz-confirmButton',
+      finaliseButton: 'formsubmitcancelrow-aaiz-confirmButton',
+      selectedItemsList: 'testitemwrapper-o7ha',
+      selectedItems: 'testitemwrapper-o7ha',
+      listItems: 'selectortable-dwrp',
+      selectedCategoryList: 'testitemwrapper-o7ha',
+      clearAllButton: 'clearallbutton-ao0r',
+      testSelectionError: 'formhelpertext-198r',
+      dateTimeCollectedInputs: 'styledfield-ratc-input',
+      collectedByInputs: 'styledfield-wifm-input',
+      collectedBySuggestionsList: 'styledfield-wifm-suggestionslist',
+      specimenTypeInputs: 'styledfield-8g4b-input',
+      specimenTypeSuggestionsList: 'styledfield-8g4b-suggestionslist',
+      siteInputs: 'styledfield-mog8-input',
+      siteSuggestionsList: 'styledfield-mog8-option-typography',
+      sampleDetailsPanels: 'typography-ex0x',
+      sampleDetailsCategories: 'typography-772r',
+      requestingClinicianLabel: 'cardlabel-6kys',
+      requestDateTimeLabel: 'cardlabel-6kys',
+      departmentLabel: 'cardlabel-6kys',
+      priorityLabel: 'cardlabel-6kys',
+      selectAllCheckbox: 'checkinput-irky-controlcheck',
+      testIdColumnHeader: 'tablelabel-0eff-displayId',
+      tableRowCheckboxes: 'checkinput-83pj-controlcheck',
+      tableRowTestIds: 'styledtablecell-2gyy-0-displayId',
+      tableRowPanels: 'styledtablecell-2gyy-0-panelId',
+      tableRowCategories: 'styledtablecell-2gyy-0-labTestCategory',
+      tableRowSampleDates: 'styledtablecell-2gyy-0-sampleDate',
+      printLabelButton: 'outlinedbutton-skm0',
+      printRequestButton: 'outlinedbutton-01eu',
+      closeButton: 'button-9vga',
+      notesTextarea: 'field-3t0x-input',
+      searchInput: 'styledsearchfield-92y3-input',
+    } as const;
+
+    // Create locators using the testId mapping
+    for (const [key, id] of Object.entries(testIds)) {
+      (this as any)[key] = page.getByTestId(id);
+    }
+    
+    // Special cases that need additional processing
     this.requestingClinicianInput = page.getByTestId('field-z6gb-input').locator('input');
     this.requestDateTimeInput = page.getByTestId('field-y6ku-input').locator('input');
     this.departmentInput = page.getByTestId('field-wobc-input').locator('input');
-    this.prioritySelect = page.getByTestId('selectinput-phtg-select');
-    this.panelRadioButton = page.getByTestId('radio-il3t-panel');
-    this.individualRadioButton = page.getByTestId('radio-il3t-individual');
-    
-    // Action buttons
-    this.backButton = page.getByTestId('styledbackbutton-016f');
     this.cancelButton = page.getByTestId('formgrid-wses').getByTestId('outlinedbutton-8rnr');
-    this.nextButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
-    this.finaliseButton = page.getByTestId('formsubmitcancelrow-aaiz-confirmButton');
-    
-    // Generic locators for selected items
     this.selectedItemsList = page.getByTestId('testitemwrapper-o7ha').getByTestId('labeltext-6stl');
-    this.selectedItems = page.getByTestId('testitemwrapper-o7ha');
     this.listItems = page.getByTestId('selectortable-dwrp').getByTestId('labeltext-6stl');
     this.selectedCategoryList = page.getByTestId('testitemwrapper-o7ha').getByTestId('categorytext-jno3');
-    this.clearAllButton = page.getByTestId('clearallbutton-ao0r');
-    this.testSelectionError = page.getByTestId('formhelpertext-198r');
-    // Page 3: Sample details
-    this.dateTimeCollectedInputs = page.getByTestId('styledfield-ratc-input');
     this.collectedByInputs = page.getByTestId('styledfield-wifm-input').locator('input');
-    this.collectedBySuggestionsList = page.getByTestId('styledfield-wifm-suggestionslist');
     this.specimenTypeInputs = page.getByTestId('styledfield-8g4b-input').locator('input');
-    this.specimenTypeSuggestionsList = page.getByTestId('styledfield-8g4b-suggestionslist');
     this.siteInputs = page.getByTestId('styledfield-mog8-input').locator('input');
-    this.siteSuggestionsList = page.getByTestId('styledfield-mog8-option-typography');
-    this.sampleDetailsPanels = page.getByTestId('typography-ex0x');
-    this.sampleDetailsCategories = page.getByTestId('typography-772r');
-    
-    // Page 4: Request Finalised
     this.requestingClinicianLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Requesting clinician' });
     this.requestingClinicianValue = this.requestingClinicianLabel.locator('..').getByTestId('cardvalue-lcni');
     this.requestDateTimeLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Request date & time' });
@@ -114,18 +142,6 @@ export class LabRequestModalBase {
     this.departmentValue = this.departmentLabel.locator('..').getByTestId('cardvalue-lcni');
     this.priorityLabel = page.getByTestId('cardlabel-6kys').filter({ hasText: 'Priority' });
     this.priorityValue = this.priorityLabel.locator('..').getByTestId('cardvalue-lcni');
-    this.selectAllCheckbox = page.getByTestId('checkinput-irky-controlcheck');
-    this.testIdColumnHeader = page.getByTestId('tablelabel-0eff-displayId');
-    this.tableRowCheckboxes = page.getByTestId('checkinput-83pj-controlcheck');
-    this.tableRowTestIds = page.getByTestId('styledtablecell-2gyy-0-displayId');
-    this.tableRowPanels = page.getByTestId('styledtablecell-2gyy-0-panelId');
-    this.tableRowCategories = page.getByTestId('styledtablecell-2gyy-0-labTestCategory');
-    this.tableRowSampleDates = page.getByTestId('styledtablecell-2gyy-0-sampleDate');
-    this.printLabelButton = page.getByTestId('outlinedbutton-skm0');
-    this.printRequestButton = page.getByTestId('outlinedbutton-01eu');
-    this.closeButton = page.getByTestId('button-9vga');
-    this.notesTextarea = page.getByTestId('field-3t0x-input');
-    this.searchInput = page.getByTestId('styledsearchfield-92y3-input');
   }
 
   async waitForModalToLoad() {
