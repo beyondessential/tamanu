@@ -42,7 +42,7 @@ export async function referenceDataImporter({
   log.debug('Parse XLSX workbook');
   const workbook = data ? read(data, { type: 'buffer' }) : readFile(file);
 
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user'];
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
 
   // Check all sheets are included in the workbook and have at least one row
   if (enforceFullImport) {
