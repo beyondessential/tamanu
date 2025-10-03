@@ -29,6 +29,7 @@ import { GenerateRepeatingTasks } from './GenerateRepeatingTasks';
 import { GenerateRepeatingAppointments } from './GenerateRepeatingAppointments';
 import { GenerateMedicationAdministrationRecords } from './GenerateMedicationAdministrationRecords';
 import { MedicationDiscontinuer } from './MedicationDiscontinuer';
+import { DHIS2IntegrationProcessor } from './DHIS2IntegrationProcessor';
 
 export { startFhirWorkerTasks } from './fhir';
 
@@ -57,6 +58,7 @@ export async function startScheduledTasks(context) {
     GenerateRepeatingAppointments,
     GenerateMedicationAdministrationRecords,
     MedicationDiscontinuer,
+    DHIS2IntegrationProcessor,
     SendStatusToMetaServer,
   ];
 
