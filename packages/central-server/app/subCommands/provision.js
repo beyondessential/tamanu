@@ -114,7 +114,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
       });
     }
 
-    if (!referenceDataFile && !referenceDataUrl) {
+    if (!referenceDataFile && !referenceDataUrl && !isUsingDefaultSpreadsheet) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
