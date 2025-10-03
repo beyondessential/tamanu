@@ -59,4 +59,35 @@ export class FhirJobWorker extends Model {
       bind: { workerId: this.id },
     });
   }
+
+  async markAsHandling(topic: string) {
+    const topics = this.metadata.topics || [];
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        topics: [...topics, topic],
+      },
+    });
+  }
+
+  async recordSuccess() {
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        lastSuccessfulJobTimestamp: new Date(),
+        successfulJobs: (this.metadata.successfulJobs || 0) + 1,
+        totalJobs: (this.metadata.totalJobs || 0) + 1,
+      },
+    });
+  }
+
+  async recordFailure() {
+    await this.update({
+      metadata: {
+        ...this.metadata,
+        failedJobs: (this.metadata.failedJobs || 0) + 1,
+        totalJobs: (this.metadata.totalJobs || 0) + 1,
+      },
+    });
+  }
 }
