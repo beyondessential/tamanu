@@ -1,7 +1,6 @@
 import { Op, DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
-import { log } from '@tamanu/shared/services/logging';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 import type { ProgramDataElement } from './ProgramDataElement';
@@ -88,20 +87,6 @@ export class SurveyScreenComponent extends Model {
 
   static getComponentsForSurvey(surveyId: string, options = {}) {
     return this.getComponentsForSurveys([surveyId], options);
-  }
-
-  getOptions() {
-    try {
-      const optionString = this.options || this.dataElement?.defaultOptions || '';
-      if (!optionString) {
-        return [];
-      }
-      const optionArray = JSON.parse(optionString);
-      return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
-    } catch (e) {
-      log.error(e);
-      return [];
-    }
   }
 
   forResponse() {
