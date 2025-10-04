@@ -14,13 +14,13 @@ describe('VDS: Proof of Vaccination', () => {
     /* eslint-disable require-atomic-updates */
     data.azVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
-      type: 'vaccine',
+      type: 'drug',
       name: 'ChAdOx1-S',
     });
 
     data.pfVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
-      type: 'vaccine',
+      type: 'drug',
       name: 'Comirnaty',
     });
 
@@ -82,8 +82,8 @@ describe('VDS: Proof of Vaccination', () => {
       models: ctx.store.models,
       countryCode: 'UTO',
     }).then(
-      (resolved) => ({ resolved }),
-      (rejected) => ({ rejected }),
+      resolved => ({ resolved }),
+      rejected => ({ rejected }),
     );
 
     // Assert
