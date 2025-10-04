@@ -68,6 +68,8 @@ export const EditTreatmentPlanNoteForm = ({
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
           size="small"
+          isEditMode
+          isTreatmentPlanNote
         />
       </NoteModalDialogContent>
       <NoteModalDialogActions>
