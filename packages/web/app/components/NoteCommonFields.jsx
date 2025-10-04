@@ -162,14 +162,22 @@ const NoteContentBox = styled(Box)`
   flex-direction: column;
   min-height: 0;
   margin-top: 1.2rem;
-  margin-bottom: 30px;
+`;
+
+const StyledField = styled(Field)`
+  .MuiOutlinedInput-notchedOutline {
+    min-height: ${props => `${props.$minHeight - 12}px`};
+  }
+  &.MuiTextField-root {
+    min-height: ${props => `${props.$minHeight}px`};
+    padding-bottom: 12px;
+  }
 `;
 
 const fieldWrapperSx = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 0,
 };
 
 const inputContainerSx = {
@@ -198,27 +206,34 @@ export const NoteContentField = ({
   ),
   onChange,
   size,
-}) => (
-  <NoteContentBox>
-    <Field
-      name="content"
-      label={label}
-      required
-      component={TextField}
-      multiline
-      onChange={onChange}
-      style={fieldWrapperSx}
-      InputProps={{
-        style: inputContainerSx,
-      }}
-      inputProps={{
-        style: textareaSx,
-      }}
-      data-testid="field-wxzr"
-      size={size}
-    />
-  </NoteContentBox>
-);
+  isEditMode = false,
+  isTreatmentPlanNote = false,
+}) => {
+  const minHeight = isEditMode && isTreatmentPlanNote ? 308 : 390;
+
+  return (
+    <NoteContentBox>
+      <StyledField
+        $minHeight={minHeight}
+        name="content"
+        label={label}
+        required
+        component={TextField}
+        multiline
+        onChange={onChange}
+        style={fieldWrapperSx}
+        InputProps={{
+          style: inputContainerSx,
+        }}
+        inputProps={{
+          style: textareaSx,
+        }}
+        data-testid="field-wxzr"
+        size={size}
+      />
+    </NoteContentBox>
+  );
+};
 
 export const NoteInfoSection = ({
   noteType,
