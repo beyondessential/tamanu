@@ -25,6 +25,8 @@ import { useSettings } from './contexts/Settings';
 export const RoutingApp = () => {
   const isCentralServer = useSelector(getServerType) === SERVER_TYPES.CENTRAL;
 
+  // We need to use the createBrowserRouter function to create the router in data mode
+  // for the notes blocking feature @see https://reactrouter.com/start/modes
   const router = React.useMemo(
     () =>
       createBrowserRouter([
