@@ -228,6 +228,13 @@ patientPortal.post(
   }),
 );
 
+const sortKeys = {
+  assignedAt: 'assignedAt',
+  assignedBy: 'assignedBy.displayName',
+  form: 'survey.name',
+  program: 'survey.program.name',
+};
+
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
@@ -242,7 +249,7 @@ patientPortal.get(
     const {
       page = 0,
       rowsPerPage = 25,
-      order = 'ASC',
+      order = 'DESC',
       orderBy = 'assignedAt',
       status = PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       all = false,
@@ -289,9 +296,11 @@ patientPortal.get(
       return;
     }
 
+    const sortKey = sortKeys[orderBy];
+
     const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
       ...baseQueryOptions,
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
+      order: [[...sortKey.split('.'), order.toUpperCase()]],
       limit: all ? undefined : rowsPerPage,
       offset,
     });
