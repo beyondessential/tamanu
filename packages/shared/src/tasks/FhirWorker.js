@@ -262,10 +262,11 @@ export class FhirWorker {
             await spanWrapFn('FhirJob.complete', () => job.complete(this.worker.id));
             await this.worker.recordSuccess();
           } catch (err) {
-            await this.worker.recordFailure();
             throw new FhirWorkerError(topic, 'job completed but failed to mark as complete', err);
           }
         } catch (err) {
+          await this.worker.recordFailure();
+
           if (err instanceof FhirWorkerError) {
             throw err;
           }
