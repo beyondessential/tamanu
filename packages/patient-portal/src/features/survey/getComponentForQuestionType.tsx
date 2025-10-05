@@ -31,6 +31,7 @@ const DateFieldAsString = (Component: React.ComponentType<any>) => (props: any) 
 );
 
 const QUESTION_COMPONENTS = {
+  [PROGRAM_DATA_ELEMENT_TYPES.CONDITION]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.TEXT]: LimitedTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTILINE]: MultilineTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.RADIO]: BaseSelectField,
@@ -87,6 +88,5 @@ export function getComponentForQuestionType(
       Component = PatientDataDisplayField as any;
     }
   }
-
   return Component as React.ComponentType<any>;
 }
