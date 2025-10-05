@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { WS_EVENTS } from '@tamanu/constants';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box, Link } from '@material-ui/core';
@@ -118,9 +118,8 @@ export const TodayAppointmentsPane = ({ showTasks }) => {
       `${WS_EVENTS.CLINICIAN_APPOINTMENTS_UPDATE}:${currentUser?.id}`,
     ).data?.data ?? [];
 
-  const totalSeenAppointments = appointments.filter(
-    (appointment) => appointment.status === 'Seen',
-  ).length;
+  const totalSeenAppointments = appointments.filter(appointment => appointment.status === 'Seen')
+    .length;
 
   const onViewAll = () => {
     navigate(`/appointments/outpatients?groupBy=${APPOINTMENT_GROUP_BY.CLINICIAN}`);

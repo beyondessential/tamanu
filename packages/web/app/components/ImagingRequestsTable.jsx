@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { IMAGING_REQUEST_STATUS_CONFIG, IMAGING_TABLE_VERSIONS } from '@tamanu/constants';
 import { SearchTableWithPermissionCheck } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -192,11 +192,20 @@ export const ImagingRequestsTable = React.memo(({ encounterId, memoryKey, status
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
       const category = params.category || 'all';
-      const path = `/patients/${category}/${patientId}/encounter/${encounterId || encounter.id}/imaging-request/${imagingRequest.id}`;
+      const path = `/patients/${category}/${patientId}/encounter/${encounterId ||
+        encounter.id}/imaging-request/${imagingRequest.id}`;
       navigate(path);
       setIsRowsDisabled(false);
     },
-    [loadEncounter, dispatch, params.patientId, params.category, encounterId, isRowsDisabled, navigate],
+    [
+      loadEncounter,
+      dispatch,
+      params.patientId,
+      params.category,
+      encounterId,
+      isRowsDisabled,
+      navigate,
+    ],
   );
 
   const globalImagingRequestsFetchOptions = { ...statusFilter, ...searchParameters, facilityId };

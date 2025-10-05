@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 
 import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';

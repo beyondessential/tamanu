@@ -8,7 +8,7 @@ import {
   REPORT_DEFAULT_DATE_RANGES,
   REPORT_STATUSES,
 } from '@tamanu/constants/reports';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useApi } from '../../../api';
 import { ReportEditor } from './ReportEditor';
 import { useAuth } from '../../../contexts/Auth';

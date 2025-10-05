@@ -5,7 +5,7 @@ import Bowser from 'bowser';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';

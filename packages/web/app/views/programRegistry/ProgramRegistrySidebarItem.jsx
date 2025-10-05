@@ -4,7 +4,7 @@ import { PrimarySidebarItem } from '../../components/Sidebar/PrimarySidebarItem'
 import { SecondarySidebarItem } from '../../components/Sidebar/SecondarySidebarItem';
 import { TranslatedReferenceData } from '../../components/Translation/TranslatedReferenceData';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 export const ProgramRegistrySidebarItem = ({
   icon,

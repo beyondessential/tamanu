@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router';
 import { Colors } from '../../constants';
 import { useListOfProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -39,7 +39,7 @@ export const ProgramRegistryView = () => {
     isSuccess &&
     programRegistries?.data &&
     programRegistries.data.length > 0 &&
-    programRegistries.data.find((x) => x.id === programRegistryId)
+    programRegistries.data.find(x => x.id === programRegistryId)
   )
     return (
       <>

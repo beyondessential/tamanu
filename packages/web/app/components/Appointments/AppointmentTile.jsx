@@ -3,7 +3,7 @@ import OvernightIcon from '@material-ui/icons/Brightness2';
 import { format, isSameDay, parseISO } from 'date-fns';
 import queryString from 'query-string';
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
@@ -32,9 +32,7 @@ const Tile = styled(UnstyledHtmlButton)`
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.625rem;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease;
 
   &:hover {
     background-color: var(--bg-darker);
@@ -50,10 +48,10 @@ const Tile = styled(UnstyledHtmlButton)`
     }
 
     ${$selected &&
-    css`
-      background-color: var(--bg-darker);
-      border-color: ${$color};
-    `}
+      css`
+        background-color: var(--bg-darker);
+        border-color: ${$color};
+      `}
   `}
 `;
 
@@ -72,7 +70,7 @@ const Label = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  ${(props) =>
+  ${props =>
     props.$strikethrough &&
     css`
       text-decoration-line: line-through;

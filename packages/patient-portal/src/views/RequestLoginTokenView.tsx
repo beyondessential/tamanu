@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Divider, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 

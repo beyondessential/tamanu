@@ -3,7 +3,7 @@ import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';

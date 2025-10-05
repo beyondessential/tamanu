@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { matchPath, useBlocker } from 'react-router-dom';
+import { matchPath, useBlocker } from 'react-router';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 

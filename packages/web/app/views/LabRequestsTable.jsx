@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { SearchTableWithPermissionCheck } from '../components';
 import { reloadPatient } from '../store/patient';

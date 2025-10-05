@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { Colors } from '../../../constants';
 import { APPOINTMENT_GROUP_BY } from './OutpatientAppointmentsView';
@@ -56,14 +56,14 @@ const AnimatedBackground = styled('div')`
 `;
 AnimatedBackground.defaultProps = { 'aria-hidden': true };
 
-export const GroupByAppointmentToggle = (props) => {
+export const GroupByAppointmentToggle = props => {
   const { groupBy, setGroupBy } = useOutpatientAppointmentsContext();
   const { facilityId } = useAuth();
 
   const { mutateAsync: mutateUserPreferences } = useUserPreferencesMutation(facilityId);
 
   const updateGroupByUserPreferences = debounce(
-    (newGroupBy) =>
+    newGroupBy =>
       mutateUserPreferences({
         key: USER_PREFERENCES_KEYS.OUTPATIENT_APPOINTMENT_GROUP_BY,
         value: newGroupBy,

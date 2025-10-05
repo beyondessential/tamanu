@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
@@ -21,21 +21,23 @@ export const ProgramRegistrySurveyView = () => {
   const { navigateToProgramRegistry } = usePatientNavigation();
   const { currentUser, facilityId } = useAuth();
   const { patientId, programRegistryId, surveyId } = useParams();
-  const patient = useSelector((state) => state.patient);
+  const patient = useSelector(state => state.patient);
   const { data: additionalData, isLoading: additionalDataLoading } = usePatientAdditionalDataQuery(
     patient.id,
   );
 
-  const { data: patientProgramRegistration, isLoading: patientProgramRegistrationLoading } =
-    usePatientProgramRegistrationQuery(patient.id, programRegistryId);
-
   const {
-    data: survey,
-    isLoading,
-    isError,
-  } = usePatientProgramRegistrySurveysQuery(patientId, programRegistryId, surveyId);
+    data: patientProgramRegistration,
+    isLoading: patientProgramRegistrationLoading,
+  } = usePatientProgramRegistrationQuery(patient.id, programRegistryId);
 
-  const submitSurveyResponse = async (data) => {
+  const { data: survey, isLoading, isError } = usePatientProgramRegistrySurveysQuery(
+    patientId,
+    programRegistryId,
+    surveyId,
+  );
+
+  const submitSurveyResponse = async data => {
     await api.post('surveyResponse', {
       surveyId: survey.id,
       startTime,

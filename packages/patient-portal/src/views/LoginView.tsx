@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Box, Divider, Typography, styled } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import ShieldIcon from '@mui/icons-material/ShieldOutlined';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailReadOutlined';
 import { Button, TAMANU_COLORS } from '@tamanu/ui-components';

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
 import { useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 

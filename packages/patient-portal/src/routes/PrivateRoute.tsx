@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';

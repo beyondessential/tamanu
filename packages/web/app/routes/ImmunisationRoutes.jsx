@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 import { ImmunisationsView } from '../views/patients';
 
 export const ImmunisationRoutes = React.memo(() => (

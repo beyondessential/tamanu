@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { idleTimeout, logout } from '../store';
 import { useApi } from '../api';
@@ -28,7 +28,7 @@ export const useAuth = () => {
   };
 
   return {
-    ...useSelector((state) => ({
+    ...useSelector(state => ({
       currentUser: state.auth.user,
       ability: state.auth.ability,
       facilityId: state.auth.facilityId,

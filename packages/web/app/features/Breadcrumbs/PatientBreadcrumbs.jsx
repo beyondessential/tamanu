@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import { useLocation, useParams, matchPath } from 'react-router-dom';
+import { useLocation, useParams, matchPath } from 'react-router';
 import styled from 'styled-components';
 import { PATIENT_CATEGORY_LABELS, PATIENT_PATHS } from '../../constants/patientPaths';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';

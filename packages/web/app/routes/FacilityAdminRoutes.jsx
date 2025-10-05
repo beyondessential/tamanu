@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 
 import { BedManagement } from '../views/facility/BedManagement';
 import { ReportGenerator } from '../views/reports';

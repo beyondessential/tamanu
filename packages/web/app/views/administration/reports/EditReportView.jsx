@@ -3,7 +3,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { useApi } from '../../../api';
 import { OutlinedButton } from '../../../components';
 import { Colors } from '../../../constants';

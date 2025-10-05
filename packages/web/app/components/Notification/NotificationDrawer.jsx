@@ -4,7 +4,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { Drawer } from '@material-ui/core';
 import { NOTIFICATION_TYPES, NOTIFICATION_STATUSES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { kebabCase } from 'lodash';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 

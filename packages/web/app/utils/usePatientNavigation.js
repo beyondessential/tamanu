@@ -1,4 +1,4 @@
-import { useNavigate, generatePath, matchPath, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, generatePath, matchPath, useLocation, useParams } from 'react-router';
 import { PATIENT_CATEGORIES, PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
