@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { Command } from 'commander';
 import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { read, readFile, utils } from 'xlsx';
+import { readFile, utils } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
