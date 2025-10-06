@@ -51,7 +51,7 @@ const ClinicianContainer = styled('div')`
 
 const LinkedEncounter = ({ encounter }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
-  if (!encounter) return null;
+  if (!encounter) return '—';
 
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
     category: PATIENT_CATEGORIES.ALL,
@@ -84,6 +84,7 @@ const LinkedEncounter = ({ encounter }) => {
 
 const LocationBookingDetails = ({
   location,
+  locationGroup,
   bookingType,
   isOvernight,
   appointmentProcedureTypes,
@@ -112,12 +113,21 @@ const LocationBookingDetails = ({
             />
           }
           value={
-            <TranslatedReferenceData
-              fallback={location?.name}
-              value={location?.id}
-              category="location"
-              data-testid="translatedreferencedata-505o"
-            />
+            <span>
+              <TranslatedReferenceData
+                fallback={location?.locationGroup?.name || locationGroup?.name}
+                value={location?.locationGroup?.id || locationGroup?.id}
+                category="locationGroup"
+                data-testid="translatedreferencedata-gbn6"
+              />
+              {', '}
+              <TranslatedReferenceData
+                fallback={location?.name}
+                value={location?.id}
+                category="location"
+                data-testid="translatedreferencedata-505o"
+              />
+            </span>
           }
           data-testid="detailsdisplay-zzp3"
         />
@@ -295,28 +305,11 @@ export const AppointmentDetailsDisplay = ({ appointment, isOvernight }) => {
           data-testid="detailsdisplay-additionalclinician"
         />
       </ClinicianContainer>
-      <DetailsDisplay
-        label={
-          <TranslatedText
-            stringId="general.localisedField.locationGroupId.label"
-            fallback="Area"
-            data-testid="translatedtext-f8to"
-          />
-        }
-        value={
-          <TranslatedReferenceData
-            fallback={location?.locationGroup?.name || locationGroup?.name}
-            value={location?.locationGroup?.id || locationGroup?.id}
-            category="locationGroup"
-            data-testid="translatedreferencedata-gbn6"
-          />
-        }
-        data-testid="detailsdisplay-w60y"
-      />
       {/* Location booking specific data */}
       {location && bookingType && (
         <LocationBookingDetails
           location={location}
+          locationGroup={locationGroup}
           bookingType={bookingType}
           isOvernight={isOvernight}
           appointmentProcedureTypes={appointmentProcedureTypes}

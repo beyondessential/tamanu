@@ -626,26 +626,6 @@ export const LocationBookingsDailyCalendar = ({
                           className="appointment-tile"
                           onEdit={() => openBookingForm(appointment)}
                           onCancel={() => openCancelModal(appointment)}
-                          actions={
-                            canCreateAppointment
-                              ? [
-                                  {
-                                    label: (
-                                      <TranslatedText
-                                        stringId="appointments.action.newAppointment"
-                                        fallback="New appointment"
-                                        data-testid={`new-appointment-${locationIndex}-${appointmentIndex}`}
-                                      />
-                                    ),
-                                    action: () =>
-                                      openBookingForm({
-                                        locationId: location.id,
-                                        startDate: selectedDate,
-                                      }),
-                                  },
-                                ]
-                              : []
-                          }
                           testIdPrefix={`${locationIndex}-${appointmentIndex}`}
                         />
                       </AppointmentWrapper>
