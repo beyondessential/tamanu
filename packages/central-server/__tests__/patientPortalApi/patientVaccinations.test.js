@@ -123,7 +123,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       // Create test vaccine reference data
       const testVaccine = await ReferenceData.create(
         fake(ReferenceData, {
-          type: 'vaccine',
+          type: 'drug',
           name: 'Flu Vaccine',
           code: 'FLU001',
         }),
@@ -177,7 +177,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       // Create vaccine reference data
       const testVaccine = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'vaccine',
+          type: 'drug',
           name: 'Test Vaccine',
           code: 'TEST001',
         }),
@@ -246,7 +246,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       // Create test vaccine reference data
       const testVaccine = await ReferenceData.create(
         fake(ReferenceData, {
-          type: 'vaccine',
+          type: 'drug',
           name: 'Flu Vaccine',
           code: 'FLU001',
         }),
@@ -323,7 +323,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       // Create vaccine reference data
       const testVaccine = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'vaccine',
+          type: 'drug',
           name: 'Test Vaccine',
           code: 'TEST002',
         }),
@@ -401,7 +401,7 @@ describe('Patient Portal Vaccinations Endpoints', () => {
       // Create vaccine reference data
       const testVaccine = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'vaccine',
+          type: 'drug',
           name: 'Another Vaccine',
           code: 'ANOTHER001',
         }),
