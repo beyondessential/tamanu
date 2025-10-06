@@ -18,7 +18,7 @@ import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
-import { Text } from '../pdf/Text';
+import { Text, TextWithoutContext } from '../pdf/Text';
 import { get } from 'lodash';
 import { useTextStyles } from './printComponents/MultiPageHeader';
 
@@ -89,10 +89,28 @@ const VaccineCertificateHeader = ({ patient }) => {
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
-  const ValueText = props => <Text style={valueStyles} {...props} />;
-  const LabelText = props => <Text bold style={labelStyles} {...props} />;
+  const { getTranslation, makeIntlStyleSheet, pdfFontBold, pdfFont } = useLanguageContext();
 
-  const { getTranslation } = useLanguageContext();
+  const ValueText = props => (
+    <TextWithoutContext
+      style={valueStyles}
+      makeIntlStyleSheet={makeIntlStyleSheet}
+      pdfFontBold={pdfFontBold}
+      pdfFont={pdfFont}
+      {...props}
+    />
+  );
+  const LabelText = props => (
+    <TextWithoutContext
+      bold
+      style={labelStyles}
+      makeIntlStyleSheet={makeIntlStyleSheet}
+      pdfFontBold={pdfFontBold}
+      pdfFont={pdfFont}
+      {...props}
+    />
+  );
+
   return (
     <View
       fixed

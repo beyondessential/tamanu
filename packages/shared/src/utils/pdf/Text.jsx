@@ -3,8 +3,14 @@ import { Text as BaseText } from '@react-pdf/renderer';
 import { useLanguageContext } from './languageContext';
 import { flatten } from './flattenStyles';
 
-export const Text = ({ style, bold, ...props }) => {
-  const { makeIntlStyleSheet, pdfFont, pdfFontBold } = useLanguageContext();
+export const TextWithoutContext = ({
+  style,
+  bold,
+  makeIntlStyleSheet,
+  pdfFontBold,
+  pdfFont,
+  ...props
+}) => {
   const mergedStyle = flatten(style);
   const newStyles = makeIntlStyleSheet(
     {
@@ -14,4 +20,16 @@ export const Text = ({ style, bold, ...props }) => {
     bold,
   );
   return <BaseText style={newStyles} {...props} />;
+};
+
+export const Text = props => {
+  const { makeIntlStyleSheet, pdfFont, pdfFontBold } = useLanguageContext();
+  return (
+    <TextWithoutContext
+      makeIntlStyleSheet={makeIntlStyleSheet}
+      pdfFont={pdfFont}
+      pdfFontBold={pdfFontBold}
+      {...props}
+    />
+  );
 };
