@@ -22,15 +22,14 @@ import { programImporter } from '../admin/programImporter/programImporter';
 
 /**
  * Validates that a reference data file contains all sheets importable through the reference data importer
- * @param {string|Buffer} fileOrData - File path or data buffer
- * @param {boolean} isData - Whether the first parameter is data (true) or file path (false)
+ * @param {string} file - File path
  */
-function validateFullReferenceDataImport(fileOrData, isData = false) {
+function validateFullReferenceDataImport(file) {
   // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
   const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
 
   log.debug('Parse XLSX workbook for validation');
-  const workbook = isData ? read(fileOrData, { type: 'buffer' }) : readFile(fileOrData);
+  const workbook = readFile(file);
   const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
 
   // Check all required data types are present and have data
