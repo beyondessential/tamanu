@@ -11,16 +11,16 @@ export async function startFhirWorkerTasks({ store, topics }) {
   const worker = new FhirWorker(store, log);
   await worker.start();
 
-  const setHandler = (topic, handler) => {
+  const setHandler = async (topic, handler) => {
     if (!topics || topics.includes(topic)) {
-      worker.setHandler(topic, handler);
+      await worker.setHandler(topic, handler);
     }
   };
 
-  setHandler(JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM, allFromUpstream);
-  setHandler(JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE, entireResource);
-  setHandler(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, fromUpstream);
-  setHandler(JOB_TOPICS.FHIR.RESOLVER, resolver);
+  await setHandler(JOB_TOPICS.FHIR.REFRESH.ALL_FROM_UPSTREAM, allFromUpstream);
+  await setHandler(JOB_TOPICS.FHIR.REFRESH.ENTIRE_RESOURCE, entireResource);
+  await setHandler(JOB_TOPICS.FHIR.REFRESH.FROM_UPSTREAM, fromUpstream);
+  await setHandler(JOB_TOPICS.FHIR.RESOLVER, resolver);
 
   worker.processQueueNow();
   return worker;
