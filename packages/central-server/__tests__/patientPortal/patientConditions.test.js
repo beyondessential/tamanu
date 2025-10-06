@@ -21,7 +21,7 @@ describe('Patient Portal Conditions Endpoints', () => {
     const { Patient, PortalUser, ReferenceData, Setting } = store.models;
 
     await Setting.set('features.patientPortal', true);
-    
+
     // Create a test village
     testVillage = await ReferenceData.create(
       fake(ReferenceData, {
@@ -62,7 +62,7 @@ describe('Patient Portal Conditions Endpoints', () => {
       // Create test condition reference data
       const testCondition = await ReferenceData.create(
         fake(ReferenceData, {
-          type: 'condition',
+          type: 'diagnosis',
           name: 'Diabetes',
           code: 'DIAB001',
         }),
@@ -119,7 +119,7 @@ describe('Patient Portal Conditions Endpoints', () => {
       // Create condition reference data
       const testCondition = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'condition',
+          type: 'diagnosis',
           name: 'Hypertension',
           code: 'HYP001',
         }),
@@ -173,7 +173,7 @@ describe('Patient Portal Conditions Endpoints', () => {
       // Create condition reference data
       const testCondition = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'condition',
+          type: 'diagnosis',
           name: 'Asthma',
           code: 'ASTHMA001',
         }),
@@ -227,7 +227,7 @@ describe('Patient Portal Conditions Endpoints', () => {
       // Create condition reference data
       const ongoingCondition = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'condition',
+          type: 'diagnosis',
           name: 'Ongoing Condition',
           code: 'ONGOING001',
         }),
@@ -235,7 +235,7 @@ describe('Patient Portal Conditions Endpoints', () => {
 
       const resolvedCondition = await store.models.ReferenceData.create(
         fake(store.models.ReferenceData, {
-          type: 'condition',
+          type: 'diagnosis',
           name: 'Resolved Condition',
           code: 'RESOLVED001',
         }),
