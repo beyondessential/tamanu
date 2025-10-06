@@ -69,8 +69,17 @@ export const OTHER_REFERENCE_TYPES = {
   LOCATION: 'location',
   LOCATION_GROUP: 'locationGroup',
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
-  PATIENT_FIELD_DEFININION_CATEGORY: 'patientFieldDefinitionCategory',
+  PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
   SCHEDULED_VACCINE: 'scheduledVaccine',
+};
+
+export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
+
+// Reference data imported through the program importer rather than the reference data importer
+export const PROGRAM_REFERENCE_TYPES = {
+  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
+  PROGRAM_REGISTRY_CONDITION_CATEGORY: 'programRegistryConditionCategory',
+  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
   PROGRAM_REGISTRY: 'programRegistry',
   PROGRAM: 'program',
   PROGRAM_DATA_ELEMENT: 'programDataElement',
@@ -78,30 +87,21 @@ export const OTHER_REFERENCE_TYPES = {
   SURVEY_SCREEN_COMPONENT: 'surveyScreenComponent',
 };
 
-export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
-
-// Reference data stored in its own table but are not general importable types
-export const PROGRAM_REGISTRY_REFERENCE_TYPES = {
-  PROGRAM_REGISTRY_CLINICAL_STATUS: 'programRegistryClinicalStatus',
-  PROGRAM_REGISTRY_CONDITION_CATEGORY: 'programRegistryConditionCategory',
-  PROGRAM_REGISTRY_CONDITION: 'programRegistryCondition',
-};
-
-const PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES = Object.values(PROGRAM_REGISTRY_REFERENCE_TYPES);
+const PROGRAM_REFERENCE_TYPE_VALUES = Object.values(PROGRAM_REFERENCE_TYPES);
 
 export const TRANSLATABLE_REFERENCE_TYPES = [
   ...REFERENCE_TYPE_VALUES,
   ...OTHER_REFERENCE_TYPE_VALUES,
-  ...PROGRAM_REGISTRY_REFERENCE_TYPE_VALUES,
+  ...PROGRAM_REFERENCE_TYPE_VALUES,
 ];
 
 // Data types created through tamanu
-const CLINCAL_DATA_TYPES = {
+const CLINICAL_DATA_TYPES = {
   PATIENT: 'patient',
   ADMINISTERED_VACCINE: 'administeredVaccine',
   USER: 'user',
 };
-const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINCAL_DATA_TYPES);
+const CLINICAL_DATA_TYPES_VALUES = Object.values(CLINICAL_DATA_TYPES);
 
 // System data used for configuration purposes
 export const SYSTEM_DATA_TYPES = {
