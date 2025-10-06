@@ -29,6 +29,7 @@ export const NON_LOGGED_TABLES = [
   'logs.accesses',
   'logs.debug_logs',
   'logs.fhir_writes',
+  'logs.migrations',
 
   // internal authentication tables
   'public.one_time_logins',
