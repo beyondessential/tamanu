@@ -90,25 +90,13 @@ const VaccineCertificateHeader = ({ patient }) => {
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
   const { getTranslation, makeIntlStyleSheet, pdfFontBold, pdfFont } = useLanguageContext();
+  const textContextProps = { makeIntlStyleSheet, pdfFontBold, pdfFont };
 
   const ValueText = props => (
-    <TextWithoutContext
-      style={valueStyles}
-      makeIntlStyleSheet={makeIntlStyleSheet}
-      pdfFontBold={pdfFontBold}
-      pdfFont={pdfFont}
-      {...props}
-    />
+    <TextWithoutContext style={valueStyles} {...textContextProps} {...props} />
   );
   const LabelText = props => (
-    <TextWithoutContext
-      bold
-      style={labelStyles}
-      makeIntlStyleSheet={makeIntlStyleSheet}
-      pdfFontBold={pdfFontBold}
-      pdfFont={pdfFont}
-      {...props}
-    />
+    <TextWithoutContext bold style={labelStyles} {...textContextProps} {...props} />
   );
 
   return (
