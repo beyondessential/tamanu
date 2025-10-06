@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router';
 
 import { NotActiveView } from '../views';
 
-export const BillingRoutes = React.memo(() => (
+export const BillingRoutes = () => (
   <Routes>
     <Route index element={<NotActiveView />} />
     <Route path="draft" element={<NotActiveView />} />
@@ -16,6 +16,6 @@ export const BillingRoutes = React.memo(() => (
     <Route path="pricing/procedure" element={<NotActiveView />} />
     <Route path="pricing/ward" element={<NotActiveView />} />
     <Route path="pricing/profiles" element={<NotActiveView />} />
-    <Route path="*" element={<Navigate to="." replace />} />
+    <Route path="*" element={<Navigate to=".." replace />} />
   </Routes>
-));
+);

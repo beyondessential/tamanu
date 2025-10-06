@@ -53,7 +53,7 @@ const RouteBreadcrumbs = ({ patientRoutes }) => {
     }
 
     const fullPath = `${PATIENT_PATHS.PATIENT}/${route.path}`;
-    return matchPath({ path: fullPath, exact: false }, location.pathname);
+    return matchPath({ path: fullPath, end: false }, location.pathname);
   });
 
   return matchedRoute?.breadcrumbs || [];
