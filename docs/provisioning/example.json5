@@ -28,7 +28,7 @@
 
   referenceData: [
     {
-      default: true,
+      defaultSpreadsheet: true,
     },
   ],
 

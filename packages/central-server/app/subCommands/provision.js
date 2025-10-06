@@ -97,7 +97,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   for (const {
     file: referenceDataFile = null,
     url: referenceDataUrl = null,
-    default: isUsingDefaultSpreadsheet = false,
+    defaultSpreadsheet: isUsingDefaultSpreadsheet = false,
     ...rest
   } of referenceData ?? []) {
     if (isUsingDefaultSpreadsheet) {
