@@ -1,6 +1,5 @@
 import React from 'react';
-import { Document, View, StyleSheet } from '@react-pdf/renderer';
-
+import { Document, View, StyleSheet, Text as PdfText } from '@react-pdf/renderer';
 import { Table } from './Table';
 import {
   styles,
@@ -88,9 +87,8 @@ const vaccineCertificateStyles = StyleSheet.create({
 const VaccineCertificateHeader = ({ patient }) => {
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
-
-  const ValueText = props => <Text style={valueStyles} {...props} />;
-  const LabelText = props => <Text bold style={labelStyles} {...props} />;
+  const ValueText = props => <PdfText style={valueStyles} {...props} />;
+  const LabelText = props => <PdfText style={{ ...labelStyles, fontWeight: 700 }} {...props} />;
 
   const { getTranslation } = useLanguageContext();
   return (
