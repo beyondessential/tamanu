@@ -689,6 +689,7 @@ async function getAnswersWithHistory(req) {
     WHERE sr.encounter_id = :encounterId
       AND sr.deleted_at IS NULL
       AND lc.table_name = 'survey_response_answers'
+      AND lc.migration_context IS NULL
     GROUP BY lc.record_id
   `;
 
