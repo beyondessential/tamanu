@@ -903,6 +903,10 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
   };
 });
 
+createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
+  name: { [Op.iLike]: search },
+}));
+
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
@@ -921,7 +925,3 @@ rootElements.forEach(endpoint => {
     throw new Error(`Suggester endpoint not added to shared constant: ${endpoint}`);
   }
 });
-
-createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
-  name: { [Op.iLike]: search },
-}));
