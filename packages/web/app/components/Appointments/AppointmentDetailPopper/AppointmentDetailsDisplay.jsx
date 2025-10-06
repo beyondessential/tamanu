@@ -114,13 +114,17 @@ const LocationBookingDetails = ({
           }
           value={
             <span>
-              <TranslatedReferenceData
-                fallback={location?.locationGroup?.name || locationGroup?.name}
-                value={location?.locationGroup?.id || locationGroup?.id}
-                category="locationGroup"
-                data-testid="translatedreferencedata-gbn6"
-              />
-              {', '}
+              {(location?.locationGroup?.id || locationGroup?.id) && (
+                <>
+                  <TranslatedReferenceData
+                    fallback={location?.locationGroup?.name || locationGroup?.name}
+                    value={location?.locationGroup?.id || locationGroup?.id}
+                    category="locationGroup"
+                    data-testid="translatedreferencedata-gbn6"
+                  />
+                  {', '}
+                </>
+              )}
               <TranslatedReferenceData
                 fallback={location?.name}
                 value={location?.id}
