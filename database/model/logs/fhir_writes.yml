@@ -9,8 +9,7 @@ sources:
         config:
           tags: []
           meta:
-            triggers:
-              - record_fhir_writes_changelog
+            triggers: []
         columns:
           - name: id
             data_type: uuid
