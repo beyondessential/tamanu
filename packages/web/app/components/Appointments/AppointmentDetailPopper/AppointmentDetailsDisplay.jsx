@@ -51,7 +51,6 @@ const ClinicianContainer = styled('div')`
 
 const LinkedEncounter = ({ encounter }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
-  if (!encounter) return '—';
 
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
     category: PATIENT_CATEGORIES.ALL,
