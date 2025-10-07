@@ -21,6 +21,7 @@ ehr = "ehr"
 mch = "mch"
 nam = "nam" # VDS
 nce = "nce"
+brin = "brin" # Type of database index
 
 # Common default facility names
 ba = "ba"
