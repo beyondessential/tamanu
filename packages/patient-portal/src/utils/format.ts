@@ -1,4 +1,4 @@
-import { SEX_LABELS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
+import { SEX_LABELS } from '@tamanu/constants';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { format, startOfWeek, parseISO } from 'date-fns';
 import type {
@@ -77,27 +77,6 @@ export const formatVaccineFacilityOrCountry = (vaccine: AdministeredVaccine) => 
     return vaccine.givenBy || '--';
   }
   return vaccine.location?.name || '--';
-};
-
-export const formatVaccineStatus = (status: AdministeredVaccine['status']) => {
-  return VACCINE_STATUS_LABELS[status] || status;
-};
-
-export const getVaccineStatusColor = (status: AdministeredVaccine['status']) => {
-  switch (status) {
-    case 'SCHEDULED':
-      return 'primary';
-    case 'UPCOMING':
-      return 'info';
-    case 'DUE':
-      return 'success';
-    case 'OVERDUE':
-      return 'warning';
-    case 'MISSED':
-      return 'error';
-    default:
-      return 'default';
-  }
 };
 
 export const formatWeekOf = (dateString: string | null | undefined) => {

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
 import { Link as RouterLink } from 'react-router-dom';
 import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal';
+import { Chip } from '@components/Chip';
 
 interface OutstandingFormCardProps {
   form: PortalSurveyAssignment;
@@ -25,12 +26,10 @@ export const OutstandingFormCard: React.FC<OutstandingFormCardProps> = ({ form }
                   label={
                     form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED
                       ? 'Completed'
-                      : 'Outstanding'
+                      : 'To be completed'
                   }
                   color={
-                    form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED
-                      ? 'success'
-                      : 'warning'
+                    form.status === PORTAL_SURVEY_ASSIGNMENTS_STATUSES.COMPLETED ? 'green' : 'red'
                   }
                   size="small"
                 />
