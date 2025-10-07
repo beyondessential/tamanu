@@ -5,12 +5,15 @@ import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
+import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { format } from 'date-fns';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly vaccineTab: Locator;
+  readonly procedureTab: Locator;
   readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
+  patientProcedurePane?: ProcedurePane;
   carePlanModal?: CarePlanModal;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
@@ -69,6 +72,7 @@ export class PatientDetailsPage extends BasePatientPage {
     super(page);
 
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
@@ -213,6 +217,16 @@ export class PatientDetailsPage extends BasePatientPage {
       this.patientVaccinePane = new PatientVaccinePane(this.page);
     }
     return this.patientVaccinePane;
+  }
+
+  async navigateToProcedureTab(): Promise<ProcedurePane> {
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.procedureTab.click();
+    if (!this.patientProcedurePane) {
+      this.patientProcedurePane = new ProcedurePane(this.page);
+    }
+    return this.patientProcedurePane;
   }
 
  
