@@ -2,6 +2,7 @@ import { FACT_CURRENT_SYNC_TICK, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import config from 'config';
 import { DataTypes, QueryInterface, QueryTypes } from 'sequelize';
+import { pauseAudit } from '../utils/audit/pauseAudit';
 
 interface tableOid {
   oid: number;
@@ -117,6 +118,9 @@ export async function up(query: QueryInterface): Promise<void> {
       ORDER BY patient_id, program_registry_id, date DESC
     ) latest_registrations ON ppr.patient_id = latest_registrations.patient_id AND ppr.program_registry_id = latest_registrations.program_registry_id
   `);
+
+  // Disable audit changes
+  await pauseAudit(query.sequelize);
 
   await query.sequelize.query(`
     UPDATE patient_program_registrations ppr

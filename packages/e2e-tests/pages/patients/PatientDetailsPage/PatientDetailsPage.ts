@@ -7,14 +7,20 @@ import { CarePlanModal } from './modals/CarePlanModal';
 import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
 import { ProcedurePane } from '../ProcedurePage/Panes/ProcedurePane';
 import { format } from 'date-fns';
+import { NotesPane } from '../NotesPage/panes/notesPane';
+import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
+
 
 export class PatientDetailsPage extends BasePatientPage {
+  readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
   readonly procedureTab: Locator;
   readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
   patientProcedurePane?: ProcedurePane;
   carePlanModal?: CarePlanModal;
+  prepareDischargeModal?: PrepareDischargeModal;
+  notesPane?: NotesPane;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
   readonly ongoingConditionNameWrapper: Locator;
@@ -65,12 +71,13 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
   readonly labsTab: Locator;
-  readonly encountersList: Locator;
+  readonly notesTab: Locator;
+  readonly encountersList: Locator; 
   readonly departmentLabel: Locator;
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-
+    this.prepareDischargeButton= this.page.getByTestId('mainbuttoncomponent-06gp');
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
@@ -207,6 +214,7 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
       .first();
     this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
+    this.notesTab = this.page.getByTestId('styledtab-ccs8-notes');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
   }
@@ -241,6 +249,17 @@ export class PatientDetailsPage extends BasePatientPage {
     }
     return this.labRequestPane;
   }
+  async navigateToNotesTab(): Promise<NotesPane> {
+    // Navigate to the top encounter
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.notesTab.click();
+    if (!this.notesPane) {
+      this.notesPane = new NotesPane(this.page);
+    }
+    return this.notesPane;
+  }
+
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
@@ -416,5 +435,12 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
       .first();
+  }
+
+  getPrepareDischargeModal(): PrepareDischargeModal {
+    if (!this.prepareDischargeModal) {
+      this.prepareDischargeModal = new PrepareDischargeModal(this.page);
+    }
+    return this.prepareDischargeModal;
   }
 }
