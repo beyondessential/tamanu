@@ -183,7 +183,7 @@ const LocationBookingDetails = ({
             data-testid="translatedtext-linkedencounter"
           />
         }
-        value={<LinkedEncounter encounter={linkEncounter} />}
+        value={linkEncounter && <LinkedEncounter encounter={linkEncounter} />}
         data-testid="detailsdisplay-linkedencounter"
       />
       {isOvernight && (
