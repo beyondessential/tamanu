@@ -6,14 +6,24 @@ import {
   OutdatedVersionError,
 } from '../error';
 import { CentralServerConnection } from './CentralServerConnection';
-import { fetchWithTimeout, sleepAsync } from './utils';
-import { Problem, ClientIncompatibleError, InvalidCredentialError } from '@tamanu/errors';
+import axios from 'axios';
+import { sleepAsync } from './utils';
+import { ERROR_TYPE } from '@tamanu/errors';
+
+jest.mock('~/infra/db', () => ({
+  Database: {
+    client: {
+      query: jest.fn(),
+    },
+  },
+}));
 
 jest.mock('./utils', () => ({
   ...jest.requireActual('./utils'),
-  fetchWithTimeout: jest.fn(),
   sleepAsync: jest.fn(),
 }));
+
+jest.mock('axios');
 
 jest.mock('uuid', () => ({
   v4: jest.fn().mockReturnValue('test-device-id'),
@@ -23,7 +33,7 @@ jest.mock('/root/package.json', () => ({
   version: 'test-version',
 }));
 
-const mockFetchWithTimeout = fetchWithTimeout as jest.MockedFunction<any>;
+const mockAxiosRequest = jest.fn();
 const mockSleepAsync = sleepAsync as jest.MockedFunction<any>;
 
 const mockSessionId = 'test-session-id';
@@ -40,6 +50,8 @@ describe('CentralServerConnection', () => {
   let centralServerConnection: CentralServerConnection;
 
   beforeEach(() => {
+    (axios.create as unknown as jest.Mock).mockReturnValue({ request: mockAxiosRequest });
+    mockAxiosRequest.mockReset();
     centralServerConnection = new CentralServerConnection();
     centralServerConnection.emitter = {
       emit: jest.fn(),
@@ -226,9 +238,7 @@ describe('CentralServerConnection', () => {
   });
   describe('fetch', () => {
     it('should call fetch with correct parameters', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce(
-        new Response(JSON.stringify('test-result-correct'), { status: 200, statusText: 'OK' }),
-      );
+      mockAxiosRequest.mockResolvedValueOnce({ data: 'test-result-correct' });
       const mockPath = 'test-path';
       const mockQuery = { test: 'test-query' };
       const mockConfig = { test: 'test-config-key' };
@@ -237,33 +247,150 @@ describe('CentralServerConnection', () => {
       centralServerConnection.setToken(mockToken);
 
       const fetchRes = await centralServerConnection.fetch(mockPath, mockQuery, mockConfig);
-      expect(fetchWithTimeout).toHaveBeenCalledWith(
-        `${mockHost}/api/${mockPath}?test=${mockQuery.test}`,
-        {
+
+      expect(mockAxiosRequest).toHaveBeenCalledWith(
+        expect.objectContaining({
+          url: `${mockHost}/api/${mockPath}`,
+          params: mockQuery,
           headers: mockHeaders,
-          ...mockConfig,
-        },
+          test: 'test-config-key',
+        }),
       );
+
       expect(fetchRes).toEqual('test-result-correct');
     });
-    it('should not call refresh if skipAttemptRefresh is true', async () => {
-      mockFetchWithTimeout.mockResolvedValueOnce(
-        Problem.fromError(new InvalidCredentialError()).intoResponse(),
+
+    it('should invoke itself after invalid token and refresh endpoint', async () => {
+      const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
+      const fetchSpy = jest.spyOn(centralServerConnection, 'fetch');
+      const mockToken = 'test-token';
+      const mockRefreshToken = 'test-refresh-token';
+      const mockNewToken = 'test-new-token';
+      const mockNewRefreshToken = 'test-new-refresh-token';
+
+      centralServerConnection.setToken(mockToken);
+      centralServerConnection.setRefreshToken(mockRefreshToken);
+      /**
+       * Mock three calls to axios:
+       * 1. First call to request will reject with a 401 for invalid token
+       * 2. Second call will be refresh endpoint returning new tokens
+       * 3. Third call will be the original request with new token
+       */
+      mockAxiosRequest
+        .mockRejectedValueOnce({
+          response: {
+            data: {
+              status: 401,
+              type: ERROR_TYPE.AUTH_CREDENTIAL_INVALID,
+              title: 'Invalid token',
+            },
+          },
+        })
+        .mockResolvedValueOnce({ data: { token: mockNewToken, refreshToken: mockNewRefreshToken } })
+        .mockResolvedValueOnce({ data: 'test-result' });
+      const mockPath = 'test-path';
+      await centralServerConnection.fetch(mockPath, {}, {});
+      expect(refreshSpy).toHaveBeenCalledTimes(1);
+
+      expect(mockAxiosRequest).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          url: `${mockHost}/api/${mockPath}`,
+          headers: getHeadersWithToken(mockToken),
+        }),
       );
+      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
+        1,
+        'statusChange',
+        CentralConnectionStatus.Disconnected,
+      );
+      expect(mockAxiosRequest).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          url: `${mockHost}/api/refresh`,
+          method: 'POST',
+          headers: { ...getHeadersWithToken(mockToken), 'Content-Type': 'application/json' },
+          data: {
+            refreshToken: mockRefreshToken,
+            deviceId: 'mobile-test-device-id',
+          },
+        }),
+      );
+      expect(centralServerConnection.emitter.emit).toHaveBeenNthCalledWith(
+        2,
+        'statusChange',
+        CentralConnectionStatus.Connected,
+      );
+      expect(mockAxiosRequest).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({
+          url: `${mockHost}/api/${mockPath}`,
+          headers: getHeadersWithToken(mockNewToken),
+        }),
+      );
+      // Check that the fetch would not recursively call itself again on failure post refresh
+      expect(fetchSpy).toHaveBeenNthCalledWith(
+        2,
+        'refresh',
+        {},
+        {
+          body: {
+            refreshToken: mockRefreshToken,
+            deviceId: 'mobile-test-device-id',
+          },
+          skipAttemptRefresh: true,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          backoff: {
+            maxAttempts: 1,
+          },
+        },
+      );
+      expect(fetchSpy).toHaveBeenNthCalledWith(
+        3,
+        mockPath,
+        {},
+        {
+          skipAttemptRefresh: true,
+          backoff: undefined,
+          body: undefined,
+          headers: undefined,
+          method: 'GET',
+          timeout: undefined,
+        },
+      );
+    });
+
+    it('should not call refresh if skipAttemptRefresh is true', async () => {
+      mockAxiosRequest.mockRejectedValueOnce({
+        response: {
+          data: { status: 401, type: ERROR_TYPE.AUTH_TOKEN_INVALID, title: 'Invalid token' },
+        },
+      });
       const refreshSpy = jest.spyOn(centralServerConnection, 'refresh');
       await expect(
         centralServerConnection.fetch('test-path', {}, { skipAttemptRefresh: true }),
       ).rejects.toThrow(new AuthenticationError(invalidTokenMessage));
       expect(refreshSpy).not.toHaveBeenCalled();
     });
+
     it('should throw an error with updateUrl if version is outdated', async () => {
       const mockUpdateUrl = 'test-update-url';
-      mockFetchWithTimeout.mockResolvedValueOnce(
-        Problem.fromError(
-          new ClientIncompatibleError().withExtraData({ updateUrl: 'test-update-url' }),
-        ).intoResponse(),
-      );
-      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrow(
+      mockAxiosRequest.mockRejectedValueOnce({
+        response: {
+          data: {
+            status: 400,
+            type: ERROR_TYPE.CLIENT_INCOMPATIBLE,
+            title: 'Client incompatible',
+            extra: {
+              updateUrl: mockUpdateUrl,
+            },
+          },
+        },
+      });
+      await expect(centralServerConnection.fetch('test-path', {}, {})).rejects.toThrowError(
         new OutdatedVersionError(mockUpdateUrl),
       );
     });
