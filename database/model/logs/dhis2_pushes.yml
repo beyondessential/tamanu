@@ -9,11 +9,7 @@ sources:
         config:
           tags: []
           meta:
-            triggers:
-              - notify_dhis2_pushes_changed
-              - record_dhis2_pushes_changelog
-              - set_dhis2_pushes_updated_at
-              - set_dhis2_pushes_updated_at_sync_tick
+            triggers: []
         columns:
           - name: id
             data_type: uuid
@@ -51,11 +47,6 @@ sources:
           - name: deleted
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__deleted') }}"
-          - name: updated_at_sync_tick
-            data_type: bigint
-            description: "{{ doc('logs__generic__updated_at_sync_tick') }} in dhis2_pushes."
-            data_tests:
-              - not_null
           - name: ignored
             data_type: integer
             description: "{{ doc('logs__dhis2_pushes__ignored') }}"
