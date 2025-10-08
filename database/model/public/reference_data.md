@@ -24,3 +24,7 @@ rows with `type = diagnosis`.
 {% docs reference_data__name %}
 Actual data
 {% enddocs %}
+
+{% docs reference_data__system_required %}
+Indicates if this record is system-managed and cannot be modified by users
+{% enddocs %}
