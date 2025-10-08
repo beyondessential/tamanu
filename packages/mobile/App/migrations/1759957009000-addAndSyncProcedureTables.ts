@@ -120,12 +120,12 @@ const ProceduresTable = new Table({
   foreignKeys: [
     new TableForeignKey({
       columnNames: ['encounterId'],
-      referencedTableName: 'encounter',
+      referencedTableName: 'encounters',
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
       columnNames: ['locationId'],
-      referencedTableName: 'location',
+      referencedTableName: 'locations',
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
@@ -135,12 +135,12 @@ const ProceduresTable = new Table({
     }),
     new TableForeignKey({
       columnNames: ['leadClinicianId'],
-      referencedTableName: 'user',
+      referencedTableName: 'users',
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
       columnNames: ['anaesthetistId'],
-      referencedTableName: 'user',
+      referencedTableName: 'users',
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
@@ -150,12 +150,12 @@ const ProceduresTable = new Table({
     }),
     new TableForeignKey({
       columnNames: ['departmentId'],
-      referencedTableName: 'department',
+      referencedTableName: 'departments',
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
       columnNames: ['assistantAnaesthetistId'],
-      referencedTableName: 'user',
+      referencedTableName: 'users',
       referencedColumnNames: ['id'],
     }),
   ],
@@ -184,7 +184,7 @@ const ProcedureSurveyResponsesTable = new Table({
     }),
     new TableForeignKey({
       columnNames: ['surveyResponseId'],
-      referencedTableName: 'survey_response',
+      referencedTableName: 'survey_responses',
       referencedColumnNames: ['id'],
     }),
   ],
