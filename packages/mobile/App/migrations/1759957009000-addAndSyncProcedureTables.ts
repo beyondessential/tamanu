@@ -90,7 +90,7 @@ const ProceduresTable = new Table({
       isNullable: true,
     }),
     new TableColumn({
-      name: 'physicianId',
+      name: 'leadClinicianId',
       type: 'varchar',
       isNullable: true,
     }),
@@ -132,7 +132,7 @@ const ProceduresTable = new Table({
       referencedColumnNames: ['id'],
     }),
     new TableForeignKey({
-      columnNames: ['physicianId'],
+      columnNames: ['leadClinicianId'],
       referencedTableName: 'user',
       referencedColumnNames: ['id'],
     }),

@@ -55,7 +55,7 @@ export class Procedure extends BaseModel implements IProcedure {
   @ManyToOne(() => User)
   leadClinician: User;
   @RelationId(({ leadClinician }) => leadClinician)
-  physicianId?: string;
+  leadClinicianId?: string;
 
   @ManyToOne(() => User)
   anaesthetist: User;
