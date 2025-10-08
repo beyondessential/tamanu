@@ -1,11 +1,24 @@
 import { isRecoverable } from '@tamanu/errors';
 import { fetchOrThrowIfUnavailable } from './fetch';
+import { type LoggerType } from './TamanuApi';
+
+export interface RetryBackoffOptions {
+  log?: LoggerType;
+  maxAttempts?: number;
+  maxWaitMs?: number;
+  multiplierMs?: number;
+}
 
 export async function fetchWithRetryBackoff(
-  url,
-  config = {},
-  { log = console, maxAttempts = 15, maxWaitMs = 10000, multiplierMs = 300 } = {},
-) {
+  url: string,
+  config: RequestInit = {},
+  {
+    log = console,
+    maxAttempts = 15,
+    maxWaitMs = 10000,
+    multiplierMs = 300,
+  }: RetryBackoffOptions = {},
+): Promise<Response> {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     // developer assert, not a real runtime error
     throw new Error(`retries: maxAttempts must be a finite integer, instead got ${maxAttempts}`);
@@ -33,12 +46,12 @@ export async function fetchWithRetryBackoff(
         totalTime: `${totalMs}ms`,
       });
       return result;
-    } catch (e) {
+    } catch (e: unknown) {
       // throw if the error is irrecoverable
-      if (!isRecoverable(e)) {
+      if (!isRecoverable(e as Error)) {
         log.error(`fetchWithRetryBackoff: failed, error was irrecoverable`, {
           ...basicDebugInfo,
-          stack: e.stack,
+          stack: e instanceof Error ? e.stack : String(e),
         });
         throw e;
       }
@@ -47,7 +60,7 @@ export async function fetchWithRetryBackoff(
       if (attempt >= maxAttempts) {
         log.error(`fetchWithRetryBackoff: failed, max retries exceeded`, {
           ...basicDebugInfo,
-          stack: e.stack,
+          stack: e instanceof Error ? e.stack : String(e),
         });
         throw e;
       }
@@ -58,10 +71,10 @@ export async function fetchWithRetryBackoff(
       log.warn(`fetchWithRetryBackoff: failed, retrying`, {
         ...basicDebugInfo,
         retryingIn: `${delay}ms`,
-        stack: e.stack,
+        stack: e instanceof Error ? e.stack : String(e),
       });
 
-      await new Promise(resolve => {
+      await new Promise<void>(resolve => {
         setTimeout(resolve, delay);
       });
     }

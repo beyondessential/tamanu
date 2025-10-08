@@ -1,8 +1,5 @@
 import RNFS from 'react-native-fs';
 
-export const makeDirectoryInDocuments = async (directoryPath: string): Promise<void> =>
-  RNFS.mkdir(`${RNFS.DocumentDirectoryPath}/${directoryPath}`);
-
 export const readFileInDocuments = async (filePath: string, encode = 'base64') => {
   return RNFS.readFile(`file://${filePath}`, encode);
 };
