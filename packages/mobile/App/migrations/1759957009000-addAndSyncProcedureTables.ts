@@ -1,5 +1,7 @@
 import { MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey } from 'typeorm';
 
+import { triggerFullResync } from './utils/triggerFullResync';
+
 const BaseColumns = [
   new TableColumn({
     name: 'id',
@@ -194,27 +196,8 @@ export class addAndSyncProcedureTables1759957009000 implements MigrationInterfac
     await queryRunner.createTable(ProcedureSurveyResponsesTable, true);
 
     // Trigger a full sync from the beginning of time as these tables already exist on desktop
-    await queryRunner.query(`
-      INSERT INTO local_system_fact (id, key, value)
-      VALUES (lower(
-        hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' ||
-        substr(hex( randomblob(2)), 2) || '-' ||
-        substr('AB89', 1 + (abs(random()) % 4) , 1)  ||
-        substr(hex(randomblob(2)), 2) || '-' ||
-        hex(randomblob(6))
-      ), 'tablesForFullResync', 'procedures')
-    `);
-
-    await queryRunner.query(`
-      INSERT INTO local_system_fact (id, key, value)
-      VALUES (lower(
-        hex(randomblob(4)) || '-' || hex(randomblob(2)) || '-' || '4' ||
-        substr(hex( randomblob(2)), 2) || '-' ||
-        substr('AB89', 1 + (abs(random()) % 4) , 1)  ||
-        substr(hex(randomblob(2)), 2) || '-' ||
-        hex(randomblob(6))
-      ), 'tablesForFullResync', 'procedure_survey_responses')
-    `);
+    await triggerFullResync(queryRunner, 'procedures');
+    await triggerFullResync(queryRunner, 'procedure_survey_responses');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
