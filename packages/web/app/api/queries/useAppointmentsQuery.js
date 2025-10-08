@@ -56,7 +56,7 @@ export const useHasPastLocationBookingsQuery = (patientId, useQueryOptions = {})
 const useUpcomingAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
   const api = useApi();
   return useQuery(
-    ['upcomingAppointments', patientId],
+    ['upcomingAppointments', patientId, fetchOptions],
     () => api.get(`appointments/upcomingAppointments/${patientId}`, fetchOptions),
     useQueryOptions,
   );
