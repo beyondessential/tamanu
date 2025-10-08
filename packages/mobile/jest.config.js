@@ -2,13 +2,14 @@ module.exports = {
   preset: '@testing-library/react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm)',
+    'node_modules/(?!(jest-)?@?react-native|@?react-navigation|react-pose-core|react-native-gesture-handler|animated-pose|@react-native-community/datetimepicker|@vinipachecov/react-native-datepicker|typeorm|react-native-quick-sqlite)',
   ],
   transform: {
     '^.+\\.(ts|js)$': '<rootDir>/../../node_modules/babel-jest',
     '\\.(ts|tsx)$': [
       '<rootDir>/../../node_modules/ts-jest',
       {
+        tsconfig: 'tsconfig.json',
         diagnostics: {
           warnOnly: true,
         },
@@ -33,7 +34,8 @@ module.exports = {
     '^/domain(.*)$': '<rootDir>/App/domain$1',
     '^/data(.*)$': '<rootDir>/App/data$1',
     '/infra(.*)$': '<rootDir>/App/infra$1',
-    '/presentation(.*)$': '<rootDir>/App/presentation$1',
+    'react-native-sqlite-storage': 'react-native-quick-sqlite',
+    'react-native-quick-sqlite': '<rootDir>/__mocks__/react-native-quick-sqlite.ts',
   },
   collectCoverageFrom: ['App/**/*.{js,ts,jsx,tsx}', '!**/*.spec.{js,ts,jsx,tsx}'],
 };
