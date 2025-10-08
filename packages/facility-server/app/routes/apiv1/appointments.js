@@ -507,7 +507,17 @@ appointments.get(
         startTime: { [Op.gt]: new Date() },
         ...getAppointmentTypeWhereQuery(type, facilityId),
       },
-      include: ['locationGroup', 'location', 'clinician', 'appointmentType'],
+      include: [
+        'locationGroup',
+        {
+          association: 'location',
+          include: ['locationGroup'],
+        },
+        'clinician',
+        'appointmentType',
+        'bookingType',
+      ],
+      order: [['startTime', 'ASC']],
     });
 
     res.send(upcomingAppointments);
