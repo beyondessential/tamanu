@@ -2,12 +2,16 @@ version: 2
 sources:
   - name: tamanu
     schema: public
-    description: '{{ doc("generic__schema") }}'
+    description: "{{ doc('generic__schema') }}"
     tables:
       - name: sync_lookup
-        description: '{{ doc("table__sync_lookup") }}'
-        tags:
-          - system
+        description: "{{ doc('table__sync_lookup') }}"
+        config:
+          tags:
+            - system
+          meta:
+            masking: truncate
+            triggers: []
         columns:
           - name: id
             data_type: bigint
@@ -40,22 +44,25 @@ sources:
             description: "{{ doc('sync_lookup__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: encounter_id
             data_type: character varying(255)
             description: "{{ doc('sync_lookup__encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('sync_lookup__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: is_lab_request
             data_type: boolean
             description: "{{ doc('sync_lookup__is_lab_request') }}"

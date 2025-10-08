@@ -1,5 +1,11 @@
 import { COLORS } from './colors.js';
 
+/**
+ * ########################################################################################################
+ *       All constants in this file must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
+ * ########################################################################################################
+ */
+
 export const CURRENTLY_AT_TYPES = {
   VILLAGE: 'village',
   FACILITY: 'facility',
@@ -11,7 +17,6 @@ export const REGISTRATION_STATUSES = {
   RECORDED_IN_ERROR: 'recordedInError',
 };
 
-// Please keep in sync with packages/mobile/App/constants/programRegistries.ts
 export const PROGRAM_REGISTRATION_STATUS_LABELS = {
   [REGISTRATION_STATUSES.ACTIVE]: 'Active',
   [REGISTRATION_STATUSES.INACTIVE]: 'Removed',
@@ -31,33 +36,33 @@ export const STATUS_COLOR = {
   teal: '#125E7E',
 };
 
-/**
- * ########################################################################################################
- *       These categories must be kept in sync with the ones in @tamanu/mobile/constants/programRegistries
- * ########################################################################################################
- */
+// Categories are now added as reference data in their own table, however,
+// these constants are mandatory on import and will be used to define UI behavior
 export const PROGRAM_REGISTRY_CONDITION_CATEGORIES = {
-  SUSPECTED: 'suspected',
-  UNDER_INVESTIGATION: 'underInvestigation',
-  CONFIRMED: 'confirmed',
   UNKNOWN: 'unknown',
   DISPROVEN: 'disproven',
   RESOLVED: 'resolved',
-  IN_REMISSION: 'inRemission',
-  NOT_APPLICABLE: 'notApplicable',
   RECORDED_IN_ERROR: 'recordedInError',
 };
 
 export const PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS = {
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.SUSPECTED]: 'Suspected',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNDER_INVESTIGATION]: 'Under investigation',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.CONFIRMED]: 'Confirmed',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.UNKNOWN]: 'Unknown',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.DISPROVEN]: 'Disproven',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RESOLVED]: 'Resolved',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.IN_REMISSION]: 'In remission',
-  [PROGRAM_REGISTRY_CONDITION_CATEGORIES.NOT_APPLICABLE]: 'Not applicable',
   [PROGRAM_REGISTRY_CONDITION_CATEGORIES.RECORDED_IN_ERROR]: 'Recorded in error',
+};
+
+// This exists for backwards compatibility with the old enum values
+export const DEPRECATED_PRCC_LABELS = {
+  suspected: 'Suspected',
+  underInvestigation: 'Under investigation',
+  confirmed: 'Confirmed',
+  unknown: 'Unknown',
+  disproven: 'Disproven',
+  resolved: 'Resolved',
+  inRemission: 'In remission',
+  notApplicable: 'Not applicable',
+  recordedInError: 'Recorded in error',
 };
 
 // ########################################################################################################

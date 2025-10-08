@@ -1,7 +1,6 @@
 import React, { Fragment, useState } from 'react';
 
 import styled from 'styled-components';
-import { getDose } from '@tamanu/shared/utils/medication';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
@@ -31,6 +30,8 @@ import { EditAdministrationRecordModal } from './EditAdministrationRecordModal';
 import { WarningModal } from '../WarningModal';
 import { MAR_WARNING_MODAL } from '../../../constants/medication';
 import { ConditionalTooltip } from '../../Tooltip';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { getMarDoseDisplay } from '@tamanu/shared/utils/medication';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -234,9 +235,9 @@ export const MarDetails = ({
   };
 
   const onSubmit = async (data, { setFieldValue }) => {
-    const isDoseAmountNotMatch = data.doses.some(
-      dose => Number(dose.doseAmount) !== Number(medication.doseAmount),
-    );
+    const isDoseAmountNotMatch =
+      !medication.isVariableDose &&
+      data.doses.some(dose => Number(dose.doseAmount) !== Number(medication.doseAmount));
     if (!showWarningModal && isDoseAmountNotMatch) {
       setShowWarningModal(MAR_WARNING_MODAL.NOT_MATCHING_DOSE);
       return;
@@ -410,9 +411,11 @@ export const MarDetails = ({
                     />
                   </DarkestText>
                   {canEditMar && (
-                    <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
-                      <StyledEditIcon />
-                    </StyledEditButton>
+                    <NoteModalActionBlocker>
+                      <StyledEditButton disableRipple onClick={handleOpenChangeStatusModal}>
+                        <StyledEditIcon />
+                      </StyledEditButton>
+                    </NoteModalActionBlocker>
                   )}
                 </DetailsContainer>
                 {marInfo.status == ADMINISTRATION_STATUS.NOT_GIVEN && (
@@ -442,9 +445,14 @@ export const MarDetails = ({
                         <DarkestText mt={'3px'}>{marInfo.recordedByUser.displayName}</DarkestText>
                       </Box>
                       {canEditMar && (
-                        <StyledEditButton disableRipple onClick={() => handleOpenEditDoseModal({})}>
-                          <StyledEditIcon />
-                        </StyledEditButton>
+                        <NoteModalActionBlocker>
+                          <StyledEditButton
+                            disableRipple
+                            onClick={() => handleOpenEditDoseModal({})}
+                          >
+                            <StyledEditIcon />
+                          </StyledEditButton>
+                        </NoteModalActionBlocker>
                       )}
                     </DetailsContainer>
                   </Fragment>
@@ -496,9 +504,8 @@ export const MarDetails = ({
                               />
                             </MidText>
                             <DarkestText mt={'3px'}>
-                              {getDose(
-                                { ...medication, doseAmount: dose.doseAmount },
-                                getTranslation,
+                              {getMarDoseDisplay(
+                                { doseAmount: dose.doseAmount, units: medication.units },
                                 getEnumTranslation,
                               )}
                             </DarkestText>
@@ -530,12 +537,14 @@ export const MarDetails = ({
                             <DarkestText mt={'3px'}>{dose.recordedByUser.displayName}</DarkestText>
                           </Box>
                           {canEditMar && (
-                            <StyledEditButton
-                              disableRipple
-                              onClick={() => handleOpenEditDoseModal(dose)}
-                            >
-                              <StyledEditIcon />
-                            </StyledEditButton>
+                            <NoteModalActionBlocker>
+                              <StyledEditButton
+                                disableRipple
+                                onClick={() => handleOpenEditDoseModal(dose)}
+                              >
+                                <StyledEditIcon />
+                              </StyledEditButton>
+                            </NoteModalActionBlocker>
                           )}
                         </DetailsContainer>
                       )}
@@ -636,22 +645,26 @@ export const MarDetails = ({
                         </div>
                       ))}
                       {marInfo.status === ADMINISTRATION_STATUS.GIVEN && canEditMar && (
-                        <AddAdditionalDoseButton
-                          onClick={() =>
-                            formArrayMethods.push({
-                              doseAmount: medication?.isVariableDose ? '' : medication?.doseAmount,
-                              givenByUserId: currentUser?.id,
-                              recordedByUserId: currentUser?.id,
-                              givenTime: null,
-                            })
-                          }
-                        >
-                          <StyledAddIcon />
-                          <TranslatedText
-                            stringId="medication.mar.addAdditionalDose"
-                            fallback="Add additional dose"
-                          />
-                        </AddAdditionalDoseButton>
+                        <NoteModalActionBlocker>
+                          <AddAdditionalDoseButton
+                            onClick={() =>
+                              formArrayMethods.push({
+                                doseAmount: medication?.isVariableDose
+                                  ? ''
+                                  : medication?.doseAmount,
+                                givenByUserId: currentUser?.id,
+                                recordedByUserId: currentUser?.id,
+                                givenTime: null,
+                              })
+                            }
+                          >
+                            <StyledAddIcon />
+                            <TranslatedText
+                              stringId="medication.mar.addAdditionalDose"
+                              fallback="Add additional dose"
+                            />
+                          </AddAdditionalDoseButton>
+                        </NoteModalActionBlocker>
                       )}
                     </>
                   )}
@@ -671,9 +684,11 @@ export const MarDetails = ({
                     <OutlinedButton onClick={onClose}>
                       <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                     </OutlinedButton>
-                    <Button type="submit">
-                      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                    </Button>
+                    <NoteModalActionBlocker>
+                      <Button type="submit">
+                        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                      </Button>
+                    </NoteModalActionBlocker>
                   </Box>
                 ) : (
                   <Button onClick={onClose} type="submit">

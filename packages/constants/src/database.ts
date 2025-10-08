@@ -11,3 +11,5 @@ export const SESSION_CONFIG_PREFIX = 'tamanu.'
 export const AUDIT_USERID_KEY = 'audit.userid';
 export const AUDIT_ENDPOINT_KEY = 'audit.endpoint';
 export const AUDIT_PAUSE_KEY = 'audit.pause';
+export const AUDIT_REASON_KEY = 'audit.reason';
+export const AUDIT_MIGRATION_CONTEXT_KEY = 'audit.migration_context';

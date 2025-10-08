@@ -69,7 +69,7 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
           .of(
             yup.object().shape({
               conditionId: yup.string().nullable(),
-              category: yup
+              conditionCategoryId: yup
                 .string()
                 .nullable()
                 .when('conditionId', {
@@ -244,12 +244,14 @@ export const PatientProgramRegistryForm = ({ onCancel, onSubmit, editedObject })
                           label={
                             <TranslatedText
                               stringId="programRegistry.relatedConditions.label"
-                              fallback="Related condition"
+                              fallback="Related conditions"
                             />
                           }
                         />
                         <ProgramRegistryConditionCategoryField
-                          name={`${fieldName}.category`}
+                          name={`${fieldName}.conditionCategoryId`}
+                          isInitialRegistration={!editedObject?.id}
+                          programRegistryId={selectedProgramRegistryId}
                           disabled={!conditionValue?.conditionId}
                           disabledTooltipText={getTranslation(
                             'programRegistry.relatedConditionsCategory.tooltip',

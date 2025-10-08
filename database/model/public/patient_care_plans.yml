@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_care_plans
-        description: '{{ doc("table__patient_care_plans") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_care_plans') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_care_plans_changed
+              - record_patient_care_plans_changelog
+              - set_patient_care_plans_updated_at
+              - set_patient_care_plans_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -33,6 +40,9 @@ sources:
             description: "{{ doc('generic__date') }} in patient_care_plans."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: patient_id
             data_type: character varying(255)
             description: "{{ doc('patient_care_plans__patient_id') }}"
@@ -45,6 +55,9 @@ sources:
           - name: date_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_legacy') }} in patient_care_plans."
+            config:
+              meta:
+                masking: date
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_care_plans."

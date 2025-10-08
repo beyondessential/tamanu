@@ -3,18 +3,19 @@ import { Box } from '@material-ui/core';
 import styled from 'styled-components';
 import {
   findAdministrationTimeSlotFromIdealTime,
-  getDose,
+  getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 import { DRUG_ROUTE_LABELS, MEDICATION_ADMINISTRATION_TIME_SLOTS } from '@tamanu/constants';
 import { Colors } from '../../../constants';
-import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../..';
+import { TranslatedReferenceData, TranslatedText } from '../..';
 import { useTranslation } from '../../../contexts/Translation';
 import { usePausesPrescriptionQuery } from '../../../api/queries/usePausesPrescriptionQuery';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MarStatus } from './MarStatus';
 import { MedicationDetails } from '../MedicationDetails';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../../../contexts/Auth';
 
 const mapRecordsToWindows = medicationAdministrationRecords => {
   // Create an array of 12 nulls (one for each 2-hour window)
@@ -37,13 +38,18 @@ const MarRowContainer = styled.div`
   border-left: 1px solid ${Colors.outline};
   ${props => props.discontinued && `text-decoration: line-through;`}
   ${props => props.isPausing && `color: ${Colors.softText}; font-style: italic;`}
+  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
   &:hover {
-    background-color: ${Colors.veryLightBlue};
-    cursor: pointer;
+    background-color: ${props => (props.$disabled ? 'transparent' : Colors.veryLightBlue)};
   }
 `;
 
-export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopperAnchorElChange }) => {
+export const MarTableRow = ({
+  medication,
+  selectedDate,
+  popperAnchorEl,
+  onPopperAnchorElChange,
+}) => {
   const {
     medication: medicationRef,
     frequency,
@@ -55,6 +61,10 @@ export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopper
     displayPharmacyNotesInMar,
     encounterPrescription,
   } = medication;
+  const { ability } = useAuth();
+  const canViewSensitiveMedications = ability.can('read', 'SensitiveMedication');
+  const isSensitive = medicationRef.referenceDrug.isSensitive;
+
   const queryClient = useQueryClient();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const { encounter } = useEncounter();
@@ -69,6 +79,14 @@ export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopper
 
   const handleRefreshMar = () => {
     queryClient.invalidateQueries(['encounterMedication', encounter?.id]);
+    queryClient.invalidateQueries([`medication/${medication.id}/pauses`, encounter?.id]);
+  };
+
+  const handleRowClick = () => {
+    if (isSensitive && !canViewSensitiveMedications) {
+      return;
+    }
+    setOpenMedicationDetails(true);
   };
 
   return (
@@ -76,7 +94,8 @@ export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopper
       <MarRowContainer
         discontinued={discontinued}
         isPausing={isPausing}
-        onClick={() => setOpenMedicationDetails(true)}
+        onClick={handleRowClick}
+        $disabled={isSensitive && !canViewSensitiveMedications}
       >
         <Box fontWeight={500}>
           <TranslatedReferenceData
@@ -92,9 +111,13 @@ export const MarTableRow = ({ medication, selectedDate, popperAnchorEl, onPopper
           )}
         </Box>
         <Box>
-          {getDose(medication, getTranslation, getEnumTranslation)},{' '}
-          {getTranslatedFrequency(frequency, getTranslation)},{' '}
-          {<TranslatedEnum value={route} enumValues={DRUG_ROUTE_LABELS} />}
+          {[
+            getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
+            getTranslatedFrequency(frequency, getTranslation),
+            getEnumTranslation(DRUG_ROUTE_LABELS, route),
+          ]
+            .filter(Boolean)
+            .join(', ')}
         </Box>
         <Box color={!isPausing ? Colors.midText : undefined}>
           <span>{notes}</span>

@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: referrals
-        description: '{{ doc("table__referrals") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__referrals') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_referrals_changed
+              - record_referrals_changelog
+              - set_referrals_updated_at
+              - set_referrals_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -36,32 +43,36 @@ sources:
             description: "{{ doc('referrals__initiating_encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: completing_encounter_id
             data_type: character varying(255)
             description: "{{ doc('referrals__completing_encounter_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'encounters')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
           - name: survey_response_id
             data_type: character varying(255)
             description: "{{ doc('referrals__survey_response_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'survey_responses')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'survey_responses')
+                    field: id
           - name: status
             data_type: character varying(255)
             description: "{{ doc('referrals__status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - pending
-                    - cancelled
-                    - completed
+                  arguments:
+                    values:
+                      - pending
+                      - cancelled
+                      - completed
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in referrals."

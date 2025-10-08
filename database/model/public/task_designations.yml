@@ -5,8 +5,15 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: task_designations
-        description: '{{ doc("table__task_designations") }}'
-        tags: []
+        description: "{{ doc('table__task_designations') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_task_designations_changed
+              - record_task_designations_changelog
+              - set_task_designations_updated_at
+              - set_task_designations_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid

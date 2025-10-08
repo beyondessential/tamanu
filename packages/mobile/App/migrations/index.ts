@@ -66,6 +66,15 @@ import { addPatientProgramRegistrationReasonForChange1740342611000 } from './174
 import { addPatientProgramRegistrationId1743640327000 } from './1743640327000-addPatientProgramRegistrationId';
 import { removeIsMostRecentFromPatientProgramRegistrations1744754327000 } from './1744754327000-removeIsMostRecentFromPatientProgramRegistrations';
 import { addPatientProgramRegistrationInactiveFields1744234389088 } from './1744234389088-addPatientProgramRegistrationInactiveFields';
+import { addProgramRegistryConditionCategories1749085185000 } from './1749085185000-addProgramRegistryConditionCategories';
+import { updateMedicationsDBSchema1750786972719 } from './1750786972719-updateMedicationsDBSchema';
+import { addPatientAllergiesTable1750787000000 } from './1750787000000-addPatientAllergiesTable';
+import { addMedicationAdministrationRecordTable1750787001000 } from './1750787001000-addMedicationAdministrationRecordTable';
+import { addFacilityIsSensitiveColumn1752187477000 } from './1752187477000-addFacilityIsSensitiveColumn';
+import { correctPrescriptionStartDates1753393877000 } from './1753393877000-correctPrescriptionStartDates';
+import { addIsSensitiveColumnToReferenceDrugsTable1753911142171 } from './1753911142171-addIsSensitiveColumnToReferenceDrugsTable';
+import { addTaskTables1754000000000 } from './1754000000000-addTaskTables';
+import { addMotherFatherIdToPatientAdditionalData1756663661549 } from './1756663661549-addMotherFatherIdToPatientAdditionalData';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -135,4 +144,13 @@ export const migrationList = [
   addPatientProgramRegistrationId1743640327000,
   removeIsMostRecentFromPatientProgramRegistrations1744754327000,
   addPatientProgramRegistrationInactiveFields1744234389088,
+  addProgramRegistryConditionCategories1749085185000,
+  updateMedicationsDBSchema1750786972719,
+  addPatientAllergiesTable1750787000000,
+  addMedicationAdministrationRecordTable1750787001000,
+  addFacilityIsSensitiveColumn1752187477000,
+  correctPrescriptionStartDates1753393877000,
+  addIsSensitiveColumnToReferenceDrugsTable1753911142171,
+  addTaskTables1754000000000,
+  addMotherFatherIdToPatientAdditionalData1756663661549,
 ];

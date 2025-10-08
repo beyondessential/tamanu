@@ -7,7 +7,7 @@ import { MultiCheckbox } from '~/ui/components/MultiCheckbox';
 import { DateField } from '~/ui/components/DateField/DateField';
 import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
 import { SubmitButton } from '../SubmitButton';
-import { OptionType, Suggester } from '~/ui/helpers/suggester';
+import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { VisibilityStatus } from '~/visibilityStatuses';
@@ -57,7 +57,6 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
   const practitionerSuggester = new Suggester({
     model: models.User,
     options: { column: 'displayName' },
-    formatter: (model): OptionType => ({ label: model.displayName, value: model.id }),
   });
 
   const handleLabRequestTypeSelected = useCallback(async (selectedValue) => {
@@ -112,7 +111,17 @@ export const LabRequestForm = ({ errors, handleSubmit, navigation }): ReactEleme
         label={
           <TranslatedText
             stringId="lab.requestingClinician.label"
-            fallback="Requesting clinician"
+            fallback="Requesting :clinician"
+            replacements={{
+              clinician: (
+                <TranslatedText
+                  stringId="general.localisedField.clinician.label.short"
+                  fallback="Clinician"
+                  casing="lower"
+                  data-testid="translatedtext-9ywm"
+                />
+              ),
+            }}
           />
         }
         name="requestedById"

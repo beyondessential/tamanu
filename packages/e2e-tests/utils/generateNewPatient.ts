@@ -3,7 +3,7 @@ import { AllPatientsPage } from '../pages/patients/AllPatientsPage';
 import { constructFacilityUrl } from './navigation';
 import { testData } from '../utils/testData';
 
-function generateNHN() {
+export function generateNHN() {
   const letters = faker.string.alpha({ length: 4, casing: 'upper' });
   const numbers = faker.string.numeric(6);
   const generatedId = `${letters}${numbers}`;
@@ -24,6 +24,7 @@ function generatePatientData() {
   return { firstName, lastName, gender, formattedDOB, nhn, culturalName, village, id: '' };
 }
 
+//TODO: delete this once all tests that use it are refactored to use the new patient fixture
 export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
   const patientData = generatePatientData();
   allPatientsPage.setPatientData(patientData);
@@ -50,8 +51,8 @@ export async function createPatientViaApi(allPatientsPage: AllPatientsPage) {
       patientRegistryType: 'new_patient',
       registeredById: userData.id,
       sex: patientData.gender,
-      villageId:testData.VillageID,
-      culturalName: patientData.culturalName
+      villageId: testData.villageID,
+      culturalName: patientData.culturalName,
     }),
   });
 
@@ -84,7 +85,7 @@ export async function getCurrentUser(token: string) {
 }
 
 export async function getItemFromLocalStorage(allPatientsPage: AllPatientsPage, item: string) {
-  const response = await allPatientsPage.page.evaluate((key) => {
+  const response = await allPatientsPage.page.evaluate(key => {
     return localStorage.getItem(key);
   }, item);
 

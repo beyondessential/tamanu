@@ -29,6 +29,7 @@ import { MarView } from '../views/patients/medication/MarView';
 import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
+import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -104,9 +105,24 @@ export const usePatientRoutes = () => {
                     title: (
                       <TranslatedText
                         stringId="encounter.mar.title"
-                        fallback="Medication Admin Record"
+                        fallback="Medication admin record"
                       />
                     ),
+                    subPaths: [
+                      {
+                        path: `${PATIENT_PATHS.ENCOUNTER}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+                        title: (
+                          <TranslatedText
+                            stringId="encounter.medication.title"
+                            fallback="Medication"
+                          />
+                        ),
+                        navigateTo: () =>
+                          navigateToEncounter(encounter.id, {
+                            tab: ENCOUNTER_TAB_NAMES.MEDICATION,
+                          }),
+                      },
+                    ],
                   },
                 ]
               : []),

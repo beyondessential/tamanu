@@ -10,7 +10,7 @@ const FOREIGN_KEY_SCHEMATA = {
     {
       field: 'vaccine',
       model: 'ReferenceData',
-      types: ['vaccine', 'drug'],
+      types: ['drug'],
     },
     {
       field: 'manufacturer',
@@ -61,7 +61,7 @@ const FOREIGN_KEY_SCHEMATA = {
     {
       field: 'vaccine',
       model: 'ReferenceData',
-      types: ['vaccine', 'drug'],
+      types: ['drug'],
     },
   ],
   ReferenceDataRelation: [

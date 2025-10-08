@@ -5,9 +5,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: one_time_logins
-        description: '{{ doc("table__one_time_logins") }}'
-        tags:
-          - system
+        description: "{{ doc('table__one_time_logins') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)
@@ -21,13 +24,17 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: token
             data_type: character varying(255)
             description: "{{ doc('one_time_logins__token') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: string
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in one_time_logins."

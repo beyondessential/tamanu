@@ -1,16 +1,14 @@
-import { getCodeForErrorName } from '@tamanu/shared/errors';
-import { log } from '@tamanu/shared/services/logging';
+import { convertDatabaseError } from '@tamanu/database';
+import { errorHandlerProblem } from '@tamanu/shared/utils';
 
-// eslint-disable-next-line no-unused-vars
-export default function errorHandler(error, req, res, _) {
-  const code = getCodeForErrorName(error.name);
-  if (error.name === 'BadAuthenticationError') {
-    log.warn(`Error ${code}: ${error.message}`);
-  } else if (code >= 500) {
-    log.error(`Error ${code}: `, error);
-  } else {
-    log.info(`Error ${code}: `, error);
+export default function errorHandler(error, req, res, next) {
+  // see https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
+  if (res.headersSent) {
+    next(error);
+    return;
   }
+
+  const { problem, json } = errorHandlerProblem(error, req, { convertDatabaseError });
 
   // we're past the point of permission checking; this just
   // makes sure the error send doesn't get intercepted by the
@@ -19,10 +17,6 @@ export default function errorHandler(error, req, res, _) {
     req.flagPermissionChecked();
   }
 
-  res.status(code).send({
-    error: {
-      message: error.message,
-      ...error,
-    },
-  });
+  res.set(problem.headers);
+  res.status(problem.status).send(json);
 }

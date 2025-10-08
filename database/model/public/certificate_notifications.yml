@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: certificate_notifications
-        description: '{{ doc("table__certificate_notifications") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__certificate_notifications') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_certificate_notifications_changed
+              - record_certificate_notifications_changelog
+              - set_certificate_notifications_updated_at
+              - set_certificate_notifications_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -30,11 +37,12 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - covid_19_clearance
-                    - vaccination_certificate
-                    - icao.test
-                    - icao.vacc
+                  arguments:
+                    values:
+                      - covid_19_clearance
+                      - vaccination_certificate
+                      - icao.test
+                      - icao.vacc
           - name: require_signing
             data_type: boolean
             description: "{{ doc('certificate_notifications__require_signing') }}"
@@ -45,29 +53,35 @@ sources:
             description: "{{ doc('certificate_notifications__patient_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: forward_address
             data_type: character varying(255)
             description: "{{ doc('certificate_notifications__forward_address') }}"
+            config:
+              meta:
+                masking: email
           - name: lab_test_id
             data_type: character varying(255)
             description: "{{ doc('certificate_notifications__lab_test_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_tests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_tests')
+                    field: id
           - name: status
             data_type: character varying(255)
             description: "{{ doc('certificate_notifications__status') }}"
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - Queued
-                    - Processed
-                    - Error
-                    - Ignore
+                  arguments:
+                    values:
+                      - Queued
+                      - Processed
+                      - Error
+                      - Ignore
           - name: error
             data_type: text
             description: "{{ doc('certificate_notifications__error') }}"
@@ -79,8 +93,9 @@ sources:
             description: "{{ doc('certificate_notifications__lab_request_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'lab_requests')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'lab_requests')
+                    field: id
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in certificate_notifications."
@@ -89,6 +104,9 @@ sources:
           - name: printed_date
             data_type: character(10)
             description: "{{ doc('certificate_notifications__printed_date') }}"
+            config:
+              meta:
+                masking: date
           - name: facility_name
             data_type: character varying(255)
             description: "{{ doc('certificate_notifications__facility_name') }}"

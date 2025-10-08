@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "baseUrl": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "moduleResolution": "bundler",
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
+    "removeComments": false,
+    "resolveJsonModule": true,
+    "strict": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "verbatimModuleSyntax": true,
+    "lib": ["es2021"]
+  },
+  "extends": "../../common.tsconfig.json",
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}

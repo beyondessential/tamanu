@@ -9,7 +9,7 @@ import {
   NOTE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { NotFoundError } from '@tamanu/shared/errors';
+import { NotFoundError } from '@tamanu/errors';
 import { permissionCheckingRouter } from '@tamanu/shared/utils/crudHelpers';
 import { toDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { getNoteWithType } from '@tamanu/shared/utils/notes';
@@ -132,12 +132,12 @@ imagingRequest.get(
           association: 'notes',
         },
       ],
-    });
+    }); 
     if (!imagingRequestObject) throw new NotFoundError();
 
     await req.audit.access({
       recordId: imagingRequestObject.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: ImagingRequest,
     });
 

@@ -9,6 +9,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { ConditionalTooltip } from '../../Tooltip';
 import { MedicationModal } from '../MedicationModal';
 import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
 const Wrapper = styled.div`
   display: flex;
@@ -60,6 +61,8 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
     isSameDay(addDays(new Date(), 2), selectedDate) ||
     isSameDay(new Date(encounter?.endDate), selectedDate);
 
+  const isEncounterDischarged = !!encounter?.endDate;
+
   return (
     <Wrapper>
       <MedicationModal
@@ -107,16 +110,29 @@ export const MarHeader = ({ selectedDate, onDateChange }) => {
       </DateSelectWrapper>
       <ButtonWrapper>
         {canCreatePrescription && (
-          <ButtonWithPermissionCheck
-            onClick={() => setCreateMedicationModalOpen(true)}
-            verb="create"
-            noun="Medication"
-          >
-            <TranslatedText
-              stringId="medication.action.newPrescription"
-              fallback="New prescription"
-            />
-          </ButtonWithPermissionCheck>
+          <NoteModalActionBlocker>
+            <ConditionalTooltip
+              visible={isEncounterDischarged}
+              title={
+                <TranslatedText
+                  stringId="medication.action.newPrescription.tooltip"
+                  fallback="A new prescription can't be created once an encounter has been discharged. Please add any ongoing medications via the patient-level Medications tab."
+                />
+              }
+            >
+              <ButtonWithPermissionCheck
+                onClick={() => setCreateMedicationModalOpen(true)}
+                verb="create"
+                noun="Medication"
+                disabled={isEncounterDischarged}
+              >
+                <TranslatedText
+                  stringId="medication.action.newPrescription"
+                  fallback="New prescription"
+                />
+              </ButtonWithPermissionCheck>
+            </ConditionalTooltip>
+          </NoteModalActionBlocker>
         )}
       </ButtonWrapper>
     </Wrapper>

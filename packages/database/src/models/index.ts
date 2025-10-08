@@ -2,6 +2,8 @@ export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
 export * from './LocalSystemFact';
+export * from './PortalUser';
+export * from './Device';
 
 export * from './Patient';
 export * from './PatientFamilyHistory';
@@ -35,6 +37,8 @@ export * from './ReferenceDataRelation';
 export * from './VitalLog';
 export * from './Vitals';
 export * from './Procedure';
+export * from './ProcedureAssistantClinician';
+export * from './ProcedureSurveyResponse';
 
 export * from './EncounterDiagnosis';
 export * from './Prescription';
@@ -61,6 +65,7 @@ export * from './Program';
 export * from './ProgramRegistry';
 export * from './ProgramRegistryClinicalStatus';
 export * from './ProgramRegistryCondition';
+export * from './ProgramRegistryConditionCategory';
 export * from './PatientProgramRegistration';
 export * from './PatientProgramRegistrationCondition';
 export * from './Survey';
@@ -68,6 +73,7 @@ export * from './SurveyScreenComponent';
 export * from './ProgramDataElement';
 export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
+export * from './PortalSurveyAssignment';
 
 export * from './Referral';
 export * from './CertifiableVaccine';
@@ -87,6 +93,7 @@ export * from './Department';
 export * from './Location';
 export * from './LocationGroup';
 export * from './UserFacility';
+export * from './ProcedureTypeSurvey';
 export * from './Attachment';
 export * from './UserLocalisationCache';
 export * from './Asset';
@@ -96,6 +103,7 @@ export * from './DocumentMetadata';
 export * from './Template';
 
 export * from './OneTimeLogin';
+export * from './PortalOneTimeToken';
 export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
@@ -114,6 +122,9 @@ export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
 export * from './ReferenceMedicationTemplate';
+
+export * from './PharmacyOrder';
+export * from './PharmacyOrderPrescription';
 
 export * from './Notification';
 

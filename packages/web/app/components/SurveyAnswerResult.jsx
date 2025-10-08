@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { camelCase } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
@@ -8,18 +7,12 @@ import { Button } from './Button';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 import { TranslatedReferenceData } from './Translation/index.js';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedOption } from './Translation/TranslatedOptions.jsx';
+import { getReferenceDataCategoryFromRowConfig } from '@tamanu/shared/utils/translation/getReferenceDataCategoryFromRowConfig';
+import { PatientDataDisplayField } from './Field/PatientDataDisplayField';
 
-const getReferenceDataCategory = configString => {
-  try {
-    const config = JSON.parse(configString);
-    return camelCase(config.source);
-  } catch (e) {
-    return null;
-  }
-};
-
-const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
-  const category = getReferenceDataCategory(componentConfig);
+const AutocompleteCell = ({ answer, originalBody, componentConfig }) => {
+  const category = getReferenceDataCategoryFromRowConfig(componentConfig);
 
   if (!category) {
     return answer;
@@ -28,13 +21,19 @@ const PatientDataCell = ({ answer, originalBody, componentConfig }) => {
   return <TranslatedReferenceData fallback={answer} value={originalBody} category={category} />;
 };
 
-export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, componentConfig }) => {
+export const SurveyAnswerResult = ({
+  answer,
+  type,
+  originalBody,
+  componentConfig,
+  dataElementId,
+}) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [surveyLink, setSurveyLink] = useState(null);
 
   if (!answer) return 'Answer not submitted';
 
-  switch (sourceType || type) {
+  switch (type) {
     case PROGRAM_DATA_ELEMENT_TYPES.RESULT:
       return <SurveyResultBadge resultText={answer} data-testid="surveyresultbadge-h25b" />;
     case PROGRAM_DATA_ELEMENT_TYPES.CALCULATED:
@@ -67,16 +66,36 @@ export const SurveyAnswerResult = ({ answer, type, sourceType, originalBody, com
           />
         </>
       );
+    case PROGRAM_DATA_ELEMENT_TYPES.RADIO:
+    case PROGRAM_DATA_ELEMENT_TYPES.SELECT:
+      return (
+        <TranslatedOption
+          value={answer}
+          referenceDataId={dataElementId}
+          referenceDataCategory="programDataElement"
+        />
+      );
     case PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT:
       return JSON.parse(answer).map(element => (
         <>
-          {element}
+          <TranslatedOption
+            value={element}
+            referenceDataId={dataElementId}
+            referenceDataCategory="programDataElement"
+          />
           <br />
         </>
       ));
     case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA:
       return (
-        <PatientDataCell
+        <PatientDataDisplayField
+          value={originalBody}
+          config={componentConfig ? JSON.parse(componentConfig) : {}}
+        />
+      );
+    case PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE:
+      return (
+        <AutocompleteCell
           answer={answer}
           componentConfig={componentConfig}
           originalBody={originalBody}

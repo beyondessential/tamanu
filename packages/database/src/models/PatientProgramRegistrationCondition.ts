@@ -11,9 +11,9 @@ export class PatientProgramRegistrationCondition extends Model {
   declare deletionDate?: string;
   declare patientProgramRegistrationId: string;
   declare programRegistryConditionId?: string;
+  declare programRegistryConditionCategoryId: string;
   declare clinicianId?: string;
   declare deletionClinicianId?: string;
-  declare conditionCategory?: string;
   declare reasonForChange?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -27,9 +27,8 @@ export class PatientProgramRegistrationCondition extends Model {
         deletionDate: dateTimeType('deletionDate', {
           defaultValue: null,
         }),
-        conditionCategory: {
+        programRegistryConditionCategoryId: {
           type: DataTypes.STRING,
-          defaultValue: 'unknown',
           allowNull: false,
         },
         reasonForChange: {
@@ -55,6 +54,11 @@ export class PatientProgramRegistrationCondition extends Model {
       as: 'programRegistryCondition',
     });
 
+    this.belongsTo(models.ProgramRegistryConditionCategory, {
+      foreignKey: { name: 'programRegistryConditionCategoryId', allowNull: false },
+      as: 'programRegistryConditionCategory',
+    });
+
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
       as: 'clinician',
@@ -67,7 +71,7 @@ export class PatientProgramRegistrationCondition extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['programRegistryCondition'];
+    return ['programRegistryCondition', 'programRegistryConditionCategory'];
   }
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
     if (patientCount === 0) {
@@ -84,9 +88,9 @@ export class PatientProgramRegistrationCondition extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildSyncLookupSelect(this, {
         patientId: 'patient_program_registrations.patient_id',
       }),
       joins: [

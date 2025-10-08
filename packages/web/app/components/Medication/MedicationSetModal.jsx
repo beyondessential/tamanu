@@ -106,7 +106,7 @@ const SelectScreen = ({
         <Box flex={1}>
           <BodyText color={Colors.darkText}>
             <TranslatedText
-              stringId="medication.modal.medicationSet.description"
+              stringId="medication.modal.medicationSet.question"
               fallback="Select the medication set you would like to prescribe. You will be able to edit the prescription or remove any unneeded medications on the next screen."
             />
           </BodyText>
@@ -171,9 +171,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const { encounter } = useEncounter();
   const { ability, currentUser } = useAuth();
   const { data: allergies } = usePatientAllergiesQuery(encounter?.patientId);
-  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery(
-    'medicationSet',
-  );
+  const { data, isLoading: medicationSetsLoading } = useSuggestionsQuery('medicationSet');
   const medicationSets = data?.sort((a, b) => a.name.localeCompare(b.name));
   const [isDirty, setIsDirty] = useState(false);
 
@@ -314,6 +312,7 @@ export const MedicationSetModal = ({ open, onClose, openPrescriptionTypeModal, o
   const onConfirmEdit = data => {
     setEditingMedication(null);
     setScreen(MODAL_SCREENS.REVIEW_MEDICATION_SET);
+
     const medicationIndex = selectedMedicationSet.children.findIndex(
       child => child.id === editingMedication.id,
     );

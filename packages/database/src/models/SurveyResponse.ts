@@ -4,7 +4,7 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -14,16 +14,13 @@ import {
 import { getPatientDataDbLocation } from '@tamanu/shared/utils/getPatientDataDbLocation';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 
 async function createPatientIssues(models: Models, questions: any[], patientId: string) {
   const issueQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   );
   for (const question of issueQuestions) {
     const { config: configString } = question;
@@ -49,7 +46,7 @@ const getFieldsToWrite = async (models: Models, questions: any[], answers: any[]
   const recordValuesByModel: Record<string, Record<string, any>> = {};
 
   const patientDataQuestions = questions.filter(
-    (q) => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
@@ -169,6 +166,25 @@ async function handleSurveyResponseActions(
   );
 }
 
+// Special case for answers that depend on creating a new record in the database
+// and store the ID of the new record in the answer body. Currently only used for photos.
+async function getBodyForAnswer(dataElementType: string, value: any, models: Models) {
+  if (dataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && !!value) {
+    const { size, data } = value as unknown as { size: number; data: string };
+    const { id: attachmentId } = await models.Attachment.create(
+      models.Attachment.sanitizeForDatabase({
+        type: 'image/jpeg',
+        size,
+        data,
+      }),
+    );
+    // Store the attachment ID in the answer body
+    return attachmentId;
+  }
+
+  return getStringValue(dataElementType, value);
+}
+
 export class SurveyResponse extends Model {
   declare id: string;
   declare startTime?: string;
@@ -235,11 +251,8 @@ export class SurveyResponse extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
-    return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
-    };
+  static async buildSyncLookupQueryDetails() {
+    return buildEncounterLinkedLookupFilter(this);
   }
 
   static async getSurveyEncounter({
@@ -376,7 +389,7 @@ export class SurveyResponse extends Model {
     });
 
     const findDataElement = (id: string) => {
-      const component = questions.find((c) => c.dataElement.id === id);
+      const component = questions.find(c => c.dataElement.id === id);
       if (!component) return null;
       return component.dataElement;
     };
@@ -388,7 +401,7 @@ export class SurveyResponse extends Model {
       if (!dataElement) {
         throw new Error(`no data element for question: ${dataElementId}`);
       }
-      const body = getStringValue(dataElement.type, value);
+      const body = await getBodyForAnswer(dataElement.type, value, models);
       // Don't create null answers
       if (body === null) {
         continue;

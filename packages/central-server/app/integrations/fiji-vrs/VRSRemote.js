@@ -1,7 +1,5 @@
-import fetch from 'node-fetch';
-
 import { log } from '@tamanu/shared/services/logging';
-import { RemoteCallFailedError } from '@tamanu/shared/errors';
+import { RemoteCallError, ValidationError } from '@tamanu/errors';
 import { getResponseJsonSafely } from '@tamanu/shared/utils';
 
 import { VRSPatientAdapter } from './VRSPatientAdapter';
@@ -78,7 +76,7 @@ export class VRSRemote {
   async fetch(path, options = {}) {
     const { shouldRefreshToken = true, validateSchema = null, ...fetchOptions } = options;
     if (!validateSchema) {
-      throw new Error(
+      throw new ValidationError(
         `VRSRemote.fetch(): must supply a schema to validate against for path ${path}`,
       );
     }
@@ -110,9 +108,13 @@ export class VRSRemote {
     // throw on other errors
     if (!response.ok) {
       const errPayload = JSON.stringify(await getResponseJsonSafely(response));
-      throw new RemoteCallFailedError(
-        `VRSRemote.fetch(): Received ${response.status} while calling ${url} (payload=${errPayload})`,
-      );
+      throw new RemoteCallError(
+        `VRSRemote.fetch(): Received ${response.status} while calling ${url}`,
+      ).withExtraData({
+        remoteStatus: response.status,
+        remoteUrl: url,
+        payload: errPayload,
+      });
     }
 
     // parse, validate, and return body on success

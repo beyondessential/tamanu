@@ -77,7 +77,7 @@ export const WarningModal = ({ modal, onClose, onConfirm, isPast = false }) => {
       title = (
         <TranslatedText
           stringId="medication.mar.notMatchingDose.warning.title"
-          fallback="Dose amount does not match prescription" 
+          fallback="Dose amount does not match prescription"
         />
       );
       text = (
@@ -101,6 +101,7 @@ export const WarningModal = ({ modal, onClose, onConfirm, isPast = false }) => {
           {secondaryText && <span>{secondaryText}</span>}
         </Content>
       }
+      noteBlockConfirmButton={true}
     />
   );
 };

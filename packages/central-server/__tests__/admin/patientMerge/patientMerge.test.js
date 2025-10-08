@@ -4,12 +4,12 @@ import {
   mergePatient,
 } from '../../../dist/admin/patientMerge/mergePatient';
 import { createTestContext } from '../../utilities';
-import { InvalidParameterError } from '@tamanu/shared/errors';
+import { InvalidParameterError } from '@tamanu/errors';
 import { NOTE_TYPES } from '@tamanu/constants/notes';
 import { Op } from 'sequelize';
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { PatientMergeMaintainer } from '../../../dist/tasks/PatientMergeMaintainer';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { PORTAL_USER_STATUSES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { FACT_CURRENT_SYNC_TICK } from '@tamanu/constants/facts';
 
 import { makeTwoPatients } from './makeTwoPatients';
@@ -204,7 +204,7 @@ describe('Patient merge', () => {
   });
 
   describe('PatientAdditionalData', () => {
-    it('Should delete both PADs and generate a new one', async () => {
+    it('Should update keep patient PAD with merged info and delete merge patient PAD', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientPad = await PatientAdditionalData.create({
@@ -232,9 +232,10 @@ describe('Patient merge', () => {
         paranoid: false,
       });
 
-      expect(newMergePatientPad).toEqual(null);
-      expect(newKeepPatientPad.createdAt).not.toBe(oldKeepPatientPadCreatedAt);
-      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
+      expect(newMergePatientPad).toBeTruthy();
+      expect(newMergePatientPad.deletedAt).toBeTruthy();
+      expect(newKeepPatientPad.createdAt).toEqual(oldKeepPatientPadCreatedAt);
+      expect(newKeepPatientPad.deletedAt).toBeNull();
     });
 
     it('Should merge patient additional data cleanly', async () => {
@@ -345,7 +346,7 @@ describe('Patient merge', () => {
   });
 
   describe('PatientBirthData', () => {
-    it('deletes both PatientBirthData records and generate a new one', async () => {
+    it('Should update keep patient birth data with merged info and delete merge patient birth data', async () => {
       const { PatientBirthData } = models;
       const [keep, merge] = await makeTwoPatients(models);
       const oldKeepPatientBirthData = await PatientBirthData.create({
@@ -368,14 +369,15 @@ describe('Patient merge', () => {
         where: { patientId: keep.id },
         paranoid: false,
       });
-      const newMergePatientPa = await PatientBirthData.findOne({
+      const newMergePatientBirthData = await PatientBirthData.findOne({
         where: { patientId: merge.id },
         paranoid: false,
       });
 
-      expect(newMergePatientPa).toEqual(null);
-      expect(newKeepPatientBirthData.createdAt).not.toBe(oldKeepPatientBirthDataCreatedAt);
-      expect(newKeepPatientBirthData).toHaveProperty('deletedAt', null);
+      expect(newMergePatientBirthData).toBeTruthy();
+      expect(newMergePatientBirthData.deletedAt).toBeTruthy();
+      expect(newKeepPatientBirthData.createdAt).toEqual(oldKeepPatientBirthDataCreatedAt);
+      expect(newKeepPatientBirthData.deletedAt).toBeNull();
     });
 
     it('merges Patient Birth Data cleanly', async () => {
@@ -681,7 +683,7 @@ describe('Patient merge', () => {
 
       const updatedFieldValues = await PatientFieldValue.findAll({});
       expect(updatedFieldValues.length).toEqual(3);
-      updatedFieldValues.forEach((fieldValue) => {
+      updatedFieldValues.forEach(fieldValue => {
         expect(fieldValue.value).toEqual(testValuesObject[fieldValue.definitionId].expect);
       });
     });
@@ -732,7 +734,7 @@ describe('Patient merge', () => {
 
       const postPatientFacilities = await PatientFacility.findAll({});
       expect(postPatientFacilities.length).toEqual(3);
-      expect(postPatientFacilities.map((p) => p.facilityId).sort()).toEqual(
+      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
         [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
       );
     });
@@ -912,6 +914,46 @@ describe('Patient merge', () => {
         },
       });
       expect(removedFacility).toBeFalsy();
+    });
+
+    it('Should remerge PortalUser records', async () => {
+      const { PortalUser } = models;
+
+      const [keep, merge] = await makeTwoPatients(models);
+      await mergePatient(models, keep.id, merge.id);
+
+      const keepPortalUser = await PortalUser.create({
+        email: 'keep@test.com',
+        patientId: keep.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.PENDING,
+      });
+
+      const mergePortalUser = await PortalUser.create({
+        email: 'merge@test.com',
+        patientId: merge.id,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        status: PORTAL_USER_STATUSES.REGISTERED,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        PortalUser: 1,
+      });
+
+      // The more active account (merge) should be kept and transferred to the keep patient
+      await mergePortalUser.reload();
+      expect(mergePortalUser.patientId).toEqual(keep.id);
+      expect(mergePortalUser.status).toEqual(PORTAL_USER_STATUSES.REGISTERED);
+
+      // The less active account should be deleted
+      const deletedPortalUser = await PortalUser.findByPk(keepPortalUser.id);
+      expect(deletedPortalUser).toBeFalsy();
+
+      const remainingPortalUsers = await PortalUser.findAll({
+        where: { patientId: keep.id },
+      });
+      expect(remainingPortalUsers).toHaveLength(1);
     });
   });
 });

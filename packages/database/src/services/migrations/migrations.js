@@ -3,6 +3,8 @@ import path from 'node:path';
 import Umzug from 'umzug';
 import { runPostMigration, runPreMigration } from './migrationHooks';
 import { createMigrationAuditLog } from '../../utils/audit';
+import { AUDIT_MIGRATION_CONTEXT_KEY } from '@tamanu/constants';
+import { checkIsMigrationContextAvailable } from '../../utils/audit/checkIsMigrationContextAvailable';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '1685403132663-systemUser.js';
@@ -21,14 +23,39 @@ export function createMigrationInterface(log, sequelize) {
     throw new Error('Could not find migrations');
   }
 
+  // Closure context to store migration name and direction
+  const wrapContext = {};
+
   const umzug = new Umzug({
     migrations: {
       path: migrationsDir,
       params: [sequelize.getQueryInterface()],
-      wrap:
-        (updown) =>
-        (...args) =>
-          sequelize.transaction(async () => updown(...args)),
+      wrap: (updown) => (...args) => sequelize.transaction(async () => {
+        const isMigrationContextAvailable = await checkIsMigrationContextAvailable(
+          sequelize,
+          wrapContext.migrationName,
+        );
+        if (!isMigrationContextAvailable) {
+          return updown(...args);
+        }
+
+        // Create migration context object
+        const migrationContext = {
+          direction: wrapContext.direction,
+          migrationName: wrapContext.migrationName,
+          serverType: global?.serverInfo?.serverType || 'unknown',
+        };
+
+        // Set the migration context as a transaction variable
+        await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, JSON.stringify(migrationContext));
+
+        try {
+          const result = await updown(...args);
+          return result;
+        } finally {
+          await sequelize.setTransactionVar(AUDIT_MIGRATION_CONTEXT_KEY, null);
+        }
+      }),
 
       customResolver: async (sqlPath) => {
         const migrationImport = await import(sqlPath);
@@ -51,30 +78,42 @@ export function createMigrationInterface(log, sequelize) {
     },
   });
 
-  umzug.on('migrating', (name) => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', (name) => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', (name) => {
+    wrapContext.direction = 'up';
+    wrapContext.migrationName = name;
+    log.info(`Applying migration: ${name}`);
+  });
+  umzug.on('reverting', (name) => {
+    wrapContext.direction = 'down';
+    wrapContext.migrationName = name;
+    log.info(`Reverting migration: ${name}`);
+  });
 
   return umzug;
 }
 
-async function migrateUp(log, sequelize) {
+export async function migrateUpTo({ log, sequelize, pending, migrations, upOpts }) {
+  log.info('Running pre-migration steps...');
+  await runPreMigration(log, sequelize);
+  log.info(`Applied pre-migration steps successfully.`);
+
+  log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
+  const applied = await migrations.up(upOpts);
+  await createMigrationAuditLog(sequelize, applied, 'up');
+
+  log.info('Applied migrations successfully');
+
+  log.info('Running post-migration steps...');
+  await runPostMigration(log, sequelize);
+  log.info(`Applied post-migration steps successfully.`);
+}
+
+async function migrateUp(log, sequelize, upOpts = undefined) {
   const migrations = createMigrationInterface(log, sequelize);
 
   const pending = await migrations.pending();
   if (pending.length > 0) {
-    log.info('Running pre-migration steps...');
-    await runPreMigration(log, sequelize);
-    log.info(`Applied pre-migration steps successfully.`);
-
-    log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
-    const applied = await migrations.up();
-    await createMigrationAuditLog(sequelize, applied, 'up');
-
-    log.info('Applied migrations successfully');
-
-    log.info('Running post-migration steps...');
-    await runPostMigration(log, sequelize);
-    log.info(`Applied post-migration steps successfully.`);
+    await migrateUpTo({ log, sequelize, migrations, pending, upOpts });
   } else {
     log.info('Migrations already up-to-date.');
   }
@@ -135,10 +174,8 @@ export async function migrate(log, sequelize, direction) {
   throw new Error(`Unrecognised migrate direction: ${direction}`);
 }
 
-export function createMigrateCommand(Command, migrateCallback) {
-  const migrateCommand = new Command('migrate').description(
-    'Apply or roll back database migrations',
-  );
+export function createMigrateCommand(Command, migrateCallback, name = 'migrate') {
+  const migrateCommand = new Command(name).description('Apply or roll back database migrations');
 
   migrateCommand
     .command('up', { isDefault: true })

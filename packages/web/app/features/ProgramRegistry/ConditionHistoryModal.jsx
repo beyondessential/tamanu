@@ -1,13 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS } from '@tamanu/constants';
 import Divider from '@material-ui/core/Divider';
 import {
   Modal,
   DateDisplay,
   TranslatedText,
   TranslatedReferenceData,
-  TranslatedEnum,
   Button,
   ModalGenericButtonRow,
 } from '../../components';
@@ -57,16 +55,17 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
       id: 'category',
       title: <TranslatedText stringId="programRegistry.category" fallback="Category" />,
       width: '25%',
-      accessor: ({ conditionCategory }) => (
-        <TranslatedEnum
-          value={conditionCategory}
-          enumValues={PROGRAM_REGISTRY_CONDITION_CATEGORY_LABELS}
+      accessor: ({ conditionCategoryId, conditionCategoryName }) => (
+        <TranslatedReferenceData
+          value={conditionCategoryId}
+          fallback={conditionCategoryName}
+          category="programRegistryConditionCategory"
         />
       ),
     },
   ];
 
-  const { history = [] } = condition;
+  const { history = [], programRegistryId = '' } = condition;
 
   return (
     <Modal
@@ -77,7 +76,7 @@ export const ConditionHistoryModal = ({ open, onClose, condition }) => {
     >
       <StyledFormTable columns={columns} data={[condition]} />
       <Divider />
-      <ConditionHistoryTable historyData={history} />
+      <ConditionHistoryTable historyData={history} programRegistryId={programRegistryId} />
       <ModalGenericButtonRow>
         <Button onClick={onClose} data-testid="conditionHistoryCloseButton">
           Close

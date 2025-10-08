@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import { CURRENTLY_AT_TYPES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
@@ -66,13 +66,23 @@ export class ProgramRegistry extends Model {
       foreignKey: 'programRegistryId',
       as: 'patientProgramRegistrations',
     });
+
+    this.hasMany(models.ProgramRegistryCondition, {
+      foreignKey: 'programRegistryId',
+      as: 'conditions',
+    });
+
+    this.hasMany(models.ProgramRegistryConditionCategory, {
+      foreignKey: 'programRegistryId',
+      as: 'conditionCategories',
+    });
   }
 
   static buildSyncFilter() {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

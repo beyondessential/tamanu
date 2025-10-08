@@ -5,8 +5,11 @@ sources:
     description: "{{ doc('logs__generic__schema') }}"
     tables:
       - name: debug_logs
-        description: '{{ doc("logs__table__debug_logs") }}'
-        tags: []
+        description: "{{ doc('logs__table__debug_logs') }}"
+        config:
+          tags: []
+          meta:
+            triggers: []
         columns:
           - name: id
             data_type: uuid
@@ -20,8 +23,9 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - syncLookupUpdate
+                  arguments:
+                    values:
+                      - syncLookupUpdate
           - name: info
             data_type: json
             description: "{{ doc('logs__debug_logs__info') }}"

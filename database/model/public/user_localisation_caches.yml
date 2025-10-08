@@ -5,9 +5,13 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: user_localisation_caches
-        description: '{{ doc("table__user_localisation_caches") }}'
-        tags:
-          - system
+        description: "{{ doc('table__user_localisation_caches') }}"
+        config:
+          tags:
+            - system
+          meta:
+            masking: truncate
+            triggers: []
         columns:
           - name: id
             data_type: character varying(255)

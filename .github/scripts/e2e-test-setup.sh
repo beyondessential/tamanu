@@ -23,7 +23,12 @@ e2e_test_setup_setup_central() {
             "verbose": true,
             "username": "tamanu",
             "password": "tamanu"
-        }
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
     }
 EOF
 
@@ -38,11 +43,21 @@ EOF
         },
 
         facilities: {
-            "facility-test": {
-                name: "Facility Test",
-                code: "test",
-                user: "facility-test@tamanu.io",
-                password: "facility-test",
+            "facility-1": {
+                name: "facility-1",
+                code: "facility-1",
+                user: "facility-1@tamanu.io",
+                password: "facility-1",
+            },
+        },
+
+        settings: {
+            global: {
+                features: {
+                    deviceRegistrationQuota: {
+                        enabled: false,
+                    },
+                },
             },
         },
 
@@ -54,7 +69,7 @@ EOF
     }
 EOF
 
-    npm run --workspace @tamanu/central-server start migrate
+    npm run --workspace @tamanu/central-server start upgrade
     npm run --workspace @tamanu/central-server start provision provisioning.json5
 }
 
@@ -63,10 +78,10 @@ e2e_test_setup_setup_facility() {
 	cat <<- EOF > packages/facility-server/config/local.json5
 	{
 	    "port": "4000",
-	    "serverFacilityIds": ["facility-test"],
+	    "serverFacilityIds": ["facility-1"],
 	    "sync": {
-	        "email": "facility-test@tamanu.io",
-	        "password": "facility-test",
+	        "email": "facility-1@tamanu.io",
+	        "password": "facility-1",
 	        "enabled": true,
 	        "host": "http://localhost:3000"
 	    },
@@ -75,11 +90,16 @@ e2e_test_setup_setup_facility() {
 	        "name": "facility",
 	        "username": "tamanu",
 	        "password": "tamanu"
-	    }
-	}
+        },
+        schedules: {
+            sendStatusToMetaServer: {
+                enabled: false,
+            },
+        },
+    }
 EOF
 
-    npm run --workspace @tamanu/facility-server start migrate
+    npm run --workspace @tamanu/facility-server start upgrade
 }
 
 e2e_test_setup_start_servers() {

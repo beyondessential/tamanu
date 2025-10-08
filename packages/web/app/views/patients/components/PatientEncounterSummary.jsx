@@ -2,12 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Colors,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  PATIENT_STATUS,
-  PATIENT_STATUS_COLORS,
-} from '../../../constants';
+import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
 import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
@@ -15,11 +10,17 @@ import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
-import { TranslatedReferenceData, TranslatedText } from '../../../components/Translation';
+import {
+  TranslatedEnum,
+  TranslatedReferenceData,
+  TranslatedText,
+} from '../../../components/Translation';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 10px solid ${(props) => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
   border-radius: 5px;
 `;
 
@@ -43,7 +44,7 @@ const Header = styled.div`
   justify-content: flex-start;
   align-items: center;
   padding: 18px 20px 18px 16px;
-  border-bottom: 1px solid ${(props) => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
 `;
 
 const Content = styled.div`
@@ -61,7 +62,7 @@ const Title = styled(Typography)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
   text-transform: capitalize;
 `;
 
@@ -69,7 +70,7 @@ const BoldTitle = styled(Title)`
   font-size: 18px;
   line-height: 24px;
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.primary};
+  color: ${props => props.theme.palette.text.primary};
   margin-right: 5px;
 `;
 
@@ -109,11 +110,7 @@ const DataStatusMessage = ({ message }) => (
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
 
-  const {
-    data: deathData,
-    error,
-    isLoading,
-  } = useQuery(['patientDeathSummary', patient.id], () =>
+  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
     api.get(`patient/${patient.id}/death`, {}, { showUnknownErrorToast: false }),
   );
 
@@ -220,7 +217,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         message={
           <TranslatedText
             stringId="general.status.loading"
-            fallback="Loading..."
+            fallback="Loading…"
             data-testid="translatedtext-jp7h"
           />
         }
@@ -244,18 +241,20 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           />
         </NoVisitTitle>
         <ButtonRow data-testid="buttonrow-qss7">
-          <ButtonWithPermissionCheck
-            onClick={openCheckin}
-            verb="create"
-            noun="Encounter"
-            data-testid="buttonwithpermissioncheck-o4ea"
-          >
-            <TranslatedText
-              stringId="patient.encounterSummary.adminOrCheckIn"
-              fallback="Admit or check-in"
-              data-testid="translatedtext-rs08"
-            />
-          </ButtonWithPermissionCheck>
+          <NoteModalActionBlocker>
+            <ButtonWithPermissionCheck
+              onClick={openCheckin}
+              verb="create"
+              noun="Encounter"
+              data-testid="buttonwithpermissioncheck-o4ea"
+            >
+              <TranslatedText
+                stringId="patient.encounterSummary.adminOrCheckIn"
+                fallback="Admit or check-in"
+                data-testid="translatedtext-rs08"
+              />
+            </ButtonWithPermissionCheck>
+          </NoteModalActionBlocker>
         </ButtonRow>
       </NoVisitContainer>
     );
@@ -286,7 +285,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           :
         </BoldTitle>
         <Title variant="h3" data-testid="title-il13">
-          {ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}
+          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
           {location?.facility?.name ? (
             <>
               {' | '}

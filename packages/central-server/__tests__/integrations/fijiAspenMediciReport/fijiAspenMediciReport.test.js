@@ -13,7 +13,7 @@ import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { fake } from '@tamanu/fake-data/fake';
 import { log } from '@tamanu/shared/services/logging';
 
-import { createTestContext } from '@tamanu/central-server/__tests__/utilities';
+import { createTestContext } from '../../utilities';
 import { allFromUpstream } from '../../../dist/tasks/fhir/refresh/allFromUpstream';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
@@ -499,9 +499,9 @@ describe('fijiAspenMediciReport', () => {
         encounterId,
         patientBillingType: 'Public',
         // Note that seconds is the highest level of precision - so the milliseconds are truncated
-        encounterStartDate: '2022-06-09T00:02:54.000Z',
-        encounterEndDate: '2022-06-12T00:02:54.000Z',
-        dischargeDate: '2022-06-12T00:02:54.000Z',
+        encounterStartDate: '2022-06-09T00:02:54+00:00',
+        encounterEndDate: '2022-06-12T00:02:54+00:00',
+        dischargeDate: '2022-06-12T00:02:54+00:00',
         encounterType: [
           {
             startDate: expect.stringMatching(isoStringRegex),

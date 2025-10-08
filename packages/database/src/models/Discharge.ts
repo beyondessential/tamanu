@@ -1,10 +1,18 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, QueryTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import type { InitOptions, Models } from '../types/model';
+import { Facility } from './Facility';
+import { log } from '@tamanu/shared/services/logging';
+
+export interface Address {
+  name?: string;
+  address?: string;
+  town?: string;
+}
 
 export class Discharge extends Model {
   declare id: string;
@@ -51,6 +59,39 @@ export class Discharge extends Model {
     );
   }
 
+  async address(): Promise<Address> {
+    const encounterFacility = await this.sequelize
+      .query(
+        `
+        SELECT f.* FROM encounters e
+        JOIN locations l on l.id = e.location_id
+        JOIN facilities f on f.id = l.facility_id
+        WHERE e.id = $encounterId
+        `,
+        {
+          type: QueryTypes.SELECT,
+          model: Facility,
+          mapToModel: true,
+          bind: {
+            encounterId: this.encounterId,
+          },
+        },
+      )
+      .then(
+        (res: Facility[]) => res?.[0],
+        (err: Error) => {
+          log.warn('Failed to fetch encounter facility', err);
+          return null;
+        },
+      );
+
+    return {
+      name: encounterFacility?.name ?? this.facilityName,
+      address: encounterFacility?.streetAddress ?? this.facilityAddress,
+      town: encounterFacility?.cityTown ?? this.facilityTown,
+    };
+  }
+
   static getFullReferenceAssociations() {
     return ['discharger', 'disposition'];
   }
@@ -80,7 +121,7 @@ export class Discharge extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return buildEncounterLinkedLookupFilter(this);
   }
 }

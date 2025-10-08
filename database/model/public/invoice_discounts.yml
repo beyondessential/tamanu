@@ -5,9 +5,16 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: invoice_discounts
-        description: '{{ doc("table__invoice_discounts") }}'
-        tags:
-          - administration
+        description: "{{ doc('table__invoice_discounts') }}"
+        config:
+          tags:
+            - administration
+          meta:
+            triggers:
+              - notify_invoice_discounts_changed
+              - record_invoice_discounts_changelog
+              - set_invoice_discounts_updated_at
+              - set_invoice_discounts_updated_at_sync_tick
         columns:
           - name: id
             data_type: uuid
@@ -21,8 +28,9 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'invoices')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'invoices')
+                    field: id
           - name: percentage
             data_type: numeric
             description: "{{ doc('invoice_discounts__percentage') }}"
@@ -31,6 +39,9 @@ sources:
           - name: reason
             data_type: character varying(255)
             description: "{{ doc('invoice_discounts__reason') }}"
+            config:
+              meta:
+                masking: text
           - name: is_manual
             data_type: boolean
             description: "{{ doc('invoice_discounts__is_manual') }}"
@@ -42,13 +53,17 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: applied_time
             data_type: character(19)
             description: "{{ doc('invoice_discounts__applied_time') }}"
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: datetime
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_discounts."

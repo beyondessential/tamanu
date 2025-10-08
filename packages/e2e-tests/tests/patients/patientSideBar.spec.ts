@@ -1,20 +1,13 @@
 import { test, expect } from '../../fixtures/baseFixture';
-import { createPatientViaApi } from '../../utils/generateNewPatient';
 
 test.describe('Patient Side Bar', () => {
-  test.beforeEach(async ({ patientDetailsPage, allPatientsPage }) => {
-    await allPatientsPage.goto();
-    await createPatientViaApi(allPatientsPage);
-
-    //this is to replicate the workflow of visiting an existing patient
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+  test.beforeEach(async ({ patientDetailsPage, newPatient }) => {
+    await patientDetailsPage.goToPatient(newPatient);
     await patientDetailsPage.confirmPatientDetailsPageHasLoaded();
-    await expect(patientDetailsPage.patientNHN).toContainText(patientData.nhn);
   });
 
   test('Add ongoing condition with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOngoingConditionWithJustRequiredFields('Sleep apnea');
 
@@ -51,18 +44,9 @@ test.describe('Patient Side Bar', () => {
       patientDetailsPage.submitNewOngoingConditionAddButton,
     );
 
-    await expect(patientDetailsPage.warningModalTitle).toContainText(
-      'Please fix below errors to continue',
-    );
-    await expect(patientDetailsPage.warningModalContent).toContainText(
-      'The Condition field is required',
-    );
-
-    await patientDetailsPage.warningModalDismissButton.click();
-
     await expect(
-      patientDetailsPage.onGoingConditionForm.filter({
-        hasText: 'The Condition field is required',
+      patientDetailsPage.ongoingConditionNameWrapper.filter({
+        hasText: 'Required',
       }),
     ).toBeVisible();
   });
@@ -125,7 +109,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add allergy with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewAllergyWithJustRequiredFields('Dust mites');
 
@@ -166,10 +150,9 @@ test.describe('Patient Side Bar', () => {
 
   test('Add allergy that is not in dropdown list', async ({
     patientDetailsPage,
-    allPatientsPage,
+    newPatient,
   }) => {
-    const patientData = allPatientsPage.getPatientData();
-    const newAllergy = patientDetailsPage.generateNewAllergy(patientData.nhn);
+    const newAllergy = patientDetailsPage.generateNewAllergy(newPatient.displayId);
 
     await patientDetailsPage.searchNewAllergyNotInDropdown(newAllergy);
 
@@ -185,7 +168,7 @@ test.describe('Patient Side Bar', () => {
   });
 
   test('Add family history with just the required fields', async ({ patientDetailsPage }) => {
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewFamilyHistoryWithJustRequiredFields('Hair alopecia');
 
@@ -255,7 +238,7 @@ test.describe('Patient Side Bar', () => {
     await patientDetailsPage.initiateNewOtherPatientIssuesAddButton.click();
     await expect(patientDetailsPage.defaultNewIssue).toBeVisible();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await patientDetailsPage.addNewOtherPatientIssueNote('New issue note');
 
@@ -280,6 +263,7 @@ test.describe('Patient Side Bar', () => {
   test('Warning appears when navigating to patient with a warning', async ({
     patientDetailsPage,
     allPatientsPage,
+    newPatient,
   }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning(
       'A warning appears when navigating to a patient with a warning',
@@ -287,8 +271,7 @@ test.describe('Patient Side Bar', () => {
 
     await allPatientsPage.goto();
 
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+    await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
 
     await expect(
       patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' }),
@@ -298,7 +281,7 @@ test.describe('Patient Side Bar', () => {
     );
   });
 
-  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage }) => {
+  test('Edit patient warning', async ({ patientDetailsPage, allPatientsPage, newPatient }) => {
     await patientDetailsPage.addNewOtherPatientIssueWarning('Test warning');
     await patientDetailsPage.warningModalOkayButton.click();
 
@@ -316,8 +299,7 @@ test.describe('Patient Side Bar', () => {
 
     await allPatientsPage.goto();
 
-    const patientData = allPatientsPage.getPatientData();
-    await allPatientsPage.navigateToPatientDetailsPage(patientData.nhn);
+    await allPatientsPage.navigateToPatientDetailsPage(newPatient.displayId);
 
     await expect(
       patientDetailsPage.warningModalTitle.filter({ hasText: 'Patient warnings' }),
@@ -336,7 +318,7 @@ test.describe('Patient Side Bar', () => {
   test('Add care plans', async ({ patientDetailsPage }) => {
     const newCarePlanModal = await patientDetailsPage.addNewCarePlan();
 
-    const currentBrowserDate = await patientDetailsPage.getCurrentBrowserDateISOFormat();
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     const defaultDate = await newCarePlanModal.carePlanDate.inputValue();
     await expect(defaultDate).toContain(currentBrowserDate);
 
@@ -353,7 +335,7 @@ test.describe('Patient Side Bar', () => {
       /This is an example of main care plan details/,
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
-      'On behalf of Initial Admin',
+      'on behalf of Initial Admin',
     );
 
     await completedCarePlanModal.addAdditionalCarePlanNote(

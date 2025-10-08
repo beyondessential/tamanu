@@ -4,13 +4,23 @@ import { constructFacilityUrl } from '@utils/navigation';
 import { BasePatientPage } from '../BasePatientPage';
 import { PatientVaccinePane } from './panes/PatientVaccinePane';
 import { CarePlanModal } from './modals/CarePlanModal';
+import { LabRequestPane } from '../LabRequestPage/panes/LabRequestPane';
+import { format } from 'date-fns';
+import { NotesPane } from '../NotesPage/panes/notesPane';
+import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
+
 
 export class PatientDetailsPage extends BasePatientPage {
+  readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
+  readonly healthIdText: Locator;
   patientVaccinePane?: PatientVaccinePane;
   carePlanModal?: CarePlanModal;
+  prepareDischargeModal?: PrepareDischargeModal;
+  notesPane?: NotesPane;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
+  readonly ongoingConditionNameWrapper: Locator;
   readonly ongoingConditionDateRecordedField: Locator;
   readonly ongoingConditionClinicianField: Locator;
   readonly savedOnGoingConditionName: Locator;
@@ -18,7 +28,6 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly savedOnGoingConditionDate: Locator;
   readonly savedOnGoingConditionClinician: Locator;
   readonly savedOnGoingConditionNote: Locator;
-  readonly onGoingConditionForm: Locator;
   readonly submitNewOngoingConditionAddButton: Locator;
   readonly initiateNewAllergyAddButton: Locator;
   readonly allergyNameField: Locator;
@@ -58,10 +67,16 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly resolvedNote: Locator;
   readonly savedFamilyHistoryName: Locator;
   readonly submitEditsButton: Locator;
+  readonly labsTab: Locator;
+  readonly notesTab: Locator;
+  readonly encountersList: Locator; 
+  readonly departmentLabel: Locator;
+  labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-
+    this.prepareDischargeButton= this.page.getByTestId('mainbuttoncomponent-06gp');
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
+    this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
       .getByTestId('listssection-1frw')
       .locator('div')
@@ -90,7 +105,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.onGoingConditionForm = this.page.getByTestId('listssection-1frw');
+    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -194,6 +209,10 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-rz1i-confirmButton')
       .first();
+    this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
+    this.notesTab = this.page.getByTestId('styledtab-ccs8-notes');
+    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -204,8 +223,31 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientVaccinePane;
   }
 
+ 
+
+    async navigateToLabsTab(): Promise<LabRequestPane> {
+    // Navigate to the top encounter
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.labsTab.click();
+    if (!this.labRequestPane) {
+      this.labRequestPane = new LabRequestPane(this.page);
+    }
+    return this.labRequestPane;
+  }
+  async navigateToNotesTab(): Promise<NotesPane> {
+    // Navigate to the top encounter
+    await this.encountersList.first().waitFor({ state: 'visible' });
+    await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
+    await this.notesTab.click();
+    if (!this.notesPane) {
+      this.notesPane = new NotesPane(this.page);
+    }
+    return this.notesPane;
+  }
+
+
   async goToPatient(patient: Patient) {
-    console.log('going to');
     await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
   }
 
@@ -247,6 +289,7 @@ export class PatientDetailsPage extends BasePatientPage {
   async addNewAllergyNotInDropdown(allergyName: string) {
     await this.page.getByRole('menuitem', { name: allergyName }).click();
     await this.dropdownMenuItem.waitFor({ state: 'hidden' });
+    await expect(this.allergyNameField).toHaveValue(allergyName);
     await this.clickAddButtonToConfirm(this.submitNewAllergyAddButton);
   }
 
@@ -336,9 +379,11 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.page.getByRole('button', { name: 'Save' }).click();
   }
 
-  async getCurrentBrowserDateISOFormat() {
-    const currentDate = new Date();
-    return currentDate.toISOString().split('T')[0];
+  /**
+   * Gets current browser date in the YYYY-MM-DD format in the browser timezone
+   */
+  getCurrentBrowserDateISOFormat() {
+    return format(new Date(), 'yyyy-MM-dd');
   }
 
   // Helper methods for handling multiple buttons with the same test ID
@@ -353,8 +398,8 @@ export class PatientDetailsPage extends BasePatientPage {
   getOngoingConditionEditSubmitButton() {
     return this.page
       .getByTestId('collapse-0a33')
-      .getByTestId('formsubmitcancelrow-2r80-confirmButton')
-      .first();
+      .getByTestId('formgrid-lqds')
+      .getByRole('button', { name: 'Save' });
   }
 
   getAllergyEditSubmitButton() {
@@ -376,5 +421,12 @@ export class PatientDetailsPage extends BasePatientPage {
       .getByTestId('collapse-0a33')
       .getByTestId('formsubmitcancelrow-x2a0-confirmButton')
       .first();
+  }
+
+  getPrepareDischargeModal(): PrepareDischargeModal {
+    if (!this.prepareDischargeModal) {
+      this.prepareDischargeModal = new PrepareDischargeModal(this.page);
+    }
+    return this.prepareDischargeModal;
   }
 }

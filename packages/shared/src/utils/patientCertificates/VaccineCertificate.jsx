@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, View, StyleSheet, Text as BaseText } from '@react-pdf/renderer';
+import { Document, View, StyleSheet } from '@react-pdf/renderer';
 
 import { Table } from './Table';
 import {
@@ -18,11 +18,11 @@ import { getDisplayDate } from './getDisplayDate';
 import { SigningSection } from './SigningSection';
 import { useLanguageContext, withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
-import { Text } from '../pdf/Text';
+import { Text, TextWithoutContext } from '../pdf/Text';
 import { get } from 'lodash';
 import { useTextStyles } from './printComponents/MultiPageHeader';
 
-const columns = (getTranslation) => [
+const columns = getTranslation => [
   {
     key: 'date',
     title: getTranslation('pdf.table.column.dateGiven', 'Date given'),
@@ -51,7 +51,7 @@ const columns = (getTranslation) => [
   {
     key: 'countryName',
     title: getTranslation('pdf.table.column.country', 'Facility/Country'),
-    accessor: (record) => {
+    accessor: record => {
       const facility = record.givenElsewhere ? record.givenBy : record.location?.facility?.name;
       return facility || '';
     },
@@ -74,15 +74,11 @@ const vaccineCertificateStyles = StyleSheet.create({
   },
   labelText: {
     fontSize: 8,
-    fontFamily: 'Helvetica-Bold',
-    fontWeight: 400,
     color: '#888888',
   },
   valueText: {
     fontSize: 8,
-    fontWeight: 400,
     color: '#888888',
-    fontFamily: 'Helvetica',
   },
   documentHeaderContent: {
     flexDirection: 'row',
@@ -93,10 +89,16 @@ const VaccineCertificateHeader = ({ patient }) => {
   const valueStyles = useTextStyles(vaccineCertificateStyles.valueText);
   const labelStyles = useTextStyles(vaccineCertificateStyles.labelText);
 
-  const ValueText = (props) => <BaseText style={valueStyles} {...props} />;
-  const LabelText = (props) => <BaseText style={labelStyles} {...props} />;
+  const { getTranslation, makeIntlStyleSheet, pdfFontBold, pdfFont } = useLanguageContext();
+  const textContextProps = { makeIntlStyleSheet, pdfFontBold, pdfFont };
 
-  const { getTranslation } = useLanguageContext();
+  const ValueText = props => (
+    <TextWithoutContext style={valueStyles} {...textContextProps} {...props} />
+  );
+  const LabelText = props => (
+    <TextWithoutContext bold style={labelStyles} {...textContextProps} {...props} />
+  );
+
   return (
     <View
       fixed
@@ -138,36 +140,42 @@ const VaccineCertificateComponent = ({
   signingSrc,
   logoSrc,
   localisation,
-  settings,
+  getSetting,
   extraPatientFields,
   certificateData,
   healthFacility,
 }) => {
   const { getTranslation } = useLanguageContext();
-  const getLocalisation = (key) => get(localisation, key);
-  const getSetting = (key) => get(settings, key);
+  const getLocalisation = key => get(localisation, key);
   const countryName = getLocalisation('country.name');
 
-  const data = vaccinations.map((vaccination) => ({ ...vaccination, countryName, healthFacility }));
+  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
   const VaccineCertificateFooter = () => (
     <View style={vaccineCertificateStyles.footerContent}>
       <View style={vaccineCertificateStyles.footerLeft}>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printDate', 'Print date')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{getDisplayDate(printedDate)} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {getDisplayDate(printedDate)} |{' '}
+        </Text>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printingFacility', 'Printing facility')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{facilityName || healthFacility} | </Text>
-        <Text style={vaccineCertificateStyles.labelText}>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {facilityName || healthFacility} |{' '}
+        </Text>
+        <Text bold style={vaccineCertificateStyles.labelText}>
           {getTranslation('pdf.vaccineCertificate.printedBy', 'Printed by')}:{' '}
         </Text>
-        <Text style={vaccineCertificateStyles.valueText}>{printedBy}</Text>
+        <Text bold style={vaccineCertificateStyles.valueText}>
+          {printedBy}
+        </Text>
       </View>
       <View style={vaccineCertificateStyles.footerRight}>
         <Text
+          bold
           style={vaccineCertificateStyles.valueText}
           render={({ pageNumber, totalPages }) =>
             getTranslation('pdf.pagination', ':currentPage of :totalPages', {
@@ -207,7 +215,9 @@ const VaccineCertificateComponent = ({
             extraFields={extraPatientFields}
           />
         </CertificateHeader>
-        <Box style={{ ...styles.box, marginLeft: '18px', marginRight: '18px', marginBottom: '0px' }}>
+        <Box
+          style={{ ...styles.box, marginLeft: '18px', marginRight: '18px', marginBottom: '0px' }}
+        >
           <H3 style={{ marginBottom: 5, marginTop: 5 }}>
             {getTranslation('pdf.vaccineCertificate.immunisationHistory', 'Immunisation history')}
           </H3>

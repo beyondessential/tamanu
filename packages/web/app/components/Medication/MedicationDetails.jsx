@@ -12,7 +12,7 @@ import { formatShortest } from '@tamanu/utils/dateTime';
 import {
   findAdministrationTimeSlotFromIdealTime,
   getDateFromTimeString,
-  getDose,
+  getMedicationDoseDisplay,
   getTranslatedFrequency,
 } from '@tamanu/shared/utils/medication';
 
@@ -33,6 +33,7 @@ import { usePausePrescriptionQuery } from '../../api/queries/usePausePrescriptio
 import { useEncounter } from '../../contexts/Encounter';
 import { MedicationResumeModal } from './MedicationResumeModal';
 import { singularize } from '../../utils';
+import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -95,6 +96,7 @@ export const MedicationDetails = ({
   const canPauseMedication = ability?.can('write', 'Medication');
   const canCreateMedicationPharmacyNote = ability?.can('create', 'MedicationPharmacyNote');
   const canUpdateMedicationPharmacyNote = ability?.can('write', 'MedicationPharmacyNote');
+  const canWriteSensitiveMedication = ability?.can('write', 'SensitiveMedication');
 
   const [openDiscontinueModal, setOpenDiscontinueModal] = useState(false);
   const [openPauseModal, setOpenPauseModal] = useState(false);
@@ -112,11 +114,12 @@ export const MedicationDetails = ({
   );
   const pauseData = data?.pauseRecord;
   const isPausing = !!pauseData && !medication.discontinued;
+  const isSensitive = medication?.medication?.referenceDrug?.isSensitive;
 
   const leftDetails = [
     {
       label: <TranslatedText stringId="medication.details.dose" fallback="Dose" />,
-      value: getDose(medication, getTranslation, getEnumTranslation),
+      value: getMedicationDoseDisplay(medication, getTranslation, getEnumTranslation),
     },
     {
       label: <TranslatedText stringId="medication.details.route" fallback="Route" />,
@@ -276,8 +279,8 @@ export const MedicationDetails = ({
                         />
                       </MidText>
                       <DarkestText mt={0.5}>{`${formatShortest(
-                        new Date(medication.discontinuedDate),
-                      )} ${formatTimeSlot(new Date(medication.discontinuedDate))}`}</DarkestText>
+                        medication.discontinuedDate,
+                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -393,39 +396,43 @@ export const MedicationDetails = ({
               <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
               <FormGrid>
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <Field
-                    name="pharmacyNotes"
-                    label={
-                      <TranslatedText
-                        stringId="medication.details.pharmacyNotes"
-                        fallback="Pharmacy notes"
-                      />
-                    }
-                    component={TextField}
-                    disabled={
-                      !canCreateMedicationPharmacyNote ||
-                      (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
-                      medication.discontinued ||
-                      isPausing ||
-                      isOngoingPrescription
-                    }
-                  />
+                  <NoteModalActionBlocker>
+                    <Field
+                      name="pharmacyNotes"
+                      label={
+                        <TranslatedText
+                          stringId="medication.details.pharmacyNotes"
+                          fallback="Pharmacy notes"
+                        />
+                      }
+                      component={TextField}
+                      disabled={
+                        !canCreateMedicationPharmacyNote ||
+                        (!canUpdateMedicationPharmacyNote && values.pharmacyNotes) ||
+                        medication.discontinued ||
+                        isPausing ||
+                        isOngoingPrescription
+                      }
+                    />
+                  </NoteModalActionBlocker>
                 </div>
                 {!medication.discontinued && !isPausing && !isOngoingPrescription && (
                   <div style={{ gridColumn: '1/-1', marginTop: '-12px' }}>
-                    <Field
-                      name="displayPharmacyNotesInMar"
-                      label={
-                        <MidText color={`${Colors.darkText} !important`}>
-                          <TranslatedText
-                            stringId="medication.details.displayInMarInstructions"
-                            fallback="Display pharmacy notes on MAR"
-                          />
-                        </MidText>
-                      }
-                      component={CheckField}
-                      disabled={!canCreateMedicationPharmacyNote}
-                    />
+                    <NoteModalActionBlocker>
+                      <Field
+                        name="displayPharmacyNotesInMar"
+                        label={
+                          <MidText color={`${Colors.darkText} !important`}>
+                            <TranslatedText
+                              stringId="medication.details.displayInMarInstructions"
+                              fallback="Display pharmacy notes on MAR"
+                            />
+                          </MidText>
+                        }
+                        component={CheckField}
+                        disabled={!canCreateMedicationPharmacyNote}
+                      />
+                    </NoteModalActionBlocker>
                   </div>
                 )}
               </FormGrid>
@@ -438,7 +445,11 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                       return (
                         <DarkestText key={time}>
@@ -450,7 +461,11 @@ export const MedicationDetails = ({
                     })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       return (
                         <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
                       );
@@ -477,30 +492,48 @@ export const MedicationDetails = ({
                 </>
               ) : (
                 <>
-                  <Box display={'flex'} style={{ gap: '10px' }}>
-                    {canDiscontinueMedication && (
-                      <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
-                        <TranslatedText
-                          stringId="medication.details.discontinue"
-                          fallback="Discontinue"
-                        />
-                      </OutlinedButton>
-                    )}
-                    {canPauseMedication &&
-                      !isOngoingPrescription &&
-                      (isPausing ? (
-                        <OutlinedButton onClick={() => setOpenResumeModal(true)}>
-                          <TranslatedText stringId="medication.details.resume" fallback="Resume" />
-                        </OutlinedButton>
-                      ) : (
-                        <OutlinedButton
-                          onClick={() => setOpenPauseModal(true)}
-                          disabled={medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY}
-                        >
-                          <TranslatedText stringId="medication.details.pause" fallback="Pause" />
-                        </OutlinedButton>
-                      ))}
-                  </Box>
+                  {isSensitive && !canWriteSensitiveMedication ? (
+                    <div />
+                  ) : (
+                    <Box display={'flex'} style={{ gap: '10px' }}>
+                      {canDiscontinueMedication && (
+                        <NoteModalActionBlocker>
+                          <OutlinedButton onClick={() => setOpenDiscontinueModal(true)}>
+                            <TranslatedText
+                              stringId="medication.details.discontinue"
+                              fallback="Discontinue"
+                            />
+                          </OutlinedButton>
+                        </NoteModalActionBlocker>
+                      )}
+                      {canPauseMedication &&
+                        !isOngoingPrescription &&
+                        (isPausing ? (
+                          <NoteModalActionBlocker>
+                            <OutlinedButton onClick={() => setOpenResumeModal(true)}>
+                              <TranslatedText
+                                stringId="medication.details.resume"
+                                fallback="Resume"
+                              />
+                            </OutlinedButton>
+                          </NoteModalActionBlocker>
+                        ) : (
+                          <NoteModalActionBlocker>
+                            <OutlinedButton
+                              onClick={() => setOpenPauseModal(true)}
+                              disabled={
+                                medication.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY
+                              }
+                            >
+                              <TranslatedText
+                                stringId="medication.details.pause"
+                                fallback="Pause"
+                              />
+                            </OutlinedButton>
+                          </NoteModalActionBlocker>
+                        ))}
+                    </Box>
+                  )}
                   {isPausing || isOngoingPrescription || !canCreateMedicationPharmacyNote ? (
                     <Button onClick={onClose}>
                       <TranslatedText stringId="general.action.close" fallback="Close" />
@@ -510,9 +543,11 @@ export const MedicationDetails = ({
                       <OutlinedButton onClick={onClose}>
                         <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                       </OutlinedButton>
-                      <Button type="submit">
-                        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                      </Button>
+                      <NoteModalActionBlocker>
+                        <Button type="submit">
+                          <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                        </Button>
+                      </NoteModalActionBlocker>
                     </Box>
                   )}
                 </>

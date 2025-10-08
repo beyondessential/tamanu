@@ -3,8 +3,11 @@ import { DOCUMENT_SOURCES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilterJoins } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class DocumentMetadata extends Model {
   declare id: string;
@@ -96,15 +99,12 @@ export class DocumentMetadata extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
+      select: await buildEncounterLinkedLookupSelect(this, {
         patientId: 'COALESCE(document_metadata.patient_id, encounters.patient_id)',
       }),
-      joins: `
-        LEFT JOIN encounters ON ${this.tableName}.encounter_id = encounters.id
-        LEFT JOIN patients ON ${this.tableName}.patient_id = encounters.id
-      `,
+      joins: buildEncounterLinkedLookupJoins(this),
     };
   }
 }

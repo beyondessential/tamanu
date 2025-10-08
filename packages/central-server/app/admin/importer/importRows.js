@@ -7,7 +7,7 @@ import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../e
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
 import { validateTableRows } from './validateTableRows';
-import { collectTranslationData, bulkUpsertTranslationDefaults } from './translationHandler';
+import { generateTranslationsForData, bulkUpsertTranslationDefaults } from './translationHandler';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -33,16 +33,29 @@ const existingRecordLoaders = {
   PatientAdditionalData: (PAD, { patientId }) => PAD.findByPk(patientId, { paranoid: false }),
   // PatientFieldValue model has a composite PK that uses patientId & definitionId
   PatientFieldValue: (PFV, { patientId, definitionId }) =>
-    PFV.findOne({ where: { patientId, definitionId } }, { paranoid: false }),
+    PFV.findOne({ where: { patientId, definitionId }, paranoid: false }),
   // TranslatedString model has a composite PK that uses stringId & language
   TranslatedString: (TS, { stringId, language }) =>
-    TS.findOne({ where: { stringId, language } }, { paranoid: false }),
+    TS.findOne({ where: { stringId, language }, paranoid: false }),
   ReferenceDataRelation: (RDR, { referenceDataId, referenceDataParentId, type }) =>
-    RDR.findOne({ where: { referenceDataId, referenceDataParentId, type } }, { paranoid: false }),
+    RDR.findOne({ where: { referenceDataId, referenceDataParentId, type }, paranoid: false }),
   TaskTemplateDesignation: (TTD, { taskTemplateId, designationId }) =>
-    TTD.findOne({ where: { taskTemplateId, designationId } }, { paranoid: false }),
+    TTD.findOne({ where: { taskTemplateId, designationId }, paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
-    UD.findOne({ where: { userId, designationId } }, { paranoid: false }),
+    UD.findOne({ where: { userId, designationId }, paranoid: false }),
+  ProcedureTypeSurvey: async (Model, values) => {
+    const { procedureTypeId, surveyId } = values;
+    if (!procedureTypeId || !surveyId) {
+      return null;
+    }
+    return await Model.findOne({
+      where: {
+        procedureTypeId,
+        surveyId,
+      },
+      paranoid: false,
+    });
+  },
 };
 
 function loadExisting(Model, values) {
@@ -50,7 +63,28 @@ function loadExisting(Model, values) {
   return loader(Model, values);
 }
 
+// Configuration for fields to ignore when checking for changes per model
+const IGNORED_FIELDS_BY_MODEL = {
+  SurveyScreenComponent: ['componentIndex'],
+};
 
+function checkForChanges(existing, normalizedValues, model) {
+  const ignoredFields = IGNORED_FIELDS_BY_MODEL[model] || [];
+
+  return Object.keys(normalizedValues)
+    .filter(key => !ignoredFields?.includes(key))
+    .some(key => {
+      // At this point, we already updated the existing row with the normalized values
+      // so we need to check the previous data values to see if there was a change
+      const existingValue = existing._previousDataValues[key];
+      const normalizedValue = normalizedValues[key];
+
+      if (typeof existingValue === 'number') {
+        return isNaN(normalizedValue) ? false : Number(normalizedValue) !== existingValue;
+      }
+      return existing.changed(key);
+    });
+}
 
 export async function importRows(
   { errors, log, models },
@@ -218,26 +252,60 @@ export async function importRows(
     }
 
     try {
+      // Normalize undefined values to null to avoid incorrect change detection
+      const normalizedValues = { ...values };
+      Object.keys(normalizedValues).forEach(key => {
+        if (normalizedValues[key] === undefined) {
+          normalizedValues[key] = null;
+        }
+      });
+
       if (existing) {
-        await existing.update(values);
-        if (values.deletedAt) {
-          if (!['Permission', 'SurveyScreenComponent', 'UserFacility'].includes(model)) {
+        if (normalizedValues.deletedAt) {
+          if (
+            ![
+              'Permission',
+              'SurveyScreenComponent',
+              'UserFacility',
+              'ProcedureTypeSurvey',
+            ].includes(model)
+          ) {
             throw new ValidationError(`Deleting ${model} via the importer is not supported`);
           }
+          if (!existing.deletedAt) {
+            updateStat(stats, statkey(model, sheetName), 'updated');
+            updateStat(stats, statkey(model, sheetName), 'deleted');
+          } else {
+            updateStat(stats, statkey(model, sheetName), 'skipped');
+          }
+          await existing.update(normalizedValues);
           await existing.destroy();
-          updateStat(stats, statkey(model, sheetName), 'deleted');
         } else {
+          let hasUpdatedStats = false;
           if (existing.deletedAt) {
             await existing.restore();
             updateStat(stats, statkey(model, sheetName), 'restored');
+            updateStat(stats, statkey(model, sheetName), 'updated');
+            hasUpdatedStats = true;
           }
-          updateStat(stats, statkey(model, sheetName), 'updated');
+
+          existing.set(normalizedValues);
+          const hasValueChanges = checkForChanges(existing, normalizedValues, model);
+
+          if (!hasUpdatedStats) {
+            if (hasValueChanges) {
+              updateStat(stats, statkey(model, sheetName), 'updated');
+            } else {
+              updateStat(stats, statkey(model, sheetName), 'skipped');
+            }
+          }
+          await existing.save();
         }
       } else {
-        await Model.create(values);
+        await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
-      const recordTranslationData = collectTranslationData(model, sheetName, values);
+      const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
       translationData.push(...recordTranslationData);
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
@@ -245,7 +313,9 @@ export async function importRows(
     }
   }
 
-  await bulkUpsertTranslationDefaults(models, translationData);
+  if (errors.length === 0) {
+    await bulkUpsertTranslationDefaults(models, translationData);
+  }
 
   log.debug('Done with these rows');
   return stats;

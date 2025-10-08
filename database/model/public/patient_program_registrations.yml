@@ -5,12 +5,19 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: patient_program_registrations
-        description: '{{ doc("table__patient_program_registrations") }}'
-        tags:
-          - clinical
+        description: "{{ doc('table__patient_program_registrations') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - notify_patient_program_registrations_changed
+              - record_patient_program_registrations_changelog
+              - set_patient_program_registrations_updated_at
+              - set_patient_program_registrations_updated_at_sync_tick
         columns:
           - name: id
-            data_type: uuid
+            data_type: text
             description: "{{ doc('generic__id') }} in patient_program_registrations."
             data_tests:
               - unique
@@ -33,6 +40,9 @@ sources:
             description: "{{ doc('generic__date') }} in patient_program_registrations."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: registration_status
             data_type: text
             description: "{{ doc('patient_program_registrations__registration_status') }}"
@@ -44,53 +54,60 @@ sources:
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'patients')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'patients')
+                    field: id
           - name: program_registry_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__program_registry_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'program_registries')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_registries')
+                    field: id
           - name: clinical_status_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__clinical_status_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'program_registry_clinical_statuses')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'program_registry_clinical_statuses')
+                    field: id
           - name: clinician_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__clinician_id') }}"
             data_tests:
               - not_null
               - relationships:
-                  to: source('tamanu', 'users')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
           - name: registering_facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__registering_facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: facility_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__facility_id') }}"
             data_tests:
               - relationships:
-                  to: source('tamanu', 'facilities')
-                  field: id
+                  arguments:
+                    to: source('tamanu', 'facilities')
+                    field: id
           - name: village_id
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__village_id') }}"
             data_tests:
               - dbt_utils.relationships_where:
-                  to: source('tamanu', 'reference_data')
-                  field: id
-                  to_condition: type = 'village'
+                  arguments:
+                    to: source('tamanu', 'reference_data')
+                    field: id
+                    to_condition: type = 'village'
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in patient_program_registrations."
@@ -102,3 +119,6 @@ sources:
           - name: deactivated_date
             data_type: character varying(255)
             description: "{{ doc('patient_program_registrations__deactivated_date') }}"
+            config:
+              meta:
+                masking: date

@@ -80,14 +80,14 @@ export const NewPatientForm = memo(
     const { getTranslation } = useTranslation();
     const { PrimaryDetails, SecondaryDetails, PatientFields } = useLayoutComponents();
 
-    const isRequiredPatientData = (fieldName) =>
+    const isRequiredPatientData = fieldName =>
       getSetting(`fields.${fieldName}.requiredPatientData`);
 
     if (error) {
       return <pre>{error.stack}</pre>;
     }
 
-    const handleSubmit = async (data) => {
+    const handleSubmit = async data => {
       const newData = { ...data };
       newData.patientRegistryType = patientRegistryType;
 
@@ -120,7 +120,7 @@ export const NewPatientForm = memo(
             name: 'newPatient',
             label: 'New patient action',
             value: patientRegistryType,
-            onChange: (event) => setPatientRegistryType(event.target?.value),
+            onChange: event => setPatientRegistryType(event.target?.value),
           }}
           options={[
             {
@@ -128,7 +128,7 @@ export const NewPatientForm = memo(
               label: (
                 <TranslatedText
                   stringId="patient.newPatientAction.option.newPatient"
-                  fallback="Create new patient"
+                  fallback="Add new patient"
                   data-testid="translatedtext-kswe"
                 />
               ),
@@ -208,7 +208,13 @@ export const NewPatientForm = memo(
           )}
         </Collapse>
         <ModalFormActionRow
-          confirmText="Confirm"
+          confirmText={
+            <TranslatedText
+              stringId="patient.register.action.createNewPatient"
+              fallback="Create new patient"
+              data-testid="translatedtext-add-new-patient"
+            />
+          }
           onConfirm={submitForm}
           onCancel={onCancel}
           data-testid="modalformactionrow-h4kx"

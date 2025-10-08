@@ -1,16 +1,19 @@
 import { upperFirst } from 'lodash';
-import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { DataTypes, Op } from 'sequelize';
+import { AUDIT_REASON_KEY, SURVEY_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import { InvalidOperationError } from '@tamanu/shared/errors';
+import { InvalidOperationError } from '@tamanu/errors';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import { getStringValue } from '@tamanu/shared/utils/fields';
-import { buildEncounterPatientIdSelect } from '../sync/buildPatientLinkedLookupFilter';
 import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import type { SurveyResponse } from './SurveyResponse';
 import type { ProgramDataElement } from './ProgramDataElement';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class SurveyResponseAnswer extends Model {
   declare id: string;
@@ -84,13 +87,17 @@ export class SurveyResponseAnswer extends Model {
     `;
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildEncounterPatientIdSelect(this),
-      joins: `
-        JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
-        JOIN encounters ON survey_responses.encounter_id = encounters.id
-      `,
+      select: await buildEncounterLinkedLookupSelect(this),
+      joins: buildEncounterLinkedLookupJoins(this, [
+        {
+          model: this.sequelize.models.SurveyResponse,
+          joinColumn: 'response_id',
+          required: true,
+        },
+        'encounters',
+      ]),
     };
   }
 
@@ -120,17 +127,28 @@ export class SurveyResponseAnswer extends Model {
     date: string;
     reasonForChange: string;
     user: ModelProperties<User>;
+    isVital: boolean;
   }) {
     if (!this.sequelize.isInsideTransaction()) {
       throw new Error('upsertCalculatedQuestions must always run inside a transaction!');
     }
     const { models } = this.sequelize;
     const surveyResponse: SurveyResponse = await (this as any).getSurveyResponse();
-    const vitalsSurvey = await models.Survey.getVitalsSurvey();
-    const isVitalSurvey = surveyResponse.surveyId === vitalsSurvey?.id;
-    if (isVitalSurvey === false) {
+    const isEditableSurvey = await models.Survey.findOne({
+      where: {
+        id: surveyResponse.surveyId,
+        surveyType: {
+          [Op.in]: [
+            SURVEY_TYPES.VITALS,
+            SURVEY_TYPES.SIMPLE_CHART,
+            SURVEY_TYPES.COMPLEX_CHART,
+          ],
+        },
+      },
+    });
+    if (!isEditableSurvey) {
       throw new InvalidOperationError(
-        'upsertCalculatedQuestions must only be called with vitals answers',
+        'upsertCalculatedQuestions must only be called with vitals or charting answers',
       );
     }
 
@@ -139,17 +157,18 @@ export class SurveyResponseAnswer extends Model {
       surveyResponse.surveyId!,
       { includeAllVitals: true },
     );
-    const calculatedScreenComponents = screenComponents.filter((c) => c.calculation);
+    const calculatedScreenComponents = screenComponents.filter(c => c.calculation);
     const updatedAnswerDataElement: ProgramDataElement = await (
       this as any
     ).getProgramDataElement();
     const answers: any[] = await (surveyResponse as any).getAnswers();
     const values: { [key: string]: any } = {};
-    answers.forEach((answer) => {
+    answers.forEach(answer => {
       values[answer.dataElementId] = answer.body;
     });
     const calculatedValues: Record<string, any> = runCalculations(screenComponents, values);
 
+    const { date, reasonForChange, user, isVital } = data;
     for (const component of calculatedScreenComponents) {
       if (component.calculation.includes(updatedAnswerDataElement.code) === false) {
         continue;
@@ -165,12 +184,12 @@ export class SurveyResponseAnswer extends Model {
       // Check if the calculated answer was created or not. It might've been missed
       // if no values used in its calculation were registered the first time.
       const existingCalculatedAnswer = answers.find(
-        (answer) => answer.dataElementId === component.dataElement.id,
+        answer => answer.dataElementId === component.dataElement.id,
       );
       const previousCalculatedValue = existingCalculatedAnswer?.body;
       let newCalculatedAnswer: SurveyResponseAnswer | null = null;
       if (existingCalculatedAnswer) {
-        await existingCalculatedAnswer.update({ body: newCalculatedValue });
+        await existingCalculatedAnswer.updateWithReasonForChange(newCalculatedValue, reasonForChange);
       } else {
         newCalculatedAnswer = await models.SurveyResponseAnswer.create({
           dataElementId: component.dataElement.id,
@@ -179,16 +198,27 @@ export class SurveyResponseAnswer extends Model {
         });
       }
 
-      const { date, reasonForChange, user } = data;
-      await models.VitalLog.create({
-        date,
-        reasonForChange,
-        previousValue: previousCalculatedValue || null,
-        newValue: newCalculatedValue,
-        recordedById: user.id,
-        answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
-      });
+      if (isVital) {
+        await models.VitalLog.create({
+          date,
+          reasonForChange,
+          previousValue: previousCalculatedValue || null,
+          newValue: newCalculatedValue,
+          recordedById: user.id,
+          answerId: existingCalculatedAnswer?.id || newCalculatedAnswer?.id,
+        });
+      }
     }
+    return this;
+  }
+
+  // This is to avoid affecting other audit logs that might be created in the same transaction
+  async updateWithReasonForChange(newValue: string, reasonForChange: string) {
+    if (reasonForChange) {
+      await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, reasonForChange);
+    }
+    await this.update({ body: newValue });
+    await this.sequelize.setTransactionVar(AUDIT_REASON_KEY, null);
     return this;
   }
 }

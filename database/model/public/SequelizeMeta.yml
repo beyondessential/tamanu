@@ -4,9 +4,12 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: SequelizeMeta
-        description: '{{ doc("table__SequelizeMeta") }}'
-        tags:
-          - system
+        description: "{{ doc('table__SequelizeMeta') }}"
+        config:
+          tags:
+            - system
+          meta:
+            triggers: []
         columns:
           - name: name
             data_type: character varying(255)

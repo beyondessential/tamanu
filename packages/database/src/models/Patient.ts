@@ -22,6 +22,7 @@ export class Patient extends Model {
   declare dateOfDeath?: string;
   declare sex: string;
   declare email?: string;
+  declare villageId?: string;
   declare visibilityStatus?: string;
   declare mergedIntoId?: string;
   declare additionalData?: PatientAdditionalData[];
@@ -130,10 +131,15 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'contacts',
     });
+
+    this.hasOne(models.PortalUser, {
+      foreignKey: 'patientId',
+      as: 'portalUser',
+    });
   }
 
   static getFullReferenceAssociations() {
-    return ['markedForSyncFacilities', 'fieldValues'];
+    return ['markedForSyncFacilities', 'fieldValues', 'portalUser'];
   }
 
   async getAdministeredVaccines(
@@ -182,7 +188,7 @@ export class Patient extends Model {
       );
     }
 
-    if (!include.some((i) => i.as === 'scheduledVaccine')) {
+    if (!include.some(i => i.as === 'scheduledVaccine')) {
       include.push({
         model: models.ScheduledVaccine,
         as: 'scheduledVaccine',
@@ -203,7 +209,7 @@ export class Patient extends Model {
       },
     });
 
-    const data = rows.map((x) => x.get({ plain: true }));
+    const data = rows.map(x => x.get({ plain: true }));
 
     for (const record of data) {
       if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
@@ -341,7 +347,7 @@ export class Patient extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 

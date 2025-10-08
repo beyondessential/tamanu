@@ -6,6 +6,7 @@ import { type InitOptions, type Models } from '../types/model';
 export class ReferenceMedicationTemplate extends Model {
   declare id: string;
   declare referenceDataId: string;
+  declare isOngoing: boolean;
   declare isPrn: boolean;
   declare isVariableDose: boolean;
   declare doseAmount?: number;
@@ -17,10 +18,16 @@ export class ReferenceMedicationTemplate extends Model {
   declare notes?: string;
   declare dischargeQuantity?: number;
   declare medicationId: string;
+
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
+        isOngoing: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         isPrn: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
@@ -71,7 +78,7 @@ export class ReferenceMedicationTemplate extends Model {
     return null; // syncs everywhere
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
   }
 }

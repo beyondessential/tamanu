@@ -47,7 +47,7 @@ export const displayId = {
     />
   ),
   minWidth: 80,
-  accessor: (row) => row.displayId || `(${row.id})`,
+  accessor: row => row.displayId || `(${row.id})`,
 };
 
 export const firstName = {
@@ -79,7 +79,7 @@ export const culturalName = {
   title: (
     <TranslatedText
       stringId="general.localisedField.culturalName.label.short"
-      fallback="Cultural name"
+      fallback="Cultural/traditional name"
       data-testid="translatedtext-w6c0"
     />
   ),
@@ -136,7 +136,7 @@ export const village = {
     />
   ),
   minWidth: 100,
-  accessor: (row) => (
+  accessor: row => (
     <TranslatedReferenceData
       fallback={row.villageName ?? ''}
       value={row.villageId}
@@ -156,7 +156,7 @@ export const department = {
     />
   ),
   minWidth: 100,
-  accessor: (row) => (
+  accessor: row => (
     <TranslatedReferenceData
       fallback={row.departmentName ?? ''}
       value={row.departmentId}
@@ -203,7 +203,7 @@ export const vaccinationStatus = {
     />
   ),
   minWidth: 100,
-  accessor: (row) => row.vaccinationStatus || 'Unknown',
+  accessor: row => row.vaccinationStatus || 'Unknown',
 };
 
 export const diet = {
@@ -217,8 +217,8 @@ export const diet = {
   ),
   accessor: ({ diets }) => {
     if (!diets?.length) return null;
-    const dietNames = diets.map((diet) => diet.name);
-    const dietCodes = diets.map((diet) => diet.code);
+    const dietNames = diets.map(diet => diet.name);
+    const dietCodes = diets.map(diet => diet.code);
     return (
       <ThemedTooltip title={dietNames.join(', ')} data-testid="themedtooltip-osmt">
         <span>{dietCodes.join(', ')}</span>

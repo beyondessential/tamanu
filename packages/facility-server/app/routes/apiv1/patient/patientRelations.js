@@ -36,7 +36,7 @@ patientRelations.get(
       encounterType: `
         CASE
           ${ENCOUNTER_TYPE_VALUES.map(
-            (value) => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
+            value => `WHEN encounter_type = '${value}' THEN '${ENCOUNTER_TYPE_LABELS[value]}'`,
           ).join(' ')}
         END
       `,
@@ -122,7 +122,7 @@ patientRelations.get(
     if (additionalDataRecord) {
       await req.audit.access({
         recordId: additionalDataRecord.id,
-        params,
+        frontEndContext: params,
         model: models.PatientAdditionalData,
         facilityId,
       });
@@ -267,6 +267,7 @@ patientRelations.get(
     const {
       surveyId,
       programId,
+      procedureId,
       surveyType = 'programs',
       order = 'asc',
       orderBy = 'endTime',
@@ -294,11 +295,13 @@ patientRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
+          ${procedureId ? 'LEFT JOIN procedure_survey_responses ON (survey_responses.id = procedure_survey_responses.survey_response_id)' : ''}
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
           AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : 'AND surveys.id IN (:surveyIds)'}
+          ${procedureId ? 'AND procedure_survey_responses.procedure_id = :procedureId' : 'AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses WHERE deleted_at IS NULL)'}
       `,
       `
         SELECT
@@ -320,15 +323,17 @@ patientRelations.get(
             ON (survey_user.id = survey_responses.user_id)
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
+          ${procedureId ? 'LEFT JOIN procedure_survey_responses ON (survey_responses.id = procedure_survey_responses.survey_response_id)' : ''}
         WHERE encounters.patient_id = :patientId
           AND encounters.deleted_at is null
           AND surveys.survey_type = :surveyType
           AND survey_responses.deleted_at IS NULL
           ${surveyId ? 'AND surveys.id = :surveyId' : 'AND surveys.id IN (:surveyIds)'}
           ${programId ? 'AND programs.id = :programId' : ''}
+          ${procedureId ? 'AND procedure_survey_responses.procedure_id = :procedureId' : 'AND survey_responses.id NOT IN (SELECT survey_response_id FROM procedure_survey_responses)'}
         ORDER BY ${sortKey} ${sortDirection}
       `,
-      { patientId, surveyId, surveyIds: permittedSurveyIds, programId, surveyType },
+      { patientId, surveyId, surveyIds: permittedSurveyIds, programId, procedureId, surveyType },
       query,
     );
 
@@ -429,7 +434,7 @@ patientRelations.get(
       },
     );
 
-    const formattedData = results.map((x) => renameObjectKeys(x.forResponse()));
+    const formattedData = results.map(x => renameObjectKeys(x.forResponse()));
 
     res.send({
       count: results.length,

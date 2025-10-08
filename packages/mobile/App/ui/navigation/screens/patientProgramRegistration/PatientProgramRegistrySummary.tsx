@@ -60,11 +60,6 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
         </SectionHeader>
         {canCreateRegistration && (
           <Button
-            backgroundColor={
-              accessibleRegistries?.length === 0
-                ? theme.colors.DISABLED_GREY
-                : theme.colors.PRIMARY_MAIN
-            }
             borderRadius={100}
             width={32}
             height={32}
@@ -74,7 +69,14 @@ const PatientProgramRegistrySummary_ = ({ selectedPatient }): ReactElement => {
               navigation.navigate(Routes.HomeStack.PatientProgramRegistryFormStack.Index);
             }}
           >
-            <CircleAdd size={32} />
+            <CircleAdd
+              size={32}
+              fill={
+                accessibleRegistries?.length === 0
+                  ? theme.colors.DISABLED_GREY
+                  : theme.colors.PRIMARY_MAIN
+              }
+            />
           </Button>
         )}
       </Row>

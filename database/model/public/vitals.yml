@@ -5,10 +5,17 @@ sources:
     description: "{{ doc('generic__schema') }}"
     tables:
       - name: vitals
-        description: '{{ doc("table__vitals") }}'
-        tags:
-          - clinical
-          - deprecated
+        description: "{{ doc('table__vitals') }}"
+        config:
+          tags:
+            - clinical
+            - deprecated
+          meta:
+            triggers:
+              - notify_vitals_changed
+              - record_vitals_changelog
+              - set_vitals_updated_at
+              - set_vitals_updated_at_sync_tick
         columns:
           - name: id
             data_type: character varying(255)
@@ -34,30 +41,73 @@ sources:
             description: "{{ doc('generic__date_recorded') }} in vitals."
             data_tests:
               - not_null
+            config:
+              meta:
+                masking: date
           - name: temperature
             data_type: double precision
             description: "{{ doc('vitals__temperature') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 35-42
           - name: weight
             data_type: double precision
             description: "{{ doc('vitals__weight') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 20-120
           - name: height
             data_type: double precision
             description: "{{ doc('vitals__height') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 50-220
           - name: sbp
             data_type: double precision
             description: "{{ doc('vitals__sbp') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 60-150
           - name: dbp
             data_type: double precision
             description: "{{ doc('vitals__dbp') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 60-150
           - name: heart_rate
             data_type: double precision
             description: "{{ doc('vitals__heart_rate') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 60-200
           - name: respiratory_rate
             data_type: double precision
             description: "{{ doc('vitals__respiratory_rate') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 10-100
           - name: spo2
             data_type: double precision
             description: "{{ doc('vitals__spo2') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 90-100
           - name: avpu
             data_type: user-defined
             description: "{{ doc('vitals__avpu') }}"
@@ -67,45 +117,101 @@ sources:
           - name: gcs
             data_type: double precision
             description: "{{ doc('vitals__gcs') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 3-15
           - name: hemoglobin
             data_type: double precision
             description: "{{ doc('vitals__hemoglobin') }}"
+            config:
+              meta:
+                masking:
+                  kind: integer
+                  range: 10-30
           - name: fasting_blood_glucose
             data_type: double precision
             description: "{{ doc('vitals__fasting_blood_glucose') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 4-10
           - name: urine_ph
             data_type: double precision
             description: "{{ doc('vitals__urine_ph') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 3-10
           - name: urine_leukocytes
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_leukocytes') }}"
+            config:
+              meta:
+                masking: text
           - name: urine_nitrites
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_nitrites') }}"
+            config:
+              meta:
+                masking: text
           - name: urobilinogen
             data_type: double precision
             description: "{{ doc('vitals__urobilinogen') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 0-1
           - name: urine_protein
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_protein') }}"
+            config:
+              meta:
+                masking: text
           - name: blood_in_urine
             data_type: character varying(255)
             description: "{{ doc('vitals__blood_in_urine') }}"
+            config:
+              meta:
+                masking: text
           - name: urine_specific_gravity
             data_type: double precision
             description: "{{ doc('vitals__urine_specific_gravity') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 1.001-1.03
           - name: urine_ketone
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_ketone') }}"
+            config:
+              meta:
+                masking: text
           - name: urine_bilirubin
             data_type: character varying(255)
             description: "{{ doc('vitals__urine_bilirubin') }}"
+            config:
+              meta:
+                masking: text
           - name: urine_glucose
             data_type: double precision
             description: "{{ doc('vitals__urine_glucose') }}"
+            config:
+              meta:
+                masking:
+                  kind: float
+                  range: 0-300
           - name: date_recorded_legacy
             data_type: timestamp with time zone
             description: "{{ doc('generic__date_recorded_legacy') }} in vitals."
+            config:
+              meta:
+                masking: datetime
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in vitals."

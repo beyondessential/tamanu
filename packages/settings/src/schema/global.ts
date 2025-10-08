@@ -31,9 +31,9 @@ import {
   medicationFrequencySchema,
 } from './definitions/medicationFrequencySchema';
 
-const generateFrequencyProperties = (frequencies) => {
+const generateFrequencyProperties = frequencies => {
   return Object.fromEntries(
-    frequencies.map((frequency) => [
+    frequencies.map(frequency => [
       frequency,
       {
         description: frequency,
@@ -159,6 +159,11 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: true,
         },
+        hideUpcomingVaccines: {
+          description: 'Hide upcoming vaccines behind a button from the patient details page',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         enablePatientDeaths: {
           description: 'Enable death module',
           type: yup.boolean(),
@@ -191,6 +196,13 @@ export const globalSettings = {
           type: yup.boolean(),
           defaultValue: false,
         },
+        patientPortal: {
+          description:
+            'Enable patient portal. When turned off, the patient portal api is disconnected and the UI in tamanu web to register portal users and assign them forms is hidden',
+          type: yup.boolean(),
+          defaultValue: false,
+          highRisk: true,
+        },
         onlyAllowLabPanels: {
           description: 'Only allow lab tests to be created via panels and not individual tests',
           type: yup.boolean(),
@@ -222,7 +234,18 @@ export const globalSettings = {
             },
           },
         },
+        mandatoryChartingEditReason: {
+          description: 'Require a reason for change text field to be filled out on chart edit',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        enableChartingEdit: {
+          description: 'Allow existing charting records to be edited',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
         desktopCharting: {
+          description: 'Enable desktop charting module',
           properties: {
             enabled: {
               type: yup.boolean(),
@@ -300,6 +323,38 @@ export const globalSettings = {
           description: 'Use location hierarchy in patient details',
           type: yup.boolean(),
           defaultValue: false,
+        },
+        pharmacyOrder: {
+          description: 'Pharmacy order settings',
+          properties: {
+            enabled: {
+              description: 'Enable pharmacy orders',
+              type: yup.boolean(),
+              defaultValue: false,
+            },
+            medicationAlreadyOrderedConfirmationTimeout: {
+              description:
+                'Ask confirmation from users if they try to order a medication that has been ordered within the timeout period',
+              type: yup.number().positive(),
+              defaultValue: 24,
+              unit: 'hours',
+            },
+          },
+        },
+        useGlobalPdfFont: {
+          description: 'Use the global PDF font for all PDFs',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        deviceRegistrationQuota: {
+          description: 'Device registration quota settings',
+          properties: {
+            enabled: {
+              description: 'Enable device registration quota',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
         },
       },
     },
@@ -907,6 +962,12 @@ export const globalSettings = {
         },
       },
     },
+    fileChooserMbSizeLimit: {
+      description:
+        'The maximum size in megabytes of files that can be uploaded with the file chooser',
+      type: yup.number().min(1),
+      defaultValue: 10,
+    },
     integrations: {
       name: 'Integrations',
       description: 'Integration settings',
@@ -1175,6 +1236,62 @@ export const globalSettings = {
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
+        patientPortalLoginEmail: {
+          description: 'The email sent to the patient with their login code',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Your Tamanu Patient Portal Login Code',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Your 6-digit login code for Tamanu Patient Portal is: $token$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalRegistrationEmail: {
+          description: 'The email sent to the patient to register for the patient portal',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'Tamanu Patient Portal Registration',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'Please follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$.\n\n$registrationLink$\n\nDo not respond to this email',
+            },
+          },
+        },
+        patientPortalRegisteredFormEmail: {
+          description: 'The email sent to a registered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nYour 6-digit login code is: $loginCode$\n\nDo not respond to this email.',
+            },
+          },
+        },
+        patientPortalUnregisteredFormEmail: {
+          description: 'The email sent to an unregistered patient to complete a form',
+          properties: {
+            subject: {
+              type: yup.string().trim().min(1),
+              defaultValue: 'New Patient Form Request from $facilityName$',
+            },
+            body: {
+              type: yup.string().trim().min(1),
+              defaultValue:
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Before you can access this form, you must register for a Tamanu Patient Portal account.\n\nPlease follow the link below to complete Tamanu Patient Portal registration for $firstName$ $lastName$. Once you have set up your patient portal account, you will be able to log in and access the requested form.\n\n$registrationLink$\n\nDo not respond to this email.',
+            },
+          },
+        },
         appointmentConfirmation: {
           description: 'The email sent to confirm an appointment',
           properties: {
@@ -1435,9 +1552,15 @@ export const globalSettings = {
         },
         defaultAdministrationTimes: {
           description: '-',
-          properties: generateFrequencyProperties(Object.values(ADMINISTRATION_FREQUENCIES).filter(
-            frequency => ![ADMINISTRATION_FREQUENCIES.IMMEDIATELY, ADMINISTRATION_FREQUENCIES.AS_DIRECTED].includes(frequency)
-          )),
+          properties: generateFrequencyProperties(
+            Object.values(ADMINISTRATION_FREQUENCIES).filter(
+              frequency =>
+                ![
+                  ADMINISTRATION_FREQUENCIES.IMMEDIATELY,
+                  ADMINISTRATION_FREQUENCIES.AS_DIRECTED,
+                ].includes(frequency),
+            ),
+          ),
         },
       },
     },

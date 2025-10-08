@@ -5,8 +5,13 @@ sources:
     description: "{{ doc('fhir__generic__schema') }}"
     tables:
       - name: immunizations
-        description: '{{ doc("fhir__table__immunizations") }}'
-        tags: []
+        description: "{{ doc('fhir__table__immunizations') }}"
+        config:
+          tags: []
+          meta:
+            masking: truncate
+            triggers:
+              - versioning
         columns:
           - name: id
             data_type: uuid
@@ -35,10 +40,11 @@ sources:
             data_tests:
               - not_null
               - accepted_values:
-                  values:
-                    - completed
-                    - entered-in-error
-                    - not-done
+                  arguments:
+                    values:
+                      - completed
+                      - entered-in-error
+                      - not-done
           - name: vaccine_code
             data_type: jsonb
             description: "{{ doc('fhir__immunizations__vaccine_code') }}"

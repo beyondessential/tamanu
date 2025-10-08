@@ -8,7 +8,7 @@ import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
 import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
-import { formatDateForQuery } from '~/infra/db/helpers';
+import { formatDateForQuery } from '~/infra/db/formatDateForQuery';
 import { VitalsDataElements } from '~/ui/helpers/constants';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
@@ -16,6 +16,8 @@ import { NullableReferenceDataRelation, ReferenceData } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 import { DateStringColumn } from './DateColumns';
 import { PatientContact } from './PatientContact';
+import { PatientOngoingPrescription } from './PatientOngoingPrescription';
+import { PatientAllergy } from './PatientAllergy';
 
 const TIME_OFFSET = 3;
 
@@ -70,6 +72,15 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => PatientContact, (contact) => contact.patient)
   contacts: PatientContact[];
+
+  @OneToMany(
+    () => PatientOngoingPrescription,
+    patientOngoingPrescription => patientOngoingPrescription.patient,
+  )
+  patientOngoingPrescriptions: PatientOngoingPrescription[];
+
+  @OneToMany(() => PatientAllergy, (allergy) => allergy.patient)
+  allergies: PatientAllergy[];
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');

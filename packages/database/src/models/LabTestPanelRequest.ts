@@ -1,13 +1,13 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-} from '../sync/buildEncounterLinkedSyncFilter';
-import { buildSyncLookupSelect } from '../sync/buildSyncLookupSelect';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import type { SessionConfig } from '../types/sync';
 import type { InitOptions, Models } from '../types/model';
 import type { LabTestPanel } from './LabTestPanel';
+import {
+  buildEncounterLinkedLookupJoins,
+  buildEncounterLinkedLookupSelect,
+} from '../sync/buildEncounterLinkedLookupFilter';
 
 export class LabTestPanelRequest extends Model {
   declare id: string;
@@ -55,13 +55,12 @@ export class LabTestPanelRequest extends Model {
     );
   }
 
-  static buildSyncLookupQueryDetails() {
+  static async buildSyncLookupQueryDetails() {
     return {
-      select: buildSyncLookupSelect(this, {
-        patientId: 'encounters.patient_id',
+      select: await buildEncounterLinkedLookupSelect(this, {
         isLabRequestValue: 'TRUE',
       }),
-      joins: buildEncounterLinkedSyncFilterJoins([this.tableName, 'encounters']),
+      joins: buildEncounterLinkedLookupJoins(this),
     };
   }
 }
