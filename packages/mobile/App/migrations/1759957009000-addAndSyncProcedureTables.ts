@@ -19,7 +19,7 @@ const BaseColumns = [
   new TableColumn({
     name: 'deletedAt',
     isNullable: true,
-    type: 'date',
+    type: 'datetime',
     default: null,
   }),
   new TableColumn({
