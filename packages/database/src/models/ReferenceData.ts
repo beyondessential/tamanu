@@ -53,14 +53,6 @@ export class ReferenceData extends Model {
           },
         ],
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        hooks: {
-          beforeUpdate(instance: ReferenceData) {
-            // Prevent modification of system-required reference data
-            if (instance.previous('systemRequired') && instance.changed()) {
-              throw new InvalidOperationError('Cannot modify system-required reference data');
-            }
-          },
-        },
       },
     );
   }
