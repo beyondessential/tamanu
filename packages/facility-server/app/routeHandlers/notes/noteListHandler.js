@@ -22,6 +22,10 @@ export const noteListHandler = recordType =>
         as: 'onBehalfOf',
       },
       {
+        model: models.ReferenceData,
+        as: 'noteTypeReference',
+      },
+      {
         model: models.Note,
         as: 'revisedBy',
         required: false,
@@ -78,7 +82,7 @@ export const noteListHandler = recordType =>
         [Op.in]: idRows.map(x => x.id),
       },
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-      ...(noteType ? { noteType } : {}),
+      ...(noteType ? { '$noteTypeReference.code$': noteType } : {}),
     };
 
     const queryOrder = orderBy
@@ -87,7 +91,7 @@ export const noteListHandler = recordType =>
           [
             // Pin TREATMENT_PLAN on top
             Sequelize.literal(
-              `case when "Note"."note_type" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
+              `case when "noteTypeReference"."code" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
             ),
           ],
           [
@@ -107,7 +111,9 @@ export const noteListHandler = recordType =>
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
     const totalCount = await models.Note.count({
+      include,
       where,
+      distinct: true,
     });
 
     res.send({ data: rows, count: totalCount });
@@ -124,6 +130,7 @@ export const notesWithSingleItemListHandler = recordType =>
       include: [
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
+        { model: models.ReferenceData, as: 'noteTypeReference' },
       ],
       where: {
         recordId,

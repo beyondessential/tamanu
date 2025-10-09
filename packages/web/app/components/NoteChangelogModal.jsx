@@ -2,13 +2,13 @@ import React from 'react';
 
 import { BaseModal } from './BaseModal';
 import { NoteInfoSection, StyledDivider, WrittenByText } from './NoteCommonFields';
-import { TranslatedEnum, TranslatedText } from './Translation';
+import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { NoteChangeLogs } from './NoteChangeLogs';
 import { ConfirmCancelRow } from './ButtonRow';
-import { NOTE_TYPE_LABELS, NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 const getChangelogContext = note => {
-  const isTreatmentPlan = note.noteType === NOTE_TYPES.TREATMENT_PLAN;
+  const isTreatmentPlan = note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN;
 
   return {
     date: isTreatmentPlan ? note.date : note.revisedBy?.date || note.date,
@@ -43,7 +43,13 @@ const NoteChangelogContent = ({ note, onCancel }) => {
     <>
       <NoteInfoSection
         numberOfColumns={3}
-        noteType={<TranslatedEnum value={note.noteType} enumValues={NOTE_TYPE_LABELS} />}
+        noteType={
+          <TranslatedReferenceData
+            value={note.noteTypeReference?.id}
+            fallback={note.noteTypeReference?.name}
+            category={REFERENCE_TYPES.NOTE_TYPE}
+          />
+        }
         date={date}
         dateLabel={dateLabel}
         writtenByLabel={writtenByLabel}

@@ -16,6 +16,7 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -906,6 +907,18 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
 createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },
 }));
+
+createSuggester(
+  'noteType',
+  'ReferenceData',
+  ({ endpoint, modelName }) => ({
+    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+    type: REFERENCE_TYPES.NOTE_TYPE,
+    code: {
+      [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
+    },
+  }),
+);
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');

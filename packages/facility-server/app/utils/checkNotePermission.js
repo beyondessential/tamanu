@@ -13,11 +13,17 @@ function getParentRecordVerb(verb) {
   }
 }
 
+async function checkIfTreatmentPlanNote(models, noteTypeId) {
+  if (!noteTypeId) return false;
+  const noteTypeRef = await models.ReferenceData.findByPk(noteTypeId);
+  return noteTypeRef?.code === NOTE_TYPES.TREATMENT_PLAN;
+}
+
 // Encounter notes have their own permission checks, every other type
 // of note should simply check permissions against their parent record.
 export async function checkNotePermission(req, note, verb) {
   const { models, user } = req;
-  const { noteType, recordType, recordId } = note;
+  const { noteTypeId, recordType, recordId } = note;
   const parentRecordVerb = getParentRecordVerb(verb);
 
   if (recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
@@ -32,10 +38,12 @@ export async function checkNotePermission(req, note, verb) {
     // then no need to check for special write permissions
     const isCurrentUserEditingOtherPeopleNote = rootNote && user.id !== rootNote.authorId;
 
+    const isTreatmentPlanNote = await checkIfTreatmentPlanNote(models, noteTypeId);
+
     // Check if user has permission to edit other people's treatment plan notes
     if (
       isCurrentUserEditingOtherPeopleNote && // check if current user is not the person who created the note originally
-      noteType === NOTE_TYPES.TREATMENT_PLAN &&
+      isTreatmentPlanNote &&
       parentRecordVerb === 'write'
     ) {
       req.checkPermission(parentRecordVerb, NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE);

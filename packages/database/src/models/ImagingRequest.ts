@@ -2,6 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
@@ -18,7 +19,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { ImagingRequestArea } from './ImagingRequestArea';
 import type { Encounter } from './Encounter';
 import type { User } from './User';
-import type { Note } from './Note';
+import type { CreateNoteParams, Note } from './Note';
 import type { Location } from './Location';
 import type { LocationGroup } from './LocationGroup';
 
@@ -142,10 +143,40 @@ export class ImagingRequest extends Model {
     );
   }
 
+  async createNote(params: CreateNoteParams) {
+    const { models } = this.sequelize;
+
+    return models.Note.createWithNoteType({
+      ...params,
+      recordId: this.id,
+      recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+    });
+  }
+
+  async getNotes(options: any = {}) {
+    const { models } = this.sequelize;
+
+    return models.Note.findAll({
+      where: {
+        recordId: this.id,
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        ...options.where,
+      },
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'noteTypeReference',
+        },
+        ...(options.include || []),
+      ],
+      ...options,
+    });
+  }
+
   async extractNotes() {
     const notes =
       this.notes ||
-      (await (this as any).getNotes({
+      (await this.getNotes({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       }));
     const extractWithType = async (type: string) => {

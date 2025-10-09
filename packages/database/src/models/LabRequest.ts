@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { LAB_REQUEST_STATUSES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, NOTE_RECORD_TYPES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
@@ -11,7 +11,7 @@ import type { LabTest } from './LabTest';
 import type { ReferenceData } from './ReferenceData';
 import type { Encounter } from './Encounter';
 import type { User } from './User';
-import type { Note } from './Note';
+import type { CreateNoteParams, Note } from './Note';
 import type { LabTestPanelRequest } from './LabTestPanelRequest';
 import {
   buildEncounterLinkedLookupJoins,
@@ -179,6 +179,16 @@ export class LabRequest extends Model {
       );
 
       return newLabRequest;
+    });
+  }
+
+  async createNote(params: CreateNoteParams) {
+    const { models } = this.sequelize;
+
+    return models.Note.createWithNoteType({
+      ...params,
+      recordId: this.id,
+      recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
     });
   }
 
