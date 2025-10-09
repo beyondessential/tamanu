@@ -114,10 +114,7 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
       onCancel={onClose}
       onConfirm={onSubmit}
       confirmText={
-        <TranslatedText
-          stringId="program.action.sendToPatientPortal"
-          fallback="Send to patient portal"
-        />
+        <TranslatedText stringId="program.action.sendToPatientPortal" fallback="Send reminder" />
       }
     />
   </Modal>
