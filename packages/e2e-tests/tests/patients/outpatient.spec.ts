@@ -8,42 +8,42 @@ test.describe('outpatient table tests', () => {
   });
 
   test.describe('search', () => {
-    test('[T-0513][AT-116]Search by NHN', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('[T-0513][AT-0116]Search by NHN', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientDisplayId = newPatientWithClinicAdmission.displayId;
       await outpatientsPage.searchTable({ NHN: patientDisplayId, advancedSearch: false });
       await outpatientsPage.validateOneSearchResult();
       await outpatientsPage.validateFirstRowContainsNHN(patientDisplayId);
     });
 
-    test('[T-0513][AT-117]Search by first name', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('[T-0513][AT-0117]Search by first name', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientFirstName = newPatientWithClinicAdmission.firstName;
       await outpatientsPage.searchTable({ firstName: patientFirstName, advancedSearch: false });
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientFirstName!, 'firstName');
     });
 
-    test('[T-0513][AT-118]Search by last name', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('[T-0513][AT-0118]Search by last name', async ({ newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientLastName = newPatientWithClinicAdmission.lastName;
       await outpatientsPage.searchTable({ lastName: patientLastName, advancedSearch: false });
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientLastName!, 'lastName');
     });
 
-    test('[T-0513][AT-119]Search by area', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('[T-0513][AT-0119]Search by area', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientArea = testData.areaName;
       await outpatientsPage.searchTable({ area: patientArea, advancedSearch: false });
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientArea, 'locationGroupName');
     });
 
-    test('[T-0513][AT-120]Search by department', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
+    test('[T-0513][AT-0120]Search by department', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage }) => {
       const patientDepartment = testData.department;
       await outpatientsPage.searchTable({ department: patientDepartment, advancedSearch: true });
       await outpatientsPage.validateAtLeastOneSearchResult();
       await outpatientsPage.validateAllRowsContain(patientDepartment, 'departmentName');
     });
 
-    test('[T-0513][AT-121]Search by clinician', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage, api }) => {
+    test('[T-0513][AT-0121]Search by clinician', async ({ newPatientWithClinicAdmission: _newPatientWithClinicAdmission, outpatientsPage, api }) => {
       const currentUser = await getUser(api);
       const patientClinician = currentUser.displayName;
       await outpatientsPage.searchTable({ clinician: patientClinician, advancedSearch: true });
@@ -51,7 +51,7 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.validateAllRowsContain(patientClinician, 'clinician');
     });
 
-    test('[T-0513][AT-122]Search by filling all the fields', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
+    test('[T-0513][AT-0122]Search by filling all the fields', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
       const currentUser = await getUser(api);
       await outpatientsPage.searchTable({
         NHN: newPatientWithClinicAdmission.displayId,
@@ -69,7 +69,7 @@ test.describe('outpatient table tests', () => {
       await outpatientsPage.validateAllRowsContain(currentUser.displayName, 'clinician');
     });
 
-    test('[T-0513][AT-123]Clear search', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
+    test('[T-0513][AT-0123]Clear search', async ({ newPatientWithClinicAdmission, outpatientsPage, api }) => {
       const currentUser = await getUser(api);
       await outpatientsPage.searchTable({
         NHN: newPatientWithClinicAdmission.displayId,
