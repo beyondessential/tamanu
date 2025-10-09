@@ -48,7 +48,7 @@ test.describe('Lab Request Tests', () => {
   });
 
   test.describe('Panel Lab Request Tests', () => {
-    test('should create a panel lab request with basic details', async () => {
+    test('[AT-0053]should create a panel lab request with basic details', async () => {
       await labRequestPane.newLabRequestButton.click();
       const panelsToSelect = ['Others', 'Demo Test Panel'];
       await labRequestModal.waitForModalToLoad();
@@ -80,14 +80,14 @@ test.describe('Lab Request Tests', () => {
       );
     });
 
-    test('should allow searching for panels', async () => {
+    test('[T-0205][AT-0054]should allow searching for panels', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.nextButton.click();
       await labRequestModal.searchItemAndValidate('Demo Test Panel');
     });
 
-    test('Clear panel selection and validate', async () => {
+    test('[AT-0055]Clear panel selection and validate', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.nextButton.click();
@@ -102,7 +102,7 @@ test.describe('Lab Request Tests', () => {
       await expect(panelCount).toBe(0);
     });
 
-    test('Create a lab request with all fields filled', async () => {
+    test('[T-0207][AT-0056]Create a panel lab request with all fields filled', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await selectFieldOption(labRequestModal.page, labRequestModal.prioritySelect, {
@@ -145,7 +145,7 @@ test.describe('Lab Request Tests', () => {
       );
     });
 
-    test('should not allow creating a lab request without selecting any panels', async () => {
+    test('[T-0207][AT-0057]should not allow creating a lab request without selecting any panels', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.nextButton.click();
@@ -153,7 +153,7 @@ test.describe('Lab Request Tests', () => {
       await expect(labRequestModal.testSelectionError).toBeVisible();
     });
 
-    test('Pressing Cancel should close the modal and not to create a lab request', async () => {
+    test('[AT-0058]Pressing Cancel should close the modal and not to create a lab request', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.nextButton.click();
@@ -164,7 +164,7 @@ test.describe('Lab Request Tests', () => {
       await expect(labRequestModal.panelModal.sampleDetailsPanels).not.toBeVisible();
       await expect(labRequestPane.tableRows.locator('td')).toHaveText('No lab requests found');
     });
-    test('Should allow navigating back to the previous page for panel lab request', async () => {
+    test('[AT-0059]Should allow navigating back to the previous page for panel lab request', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.nextButton.click();
@@ -186,7 +186,7 @@ test.describe('Lab Request Tests', () => {
     });
   });
   test.describe('Individual Lab Request Tests', () => {
-    test('should create an individual lab request with basic details', async () => {
+    test('[T-0209][AT-0060]should create an individual lab request with basic details', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       const requestedDateTime = await labRequestModal.validateRequestedDateTimeIsToday();
@@ -229,7 +229,7 @@ test.describe('Lab Request Tests', () => {
         LAB_REQUEST_STATUS.SAMPLE_NOT_COLLECTED,
       );
     });
-    test('should create an individual lab request with all fields filled', async () => {
+    test('[T-0209][AT-0061]should create an individual lab request with all fields filled', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       const requestedDateTime = await labRequestModal.validateRequestedDateTimeIsToday();
@@ -289,7 +289,7 @@ test.describe('Lab Request Tests', () => {
         LAB_REQUEST_STATUS.RECEPTION_PENDING,
       );
     });
-    test('Clear individual test selection and validate', async () => {
+    test('[AT-0062]Clear individual test selection and validate', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.individualRadioButton.click();
@@ -307,7 +307,7 @@ test.describe('Lab Request Tests', () => {
       const testCount = await labRequestModal.selectedItems.locator('div').count();
       await expect(testCount).toBe(0);
     });
-    test('Should allow navigating back to the previous page for individual lab request', async () => {
+    test('[AT-0063]Should allow navigating back to the previous page for individual lab request', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       const requestedDateTime = await labRequestModal.requestDateTimeInput.inputValue();
@@ -337,7 +337,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.validateRequestingClinician();
       await expect(labRequestModal.requestDateTimeInput).toHaveValue(requestedDateTime);
     });
-    test('Should not allow creating a lab request without selecting any tests', async () => {
+    test('[T-0209][AT-0064]Should not allow creating a lab request without selecting any tests', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.individualRadioButton.click();
@@ -345,7 +345,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestModal.nextButton.click();
       await expect(labRequestModal.testSelectionError).toBeVisible();
     });
-    test('should allow searching for individual tests', async () => {
+    test('[T-0209][AT-0065]should allow searching for individual tests', async () => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.individualRadioButton.click();
@@ -354,7 +354,7 @@ test.describe('Lab Request Tests', () => {
     });
   });
   test.describe('Lab request details page', () => {
-    test('Clicking on a  basic individual lab request opens the details page', async ({ page }) => {
+    test('[AT-0066]Clicking on a  basic individual lab request opens the details page', async ({ page }) => {
       const testsToSelect = await createBasicIndividualLabRequest();
       const testDetails: LabRequestTestDetails = await labRequestPane.getFirstRowTestDetails();
       await labRequestPane.tableRows.first().click();
@@ -374,7 +374,7 @@ test.describe('Lab Request Tests', () => {
         [],
       );
     });
-    test('Clicking on a  basic panel lab request opens the details page', async ({ page }) => {
+    test('[AT-0067]Clicking on a  basic panel lab request opens the details page', async ({ page }) => {
       await labRequestPane.newLabRequestButton.click();
       await labRequestModal.waitForModalToLoad();
       await labRequestModal.panelRadioButton.click();
@@ -404,7 +404,7 @@ test.describe('Lab Request Tests', () => {
         [],
       );
     });
-    test('Clicking on a panel lab request with all the fields filled opens the details page', async ({
+    test('[AT-0068]Clicking on a panel lab request with all the fields filled opens the details page', async ({
       page,
     }) => {
       await labRequestPane.newLabRequestButton.click();
@@ -460,7 +460,7 @@ test.describe('Lab Request Tests', () => {
         [noteToAdd],
       );
     });
-    test('Cancel lab request', async ({ page, patientDetailsPage }) => {
+    test('[T-0208][AT-0069]Cancel lab request', async ({ page, patientDetailsPage }) => {
       await createBasicIndividualLabRequest();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
@@ -482,7 +482,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestPane.waitForTableToLoad();
       await expect(labRequestPane.tableRows.locator('td')).toHaveText('No lab requests found');
     });
-    test('You should not being able to change status of lab request without entering sample details', async ({
+    test('[T-0220][AT-0070]You should not being able to change status of lab request without entering sample details', async ({
       page,
     }) => {
       await createBasicIndividualLabRequest();
@@ -496,7 +496,7 @@ test.describe('Lab Request Tests', () => {
         ),
       ).toBeVisible();
     });
-    test('Record sample and validate status and status log', async ({ page }) => {
+    test('[AT-0071]Record sample and validate status and status log', async ({ page }) => {
       await createBasicIndividualLabRequest();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
@@ -534,7 +534,7 @@ test.describe('Lab Request Tests', () => {
         (await labRequestModal.getCurrentUser()).displayName,
       );
     });
-    test('Changing laboratory', async ({ page }) => {
+    test('[T-0217][AT-0072]Changing laboratory', async ({ page }) => {
       await createBasicIndividualLabRequest();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
@@ -547,7 +547,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.changeLaboratoryModal.confirmButton.click();
       await expect(labRequestDetailsPage.laboratoryValue).toHaveText(laboratory);
     });
-    test('Changing priority', async ({ page }) => {
+    test('[AT-0073]Changing priority', async ({ page }) => {
       await createBasicIndividualLabRequest();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
@@ -560,7 +560,7 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.changePriorityModal.confirmButton.click();
       await expect(labRequestDetailsPage.priorityValue).toHaveText(priority);
     });
-    test('Entering results', async ({ page }) => {
+    test('[T-0213][AT-0074]Entering results', async ({ page }) => {
       await createBasicIndividualLabRequest();
       await labRequestPane.tableRows.first().click();
       const labRequestDetailsPage = new LabRequestDetailsPage(page);

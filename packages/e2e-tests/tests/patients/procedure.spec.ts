@@ -6,11 +6,12 @@ test.setTimeout(60000);
 
 test.describe('Procedures', () => {
   test.beforeEach(async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
+    
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.navigateToProcedureTab();
   });
   
-  test('Validate pre-populated fields', async ({ api,patientDetailsPage }) => {
+  test('[T-0197][AT-0089]Validate pre-populated fields', async ({ api,patientDetailsPage }) => {
     const user = await getUser(api);
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const date = new Date();
@@ -21,7 +22,7 @@ test.describe('Procedures', () => {
     await expect(modal.getLocatorInput(modal.timeStartedInput)).toHaveValue(format(date, 'HH:mm'));
   });
 
-  test('Add a procedure with all fields filled and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
+  test('[T-0197][AT-0090]Add a procedure with all fields filled and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     const procedureData = await modal.fillAllFields();
@@ -33,7 +34,7 @@ test.describe('Procedures', () => {
     await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'MM/dd/yyyy'));
   });
 
-  test('Add a procedure with only required fields and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
+  test('[T-0197][AT-0091]Add a procedure with only required fields and validate the procedure table', async ({ patientDetailsPage, newPatientWithHospitalAdmission: _newPatientWithHospitalAdmission }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     const procedureData = await modal.fillRequiredFields();
@@ -45,7 +46,7 @@ test.describe('Procedures', () => {
     await expect(patientDetailsPage.patientProcedurePane!.getTableCell(0, 0)).toHaveText(format(new Date(), 'MM/dd/yyyy'));
   });
 
-  test('Add multiple procedures and validate the procedure table', async ({ patientDetailsPage }) => {
+  test('[T-0197][AT-0092]Add multiple procedures and validate the procedure table', async ({ patientDetailsPage }) => {
     const numberOfProcedures = 3;
    for (let i = 0; i < numberOfProcedures; i++) {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
@@ -60,7 +61,7 @@ test.describe('Procedures', () => {
     await expect(patientDetailsPage.patientProcedurePane?.getRecordedProcedureCount()).resolves.toBe(numberOfProcedures);
   });
 
-  test('Add procedure and view procedure record', async ({ patientDetailsPage }) => {
+  test('[AT-0093]Add procedure and view procedure record', async ({ patientDetailsPage }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     const procedureData = await modal.fillAllFields();
@@ -87,7 +88,7 @@ test.describe('Procedures', () => {
     await expect(viewModal.completedNotesInput).toHaveValue(procedureData.completedNotes);
   });
 
-  test('Discard procedure creation', async ({ patientDetailsPage }) => {
+  test('[AT-0094]Discard procedure creation', async ({ patientDetailsPage }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     await modal.waitForModalToLoad();
@@ -99,7 +100,7 @@ test.describe('Procedures', () => {
     await expect(patientDetailsPage.patientProcedurePane!.getNoDataFoundText()).resolves.toBe('No data found');
   });
 
-  test('Continue editing while cancelling procedure creation', async ({ patientDetailsPage }) => {
+  test('[AT-0095]Continue editing while cancelling procedure creation', async ({ patientDetailsPage }) => {
     await patientDetailsPage.patientProcedurePane?.newProcedureButton.click();
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     await modal.waitForModalToLoad();
