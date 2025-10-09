@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
 import { SettingPath } from '../types';
 import { buildSettings } from '..';
@@ -45,16 +44,11 @@ export class ReadSettings<Path = SettingPath> {
     return lodashGet(settings, key as string) as T;
   }
 
-  // This is what is called on login. This gets only settings relevant to
+  // This is what is called on tamanu-web login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
-    let settings = settingsCache.getFrontEndSettings();
-    if (!settings) {
-      const allSettings = await this.getAll();
-      settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
-      settingsCache.setFrontEndSettings(settings);
-    }
-    return settings;
+    const allSettings = await this.getAll();
+    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
   }
 
   async getPatientPortalSettings() {
@@ -63,11 +57,11 @@ export class ReadSettings<Path = SettingPath> {
   }
 
   async getAll() {
-    // let settings = settingsCache.getAllSettings();
-    // if (!settings) {
-    return await buildSettings(this.models, this.facilityId);
-    // settingsCache.setAllSettings(settings);
-    // }
-    // return settings;
+    let settings = settingsCache.getAllSettings(this.facilityId);
+    if (!settings) {
+      settings = await buildSettings(this.models, this.facilityId);
+      settingsCache.setAllSettings(settings, this.facilityId);
+    }
+    return settings;
   }
 }
