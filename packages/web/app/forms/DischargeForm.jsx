@@ -2,7 +2,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { REPEATS_LABELS, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
+import {
+  REPEATS_LABELS,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+  ENCOUNTER_TYPES,
+} from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
 import {
@@ -20,7 +25,7 @@ import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/util
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-import { Colors} from '../constants';
+import { Colors } from '../constants';
 import {
   AutocompleteField,
   CheckField,
@@ -397,7 +402,9 @@ const EncounterOverview = ({
   currentDiagnoses,
 }) => {
   const { getSetting } = useSettings();
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory') && encounterType !== ENCOUNTER_TYPES.CLINIC;
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounterType !== ENCOUNTER_TYPES.CLINIC;
 
   return (
     <>
@@ -502,7 +509,9 @@ const DischargeFormScreen = props => {
   const { getSetting } = useSettings();
   const { encounter } = useEncounter();
 
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory') && encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {

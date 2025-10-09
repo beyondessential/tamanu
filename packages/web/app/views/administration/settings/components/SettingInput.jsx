@@ -11,9 +11,7 @@ import {
   TextInput,
   TranslatedText,
 } from '../../../../components';
-import { TextInput, TextButton, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../../constants/styles';
-import { LargeBodyText, NumberInput } from '../../../../components';
 import { JSONEditor } from './JSONEditor';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
