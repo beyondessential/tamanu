@@ -903,6 +903,10 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
   };
 });
 
+createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
+  name: { [Op.iLike]: search },
+}));
+
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');
   const root = path.split('/')[0];
