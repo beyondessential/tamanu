@@ -196,8 +196,7 @@ export class addAndSyncProcedureTables1759957009000 implements MigrationInterfac
     await queryRunner.createTable(ProcedureSurveyResponsesTable, true);
 
     // Trigger a full sync from the beginning of time as these tables already exist on desktop
-    await triggerFullResync(queryRunner, 'procedures');
-    await triggerFullResync(queryRunner, 'procedure_survey_responses');
+    await triggerFullResync(queryRunner, ['procedures', 'procedure_survey_responses']);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

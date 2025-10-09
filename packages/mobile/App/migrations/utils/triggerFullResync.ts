@@ -1,6 +1,7 @@
 import { QueryRunner } from 'typeorm';
 
-export const triggerFullResync = async (queryRunner: QueryRunner, tableName: string) => {
+export const triggerFullResync = async (queryRunner: QueryRunner, tables: string[]) => {
+  const tableString = tables.join(',');
   // uuid generation based on
   // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
   await queryRunner.query(
@@ -14,6 +15,6 @@ export const triggerFullResync = async (queryRunner: QueryRunner, tableName: str
           hex(randomblob(6))
         ), 'tablesForFullResync', ?)
       `,
-    [tableName],
+    [tableString],
   );
 };
