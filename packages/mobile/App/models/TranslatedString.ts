@@ -1,3 +1,4 @@
+import { COUNTRY_CODE_STRING_ID, LANGUAGE_NAME_STRING_ID } from '@tamanu/constants';
 import { BeforeInsert, Entity, PrimaryColumn, BeforeUpdate, Column } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { SYNC_DIRECTIONS } from './types';
@@ -45,20 +46,20 @@ export class TranslatedString extends BaseModel {
   static async getLanguageOptions(): Promise<LanguageOption[]> {
     const [languageNameKeys, countryCodeKeys] = await Promise.all([
       this.getRepository().find({
-        where: { stringId: 'languageName' },
+        where: { stringId: LANGUAGE_NAME_STRING_ID },
         select: ['language', 'text'],
       }),
       this.getRepository().find({
-        where: { stringId: 'countryCode' },
+        where: { stringId: COUNTRY_CODE_STRING_ID },
         select: ['language', 'text'],
       }),
     ]);
 
     const mappedCountryCodes = new Map(
-      countryCodeKeys.map((countryCodeKey) => [countryCodeKey.language, countryCodeKey.text]),
+      countryCodeKeys.map(countryCodeKey => [countryCodeKey.language, countryCodeKey.text]),
     );
 
-    return languageNameKeys.map((languageNameKey) => ({
+    return languageNameKeys.map(languageNameKey => ({
       label: languageNameKey.text,
       languageCode: languageNameKey.language,
       countryCode: mappedCountryCodes.get(languageNameKey.language) || '',
@@ -72,10 +73,7 @@ export class TranslatedString extends BaseModel {
       },
     });
     return Object.fromEntries(
-      translatedStrings.map((translatedString) => [
-        translatedString.stringId,
-        translatedString.text,
-      ]),
+      translatedStrings.map(translatedString => [translatedString.stringId, translatedString.text]),
     );
   }
 }

@@ -268,9 +268,10 @@ export async function importRows(
               'SurveyScreenComponent',
               'UserFacility',
               'ProcedureTypeSurvey',
+              'TranslatedString',
             ].includes(model)
           ) {
-            throw new ValidationError(`Deleting ${model} via the importer is not supported`);
+            throw new Error(`Deleting ${model} via the importer is not supported`);
           }
           if (!existing.deletedAt) {
             updateStat(stats, statkey(model, sheetName), 'updated');

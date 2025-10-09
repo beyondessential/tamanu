@@ -5,7 +5,14 @@ import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
 import { END, type Steps, type StepArgs } from '../step.js';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import {
+  DEFAULT_LANGUAGE_CODE,
+  ENGLISH_LANGUAGE_CODE,
+  COUNTRY_CODE_STRING_ID,
+  LANGUAGE_NAME_STRING_ID,
+  ENGLISH_COUNTRY_CODE,
+  ENGLISH_LANGUAGE_NAME,
+} from '@tamanu/constants';
 
 interface Artifact {
   artifact_type: string;
@@ -120,18 +127,43 @@ export const STEPS: Steps = [
 
         // Add default language name and country code
         translationRows.unshift({
-          stringId: 'languageName',
-          [DEFAULT_LANGUAGE_CODE]: 'English',
+          stringId: LANGUAGE_NAME_STRING_ID,
+          [DEFAULT_LANGUAGE_CODE]: ENGLISH_LANGUAGE_NAME,
         });
         translationRows.unshift({
-          stringId: 'countryCode',
-          [DEFAULT_LANGUAGE_CODE]: 'gb',
+          stringId: COUNTRY_CODE_STRING_ID,
+          [DEFAULT_LANGUAGE_CODE]: ENGLISH_COUNTRY_CODE,
         });
 
         args.log.info('Importing new default translations', { count: translationRows.length });
 
         if (translationRows.length > 0) {
           await apply('translations', translationRows, args);
+
+          // Set english language name and country code to default if not present
+          const englishLanguageName = await args.models.TranslatedString.findOne({
+            where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
+          });
+          if (!englishLanguageName) {
+            await args.models.TranslatedString.create({
+              stringId: LANGUAGE_NAME_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_LANGUAGE_NAME,
+            });
+          }
+          const englishCountryCode = await args.models.TranslatedString.findOne({
+            where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
+          });
+          if (!englishCountryCode) {
+            await args.models.TranslatedString.create({
+              stringId: COUNTRY_CODE_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_COUNTRY_CODE,
+            });
+          }
+
           args.log.info('Successfully imported default translations');
         }
       } catch (error) {
