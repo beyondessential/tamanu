@@ -7,8 +7,9 @@ import { FieldByType } from '~/ui/helpers/fieldComponents';
 import { useBackendEffect } from '~/ui/hooks';
 import { PatientDataDisplayField } from '../../PatientDataDisplayField/PatientDataDisplayField';
 import { useTranslation } from '~/ui/contexts/TranslationContext';
-import { PATIENT_DATA_FIELD_LOCATIONS } from '@tamanu/constants';
+import { PATIENT_DATA_FIELD_LOCATIONS, SEX_VALUES } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '../../Translations/TranslatedReferenceData';
+import { useSettings } from '~/ui/contexts/SettingsContext';
 
 interface SurveyQuestionProps {
   component: ISurveyScreenComponent;
@@ -82,6 +83,7 @@ export const SurveyQuestion = ({
   zIndex,
   setDisableSubmit,
 }: SurveyQuestionProps): ReactElement => {
+  const { getSetting } = useSettings();
   const { getTranslation, getEnumTranslation } = useTranslation();
   const config = useGetConfig(component);
   const { dataElement } = component;
@@ -98,10 +100,16 @@ export const SurveyQuestion = ({
       if (writeToPatient?.fieldType === FieldTypes.SELECT) {
         const [, , constantOptions] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
         if (constantOptions) {
-          return Object.keys(constantOptions).map(value => ({
+          const result = Object.keys(constantOptions).map(value => ({
             label: getEnumTranslation(constantOptions, value),
             value,
           }));
+
+          if (column === 'sex' && getSetting('features.hideOtherSex')) {
+            return result.filter(option => option.value !== SEX_VALUES.OTHER);
+          }
+
+          return result;
         }
       }
     }

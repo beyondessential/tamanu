@@ -4,6 +4,7 @@ import {
   CHARTING_DATA_ELEMENT_IDS,
   PATIENT_DATA_FIELD_LOCATIONS,
   PROGRAM_DATA_ELEMENT_TYPES,
+  SEX_VALUES,
 } from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -19,6 +20,7 @@ import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
+import { useSettings } from '../../contexts/Settings';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -94,6 +96,7 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
+  const { getSetting } = useSettings();
   const { encounter } = useEncounter();
   const { getTranslation, getEnumTranslation } = useTranslation();
 
@@ -136,10 +139,17 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
         if (writeToPatient?.fieldType === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
           const [, , options] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
           if (options) {
-            return Object.keys(options).map(value => ({
+            const result = Object.keys(options).map(value => ({
               label: getEnumTranslation(options, value),
               value,
             }));
+
+            // if the question is a sex question and the other sex is hidden, we need to filter out the other option
+            if (column === 'sex' && getSetting('features.hideOtherSex')) {
+              return result.filter(option => option.value !== SEX_VALUES.OTHER);
+            }
+
+            return result;
           }
         }
       } catch (e) {
