@@ -1,6 +1,8 @@
 import { QueryRunner } from 'typeorm';
 
 export const triggerFullResync = async (queryRunner: QueryRunner, tableName: string) => {
+  // uuid generation based on
+  // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
   await queryRunner.query(
     `
         INSERT INTO local_system_facts (id, key, value)
