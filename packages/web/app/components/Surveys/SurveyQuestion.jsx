@@ -1,6 +1,11 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { CHARTING_DATA_ELEMENT_IDS, PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import {
+  CHARTING_DATA_ELEMENT_IDS,
+  PATIENT_DATA_FIELD_LOCATIONS,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  SEX_VALUES,
+} from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 import {
   checkMandatory,
@@ -15,7 +20,7 @@ import { Box, Typography } from '@material-ui/core';
 import { Colors } from '../../constants';
 import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { useTranslation } from '../../contexts/Translation';
-
+import { useSettings } from '../../contexts/Settings';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -80,8 +85,10 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
     );
   }
 
-  if (component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded
-    || component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO) {
+  if (
+    component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+  ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
 
@@ -89,8 +96,9 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 };
 
 export const SurveyQuestion = ({ component, patient, inputRef, disabled, encounterType }) => {
+  const { getSetting } = useSettings();
   const { encounter } = useEncounter();
-  const { getTranslation } = useTranslation();
+  const { getTranslation, getEnumTranslation } = useTranslation();
 
   const {
     id: componentId,
@@ -120,17 +128,42 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
     />
   );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const translatedOptions = useMemo(
-    () =>
-      options?.map(({ value }) => {
-        const stringId = getReferenceDataOptionStringId(id, 'programDataElement', value);
-        return {
-          label: getTranslation(stringId, value),
-          value,
-        };
-      }),
-    [getTranslation, id, options],
-  );
+  const translatedOptions = useMemo(() => {
+    // if the question is a patient data question with a select field type,
+    // we need to get the options from the patient data field locations, so the users don't need to translate the options twice
+    // If the options aren't available, we'll use the options from the componentOptions
+    if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA) {
+      try {
+        const config = JSON.parse(componentConfig);
+        const { writeToPatient, column } = config;
+        if (writeToPatient?.fieldType === PROGRAM_DATA_ELEMENT_TYPES.SELECT) {
+          const [, , options] = PATIENT_DATA_FIELD_LOCATIONS[column] || [];
+          if (options) {
+            const result = Object.keys(options).map(value => ({
+              label: getEnumTranslation(options, value),
+              value,
+            }));
+
+            // if the question is a sex question and the other sex is hidden, we need to filter out the other option
+            if (column === 'sex' && getSetting('features.hideOtherSex')) {
+              return result.filter(option => option.value !== SEX_VALUES.OTHER);
+            }
+
+            return result;
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing componentConfig', e);
+      }
+    }
+    return options?.map(({ value }) => {
+      const stringId = getReferenceDataOptionStringId(id, 'programDataElement', value);
+      return {
+        label: getTranslation(stringId, value),
+        value,
+      };
+    });
+  }, [getTranslation, id, options, type, componentConfig, getEnumTranslation]);
 
   const configObject = getConfigObject(id, componentConfig);
   const FieldComponent = getComponentForQuestionType(type, configObject);
