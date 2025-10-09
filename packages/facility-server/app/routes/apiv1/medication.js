@@ -1375,6 +1375,7 @@ medication.get(
       left join public.users given_by_user on given_by_user.id = c.record_data->>'given_by_user_id'
       where c.table_schema = 'public'
       and c.table_name IN ('medication_administration_records', 'medication_administration_record_doses')
+      and c.migration_context IS NULL
       and (c.record_data->>'id' = :marId or c.record_data->>'mar_id' = :marId)
       order by c.created_at desc,
         case
