@@ -64,6 +64,12 @@ export class FhirMedicationRequest extends FhirResource {
       models.ReferenceData,
       models.Facility,
     ];
+    this.referencedResources = [
+      models.FhirPatient,
+      models.FhirOrganization,
+      models.FhirEncounter,
+      models.FhirPractitioner,
+    ];
   }
 
   static CAN_DO = new Set([
