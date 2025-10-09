@@ -19,8 +19,6 @@ export const ASSIGNMENT_SCHEDULE_INITIAL_VALUES = {
   endsMode: ENDS_MODES.ON,
 };
 
-export const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
-
 export const APPOINTMENT_SCHEDULE_INITIAL_VALUES = {
   interval: 1,
   frequency: REPEAT_FREQUENCY.WEEKLY,
