@@ -1,10 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { FormSubmitCancelRow, Modal, TranslatedText } from '@tamanu/ui-components';
-import { BodyText, ModalActionRow, ModalGenericButtonRow } from '../../../components';
+import {
+  BodyText,
+  FormSubmitCancelRow,
+  Modal,
+  ModalActionRow,
+  ModalGenericButtonRow,
+  TranslatedText,
+} from '../../../components';
 import { useSendPatientPortalForm } from '../../../api/mutations/useSendPatientFormMutation';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 import { usePatientPortalSurveyAssignments, usePatientDataQuery } from '../../../api/queries';
@@ -91,18 +97,16 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
   >
     <ModalBody>
       <BodyText>
-        <strong>
-          <TranslatedText
-            stringId="program.modal.existingFormRequestPending.warning"
-            fallback="The selected form has already been sent to this patient and is pending completion. A new request to complete this form can't be sent until the pending form is completed."
-          />
-        </strong>
+        <TranslatedText
+          stringId="program.modal.existingFormRequestPending.warning"
+          fallback="This form has already been sent to the patient portal and a response is pending. Are you sure you would like to send it again?"
+        />
       </BodyText>
       <br />
       <BodyText>
         <TranslatedText
           stringId="program.modal.sendToPatientPortal.alreadyAssigned.description"
-          fallback="Would you like to send a reminder to complete the outstanding form?"
+          fallback="If so, please ensure the patient has portal access so they can complete the form once received."
         />
       </BodyText>
     </ModalBody>
@@ -110,7 +114,10 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
       onCancel={onClose}
       onConfirm={onSubmit}
       confirmText={
-        <TranslatedText stringId="program.action.sendToPatientPortal" fallback="Send reminder" />
+        <TranslatedText
+          stringId="program.action.sendToPatientPortal"
+          fallback="Send to patient portal"
+        />
       }
     />
   </Modal>
