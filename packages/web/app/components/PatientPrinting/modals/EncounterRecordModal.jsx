@@ -271,11 +271,11 @@ export const EncounterRecordModal = ({ encounter, open, onClose }) => {
     .sort((a, b) => a.medication.name.localeCompare(b.medication.name));
 
   const displayNotes = notes.filter(note => {
-    return note.noteType !== NOTE_TYPES.SYSTEM;
+    return note.noteTypeReference?.code !== NOTE_TYPES.SYSTEM;
   });
 
   const systemNotes = notes.filter(note => {
-    return note.noteType === NOTE_TYPES.SYSTEM;
+    return note.noteTypeReference?.code === NOTE_TYPES.SYSTEM;
   });
 
   const locationSystemNotes = systemNotes.filter(note => {

@@ -63,7 +63,7 @@ const FloatingMuiDialog = withModalFloating(StyledMuiDialog);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
-  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType !== NOTE_TYPES.TREATMENT_PLAN) {
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteTypeReference?.code !== NOTE_TYPES.TREATMENT_PLAN) {
     return note.onBehalfOfId;
   }
 
@@ -89,7 +89,7 @@ const MemoizedNoteModalContents = React.memo(
 
     const isHeightBreakpoint = useMediaQuery(`(min-height: ${BREAKPOINTS.HEIGHT}px)`);
     const isTreatmentPlanEdit =
-      noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN;
+      noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN;
 
     const minConstraints = useMemo(() => {
       if (isTreatmentPlanEdit) {
@@ -163,7 +163,7 @@ export const MuiNoteModalComponent = ({
           ? {
               recordType: note.recordType,
               recordId: note.recordId,
-              noteType: note.noteType,
+              noteTypeId: note.noteTypeId,
               revisedById: note.revisedById || note.id,
             }
           : {

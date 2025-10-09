@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
-  NOTE_TYPE_VALUES,
+  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -16,9 +16,23 @@ import {
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
+export interface CreateNoteParams {
+  noteType: string;
+  content: string;
+  authorId: string;
+  recordType?: string;
+  recordId?: string;
+  date?: string;
+  dateLegacy?: Date;
+  onBehalfOfId?: string;
+  revisedById?: string;
+  visibilityStatus?: string;
+}
+
 export class Note extends Model {
   declare id: string;
   declare noteType: string;
+  declare noteTypeId?: string;
   declare recordType: string;
   declare date: string;
   declare content: string;
@@ -36,7 +50,15 @@ export class Note extends Model {
         },
         noteType: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
+        },
+        noteTypeId: {
+          type: DataTypes.STRING(255),
+          allowNull: true,
+          references: {
+            model: 'ReferenceData',
+            key: 'id',
+          },
         },
         recordType: {
           type: DataTypes.STRING,
@@ -63,11 +85,6 @@ export class Note extends Model {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType as string)) {
               throw new Error(`Note: Must have a valid record type (got ${this.recordType})`);
-            }
-          },
-          mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.noteType as string)) {
-              throw new Error(`Note: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },
@@ -99,6 +116,11 @@ export class Note extends Model {
       as: 'revisedBy',
       constraints: false,
     });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'noteTypeId',
+      as: 'noteTypeReference',
+    });
   }
 
   static async createForRecord(
@@ -115,6 +137,22 @@ export class Note extends Model {
       date: getCurrentDateTimeString(),
       content,
       authorId,
+    });
+  }
+
+  static async createWithNoteType(params: CreateNoteParams) {
+    const { noteType } = params;
+    const { models } = this.sequelize;
+    const noteTypeReference = await models.ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        code: noteType,
+      },
+    });
+
+    return Note.create({
+      ...params,
+      noteTypeId: noteTypeReference?.id,
     });
   }
 

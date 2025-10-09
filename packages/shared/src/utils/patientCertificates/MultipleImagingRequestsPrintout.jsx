@@ -74,7 +74,7 @@ const getAreaNote = ({ areas, areaNote }) => {
 const ImagingRequestDetailsView = ({ imagingRequests, getLocalisation }) => {
   const notesAccessor = ({ notes }) => {
     return notes
-      ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
+      ?.filter(note => note.noteTypeReference?.code === NOTE_TYPES.OTHER)
       .map(note => note.content)
       .join(', ');
   };
