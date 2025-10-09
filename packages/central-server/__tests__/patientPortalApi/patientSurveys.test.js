@@ -223,7 +223,7 @@ describe('Patient Portal Surveys', () => {
     });
 
     it('Should reject request without authorization header', async () => {
-      const response = await baseApp.get('/api/portal/me/surveys');
+      const response = await baseApp.get('/api/portal/me/surveys/outstanding');
       expect(response).toHaveRequestError();
     });
   });
