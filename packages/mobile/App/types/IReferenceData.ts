@@ -5,7 +5,6 @@ export const ReferenceDataType = {
   Allergy: 'allergy',
   BookingType: 'bookingType',
   Catchment: 'catchment',
-  Condition: 'condition',
   ContactRelationship: 'contactRelationship',
   Country: 'country',
   Division: 'division',
