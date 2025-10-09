@@ -114,7 +114,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =
     !!importableOngoingPrescriptions?.length && !isEncounterDischarged;
-  const canAccessMar = ability.can('read', 'MedicationAdministration');
+  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   const handleNavigateToMar = () => {
     // Navigate to the medication tab first to ensure it will be back to the same tab after navigating to the MAR
