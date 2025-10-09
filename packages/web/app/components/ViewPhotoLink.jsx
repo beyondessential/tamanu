@@ -97,6 +97,8 @@ export const ViewPhotoLink = ({ answerId, surveyId, imageId, chartTitle = null }
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
 
+
+
   const openModalCallback = useCallback(async () => {
     setIsPhotoModalOpen(true);
     if (!navigator.onLine) {
