@@ -81,7 +81,22 @@ const MemoizedNoteModalContents = React.memo(
   }) => {
     const { WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
 
-    const viewport = useMemo(() => ({ vw: window.innerWidth, vh: window.innerHeight }), []);
+    const [viewport, setViewport] = useState({
+      vw: window.innerWidth,
+      vh: window.innerHeight,
+    });
+
+    useEffect(() => {
+      const handleResize = () => {
+        setViewport({ vw: window.innerWidth, vh: window.innerHeight });
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
 
     const minConstraints = [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
 
