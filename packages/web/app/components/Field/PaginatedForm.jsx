@@ -3,13 +3,17 @@ import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { omit } from 'lodash';
 import { Box, Typography } from '@material-ui/core';
+import {
+  Form,
+  Button,
+  OutlinedButton,
+  ButtonRow,
+  usePaginatedForm,
+  TranslatedText,
+} from '@tamanu/ui-components';
 
-import { Button, OutlinedButton } from '../Button';
-import { Form } from './Form';
-import { ButtonRow } from '../ButtonRow';
 import { getInvisibleQuestions, getVisibleQuestions } from '../../utils';
 import { FormStepper } from './FormStepper';
-import { TranslatedText } from '../Translation/TranslatedText';
 
 const DefaultSummaryScreen = ({ onStepBack, submitForm }) => (
   <div>
@@ -65,7 +69,7 @@ const DefaultSuccessScreen = ({ onClose }) => (
       <Button variant="contained" color="primary" onClick={onClose} data-testid="button-swbr">
         <TranslatedText
           stringId="general.action.ok"
-          fallback="Ok"
+          fallback="OK"
           data-testid="translatedtext-xxgi"
         />
       </Button>
@@ -139,30 +143,6 @@ export const DefaultFormScreen = ({
   );
 };
 
-export const usePaginatedForm = () => {
-  const [screenIndex, setScreenIndex] = useState(0);
-
-  const onStepBack = () => {
-    setScreenIndex(screenIndex - 1);
-  };
-
-  const onStepForward = () => {
-    setScreenIndex(screenIndex + 1);
-  };
-
-  const handleStep = (step) => () => {
-    setScreenIndex(step);
-  };
-
-  return {
-    onStepBack,
-    onStepForward,
-    handleStep,
-    screenIndex,
-    setScreenIndex,
-  };
-};
-
 const FORM_STATES = {
   SUCCESS: 'success',
   IDLE: 'idle',
@@ -184,7 +164,7 @@ export const PaginatedForm = ({
   const [showStepper, setShowStepper] = useState(true);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
-  const onSubmitForm = async (data) => {
+  const onSubmitForm = async data => {
     await onSubmit(data);
     setFormState(FORM_STATES.SUCCESS);
   };
@@ -195,7 +175,7 @@ export const PaginatedForm = ({
 
   const formScreenReactElements = React.Children.toArray(children);
   const allQuestionReactElements = formScreenReactElements
-    .map((s) => React.Children.toArray(s.props.children))
+    .map(s => React.Children.toArray(s.props.children))
     .flat();
   const maxIndex = formScreenReactElements.length - 1;
   const isLast = screenIndex === maxIndex;
@@ -242,9 +222,9 @@ export const PaginatedForm = ({
           );
         }
 
-        const submitVisibleValues = (event) => {
+        const submitVisibleValues = event => {
           const invisibleFields = new Set(
-            getInvisibleQuestions(values, allQuestionReactElements).map((q) => q.props.name),
+            getInvisibleQuestions(values, allQuestionReactElements).map(q => q.props.name),
           );
           const visibleValues = omit({ ...values }, invisibleFields);
 

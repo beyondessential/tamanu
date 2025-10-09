@@ -7,6 +7,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   DRUG_ROUTE_LABELS,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import {
@@ -17,11 +18,16 @@ import {
 } from '@tamanu/shared/utils/medication';
 
 import { TranslatedText } from '../Translation/TranslatedText';
-import { Colors, FORM_TYPES } from '../../constants';
-import { CheckField, Field, Form, TextField } from '../Field';
+import {
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { CheckField, Field } from '../Field';
 import { FormModal } from '../FormModal';
-import { FormGrid } from '../FormGrid';
-import { Button, OutlinedButton } from '../Button';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
 import { MedicationDiscontinueModal } from './MedicationDiscontinueModal';
@@ -279,8 +285,8 @@ export const MedicationDetails = ({
                         />
                       </MidText>
                       <DarkestText mt={0.5}>{`${formatShortest(
-                        new Date(medication.discontinuedDate),
-                      )} ${formatTimeSlot(new Date(medication.discontinuedDate))}`}</DarkestText>
+                        medication.discontinuedDate,
+                      )} ${formatTimeSlot(medication.discontinuedDate)}`}</DarkestText>
                     </Box>
                   </DetailsContainer>
                   <Box my={2.5} height={'1px'} bgcolor={Colors.outline} />
@@ -445,7 +451,11 @@ export const MedicationDetails = ({
                 </DarkestText>
                 <DetailsContainer mt={0.5} width={'50%'} display={'flex'}>
                   <Box display={'flex'} flexDirection={'column'} mr={2.5} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       const slot = findAdministrationTimeSlotFromIdealTime(time).timeSlot;
                       return (
                         <DarkestText key={time}>
@@ -457,7 +467,11 @@ export const MedicationDetails = ({
                     })}
                   </Box>
                   <Box display={'flex'} flexDirection={'column'} style={{ gap: '16px' }}>
-                    {medication?.idealTimes?.map(time => {
+                    {medication?.idealTimes?.slice().sort((a, b) => {
+                      const timeA = getDateFromTimeString(a);
+                      const timeB = getDateFromTimeString(b);
+                      return timeA - timeB;
+                    }).map(time => {
                       return (
                         <MidText key={time}>{formatTimeSlot(getDateFromTimeString(time))}</MidText>
                       );

@@ -87,10 +87,11 @@ jobs:
           - { package: "@tamanu/database",                    postgres: 14 }
           - { package: "@tamanu/database",                    postgres: 16 }
           - { package: "@tamanu/database",                    postgres: 17 }
-          - { package: "@tamanu/shared",                                   }
-          - { package: "@tamanu/utils",                                    }
-          - { package: "@tamanu/web-frontend" }
-          - { package: "@tamanu/settings" }
+          - { package: "@tamanu/settings"                                  }
+          - { package: "@tamanu/shared"                                    }
+          - { package: "@tamanu/upgrade"                                   }
+          - { package: "@tamanu/utils"                                     }
+          - { package: "@tamanu/web-frontend"                              }
 
     name: Test ${{ matrix.package }} ${{ matrix.shard }} (pg=${{ matrix.postgres || 'no' }})
     runs-on: ubuntu-latest
@@ -250,6 +251,7 @@ jobs:
           path: ${{ env.NODE_MODULES_PATHS }}
 
       - run: npm i
+      - run: npm run build-shared
 
       - run: npm run test
         working-directory: packages/mobile

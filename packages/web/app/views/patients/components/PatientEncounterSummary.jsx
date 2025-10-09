@@ -2,8 +2,10 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
-import { Button, ButtonWithPermissionCheck, DateDisplay } from '../../../components';
+import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { PATIENT_STATUS, PATIENT_STATUS_COLORS } from '../../../constants';
+import { DateDisplay } from '../../../components';
 import { DeathCertificateModal } from '../../../components/PatientPrinting';
 import { useApi } from '../../../api';
 import { getFullLocationName } from '../../../utils/location';
@@ -217,7 +219,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         message={
           <TranslatedText
             stringId="general.status.loading"
-            fallback="Loading..."
+            fallback="Loading…"
             data-testid="translatedtext-jp7h"
           />
         }

@@ -1,7 +1,9 @@
 {
   "port": 3000,
+  "deviceId": null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
+  "portalHostName": "http://localhost:5175",
   "db": {
     "name": "tamanu-central",
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
@@ -35,6 +37,11 @@
         }
       }
     }
+  },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
   },
   "metaServer": {
     "host": "https://meta.tamanu.app",
@@ -171,6 +178,12 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "portalCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "deceasedPatientDischarger": {
       // once an hour
       "schedule": "29 * * * *",
@@ -205,6 +218,10 @@
     },
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
+    },
+    "dhis2IntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *"
     },
     "automaticLabTestResultPublisher": {
       "enabled": false,
@@ -371,6 +388,11 @@
       // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!
@@ -516,4 +538,10 @@
   "medicationAdministrationRecord": {
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
+  "patientPortal": {
+    "portalUrl": "http://localhost:5175",
+    "tokenDuration": "24h",
+    "loginTokenDurationMinutes": 20,
+    "registerTokenDurationMinutes": 43800 // 1 month
+  }
 }

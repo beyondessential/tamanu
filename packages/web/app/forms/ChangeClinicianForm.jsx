@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
-import { AutocompleteField, Field, Form } from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
-import { FORM_TYPES } from '../constants';
+import { AutocompleteField, Field, } from '../components/Field';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
@@ -65,7 +64,7 @@ export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) 
           .translatedLabel(
             <TranslatedText
               stringId="general.localisedField.clinician.label"
-              fallback="clinician"
+              fallback="Clinician"
               data-testid="translatedtext-ylrt"
             />,
           ),

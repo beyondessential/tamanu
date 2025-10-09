@@ -47,6 +47,7 @@
     }
   },
   "port": 4000,
+  "deviceId": null,
   "db": {
     "name": "tamanu-facility",
     "username": "",
@@ -96,6 +97,9 @@
   "serverFacilityId": null,
   "serverFacilityIds": null,
   "debugging": {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
     "requestFailureRate": 0
   },
   "schedules": {

@@ -3,10 +3,15 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useApi, useSuggester } from '../api';
-import { Colors, FORM_TYPES } from '../constants';
-import { FormSubmitCancelRow } from './ButtonRow';
-import { AutocompleteField, DateTimeField, Field, Form, TextField } from './Field';
-import { FormGrid } from './FormGrid';
+import { FORM_TYPES } from '@tamanu/constants';
+import {
+  TextField,
+  Form,
+  FormSubmitCancelRow,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { AutocompleteField, DateTimeField, Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -31,10 +36,10 @@ export function CarePlanNoteForm({
   const submitNote = async (patientCarePlanId, body) =>
     api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
 
-  const updateNote = async (updatedNote) => api.put(`notes/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote => api.put(`notes/${updatedNote.id}`, updatedNote);
   return (
     <Form
-      onSubmit={async (values) => {
+      onSubmit={async values => {
         try {
           if (note) {
             await updateNote({ ...note, ...values });
@@ -117,7 +122,7 @@ export function CarePlanNoteForm({
               ) : (
                 <TranslatedText
                   stringId="general.action.addNote"
-                  fallback="Add Note"
+                  fallback="Add note"
                   data-testid="translatedtext-97gm"
                 />
               )

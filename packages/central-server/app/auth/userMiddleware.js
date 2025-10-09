@@ -3,12 +3,18 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
-import { log } from '@tamanu/shared/services/logging';
-import { BadAuthenticationError, ForbiddenError } from '@tamanu/shared/errors';
+import {
+  ForbiddenError,
+  InvalidCredentialError,
+  InvalidTokenError,
+  MissingCredentialError,
+} from '@tamanu/errors';
 import { findUserById, stripUser, verifyToken } from './utils';
 import { createSessionIdentifier } from '@tamanu/shared/audit/createSessionIdentifier';
+import { initAuditActions } from '@tamanu/database/utils/audit';
 
 import { version } from '../../package.json';
+import { SERVER_TYPES } from '@tamanu/constants';
 
 export const userMiddleware = ({ secret }) =>
   asyncHandler(async (req, res, next) => {
@@ -19,7 +25,7 @@ export const userMiddleware = ({ secret }) =>
     // get token
     const { authorization } = headers;
     if (!authorization) {
-      throw new ForbiddenError();
+      throw new MissingCredentialError('Missing authorization header');
     }
 
     // verify token
@@ -27,7 +33,7 @@ export const userMiddleware = ({ secret }) =>
     const sessionId = createSessionIdentifier(token);
 
     if (bearer.toLowerCase() !== 'bearer') {
-      throw new BadAuthenticationError('Only Bearer token is supported');
+      throw new InvalidCredentialError('Only Bearer token is supported');
     }
 
     let contents = null;
@@ -37,51 +43,38 @@ export const userMiddleware = ({ secret }) =>
         audience: JWT_TOKEN_TYPES.ACCESS,
       });
     } catch (e) {
-      const errorMessage = 'Auth error: Invalid token (hG7c)';
-      log.debug(errorMessage, { error: e.message });
-      res.status(401).send({
-        error: { message: errorMessage },
-      });
-      return;
+      throw new InvalidTokenError();
     }
 
     const { userId, deviceId } = contents;
 
     const user = await findUserById(store.models, userId);
     if (!user) {
-      throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);
+      throw new InvalidTokenError('User specified in token does not exist').withExtraData({
+        userId,
+      });
     }
+
+    const device = deviceId && (await store.models.Device.findByPk(deviceId));
 
     /* eslint-disable require-atomic-updates */
     // in this case we don't care if we're overwriting the user/deviceId
     // and express also guarantees execution order for middlewares
     req.user = user;
     req.deviceId = deviceId;
+    req.device = device;
     req.sessionId = sessionId;
     /* eslint-enable require-atomic-updates */
 
     const auditSettings = await settings?.[req.facilityId]?.get('audit');
 
     // Auditing middleware
-    // eslint-disable-next-line require-atomic-updates
-    req.audit = {
-      access: async ({ recordId, params, model }) => {
-        if (!auditSettings?.accesses.enabled) return;
-        return req.models.AccessLog.create({
-          userId,
-          recordId,
-          recordType: model.name,
-          sessionId,
-          isMobile: false,
-          frontEndContext: params,
-          backEndContext: { endpoint: req.originalUrl },
-          loggedAt: new Date(),
-          facilityId: null,
-          deviceId: req.deviceId || 'unknown-device',
-          version,
-        });
-      },
-    };
+    req.audit = initAuditActions(req, {
+      enabled: auditSettings?.accesses.enabled,
+      userId,
+      version,
+      backEndContext: { serverType: SERVER_TYPES.CENTRAL },
+    });
 
     const spanAttributes = user
       ? {

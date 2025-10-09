@@ -335,7 +335,7 @@ test.describe('Patient Side Bar', () => {
       /This is an example of main care plan details/,
     );
     await expect(completedCarePlanModal.completedMainCarePlan).toContainText(
-      'On behalf of Initial Admin',
+      'on behalf of Initial Admin',
     );
 
     await completedCarePlanModal.addAdditionalCarePlanNote(

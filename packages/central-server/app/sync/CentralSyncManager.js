@@ -13,11 +13,12 @@ import {
   completeSyncSession,
   countSyncSnapshotRecords,
   createSnapshotTable,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   getModelsForPull,
   getModelsForPush,
   getSyncTicksOfPendingEdits,
   insertSnapshotRecords,
+  vacuumAnalyzeSnapshotTable,
   removeEchoedChanges,
   saveIncomingChanges,
   updateSnapshotRecords,
@@ -44,6 +45,10 @@ const errorMessageFromSession = session =>
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
+/**
+ * @typedef {import('../ApplicationContext').ApplicationContext} ApplicationContext
+ */
+
 export class CentralSyncManager {
   static config = _config;
 
@@ -57,6 +62,7 @@ export class CentralSyncManager {
 
   currentSyncTick;
 
+  /** @type {ApplicationContext} */
   store;
 
   purgeInterval;
@@ -162,6 +168,14 @@ export class CentralSyncManager {
       log.error('CentralSyncManager.prepareSession encountered an error', error);
       await this.store.models.SyncSession.markSessionErrored(syncSession.id, error.message);
     }
+  }
+
+  async sessionExists(sessionId) {
+    const session = await this.store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId },
+    });
+
+    return Boolean(session);
   }
 
   async connectToSession(sessionId) {
@@ -317,6 +331,7 @@ export class CentralSyncManager {
           : SYNC_TICK_FLAGS.LOOKUP_PENDING_UPDATE;
 
         await updateLookupTable(
+          this.store.models,
           getModelsForPull(this.store.models),
           previouslyUpToTick,
           this.constructor.config,
@@ -521,6 +536,9 @@ export class CentralSyncManager {
         // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
       });
+      // after snapshotting inserts are done and the transaction is closed, run VACUUM (ANALYZE)
+      // to mark pages all-visible and refresh stats so pulls use index-only scans
+      await vacuumAnalyzeSnapshotTable(this.store.sequelize, sessionId);
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -600,15 +618,18 @@ export class CentralSyncManager {
 
   async getOutgoingChanges(sessionId, { fromId, limit }) {
     const session = await this.connectToSession(sessionId);
-    const snapshotRecords = await findSyncSnapshotRecords(
-      this.store.sequelize,
+    const snapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      this.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       fromId,
       limit,
     );
-    const { minSourceTick, maxSourceTick } = session.parameters;
-    if (!minSourceTick || !maxSourceTick) {
+    const { minSourceTick, maxSourceTick, isMobile } = session.parameters;
+    
+    // Currently on mobile we don't need to attach changelog to snapshot records
+    // as changelog data is not stored on mobile. We can also skip if the source tick range is not available.
+    if (isMobile || !minSourceTick || !maxSourceTick) {
       return snapshotRecords;
     }
 

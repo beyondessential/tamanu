@@ -8,11 +8,10 @@ import {
   DateField,
   Field,
   LocationField,
-  TextField,
   TimeField,
 } from '../../components/Field';
+import { TextField, FormGrid } from '@tamanu/ui-components';
 import { MultiAutocompleteField } from '../../components/Field/MultiAutocompleteField';
-import { FormGrid } from '../../components/FormGrid';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { useSuggester } from '../../api';
 
@@ -73,7 +72,7 @@ export const ProcedureFormFields = React.memo(({ values }) => {
           name="physicianId"
           label={
             <TranslatedText
-              stringId="general.localisedField.clinician.label.short"
+              stringId="general.localisedField.leadClinician.label"
               fallback="Lead clinician"
             />
           }

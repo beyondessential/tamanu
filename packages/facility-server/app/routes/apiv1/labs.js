@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { endOfDay, startOfDay } from 'date-fns';
 import { Op, QueryTypes, Sequelize } from 'sequelize';
 
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import {
   LAB_REQUEST_STATUSES,
@@ -45,7 +45,7 @@ labRequest.get(
 
     await req.audit.access({
       recordId: labRequestRecord.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: LabRequest,
     });
 
@@ -469,7 +469,7 @@ labTest.get(
 
     await req.audit.access({
       recordId: response.id,
-      params: req.params,
+      frontEndContext: req.params,
       model: models.LabTest,
       facilityId,
     });

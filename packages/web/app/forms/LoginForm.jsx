@@ -3,17 +3,19 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
   CheckField,
   Field,
+} from '../components';
+import {
+  TextField,
   Form,
+  FormGrid,
   FormSubmitButton,
   TextButton,
-  TextField,
-} from '../components';
-import { Colors } from '../constants';
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
@@ -48,7 +50,7 @@ const ForgotPasswordButton = styled(TextButton)`
   font-weight: 400;
 
   :hover {
-    color: ${Colors.primary};
+      color: ${Colors.primary};
     font-weight: 500;
     text-decoration: underline;
   }
@@ -227,7 +229,7 @@ export const LoginForm = React.memo(
     const { getTranslation } = useTranslation();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(false);
 
-    const onError = (errors) => {
+    const onError = errors => {
       if (errors.host) {
         setAdvancedExpanded(true);
       }
@@ -258,7 +260,7 @@ export const LoginForm = React.memo(
         validationSchema={yup.object().shape({
           email: yup
             .string()
-            .email(getTranslation('validation.rule.validEmail', 'Must enter a valid email'))
+            .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address'))
             .nullable()
             .required(),
           password: yup

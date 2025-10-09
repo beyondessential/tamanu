@@ -275,6 +275,13 @@ export const practitioner = [
   { verb: 'create', noun: 'MedicationPharmacyNote' },
   { verb: 'write', noun: 'MedicationPharmacyNote' },
 
+  { verb: 'create', noun: 'PatientPortalRegistration' },
+  { verb: 'read', noun: 'PatientPortalRegistration' },
+
+  { verb: 'create', noun: 'PatientPortalForm' },
+  { verb: 'read', noun: 'PatientPortalForm' },
+  { verb: 'delete', noun: 'PatientPortalForm' },
+
   { verb: 'read', noun: 'SensitiveMedication' },
   { verb: 'list', noun: 'SensitiveMedication' },
   { verb: 'create', noun: 'SensitiveMedication' },

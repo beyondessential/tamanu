@@ -4,20 +4,19 @@ import PrintIcon from '@material-ui/icons/Print';
 import ShoppingCart from '@material-ui/icons/ShoppingCart';
 import { Box } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
+import { ButtonWithPermissionCheck, Button, TextButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { MedicationModal } from '../../../components/Medication/MedicationModal';
 import { PharmacyOrderModal } from '../../../components/Medication/PharmacyOrderModal';
 import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting';
 import { EncounterMedicationTable } from '../../../components/Medication/MedicationTable';
 import {
-  ButtonWithPermissionCheck,
   NoteModalActionBlocker,
-  Button,
-  TextButton,
 } from '../../../components';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { Colors, PRESCRIPTION_TYPES } from '../../../constants';
+import { PRESCRIPTION_TYPES } from '../../../constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { PrescriptionTypeModal } from '../../../components/Medication/PrescriptionTypeModal';
 import { MedicationSetModal } from '../../../components/Medication/MedicationSetModal';
@@ -115,7 +114,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const canCreatePrescription = ability.can('create', 'Medication');
   const canImportOngoingPrescriptions =
     !!importableOngoingPrescriptions?.length && !isEncounterDischarged;
-  const canAccessMar = ability.can('read', 'MedicationAdministration');
+  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   const handleNavigateToMar = () => {
     // Navigate to the medication tab first to ensure it will be back to the same tab after navigating to the MAR

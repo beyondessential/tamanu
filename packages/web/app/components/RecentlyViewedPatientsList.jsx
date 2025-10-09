@@ -7,7 +7,7 @@ import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
-import { Colors } from '../constants';
+import { Colors } from '../constants/styles';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 import { TranslatedSex, TranslatedText } from './Translation';
@@ -200,7 +200,7 @@ const Card = ({ patient, handleClick, patientPerPage, isDashboard, index }) => {
         </CapitalizedCardText>
         <CardText $isDashboard={isDashboard} data-testid={`cardtext-i2bu-${index}`}>
           <TranslatedText
-            stringId="general.dateOfBirth.label"
+            stringId="general.dateOfBirth.label.short"
             fallback="DOB"
             data-testid={`translatedtext-7ljq-${index}`}
           />

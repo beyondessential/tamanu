@@ -1,15 +1,13 @@
 import React from 'react';
 import PrintIcon from '@material-ui/icons/Print';
 import styled from 'styled-components';
+import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
-import { Modal } from './Modal';
 import { Table } from './Table';
-import { Button } from './Button';
-import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
-import { TranslatedReferenceData } from './Translation';
 
 const SectionSpacing = styled.div`
   height: 14px;
@@ -47,10 +45,9 @@ const COLUMNS = [
         data-testid="translatedtext-fah5"
       />
     ),
-    accessor: ({ answer, sourceType, type, originalBody, componentConfig, dataElementId }) => (
+    accessor: ({ answer, type, originalBody, componentConfig, dataElementId }) => (
       <SurveyAnswerResult
         answer={answer}
-        sourceType={sourceType}
         type={type}
         data-testid="surveyanswerresult-dhnv"
         originalBody={originalBody}
@@ -126,11 +123,16 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
     .filter(shouldShow)
     .map(component => {
       const { dataElement, id, config } = component;
-      const { type, name, id: dataElementId } = dataElement;
+      const { type: originalType, name, id: dataElementId } = dataElement;
       const answerObject = answers.find(a => a.dataElementId === dataElement.id);
       const answer = answerObject?.body;
       const originalBody = answerObject?.originalBody;
       const sourceType = answerObject?.sourceType;
+      const sourceConfig = answerObject?.sourceConfig;
+      const componentConfig =
+        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceConfig : config;
+      const type =
+        originalType === PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER ? sourceType : originalType;
 
       return {
         id,
@@ -145,8 +147,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose, onPrint 
             fallback={name}
           />
         ),
-        sourceType,
-        componentConfig: config,
+        componentConfig,
       };
     })
     .filter(r => r.answer !== undefined);

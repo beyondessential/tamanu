@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 
-import { Colors } from '../../constants';
+import { Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+
+import { useLabTestQuery } from '../../api/queries/useLabTestQuery';
 import { DateDisplay } from '../../components/DateDisplay';
-import { Modal } from '../../components/Modal';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { BodyText } from '../../components/Typography';
-import { TranslatedText, TranslatedReferenceData } from '../../components/Translation';
 
 const ModalBody = styled.div`
   display: grid;

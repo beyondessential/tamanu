@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
-import { InvalidOperationError, NotFoundError } from '@tamanu/shared/errors';
+import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   PATIENT_DEATH_FULL_SCHEMA,
@@ -81,7 +81,7 @@ patientDeath.get(
     if (deathData) {
       await req.audit.access({
         recordId: deathData.id,
-        params,
+        frontEndContext: params,
         model: PatientDeathData,
         facilityId,
       });

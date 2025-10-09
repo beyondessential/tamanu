@@ -15,7 +15,7 @@ import {
 import { fakeUUID } from '@tamanu/utils/generateId';
 import {
   getModelsForPull,
-  findSyncSnapshotRecords,
+  findSyncSnapshotRecordsOrderByDependency,
   createSnapshotTable,
   dropMarkedForSyncPatientsTable,
   SYNC_SESSION_DIRECTION,
@@ -106,6 +106,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistration,
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
+      PortalSurveyAssignment,
       Permission,
       ReportDefinitionVersion,
       Setting,
@@ -385,6 +386,14 @@ describe('Sync Lookup data', () => {
         surveyId: survey.id,
         option: '{"foo":"bar"}',
         config: '{"source": "ReferenceData", "where": {"type": "facility"}}',
+      }),
+    );
+    await PortalSurveyAssignment.create(
+      fake(PortalSurveyAssignment, {
+        patientId: patient.id,
+        surveyId: survey.id,
+        assignedById: examiner.id,
+        facilityId: facility.id,
       }),
     );
     const surveyResponse = await SurveyResponse.create(
@@ -775,8 +784,8 @@ describe('Sync Lookup data', () => {
       );
     }
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -835,8 +844,8 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -966,8 +975,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1015,8 +1024,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1063,8 +1072,8 @@ describe('Sync Lookup data', () => {
           simplestConfig,
         );
 
-        const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-          ctx.store.sequelize,
+        const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+          ctx.store,
           sessionId,
           SYNC_SESSION_DIRECTION.OUTGOING,
         );
@@ -1123,8 +1132,8 @@ describe('Sync Lookup data', () => {
       simplestConfig,
     );
 
-    const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-      ctx.store.sequelize,
+    const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+      ctx.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
     );
@@ -1261,8 +1270,8 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1347,8 +1356,8 @@ describe('Sync Lookup data', () => {
         );
       }
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );
@@ -1484,8 +1493,8 @@ describe('Sync Lookup data', () => {
         config,
       );
 
-      const outgoingSnapshotRecords = await findSyncSnapshotRecords(
-        ctx.store.sequelize,
+      const outgoingSnapshotRecords = await findSyncSnapshotRecordsOrderByDependency(
+        ctx.store,
         sessionId,
         SYNC_SESSION_DIRECTION.OUTGOING,
       );

@@ -65,21 +65,27 @@ EXPOSE 3000
 ENV NODE_CONFIG_DIR=/config:/app/packages/${PACKAGE_PATH}/config
 
 
-## Build the frontend
-FROM build-base AS build-frontend
+## Build the frontend packages (web or patient-portal)
+FROM build-base AS build-frontend-base
+ARG PACKAGE_PATH
 RUN apk add zstd brotli
 COPY packages/ packages/
-RUN scripts/docker-build.sh web
+RUN scripts/docker-build.sh ${PACKAGE_PATH}
 
-
-## Minimal image to serve the frontend
-FROM alpine AS frontend
+## Minimal image to serve frontend packages
+FROM alpine AS frontend-base
+ARG PACKAGE_PATH
 WORKDIR /app
 ENTRYPOINT ["/usr/bin/caddy"]
 CMD ["run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
 COPY --from=caddy:2-alpine /usr/bin/caddy /usr/bin/caddy
-COPY packages/web/Caddyfile.docker /etc/caddy/Caddyfile
-COPY --from=build-frontend /app/packages/web/dist/ .
+COPY packages/${PACKAGE_PATH}/Caddyfile.docker /etc/caddy/Caddyfile
+COPY --from=build-frontend-base /app/packages/${PACKAGE_PATH}/dist/ .
+
+## Specific targets for each frontend
+FROM frontend-base AS frontend
+
+FROM frontend-base AS patient-portal
 
 
 ## Toolbox image
@@ -106,7 +112,7 @@ RUN apt update && apt install -y --no-install-recommends \
   zstd
 RUN \
   curl -L --proto '=https' --tlsv1.2 -sSf -o step-cli.deb \
-    "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
+  "https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_$(dpkg --print-architecture).deb" \
   && dpkg -i step-cli.deb \
   && rm step-cli.deb
 RUN \

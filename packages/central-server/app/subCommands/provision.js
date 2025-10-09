@@ -1,7 +1,8 @@
 import { resolve } from 'node:path';
 import { Command } from 'commander';
-import { defaultsDeep } from 'lodash';
+import { defaultsDeep, keyBy } from 'lodash';
 import { Op } from 'sequelize';
+import { readFile, utils } from 'xlsx';
 
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
@@ -15,15 +16,47 @@ import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 import { loadSettingFile } from '../utils/loadSettingFile';
 import { referenceDataImporter } from '../admin/referenceDataImporter';
+import { normaliseSheetName } from '../admin/importer/importerEndpoint';
 import { getRandomBase64String } from '../auth/utils';
 import { programImporter } from '../admin/programImporter/programImporter';
+
+/**
+ * Validates that a reference data file contains all sheets importable through the reference data importer
+ * @param {string} file - File path
+ */
+function validateFullReferenceDataImport(file) {
+  // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
+
+  log.debug('Parse XLSX workbook for validation');
+  const workbook = readFile(file);
+  const sheetNameDictionary = keyBy(Object.keys(workbook.Sheets), normaliseSheetName);
+
+  // Check all required data types are present and have data
+  const missingDataTypes = [];
+  for (const dataType of GENERAL_IMPORTABLE_DATA_TYPES) {
+    if (EXCLUDED_FROM_FULL_IMPORT_CHECK.includes(dataType)) continue;
+    const sheetName = sheetNameDictionary[dataType];
+    if (!sheetName || utils.sheet_to_json(workbook.Sheets[sheetName]).length === 0) {
+      missingDataTypes.push(dataType);
+    }
+  }
+
+  if (missingDataTypes.length > 0) {
+    throw new Error(
+      `Reference data file has no rows for the following data types:\n${missingDataTypes.join('\n')}`,
+    );
+  }
+
+  log.info('Reference data file validation passed - all required sheets contain data');
+}
 
 export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count({
     where: {
       id: { [Op.ne]: SYSTEM_USER_UUID },
-    }
+    },
   });
 
   if (userCount > 0) {
@@ -64,9 +97,23 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   for (const {
     file: referenceDataFile = null,
     url: referenceDataUrl = null,
+    defaultSpreadsheet: isUsingDefaultSpreadsheet = false,
     ...rest
   } of referenceData ?? []) {
-    if (!referenceDataFile && !referenceDataUrl) {
+    if (isUsingDefaultSpreadsheet) {
+      const defaultReferenceDataFile = resolve(__dirname, 'default-provisioning.xlsx');
+      log.info('Using reference data spreadsheet from this branch', {
+        file: defaultReferenceDataFile,
+      });
+      // We only validate the default import to ensure it stays complete. It is fine to allow partial imports through the other options.
+      validateFullReferenceDataImport(defaultReferenceDataFile);
+      await referenceDataImporter({
+        file: defaultReferenceDataFile,
+        ...importerOptions,
+      });
+    }
+
+    if (!referenceDataFile && !referenceDataUrl && !isUsingDefaultSpreadsheet) {
       throw new Error(`Unknown reference data import with keys ${Object.keys(rest).join(', ')}`);
     }
 
@@ -129,7 +176,7 @@ export async function provision(provisioningFile, { skipIfNotNeeded }) {
   const combineSettings = async (settingData, scope, facilityId) => {
     const existing = await store.models.Setting.get('', facilityId, scope);
     const combined = defaultsDeep(settingData, existing);
-    return store.models.Settings.set('', combined, scope, facilityId);
+    return store.models.Setting.set('', combined, scope, facilityId);
   };
 
   if (settings.global) {

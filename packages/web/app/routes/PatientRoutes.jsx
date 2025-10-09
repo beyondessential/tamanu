@@ -62,7 +62,7 @@ export const usePatientRoutes = () => {
   // prefetch userPreferences
   useUserPreferencesQuery();
   const { ability } = useAuth();
-  const canAccessMar = ability.can('read', 'MedicationAdministration');
+  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   return [
     {
@@ -105,7 +105,7 @@ export const usePatientRoutes = () => {
                     title: (
                       <TranslatedText
                         stringId="encounter.mar.title"
-                        fallback="Medication Admin Record"
+                        fallback="Medication admin record"
                       />
                     ),
                     subPaths: [

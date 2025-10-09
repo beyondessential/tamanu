@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { CheckInput, DataFetchingTable, Heading4, TranslatedText } from '../../components';
-import { Colors } from '../../constants';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { CheckInput, DataFetchingTable, Heading4 } from '../../components';
 import { getActionButtons, getDate, getFacility, getGiver, getVaccineName } from './accessors';
 
 const Container = styled.div`
@@ -58,7 +59,7 @@ const TableHeader = ({ includeNotGiven, setIncludeNotGiven }) => {
 const getSchedule = ({ scheduledVaccine }) => scheduledVaccine.doseLabel;
 
 export const ImmunisationsTable = React.memo(
-  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination }) => {
+  ({ patient, onItemClick, onItemEditClick, onItemDeleteClick, viewOnly, disablePagination, 'data-testid': dataTestId}) => {
     const [includeNotGiven, setIncludeNotGiven] = useState(false);
 
     const COLUMNS = useMemo(
@@ -129,7 +130,7 @@ export const ImmunisationsTable = React.memo(
           )
         }
         disablePagination={disablePagination}
-        data-testid="immunisations-table"
+        data-testid={dataTestId}
       />
     );
   },
