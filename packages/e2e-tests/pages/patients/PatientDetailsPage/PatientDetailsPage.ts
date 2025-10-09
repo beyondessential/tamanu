@@ -9,7 +9,6 @@ import { format } from 'date-fns';
 import { NotesPane } from '../NotesPage/panes/notesPane';
 import { PrepareDischargeModal } from './modals/PrepareDischargeModal';
 
-
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
@@ -69,12 +68,12 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly submitEditsButton: Locator;
   readonly labsTab: Locator;
   readonly notesTab: Locator;
-  readonly encountersList: Locator; 
+  readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton= this.page.getByTestId('mainbuttoncomponent-06gp');
+    this.prepareDischargeButton = this.page.getByTestId('mainbuttoncomponent-06gp');
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
     this.initiateNewOngoingConditionAddButton = this.page
@@ -105,7 +104,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
+    this.ongoingConditionNameWrapper = this.page.getByTestId(
+      'field-j30y-input-outerlabelfieldwrapper',
+    );
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -211,8 +212,12 @@ export class PatientDetailsPage extends BasePatientPage {
       .first();
     this.labsTab = this.page.getByTestId('styledtab-ccs8-labs');
     this.notesTab = this.page.getByTestId('styledtab-ccs8-notes');
-    this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.encountersList = this.page.getByTestId('styledtablebody-a0jz').locator('tr');
+    this.departmentLabel = this.page
+      .getByTestId('cardlabel-0v8z')
+      .filter({ hasText: 'Department' })
+      .locator('..')
+      .getByTestId('cardvalue-1v8z');
   }
 
   async navigateToVaccineTab(): Promise<PatientVaccinePane> {
@@ -223,9 +228,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientVaccinePane;
   }
 
- 
-
-    async navigateToLabsTab(): Promise<LabRequestPane> {
+  async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
@@ -246,9 +249,8 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.notesPane;
   }
 
-
   async goToPatient(patient: Patient) {
-    await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
+    await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {
