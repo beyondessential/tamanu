@@ -2,6 +2,7 @@ import * as yup from 'yup';
 
 import {
   durationStringSchema,
+  dhis2IdSchemeSchema,
   emailSchema,
   nationalityIdSchema,
   passportSchema,
@@ -209,12 +210,99 @@ export const centralSettings = {
             },
             slotDuration: {
               description:
-                'The length of each assignment slot. A single assignment may span multiple consecutive slots. Supported units: ‘min’, ‘h’.',
+                "The length of each assignment slot. A single assignment may span multiple consecutive slots. Supported units: 'min', 'h'.",
               type: durationStringSchema('slotDuration'),
               defaultValue: '30min',
             },
           },
         },        
+      },
+    },
+    integrations: {
+      description: 'Integrations with external services',
+      properties: {
+        dhis2: {
+          description: 'DHIS2 settings',
+          properties: {
+            host: {
+              description: 'The host of the DHIS2 instance',
+              type: yup
+                .string()
+                .matches(/^(?!.*\/$).*$/, 'Host URL must not end with a forward slash'),
+              defaultValue: '',
+            },
+            reportIds: {
+              name: 'Reports',
+              description: 'The IDs of the reports to send to DHIS2',
+              type: yup.array(yup.string().min(1)),
+              defaultValue: [],
+              suggesterEndpoint: 'reportDefinition',
+            },
+            // Descriptions and allowed values taken from https://docs.dhis2.org/en/develop/using-the-api/dhis-core-version-239/data.html#webapi_data_values_import_parameters
+            idSchemes: {
+              description: 'The ID schemes to use for the reports',
+              properties: {
+                dataElementIdScheme: {
+                  name: 'Data element ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                orgUnitIdScheme: {
+                  name: 'Organisation unit ID scheme',
+                  description: 'Property of the org unit object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                categoryOptionComboIdScheme: {
+                  name: 'Category option combo ID scheme',
+                  description:
+                    'Property of the category option combo and attribute option combo objects to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                dataSetIdScheme: {
+                  name: 'Data set ID scheme',
+                  description: 'Property of the data set object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+                idScheme: {
+                  name: 'ID scheme',
+                  description: 'Property of the data element object to use to map the data values.',
+                  type: dhis2IdSchemeSchema,
+                  defaultValue: 'uid',
+                },
+              },
+            },
+            backoff: {
+              name: 'Backoff',
+              description: 'Backoff settings',
+              properties: {
+                maxAttempts: {
+                  name: 'Max attempts',
+                  description: 'The maximum number of connection attempts',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 15,
+                },
+                multiplierMs: {
+                  name: 'Multiplier',
+                  description: 'The multiplier for the delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 300,
+                  unit: 'ms',
+                },
+                maxWaitMs: {
+                  name: 'Max wait',
+                  description: 'The delay between retries',
+                  type: yup.number().integer().positive(),
+                  defaultValue: 10000,
+                  unit: 'ms',
+                },
+              },
+            },
+          },
+        },
       },
     },
   },

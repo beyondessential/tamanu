@@ -226,6 +226,8 @@ user.get(
     const { models } = req;
     req.checkPermission('read', 'Tasking');
 
+    const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
+
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
       orderBy,
@@ -295,8 +297,8 @@ user.get(
             [Op.or]: [
               // Include all non-medication tasks
               { taskType: { [Op.ne]: TASK_TYPES.MEDICATION_DUE_TASK } },
-              // For medication_due_task, only include if there's at least one MAR that is NOT recorded AND NOT paused
-              {
+              // For medication_due_task, only include if user has medication permissions AND there's at least one MAR that is NOT recorded AND NOT paused
+              ...(hasMedicationPermission ? [{ 
                 [Op.and]: [
                   { taskType: TASK_TYPES.MEDICATION_DUE_TASK },
                   // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused
@@ -327,7 +329,7 @@ user.get(
                     )
                   `),
                 ],
-              },
+              }] : []),
             ],
           },
         ],
