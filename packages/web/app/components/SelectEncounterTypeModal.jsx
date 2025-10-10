@@ -12,7 +12,7 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
-    max-width: ${props => (props.$numberOfItems === 4 ? '950px' : '750px')};
+    max-width: 750px;
   }
 `;
 
