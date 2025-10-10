@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route } from 'react-router';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { Modal } from '../app/components/Modal';

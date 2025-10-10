@@ -2,9 +2,9 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
-import { push } from 'connected-react-router';
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
 
 import { usePatientAdditionalDataQuery } from '../../../api/queries';
 import { Colors } from '../../../constants';
@@ -55,13 +55,14 @@ export const AppointmentDetailPopper = ({
   const patientId = appointment.patient.id;
 
   const { data: additionalData } = usePatientAdditionalDataQuery(appointment.patient.id);
+  const navigate = useNavigate();
 
   const handlePatientDetailsClick = useCallback(async () => {
     await dispatch(reloadPatient(patientId));
-    dispatch(push(`/patients/all/${patientId}`));
-  }, [dispatch, patientId]);
+    navigate(`/patients/all/${patientId}`);
+  }, [dispatch, patientId, navigate]);
 
-  const handleClickAway = (e) => {
+  const handleClickAway = e => {
     if (!e.target.closest(`.${APPOINTMENT_CALENDAR_CLASS}`)) return;
     onClose();
   };
@@ -94,7 +95,7 @@ export const AppointmentDetailPopper = ({
       anchorEl={anchorEl}
       modifiers={modifiers}
       // Prevent the popper from closing when clicked
-      onClick={(e) => e.stopPropagation()}
+      onClick={e => e.stopPropagation()}
       open={open}
       placement="bottom-start"
       sx={{ zIndex: 10 }}

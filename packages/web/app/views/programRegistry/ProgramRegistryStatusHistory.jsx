@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { SURVEY_TYPES } from '@tamanu/constants';
