@@ -31,7 +31,7 @@ export const ENCOUNTER_OPTIONS = [
   // Not part of this feature but needed to do this to properly style so may as well leave it here
   // {
   //   value: ENCOUNTER_TYPES.TELEHEALTH,
-  //   icon: administrationIcon,
+  //   icon: CrossIcon,
   //   color: '#4101C9',
   //   backgroundColor: '#D9CCF4',
   //   description: 'Remote phone or video consultation',

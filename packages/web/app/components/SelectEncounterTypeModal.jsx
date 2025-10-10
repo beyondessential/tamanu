@@ -12,7 +12,7 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const SelectorGrid = styled.div`
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 1rem;
   justify-content: center;
   background-color: ${TAMANU_COLORS.white};
@@ -44,6 +44,7 @@ const EncounterOptionTypeButton = styled.div`
   border-radius: 10px;
   padding: 20px;
   padding-top: 80px;
+
   flex: 1 1 200px;
 
   span {
@@ -106,9 +107,11 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
       open={open}
       onClose={onClose}
       data-testid="modal-8456"
-      width="md"
+      width="lg" // TODO: maybe a bit too big
     >
-      <SelectorGrid data-testid="selectorgrid-000c">{items}</SelectorGrid>
+      <SelectorGrid $numberOfItems={items.length} data-testid="selectorgrid-000c">
+        {items}
+      </SelectorGrid>
     </Modal>
   );
 });
