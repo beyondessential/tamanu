@@ -107,7 +107,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
       PortalSurveyAssignment,
-      Permission, 
+      Permission,
       ReportDefinitionVersion,
       Setting,
       Template,
@@ -393,6 +393,7 @@ describe('Sync Lookup data', () => {
         patientId: patient.id,
         surveyId: survey.id,
         assignedById: examiner.id,
+        facilityId: facility.id,
       }),
     );
     const surveyResponse = await SurveyResponse.create(

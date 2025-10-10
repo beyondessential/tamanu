@@ -36,9 +36,8 @@ export const ProgramRegistrySidebarItem = ({
         const baseSecondaryPath = `${path}/${id}`;
         const secondaryPath = `${baseSecondaryPath}?name=${name}`;
         return !retracted ? (
-          <NoteModalActionBlocker>
+          <NoteModalActionBlocker key={id}>
             <SecondarySidebarItem
-              key={id}
               path={secondaryPath}
               isCurrent={currentPath.includes(baseSecondaryPath)}
               color=""

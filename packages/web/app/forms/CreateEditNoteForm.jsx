@@ -1,17 +1,12 @@
 import React, { useCallback } from 'react';
 
-import { FormSubmitCancelRow } from '../components/ButtonRow';
+import { FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import {
-  NoteContentField,
-  NoteDateTimeField,
-  NoteTemplateField,
-  NoteTypeField,
-  WrittenByField,
-} from '../components/NoteCommonFields';
+  NoteContentField, NoteDateTimeField, NoteTemplateField, NoteTypeField, WrittenByField, } from '../components/NoteCommonFields';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useApi } from '../api';
-import { NOTE_FORM_MODES, Colors } from '../constants';
-import { FormGrid } from '../components';
+import { NOTE_FORM_MODES } from '../constants';
 import {
   NoteModalDialogContent,
   NoteModalDialogActions,

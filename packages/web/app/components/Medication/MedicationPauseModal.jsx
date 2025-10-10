@@ -3,25 +3,23 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-
+import { MEDICATION_PAUSE_DURATION_UNITS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import {
-  BaseModal,
-  Field,
+  SelectField,
+  TextField,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  NumberField,
-  SelectField,
-  TextField,
+  BaseModal,
   TranslatedText,
-} from '..';
-import { Colors, FORM_TYPES } from '../../constants';
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants';
+import { Field, NumberField } from '..';
 import { useApi } from '../../api';
 import { foreignKey } from '../../utils/validation';
 import { MedicationSummary } from './MedicationSummary';
 import { preventInvalidNumber } from '../../utils';
-import { MEDICATION_PAUSE_DURATION_UNITS_LABELS } from '@tamanu/constants';
 import { add, isBefore } from 'date-fns';
 import { useEncounter } from '../../contexts/Encounter';
 

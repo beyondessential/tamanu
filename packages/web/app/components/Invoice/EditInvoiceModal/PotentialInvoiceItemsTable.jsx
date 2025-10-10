@@ -5,11 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { INVOICE_ITEMS_CATEGORY_LABELS } from '@tamanu/constants';
 import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { DataFetchingTable } from '../../Table';
 import { TranslatedEnum, TranslatedText } from '../../Translation';
 import { DateDisplay } from '../../DateDisplay';
-import { Button } from '../../Button';
-import { Colors, denseTableStyle } from '../../../constants';
+import { denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../Table/useTableSorting';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`

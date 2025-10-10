@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-import { CheckInput, DataFetchingTable, Heading4, TranslatedText } from '../../components';
-import { Colors } from '../../constants';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { CheckInput, DataFetchingTable, Heading4 } from '../../components';
 import { getActionButtons, getDate, getFacility, getGiver, getVaccineName } from './accessors';
 
 const Container = styled.div`

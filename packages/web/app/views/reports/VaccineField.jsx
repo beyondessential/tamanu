@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useApi } from '../../api';
-import { Dialog, Field, SelectField, TranslatedReferenceData } from '../../components';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
 import { uniqBy } from 'lodash';
+import {
+  SelectField,
+  TranslatedReferenceData,
+  Dialog,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { useApi } from '../../api';
+import { Field } from '../../components';
 
 export const VaccineField = ({ name = 'vaccine', required, label, parameterValues }) => {
   const api = useApi();
@@ -48,7 +53,7 @@ export const VaccineField = ({ name = 'vaccine', required, label, parameterValue
         }
         component={SelectField}
         required={required}
-        options={vaccines.map((vaccine) => ({
+        options={vaccines.map(vaccine => ({
           label: (
             <TranslatedReferenceData
               fallback={vaccine.label}

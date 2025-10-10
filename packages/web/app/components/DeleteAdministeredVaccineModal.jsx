@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
 import { VACCINE_STATUS } from '@tamanu/constants';
+import { DeleteButton } from '@tamanu/ui-components';
+
 import { useDispatch } from 'react-redux';
 import { useApi } from '../api';
 import { reloadPatient } from '../store/patient';
-import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText } from './Translation/TranslatedText';
 

@@ -1,9 +1,12 @@
-import { VACCINE_STATUS } from '@tamanu/constants';
-
 import React from 'react';
-import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
-import type { UpcomingVaccination } from '@tamanu/shared/schemas/patientPortal/responses/upcomingVaccination.schema';
-import { formatWeekOf, getVaccineStatusColor } from '@utils/format';
+import { VACCINE_STATUS } from '@tamanu/constants';
+import { Box, styled, Typography, Card, CardContent } from '@mui/material';
+import type {
+  AdministeredVaccine,
+  UpcomingVaccination,
+} from '@tamanu/shared/schemas/patientPortal';
+import { formatWeekOf } from '@utils/format';
+import { Chip } from '@components/Chip';
 
 interface UpcomingVaccineCardProps {
   vaccine: UpcomingVaccination;
@@ -14,6 +17,23 @@ const DetailsContainer = styled(Box)({
   flexDirection: 'column',
   gap: '0.5rem',
 });
+
+const getVaccineStatusColor = (status: AdministeredVaccine['status']) => {
+  switch (status) {
+    case 'SCHEDULED':
+      return 'purple';
+    case 'UPCOMING':
+      return 'blue';
+    case 'DUE':
+      return 'green';
+    case 'OVERDUE':
+      return 'orange';
+    case 'MISSED':
+      return 'red';
+    default:
+      return 'blue';
+  }
+};
 
 export const UpcomingVaccineCard: React.FC<UpcomingVaccineCardProps> = ({ vaccine }) => {
   return (

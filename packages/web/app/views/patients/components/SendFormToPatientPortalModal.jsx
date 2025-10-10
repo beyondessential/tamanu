@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   BodyText,
@@ -97,12 +97,10 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
   >
     <ModalBody>
       <BodyText>
-        <strong>
-          <TranslatedText
-            stringId="program.modal.existingFormRequestPending.warning"
-            fallback="This form has already been sent to the patient portal and a response is pending. Are you sure you would like to send it again?"
-          />
-        </strong>
+        <TranslatedText
+          stringId="program.modal.existingFormRequestPending.warning"
+          fallback="This form has already been sent to the patient portal and a response is pending. Are you sure you would like to send it again?"
+        />
       </BodyText>
       <br />
       <BodyText>
@@ -116,10 +114,7 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
       onCancel={onClose}
       onConfirm={onSubmit}
       confirmText={
-        <TranslatedText
-          stringId="program.action.sendToPatientPortal"
-          fallback="Send to patient portal"
-        />
+        <TranslatedText stringId="program.action.sendReminder" fallback="Send reminder" />
       }
     />
   </Modal>

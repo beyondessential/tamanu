@@ -2,15 +2,30 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
-import { REPEATS_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
+import {
+  REPEATS_LABELS,
+  FORM_TYPES,
+  SUBMIT_ATTEMPTED_STATUS,
+  ENCOUNTER_TYPES,
+} from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
+import {
+  TextField,
+  StyledTextField,
+  TranslatedSelectField,
+  TextInput,
+  FormGrid,
+  FormConfirmCancelBackRow,
+  FormSubmitButton,
+  MODAL_PADDING_LEFT_AND_RIGHT,
+  MODAL_PADDING_TOP_AND_BOTTOM,
+} from '@tamanu/ui-components';
 import { format, getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Divider as BaseDivider, Box, IconButton as BaseIconButton } from '@material-ui/core';
-import { Colors, FORM_STATUSES, FORM_TYPES } from '../constants';
 import { useApi } from '../api';
 import { foreignKey } from '../utils/validation';
-
+import { Colors } from '../constants';
 import {
   AutocompleteField,
   CheckField,
@@ -18,27 +33,15 @@ import {
   Field,
   LocalisedField,
   PaginatedForm,
-  StyledTextField,
-  TextField,
-  TranslatedSelectField,
   useLocalisedSchema,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
-import { TextInput } from '../components/Field/TextField';
-import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
 
-import { FormConfirmCancelBackRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import {
-  BodyText,
-  FormSubmitButton,
-  MODAL_PADDING_LEFT_AND_RIGHT,
-  MODAL_PADDING_TOP_AND_BOTTOM,
-  SmallBodyText,
-} from '../components';
+import { BodyText, SmallBodyText } from '../components';
 import { TranslatedText, TranslatedReferenceData } from '../components/Translation';
 import { useSettings } from '../contexts/Settings';
 import { ConditionalTooltip } from '../components/Tooltip';
@@ -399,7 +402,9 @@ const EncounterOverview = ({
   currentDiagnoses,
 }) => {
   const { getSetting } = useSettings();
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory') && encounterType !== ENCOUNTER_TYPES.CLINIC;
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounterType !== ENCOUNTER_TYPES.CLINIC;
 
   return (
     <>
@@ -504,7 +509,9 @@ const DischargeFormScreen = props => {
   const { getSetting } = useSettings();
   const { encounter } = useEncounter();
 
-  const dischargeDiagnosisMandatory = getSetting('features.discharge.dischargeDiagnosisMandatory') && encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
+  const dischargeDiagnosisMandatory =
+    getSetting('features.discharge.dischargeDiagnosisMandatory') &&
+    encounter.encounterType !== ENCOUNTER_TYPES.CLINIC;
   const isDiagnosisEmpty = !currentDiagnoses.length && dischargeDiagnosisMandatory;
 
   const handleStepForward = async isSavedForm => {
@@ -519,7 +526,7 @@ const DischargeFormScreen = props => {
       // Hacky, set to SUBMIT_ATTEMPTED status to view error before summary page
       // without hitting submit button, it works with one page only. Ideally we should
       // have Pagination form component to handle this.
-      setStatus({ ...status, submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+      setStatus({ ...status, submitStatus: SUBMIT_ATTEMPTED_STATUS });
     } else {
       onStepForward();
     }

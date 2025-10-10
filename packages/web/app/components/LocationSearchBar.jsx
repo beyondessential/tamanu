@@ -1,10 +1,10 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 import SearchIcon from '@material-ui/icons/Search';
-import { FormSubmitButton } from './Button';
-import { Field, Form, TextField } from './Field';
+import { TextField, Form, FormSubmitButton } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { Field } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
-import { Colors } from '../constants';
 
 const Container = styled.div`
   border: 1px solid ${Colors.outline};

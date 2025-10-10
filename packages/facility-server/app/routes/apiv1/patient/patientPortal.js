@@ -101,7 +101,7 @@ const sendPortalEmail = async ({ patient, email, models, settings, facilityId, e
 patientPortal.get(
   '/:id/portal/status',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortal');
+    req.checkPermission('read', 'PatientPortalRegistration');
 
     const { models } = req;
     const { id: patientId } = req.params;
@@ -129,7 +129,7 @@ patientPortal.get(
 patientPortal.post(
   '/:id/portal/register',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'PatientPortal');
+    req.checkPermission('create', 'PatientPortalRegistration');
     const { models, settings, body } = req;
     const { id: patientId } = req.params;
     const { email, facilityId } = body;
@@ -178,6 +178,7 @@ patientPortal.post(
       if (!email) {
         throw new ValidationError('You must provide an email to send the form.');
       }
+      req.checkPermission('create', 'PatientPortalRegistration');
       await registerPatient({ patientId: patient.id, models, email });
       await sendPortalEmail({
         patient,
@@ -202,9 +203,23 @@ patientPortal.post(
       });
     }
 
+    const existingAssignment = await models.PortalSurveyAssignment.findOne({
+      where: {
+        patientId,
+        surveyId: survey.id,
+        status: PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
+      },
+    });
+
+    // Don't create an assignment if there is already a pending one
+    if (existingAssignment) {
+      return res.send(existingAssignment);
+    }
+
     const portalSurveyAssignment = await models.PortalSurveyAssignment.create({
       patientId: patient.id,
       surveyId: survey.id,
+      facilityId,
       assignedById: user.id,
       assignedAt: assignedAt,
     });
@@ -213,10 +228,17 @@ patientPortal.post(
   }),
 );
 
+const sortKeys = {
+  assignedAt: 'assignedAt',
+  assignedBy: 'assignedBy.displayName',
+  form: 'survey.name',
+  program: 'survey.program.name',
+};
+
 patientPortal.get(
   '/:id/portal/forms',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'PatientPortalForm');
+    req.checkPermission('list', 'PatientPortalForm');
 
     const { models, query } = req;
     const { id: patientId } = req.params;
@@ -227,7 +249,7 @@ patientPortal.get(
     const {
       page = 0,
       rowsPerPage = 25,
-      order = 'ASC',
+      order = 'DESC',
       orderBy = 'assignedAt',
       status = PORTAL_SURVEY_ASSIGNMENTS_STATUSES.OUTSTANDING,
       all = false,
@@ -274,9 +296,11 @@ patientPortal.get(
       return;
     }
 
+    const sortKey = sortKeys[orderBy];
+
     const portalSurveyAssignments = await models.PortalSurveyAssignment.findAll({
       ...baseQueryOptions,
-      order: orderBy ? [[...orderBy.split('.'), order.toUpperCase()]] : [['assignedAt', 'DESC']],
+      order: [[...sortKey.split('.'), order.toUpperCase()]],
       limit: all ? undefined : rowsPerPage,
       offset,
     });
