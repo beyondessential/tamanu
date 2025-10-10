@@ -28,14 +28,14 @@ export const ENCOUNTER_OPTIONS = [
     backgroundColor: '#FEF3E8',
     description: 'Emergency assessment and care',
   },
-  // Not part of this feature but needed to do this to properly style so may as well leave it here
-  // {
-  //   value: ENCOUNTER_TYPES.TELEHEALTH,
-  //   icon: CrossIcon,
-  //   color: '#4101C9',
-  //   backgroundColor: '#D9CCF4',
-  //   description: 'Remote phone or video consultation',
-  // },
+  // Not for prod yet but needed to do this to properly style and coming in next card so may as well leave it here
+  {
+    value: ENCOUNTER_TYPES.TELEHEALTH,
+    icon: CrossIcon,
+    color: '#4101C9',
+    backgroundColor: '#D9CCF4',
+    description: 'Remote phone or video consultation',
+  },
   {
     value: ENCOUNTER_TYPES.IMAGING,
     image: radiologyIcon,
