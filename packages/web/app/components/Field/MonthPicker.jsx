@@ -20,6 +20,7 @@ const StyledPopper = styled(Popper)`
   font-size: 0.875rem;
   line-height: 1.35;
   font-variant-numeric: lining-nums tabular-nums;
+  z-index: 20;
 
   .MuiPaper-root {
     border: max(0.0625rem, 1px) solid ${Colors.outline};

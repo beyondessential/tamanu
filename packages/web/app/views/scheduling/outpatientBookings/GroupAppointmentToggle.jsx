@@ -47,7 +47,7 @@ ToggleButton.defaultProps = { role: 'radio' };
 const AnimatedBackground = styled('div')`
   position: absolute;
   width: 6.6rem;
-  left: 0.2rem;
+  left: 0.18rem;
   height: 2rem;
   border-radius: 50px;
   background-color: ${Colors.primary};
