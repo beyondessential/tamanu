@@ -214,7 +214,7 @@ usersRouter.post(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: fields.displayName,
+        displayName: { [Op.iLike]: fields.displayName },
       },
     });
     if (existingUserWithSameDisplayName) {
@@ -318,7 +318,7 @@ usersRouter.post(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: fields.displayName,
+        displayName: { [Op.iLike]: fields.displayName },
       },
     });
 
@@ -395,7 +395,7 @@ usersRouter.put(
 
     const existingUserWithSameDisplayName = await User.findOne({
       where: {
-        displayName: fields.displayName,
+        displayName: { [Op.iLike]: fields.displayName },
         id: { [Op.ne]: id },
       },
     });

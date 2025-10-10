@@ -32,7 +32,6 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import {
   ASSIGNMENT_SCHEDULE_INITIAL_VALUES,
   BOOKING_SLOT_TYPES,
-  INITIAL_UNTIL_DATE_MONTHS_INCREMENT,
   MODIFY_REPEATING_ASSIGNMENT_MODE,
 } from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
@@ -47,10 +46,11 @@ import {
 import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
-import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
-import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
-import { OverlappingLeavesModal } from './OverlappingLeavesModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useSettings } from '../../../contexts/Settings';
+import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
+import { OverlappingLeavesModal } from './OverlappingLeavesModal';
+import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -99,6 +99,8 @@ const StyledButton = styled(Button)`
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
+  const { getSetting } = useSettings();
+  const maxFutureMonths = getSetting('locationAssignments.assignmentMaxFutureMonths') || 24;
 
   const { ability } = useAuth();
   const hasWritePermission = ability?.can?.('write', 'LocationSchedule');
@@ -409,8 +411,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate ||
-          toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
+        initialUntilDate || toDateString(add(startTimeDate, { months: maxFutureMonths })),
       );
     };
 
@@ -519,6 +520,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
+            max={format(add(new Date(), { months: 24 }), 'yyyy-MM-dd')}
             onChange={handleUpdateDate}
             required
             saveDateAsString
@@ -563,6 +565,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
               readonly={isViewing && !isEditingMultipleRepeatingAssignments}
+              maxFutureMonths={maxFutureMonths}
               data-testid="repeatingappointmentfields-xd2i"
             />
           )}
