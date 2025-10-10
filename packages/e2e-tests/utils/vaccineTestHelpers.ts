@@ -273,3 +273,26 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
 
   return formattedUtcWeekStart;
 }
+
+/**
+ * Tests given elsewhere functionality across vaccine categories
+ * @param patientDetailsPage - The patient details page
+ * @param newPatientWithHospitalAdmission - The new patient with hospital admission
+ * @param category - The category of the vaccine
+ */
+  export async function testGivenElsewhereForCategory(
+    patientDetailsPage: PatientDetailsPage,
+    newPatientWithHospitalAdmission: any,
+    category: 'Routine' | 'Catchup' | 'Campaign' | 'Other'
+  ) {
+    const givenElsewhereReason = 'Given overseas';
+    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.navigateToVaccineTab();
+
+    await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+      vaccineGivenElsewhere: givenElsewhereReason,
+      specificDate: currentBrowserDate,
+      viewVaccineRecord: true,
+    });
+  }

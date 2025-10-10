@@ -5,6 +5,7 @@ import {
   triggerDateError,
   editVaccine,
   assertEditedVaccine,
+  testGivenElsewhereForCategory,
 } from '@utils/vaccineTestHelpers';
 
 test.describe('Vaccines', () => {
@@ -13,23 +14,23 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.navigateToVaccineTab();
   });
 
-  test('Add a routine vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1001]Add a routine vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine');
   });
 
-  test('Add a catchup vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1002]Add a catchup vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Catchup');
   });
 
-  test('Add a campaign vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1003]Add a campaign vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Campaign');
   });
 
-  test('Add an other vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0434][AT-1004]Add an other vaccine', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other');
   });
 
-  test('Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
+  test('[T-0432][T-0434][AT-1005]Add multiple vaccines of different types', async ({ patientDetailsPage }) => {
     test.setTimeout(45000);
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, { specificVaccine: 'MMR' });
@@ -44,23 +45,23 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
+  test('[T-0438][AT-1011]Add a routine vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0);
   });
 
-  test('Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
+  test('[T-0438][AT-1012]Add a catchup vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 0);
   });
 
-  test('Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
+  test('[T-0438][AT-1013]Add a campaign vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Campaign', 0);
   });
 
-  test('Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
+  test('[T-0440][AT-1014]Add an other vaccine (not given)', async ({ patientDetailsPage }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0);
   });
 
-  test('Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
+  test('[T-0432][T-0438][T-0440][AT-1027]Add multiple vaccines with different given statuses', async ({ patientDetailsPage }) => {
     test.setTimeout(45000);
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, { specificVaccine: 'IPV' });
     await addVaccineAndAssert(patientDetailsPage, false, 'Catchup', 1, { specificVaccine: 'HPV' });
@@ -72,7 +73,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add vaccine and view vaccine record with just required fields filled', async ({
+  test('[T-0432][AT-1028]Add vaccine and view vaccine record with just required fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -82,7 +83,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Select not given, add vaccine and view vaccine record with just required fields filled', async ({
+  test('[T-0438][AT-1029]Select not given, add vaccine and view vaccine record with just required fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
@@ -92,7 +93,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add other vaccine and view vaccine record with just required fields filled', async ({
+  test('[T-0434][AT-1030]Add other vaccine and view vaccine record with just required fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
@@ -102,7 +103,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Select not given, add other vaccine and view vaccine record with just required fields filled', async ({
+  test('[T-0440][AT-1031]Select not given, add other vaccine and view vaccine record with just required fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, {
@@ -112,7 +113,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add vaccine and view vaccine record with optional fields filled', async ({
+  test('[T-0432][AT-1032]Add vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -122,7 +123,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add other vaccine and view vaccine record with optional fields filled', async ({
+  test('[T-0434][AT-1033]Add other vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
@@ -132,7 +133,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Select not given, add other vaccine and view vaccine record with optional fields filled', async ({
+  test('[T-0440][AT-1034]Select not given, add other vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Other', 0, {
@@ -142,7 +143,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Select not given, add vaccine and view vaccine record with optional fields filled', async ({
+  test('[T-0438][AT-1035]Select not given, add vaccine and view vaccine record with optional fields filled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
@@ -152,7 +153,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add multiple different vaccines and view each of their vaccine records', async ({
+  test('[T-0432][T-0434][AT-1036]Add multiple different vaccines and view each of their vaccine records', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
@@ -174,7 +175,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add multiple doses of the same vaccine and confirm the first dose is disabled', async ({
+  test('[T-0432][AT-1037]Add multiple doses of the same vaccine and confirm the first dose is disabled', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -190,7 +191,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('When a vaccine has all doses administered remove it from dropdown', async ({
+  test('[T-0432][AT-1038]When a vaccine has all doses administered remove it from dropdown', async ({
     patientDetailsPage,
   }) => {
     const category = 'Routine';
@@ -214,7 +215,7 @@ test.describe('Vaccines', () => {
     await recordVaccineModal.assertVaccineNotSelectable(vaccineName, category);
   });
 
-  test('Select not given when giving the second scheduled dose of a vaccine', async ({
+  test('[T-0438][AT-1039]Select not given when giving the second scheduled dose of a vaccine', async ({
     patientDetailsPage,
   }) => {
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
@@ -230,7 +231,7 @@ test.describe('Vaccines', () => {
     });
   });
 
-  test('Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1040]Add vaccine and confirm default date is today', async ({ patientDetailsPage }) => {
     const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
 
     await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
@@ -240,7 +241,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Add vaccine with custom date given', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1041]Add vaccine with custom date given', async ({ patientDetailsPage }) => {
     //Date is one year ago - a patient is always 18+ years old so this avoids any validation errors
     const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     const dateGiven = offsetYear(currentBrowserDate, 'decrease', 1);
@@ -255,7 +256,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Date given cannot be before patient date of birth', async ({
+  test('[T-0432][AT-1042]Date given cannot be before patient date of birth', async ({
     patientDetailsPage,
     newPatient,
   }) => {
@@ -266,7 +267,7 @@ test.describe('Vaccines', () => {
     await triggerDateError(patientDetailsPage, dateBeforePatientDob, expectedErrorMessage);
   });
 
-  test('Date given cannot be in the future', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1043]Date given cannot be in the future', async ({ patientDetailsPage }) => {
     const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
     const futureDateGiven = offsetYear(currentBrowserDate, 'increase', 1);
     const expectedErrorMessage = 'Date cannot be in the future';
@@ -275,7 +276,7 @@ test.describe('Vaccines', () => {
     await triggerDateError(patientDetailsPage, futureDateGiven, expectedErrorMessage);
   });
 
-  test('Mandatory fields must be filled', async ({ patientDetailsPage }) => {
+  test('[T-0432][AT-1044]Mandatory fields must be filled', async ({ patientDetailsPage }) => {
     const expectedAreaAndLocationError =
       'locationId must be a `string` type, but the final value was: `null`';
     const expectedDepartmentError =
@@ -316,7 +317,7 @@ test.describe('Vaccines', () => {
     ).toContainText(genericExpectedError);
   });
 
-  test('Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
+  test('[T-0441][AT-1015]Edit a vaccine and edit all fields', async ({ patientDetailsPage }) => {
     const given = true;
     const category = 'Routine';
     const fillOptionalFields = true;
@@ -344,7 +345,7 @@ test.describe('Vaccines', () => {
     await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
-  test('Edit a vaccine and fill fields that were originally skipped', async ({
+  test('[T-0441][AT-1016]Edit a vaccine and fill fields that were originally skipped', async ({
     patientDetailsPage,
   }) => {
     const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
@@ -368,7 +369,7 @@ test.describe('Vaccines', () => {
     await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
-  test('Edit unique fields for other vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0441][AT-1017]Edit unique fields for other vaccine', async ({ patientDetailsPage }) => {
     const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Other', 1, {
       specificVaccine: 'Test Vaccine',
       fillOptionalFields: true,
@@ -391,7 +392,7 @@ test.describe('Vaccines', () => {
     await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
-  test('Edit unique fields for not given vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0441][AT-1018]Edit unique fields for not given vaccine', async ({ patientDetailsPage }) => {
     const vaccine = await addVaccineAndAssert(patientDetailsPage, false, 'Routine', 0, {
       specificVaccine: 'Hep B',
       fillOptionalFields: true,
@@ -417,7 +418,7 @@ test.describe('Vaccines', () => {
     await assertEditedVaccine(patientDetailsPage, editedVaccine);
   });
 
-  test('Edit one vaccine when multiple are present', async ({ patientDetailsPage }) => {
+  test('[T-0441][AT-1019]Edit one vaccine when multiple are present', async ({ patientDetailsPage }) => {
     const firstVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Catchup', 1);
 
     const secondVaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
@@ -439,7 +440,7 @@ test.describe('Vaccines', () => {
     await assertEditedVaccine(patientDetailsPage, secondVaccine);
   });
 
-  test('Validation works when editing a vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0441][AT-1020]Validation works when editing a vaccine', async ({ patientDetailsPage }) => {
     const vaccine = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
 
     if (!vaccine) {
@@ -457,7 +458,7 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.editVaccineModal?.assertRequiredFieldErrors();
   });
 
-  test('Delete a vaccine', async ({ patientDetailsPage }) => {
+  test('[T-0443][AT-1021]Delete a vaccine', async ({ patientDetailsPage }) => {
     const vaccineToDelete = await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1);
     const vaccineToKeep = await addVaccineAndAssert(patientDetailsPage, true, 'Campaign', 2);
     const vaccineCountAfterDeletion = 1;
@@ -479,7 +480,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with 1 dose)', async ({
+  test('[T-0445][AT-1022]Vaccine does not appear in dropdown if all doses have been given (vaccine with 1 dose)', async ({
     patientDetailsPage,
   }) => {
     const category = 'Routine';
@@ -501,7 +502,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Vaccine does not appear in dropdown if all doses have been given (vaccine with multiple doses)', async ({
+  test('[T-0445][AT-1023]Vaccine does not appear in dropdown if all doses have been given (vaccine with multiple doses)', async ({
     patientDetailsPage,
   }) => {
     const category = 'Routine';
@@ -531,7 +532,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Not given vaccines should be hidden if there is a corresponding given vaccine (desktop only)', async ({
+  test('[T-0447][AT-1024]Not given vaccines should be hidden if there is a corresponding given vaccine (desktop only)', async ({
     patientDetailsPage,
   }) => {
     const uniqueVaccineName = 'Hep B';
@@ -576,7 +577,7 @@ test.describe('Vaccines', () => {
     );
   });
 
-  test('Recorded vaccines table can be sorted by clicking column headers', async ({
+  test('[T-0448][AT-1025]Recorded vaccines table can be sorted by clicking column headers', async ({
     patientDetailsPage,
   }) => {
     const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
@@ -619,7 +620,7 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.assertVaccineOrder(vaccines, 'date', 'asc');
   });
 
-  test('Location is prefilled for patients with active encounter', async ({
+  test('[T-0449][AT-1026]Location is prefilled for patients with active encounter', async ({
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
@@ -662,23 +663,35 @@ test.describe('Vaccines', () => {
     await patientDetailsPage.patientVaccinePane?.viewVaccineRecordAndAssert(vaccine);
   });
 
-  test('Record given elsewhere for patient with active encounter', async ({
+  test('[T-0435][AT-1006]Record given elsewhere for Routine vaccine', async ({
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
-    const givenElsewhereReason = 'Given overseas';
-    const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.navigateToVaccineTab();
-
-    await addVaccineAndAssert(patientDetailsPage, true, 'Routine', 1, {
-      vaccineGivenElsewhere: givenElsewhereReason,
-      specificDate: currentBrowserDate,
-      viewVaccineRecord: true,
-    });
+    await testGivenElsewhereForCategory(patientDetailsPage, newPatientWithHospitalAdmission, 'Routine');
   });
 
-  test('Date field can be empty when vaccine is given elsewhere', async ({
+  test('[T-0435][AT-1007]Record given elsewhere for Catchup vaccine', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    await testGivenElsewhereForCategory(patientDetailsPage, newPatientWithHospitalAdmission, 'Catchup');
+  });
+
+  test('[T-0435][AT-1008]Record given elsewhere for Campaign vaccine', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+    await testGivenElsewhereForCategory(patientDetailsPage, newPatientWithHospitalAdmission, 'Campaign');
+  });
+
+  test('[T-0437][AT-1009]Record given elsewhere for Other vaccine', async ({
+    newPatientWithHospitalAdmission,
+    patientDetailsPage,
+  }) => {
+   await testGivenElsewhereForCategory(patientDetailsPage, newPatientWithHospitalAdmission, 'Other');
+  });
+
+  test('[T-0435][AT-1010]Date field can be empty when vaccine is given elsewhere', async ({
     newPatientWithHospitalAdmission,
     patientDetailsPage,
   }) => {
