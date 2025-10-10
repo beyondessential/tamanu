@@ -8,7 +8,7 @@ export const useLogin = () => {
   const navigate = useNavigate();
 
   return useMutation<LoginResponse, Error, LoginCredentials>({
-    mutationFn: (credentials: LoginCredentials) => api.login(credentials),
+    mutationFn: (credentials: LoginCredentials) => api.tokenLogin(credentials),
     onSuccess: async () => {
       navigate('/');
     },

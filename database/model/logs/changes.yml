@@ -98,3 +98,6 @@ sources:
           - name: reason
             data_type: text
             description: "{{ doc('logs__changes__reason') }}"
+          - name: migration_context
+            data_type: text
+            description: "{{ doc('logs__changes__migration_context') }}"

@@ -32,7 +32,7 @@ export const usePatientRoutes = () => {
   // prefetch userPreferences
   useUserPreferencesQuery();
   const { ability } = useAuth();
-  const canAccessMar = ability.can('read', 'MedicationAdministration');
+  const canAccessMar = ability.can('list', 'MedicationAdministration');
 
   return [
     {
