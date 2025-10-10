@@ -16,6 +16,10 @@ export class EnterResultsModal {
   readonly verificationFirstRow!: Locator;
   readonly completedDateFirstRow!: Locator;
   readonly labTestTypeTitle!: Locator;
+  
+  // Dropdown option locators
+  readonly resultOptions!: Locator;
+  readonly labTestMethodOptions!: Locator;
  
 
   constructor(page: Page) {
@@ -43,6 +47,10 @@ export class EnterResultsModal {
     this.labTestMethodFirstRowIcon = this.page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-labTestMethodId`).getByTestId('selectinput-phtg-expandmoreicon-h115');
     this.verificationFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-verification`).locator('input');
     this.completedDateFirstRow = page.getByTestId(`${this.STYLED_TABLE_CELL_PREFIX}-0-completedDate`).locator('input');
+    
+    // Dropdown option locators
+    this.resultOptions = page.getByTestId('styledfield-h653-option');
+    this.labTestMethodOptions = page.getByTestId('selectinput-phtg-option');
   }
 
   async waitForModalToLoad() {
@@ -53,6 +61,16 @@ export class EnterResultsModal {
   async waitForModalToClose() {
     await this.form.waitFor({ state: 'detached' });
     await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+  }
+
+  async selectResult(result: string) {
+    await this.resultsFirstRowIcon.click();
+    await this.resultOptions.getByText(result).click();
+  }
+
+  async selectLabTestMethod(method: string) {
+    await this.labTestMethodFirstRowIcon.click();
+    await this.labTestMethodOptions.getByText(method).click();
   }
 
 }
