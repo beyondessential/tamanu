@@ -8,8 +8,6 @@ import { TranslatedEnum } from './Translation/TranslatedEnum';
 import { BodyText, LargeBodyText } from './Typography';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 
-// TODO: the styling is all a bit manual
-
 const StyledModal = styled(Modal)`
   .MuiPaper-root {
     max-width: 750px;
@@ -18,7 +16,6 @@ const StyledModal = styled(Modal)`
 
 const SelectorGrid = styled.div`
   display: flex;
-  flex-wrap: nowrap;
   gap: 1rem;
   justify-content: center;
   background-color: ${TAMANU_COLORS.white};
@@ -43,21 +40,19 @@ const TypeDescription = styled(BodyText)`
   color: ${TAMANU_COLORS.darkText};
 `;
 
-const EncounterOptionTypeButton = styled.div`
+const EncounterOptionTypeButton = styled.button`
+  all: unset;
   border: 1px solid ${props => props.$backgroundColor};
   background: ${props => props.$backgroundColor};
+
   position: relative;
   display: flex;
   flex-direction: column;
+
   border-radius: 10px;
   padding: 20px;
   padding-top: 80px;
-
   width: 200px;
-
-  span {
-    justify-items: center;
-  }
 
   &:hover {
     border: 1px solid ${props => props.$color};
