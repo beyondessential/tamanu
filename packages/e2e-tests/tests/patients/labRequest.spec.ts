@@ -567,11 +567,11 @@ test.describe('Lab Request Tests', () => {
       await labRequestDetailsPage.enterResultsButton.click();
       await labRequestDetailsPage.enterResultsModal.waitForModalToLoad();
       await labRequestDetailsPage.enterResultsModal.resultsFirstRowIcon.click();
-      await page.getByTestId('styledfield-h653-option').getByText('Positive').click();
-      const result = await labRequestDetailsPage.enterResultsModal.resultsFirstRow.textContent();
+      const result = 'Positive';
+      await page.getByTestId('styledfield-h653-option').getByText(result).click();
       await labRequestDetailsPage.enterResultsModal.labTestMethodFirstRowIcon.click();
-      await page.getByTestId('selectinput-phtg-option').getByText('GeneXpert').click();
-      const labTestMethod = await labRequestDetailsPage.enterResultsModal.labTestMethodFirstRow.textContent();
+      const labTestMethod = 'GeneXpert';
+      await page.getByTestId('selectinput-phtg-option').getByText(labTestMethod).click();
       const verification = 'test';
       await labRequestDetailsPage.enterResultsModal.verificationFirstRow.fill(verification);
       const currentDateTime = new Date().toISOString().slice(0, 16);
@@ -586,7 +586,7 @@ test.describe('Lab Request Tests', () => {
       const tableReferenceItems = await getTableItems(page, 1, 'reference')
       await expect(tableReferenceItems[0]).toBe('N/A');  
       const tableLabTestMethodItems = await getTableItems(page, 1, 'labTestMethod')
-      await expect(tableLabTestMethodItems[0]).toBe(labTestMethod);  
+      await expect(tableLabTestMethodItems[0]).toBe(labTestMethod); 
       const tableLaboratoryOfficerItems = await getTableItems(page, 1, 'laboratoryOfficer')
       const currentUser = await labRequestModal.getCurrentUser();
       await expect(tableLaboratoryOfficerItems[0]).toBe(currentUser.displayName); 
