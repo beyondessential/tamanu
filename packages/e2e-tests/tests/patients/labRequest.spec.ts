@@ -566,12 +566,10 @@ test.describe('Lab Request Tests', () => {
       const labRequestDetailsPage = new LabRequestDetailsPage(page);
       await labRequestDetailsPage.enterResultsButton.click();
       await labRequestDetailsPage.enterResultsModal.waitForModalToLoad();
-      await labRequestDetailsPage.enterResultsModal.resultsFirstRowIcon.click();
       const result = 'Positive';
-      await page.getByTestId('styledfield-h653-option').getByText(result).click();
-      await labRequestDetailsPage.enterResultsModal.labTestMethodFirstRowIcon.click();
+      await labRequestDetailsPage.enterResultsModal.selectResult(result);
       const labTestMethod = 'GeneXpert';
-      await page.getByTestId('selectinput-phtg-option').getByText(labTestMethod).click();
+      await labRequestDetailsPage.enterResultsModal.selectLabTestMethod(labTestMethod);
       const verification = 'test';
       await labRequestDetailsPage.enterResultsModal.verificationFirstRow.fill(verification);
       const currentDateTime = new Date().toISOString().slice(0, 16);
