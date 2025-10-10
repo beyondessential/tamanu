@@ -1,27 +1,32 @@
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import {
-  administrationIcon,
-  medicationIcon,
-  patientIcon,
-  radiologyIcon,
-  scheduleIcon,
-  vaccineIcon,
-} from './images';
+import { CrossIcon } from '../assets/icons/CrossIcon';
+import { HospitalIcon } from '../assets/icons/HospitalIcon';
+import { HousePlusIcon } from '../assets/icons/HousePlusIcon';
+import { patientIcon, radiologyIcon, scheduleIcon, vaccineIcon } from './images';
 
 export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
-    image: medicationIcon,
-  },
-  {
-    value: ENCOUNTER_TYPES.TRIAGE,
-    image: patientIcon,
-    triageFlowOnly: true,
+    icon: HospitalIcon,
+    color: '#47CA80',
+    backgroundColor: '#EDFAF3',
+    description: 'Inpatient care with overnight stay',
   },
   {
     value: ENCOUNTER_TYPES.CLINIC,
-    image: administrationIcon,
+    icon: CrossIcon,
+    color: '#FFCC24',
+    backgroundColor: '#FFFAEA',
+    description: 'Outpatient consultation and treatment',
+  },
+  {
+    value: ENCOUNTER_TYPES.TRIAGE,
+    icon: HousePlusIcon,
+    triageFlowOnly: true,
+    color: '#F17F16',
+    backgroundColor: '#FEF3E8',
+    description: 'Emergency assessment and care',
   },
   {
     value: ENCOUNTER_TYPES.IMAGING,
