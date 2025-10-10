@@ -10,7 +10,11 @@ import { scrollTableToElement } from '@utils/tableHelper';
 import { subYears, subWeeks } from 'date-fns';
 
 test.describe('Scheduled vaccines', () => {
-  test('[AT-1045]Vaccines scheduled at birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1045]Vaccines scheduled at birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDueDate = await expectedDueDateWeek(currentDate, 1);
     const status = 'Due';
@@ -37,7 +41,11 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('[AT-1046]Vaccines scheduled weeks from birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1046]Vaccines scheduled weeks from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const status = 'Scheduled';
 
@@ -120,7 +128,11 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('[AT-1048]Vaccines scheduled years from birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1048]Vaccines scheduled years from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'Td Booster';
@@ -181,7 +193,11 @@ test.describe('Scheduled vaccines', () => {
   });
 
   //Note that the "missed" status is not displayed in this table as per comments on NASS-1113
-  test('[AT-1050]Different scheduled statuses display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1050]Different scheduled statuses display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
 
@@ -257,7 +273,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'BCG',
       schedule: 'Birth',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
-      testId: '[AT-1051]'
+      testId: '[AT-1051]',
     },
     {
       status: 'Scheduled',
@@ -265,7 +281,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'PCV13',
       schedule: '6 weeks',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
-      testId: '[AT-1052]'
+      testId: '[AT-1052]',
     },
     {
       status: 'Overdue',
@@ -273,7 +289,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'BCG',
       schedule: 'Birth',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
-      testId: '[AT-1053]'
+      testId: '[AT-1053]',
     },
     {
       status: 'Upcoming',
@@ -281,7 +297,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'PCV13',
       schedule: '6 weeks',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
-      testId: '[AT-1054]'
+      testId: '[AT-1054]',
     },
   ];
 

@@ -153,7 +153,8 @@ export class ViewVaccineModal extends BasePatientModal {
   }
 
   async assertGivenElsewhereVaccineModalFields(vaccine: Partial<Vaccine>) {
-    const { vaccineName, givenElsewhereReason, givenElsewhereCountry, dateGiven, category } = vaccine;
+    const { vaccineName, givenElsewhereReason, givenElsewhereCountry, dateGiven, category } =
+      vaccine;
 
     if (!vaccineName || !givenElsewhereReason || !givenElsewhereCountry) {
       throw new Error('Missing required given elsewhere fields');
