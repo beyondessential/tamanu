@@ -29,6 +29,13 @@ export const ENCOUNTER_OPTIONS = [
     description: 'Emergency assessment and care',
   },
   {
+    value: ENCOUNTER_TYPES.TELEHEALTH,
+    icon: CrossIcon,
+    color: '#4101C9',
+    backgroundColor: '#D9CCF4',
+    description: 'Remote phone or video consultation',
+  },
+  {
     value: ENCOUNTER_TYPES.IMAGING,
     image: radiologyIcon,
     hideFromMenu: true,
