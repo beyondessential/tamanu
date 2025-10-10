@@ -1,4 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
+import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format } from 'date-fns';
@@ -282,7 +283,7 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
  */
 export async function testGivenElsewhereForCategory(
   patientDetailsPage: PatientDetailsPage,
-  newPatientWithHospitalAdmission: any,
+  newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>,
   category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
 ) {
   const givenElsewhereReason = 'Given overseas';
