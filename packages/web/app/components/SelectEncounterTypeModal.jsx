@@ -21,10 +21,7 @@ const SelectorGrid = styled.div`
   border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
-const TypeImage = styled.img`
-  width: 30px;
-  height: 30px;
-  border: 1px solid ${props => props.$color};
+const TypeIcon = styled.div`
   position: absolute;
   top: 20px;
   left: 20px;
@@ -59,7 +56,7 @@ const EncounterOptionTypeButton = styled.div`
   }
 `;
 
-const EncounterOptionButton = ({ value, description, icon, color, backgroundColor, onClick }) => (
+const EncounterOptionButton = ({ value, description, Icon, color, backgroundColor, onClick }) => (
   <EncounterOptionTypeButton
     variant="contained"
     $color={color}
@@ -67,7 +64,9 @@ const EncounterOptionButton = ({ value, description, icon, color, backgroundColo
     onClick={onClick}
     data-testid="encounteroptiontypebutton-haqi"
   >
-    <TypeImage alt={value} $color={color} data-testid="typeimage-c71v" />
+    <TypeIcon>
+      <Icon color={color} />
+    </TypeIcon>
     <TypeName>
       <TranslatedEnum
         value={value}
@@ -82,11 +81,11 @@ const EncounterOptionButton = ({ value, description, icon, color, backgroundColo
 export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEncounterType }) => {
   const items = ENCOUNTER_OPTIONS.filter(
     option => !option.hideFromMenu,
-  ).map(({ value, description, image, color, backgroundColor }) => (
+  ).map(({ value, icon, description, color, backgroundColor }) => (
     <EncounterOptionButton
       key={value}
       value={value}
-      image={image}
+      Icon={icon}
       description={description}
       color={color}
       backgroundColor={backgroundColor}
