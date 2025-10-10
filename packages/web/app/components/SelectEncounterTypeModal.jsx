@@ -62,7 +62,6 @@ const EncounterOptionTypeButton = styled.button`
 
 const EncounterOptionButton = ({ value, description, Icon, color, backgroundColor, onClick }) => (
   <EncounterOptionTypeButton
-    variant="contained"
     $color={color}
     $backgroundColor={backgroundColor}
     onClick={onClick}
@@ -110,7 +109,6 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
       open={open}
       onClose={onClose}
       data-testid="modal-8456"
-      $numberOfItems={items.length}
     >
       <SelectorGrid $numberOfItems={items.length} data-testid="selectorgrid-000c">
         {items}
