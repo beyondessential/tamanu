@@ -28,7 +28,6 @@ export const ENCOUNTER_OPTIONS = [
     backgroundColor: '#FEF3E8',
     description: 'Emergency assessment and care',
   },
-  // Not for prod yet but needed to do this to properly style and coming in next card so may as well leave it here
   {
     value: ENCOUNTER_TYPES.TELEHEALTH,
     icon: CrossIcon,

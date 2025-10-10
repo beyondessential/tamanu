@@ -10,6 +10,12 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 // TODO: the styling is all a bit manual
 
+const StyledModal = styled(Modal)`
+  .MuiPaper-root {
+    max-width: ${props => (props.$numberOfItems === 4 ? '950px' : '750px')};
+  }
+`;
+
 const SelectorGrid = styled.div`
   display: flex;
   flex-wrap: nowrap;
@@ -29,9 +35,13 @@ const TypeIcon = styled.div`
 
 const TypeName = styled(LargeBodyText)`
   font-weight: bold;
+  color: ${TAMANU_COLORS.darkestText};
+  margin-bottom: 5px;
 `;
 
-const TypeDescription = styled(BodyText)``;
+const TypeDescription = styled(BodyText)`
+  color: ${TAMANU_COLORS.darkText};
+`;
 
 const EncounterOptionTypeButton = styled.div`
   border: 1px solid ${props => props.$backgroundColor};
@@ -39,13 +49,11 @@ const EncounterOptionTypeButton = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 155px;
-  width: 200px;
   border-radius: 10px;
   padding: 20px;
   padding-top: 80px;
 
-  flex: 1 1 200px;
+  width: 200px;
 
   span {
     justify-items: center;
@@ -96,22 +104,22 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
   ));
 
   return (
-    <Modal
+    <StyledModal
       title={
         <TranslatedText
           stringId="patient.modal.admit.title"
-          fallback="Admit or check-in"
+          fallback="Create encounter"
           data-testid="translatedtext-505w"
         />
       }
       open={open}
       onClose={onClose}
       data-testid="modal-8456"
-      width="lg" // TODO: maybe a bit too big
+      $numberOfItems={items.length}
     >
       <SelectorGrid $numberOfItems={items.length} data-testid="selectorgrid-000c">
         {items}
       </SelectorGrid>
-    </Modal>
+    </StyledModal>
   );
 });
