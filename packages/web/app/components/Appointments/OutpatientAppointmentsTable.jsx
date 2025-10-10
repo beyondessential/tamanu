@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import {
-  getCurrentDateTimeString,
   toDateString,
   formatShortest,
   formatTime,
@@ -19,7 +18,7 @@ import { useTableSorting } from '../Table/useTableSorting';
 import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
-import { useOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import { useHasPastOutpatientAppointmentsQuery, useUpcomingOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
@@ -317,30 +316,9 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   });
 
   // Query to check if there are past appointments
-  const pastAppointmentsQuery = useOutpatientAppointmentsQuery(
-    {
-      patientId: patient?.id,
-      before: getCurrentDateTimeString(),
-      after: '1970-01-01 00:00',
-      rowsPerPage: 1,
-    },
-    { keepPreviousData: true },
-  );
+  const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id);
 
-  const hasPastAppointments = (pastAppointmentsQuery.data?.data?.length || 0) > 0;
-
-  // Query for future appointments
-  const { data, isLoading } = useOutpatientAppointmentsQuery(
-    {
-      all: true,
-      patientId: patient?.id,
-      orderBy,
-      order,
-      after: getCurrentDateTimeString(),
-    },
-    { keepPreviousData: true, refetchOnMount: true },
-  );
-  const appointments = data?.data ?? [];
+  const { data: upcomingAppointments = [], isLoading: isLoadingUpcomingAppointments } = useUpcomingOutpatientAppointmentsQuery(patient?.id);
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
@@ -441,7 +419,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
       : []),
   ];
 
-  if (!appointments.length && !isLoading) {
+  if (!upcomingAppointments.length && !isLoadingUpcomingAppointments) {
     return (
       <NoDataContainer data-testid="nodatacontainer-zxmc">
         <TableHeader
@@ -463,8 +441,8 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   return (
     <div>
       <StyledTable
-        isLoading={isLoading}
-        data={appointments}
+        isLoading={isLoadingUpcomingAppointments}
+        data={upcomingAppointments}
         columns={COLUMNS}
         allowExport={false}
         TableHeader={
