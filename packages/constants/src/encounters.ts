@@ -7,7 +7,6 @@ export const ENCOUNTER_TYPES = {
   TRIAGE: 'triage',
   SURVEY_RESPONSE: 'surveyResponse',
   VACCINATION: 'vaccination',
-  TELEHEALTH: 'telehealth',
 };
 
 export const ENCOUNTER_TYPE_LABELS = {
@@ -19,7 +18,6 @@ export const ENCOUNTER_TYPE_LABELS = {
   [ENCOUNTER_TYPES.OBSERVATION]: 'Active ED patient',
   [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'Form response',
   [ENCOUNTER_TYPES.VACCINATION]: 'Vaccination record',
-  [ENCOUNTER_TYPES.TELEHEALTH]: 'Telehealth',
 };
 
 export const ENCOUNTER_TYPE_VALUES = Object.values(ENCOUNTER_TYPES);
@@ -33,5 +31,4 @@ export const ENCOUNTER_TYPE_ABBREVIATION_LABELS = {
   [ENCOUNTER_TYPES.OBSERVATION]: 'AEP',
   [ENCOUNTER_TYPES.SURVEY_RESPONSE]: 'FR',
   [ENCOUNTER_TYPES.VACCINATION]: 'VR',
-  [ENCOUNTER_TYPES.TELEHEALTH]: 'TH',
 };
