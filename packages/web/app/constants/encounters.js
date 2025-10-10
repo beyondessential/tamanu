@@ -3,7 +3,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { CrossIcon } from '../assets/icons/CrossIcon';
 import { HospitalIcon } from '../assets/icons/HospitalIcon';
 import { HousePlusIcon } from '../assets/icons/HousePlusIcon';
-import { medicationIcon, patientIcon, radiologyIcon, scheduleIcon, vaccineIcon } from './images';
+import { patientIcon, radiologyIcon, scheduleIcon, vaccineIcon } from './images';
 
 export const ENCOUNTER_OPTIONS = [
   {
