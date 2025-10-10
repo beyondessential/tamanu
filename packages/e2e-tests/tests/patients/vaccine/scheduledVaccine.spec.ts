@@ -10,7 +10,11 @@ import { scrollTableToElement } from '@utils/tableHelper';
 import { subYears, subWeeks } from 'date-fns';
 
 test.describe('Scheduled vaccines', () => {
-  test('Vaccines scheduled at birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1045]Vaccines scheduled at birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDueDate = await expectedDueDateWeek(currentDate, 1);
     const status = 'Due';
@@ -37,7 +41,11 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Vaccines scheduled weeks from birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1046]Vaccines scheduled weeks from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const status = 'Scheduled';
 
@@ -80,7 +88,7 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Vaccines scheduled months from birth display', async ({
+  test('[AT-1047]Vaccines scheduled months from birth display', async ({
     page,
     api,
     patientDetailsPage,
@@ -120,7 +128,11 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Vaccines scheduled years from birth display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1048]Vaccines scheduled years from birth display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDateTenYearsAgo = subYears(currentDate, 10);
     const vaccine = 'Td Booster';
@@ -146,7 +158,7 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Vaccines scheduled weeks from last vaccination display', async ({
+  test('[AT-1049]Vaccines scheduled weeks from last vaccination display', async ({
     page,
     api,
     patientDetailsPage,
@@ -181,7 +193,11 @@ test.describe('Scheduled vaccines', () => {
   });
 
   //Note that the "missed" status is not displayed in this table as per comments on NASS-1113
-  test('Different scheduled statuses display', async ({ page, api, patientDetailsPage }) => {
+  test('[AT-1050]Different scheduled statuses display', async ({
+    page,
+    api,
+    patientDetailsPage,
+  }) => {
     const currentDate = new Date(patientDetailsPage.getCurrentBrowserDateISOFormat());
     const birthDateThreeWeeksAgo = subWeeks(currentDate, 3);
 
@@ -257,6 +273,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'BCG',
       schedule: 'Birth',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
+      testId: '[AT-1051]',
     },
     {
       status: 'Scheduled',
@@ -264,6 +281,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'PCV13',
       schedule: '6 weeks',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
+      testId: '[AT-1052]',
     },
     {
       status: 'Overdue',
@@ -271,6 +289,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'BCG',
       schedule: 'Birth',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 1),
+      testId: '[AT-1053]',
     },
     {
       status: 'Upcoming',
@@ -278,6 +297,7 @@ test.describe('Scheduled vaccines', () => {
       vaccine: 'PCV13',
       schedule: '6 weeks',
       getDueDate: async (birthDate: Date) => expectedDueDateWeek(birthDate, 6),
+      testId: '[AT-1054]',
     },
   ];
 
@@ -287,8 +307,9 @@ test.describe('Scheduled vaccines', () => {
     vaccine,
     schedule,
     getDueDate,
+    testId,
   } of recordScheduledVaccineTestCases) {
-    test(`Record vaccine with ${status.toLowerCase()} status from scheduled vaccines table`, async ({
+    test(`${testId}Record vaccine with ${status.toLowerCase()} status from scheduled vaccines table`, async ({
       page,
       api,
       patientDetailsPage,
@@ -310,7 +331,7 @@ test.describe('Scheduled vaccines', () => {
     });
   }
 
-  test('Vaccine remains scheduled if "not given" is selected when recording', async ({
+  test('[AT-1055]Vaccine remains scheduled if "not given" is selected when recording', async ({
     page,
     api,
     patientDetailsPage,
@@ -342,7 +363,7 @@ test.describe('Scheduled vaccines', () => {
     );
   });
 
-  test('Record 2nd dose of vaccine scheduled weeks from last vaccination', async ({
+  test('[AT-1056]Record 2nd dose of vaccine scheduled weeks from last vaccination', async ({
     page,
     api,
     patientDetailsPage,
