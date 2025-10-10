@@ -12,17 +12,34 @@ import {
 export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
-    image: medicationIcon,
+    icon: medicationIcon,
+    color: '#47CA80',
+    backgroundColor: '#EDFAF3',
+    description: 'Inpatient care with overnight stay',
   },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
-    image: patientIcon,
+    icon: patientIcon,
     triageFlowOnly: true,
+    color: '#FFCC24',
+    backgroundColor: '#FFFAEA',
+    description: 'Outpatient consultation and treatment',
   },
   {
     value: ENCOUNTER_TYPES.CLINIC,
-    image: administrationIcon,
+    icon: administrationIcon,
+    color: '#F17F16',
+    backgroundColor: '#FEF3E8',
+    description: 'Emergency assessment and care',
   },
+  // Not part of this feature but needed to do this to properly style so may as well leave it here
+  // {
+  //   value: ENCOUNTER_TYPES.TELEHEALTH,
+  //   icon: administrationIcon,
+  //   color: '#4101C9',
+  //   backgroundColor: '#D9CCF4',
+  //   description: 'Remote phone or video consultation',
+  // },
   {
     value: ENCOUNTER_TYPES.IMAGING,
     image: radiologyIcon,
