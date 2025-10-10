@@ -106,7 +106,7 @@ export class MobileSyncManager {
    */
   async waitForCurrentSyncToEnd(): Promise<void> {
     if (this.isSyncing) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         const done = (): void => {
           resolve();
           this.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
@@ -159,6 +159,7 @@ export class MobileSyncManager {
 
     try {
       await this.runSync({ urgent });
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
@@ -308,7 +309,7 @@ export class MobileSyncManager {
       this.centralServer,
       sessionId,
       pullSince,
-      Object.values(incomingModels).map((m) => m.getTableName()),
+      Object.values(incomingModels).map(m => m.getTableName()),
       tablesForFullResync?.value.split(','),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
