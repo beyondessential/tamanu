@@ -4,29 +4,27 @@ import { CrossIcon } from '../assets/icons/CrossIcon';
 import { HospitalIcon } from '../assets/icons/HospitalIcon';
 import { HousePlusIcon } from '../assets/icons/HousePlusIcon';
 import { patientIcon, radiologyIcon, scheduleIcon, vaccineIcon } from './images';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
     icon: HospitalIcon,
-    color: '#47CA80',
+    color: TAMANU_COLORS.safe,
     backgroundColor: '#EDFAF3',
-    description: 'Inpatient care with overnight stay',
   },
   {
     value: ENCOUNTER_TYPES.CLINIC,
     icon: CrossIcon,
-    color: '#FFCC24',
+    color: TAMANU_COLORS.secondary,
     backgroundColor: '#FFFAEA',
-    description: 'Outpatient consultation and treatment',
   },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
     icon: HousePlusIcon,
     triageFlowOnly: true,
-    color: '#F17F16',
+    color: TAMANU_COLORS.orange,
     backgroundColor: '#FEF3E8',
-    description: 'Emergency assessment and care',
   },
   {
     value: ENCOUNTER_TYPES.IMAGING,

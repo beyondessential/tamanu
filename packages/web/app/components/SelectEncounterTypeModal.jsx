@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ENCOUNTER_OPTIONS } from '../constants';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { Modal } from './Modal';
 import { TranslatedText } from './Translation/TranslatedText';
 import { TranslatedEnum } from './Translation/TranslatedEnum';
@@ -60,7 +60,35 @@ const EncounterOptionTypeButton = styled.button`
   }
 `;
 
-const EncounterOptionButton = ({ value, description, Icon, color, backgroundColor, onClick }) => (
+const getDescriptionForEncounterType = encounterType => {
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return (
+        <TranslatedText
+          stringId="encounter.option.admission.description"
+          fallback="Inpatient care with overnight stay"
+        />
+      );
+    case ENCOUNTER_TYPES.CLINIC:
+      return (
+        <TranslatedText
+          stringId="encounter.option.clinic.description"
+          fallback="Outpatient consultation and treatment"
+        />
+      );
+    case ENCOUNTER_TYPES.TRIAGE:
+      return (
+        <TranslatedText
+          stringId="encounter.option.triage.description"
+          fallback="Emergency assessment and care"
+        />
+      );
+    default:
+      return '';
+  }
+};
+
+const EncounterOptionButton = ({ value, Icon, color, backgroundColor, onClick }) => (
   <EncounterOptionTypeButton
     $color={color}
     $backgroundColor={backgroundColor}
@@ -77,7 +105,7 @@ const EncounterOptionButton = ({ value, description, Icon, color, backgroundColo
         data-testid="translatedenum-encounter-type"
       />
     </TypeName>
-    <TypeDescription>{description}</TypeDescription>
+    <TypeDescription>{getDescriptionForEncounterType(value)}</TypeDescription>
   </EncounterOptionTypeButton>
 );
 
