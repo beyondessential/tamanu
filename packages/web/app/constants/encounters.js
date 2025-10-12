@@ -1,26 +1,24 @@
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import { CrossIcon } from '../assets/icons/CrossIcon';
-import { HospitalIcon } from '../assets/icons/HospitalIcon';
-import { HousePlusIcon } from '../assets/icons/HousePlusIcon';
+import { Cross, Hospital, HousePlus } from 'lucide-react';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
-    icon: HospitalIcon,
+    icon: Hospital,
     color: TAMANU_COLORS.safe,
     backgroundColor: '#EDFAF3',
   },
   {
     value: ENCOUNTER_TYPES.CLINIC,
-    icon: CrossIcon,
+    icon: HousePlus,
     color: TAMANU_COLORS.secondary,
     backgroundColor: '#FFFAEA',
   },
   {
     value: ENCOUNTER_TYPES.TRIAGE,
-    icon: HousePlusIcon,
+    icon: Cross,
     triageFlowOnly: true,
     color: TAMANU_COLORS.orange,
     backgroundColor: '#FEF3E8',

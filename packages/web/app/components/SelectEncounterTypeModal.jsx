@@ -97,7 +97,7 @@ const EncounterOptionButton = ({ value, Icon, color, backgroundColor, onClick })
     data-testid="encounteroptiontypebutton-haqi"
   >
     <TypeIcon>
-      <Icon color={color} />
+      <Icon color={color} size={24} />
     </TypeIcon>
     <TypeName>
       <TranslatedEnum
