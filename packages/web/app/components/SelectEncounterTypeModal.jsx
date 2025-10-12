@@ -16,11 +16,12 @@ const StyledModal = styled(Modal)`
 
 const SelectorGrid = styled.div`
   display: flex;
+  flex-wrap: nowrap;
   gap: 1rem;
   justify-content: center;
   background-color: ${TAMANU_COLORS.white};
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 3px;
   border: 1px solid ${TAMANU_COLORS.outline};
 `;
 
@@ -42,20 +43,20 @@ const TypeDescription = styled(BodyText)`
 
 const EncounterOptionTypeButton = styled.button`
   all: unset;
-  border: 1px solid ${props => props.$backgroundColor};
-  background: ${props => props.$backgroundColor};
+  border: 1px solid ${({ $backgroundColor }) => $backgroundColor};
+  background: ${({ $backgroundColor }) => $backgroundColor};
 
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1;
 
   border-radius: 10px;
   padding: 20px;
   padding-top: 80px;
-  width: 200px;
 
   &:hover {
-    border: 1px solid ${props => props.$color};
+    border: 1px solid ${({ $color }) => $color};
     cursor: pointer;
   }
 `;
