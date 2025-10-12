@@ -3,7 +3,6 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { CrossIcon } from '../assets/icons/CrossIcon';
 import { HospitalIcon } from '../assets/icons/HospitalIcon';
 import { HousePlusIcon } from '../assets/icons/HousePlusIcon';
-import { patientIcon, radiologyIcon, scheduleIcon, vaccineIcon } from './images';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ENCOUNTER_OPTIONS = [
@@ -28,28 +27,23 @@ export const ENCOUNTER_OPTIONS = [
   },
   {
     value: ENCOUNTER_TYPES.IMAGING,
-    image: radiologyIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
-    image: scheduleIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
-    image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    image: patientIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    image: vaccineIcon,
     hideFromMenu: true,
   },
 ];
