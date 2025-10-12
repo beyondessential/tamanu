@@ -18,6 +18,7 @@ import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient';
 import { useSettings } from '../../../contexts/Settings';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -49,64 +50,13 @@ const StyledButton = styled(Button)`
   max-height: 40px;
 `;
 
-const StyledDropdownButton = styled(DropdownButton)`
-  white-space: nowrap;
-  max-height: 40px;
-`;
-
-const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType }) => {
-  const { navigateToSummary } = usePatientNavigation();
+export const EncounterActions = React.memo(({ encounter }) => {
   const { getSetting } = useSettings();
+  const { navigateToSummary } = usePatientNavigation();
 
-  const onChangeEncounterType = type => {
-    setNewEncounterType(type);
-    setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE);
-  };
-  const onDischargeOpen = () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE);
-  const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
-  const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
-  const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
-  const onFinaliseLocationChange = () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE);
-  const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
-  const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
-  const onViewSummary = () => navigateToSummary();
-  const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
-  const onViewEncounterProgressRecord = () =>
-    setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD);
-  const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
-  const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
-
-  if (encounter.endDate) {
-    return (
-      <ActionsContainer data-testid="actionscontainer-w92z">
-        <StyledButton
-          size="small"
-          variant="outlined"
-          onClick={onViewEncounterRecord}
-          data-testid="styledbutton-00iz"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.encounterSummary"
-            fallback="Encounter summary"
-            data-testid="translatedtext-ftbh"
-          />
-        </StyledButton>
-        <br />
-        <StyledButton
-          size="small"
-          color="primary"
-          onClick={onViewSummary}
-          data-testid="styledbutton-0m1p"
-        >
-          <TranslatedText
-            stringId="patient.encounter.action.dischargeSummary"
-            fallback="Discharge summary"
-            data-testid="translatedtext-0hzq"
-          />
-        </StyledButton>
-      </ActionsContainer>
-    );
-  }
+  const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
+  const [newEncounterType, setNewEncounterType] = useState();
+  const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
 
   const progression = {
     [ENCOUNTER_TYPES.TRIAGE]: 0,
@@ -119,203 +69,105 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
+  const onChangeEncounterType = type => {
+    setNewEncounterType(type);
+    setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE);
+  };
+
   const actions = [
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.moveToEdCare"
-          fallback="Move to active ED care"
-          data-testid="translatedtext-ebwz"
-        />
-      ),
+      label: 'Move to active ED care',
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.moveToShortStay"
-          fallback="Move to emergency short stay"
-          data-testid="translatedtext-3mla"
-        />
-      ),
+      label: 'Move to emergency short stay',
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.admitToHospital"
-          fallback="Admit to hospital"
-          data-testid="translatedtext-lav0"
-        />
-      ),
+      label: 'Admit to hospital',
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.prepareDischargeWithoutBeingSeen"
-          fallback="Prepare discharge without being seen"
-          data-testid="translatedtext-f8lm"
-        />
-      ),
-      onClick: onDischargeOpen,
+      label: 'Prepare discharge without being seen',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.finalisePatientMove"
-          fallback="Finalise patient move"
-          data-testid="translatedtext-10xc"
-        />
-      ),
+      label: 'Finalise patient move',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onFinaliseLocationChange,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.cancelPatientMove"
-          fallback="Cancel patient move"
-          data-testid="translatedtext-0d5b"
-        />
-      ),
+      label: 'Cancel patient move',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onCancelLocationChange,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.prepareDischarge"
-          fallback="Prepare discharge"
-          data-testid="translatedtext-zxed"
-        />
-      ),
-      onClick: onDischargeOpen,
+      label: 'Prepare discharge',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      // Duplicate "Admit to hospital" as it should display below "Discharge".
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.admitToHospital"
-          fallback="Admit to hospital"
-          data-testid="translatedtext-4l99"
-        />
-      ),
-      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      label: 'Admit to hospital',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.movePatient"
-          fallback="Move patient"
-          data-testid="translatedtext-7n9k"
-        />
-      ),
+      label: 'Move patient',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
-      onClick: onPlanLocationChange,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.changeDepartment"
-          fallback="Change department"
-          data-testid="translatedtext-0dtg"
-        />
-      ),
-      onClick: onChangeDepartment,
+      label: 'Change department',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="encounter.action.changeClinician"
-          fallback="Change :clinician"
-          replacements={{
-            clinician: (
-              <TranslatedText
-                stringId="general.localisedField.clinician.label"
-                fallback="Clinician"
-                casing="lower"
-                data-testid="translatedtext-5pzw"
-              />
-            ),
-          }}
-          data-testid="translatedtext-5dr2"
-        />
-      ),
-      onClick: onChangeClinician,
+      label: 'Change clinician',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN),
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.changeLocation"
-          fallback="Change location"
-          data-testid="translatedtext-a1zx"
-        />
-      ),
+      label: 'Change location',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
-      onClick: onChangeLocation,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.changeReason"
-          fallback="Change reason"
-          data-testid="translatedtext-kjya"
-        />
-      ),
+      label: 'Change reason',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
       condition: () =>
         [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
-      onClick: onChangeReason,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.changeDiet"
-          fallback="Change diet"
-          data-testid="translatedtext-p8fm"
-        />
-      ),
+      label: 'Change diet',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET),
       condition: () => isInpatient(encounter.encounterType),
-      onClick: onChangeDiet,
     },
     {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.encounterProgressRecord"
-          fallback="Encounter progress record"
-          data-testid="translatedtext-fhfi"
-        />
-      ),
-      onClick: onViewEncounterProgressRecord,
+      label: 'Encounter progress record',
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD),
+    },
+    {
+      label: 'Discharge summary',
+      onClick: () => navigateToSummary(),
+      condition: () => encounter.endDate,
     },
   ].filter(action => !action.condition || action.condition());
 
   return (
-    <NoteModalActionBlocker>
-      <StyledDropdownButton actions={actions} data-testid="styleddropdownbutton-zjxy" />
-    </NoteModalActionBlocker>
-  );
-};
-
-export const EncounterActions = React.memo(({ encounter }) => {
-  const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
-  const [newEncounterType, setNewEncounterType] = useState();
-  const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
-
-  return (
     <>
-      <EncounterActionDropdown
-        encounter={encounter}
-        setOpenModal={setOpenModal}
-        setNewEncounterType={setNewEncounterType}
-        data-testid="encounteractiondropdown-n27n"
-      />
+      <ActionsContainer>
+        <StyledButton size="small" variant="outlined">
+          Prepare discharge
+        </StyledButton>
+        <StyledButton size="small" color="primary">
+          Move patient
+        </StyledButton>
+        <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
+      </ActionsContainer>
+
+      {/* Hidden modals */}
       <DischargeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.DISCHARGE}
@@ -339,6 +191,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="changeclinicianmodal-hmn3"
       />
+      {/* Patient move modals */}
       <MoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_LOCATION}
@@ -363,6 +216,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="cancelpatientmovemodal-x8xx"
       />
+
       <EncounterRecordModal
         encounter={encounter}
         open={
