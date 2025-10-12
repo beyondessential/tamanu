@@ -110,9 +110,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
       onClose={onClose}
       data-testid="modal-8456"
     >
-      <SelectorGrid $numberOfItems={items.length} data-testid="selectorgrid-000c">
-        {items}
-      </SelectorGrid>
+      <SelectorGrid data-testid="selectorgrid-000c">{items}</SelectorGrid>
     </StyledModal>
   );
 });
