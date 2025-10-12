@@ -25,6 +25,8 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'vaccinations',
   'vitalEditReasons',
   'medications',
+  'sync',
+  'mobileSync',
 ] as const;
 
 export class ReadSettings<Path = SettingPath> {

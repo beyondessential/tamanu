@@ -243,7 +243,7 @@ const snapshotOutgoingChangesFromSyncLookup = withConfig(
           saved_at_sync_tick,
           updated_at_by_field_sum,
           data
-        )
+      )
         SELECT
           id,
           '${SYNC_SESSION_DIRECTION.OUTGOING}',

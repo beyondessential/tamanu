@@ -38,6 +38,11 @@
       }
     }
   },
+  debugging: {
+    // set a `tamanu-debug` header on a request with the value of this key
+    // and the errors will get stack traces.
+    apiErrorsToken: false,
+  },
   "metaServer": {
     "host": "https://meta.tamanu.app",
     "serverId": null,
@@ -214,6 +219,10 @@
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
     },
+    "dhis2IntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *"
+    },
     "automaticLabTestResultPublisher": {
       "enabled": false,
       "schedule": "*/15 * * * *",
@@ -379,6 +388,11 @@
       // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
       // If this is changed, all API keys using this secret will be revoked and must be reissued
       "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
     }
   },
   // on the central-server, don't read these values from config!

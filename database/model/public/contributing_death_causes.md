@@ -11,5 +11,5 @@ The [`patient_death_data`](#!/source/source.tamanu.tamanu.patient_death_data) re
 {% enddocs %}
 
 {% docs contributing_death_causes__condition_id %}
-Reference to the condition ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = condition`).
+Reference to the condition ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = diagnosis`).
 {% enddocs %}
