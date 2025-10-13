@@ -48,7 +48,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const onSubmit = async data => {
     await writeAndViewEncounter(encounter.id, data);
     await submitPatientMove(data);
-    onClose();
   };
 
   return (
