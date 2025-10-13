@@ -1878,12 +1878,13 @@ describe('Encounter', () => {
             departmentId: oldDepartment.id,
           });
 
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
+            order: [['date', 'ASC']],
           });
 
           // only 1 encounter history for initial encounter snapshot
