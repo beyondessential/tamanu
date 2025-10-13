@@ -26,6 +26,7 @@ export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 
 export * from './Encounter';
+// TODO: DEPRECATED - Remove EncounterHistory export after migrating to logs.changes
 export * from './EncounterHistory';
 
 export * from './Discharge';

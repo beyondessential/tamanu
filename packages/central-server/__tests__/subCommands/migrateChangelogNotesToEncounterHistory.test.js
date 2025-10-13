@@ -132,6 +132,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       ...overrides,
     });
 
+    // TODO: DEPRECATED - This entire test file should be removed after migrating encounter_history to logs.changes
     // Clear the encounter_history data so that
     // the migration will not skip this encounter when migrating changelog
     await models.EncounterHistory.destroy({ where: { encounterId: encounter.id }, force: true });
@@ -165,6 +166,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     );
   };
 
+  // TODO: DEPRECATED - This entire test file should be removed after migrating encounter_history to logs.changes
   const clearTestData = async () => {
     await models.EncounterHistory.truncate({ cascade: true, force: true });
     await models.Encounter.truncate({ cascade: true, force: true });
@@ -246,6 +248,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
       expect(exitSpy).toBeCalledWith(0);
 
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+      // This test should be updated to query logs.changes table instead of encounter_history
       const encounterHistoryRecords = await models.EncounterHistory.findAll({
         order: [['date', 'ASC']],
       });
@@ -352,6 +356,8 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
       expect(exitSpy).toBeCalledWith(0);
 
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+      // This test should be updated to query logs.changes table instead of encounter_history
       const encounterHistoryRecords = await models.EncounterHistory.findAll({
         order: [['date', 'ASC']],
       });

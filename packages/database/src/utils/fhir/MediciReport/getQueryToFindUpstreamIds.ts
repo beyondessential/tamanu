@@ -38,6 +38,8 @@ export function fromEncounters(
     case Encounter.tableName:
       return { where: { id } };
 
+    // TODO: DEPRECATED - Replace EncounterHistory.tableName with logs.changes queries
+    // This should query logs.changes table instead of encounter_history
     case EncounterHistory.tableName:
       return {
         include: [

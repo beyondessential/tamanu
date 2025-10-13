@@ -1458,6 +1458,8 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1495,6 +1497,8 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1543,6 +1547,8 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1591,6 +1597,8 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1640,6 +1648,8 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1863,6 +1873,8 @@ describe('Encounter', () => {
             departmentId: oldDepartment.id,
           });
 
+          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+          // This test should be updated to query logs.changes table instead of encounter_history
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,

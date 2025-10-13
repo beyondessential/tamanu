@@ -13,6 +13,7 @@ import { PatientContact } from './PatientContact';
 import { PatientAllergy } from './PatientAllergy';
 import { User } from './User';
 import { Encounter } from './Encounter';
+// TODO: DEPRECATED - Remove EncounterHistory import after migrating to logs.changes
 import { EncounterHistory } from './EncounterHistory';
 import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';

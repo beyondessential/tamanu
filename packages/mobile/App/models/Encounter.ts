@@ -131,6 +131,8 @@ export class Encounter extends BaseModel implements IEncounter {
     await Patient.markForSync(this.patient);
   }
 
+  // TODO: DEPRECATED - Replace EncounterHistory.createSnapshot with ChangeLog.create
+  // This should create a change log entry in logs.changes instead of encounter_history
   @AfterInsert()
   async snapshotEncounter(): Promise<void> {
     await EncounterHistory.createSnapshot(this, { date: this.startDate });

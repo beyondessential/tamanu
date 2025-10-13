@@ -412,6 +412,8 @@ export class Encounter extends Model {
     const { actorId, ...encounterData } = data;
     const encounter = (await super.create(encounterData, options)) as Encounter;
 
+    // TODO: DEPRECATED - Replace EncounterHistory.createSnapshot with ChangeLog.create
+    // This should create a change log entry in logs.changes instead of encounter_history
     const { EncounterHistory } = this.sequelize.models;
     await EncounterHistory.createSnapshot(
       encounter,
@@ -678,6 +680,8 @@ export class Encounter extends Model {
         );
       }
 
+      // TODO: DEPRECATED - Replace EncounterHistory.createSnapshot with ChangeLog.create
+      // This should create a change log entry in logs.changes instead of encounter_history
       // multiple changes in 1 update transaction is not supported at the moment
       if (snapshotChanges.length === 1) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
