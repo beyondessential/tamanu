@@ -25,8 +25,6 @@ const ActionsContainer = styled.div`
 const ENCOUNTER_MODALS = {
   NONE: 'none',
 
-  CHANGE_CLINICIAN: 'changeClinician',
-  CHANGE_DEPARTMENT: 'changeDepartment',
   CHANGE_LOCATION: 'changeLocation',
   CHANGE_TYPE: 'changeType',
   CHANGE_REASON: 'changeReason',
@@ -47,10 +45,6 @@ const ENCOUNTER_MODALS = {
 const StyledButton = styled(Button)`
   white-space: nowrap;
   max-height: 40px;
-`;
-
-const SectionHeading = styled(Heading3)`
-  color: red;
 `;
 
 export const EncounterActions = React.memo(({ encounter }) => {
