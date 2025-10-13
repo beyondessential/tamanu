@@ -8,7 +8,7 @@ import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { MoveModal } from './MoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, Heading3, NoteModalActionBlocker } from '../../../components';
+import { Button, NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
