@@ -46,6 +46,13 @@ export class PriceListItem extends Model {
       foreignKey: 'priceListId',
       as: 'priceList',
     });
+    // Link PriceListItem to InvoiceProduct via `code` matching `InvoiceProduct.id`.
+    // Using constraints: false to avoid FK migration; this is a logical association.
+    this.belongsTo(models.InvoiceProduct, {
+      foreignKey: 'code',
+      as: 'product',
+      constraints: false,
+    });
   }
 
   static buildSyncFilter() {
