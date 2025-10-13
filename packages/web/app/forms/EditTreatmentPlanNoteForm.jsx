@@ -41,7 +41,6 @@ export const EditTreatmentPlanNoteForm = ({
           <NoteModalFormGrid columns={2}>
             <NoteTypeField
               noteTypeCountByType={noteTypeCountByType}
-              size="small"
               customStyleObject={{
                 control: provided => ({ ...provided, fontSize: '14px' }),
                 option: provided => ({ ...provided, fontSize: '14px' }),
@@ -51,11 +50,10 @@ export const EditTreatmentPlanNoteForm = ({
             <NoteTemplateField
               noteType={note.noteType}
               onChangeTemplate={onChangeTemplate}
-              size="small"
               disabled
             />
-            <PreviouslyWrittenByField value={noteOnBehalfOfName} size="small" disabled />
-            <PreviousDateTimeField value={note.createdAt} size="small" />
+            <PreviouslyWrittenByField value={noteOnBehalfOfName} disabled />
+            <PreviousDateTimeField value={note.createdAt} />
             <WrittenByField
               label={
                 <TranslatedText
@@ -64,14 +62,12 @@ export const EditTreatmentPlanNoteForm = ({
                 />
               }
               required
-              size="small"
             />
-            <NoteDateTimeField required size="small" />
+            <NoteDateTimeField required />
           </NoteModalFormGrid>
         </DisabledWrapper>
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
-          size="small"
           isEditMode
           isTreatmentPlanNote
         />
