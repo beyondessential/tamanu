@@ -657,14 +657,6 @@ export class Encounter extends Model {
         );
       }
 
-      // Encounter history is now automatically tracked via logs.changes triggers
-      // No need for manual EncounterHistory.createSnapshot calls
-      // multiple changes in 1 update transaction is not supported at the moment
-      if (snapshotChanges.length === 1) {
-        // The change will be automatically logged via triggers
-        // No manual snapshot creation needed
-      }
-
       return updatedEncounter;
     };
 

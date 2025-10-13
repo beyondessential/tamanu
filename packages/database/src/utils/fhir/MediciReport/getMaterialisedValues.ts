@@ -300,7 +300,6 @@ encounter_history_info as (
   -- Query logs.changes instead of encounter_history for encounter change tracking
   from logs.changes lc
   where lc.table_name = 'encounters' and lc.record_id = $encounter_id
-  and lc.deleted_at isnull
   group by encounter_id
 )
 

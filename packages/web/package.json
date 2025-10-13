@@ -44,7 +44,6 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
-    "buffer": "^6.0.3",
     "@bugsnag/js": "^8.0.0",
     "@bugsnag/plugin-react": "^8.0.0",
     "@casl/ability": "^6.7.1",
@@ -71,6 +70,7 @@
     "@types/react-autosuggest": "^9.3.7",
     "@vitejs/plugin-react-swc": "^3.7.0",
     "bowser": "^2.11.0",
+    "buffer": "^6.0.3",
     "bulma": "^0.7.1",
     "chance": "^1.1.8",
     "classnames": "^2.2.5",
@@ -87,6 +87,7 @@
     "jquery": "^3.3.1",
     "js-sql-parser": "^1.4.1",
     "lodash": "^4.17.21",
+    "lucide-react": "^0.545.0",
     "mathjs": "^12.1.0",
     "mime-types": "^2.1.35",
     "ms": "^2.1.3",
