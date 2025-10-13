@@ -4,7 +4,6 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   DOCUMENT_SOURCES,
-  EncounterChangeType,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
