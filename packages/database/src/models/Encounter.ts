@@ -2,7 +2,6 @@ import { Op, DataTypes } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
-  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
@@ -280,10 +279,7 @@ export class Encounter extends Model {
       as: 'documents',
     });
 
-    this.hasMany(models.EncounterHistory, {
-      foreignKey: 'encounterId',
-      as: 'encounterHistories',
-    });
+    // EncounterHistory relationship removed - now using logs.changes for encounter change tracking
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'patientBillingTypeId',
@@ -310,10 +306,7 @@ export class Encounter extends Model {
       },
     });
 
-    this.hasMany(models.EncounterHistory, {
-      foreignKey: 'encounterId',
-      as: 'encounterHistory',
-    });
+    // EncounterHistory relationship removed - now using logs.changes for encounter change tracking
 
     this.hasMany(models.Appointment, {
       foreignKey: 'encounterId',
@@ -572,8 +565,7 @@ export class Encounter extends Model {
 
   async update(...args: any): Promise<any> {
     const [data, user] = args;
-    const { Location, EncounterHistory } = this.sequelize.models;
-    let changeType: string | undefined;
+    const { Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -591,13 +583,11 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
-        changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
-        changeType = EncounterChangeType.Location;
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -644,18 +634,15 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
-        changeType = EncounterChangeType.Department;
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
-        changeType = EncounterChangeType.Examiner;
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
-      const { submittedTime, ...encounterData } = data;
-      const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
+      const updatedEncounter = await super.update({ ...data, ...additionalChanges }, user);
 
       const snapshotChanges = [
         isEncounterTypeChanged,

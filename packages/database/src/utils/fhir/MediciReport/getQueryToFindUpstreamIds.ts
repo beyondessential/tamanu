@@ -8,7 +8,7 @@ export function fromEncounters(
 ) {
   const {
     Encounter,
-    EncounterHistory,
+    // EncounterHistory model removed - now using logs.changes for encounter change tracking
 
     ImagingRequest,
     ImagingRequestArea,
