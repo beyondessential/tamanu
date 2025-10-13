@@ -662,8 +662,7 @@ export class Encounter extends Model {
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
-      const { encounterData } = data;
-      const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
+      const updatedEncounter = await super.update({ ...data, ...additionalChanges }, user);
 
       // TODO: encounter history moving to logs.changes
       // const snapshotChanges = [
