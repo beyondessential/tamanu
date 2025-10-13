@@ -13,7 +13,6 @@ import { PatientContact } from './PatientContact';
 import { PatientAllergy } from './PatientAllergy';
 import { User } from './User';
 import { Encounter } from './Encounter';
-// EncounterHistory model removed - now using logs.changes for encounter change tracking
 import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';
@@ -69,7 +68,6 @@ export const MODELS_MAP = {
   PatientAllergy,
   User,
   Encounter,
-  EncounterHistory,
   Program,
   ProgramRegistry,
   ProgramRegistryCondition,
