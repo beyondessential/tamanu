@@ -60,11 +60,10 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // Reverse migration - remove encounter_history data from logs.changes
+  // TODO: ONLY INCLUDE THIS IF WE ARE SURE THESE DIDNT EXIST IN THE FIRST PLACE
   await query.sequelize.query(`
     DELETE FROM logs.changes 
     WHERE table_name = 'encounters' 
-    AND reason IN ('encounter_type', 'location', 'department', 'examiner')
   `);
 
   // Recreate encounter_history table structure
