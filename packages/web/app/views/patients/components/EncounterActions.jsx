@@ -183,7 +183,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
   ].filter(action => !action.condition || action.condition());
 
   return (
-    <>
+    <NoteModalActionBlocker>
       <ActionsContainer>
         <StyledButton size="small" variant="outlined">
           Prepare discharge
@@ -268,6 +268,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="changedietmodal-imzd"
       />
-    </>
+    </NoteModalActionBlocker>
   );
 });
