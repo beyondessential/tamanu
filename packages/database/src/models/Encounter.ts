@@ -579,8 +579,9 @@ export class Encounter extends Model {
 
   async update(...args: any): Promise<any> {
     const [data, user] = args;
-    const { Location, EncounterHistory } = this.sequelize.models;
-    let changeType: string | undefined;
+    // const { Location, EncounterHistory } = this.sequelize.models;
+    const { Location } = this.sequelize.models;
+    // let changeType: string | undefined;
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -598,13 +599,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
-        changeType = EncounterChangeType.EncounterType;
+        // changeType = EncounterChangeType.EncounterType;
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
-        changeType = EncounterChangeType.Location;
+        // changeType = EncounterChangeType.Location;
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -651,13 +652,13 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
-        changeType = EncounterChangeType.Department;
+        // changeType = EncounterChangeType.Department;
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
-        changeType = EncounterChangeType.Examiner;
+        // changeType = EncounterChangeType.Examiner;
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
