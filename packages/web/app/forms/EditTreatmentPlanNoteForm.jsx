@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
@@ -11,12 +12,18 @@ import {
 } from '../components/NoteCommonFields';
 import {
   DisabledWrapper,
-  NoteModalDialogContent,
   NoteModalDialogActions,
   NoteModalFormGrid,
+  NoteModalDialogContent,
 } from '../components/NoteModal/NoteModalCommonComponents';
 import { TranslatedText } from '../components';
 import { Colors } from '../constants';
+
+const StyledNoteModalDialogContent = styled(NoteModalDialogContent)`
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+`;
 
 export const EditTreatmentPlanNoteForm = ({
   note,
@@ -29,28 +36,25 @@ export const EditTreatmentPlanNoteForm = ({
 
   return (
     <>
-      <NoteModalDialogContent>
+      <StyledNoteModalDialogContent>
         <DisabledWrapper color={Colors.background}>
           <NoteModalFormGrid columns={2}>
             <NoteTypeField
               noteTypeCountByType={noteTypeCountByType}
               size="small"
-              fontSize="12px"
+              customStyleObject={{
+                control: provided => ({ ...provided, fontSize: '14px' }),
+                option: provided => ({ ...provided, fontSize: '14px' }),
+              }}
               disabled
             />
             <NoteTemplateField
               noteType={note.noteType}
               onChangeTemplate={onChangeTemplate}
               size="small"
-              fontSize="12px"
               disabled
             />
-            <PreviouslyWrittenByField
-              value={noteOnBehalfOfName}
-              size="small"
-              fontSize="12px"
-              disabled
-            />
+            <PreviouslyWrittenByField value={noteOnBehalfOfName} size="small" disabled />
             <PreviousDateTimeField value={note.createdAt} size="small" />
             <WrittenByField
               label={
@@ -62,7 +66,7 @@ export const EditTreatmentPlanNoteForm = ({
               required
               size="small"
             />
-            <NoteDateTimeField required size="small" fontSize="12px" />
+            <NoteDateTimeField required size="small" />
           </NoteModalFormGrid>
         </DisabledWrapper>
         <NoteContentField
@@ -71,7 +75,7 @@ export const EditTreatmentPlanNoteForm = ({
           isEditMode
           isTreatmentPlanNote
         />
-      </NoteModalDialogContent>
+      </StyledNoteModalDialogContent>
       <NoteModalDialogActions>
         <FormSubmitCancelRow
           style={{ marginTop: '0' }}

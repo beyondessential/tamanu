@@ -209,7 +209,7 @@ export const NoteContentField = ({
   isEditMode = false,
   isTreatmentPlanNote = false,
 }) => {
-  const minHeight = isEditMode && isTreatmentPlanNote ? 308 : 390;
+  const minHeight = isEditMode && isTreatmentPlanNote ? 378 : 460;
 
   return (
     <NoteContentBox>
@@ -287,7 +287,7 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
+export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled, customStyleObject }) => (
   <Field
     name="noteType"
     label={
@@ -300,6 +300,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
+    customStyleObject={customStyleObject}
     transformOptions={types =>
       types
         .filter(option => !option.hideFromDropdown)
