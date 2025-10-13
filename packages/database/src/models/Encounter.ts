@@ -412,17 +412,8 @@ export class Encounter extends Model {
     const { actorId, ...encounterData } = data;
     const encounter = (await super.create(encounterData, options)) as Encounter;
 
-    // TODO: DEPRECATED - Replace EncounterHistory.createSnapshot with ChangeLog.create
-    // This should create a change log entry in logs.changes instead of encounter_history
-    const { EncounterHistory } = this.sequelize.models;
-    await EncounterHistory.createSnapshot(
-      encounter,
-      {
-        actorId: actorId || encounter.examinerId,
-        submittedTime: encounter.startDate,
-      },
-      options,
-    );
+    // Encounter history is now automatically tracked via logs.changes triggers
+    // No need for manual EncounterHistory.createSnapshot calls
 
     return encounter;
   }
@@ -680,15 +671,12 @@ export class Encounter extends Model {
         );
       }
 
-      // TODO: DEPRECATED - Replace EncounterHistory.createSnapshot with ChangeLog.create
-      // This should create a change log entry in logs.changes instead of encounter_history
+      // Encounter history is now automatically tracked via logs.changes triggers
+      // No need for manual EncounterHistory.createSnapshot calls
       // multiple changes in 1 update transaction is not supported at the moment
       if (snapshotChanges.length === 1) {
-        await EncounterHistory.createSnapshot(updatedEncounter, {
-          actorId: user?.id,
-          changeType,
-          submittedTime,
-        });
+        // The change will be automatically logged via triggers
+        // No manual snapshot creation needed
       }
 
       return updatedEncounter;

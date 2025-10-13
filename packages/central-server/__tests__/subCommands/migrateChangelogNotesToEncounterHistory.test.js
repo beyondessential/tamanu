@@ -4,7 +4,12 @@ import { Op } from 'sequelize';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/fake-data/fake';
-import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  EncounterChangeType,
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../dist/subCommands/migrateDataInBatches/migrateDataInBatches';
@@ -122,7 +127,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
   const NOTE_SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
 
-  const getDateSubtractedFromNow = (daysToSubtract) =>
+  const getDateSubtractedFromNow = daysToSubtract =>
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 
   const createEncounter = async (encounterPatient, overrides = {}) => {
@@ -132,10 +137,15 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
       ...overrides,
     });
 
-    // TODO: DEPRECATED - This entire test file should be removed after migrating encounter_history to logs.changes
-    // Clear the encounter_history data so that
+    // Clear any existing encounter change logs so that
     // the migration will not skip this encounter when migrating changelog
-    await models.EncounterHistory.destroy({ where: { encounterId: encounter.id }, force: true });
+    await models.ChangeLog.destroy({
+      where: {
+        tableName: 'encounters',
+        recordId: encounter.id,
+      },
+      force: true,
+    });
 
     return encounter;
   };
@@ -166,9 +176,12 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
     );
   };
 
-  // TODO: DEPRECATED - This entire test file should be removed after migrating encounter_history to logs.changes
+  // Clear test data - now using logs.changes instead of encounter_history
   const clearTestData = async () => {
-    await models.EncounterHistory.truncate({ cascade: true, force: true });
+    await models.ChangeLog.destroy({
+      where: { tableName: 'encounters' },
+      force: true,
+    });
     await models.Encounter.truncate({ cascade: true, force: true });
     await models.Location.truncate({
       cascade: true,
@@ -248,10 +261,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
       expect(exitSpy).toBeCalledWith(0);
 
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-      // This test should be updated to query logs.changes table instead of encounter_history
-      const encounterHistoryRecords = await models.EncounterHistory.findAll({
-        order: [['date', 'ASC']],
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const encounterHistoryRecords = await models.ChangeLog.findAll({
+        where: {
+          tableName: 'encounters',
+          recordId: encounter.id,
+        },
+        order: [['loggedAt', 'ASC']],
       });
 
       expect(encounterHistoryRecords[0]).toMatchObject({
@@ -356,10 +372,13 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
       expect(exitSpy).toBeCalledWith(0);
 
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-      // This test should be updated to query logs.changes table instead of encounter_history
-      const encounterHistoryRecords = await models.EncounterHistory.findAll({
-        order: [['date', 'ASC']],
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const encounterHistoryRecords = await models.ChangeLog.findAll({
+        where: {
+          tableName: 'encounters',
+          recordId: encounter.id,
+        },
+        order: [['loggedAt', 'ASC']],
       });
 
       // Original encounter
