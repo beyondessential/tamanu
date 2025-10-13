@@ -41,7 +41,7 @@ export async function up(query: QueryInterface): Promise<void> {
         'startDate', e.start_date,
         'endDate', e.end_date,
         'patientId', e.patient_id
-      ) as record_data,
+      ) as record_data
     FROM encounter_history eh
     LEFT JOIN encounters e ON e.id = eh.encounter_id
     WHERE eh.deleted_at IS NULL
