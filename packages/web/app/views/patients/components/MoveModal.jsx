@@ -1,4 +1,6 @@
 import React from 'react';
+import styled from 'styled-components';
+
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   AutocompleteField,
@@ -7,6 +9,7 @@ import {
   Form,
   FormGrid,
   FormModal,
+  FormSubmitCancelRow,
   Heading3,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
@@ -14,6 +17,25 @@ import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
+const SectionHeading = styled(Heading3)`
+  color: ${TAMANU_COLORS.darkestText};
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+`;
+
+const SectionDescription = styled(BodyText)`
+  color: ${TAMANU_COLORS.midText};
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 0;
+`;
+
+const SubmitRow = styled(FormSubmitCancelRow)`
+  margin-top: 20px;
+`;
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
@@ -46,13 +68,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         initialValues={{
           // Used in creation of associated notes
           submittedTime: getCurrentDateTimeString(),
+          examinerId: encounter.examinerId,
+          departmentId: encounter.departmentId,
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <Heading3>Patient Care</Heading3>
-            <BodyText>Please select the clinician and department for the patient.</BodyText>
+            <SectionHeading>Patient Care</SectionHeading>
+            <SectionDescription>
+              Please select the clinician and department for the patient.
+            </SectionDescription>
             <FormGrid columns={2} data-testid="formgrid-wyqp">
               <Field
                 name="examinerId"
@@ -81,6 +107,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 data-testid="field-tykg"
               />
             </FormGrid>
+            <SubmitRow
+              onConfirm={submitForm}
+              onCancel={onClose}
+              data-testid="formsubmitcancelrow-35ou"
+            />
           </>
         )}
         data-testid="form-0lgu"
