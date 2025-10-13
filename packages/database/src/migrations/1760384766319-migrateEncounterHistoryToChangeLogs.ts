@@ -23,7 +23,7 @@ export async function up(query: QueryInterface): Promise<void> {
     )
     SELECT 
       gen_random_uuid() as id,
-      (SELECT oid FROM pg_class WHERE relname = 'encounters') as table_oid,
+      0 as table_oid, -- Placeholder for historical data
       'public' as table_schema,
       'encounters' as table_name,
       eh.date::timestamp as logged_at,
