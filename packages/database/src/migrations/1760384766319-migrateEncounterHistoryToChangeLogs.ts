@@ -17,7 +17,7 @@ export async function up(query: QueryInterface): Promise<void> {
       record_created_at,
       record_updated_at,
       record_deleted_at,
-      record_data,
+      record_data
     )
     SELECT 
       gen_random_uuid() as id,
