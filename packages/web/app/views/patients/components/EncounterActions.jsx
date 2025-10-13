@@ -73,32 +73,59 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
   const actions = [
     {
-      label: 'Move to active ED care',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.moveToActiveEDCare"
+          fallback="Move to active ED care"
+        />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
     },
     {
-      label: 'Move to emergency short stay',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.moveToEmergencyShortStay"
+          fallback="Move to emergency short stay"
+        />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
     },
     {
-      label: 'Admit to hospital',
+      label: (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
-      label: 'Prepare discharge without being seen',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.prepareDischargeWithoutBeingSeen"
+          fallback="Prepare discharge without being seen"
+        />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      label: 'Finalise patient move',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.finalisePatientMove"
+          fallback="Finalise patient move"
+        />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
     },
     {
-      label: 'Cancel patient move',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.cancelPatientMove"
+          fallback="Cancel patient move"
+        />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
     },
@@ -108,37 +135,48 @@ export const EncounterActions = React.memo(({ encounter }) => {
     //   condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
     // },
     {
-      label: 'Admit to hospital',
+      label: (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
-      label: 'Move patient',
+      label: <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
     },
     {
-      label: 'Change location',
+      label: (
+        <TranslatedText stringId="encounter.action.changeLocation" fallback="Change location" />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
     },
     {
-      label: 'Change reason',
+      label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
       condition: () =>
         [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
     },
     {
-      label: 'Change diet',
+      label: <TranslatedText stringId="encounter.action.changeDiet" fallback="Change diet" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET),
       condition: () => isInpatient(encounter.encounterType),
     },
     {
-      label: 'Encounter progress record',
+      label: (
+        <TranslatedText
+          stringId="encounter.action.encounterProgressRecord"
+          fallback="Encounter progress record"
+        />
+      ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD),
     },
     {
-      label: 'Discharge summary',
+      label: (
+        <TranslatedText stringId="encounter.action.dischargeSummary" fallback="Discharge summary" />
+      ),
       onClick: () => navigateToSummary(),
       condition: () => encounter.endDate,
     },
