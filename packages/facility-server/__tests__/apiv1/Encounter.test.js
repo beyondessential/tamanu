@@ -1709,11 +1709,12 @@ describe('Encounter', () => {
           });
           expect(updateResult).toHaveSucceeded();
 
-          let encounterHistoryRecords = await models.EncounterHistory.findAll({
+          let encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
-            order: [['date', 'ASC']],
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1742,11 +1743,12 @@ describe('Encounter', () => {
 
           expect(updateResult2).toHaveSucceeded();
 
-          encounterHistoryRecords = await models.EncounterHistory.findAll({
+          encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
-            order: [['date', 'ASC']],
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(3);
@@ -1788,11 +1790,12 @@ describe('Encounter', () => {
 
           expect(updateResult3).toHaveSucceeded();
 
-          encounterHistoryRecords = await models.EncounterHistory.findAll({
+          encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
-            order: [['date', 'ASC']],
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(4);
@@ -1875,13 +1878,12 @@ describe('Encounter', () => {
             departmentId: newDepartment.id,
           });
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
-            order: [['date', 'ASC']],
+            order: [['loggedAt', 'ASC']],
           });
 
           // Should have 2 records: initial snapshot and the multiple-changes snapshot
