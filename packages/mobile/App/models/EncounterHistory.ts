@@ -18,6 +18,8 @@ export const EncounterChangeType = {
 
 export type EncounterChangeType = (typeof EncounterChangeType)[keyof typeof EncounterChangeType];
 
+// TODO: DEPRECATED - This model will be removed after migrating encounter_history to logs.changes
+// All encounter history functionality should be replaced with queries to logs.changes table
 @Entity('encounter_history')
 export class EncounterHistory extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
@@ -60,6 +62,8 @@ export class EncounterHistory extends BaseModel {
   @Column({ type: 'text', array: true, nullable: true })
   changeType?: EncounterChangeType[];
 
+  // TODO: DEPRECATED - Replace with logs.changes functionality
+  // This method should be replaced with ChangeLog.create() calls
   static async createSnapshot(encounter, { date }) {
     return EncounterHistory.createAndSaveOne({
       encounter: encounter.id,

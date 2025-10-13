@@ -234,11 +234,15 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
 
     it("won't sync sensitive encounter history", async () => {
-      const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+    // This test should be updated to query logs.changes table instead of encounter_history
+    const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
         where: {
           encounterId: sensitiveEncounter.id,
         },
       });
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+      // This test should be updated to query logs.changes table instead of encounter_history
       const nonSensitiveEncounterHistory = await models.EncounterHistory.findOne({
         where: {
           encounterId: nonSensitiveEncounter.id,

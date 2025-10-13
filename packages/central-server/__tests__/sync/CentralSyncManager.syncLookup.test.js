@@ -271,6 +271,8 @@ describe('Sync Lookup data', () => {
         dischargerId: examiner.id,
       }),
     );
+    // TODO: DEPRECATED - Replace EncounterHistory.create with ChangeLog.create
+    // This test should be updated to use logs.changes instead of encounter_history
     await EncounterHistory.create(
       fake(EncounterHistory, {
         examinerId: examiner.id,

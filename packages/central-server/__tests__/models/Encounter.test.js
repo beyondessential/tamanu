@@ -33,6 +33,8 @@ async function makeEncounterWithAssociations(models) {
     locationId: location.id,
   });
 
+  // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+  // This test should be updated to query logs.changes table instead of encounter_history
   const history = await EncounterHistory.findOne({ where: { encounterId: encounter.id } });
 
   const note = await Note.create(
@@ -121,6 +123,8 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { id: { [Op.in]: encounterIds } } });
 
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+      // This test should be updated to query logs.changes table instead of encounter_history
       const count = await EncounterHistory.count();
       expect(count).toBe(1);
     });
@@ -138,6 +142,8 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { reasonForEncounter } });
 
+      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
+      // This test should be updated to query logs.changes table instead of encounter_history
       const count = await EncounterHistory.count();
       expect(count).toBe(1);
     });

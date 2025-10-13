@@ -40,6 +40,8 @@ export const createEncounter = async ({
     }),
   );
 
+  // TODO: DEPRECATED - Replace EncounterHistory.create with ChangeLog.create
+  // This should create a change log entry in logs.changes instead of encounter_history
   await EncounterHistory.create(
     fake(EncounterHistory, {
       examinerId: userId || (await randomRecordId(models, 'User')),
