@@ -642,21 +642,6 @@ export class Encounter extends Model {
       }
 
       const updatedEncounter = await super.update({ ...data, ...additionalChanges }, user);
-
-      const snapshotChanges = [
-        isEncounterTypeChanged,
-        isDepartmentChanged,
-        isLocationChanged,
-        isClinicianChanged,
-      ].filter(Boolean);
-
-      if (snapshotChanges.length > 1) {
-        // Will revert all the changes above if error is thrown as this is in a transaction
-        throw new InvalidOperationError(
-          'Encounter type, department, location and clinician must be changed in separate operations',
-        );
-      }
-
       return updatedEncounter;
     };
 
