@@ -8,7 +8,7 @@ import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { MoveModal } from './MoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { Button, NoteModalActionBlocker } from '../../../components';
+import { Button, Heading3, NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
@@ -47,6 +47,10 @@ const ENCOUNTER_MODALS = {
 const StyledButton = styled(Button)`
   white-space: nowrap;
   max-height: 40px;
+`;
+
+const SectionHeading = styled(Heading3)`
+  color: red;
 `;
 
 export const EncounterActions = React.memo(({ encounter }) => {
@@ -104,11 +108,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
     },
-    {
-      label: 'Prepare discharge',
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
-      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-    },
+    // {
+    //   label: 'Prepare discharge',
+    //   onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
+    //   condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    // },
     {
       label: 'Admit to hospital',
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE),
@@ -118,14 +122,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       label: 'Move patient',
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
-    },
-    {
-      label: 'Change department',
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT),
-    },
-    {
-      label: 'Change clinician',
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN),
     },
     {
       label: 'Change location',
