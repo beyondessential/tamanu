@@ -18,8 +18,6 @@ export async function up(query: QueryInterface): Promise<void> {
       record_updated_at,
       record_deleted_at,
       record_data,
-      reason,
-      updated_at_sync_tick
     )
     SELECT 
       gen_random_uuid() as id,
@@ -44,8 +42,6 @@ export async function up(query: QueryInterface): Promise<void> {
         'endDate', e.end_date,
         'patientId', e.patient_id
       ) as record_data,
-      eh.change_type as reason,
-      eh.updated_at_sync_tick
     FROM encounter_history eh
     LEFT JOIN encounters e ON e.id = eh.encounter_id
     WHERE eh.deleted_at IS NULL
