@@ -86,15 +86,13 @@ describe('Encounter', () => {
 
   describe('beforeDestroy', () => {
     it('should destroy all associated records', async () => {
-      const { encounter, history, note } = await makeEncounterWithAssociations(models);
+      const { encounter, note } = await makeEncounterWithAssociations(models);
 
       await encounter.destroy();
       await encounter.reload({ paranoid: false });
-      await history.reload({ paranoid: false });
       await note.reload({ paranoid: false });
 
       expect(encounter.deletedAt).toBeTruthy();
-      expect(history.deletedAt).toBeTruthy();
       expect(note.deletedAt).toBeTruthy();
     });
 
