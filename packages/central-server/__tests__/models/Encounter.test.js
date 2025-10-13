@@ -33,9 +33,13 @@ async function makeEncounterWithAssociations(models) {
     locationId: location.id,
   });
 
-  // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-  // This test should be updated to query logs.changes table instead of encounter_history
-  const history = await EncounterHistory.findOne({ where: { encounterId: encounter.id } });
+  // Query logs.changes instead of encounter_history for encounter change tracking
+  const history = await models.ChangeLog.findOne({
+    where: {
+      tableName: 'encounters',
+      recordId: encounter.id,
+    },
+  });
 
   const note = await Note.create(
     fake(Note, {
@@ -123,9 +127,13 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { id: { [Op.in]: encounterIds } } });
 
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-      // This test should be updated to query logs.changes table instead of encounter_history
-      const count = await EncounterHistory.count();
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const count = await models.ChangeLog.count({
+        where: {
+          tableName: 'encounters',
+          recordId: { [Op.in]: encounterIds },
+        },
+      });
       expect(count).toBe(1);
     });
 
@@ -142,9 +150,13 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { reasonForEncounter } });
 
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-      // This test should be updated to query logs.changes table instead of encounter_history
-      const count = await EncounterHistory.count();
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const count = await models.ChangeLog.count({
+        where: {
+          tableName: 'encounters',
+          recordId: { [Op.in]: encounterIds },
+        },
+      });
       expect(count).toBe(1);
     });
 

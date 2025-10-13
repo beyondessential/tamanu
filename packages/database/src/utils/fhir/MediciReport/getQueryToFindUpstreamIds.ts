@@ -38,16 +38,18 @@ export function fromEncounters(
     case Encounter.tableName:
       return { where: { id } };
 
-    // TODO: DEPRECATED - Replace EncounterHistory.tableName with logs.changes queries
-    // This should query logs.changes table instead of encounter_history
-    case EncounterHistory.tableName:
+    // Query logs.changes instead of encounter_history for encounter change tracking
+    case 'encounter_history':
       return {
         include: [
           {
-            model: EncounterHistory,
-            as: 'encounterHistory',
+            model: models.ChangeLog,
+            as: 'changeLog',
             required: true,
-            where: { id },
+            where: {
+              tableName: 'encounters',
+              recordId: id,
+            },
           },
         ],
       };

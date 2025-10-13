@@ -1458,12 +1458,13 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          // Query logs.changes instead of encounter_history for encounter change tracking
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(1);
@@ -1497,12 +1498,13 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          // Query logs.changes instead of encounter_history for encounter change tracking
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1547,12 +1549,13 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          // Query logs.changes instead of encounter_history for encounter change tracking
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1597,12 +1600,13 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          // Query logs.changes instead of encounter_history for encounter change tracking
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1648,12 +1652,13 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-          // This test should be updated to query logs.changes table instead of encounter_history
-          const encounterHistoryRecords = await models.EncounterHistory.findAll({
+          // Query logs.changes instead of encounter_history for encounter change tracking
+          const encounterHistoryRecords = await models.ChangeLog.findAll({
             where: {
-              encounterId: encounter.id,
+              tableName: 'encounters',
+              recordId: encounter.id,
             },
+            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);

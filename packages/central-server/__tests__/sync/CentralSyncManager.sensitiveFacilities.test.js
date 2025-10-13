@@ -234,22 +234,21 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
 
     it("won't sync sensitive encounter history", async () => {
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-    // This test should be updated to query logs.changes table instead of encounter_history
-    const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const sensitiveEncounterHistory = await models.ChangeLog.findOne({
         where: {
-          encounterId: sensitiveEncounter.id,
+          tableName: 'encounters',
+          recordId: sensitiveEncounter.id,
         },
       });
-      // TODO: DEPRECATED - Replace EncounterHistory queries with logs.changes queries
-      // This test should be updated to query logs.changes table instead of encounter_history
-      const nonSensitiveEncounterHistory = await models.EncounterHistory.findOne({
+      const nonSensitiveEncounterHistory = await models.ChangeLog.findOne({
         where: {
-          encounterId: nonSensitiveEncounter.id,
+          tableName: 'encounters',
+          recordId: nonSensitiveEncounter.id,
         },
       });
       await checkSensitiveRecordFiltering({
-        model: models.EncounterHistory,
+        model: models.ChangeLog,
         sensitiveId: sensitiveEncounterHistory.id,
         nonSensitiveId: nonSensitiveEncounterHistory.id,
       });
@@ -1217,9 +1216,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
       // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
       const sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
-      const nonSensitivePrescription = await models.Prescription.create(
-        fake(models.Prescription),
-      );
+      const nonSensitivePrescription = await models.Prescription.create(fake(models.Prescription));
 
       const sensitiveEncounterPrescription = await models.EncounterPrescription.create(
         fake(models.EncounterPrescription, {
@@ -1242,13 +1239,12 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         }),
       );
 
-      const nonSensitivePatientOngoingPrescription =
-        await models.PatientOngoingPrescription.create(
-          fake(models.PatientOngoingPrescription, {
-            patientId: testPatient.id,
-            prescriptionId: nonSensitivePrescription.id,
-          }),
-        );
+      const nonSensitivePatientOngoingPrescription = await models.PatientOngoingPrescription.create(
+        fake(models.PatientOngoingPrescription, {
+          patientId: testPatient.id,
+          prescriptionId: nonSensitivePrescription.id,
+        }),
+      );
 
       const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();

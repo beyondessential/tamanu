@@ -1,8 +1,8 @@
 {% docs table__encounter_history %}
 Records changes to an encounter's basic details.
 
-TODO: DEPRECATED - This table will be removed after migrating encounter_history to logs.changes.
-All encounter history functionality should be replaced with queries to logs.changes table.
+DEPRECATED: This table has been removed and replaced with logs.changes for encounter change tracking.
+All encounter history functionality now uses the logs.changes table.
 {% enddocs %}
 
 {% docs encounter_history__encounter_id %}
