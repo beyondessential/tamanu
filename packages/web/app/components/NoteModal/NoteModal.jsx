@@ -20,12 +20,12 @@ const NOTE_MODAL_DIMENSIONS = {
   WIDTH: {
     MIN: 480,
     BASE_RATIO: 0.37,
-    MAX_RATIO: 0.95,
+    MAX_RATIO: 1,
   },
   HEIGHT: {
     MIN_DEFAULT: 415,
     BASE_RATIO: 0.9,
-    MAX_RATIO: 0.9,
+    MAX_RATIO: 1,
   },
 };
 
