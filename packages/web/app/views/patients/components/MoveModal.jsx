@@ -18,7 +18,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 
 // TODO: this is going to be the base of the new patient transfer modal
 
-export const PatientTransferModal = React.memo(({ open, onClose, encounter }) => {
+export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
   const departmentSuggester = useSuggester('department', {
