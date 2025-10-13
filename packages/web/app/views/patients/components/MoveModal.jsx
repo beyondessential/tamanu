@@ -1,19 +1,54 @@
 import React from 'react';
+import styled from 'styled-components';
+
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
+  BodyText,
+  DynamicSelectField,
   Field,
   Form,
   FormGrid,
   FormModal,
   FormSubmitCancelRow,
-  LocalisedLocationField,
+  Heading3,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { useSuggester } from '../../../api';
+import { useEncounter } from '../../../contexts/Encounter';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
+
+const SectionHeading = styled(Heading3)`
+  color: ${TAMANU_COLORS.darkestText};
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+`;
+
+const SectionDescription = styled(BodyText)`
+  color: ${TAMANU_COLORS.midText};
+  margin: 0;
+  margin-bottom: 20px;
+  padding: 0;
+`;
+
+const SubmitRow = styled(FormSubmitCancelRow)`
+  margin-top: 20px;
+`;
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
-  const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const { writeAndViewEncounter } = useEncounter();
+  const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+  const clinicianSuggester = useSuggester('practitioner');
+
+  const onSubmit = async data => {
+    await writeAndViewEncounter(encounter.id, data);
+    await submitPatientMove(data);
+  };
 
   return (
     <FormModal
@@ -32,30 +67,59 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         initialValues={{
           // Used in creation of associated notes
           submittedTime: getCurrentDateTimeString(),
+          examinerId: encounter.examinerId,
+          departmentId: encounter.departmentId,
         }}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={submit}
+        onSubmit={onSubmit}
         render={({ submitForm }) => (
-          <FormGrid columns={1} data-testid="formgrid-wyqp">
-            <Field
-              name="locationId"
-              component={LocalisedLocationField}
-              label={
-                <TranslatedText
-                  stringId="patient.encounter.movePatient.location.label"
-                  fallback="New location"
-                  data-testid="translatedtext-35a6"
-                />
-              }
-              required
-              data-testid="field-tykg"
-            />
-            <FormSubmitCancelRow
+          <>
+            <SectionHeading>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.heading"
+                fallback="Move patient"
+              />
+            </SectionHeading>
+            <SectionDescription>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.description"
+                fallback="Please select the clinician and department for the patient."
+              />
+            </SectionDescription>
+            <FormGrid columns={2} data-testid="formgrid-wyqp">
+              <Field
+                name="examinerId"
+                component={DynamicSelectField}
+                suggester={clinicianSuggester}
+                label={
+                  <TranslatedText
+                    stringId="patient.encounter.movePatient.supervisingClinician.label"
+                    fallback="Supervising clinician"
+                  />
+                }
+                required
+                data-testid="field-tykg"
+              />
+              <Field
+                name="departmentId"
+                component={DynamicSelectField}
+                suggester={departmentSuggester}
+                label={
+                  <TranslatedText
+                    stringId="patient.encounter.movePatient.department.label"
+                    fallback="Department"
+                  />
+                }
+                required
+                data-testid="field-tykg"
+              />
+            </FormGrid>
+            <SubmitRow
               onConfirm={submitForm}
               onCancel={onClose}
               data-testid="formsubmitcancelrow-35ou"
             />
-          </FormGrid>
+          </>
         )}
         data-testid="form-0lgu"
       />

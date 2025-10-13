@@ -23,7 +23,7 @@ export const EncounterContext = React.createContext({
   setEncounterData: () => {},
   isLoadingEncounter: false,
   setIsLoadingEncounter: () => {},
-  writeAndViewEncounter: () => {},
+  writeAndViewEncounter: async () => {},
   loadEncounter: () => {},
   createEncounter: () => {},
 });
@@ -79,7 +79,7 @@ export const EncounterProvider = ({ children }) => {
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async (data) => {
+  const createEncounter = async data => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post('encounter', data);
     await loadEncounter(createdEncounter.id);
