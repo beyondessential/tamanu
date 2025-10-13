@@ -122,7 +122,6 @@ describe('Sync Lookup data', () => {
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
-      EncounterHistory,
       EncounterPrescription,
       PatientOngoingPrescription,
       PharmacyOrder,

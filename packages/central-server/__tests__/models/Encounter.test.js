@@ -11,7 +11,6 @@ async function makeEncounterWithAssociations(models) {
     Location,
     Patient,
     Encounter,
-    EncounterHistory,
     Note,
     LabRequest,
     LabTestType,
@@ -115,7 +114,7 @@ describe('Encounter', () => {
 
   describe('beforeBulkDestroy', () => {
     it('should destroy all associated records', async () => {
-      const { Encounter, EncounterHistory } = models;
+      const { Encounter } = models;
       const encounterIds = [];
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -138,7 +137,7 @@ describe('Encounter', () => {
     });
 
     it('should work without specifying IDs', async () => {
-      const { Encounter, EncounterHistory } = models;
+      const { Encounter } = models;
       const reasonForEncounter = 'A very adequate reason';
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -154,7 +153,9 @@ describe('Encounter', () => {
       const count = await models.ChangeLog.count({
         where: {
           tableName: 'encounters',
-          recordId: { [Op.in]: encounterIds },
+          recordData: {
+            [Op.contains]: { reasonForEncounter },
+          },
         },
       });
       expect(count).toBe(1);
