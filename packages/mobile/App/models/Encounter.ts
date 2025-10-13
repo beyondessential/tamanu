@@ -1,14 +1,4 @@
-import {
-  AfterInsert,
-  BeforeInsert,
-  Column,
-  Entity,
-  In,
-  Index,
-  ManyToOne,
-  OneToMany,
-  RelationId,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, In, Index, ManyToOne, OneToMany, RelationId } from 'typeorm';
 import { addHours, startOfDay, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 
