@@ -6,10 +6,9 @@ import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTyp
 import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
-import { PatientTransferModal } from './PatientTransferModal';
+import { MoveModal } from './MoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, NoteModalActionBlocker } from '../../../components';
-import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
@@ -174,11 +173,11 @@ export const EncounterActions = React.memo(({ encounter }) => {
       {/* Hidden modals */}
 
       {/* New modal with everything */}
-      <PatientTransferModal
+      <MoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.TRANSFER}
         onClose={onClose}
-        data-testid="patienttransfermodal-00xl"
+        data-testid="MoveModal-00xl"
       />
 
       <DischargeModal
