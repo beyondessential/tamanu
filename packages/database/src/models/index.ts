@@ -155,3 +155,4 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './DHIS2PushLog';

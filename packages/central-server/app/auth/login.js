@@ -72,8 +72,11 @@ export const login = ({ secret, refreshSecret }) =>
     const tamanuClient = req.header('X-Tamanu-Client');
 
     const getSettingsForFrontEnd = async () => {
-      // Only attach central scoped settings if login request is for central admin panel login
-      if ([SERVER_TYPES.WEBAPP, SERVER_TYPES.MOBILE].includes(tamanuClient) && !facilityIds) {
+      // Only attach settings if login request is for a Tamanu app or server
+      if (
+        [SERVER_TYPES.WEBAPP, SERVER_TYPES.FACILITY, SERVER_TYPES.MOBILE].includes(tamanuClient) &&
+        !facilityIds
+      ) {
         return await settings.getFrontEndSettings();
       }
     };

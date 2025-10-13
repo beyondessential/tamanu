@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "2.42.1",
+  "version": "2.43.0",
   "description": "This repo contains all the packages for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -8,7 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
-    "prepare": "patch-package",
+    "prepare": "patch-package && npm run patch-package --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
