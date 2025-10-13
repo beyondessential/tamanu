@@ -6,11 +6,7 @@ import type { InitOptions, Models } from '../types/model';
 export class PriceListItem extends Model {
   declare id: string;
   declare priceListId: string;
-  declare code: string;
-  declare name: string;
   declare price: number;
-  declare discountable: boolean;
-  declare visibilityStatus: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -20,12 +16,8 @@ export class PriceListItem extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        code: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        name: {
-          type: DataTypes.STRING,
+        invoiceProductId: {
+          type: DataTypes.TEXT,
           allowNull: false,
         },
         price: {
@@ -36,7 +28,10 @@ export class PriceListItem extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        indexes: [{ fields: ['priceListId'] }, { unique: true, fields: ['priceListId', 'code'] }],
+        indexes: [
+          { fields: ['priceListId'] },
+          { unique: true, fields: ['priceListId', 'invoiceProductId'] },
+        ],
       },
     );
   }
@@ -46,12 +41,10 @@ export class PriceListItem extends Model {
       foreignKey: 'priceListId',
       as: 'priceList',
     });
-    // Link PriceListItem to InvoiceProduct via `code` matching `InvoiceProduct.id`.
-    // Using constraints: false to avoid FK migration; this is a logical association.
+
     this.belongsTo(models.InvoiceProduct, {
-      foreignKey: 'code',
+      foreignKey: 'invoiceProductId',
       as: 'product',
-      constraints: false,
     });
   }
 

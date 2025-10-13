@@ -3,35 +3,38 @@ import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 const PRICE_LISTS = 'price_lists';
 const PRICE_LIST_ITEMS = 'price_list_items';
 
+const baseFields = {
+  id: {
+    type: DataTypes.TEXT,
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
+    allowNull: false,
+    primaryKey: true,
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('now'),
+    allowNull: false,
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.fn('now'),
+    allowNull: false,
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  updated_at_sync_tick: {
+    type: DataTypes.BIGINT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+};
+
 export async function up(query: QueryInterface): Promise<void> {
   // price_lists
   await query.createTable(PRICE_LISTS, {
-    id: {
-      type: DataTypes.TEXT,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-      allowNull: false,
-      primaryKey: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
-      allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    updated_at_sync_tick: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      defaultValue: 0,
-    },
-
+    ...baseFields,
     code: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -41,8 +44,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: false,
     },
     rules: {
-      // JSONB for postgres, JSON for others
-      type: (DataTypes as any).JSONB ?? DataTypes.JSON,
+      type: DataTypes.JSONB,
       allowNull: true,
     },
     visibility_status: {
@@ -59,32 +61,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   // price_list_items
   await query.createTable(PRICE_LIST_ITEMS, {
-    id: {
-      type: DataTypes.TEXT,
-      defaultValue: Sequelize.fn('uuid_generate_v4'),
-      allowNull: false,
-      primaryKey: true,
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      defaultValue: Sequelize.fn('now'),
-      allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    updated_at_sync_tick: {
-      type: DataTypes.BIGINT,
-      allowNull: false,
-      defaultValue: 0,
-    },
-
+    ...baseFields,
     price_list_id: {
       type: DataTypes.TEXT,
       allowNull: false,
@@ -94,13 +71,13 @@ export async function up(query: QueryInterface): Promise<void> {
       },
       onDelete: 'CASCADE',
     },
-    code: {
-      type: DataTypes.STRING,
+    invoice_product_id: {
+      type: DataTypes.TEXT,
       allowNull: false,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+      references: {
+        model: 'invoice_products',
+        key: 'id',
+      },
     },
     price: {
       type: DataTypes.DECIMAL,
@@ -112,14 +89,17 @@ export async function up(query: QueryInterface): Promise<void> {
     name: `idx_${PRICE_LIST_ITEMS}_price_list_id`,
   });
 
-  await query.addIndex(PRICE_LIST_ITEMS, ['price_list_id', 'code'], {
-    name: `idx_${PRICE_LIST_ITEMS}_price_list_id_code_unique`,
+  await query.addIndex(PRICE_LIST_ITEMS, ['price_list_id', 'invoice_product_id'], {
+    name: `idx_${PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
     unique: true,
   });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  await query.removeIndex(PRICE_LIST_ITEMS, `idx_${PRICE_LIST_ITEMS}_price_list_id_code_unique`);
+  await query.removeIndex(
+    PRICE_LIST_ITEMS,
+    `idx_${PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
+  );
   await query.removeIndex(PRICE_LIST_ITEMS, `idx_${PRICE_LIST_ITEMS}_price_list_id`);
   await query.dropTable(PRICE_LIST_ITEMS, {});
 

@@ -175,7 +175,7 @@ export const LabTestPanelLabTestTypes = yup.object().shape({
 
 const visualisationConfigSchema = yup.object().shape({
   yAxis: yup.object().shape({
-    graphRange: yup.lazy((value) => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
+    graphRange: yup.lazy(value => (Array.isArray(value) ? rangeArraySchema : rangeObjectSchema)),
     interval: yup.number().required(),
   }),
 });
@@ -190,7 +190,7 @@ export const ProgramDataElement = Base.shape({
 export const baseValidationShape = yup
   .object()
   .shape({
-    mandatory: yup.lazy((value) => {
+    mandatory: yup.lazy(value => {
       return typeof value === 'boolean'
         ? yup.boolean()
         : yup.object().shape({
@@ -229,7 +229,7 @@ export const ScheduledVaccine = Base.shape({
     },
     then: yup
       .number()
-      .test('is-null', 'Weeks from birth due should not be set for non-first doses', (value) => {
+      .test('is-null', 'Weeks from birth due should not be set for non-first doses', value => {
         return value === undefined;
       }),
     otherwise: yup.number(),
@@ -244,7 +244,7 @@ export const ScheduledVaccine = Base.shape({
       .test(
         'is-null',
         'Weeks from last vaccination due should not be set for first doses',
-        (value) => value === undefined,
+        value => value === undefined,
       ),
     otherwise: yup.number(),
   }),
@@ -344,7 +344,7 @@ export const InvoiceProduct = yup.object().shape({
   id: yup.string().required(),
   name: yup.string().required(),
   price: yup.number().when('id', {
-    is: (id) => id && id.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT),
+    is: id => id && id.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT),
     then: yup.number().optional(),
     otherwise: yup.number().required(),
   }),
@@ -365,7 +365,7 @@ export const TaskTemplate = yup.object().shape({
   frequencyUnit: yup
     .string()
     .optional()
-    .transform((value) => TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] || value)
+    .transform(value => TASK_FREQUENCY_ACCEPTED_UNITS_TO_VALUE[value] || value)
     .oneOf([...Object.values(TASK_FREQUENCY_ACCEPTED_UNITS), null]),
 });
 
@@ -393,8 +393,8 @@ export const ReferenceMedicationTemplate = yup
       .positive()
       .when('isVariableDose', {
         is: false,
-        then: (schema) => schema.required('Dose amount is required when isVariableDose is false.'),
-        otherwise: (schema) => schema.nullable(),
+        then: schema => schema.required('Dose amount is required when isVariableDose is false.'),
+        otherwise: schema => schema.nullable(),
       }),
     units: yup.string().required().oneOf(Object.values(DRUG_UNITS)),
     frequency: yup.string().required().oneOf(Object.values(ADMINISTRATION_FREQUENCIES)),
@@ -403,8 +403,8 @@ export const ReferenceMedicationTemplate = yup
       .required()
       .oneOf(Object.values(DRUG_ROUTE_VALUES))
       .transform(
-        (value) =>
-          Object.keys(DRUG_ROUTE_LABELS).find((key) => DRUG_ROUTE_LABELS[key] === value) || value,
+        value =>
+          Object.keys(DRUG_ROUTE_LABELS).find(key => DRUG_ROUTE_LABELS[key] === value) || value,
       ),
 
     durationValue: yup.number().nullable().positive(),

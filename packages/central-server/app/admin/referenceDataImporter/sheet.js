@@ -81,6 +81,10 @@ const FOREIGN_KEY_SCHEMATA = {
       field: 'priceList',
       model: 'PriceList',
     },
+    {
+      field: 'invoiceProduct',
+      model: 'InvoiceProduct',
+    },
   ],
 };
 
@@ -102,6 +106,73 @@ export async function importSheet(
   if (sheetRows.length === 0) {
     log.debug('Nothing in this sheet, skipping');
     return stats;
+  }
+
+  // Special handling for the price Lists sheet
+  if (sheetName === 'priceList') {
+    log.debug('Price Lists sheet; transforming to rows');
+    const headers = Object.keys(sheetRows[0]).map(h => h.trim());
+    const invoiceKey = headers.find(h => h.trim().toLowerCase() === 'invoiceproductid');
+    const priceListIds = headers.filter(h => h !== invoiceKey);
+
+    const tableRows = [];
+    const idCache = new Set();
+
+    // Create PriceList rows from headers
+    for (const plId of priceListIds) {
+      const values = { id: plId, code: plId, name: plId };
+      if (idCache.has(`PriceList|${values.id}`)) {
+        errors.push(new ValidationError(sheetName, 0, `duplicate id: ${values.id}`));
+        continue;
+      }
+      idCache.add(`PriceList|${values.id}`);
+      updateStat(stats, statkey('PriceList', sheetName), 'created', 0);
+      tableRows.push({ model: 'PriceList', sheetRow: 0, values });
+    }
+
+    // Create PriceListItem rows for each value
+    sheetRows.forEach((row, idx) => {
+      const invoiceProductId = row[invoiceKey];
+
+      if (!invoiceProductId) {
+        return;
+      }
+
+      for (const priceListId of priceListIds) {
+        const raw = row[priceListId];
+
+        if (raw === undefined || raw === null || `${raw}`.trim() === '') {
+          continue;
+        }
+        const num = Number(raw);
+        if (Number.isNaN(num)) {
+          errors.push(
+            new ValidationError(
+              sheetName,
+              idx,
+              `Invalid price value '${raw}' for priceList '${priceListId}' and invoiceProductId '${invoiceProductId}'`,
+            ),
+          );
+          return; // skip this row on error for now
+        }
+        const id = `${priceListId}-${invoiceProductId}`;
+        tableRows.push({
+          model: 'PriceListItem',
+          sheetRow: idx,
+          values: {
+            id,
+            priceListId: priceListId,
+            invoiceProductId: `${invoiceProductId}`,
+            price: num,
+          },
+        });
+      }
+    });
+
+    return await importRows(
+      { errors, log, models },
+      { rows: tableRows, sheetName, stats, foreignKeySchemata: FOREIGN_KEY_SCHEMATA, skipExisting },
+    );
   }
 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });

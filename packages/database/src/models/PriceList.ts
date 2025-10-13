@@ -23,8 +23,7 @@ export class PriceList extends Model {
           allowNull: false,
         },
         rules: {
-          // JSONB in postgres, falls back to JSON for other dialects
-          type: (DataTypes as any).JSONB ?? DataTypes.JSON,
+          type: DataTypes.JSONB,
           allowNull: true,
         },
         visibilityStatus: {
