@@ -75,9 +75,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <SectionHeading>Patient Care</SectionHeading>
+            <SectionHeading>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.heading"
+                fallback="Move patient"
+              />
+            </SectionHeading>
             <SectionDescription>
-              Please select the clinician and department for the patient.
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.description"
+                fallback="Please select the clinician and department for the patient."
+              />
             </SectionDescription>
             <FormGrid columns={2} data-testid="formgrid-wyqp">
               <Field
