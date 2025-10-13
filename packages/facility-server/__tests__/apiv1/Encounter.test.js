@@ -1447,7 +1447,7 @@ describe('Encounter', () => {
       });
     });
 
-    // TODO: ENSURE THIS WORKS BEFORE MERGE
+    // TODO: Ensure this works before merge
     // describe('encounter history', () => {
     //   describe('single change', () => {
     //     it('should record an encounter history when an encounter is created', async () => {
