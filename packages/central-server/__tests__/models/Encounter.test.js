@@ -11,7 +11,6 @@ async function makeEncounterWithAssociations(models) {
     Location,
     Patient,
     Encounter,
-    EncounterHistory,
     Note,
     LabRequest,
     LabTestType,
@@ -33,7 +32,13 @@ async function makeEncounterWithAssociations(models) {
     locationId: location.id,
   });
 
-  const history = await EncounterHistory.findOne({ where: { encounterId: encounter.id } });
+  // Query logs.changes instead of encounter_history for encounter change tracking
+  const history = await models.ChangeLog.findOne({
+    where: {
+      tableName: 'encounters',
+      recordId: encounter.id,
+    },
+  });
 
   const note = await Note.create(
     fake(Note, {
@@ -109,7 +114,7 @@ describe('Encounter', () => {
 
   describe('beforeBulkDestroy', () => {
     it('should destroy all associated records', async () => {
-      const { Encounter, EncounterHistory } = models;
+      const { Encounter } = models;
       const encounterIds = [];
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -121,12 +126,18 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { id: { [Op.in]: encounterIds } } });
 
-      const count = await EncounterHistory.count();
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const count = await models.ChangeLog.count({
+        where: {
+          tableName: 'encounters',
+          recordId: { [Op.in]: encounterIds },
+        },
+      });
       expect(count).toBe(1);
     });
 
     it('should work without specifying IDs', async () => {
-      const { Encounter, EncounterHistory } = models;
+      const { Encounter } = models;
       const reasonForEncounter = 'A very adequate reason';
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -138,7 +149,15 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { reasonForEncounter } });
 
-      const count = await EncounterHistory.count();
+      // Query logs.changes instead of encounter_history for encounter change tracking
+      const count = await models.ChangeLog.count({
+        where: {
+          tableName: 'encounters',
+          recordData: {
+            [Op.contains]: { reasonForEncounter },
+          },
+        },
+      });
       expect(count).toBe(1);
     });
 

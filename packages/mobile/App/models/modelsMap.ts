@@ -13,7 +13,7 @@ import { PatientContact } from './PatientContact';
 import { PatientAllergy } from './PatientAllergy';
 import { User } from './User';
 import { Encounter } from './Encounter';
-import { EncounterHistory } from './EncounterHistory';
+// EncounterHistory model removed - now using logs.changes for encounter change tracking
 import { Program } from './Program';
 import { ProgramRegistry } from './ProgramRegistry';
 import { ProgramRegistryCondition } from './ProgramRegistryCondition';

@@ -107,7 +107,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
       PortalSurveyAssignment,
-      Permission, 
+      Permission,
       ReportDefinitionVersion,
       Setting,
       Template,
@@ -122,7 +122,6 @@ describe('Sync Lookup data', () => {
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
-      EncounterHistory,
       EncounterPrescription,
       PatientOngoingPrescription,
       PharmacyOrder,
@@ -271,14 +270,25 @@ describe('Sync Lookup data', () => {
         dischargerId: examiner.id,
       }),
     );
-    await EncounterHistory.create(
-      fake(EncounterHistory, {
-        examinerId: examiner.id,
-        encounterId: encounter1.id,
-        departmentId: department.id,
-        locationId: location.id,
-      }),
-    );
+    // Create encounter change log instead of encounter_history
+    await models.ChangeLog.create({
+      tableName: 'encounters',
+      recordId: encounter1.id,
+      loggedAt: new Date(),
+      updatedByUserId: examiner.id,
+      deviceId: 'test-device',
+      version: 'test-version',
+      recordCreatedAt: new Date(),
+      recordUpdatedAt: new Date(),
+      recordData: {
+        id: encounter1.id,
+        encounterType: encounter1.encounterType,
+        locationId: encounter1.locationId,
+        departmentId: encounter1.departmentId,
+        examinerId: encounter1.examinerId,
+      },
+      reason: 'encounter_type',
+    });
     await EncounterDiet.create(
       fake(EncounterDiet, {
         encounterId: encounter1.id,
