@@ -108,7 +108,6 @@ export class MediciReport extends FhirResource {
       models.ImagingRequest,
       models.ImagingRequestArea,
       models.Encounter,
-      // EncounterHistory model removed - now using logs.changes for encounter change tracking
       models.LabRequest,
       models.LabTest,
       models.LabTestType,
