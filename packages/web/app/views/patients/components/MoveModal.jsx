@@ -3,8 +3,8 @@ import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
-  AutocompleteField,
   BodyText,
+  DynamicSelectField,
   Field,
   Form,
   FormGrid,
@@ -89,12 +89,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             <FormGrid columns={2} data-testid="formgrid-wyqp">
               <Field
                 name="examinerId"
-                component={AutocompleteField}
+                component={DynamicSelectField}
                 suggester={clinicianSuggester}
                 label={
                   <TranslatedText
-                    stringId="patient.encounter.movePatient.clinician.label"
-                    fallback="Clinician"
+                    stringId="patient.encounter.movePatient.supervisingClinician.label"
+                    fallback="Supervising clinician"
                   />
                 }
                 required
@@ -102,7 +102,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
               <Field
                 name="departmentId"
-                component={AutocompleteField}
+                component={DynamicSelectField}
                 suggester={departmentSuggester}
                 label={
                   <TranslatedText
