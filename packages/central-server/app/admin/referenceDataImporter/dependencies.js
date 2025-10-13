@@ -66,6 +66,11 @@ export default {
   },
   invoiceProduct: {},
 
+  priceList: {},
+  priceListItem: {
+    needs: ['priceList'],
+  },
+
   role: {},
   permission: {
     loader: permissionLoader,

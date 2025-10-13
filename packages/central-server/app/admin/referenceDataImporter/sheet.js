@@ -76,6 +76,12 @@ const FOREIGN_KEY_SCHEMATA = {
       types: REFERENCE_TYPE_VALUES,
     },
   ],
+  PriceListItem: [
+    {
+      field: 'priceList',
+      model: 'PriceList',
+    },
+  ],
 };
 
 export async function importSheet(
