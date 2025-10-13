@@ -7,7 +7,6 @@ import {
   Form,
   FormGrid,
   FormModal,
-  FormSubmitCancelRow,
   Heading3,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
@@ -15,8 +14,6 @@ import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
-
-// TODO: this is going to be the base of the new patient transfer modal
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
@@ -84,14 +81,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 data-testid="field-tykg"
               />
             </FormGrid>
-            <Heading3>Move location</Heading3>
-            <BodyText>Please select the clinician and department for the patient.</BodyText>
-            <FormGrid columns={2} data-testid="formgrid-wyqp"></FormGrid>
-            <FormSubmitCancelRow
-              onConfirm={submitForm}
-              onCancel={onClose}
-              data-testid="formsubmitcancelrow-35ou"
-            />
           </>
         )}
         data-testid="form-0lgu"
