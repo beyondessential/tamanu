@@ -17,11 +17,6 @@ import { isInpatient } from '../../../utils/isInpatient';
 import { useSettings } from '../../../contexts/Settings';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const ActionsContainer = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
 const ENCOUNTER_MODALS = {
   NONE: 'none',
 
@@ -45,6 +40,15 @@ const ENCOUNTER_MODALS = {
 const StyledButton = styled(Button)`
   white-space: nowrap;
   max-height: 40px;
+`;
+
+const ActionsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const StyledThreeDotMenu = styled(ThreeDotMenu)`
+  margin-left: -7px;
 `;
 
 export const EncounterActions = React.memo(({ encounter }) => {
@@ -185,20 +189,25 @@ export const EncounterActions = React.memo(({ encounter }) => {
   return (
     <NoteModalActionBlocker>
       <ActionsContainer>
-        <StyledButton size="small" variant="outlined">
-          Prepare discharge
+        <StyledButton
+          size="small"
+          variant="outlined"
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
+        >
+          <TranslatedText
+            stringId="encounter.action.prepareDischarge"
+            fallback="Prepare discharge"
+          />
         </StyledButton>
         <StyledButton
           size="small"
           color="primary"
           onClick={() => setOpenModal(ENCOUNTER_MODALS.TRANSFER)}
         >
-          Move patient
+          <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
         </StyledButton>
-        <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
+        <StyledThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
-
-      {/* Hidden modals */}
 
       {/* New modal with everything */}
       <MoveModal
