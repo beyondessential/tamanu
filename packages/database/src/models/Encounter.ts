@@ -2,7 +2,7 @@ import { Op, DataTypes } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
-  EncounterChangeType,
+  // EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
