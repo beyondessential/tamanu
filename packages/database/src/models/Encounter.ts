@@ -402,8 +402,7 @@ export class Encounter extends Model {
 
   static async create(...args: any): Promise<any> {
     const [data, options] = args;
-    const { actorId, ...encounterData } = data;
-    const encounter = (await super.create(encounterData, options)) as Encounter;
+    const encounter = (await super.create(data, options)) as Encounter;
 
     // Encounter history is now automatically tracked via logs.changes triggers
     // No need for manual EncounterHistory.createSnapshot calls
