@@ -661,31 +661,32 @@ export class Encounter extends Model {
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
-      const { submittedTime, ...encounterData } = data;
+      const { encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
-      const snapshotChanges = [
-        isEncounterTypeChanged,
-        isDepartmentChanged,
-        isLocationChanged,
-        isClinicianChanged,
-      ].filter(Boolean);
+      // TODO: encounter history moving to logs.changes
+      // const snapshotChanges = [
+      //   isEncounterTypeChanged,
+      //   isDepartmentChanged,
+      //   isLocationChanged,
+      //   isClinicianChanged,
+      // ].filter(Boolean);
 
-      if (snapshotChanges.length > 1) {
-        // Will revert all the changes above if error is thrown as this is in a transaction
-        throw new InvalidOperationError(
-          'Encounter type, department, location and clinician must be changed in separate operations',
-        );
-      }
+      // if (snapshotChanges.length > 1) {
+      //   // Will revert all the changes above if error is thrown as this is in a transaction
+      //   throw new InvalidOperationError(
+      //     'Encounter type, department, location and clinician must be changed in separate operations',
+      //   );
+      // }
 
-      // multiple changes in 1 update transaction is not supported at the moment
-      if (snapshotChanges.length === 1) {
-        await EncounterHistory.createSnapshot(updatedEncounter, {
-          actorId: user?.id,
-          changeType,
-          submittedTime,
-        });
-      }
+      // // multiple changes in 1 update transaction is not supported at the moment
+      // if (snapshotChanges.length === 1) {
+      //   await EncounterHistory.createSnapshot(updatedEncounter, {
+      //     actorId: user?.id,
+      //     changeType,
+      //     submittedTime,
+      //   });
+      // }
 
       return updatedEncounter;
     };

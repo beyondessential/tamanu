@@ -3,14 +3,12 @@ import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
-import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
-import { ChangeClinicianModal } from '../../../components/ChangeClinicianModal';
 import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
+import { PatientTransferModal } from './PatientTransferModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, NoteModalActionBlocker } from '../../../components';
-import { DropdownButton } from '../../../components/DropdownButton';
 import { MoveModal } from './MoveModal';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -43,6 +41,8 @@ const ENCOUNTER_MODALS = {
 
   ENCOUNTER_RECORD: 'encounterRecord',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
+
+  TRANSFER: 'transfer',
 };
 
 const StyledButton = styled(Button)`
@@ -117,7 +117,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
     },
     {
       label: 'Move patient',
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE),
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
     },
     {
@@ -161,13 +161,26 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <StyledButton size="small" variant="outlined">
           Prepare discharge
         </StyledButton>
-        <StyledButton size="small" color="primary">
+        <StyledButton
+          size="small"
+          color="primary"
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.TRANSFER)}
+        >
           Move patient
         </StyledButton>
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 
       {/* Hidden modals */}
+
+      {/* New modal with everything */}
+      <PatientTransferModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.TRANSFER}
+        onClose={onClose}
+        data-testid="patienttransfermodal-00xl"
+      />
+
       <DischargeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.DISCHARGE}
@@ -180,16 +193,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         newType={newEncounterType}
         data-testid="changeencountertypemodal-crha"
-      />
-      <ChangeDepartmentModal
-        open={openModal === ENCOUNTER_MODALS.CHANGE_DEPARTMENT}
-        onClose={onClose}
-        data-testid="changedepartmentmodal-uqvy"
-      />
-      <ChangeClinicianModal
-        open={openModal === ENCOUNTER_MODALS.CHANGE_CLINICIAN}
-        onClose={onClose}
-        data-testid="changeclinicianmodal-hmn3"
       />
       {/* Patient move modals */}
       <MoveModal
