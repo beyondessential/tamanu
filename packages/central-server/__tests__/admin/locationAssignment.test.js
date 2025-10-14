@@ -645,6 +645,7 @@ describe('Location Assignment API', () => {
       expect(createdAssignment).toBeTruthy();
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '12:00:00',
@@ -704,6 +705,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '10:00:00',
@@ -746,6 +748,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -768,6 +771,7 @@ describe('Location Assignment API', () => {
       });
 
       const result = await adminApp.put(`/api/admin/location-assignments/${assignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -804,6 +808,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '10:00:00',
@@ -861,6 +866,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: today,
         startTime: '10:00:00',
@@ -904,6 +910,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -942,6 +949,7 @@ describe('Location Assignment API', () => {
       const assignmentToUpdate = assignments[3];
       const newDate = toDateString(addWeeks(parseISO(assignmentToUpdate.date), 1));
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: newDate,
         startTime: '11:00:00',
@@ -1021,6 +1029,7 @@ describe('Location Assignment API', () => {
 
       const assignmentToUpdate = assignments[3];
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: assignments[2].date,
         startTime: '10:00:00',
@@ -1062,6 +1071,7 @@ describe('Location Assignment API', () => {
       expect(createResult2).toHaveSucceeded();
 
       const updateResult2 = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: toDateString(tomorrow),
         startTime: '10:00:00',
