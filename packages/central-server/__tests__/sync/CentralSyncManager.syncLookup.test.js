@@ -270,25 +270,6 @@ describe('Sync Lookup data', () => {
         dischargerId: examiner.id,
       }),
     );
-    // Create encounter change log instead of encounter_history
-    await models.ChangeLog.create({
-      tableName: 'encounters',
-      recordId: encounter1.id,
-      loggedAt: new Date(),
-      updatedByUserId: examiner.id,
-      deviceId: 'test-device',
-      version: 'test-version',
-      recordCreatedAt: new Date(),
-      recordUpdatedAt: new Date(),
-      recordData: {
-        id: encounter1.id,
-        encounterType: encounter1.encounterType,
-        locationId: encounter1.locationId,
-        departmentId: encounter1.departmentId,
-        examinerId: encounter1.examinerId,
-      },
-      reason: 'encounter_type',
-    });
     await EncounterDiet.create(
       fake(EncounterDiet, {
         encounterId: encounter1.id,
