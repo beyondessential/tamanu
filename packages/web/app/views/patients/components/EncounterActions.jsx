@@ -200,7 +200,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <StyledThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 
-      {/* New modal with everything */}
       <MoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.MOVE}
@@ -222,13 +221,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
         data-testid="changeencountertypemodal-crha"
       />
 
-      {/* Patient move modals */}
-      <BeginPatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
-        onClose={onClose}
-        data-testid="beginpatientmovemodal-2upr"
-      />
+      {/* Patient move modals These will probably move to that new component */}
+
       <FinalisePatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}

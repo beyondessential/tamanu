@@ -23,6 +23,7 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
+import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -68,7 +69,7 @@ const BasicMoveFields = () => {
   );
 };
 
-const patientMoveActionOptions = [
+const PATIENT_MOVE_ACTION_OPTIONS = [
   {
     label: (
       <TranslatedText
@@ -77,7 +78,7 @@ const patientMoveActionOptions = [
         data-testid="translatedtext-patient-move-action-plan"
       />
     ),
-    value: 'plan',
+    value: PATIENT_MOVE_ACTIONS.PLAN,
   },
   {
     label: (
@@ -87,7 +88,7 @@ const patientMoveActionOptions = [
         data-testid="translatedtext-patient-move-action-finalise"
       />
     ),
-    value: 'finalise',
+    value: PATIENT_MOVE_ACTIONS.FINALISE,
   },
 ];
 
@@ -125,18 +126,16 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
             />
           }
           component={RadioField}
-          options={patientMoveActionOptions}
+          options={PATIENT_MOVE_ACTION_OPTIONS}
           style={{ gridColumn: '1/-1' }}
           data-testid="field-ryle"
         />
-        <Text data-testid="text-5y59">
-          <TranslatedText
-            stringId="encounter.modal.patientMove.planningNote"
-            fallback="By selecting 'Plan' the new location will not be reflected in the patient encounter until you finalise the move. If the move is not finalised within :hours hours, the location will be deemed 'Available' again."
-            replacements={{ hours: plannedMoveTimeoutHours }}
-            data-testid="translatedtext-encounter-modal-patient-move-planning-note"
-          />
-        </Text>
+        <TranslatedText
+          stringId="encounter.modal.patientMove.planningNote"
+          fallback="By selecting 'Plan' the new location will not be reflected in the patient encounter until you finalise the move. If the move is not finalised within :hours hours, the location will be deemed 'Available' again."
+          replacements={{ hours: plannedMoveTimeoutHours }}
+          data-testid="translatedtext-encounter-modal-patient-move-planning-note"
+        />
       </Section>
     </>
   );
@@ -181,7 +180,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           ...(enablePatientMoveActions
             ? {
                 plannedLocationId: encounter.plannedLocationId,
-                action: 'plan',
+                action: PATIENT_MOVE_ACTIONS.PLAN,
               }
             : {
                 locationId: encounter.locationId,
