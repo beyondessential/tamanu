@@ -81,7 +81,7 @@ export class PriceList extends Model {
       const m = trimmed.match(/^(<=|>=|<|>|=)?\s*(\d{1,3})$/);
       if (!m) return false;
       const op = m[1] ?? '=';
-      const val = parseInt(m[2], 10);
+      const val = parseInt(m[2]!, 10);
       switch (op) {
         case '<':
           return ageYears < val;

@@ -5,21 +5,10 @@ import { transform, set } from 'lodash';
 
 export const invoiceItemsRoute = permissionCheckingRouter('read', 'Invoice');
 
-// {
-//     patientType: 'patientType-Charity',
-//     patientDOB: '2000-08-08',
-//    facilityId: 'facility-1'
-// }
-async function getPriceListId(models, inputs) {
-  if (models?.PriceList?.getIdForInputs) {
-    return await models.PriceList.getIdForInputs(inputs);
-  }
-  return null;
-}
-
 invoiceItemsRoute.get(
   '/:id/items',
   asyncHandler(async (req, res) => {
+    console.log('InvoiceItemsTable', req.params.id);
     const { models, params, query } = req;
     const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
     const { InvoiceItem, Invoice } = models;
@@ -48,12 +37,7 @@ invoiceItemsRoute.get(
       facilityId: encounter.location.facilityId,
     };
 
-    console.log(
-      'encounter.patient.additionalData.patientBillingTypeId test',
-      encounter.patient.additionalData?.[0]?.patientBillingTypeId,
-    );
-    console.log('inputs', inputs);
-    const priceListId = await getPriceListId(models, inputs);
+    const priceListId = await models.PriceList.getIdForInputs(inputs);
     const associations = [
       {
         model: models.InvoiceProduct,
@@ -63,7 +47,7 @@ invoiceItemsRoute.get(
             model: models.PriceListItem,
             ...(priceListId ? { where: { priceListId } } : {}),
             as: 'priceListItem',
-            attributes: ['price'],
+            attributes: ['price', 'priceListId'],
             required: false,
           },
           {

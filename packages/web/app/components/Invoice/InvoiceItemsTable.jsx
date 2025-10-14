@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import {
   getInvoiceItemDiscountPriceDisplay,
-  getInvoiceItemPriceDisplay,
+  formatDisplayPrice,
 } from '@tamanu/shared/utils/invoice';
+import Decimal from 'decimal.js';
 
 import { Colors, denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
@@ -24,10 +25,24 @@ const PriceCell = styled.div`
 `;
 
 const PriceText = styled.span`
-  text-decoration: ${(props) => (props.isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const getPrice = (row) => {
+const getInvoiceItemTotalPrice = invoiceItem => {
+  return new Decimal(invoiceItem?.product?.priceListItem?.price || 0)
+    .times(invoiceItem?.quantity || 1)
+    .toNumber();
+};
+
+const getInvoiceItemPriceDisplay = invoiceItem => {
+  return formatDisplayPrice(
+    isNaN(parseFloat(invoiceItem?.product?.priceListItem?.price))
+      ? undefined
+      : getInvoiceItemTotalPrice(invoiceItem),
+  );
+};
+
+const getPrice = row => {
   const price = getInvoiceItemPriceDisplay(row);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(row);
 
@@ -49,7 +64,7 @@ const getPrice = (row) => {
   );
 };
 
-const getInvoiceItemDetails = (row) => {
+const getInvoiceItemDetails = row => {
   if (row.productDiscountable) {
     return row.productName;
   }
@@ -168,7 +183,7 @@ export const InvoiceItemsTable = ({ invoice }) => {
       headStyle={denseTableStyle.head}
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
-      data={invoice.items}
+      // data={invoice.items}
       data-testid="datafetchingtable-66i5"
     />
   );
