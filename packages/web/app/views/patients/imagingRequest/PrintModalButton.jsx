@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useEncounterDataQuery } from '../../../api/queries';
 import { Button } from '../../../components/Button';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
@@ -32,7 +32,7 @@ const PrintModalInternals = ({ imagingRequest }) => {
   );
 };
 
-export const PrintModalButton = (props) => {
+export const PrintModalButton = props => {
   const { modal } = useParams();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);

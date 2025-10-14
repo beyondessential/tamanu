@@ -5,7 +5,7 @@ import Bowser from 'bowser';
 import 'typeface-roboto';
 import { Colors } from './constants';
 import { checkIsLoggedIn, checkIsFacilitySelected, getServerType } from './store/auth';
-import { getCurrentRoute } from './store/router';
+import { useLocation } from 'react-router';
 import { LoginView, FacilitySelectionView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
@@ -37,7 +37,7 @@ export function App({ sidebar, children }) {
   const { data: isServerAlive, isLoading } = useCheckServerAliveQuery();
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const isFacilitySelected = useSelector(checkIsFacilitySelected);
-  const currentRoute = useSelector(getCurrentRoute);
+  const location = useLocation();
   const serverType = useSelector(getServerType);
   const isPrimaryTab = useSingleTab();
   const disableSingleTab =
@@ -69,7 +69,7 @@ export function App({ sidebar, children }) {
     <AppContainer>
       {sidebar}
       <PromiseErrorBoundary>
-        <ErrorBoundary errorKey={currentRoute}>
+        <ErrorBoundary errorKey={location.pathname}>
           <AppContentsContainer>
             {children}
             <ForbiddenErrorModal />

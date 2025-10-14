@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
 import { Modal } from './Modal';
@@ -30,7 +30,7 @@ export const ForbiddenErrorModalContents = ({ onConfirm, confirmText }) => (
 );
 
 export const ForbiddenErrorModal = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const errorMessage = useSelector(getErrorMessage);
   const dispatch = useDispatch();
   const handleClose = useCallback(() => {
@@ -38,8 +38,8 @@ export const ForbiddenErrorModal = () => {
   }, [dispatch]);
   const handleConfirm = useCallback(() => {
     handleClose();
-    history.goBack();
-  }, [history, handleClose]);
+    navigate(-1);
+  }, [navigate, handleClose]);
 
   if (errorMessage === null) {
     return null;

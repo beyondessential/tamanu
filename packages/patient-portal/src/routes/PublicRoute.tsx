@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { styled } from '@mui/material/styles';
 import { CircularProgress, Box } from '@mui/material';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
@@ -48,24 +48,16 @@ const PublicPageLayout = ({ children }: { children: React.ReactNode }) => (
   </PageContainer>
 );
 
-export const PublicRoute = (props: RouteProps) => {
-  const { component: Component, ...restProps } = props;
+export const PublicRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isPending } = useCurrentUserQuery();
 
-  return (
-    <Route
-      {...restProps}
-      render={routeProps => {
-        if (isPending) {
-          return <CircularProgress />;
-        }
+  if (isPending) {
+    return <CircularProgress />;
+  }
 
-        if (user) {
-          return <Redirect to="/" />;
-        }
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
 
-        return <PublicPageLayout>{Component && <Component {...routeProps} />}</PublicPageLayout>;
-      }}
-    />
-  );
+  return <PublicPageLayout>{element}</PublicPageLayout>;
 };
