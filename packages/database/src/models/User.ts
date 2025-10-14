@@ -17,6 +17,7 @@ import type { InitOptions, ModelProperties, Models } from '../types/model';
 import type { Subject } from '@casl/ability';
 import { Permission } from './Permission';
 import type { Facility } from './Facility';
+import { isBcryptHash } from '@tamanu/utils/password';
 
 const DEFAULT_SALT_ROUNDS = 10;
 
@@ -39,8 +40,7 @@ export class User extends Model {
   }
 
   static isPasswordHashed(password: string): boolean {
-    // bcrypt hashes start with $2a$, $2b$, or $2y$ followed by cost and salt
-    return /^\$2[aby]\$\d{1,2}\$/.test(password);
+    return isBcryptHash(password);
   }
 
   static getSystemUser() {

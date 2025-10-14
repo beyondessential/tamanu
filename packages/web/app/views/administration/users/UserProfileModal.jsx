@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
 import { UserLeaveSection } from './UserLeaveSection';
 import { useAuth } from '../../../contexts/Auth';
+import { isBcryptHash } from '@tamanu/utils/password';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -65,7 +66,20 @@ const validationSchema = yup.object().shape({
   email: foreignKey(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .email()
     .translatedLabel(<TranslatedText stringId="admin.users.email.label" fallback="Email" />),
-  newPassword: yup.string().nullable(),
+  newPassword: yup
+    .string()
+    .nullable()
+    .test(
+      'password-is-not-hashed',
+      <TranslatedText
+        stringId="validation.password.isHashed"
+        fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
+      />,
+      function(value) {
+        if (!value) return true;
+        return !isBcryptHash(value);
+      },
+    ),
   confirmPassword: yup
     .string()
     .nullable()
@@ -76,8 +90,6 @@ const validationSchema = yup.object().shape({
         const { newPassword } = this.parent;
         // Only validate if both passwords are provided
         if (!newPassword && !value) return true;
-        if (newPassword && !value) return false;
-        if (!newPassword && value) return false;
         return newPassword === value;
       },
     ),
@@ -340,6 +352,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         component={TextField}
                         type="password"
                         required
+                        validateOnBlur
                       />
                     </FormGrid>
                   </>
