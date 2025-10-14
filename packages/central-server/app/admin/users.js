@@ -13,6 +13,7 @@ import {
   EditConflictError,
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
+import { isBcryptHash } from '@tamanu/utils/password';
 
 export const usersRouter = express.Router();
 
@@ -183,6 +184,9 @@ const CREATE_VALIDATION = yup
     password: yup.string().required(),
     allowedFacilityIds: yup.array().of(yup.string()).nullable().optional(),
   })
+  .test('password-is-not-hashed', 'Password must not be hashed', function (value) {
+    return !isBcryptHash(value.password);
+  })
   .noUnknown();
 
 usersRouter.post(
@@ -349,14 +353,13 @@ const UPDATE_VALIDATION = yup
   .test('passwords-match', 'Passwords must match', function (value) {
     const { newPassword, confirmPassword } = value;
     // If both passwords are provided, they must match
-    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+    if ((newPassword || confirmPassword) && newPassword !== confirmPassword) {
       return this.createError({ message: 'Passwords must match' });
     }
-    // If only one password is provided, it's an error
-    if ((newPassword && !confirmPassword) || (!newPassword && confirmPassword)) {
-      return this.createError({ message: 'Both password fields must be filled' });
-    }
     return true;
+  })
+  .test('password-is-not-hashed', 'Password must not be hashed', function (value) {
+    return !isBcryptHash(value.newPassword);
   })
   .noUnknown();
 usersRouter.put(
@@ -435,7 +438,7 @@ usersRouter.put(
     };
 
     // Add password to update fields if provided
-    if (fields.newPassword && fields.confirmPassword) {
+    if (fields.newPassword) {
       updateFields.password = fields.newPassword;
     }
 
