@@ -258,7 +258,11 @@ export const RepeatingFields = ({
                 }),
                 'yyyy-MM-dd',
               )}
-              max={format(add(startTimeDate, { months: maxFutureMonths }), 'yyyy-MM-dd')}
+              max={
+                maxFutureMonths
+                  ? format(add(new Date(), { months: maxFutureMonths }), 'yyyy-MM-dd')
+                  : undefined
+              }
               component={StyledDateField}
               data-testid="field-4flf"
             />
