@@ -13,6 +13,8 @@ import {
   FormSubmitCancelRow,
   Heading3,
   LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
+  RadioField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
@@ -46,18 +48,7 @@ const SubmitRow = styled(FormSubmitCancelRow)`
 const BasicMoveFields = () => {
   return (
     <>
-      <SectionHeading>
-        <TranslatedText
-          stringId="patient.encounter.modal.movePatient.section.basic.heading"
-          fallback="Move location"
-        />
-      </SectionHeading>
-      <SectionDescription>
-        <TranslatedText
-          stringId="patient.encounter.modal.movePatient.section.basic.description"
-          fallback="Please select the location for the patient."
-        />
-      </SectionDescription>
+      <SectionDescription>DESCRIPTION TO BE CONFIRMED</SectionDescription>
       <Section columns={2} data-testid="formgrid-wyqp">
         <Field
           name="locationId"
@@ -77,17 +68,75 @@ const BasicMoveFields = () => {
   );
 };
 
-const AdvancedMoveFields = () => {
+const patientMoveActionOptions = [
+  {
+    label: (
+      <TranslatedText
+        stringId="encounter.modal.patientMove.action.plan"
+        fallback="Plan"
+        data-testid="translatedtext-patient-move-action-plan"
+      />
+    ),
+    value: 'plan',
+  },
+  {
+    label: (
+      <TranslatedText
+        stringId="encounter.modal.patientMove.action.finalise"
+        fallback="Finalise"
+        data-testid="translatedtext-patient-move-action-finalise"
+      />
+    ),
+    value: 'finalise',
+  },
+];
+
+const AdvancedMoveFields = ({ plannedLocationId }) => {
+  const { getSetting } = useSettings();
+  const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
+
   return (
     <>
-      <SectionHeading>ADVANCED MOVEMENT</SectionHeading>
-      <SectionDescription>PLEASE SELECT THE LOCATION FOR THE PATIENT.</SectionDescription>
+      <SectionDescription>
+        Select a location to plan the patient location move and reserve a bed. The new location will
+        not be reflected in the patient encounter until you finalise the move. If the change is not
+        finalised within 24 hours, the planned location move will be cancelled. Alternatively you
+        can finalise the patient move now using the option below.
+      </SectionDescription>
       <Section columns={2} data-testid="formgrid-wyqp">
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
-          label="Planned location"
+          required
+          data-testid="field-n625"
         />
+        <LocationAvailabilityWarningMessage
+          locationId={plannedLocationId}
+          style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
+          data-testid="locationavailabilitywarningmessage-6ivs"
+        />
+        <Field
+          name="action"
+          label={
+            <TranslatedText
+              stringId="encounter.modal.patientMove.action.label"
+              fallback="Would you like to plan or finalise the patient move?"
+              data-testid="translatedtext-l7v1"
+            />
+          }
+          component={RadioField}
+          options={patientMoveActionOptions}
+          style={{ gridColumn: '1/-1' }}
+          data-testid="field-ryle"
+        />
+        <Text data-testid="text-5y59">
+          <TranslatedText
+            stringId="encounter.modal.patientMove.planningNote"
+            fallback="By selecting 'Plan' the new location will not be reflected in the patient encounter until you finalise the move. If the move is not finalised within :hours hours, the location will be deemed 'Available' again."
+            replacements={{ hours: plannedMoveTimeoutHours }}
+            data-testid="translatedtext-encounter-modal-patient-move-planning-note"
+          />
+        </Text>
       </Section>
     </>
   );
@@ -129,11 +178,18 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           submittedTime: getCurrentDateTimeString(),
           examinerId: encounter.examinerId,
           departmentId: encounter.departmentId,
-          locationId: encounter.locationId,
+          ...(enablePatientMoveActions
+            ? {
+                plannedLocationId: encounter.plannedLocationId,
+                action: 'plan',
+              }
+            : {
+                locationId: encounter.locationId,
+              }),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        render={({ submitForm }) => (
+        render={({ submitForm, values }) => (
           <>
             <SectionHeading>
               <TranslatedText
@@ -176,7 +232,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
             </Section>
             <FormSeparatorLine />
-            {enablePatientMoveActions ? <AdvancedMoveFields /> : <BasicMoveFields />}
+            <SectionHeading>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.basic.heading"
+                fallback="Move location"
+              />
+            </SectionHeading>
+            {enablePatientMoveActions ? (
+              <AdvancedMoveFields plannedLocationId={values?.plannedLocationId} />
+            ) : (
+              <BasicMoveFields />
+            )}
             <SubmitRow
               onConfirm={submitForm}
               onCancel={onClose}
