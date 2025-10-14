@@ -153,9 +153,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   });
   const clinicianSuggester = useSuggester('practitioner');
 
-  const onSubmit = async data => {
-    await writeAndViewEncounter(encounter.id, data);
-    await submitPatientMove(data);
+  const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
+    await writeAndViewEncounter(encounter.id, {
+      departmentId,
+      examinerId,
+    });
+    await submitPatientMove({ locationId, plannedLocationId, action });
   };
 
   return (
