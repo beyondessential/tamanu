@@ -1,5 +1,5 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
-import { prefixMap, NOTE_TYPES, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import { prefixMap, NOTE_TYPES, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 
 const makeNoteTypeId = (code: string): string => `notetype-${code}`;
 
@@ -21,7 +21,7 @@ export async function up(query: QueryInterface): Promise<void> {
     { type: QueryTypes.SELECT }
   );
 
-  const translationsToInsert = [];
+  const translationsToInsert: Translation[] = [];
 
   if (existingTranslations.length > 0) {
     const migratedTranslations = existingTranslations
@@ -40,14 +40,13 @@ export async function up(query: QueryInterface): Promise<void> {
     translationsToInsert.push(...migratedTranslations);
   }
 
-  const existingStringIds = new Set(translationsToInsert.map(t => t.string_id));
   const defaultTranslations = Object.values(NOTE_TYPES)
     .map(code => ({
       string_id: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(code)}`,
-      language: DEFAULT_LANGUAGE_CODE,
+      language: ENGLISH_LANGUAGE_CODE,
       text: NOTE_TYPE_LABELS[code] || code,
     }))
-    .filter(translation => !existingStringIds.has(translation.string_id));
+    .filter(translation => !translationsToInsert.find(t => t.string_id === translation.string_id && t.language === translation.language));
 
   translationsToInsert.push(...defaultTranslations);
 
