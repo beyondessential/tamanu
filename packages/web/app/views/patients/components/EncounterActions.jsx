@@ -230,6 +230,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         newType={newEncounterType}
         data-testid="changeencountertypemodal-crha"
       />
+
       {/* Patient move modals */}
       <MoveModal
         encounter={encounter}
