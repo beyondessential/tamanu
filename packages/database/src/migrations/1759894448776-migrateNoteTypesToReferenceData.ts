@@ -13,7 +13,7 @@ const NOTE_TYPE_CONFIGS = Object.values(NOTE_TYPES).map(code => ({
   name: NOTE_TYPE_LABELS[code] || code,
 }));
 
-const makeNoteTypeId = (code: string): string => `notetype-${code}`.toLowerCase();
+const makeNoteTypeId = (code: string): string => `notetype-${code}`;
 
 export async function up(query: QueryInterface) {
   const referenceDataRecords = NOTE_TYPE_CONFIGS.map(({ code, name }) => ({

@@ -1,5 +1,7 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
-import { prefixMap, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import { prefixMap, NOTE_TYPES, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX, DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+
+const makeNoteTypeId = (code: string): string => `notetype-${code}`;
 
 interface Translation {
   string_id: string;
@@ -19,20 +21,35 @@ export async function up(query: QueryInterface): Promise<void> {
     { type: QueryTypes.SELECT }
   );
 
-  if (existingTranslations.length === 0) {
-    return;
+  const translationsToInsert = [];
+
+  if (existingTranslations.length > 0) {
+    const migratedTranslations = existingTranslations
+      .map((translation) => {
+        const oldCode = translation.string_id.replace(`${notTypePrefix}.`, '');
+        const newStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(oldCode)}`;
+        
+        return {
+          string_id: newStringId,
+          language: translation.language,
+          text: translation.text,
+        };
+      })
+      .filter(Boolean);
+    
+    translationsToInsert.push(...migratedTranslations);
   }
 
-  const translationsToInsert = existingTranslations
-    .map((translation) => {
+  const existingStringIds = new Set(translationsToInsert.map(t => t.string_id));
+  const defaultTranslations = Object.values(NOTE_TYPES)
+    .map(code => ({
+      string_id: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(code)}`,
+      language: DEFAULT_LANGUAGE_CODE,
+      text: NOTE_TYPE_LABELS[code] || code,
+    }))
+    .filter(translation => !existingStringIds.has(translation.string_id));
 
-      return {
-        string_id: translation.string_id.replace(notTypePrefix, `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}`),
-        language: translation.language,
-        text: translation.text,
-      };
-    })
-    .filter(Boolean);
+  translationsToInsert.push(...defaultTranslations);
 
   if (translationsToInsert.length > 0) {
     await query.bulkInsert('translated_strings', translationsToInsert);

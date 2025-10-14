@@ -130,10 +130,19 @@ export class Note extends Model {
     content: string,
     authorId: string,
   ) {
+    const { models } = this.sequelize;
+    const noteTypeReference = await models.ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        code: noteType,
+      },
+    });
+
     return Note.create({
       recordId,
       recordType,
       noteType,
+      noteTypeId: noteTypeReference?.id,
       date: getCurrentDateTimeString(),
       content,
       authorId,

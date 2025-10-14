@@ -169,7 +169,6 @@ export class ImagingRequest extends Model {
         },
         ...(options.include || []),
       ],
-      ...options,
     });
   }
 
