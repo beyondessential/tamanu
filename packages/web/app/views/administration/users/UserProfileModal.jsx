@@ -66,7 +66,20 @@ const validationSchema = yup.object().shape({
   email: foreignKey(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .email()
     .translatedLabel(<TranslatedText stringId="admin.users.email.label" fallback="Email" />),
-  newPassword: yup.string().nullable(),
+  newPassword: yup
+    .string()
+    .nullable()
+    .test(
+      'password-is-not-hashed',
+      <TranslatedText
+        stringId="validation.password.isHashed"
+        fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
+      />,
+      function(value) {
+        if (!value) return true;
+        return !isBcryptHash(value);
+      },
+    ),
   confirmPassword: yup
     .string()
     .nullable()
@@ -78,16 +91,6 @@ const validationSchema = yup.object().shape({
         // Only validate if both passwords are provided
         if (!newPassword && !value) return true;
         return newPassword === value;
-      },
-    )
-    .test(
-      'password-is-not-hashed',
-      <TranslatedText
-        stringId="validation.password.isHashed"
-        fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
-      />,
-      function(value) {
-        return !isBcryptHash(value);
       },
     ),
 });
@@ -349,6 +352,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         component={TextField}
                         type="password"
                         required
+                        validateOnBlur
                       />
                     </FormGrid>
                   </>

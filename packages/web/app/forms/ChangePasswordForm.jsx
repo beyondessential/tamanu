@@ -331,7 +331,7 @@ export const ChangePasswordForm = React.memo(
               'password-is-not-hashed',
               <TranslatedText
                 stringId="validation.password.isHashed"
-                fallback="Password must not be start with hashed (.e.g. $2a$, $2b$, $2y$)"
+                fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
               />,
               function(value) {
                 return !isBcryptHash(value);
@@ -347,17 +347,7 @@ export const ChangePasswordForm = React.memo(
               [yup.ref('newPassword'), null],
               getTranslation('validation.rule.passwordMatch', 'Passwords don’t match'),
             )
-            .required(getTranslation('validation.required.inline', '*Required'))
-            .test(
-              'password-is-not-hashed',
-              <TranslatedText
-                stringId="validation.password.isHashed"
-                fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
-              />,
-              function(value) {
-                return !isBcryptHash(value);
-              },
-            ),
+            .required(getTranslation('validation.required.inline', '*Required')),
         })}
         suppressErrorDialog
         data-testid="form-xain"
