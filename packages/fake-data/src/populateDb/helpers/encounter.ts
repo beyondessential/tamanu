@@ -40,28 +40,6 @@ export const createEncounter = async ({
     }),
   );
 
-  // Create encounter change log instead of encounter_history
-  await models.ChangeLog.create({
-    tableName: 'encounters',
-    recordId: encounter.id,
-    loggedAt: new Date(),
-    updatedByUserId: userId || (await randomRecordId(models, 'User')),
-    deviceId: 'fake-data',
-    version: 'fake-data',
-    recordCreatedAt: encounter.createdAt,
-    recordUpdatedAt: encounter.updatedAt,
-    recordData: {
-      id: encounter.id,
-      encounterType: encounter.encounterType,
-      locationId: encounter.locationId,
-      departmentId: encounter.departmentId,
-      examinerId: encounter.examinerId,
-      startDate: encounter.startDate,
-      patientId: encounter.patientId,
-    },
-    reason: 'encounter_type',
-  });
-
   await Promise.all(
     times(diagnosisCount, () =>
       limit(async () => {
