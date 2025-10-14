@@ -165,9 +165,6 @@ const NoteContentBox = styled(Box)`
 `;
 
 const StyledField = styled(Field)`
-  .MuiOutlinedInput-notchedOutline {
-    min-height: ${props => `${props.$minHeight - 12}px`};
-  }
   &.MuiTextField-root {
     min-height: ${props => `${props.$minHeight}px`};
     padding-bottom: 12px;
@@ -193,7 +190,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({
@@ -287,7 +284,14 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled, customStyleObject }) => (
+export const NoteTypeField = ({
+  required,
+  noteTypeCountByType,
+  onChange,
+  size,
+  disabled,
+  $fontSize,
+}) => (
   <Field
     name="noteType"
     label={
@@ -300,7 +304,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
-    customStyleObject={customStyleObject}
+    $fontSize={$fontSize}
     transformOptions={types =>
       types
         .filter(option => !option.hideFromDropdown)

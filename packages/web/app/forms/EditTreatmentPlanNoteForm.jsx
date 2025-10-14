@@ -41,10 +41,7 @@ export const EditTreatmentPlanNoteForm = ({
           <NoteModalFormGrid columns={2}>
             <NoteTypeField
               noteTypeCountByType={noteTypeCountByType}
-              customStyleObject={{
-                control: provided => ({ ...provided, fontSize: '14px' }),
-                option: provided => ({ ...provided, fontSize: '14px' }),
-              }}
+              $fontSize="14px"
               disabled
             />
             <NoteTemplateField

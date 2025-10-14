@@ -68,10 +68,7 @@ export const CreateEditNoteForm = ({
               noteTypeCountByType={noteTypeCountByType}
               onChange={onChangeNoteType}
               disabled={disableFields}
-              customStyleObject={{
-                control: provided => ({ ...provided, fontSize: '14px' }),
-                option: provided => ({ ...provided, fontSize: '14px' }),
-              }}
+              $fontSize="14px"
             />
             <NoteTemplateField
               noteType={values.noteType}
