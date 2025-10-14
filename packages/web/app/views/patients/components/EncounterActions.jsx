@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
-import { BeginPatientMoveModal } from './BeginPatientMoveModal';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { MoveModal } from './MoveModal';
@@ -245,6 +244,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="encounterrecordmodal-00xl"
       />
+
       <ChangeReasonModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
