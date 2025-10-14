@@ -372,6 +372,7 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
+      <h3>Planned move component here</h3>
       <DiagnosisView
         encounter={encounter}
         isTriage={getIsTriage(encounter)}
