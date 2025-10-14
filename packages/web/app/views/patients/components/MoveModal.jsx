@@ -130,12 +130,6 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
           style={{ gridColumn: '1/-1' }}
           data-testid="field-ryle"
         />
-        <TranslatedText
-          stringId="encounter.modal.patientMove.planningNote"
-          fallback="By selecting 'Plan' the new location will not be reflected in the patient encounter until you finalise the move. If the move is not finalised within :hours hours, the location will be deemed 'Available' again."
-          replacements={{ hours: plannedMoveTimeoutHours }}
-          data-testid="translatedtext-encounter-modal-patient-move-planning-note"
-        />
       </Section>
     </>
   );
@@ -182,7 +176,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
             ? {
-                plannedLocationId: encounter.plannedLocationId,
+                plannedLocationId: encounter.locationId,
                 action: PATIENT_MOVE_ACTIONS.PLAN,
               }
             : {
