@@ -192,6 +192,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
         setOverlappingRepeatingAssignments(overlapAssignments);
         return;
       }
+
       const overlappingLeaves = await checkOverlappingLeaves(payload);
       if (overlappingLeaves.length > 0) {
         setOverlappingLeaves(overlappingLeaves);
@@ -642,17 +643,21 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           onConfirm={handleConfirmModifyRepeatingAssignment}
         />
       )}
-      <OverlappingRepeatingAssignmentModal
-        open={!!overlappingRepeatingAssignments}
-        onClose={() => setOverlappingRepeatingAssignments(null)}
-        overlappingRepeatingAssignments={overlappingRepeatingAssignments}
-      />
-      <OverlappingLeavesModal
-        open={!!overlappingLeaves}
-        onClose={handleCloseOverlappingLeaves}
-        overlappingLeaves={overlappingLeaves}
-        onConfirm={handleConfirmOverlappingLeaves}
-      />
+      {overlappingRepeatingAssignments && (
+        <OverlappingRepeatingAssignmentModal
+          open
+          onClose={() => setOverlappingRepeatingAssignments(null)}
+          overlappingRepeatingAssignments={overlappingRepeatingAssignments}
+        />
+      )}
+      {overlappingLeaves && (
+        <OverlappingLeavesModal
+          open
+          onClose={handleCloseOverlappingLeaves}
+          overlappingLeaves={overlappingLeaves}
+          onConfirm={handleConfirmOverlappingLeaves}
+        />
+      )}
     </>
   );
 };

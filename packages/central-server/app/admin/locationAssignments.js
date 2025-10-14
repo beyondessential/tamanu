@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { z } from 'zod';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { parseISO, isBefore, differenceInMonths, addMonths, isAfter } from 'date-fns';
 import { generateFrequencyDates } from '@tamanu/utils/appointmentScheduling';
 import { InvalidOperationError, NotFoundError } from '@tamanu/errors';
@@ -55,16 +55,7 @@ locationAssignmentsRouter.get(
 
     const query = await getLocationAssignmentsSchema.parseAsync(req.query);
 
-    const {
-      after,
-      before,
-      locationId,
-      facilityId,
-      userId,
-      page,
-      rowsPerPage,
-      all,
-    } = query;
+    const { after, before, locationId, facilityId, userId, page, rowsPerPage, all } = query;
 
     const includeOptions = [
       {
@@ -196,6 +187,7 @@ locationAssignmentsRouter.post(
 
 const updateLocationAssignmentSchema = z
   .object({
+    userId: z.string(),
     locationId: z.string(),
     date: dateCustomValidation,
     startTime: timeCustomValidation,
@@ -323,6 +315,7 @@ locationAssignmentsRouter.delete(
 const overlappingAssignmentsSchema = z
   .object({
     id: z.string().optional(),
+    userId: z.string(),
     locationId: z.string(),
     date: dateCustomValidation,
     startTime: timeCustomValidation,
@@ -633,7 +626,16 @@ async function deleteSelectedAndFutureAssignments(models, templateId, assignment
  */
 async function findOverlappingAssignments(models, body, options = {}) {
   const { LocationAssignment, User } = models;
-  const { locationId, date, startTime, endTime, repeatFrequency, repeatUnit, repeatEndDate } = body;
+  const {
+    locationId,
+    date,
+    startTime,
+    endTime,
+    repeatFrequency,
+    repeatUnit,
+    repeatEndDate,
+    userId,
+  } = body;
 
   let dateFilter = {
     [Op.eq]: date,
@@ -665,10 +667,38 @@ async function findOverlappingAssignments(models, body, options = {}) {
       endTime: { [Op.gt]: startTime },
       date: dateFilter,
       ...(options.excludeAssignmentIds && { id: { [Op.notIn]: options.excludeAssignmentIds } }),
+      ...(repeatFrequency && {
+        [Op.or]: [
+          // All records with null templateId
+          { templateId: null },
+          // First record for each templateId
+          {
+            templateId: { [Op.ne]: null },
+            id: {
+              [Op.in]: literal(`(
+                SELECT DISTINCT ON ("template_id") id
+                FROM "location_assignments"
+                WHERE template_id IS NOT NULL
+                AND date IN (:dates)
+                AND NOT EXISTS (SELECT 1 FROM user_leaves WHERE user_id = :userId AND date BETWEEN start_date AND end_date)
+                AND location_id = :locationId
+                ORDER BY template_id, date DESC
+              )`),
+            },
+          },
+        ],
+      }),
+    },
+    replacements: {
+      dates: dateFilter[Op.in],
+      locationId,
+      userId,
     },
     attributes: ['id', 'locationId', 'date', 'startTime', 'endTime', 'templateId'],
-    limit: 20,
-    order: [['date', 'ASC']],
+    order: [
+      ['date', 'ASC'],
+      ['startTime', 'ASC'],
+    ],
   });
   return overlappingAssignments.map(assignment => ({
     id: assignment.id,
