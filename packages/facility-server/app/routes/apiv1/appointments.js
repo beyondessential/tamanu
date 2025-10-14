@@ -516,6 +516,7 @@ appointments.get(
         'clinician',
         'appointmentType',
         'bookingType',
+        'patient'
       ],
       order: [['startTime', 'ASC']],
     });
