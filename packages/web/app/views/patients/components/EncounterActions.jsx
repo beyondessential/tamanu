@@ -130,11 +130,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE),
       condition: () => enablePatientMoveActions && encounter.plannedLocation,
     },
-    // {
-    //   label: 'Prepare discharge',
-    //   onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
-    //   condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-    // },
     {
       label: (
         <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
