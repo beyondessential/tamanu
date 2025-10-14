@@ -120,6 +120,5 @@ export const EncounterInfoCard = ({
     <CardBody $numberOfColumns={numberOfColumns} data-testid="cardbody-m456">
       {children}
     </CardBody>
-    <h3>Planned move component here</h3>
   </Card>
 );
