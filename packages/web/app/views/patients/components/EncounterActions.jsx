@@ -26,14 +26,13 @@ const ENCOUNTER_MODALS = {
 
   DISCHARGE: 'discharge',
 
-  BEGIN_MOVE: 'beginMove',
   FINALISE_MOVE: 'finaliseMove',
   CANCEL_MOVE: 'cancelMove',
 
   ENCOUNTER_RECORD: 'encounterRecord',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
 
-  TRANSFER: 'transfer',
+  MOVE: 'move',
 };
 
 const StyledButton = styled(Button)`
@@ -194,7 +193,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <StyledButton
           size="small"
           color="primary"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.TRANSFER)}
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.MOVE)}
         >
           <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
         </StyledButton>
@@ -204,7 +203,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       {/* New modal with everything */}
       <MoveModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.TRANSFER}
+        open={openModal === ENCOUNTER_MODALS.MOVE}
         onClose={onClose}
         data-testid="MoveModal-00xl"
       />
