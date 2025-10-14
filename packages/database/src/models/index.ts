@@ -26,7 +26,7 @@ export * from './ContributingDeathCause';
 export * from './DeathRevertLog';
 
 export * from './Encounter';
-export * from './EncounterHistory';
+// EncounterHistory model removed - now using logs.changes for encounter change tracking
 
 export * from './Discharge';
 export * from './Triage';

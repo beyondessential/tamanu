@@ -108,7 +108,6 @@ export class MediciReport extends FhirResource {
       models.ImagingRequest,
       models.ImagingRequestArea,
       models.Encounter,
-      models.EncounterHistory,
       models.LabRequest,
       models.LabTest,
       models.LabTestType,
