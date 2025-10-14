@@ -9,8 +9,10 @@ import {
   Form,
   FormGrid,
   FormModal,
+  FormSeparatorLine,
   FormSubmitCancelRow,
   Heading3,
+  LocalisedLocationField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
@@ -18,11 +20,11 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { useSettings } from '../../../contexts/Settings';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
-  margin: 0;
-  margin-bottom: 10px;
+  margin: 10px 0;
   padding: 0;
 `;
 
@@ -33,13 +35,71 @@ const SectionDescription = styled(BodyText)`
   padding: 0;
 `;
 
+const Section = styled(FormGrid)`
+  margin-bottom: 30px;
+`;
+
 const SubmitRow = styled(FormSubmitCancelRow)`
   margin-top: 20px;
 `;
 
+const BasicMoveFields = () => {
+  return (
+    <>
+      <SectionHeading>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.basic.heading"
+          fallback="Move location"
+        />
+      </SectionHeading>
+      <SectionDescription>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.basic.description"
+          fallback="Please select the location for the patient."
+        />
+      </SectionDescription>
+      <Section columns={2} data-testid="formgrid-wyqp">
+        <Field
+          name="locationId"
+          component={LocalisedLocationField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.location.label"
+              fallback="New location"
+              data-testid="translatedtext-35a6"
+            />
+          }
+          required
+          data-testid="field-tykg"
+        />
+      </Section>
+    </>
+  );
+};
+
+const AdvancedMoveFields = () => {
+  return (
+    <>
+      <SectionHeading>ADVANCED MOVEMENT</SectionHeading>
+      <SectionDescription>PLEASE SELECT THE LOCATION FOR THE PATIENT.</SectionDescription>
+      <Section columns={2} data-testid="formgrid-wyqp">
+        <Field
+          name="plannedLocationId"
+          component={LocalisedLocationField}
+          label="Planned location"
+        />
+      </Section>
+    </>
+  );
+};
+
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
+  const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
   const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
+
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
@@ -69,6 +129,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           submittedTime: getCurrentDateTimeString(),
           examinerId: encounter.examinerId,
           departmentId: encounter.departmentId,
+          locationId: encounter.locationId,
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
@@ -77,7 +138,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             <SectionHeading>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.heading"
-                fallback="Move patient"
+                fallback="Patient care"
               />
             </SectionHeading>
             <SectionDescription>
@@ -86,7 +147,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Please select the clinician and department for the patient."
               />
             </SectionDescription>
-            <FormGrid columns={2} data-testid="formgrid-wyqp">
+            <Section columns={2} data-testid="formgrid-wyqp">
               <Field
                 name="examinerId"
                 component={DynamicSelectField}
@@ -113,7 +174,9 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 required
                 data-testid="field-tykg"
               />
-            </FormGrid>
+            </Section>
+            <FormSeparatorLine />
+            {enablePatientMoveActions ? <AdvancedMoveFields /> : <BasicMoveFields />}
             <SubmitRow
               onConfirm={submitForm}
               onCancel={onClose}

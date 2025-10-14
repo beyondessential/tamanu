@@ -20,7 +20,6 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 const ENCOUNTER_MODALS = {
   NONE: 'none',
 
-  CHANGE_LOCATION: 'changeLocation',
   CHANGE_TYPE: 'changeType',
   CHANGE_REASON: 'changeReason',
   CHANGE_DIET: 'changeDiet',
@@ -151,13 +150,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
     },
     {
-      label: (
-        <TranslatedText stringId="encounter.action.changeLocation" fallback="Change location" />
-      ),
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
-      condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
-    },
-    {
       label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
       condition: () =>
@@ -232,12 +224,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       />
 
       {/* Patient move modals */}
-      <MoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_LOCATION}
-        onClose={onClose}
-        data-testid="movemodal-me3p"
-      />
       <BeginPatientMoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
