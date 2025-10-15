@@ -78,7 +78,7 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
   InvoicePriceListItem: [
     {
-      field: 'priceList',
+      field: 'invoicePriceList',
       model: 'InvoicePriceList',
     },
     {

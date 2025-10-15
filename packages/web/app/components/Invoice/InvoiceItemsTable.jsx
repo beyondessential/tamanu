@@ -29,14 +29,14 @@ const PriceText = styled.span`
 `;
 
 const getInvoiceItemTotalPrice = invoiceItem => {
-  return new Decimal(invoiceItem?.product?.priceListItem?.price || 0)
+  return new Decimal(invoiceItem?.product?.invoicePriceListItem?.price || 0)
     .times(invoiceItem?.quantity || 1)
     .toNumber();
 };
 
 const getInvoiceItemPriceDisplay = invoiceItem => {
   return formatDisplayPrice(
-    isNaN(parseFloat(invoiceItem?.product?.priceListItem?.price))
+    isNaN(parseFloat(invoiceItem?.product?.invoicePriceListItem?.price))
       ? undefined
       : getInvoiceItemTotalPrice(invoiceItem),
   );

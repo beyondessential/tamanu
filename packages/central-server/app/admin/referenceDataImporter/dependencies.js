@@ -66,9 +66,9 @@ export default {
   },
   invoiceProduct: {},
 
-  priceList: {},
-  priceListItem: {
-    needs: ['priceList'],
+  invoicePriceList: {},
+  invoicePriceListItem: {
+    needs: ['invoicePriceList'],
   },
 
   role: {},

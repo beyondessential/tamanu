@@ -42,8 +42,8 @@ export class InvoicePriceList extends Model {
 
   static initRelations(models: Models) {
     this.hasMany(models.InvoicePriceListItem, {
-      foreignKey: 'priceListId',
-      as: 'priceListItems',
+      foreignKey: 'invoicePriceListId',
+      as: 'invoicePriceListItems',
     });
   }
 

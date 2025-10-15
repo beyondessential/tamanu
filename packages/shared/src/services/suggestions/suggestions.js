@@ -77,8 +77,6 @@ function createSuggesterRoute(
       req.checkPermission('list', modelName);
       const { models, query } = req;
 
-      console.log('SUGGESTER UPDATE 1: ', modelName);
-
       const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
@@ -112,7 +110,6 @@ function createSuggesterRoute(
       ];
 
       const results = await model.findAll({
-        logging: console.log,
         where,
         include,
         attributes: getTranslationAttributes(endpoint, modelName, searchColumn),

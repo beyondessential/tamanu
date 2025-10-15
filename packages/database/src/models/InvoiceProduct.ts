@@ -59,11 +59,11 @@ export class InvoiceProduct extends Model {
     });
     this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
-      as: 'priceListItems',
+      as: 'invoicePriceListItems',
     });
     this.hasOne(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
-      as: 'priceListItem',
+      as: 'invoicePriceListItem',
     });
   }
 

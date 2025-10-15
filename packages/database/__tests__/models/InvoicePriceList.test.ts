@@ -6,14 +6,16 @@ import { InvoicePriceList } from '../../src/models/PriceList';
 const FIXED_NOW = new Date('2025-10-14T12:00:00Z');
 
 // Helper to build inputs similar to production usage
-const buildInputs = (overrides: Partial<{ patientType: string; patientDOB: string | Date | null; facilityId: string }>) => ({
+const buildInputs = (
+  overrides: Partial<{ patientType: string; patientDOB: string | Date | null; facilityId: string }>,
+) => ({
   patientType: undefined,
   patientDOB: undefined,
   facilityId: undefined,
   ...overrides,
 });
 
-describe('PriceList.getIdForInputs', () => {
+describe('InvoicePriceList.getIdForInputs', () => {
   beforeAll(() => {
     vi.useFakeTimers();
     vi.setSystemTime(FIXED_NOW);
@@ -29,8 +31,14 @@ describe('PriceList.getIdForInputs', () => {
 
   it('returns the first matching price list id when facility, patientType and age match', async () => {
     const spy = vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { facilityId: 'facility-1', patientType: 'patientType-Charity', patientAge: '<18' } },
-      { id: 'pl-2', rules: { facilityId: 'facility-1', patientType: 'patientType-Private', patientAge: '>=65' } },
+      {
+        id: 'pl-1',
+        rules: { facilityId: 'facility-1', patientType: 'patientType-Charity', patientAge: '<18' },
+      },
+      {
+        id: 'pl-2',
+        rules: { facilityId: 'facility-1', patientType: 'patientType-Private', patientAge: '>=65' },
+      },
     ]);
 
     const inputs = buildInputs({
@@ -90,7 +98,9 @@ describe('PriceList.getIdForInputs', () => {
     const id1 = await InvoicePriceList.getIdForInputs(buildInputs({ patientDOB: null }));
     expect(id1).toBeNull();
 
-    const id2 = await InvoicePriceList.getIdForInputs(buildInputs({ patientDOB: 'not-a-date' as any }));
+    const id2 = await InvoicePriceList.getIdForInputs(
+      buildInputs({ patientDOB: 'not-a-date' as any }),
+    );
     expect(id2).toBeNull();
   });
 
@@ -107,9 +117,7 @@ describe('PriceList.getIdForInputs', () => {
   });
 
   it('matches when unspecified rule fields are absent (treated as no constraint)', async () => {
-    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: {} },
-    ]);
+    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([{ id: 'pl-1', rules: {} }]);
 
     const id = await InvoicePriceList.getIdForInputs(buildInputs({}));
     expect(id).toBe('pl-1');

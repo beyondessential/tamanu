@@ -62,7 +62,7 @@ export async function up(query: QueryInterface): Promise<void> {
   // invoice_price_list_items
   await query.createTable(INVOICE_PRICE_LIST_ITEMS, {
     ...baseFields,
-    price_list_id: {
+    invoice_price_list_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
@@ -100,7 +100,10 @@ export async function down(query: QueryInterface): Promise<void> {
     INVOICE_PRICE_LIST_ITEMS,
     `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
   );
-  await query.removeIndex(INVOICE_PRICE_LIST_ITEMS, `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id`);
+  await query.removeIndex(
+    INVOICE_PRICE_LIST_ITEMS,
+    `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id`,
+  );
   await query.dropTable(INVOICE_PRICE_LIST_ITEMS, {});
 
   await query.removeIndex(INVOICE_PRICE_LISTS, `idx_${INVOICE_PRICE_LISTS}_code_unique`);

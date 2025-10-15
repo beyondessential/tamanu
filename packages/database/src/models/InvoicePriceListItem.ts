@@ -5,14 +5,14 @@ import type { InitOptions, Models } from '../types/model';
 
 export class InvoicePriceListItem extends Model {
   declare id: string;
-  declare priceListId: string;
+  declare invoicePriceListId: string;
   declare price: number;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        priceListId: {
+        invoicePriceListId: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
@@ -29,8 +29,8 @@ export class InvoicePriceListItem extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
-          { fields: ['priceListId'] },
-          { unique: true, fields: ['priceListId', 'invoiceProductId'] },
+          { fields: ['invoicePriceListId'] },
+          { unique: true, fields: ['invoicePriceListId', 'invoiceProductId'] },
         ],
       },
     );
@@ -38,8 +38,8 @@ export class InvoicePriceListItem extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.InvoicePriceList, {
-      foreignKey: 'priceListId',
-      as: 'priceList',
+      foreignKey: 'invoicePriceListId',
+      as: 'invoicePriceList',
     });
 
     this.belongsTo(models.InvoiceProduct, {
