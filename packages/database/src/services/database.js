@@ -15,20 +15,24 @@ import { getAuditUserId } from '../utils';
 
 createDateTypes();
 
-// Used for CLS transaction handling
-const clsAsyncLocalStorage = new AsyncLocalStorage();
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
 // done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
-const clsNamespace = {
+const clsAsyncLocalStorage = new AsyncLocalStorage();
+// eslint-disable-next-line react-hooks/rules-of-hooks
+Sequelize.useCLS({
   bind: () => {}, // compatibility with cls-hooked, not used by sequelize
   get: id => clsAsyncLocalStorage.getStore()?.get(id),
   set: (id, value) => clsAsyncLocalStorage.getStore()?.set(id, value),
   run: callback => clsAsyncLocalStorage.run(new Map(), callback),
-};
+});
 
-// eslint-disable-next-line react-hooks/rules-of-hooks
-Sequelize.useCLS(clsNamespace);
+// When a transaction is started, Sequelize wraps all calls in a `run()` call on the clsAsyncLocalStorage,
+// so we know we're in a transaction if the value is not empty
+const isInsideTransaction = () => Boolean(clsAsyncLocalStorage.getStore());
+
+// Once Sequelize has set up the transaction (ie. calling 'START TRANSACTION' and 'SET ISOLATION LEVEL ...') it will add a 'transaction' object to the store
+const isTransactionReady = () => Boolean(clsAsyncLocalStorage.getStore()?.get('transaction'));
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -128,15 +132,20 @@ async function connectToDatabase(dbOptions) {
     class QueryWithAuditConfig extends sequelize.dialect.Query {
       async run(sql, options) {
         const userid = getAuditUserId();
-        const isInTransaction = Boolean(options?.transaction);
+        const isInsideATransaction = isInsideTransaction();
+        const isThisTransactionReady = isTransactionReady();
         // Set audit userid so that any changes in this query are recorded against it
         // If in a transaction, just use a transaction scoped variable to avoid needing to clear it
         if (userid) {
-          await super.run('SELECT public.set_session_config($1, $2, $3)', [
-            AUDIT_USERID_KEY,
-            userid,
-            isInTransaction,
-          ]);
+          if (isInsideATransaction && !isThisTransactionReady) {
+            // Wait until the transaction has been set up. Otherwise postgres will throw an error if you attempt to make a call before setting the isolation level
+          } else {
+            await super.run('SELECT public.set_session_config($1, $2, $3)', [
+              AUDIT_USERID_KEY,
+              userid,
+              isInsideATransaction,
+            ]);
+          }
         }
         try {
           return await super.run(sql, options);
@@ -145,7 +154,7 @@ async function connectToDatabase(dbOptions) {
           throw error;
         } finally {
           // Clear audit userid so that system user changes aren't unintentionally recorded against it
-          if (userid && !isInTransaction) {
+          if (userid && !isInsideATransaction) {
             await super.run('SELECT public.set_session_config($1, $2)', [
               AUDIT_USERID_KEY,
               SYSTEM_USER_UUID,
@@ -246,8 +255,9 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  // add isInsideTransaction helper to avoid exposing the asynclocalstorage
-  sequelize.isInsideTransaction = () => !!clsAsyncLocalStorage.getStore();
+  // add isInsideTransaction and isTransactionReady helpers to avoid exposing the asynclocalstorage
+  sequelize.isInsideTransaction = isInsideTransaction;
+  sequelize.isTransactionReady = isTransactionReady;
 
   return { sequelize, models };
 }
