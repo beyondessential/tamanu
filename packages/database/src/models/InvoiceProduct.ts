@@ -57,11 +57,11 @@ export class InvoiceProduct extends Model {
       as: 'labTestType',
       constraints: false,
     });
-    this.hasMany(models.PriceListItem, {
+    this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'priceListItems',
     });
-    this.hasOne(models.PriceListItem, {
+    this.hasOne(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'priceListItem',
     });

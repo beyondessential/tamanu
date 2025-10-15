@@ -76,10 +76,10 @@ const FOREIGN_KEY_SCHEMATA = {
       types: REFERENCE_TYPE_VALUES,
     },
   ],
-  PriceListItem: [
+  InvoicePriceListItem: [
     {
       field: 'priceList',
-      model: 'PriceList',
+      model: 'InvoicePriceList',
     },
     {
       field: 'invoiceProduct',
@@ -118,19 +118,19 @@ export async function importSheet(
     const tableRows = [];
     const idCache = new Set();
 
-    // Create PriceList rows from headers
+    // Create InvoicePriceList rows from headers
     for (const plId of priceListIds) {
       const values = { id: plId, code: plId, name: plId };
-      if (idCache.has(`PriceList|${values.id}`)) {
+      if (idCache.has(`InvoicePriceList|${values.id}`)) {
         errors.push(new ValidationError(sheetName, 0, `duplicate id: ${values.id}`));
         continue;
       }
-      idCache.add(`PriceList|${values.id}`);
-      updateStat(stats, statkey('PriceList', sheetName), 'created', 0);
-      tableRows.push({ model: 'PriceList', sheetRow: 0, values });
+      idCache.add(`InvoicePriceList|${values.id}`);
+      updateStat(stats, statkey('InvoicePriceList', sheetName), 'created', 0);
+      tableRows.push({ model: 'InvoicePriceList', sheetRow: 0, values });
     }
 
-    // Create PriceListItem rows for each value
+    // Create InvoicePriceListItem rows for each value
     sheetRows.forEach((row, idx) => {
       const invoiceProductId = row[invoiceKey];
 
@@ -157,7 +157,7 @@ export async function importSheet(
         }
         const id = `${priceListId}-${invoiceProductId}`;
         tableRows.push({
-          model: 'PriceListItem',
+          model: 'InvoicePriceListItem',
           sheetRow: idx,
           values: {
             id,

@@ -37,14 +37,14 @@ invoiceItemsRoute.get(
       facilityId: encounter.location.facilityId,
     };
 
-    const priceListId = await models.PriceList.getIdForInputs(inputs);
+    const priceListId = await models.InvoicePriceList.getIdForInputs(inputs);
     const associations = [
       {
         model: models.InvoiceProduct,
         as: 'product',
         include: [
           {
-            model: models.PriceListItem,
+            model: models.InvoicePriceListItem,
             ...(priceListId ? { where: { priceListId } } : {}),
             as: 'priceListItem',
             attributes: ['price', 'priceListId'],

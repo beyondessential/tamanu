@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
 
-export class PriceListItem extends Model {
+export class InvoicePriceListItem extends Model {
   declare id: string;
   declare priceListId: string;
   declare price: number;
@@ -37,7 +37,7 @@ export class PriceListItem extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.PriceList, {
+    this.belongsTo(models.InvoicePriceList, {
       foreignKey: 'priceListId',
       as: 'priceList',
     });

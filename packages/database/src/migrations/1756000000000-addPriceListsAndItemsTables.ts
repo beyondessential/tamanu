@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-const PRICE_LISTS = 'price_lists';
-const PRICE_LIST_ITEMS = 'price_list_items';
+const INVOICE_PRICE_LISTS = 'invoice_price_lists';
+const INVOICE_PRICE_LIST_ITEMS = 'invoice_price_list_items';
 
 const baseFields = {
   id: {
@@ -33,7 +33,7 @@ const baseFields = {
 
 export async function up(query: QueryInterface): Promise<void> {
   // price_lists
-  await query.createTable(PRICE_LISTS, {
+  await query.createTable(INVOICE_PRICE_LISTS, {
     ...baseFields,
     code: {
       type: DataTypes.STRING,
@@ -54,19 +54,19 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex(PRICE_LISTS, ['code'], {
-    name: `idx_${PRICE_LISTS}_code_unique`,
+  await query.addIndex(INVOICE_PRICE_LISTS, ['code'], {
+    name: `idx_${INVOICE_PRICE_LISTS}_code_unique`,
     unique: true,
   });
 
-  // price_list_items
-  await query.createTable(PRICE_LIST_ITEMS, {
+  // invoice_price_list_items
+  await query.createTable(INVOICE_PRICE_LIST_ITEMS, {
     ...baseFields,
     price_list_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
-        model: PRICE_LISTS,
+        model: INVOICE_PRICE_LISTS,
         key: 'id',
       },
       onDelete: 'CASCADE',
@@ -85,24 +85,24 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex(PRICE_LIST_ITEMS, ['price_list_id'], {
-    name: `idx_${PRICE_LIST_ITEMS}_price_list_id`,
+  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['price_list_id'], {
+    name: `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id`,
   });
 
-  await query.addIndex(PRICE_LIST_ITEMS, ['price_list_id', 'invoice_product_id'], {
-    name: `idx_${PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
+  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['price_list_id', 'invoice_product_id'], {
+    name: `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
     unique: true,
   });
 }
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.removeIndex(
-    PRICE_LIST_ITEMS,
-    `idx_${PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
+    INVOICE_PRICE_LIST_ITEMS,
+    `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
   );
-  await query.removeIndex(PRICE_LIST_ITEMS, `idx_${PRICE_LIST_ITEMS}_price_list_id`);
-  await query.dropTable(PRICE_LIST_ITEMS, {});
+  await query.removeIndex(INVOICE_PRICE_LIST_ITEMS, `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id`);
+  await query.dropTable(INVOICE_PRICE_LIST_ITEMS, {});
 
-  await query.removeIndex(PRICE_LISTS, `idx_${PRICE_LISTS}_code_unique`);
-  await query.dropTable(PRICE_LISTS, {});
+  await query.removeIndex(INVOICE_PRICE_LISTS, `idx_${INVOICE_PRICE_LISTS}_code_unique`);
+  await query.dropTable(INVOICE_PRICE_LISTS, {});
 }
