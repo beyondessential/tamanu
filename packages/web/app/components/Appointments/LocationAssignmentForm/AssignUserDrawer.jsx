@@ -561,7 +561,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           {values.isRepeatingAssignment && !hideRepeatingFields && (
             <RepeatingFields
               schedule={values.schedule}
-              startTime={values.date}
+              startTime={values.date || toDateString(new Date())}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
