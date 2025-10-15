@@ -679,10 +679,12 @@ async function findOverlappingAssignments(models, body, options = {}) {
                 SELECT DISTINCT ON ("template_id") id
                 FROM "location_assignments"
                 WHERE template_id IS NOT NULL
+                ${options.excludeAssignmentIds?.length > 0 ? 'AND id NOT IN (:excludeAssignmentIds)' : ''}
                 AND date IN (:dates)
                 AND NOT EXISTS (SELECT 1 FROM user_leaves WHERE user_id = :userId AND date BETWEEN start_date AND end_date)
                 AND location_id = :locationId
-                ORDER BY template_id, date DESC
+                AND deleted_at IS NULL
+                ORDER BY template_id, date ASC
               )`),
             },
           },
@@ -693,6 +695,7 @@ async function findOverlappingAssignments(models, body, options = {}) {
       dates: dateFilter[Op.in],
       locationId,
       userId,
+      ...(options.excludeAssignmentIds?.length > 0 && { excludeAssignmentIds: options.excludeAssignmentIds }),
     },
     attributes: ['id', 'locationId', 'date', 'startTime', 'endTime', 'templateId'],
     order: [

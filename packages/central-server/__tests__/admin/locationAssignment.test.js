@@ -2,7 +2,7 @@ import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { addDays, addWeeks, addMonths, getISODay, parseISO } from 'date-fns';
+import { addDays, addWeeks, addMonths, getISODay, parseISO, subDays } from 'date-fns';
 import { generateFrequencyDates, getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
@@ -222,7 +222,7 @@ describe('Location Assignment API', () => {
     it('Should reject when create single assignment overlapping with user leaves', async () => {
       const { UserLeave } = models;
       const startDate = toDateString(new Date());
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -323,7 +323,7 @@ describe('Location Assignment API', () => {
       const { UserLeave } = models;
 
       const startDate = toDateString(new Date());
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -730,7 +730,7 @@ describe('Location Assignment API', () => {
       });
 
       const startDate = toDateString(addDays(new Date(), 1));
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -893,7 +893,7 @@ describe('Location Assignment API', () => {
       });
 
       const startDate = toDateString(addDays(new Date(), 1));
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -1001,6 +1001,89 @@ describe('Location Assignment API', () => {
       expect(newAssignments[0].startTime).toEqual('11:00:00');
       expect(newAssignments[0].endTime).toEqual('12:00:00');
       expect(addWeeks(parseISO(newAssignments[0].date), 2)).toEqual(parseISO(newAssignments[1].date));
+    });
+
+    it('Should reject when new assignment template is overlapping with existing assignments', async () => {
+      const { LocationAssignment } = models;
+      const previousDate = toDateString(subDays(new Date(), 1));
+
+      await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: previousDate,
+        startTime: '10:00:00',
+        endTime: '11:00:00',
+        repeatFrequency: 1,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
+      });
+
+      const assignments = await LocationAssignment.findAll({
+        where: {
+          userId: testUser.id,
+          locationId: testLocation.id,
+          templateId: { [Op.ne]: null },
+        },
+        limit: 10,
+      });
+
+      const assignmentToUpdate = assignments[3];
+      const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: assignments[2].date,
+        startTime: '10:00:00',
+        endTime: '11:00:00',
+        updateAllNextRecords: true,
+        repeatFrequency: 1,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
+      });
+      // Overlap with assignments in the same template
+      expect(updateResult).toHaveRequestError(400);
+      expect(updateResult.body.error.type).toEqual('overlap_assignment_error');
+      expect(updateResult.body.error.overlapAssignments.length).toBe(1);
+      expect(updateResult.body.error.overlapAssignments[0].date).toEqual(assignments[2].date);
+
+      // Create new repeating assignments
+      const tomorrow = addDays(new Date(), 1);
+      const assignmentDate = toDateString(addWeeks(tomorrow, 2));
+      const createResult = await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: assignmentDate,
+        startTime: '10:00:00',
+        endTime: '11:00:00',
+        repeatFrequency: 2,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addWeeks(new Date(), 10)),
+      });
+      expect(createResult).toHaveSucceeded();
+
+      // Create new non-repeating assignment
+      const createResult2 = await adminApp.post('/api/admin/location-assignments').send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: assignmentDate,
+        startTime: '11:00:00',
+        endTime: '12:00:00',
+      });
+      expect(createResult2).toHaveSucceeded();
+
+      const updateResult2 = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
+        locationId: testLocation.id,
+        date: toDateString(tomorrow),
+        startTime: '10:00:00',
+        endTime: '12:00:00',
+        updateAllNextRecords: true,
+        repeatFrequency: 2,
+        repeatUnit: REPEAT_FREQUENCY.WEEKLY,
+        repeatEndDate: toDateString(addMonths(new Date(), 10)),
+      });
+      expect(updateResult2).toHaveRequestError(400);
+      expect(updateResult2.body.error.type).toEqual('overlap_assignment_error');
+      expect(updateResult2.body.error.overlapAssignments.length).toBeGreaterThan(1);
     });
   });
 
