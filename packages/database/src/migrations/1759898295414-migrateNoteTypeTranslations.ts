@@ -1,5 +1,5 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
-import { prefixMap, NOTE_TYPES, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import { prefixMap, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 const makeNoteTypeId = (code: string): string => `notetype-${code}`;
 
@@ -40,15 +40,6 @@ export async function up(query: QueryInterface): Promise<void> {
     translationsToInsert.push(...migratedTranslations);
   }
 
-  const defaultTranslations = Object.values(NOTE_TYPES)
-    .map(code => ({
-      string_id: `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(code)}`,
-      language: ENGLISH_LANGUAGE_CODE,
-      text: NOTE_TYPE_LABELS[code] || code,
-    }))
-    .filter(translation => !translationsToInsert.find(t => t.string_id === translation.string_id && t.language === translation.language));
-
-  translationsToInsert.push(...defaultTranslations);
 
   if (translationsToInsert.length > 0) {
     await query.bulkInsert('translated_strings', translationsToInsert);
