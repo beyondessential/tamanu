@@ -408,11 +408,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       }
     };
 
-    const handleResetRepeatUntilDate = startTimeDate => {
+    const handleResetRepeatUntilDate = () => {
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate || toDateString(add(startTimeDate, { months: maxFutureMonths })),
+        initialUntilDate || toDateString(add(new Date(), { months: maxFutureMonths })),
       );
     };
 
