@@ -3,7 +3,7 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import util from 'util';
 
-import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SESSION_CONFIG_PREFIX } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, AUDIT_USERID_KEY, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { log } from '@tamanu/shared/services/logging';
 import { serviceContext, serviceName } from '@tamanu/shared/services/logging/context';
 
@@ -11,31 +11,24 @@ import { assertUpToDate, migrate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { setupQuote } from '../utils/pgComposite';
+import { getAuditUserId } from '../utils';
 
 createDateTypes();
 
-export const asyncLocalStorage = new AsyncLocalStorage();
+// Used for CLS transaction handling
+const clsAsyncLocalStorage = new AsyncLocalStorage();
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
 // done once for all sequelize objects. Instead of cls-hooked we use the built-in AsyncLocalStorage.
-export const namespace = {
+const clsNamespace = {
   bind: () => {}, // compatibility with cls-hooked, not used by sequelize
-  get: (id) => asyncLocalStorage.getStore()?.get(id),
-  set: (id, value) => asyncLocalStorage.getStore()?.set(id, value),
-  run: (callback) => asyncLocalStorage.run(new Map(), callback),
+  get: id => clsAsyncLocalStorage.getStore()?.get(id),
+  set: (id, value) => clsAsyncLocalStorage.getStore()?.set(id, value),
+  run: callback => clsAsyncLocalStorage.run(new Map(), callback),
 };
-
-export const setSessionConfigInNamespace = (key, value, callback) => {
-  namespace.run(() => {
-    namespace.set(`${SESSION_CONFIG_PREFIX}${key}`, value);
-    callback()
-  });
-};
-
-export const getSessionConfigInNamespace = (key) => namespace.get(`${SESSION_CONFIG_PREFIX}${key}`);
 
 // eslint-disable-next-line react-hooks/rules-of-hooks
-Sequelize.useCLS(namespace);
+Sequelize.useCLS(clsNamespace);
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -134,12 +127,11 @@ async function connectToDatabase(dbOptions) {
   if (!disableChangesAudit) {
     class QueryWithAuditConfig extends sequelize.dialect.Query {
       async run(sql, options) {
-        const userid = getSessionConfigInNamespace(AUDIT_USERID_KEY);
-        if (userid)
-          await super.run(
-            'SELECT public.set_session_config($1, $2)',
-            [AUDIT_USERID_KEY, userid],
-          );
+        const userid = getAuditUserId();
+        // Set audit userid so that any changes in this query are recorded against it
+        if (userid) {
+          await super.run('SELECT public.set_session_config($1, $2)', [AUDIT_USERID_KEY, userid]);
+        }
         try {
           return await super.run(sql, options);
         } catch (error) {
@@ -190,11 +182,11 @@ export async function initDatabase(dbOptions) {
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   // eslint-disable-next-line require-atomic-updates
-  sequelize.migrate = async (direction) => {
+  sequelize.migrate = async direction => {
     await migrate(log, sequelize, direction);
   };
 
-  sequelize.assertUpToDate = async (options) => assertUpToDate(log, sequelize, options);
+  sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);
 
   // init all models
   const modelClasses = Object.values(models);
@@ -205,7 +197,7 @@ export async function initDatabase(dbOptions) {
     primaryKey: true,
   };
   log.info('registeringModels', { count: modelClasses.length });
-  modelClasses.forEach((modelClass) => {
+  modelClasses.forEach(modelClass => {
     if ('initModel' in modelClass) {
       modelClass.initModel(
         {
@@ -222,13 +214,13 @@ export async function initDatabase(dbOptions) {
     }
   });
 
-  modelClasses.forEach((modelClass) => {
+  modelClasses.forEach(modelClass => {
     if (modelClass.initRelations) {
       modelClass.initRelations(models);
     }
   });
 
-  modelClasses.forEach((modelClass) => {
+  modelClasses.forEach(modelClass => {
     if (
       modelClass.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC &&
       modelClass.usesPublicSchema &&
@@ -241,7 +233,7 @@ export async function initDatabase(dbOptions) {
   });
 
   // add isInsideTransaction helper to avoid exposing the asynclocalstorage
-  sequelize.isInsideTransaction = () => !!asyncLocalStorage.getStore();
+  sequelize.isInsideTransaction = () => !!clsAsyncLocalStorage.getStore();
 
   return { sequelize, models };
 }
