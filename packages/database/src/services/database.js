@@ -128,9 +128,15 @@ async function connectToDatabase(dbOptions) {
     class QueryWithAuditConfig extends sequelize.dialect.Query {
       async run(sql, options) {
         const userid = getAuditUserId();
+        const isInTransaction = Boolean(options?.transaction);
         // Set audit userid so that any changes in this query are recorded against it
+        // If in a transaction, just use a transaction scoped variable to avoid needing to clear it
         if (userid) {
-          await super.run('SELECT public.set_session_config($1, $2)', [AUDIT_USERID_KEY, userid]);
+          await super.run('SELECT public.set_session_config($1, $2, $3)', [
+            AUDIT_USERID_KEY,
+            userid,
+            isInTransaction,
+          ]);
         }
         try {
           return await super.run(sql, options);
@@ -139,7 +145,7 @@ async function connectToDatabase(dbOptions) {
           throw error;
         } finally {
           // Clear audit userid so that system user changes aren't unintentionally recorded against it
-          if (userid) {
+          if (userid && !isInTransaction) {
             await super.run('SELECT public.set_session_config($1, $2)', [
               AUDIT_USERID_KEY,
               SYSTEM_USER_UUID,
