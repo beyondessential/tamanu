@@ -137,6 +137,14 @@ async function connectToDatabase(dbOptions) {
         } catch (error) {
           log.error(error);
           throw error;
+        } finally {
+          // Clear audit userid so that system user changes aren't unintentionally recorded against it
+          if (userid) {
+            await super.run('SELECT public.set_session_config($1, $2)', [
+              AUDIT_USERID_KEY,
+              SYSTEM_USER_UUID,
+            ]);
+          }
         }
       }
     }
