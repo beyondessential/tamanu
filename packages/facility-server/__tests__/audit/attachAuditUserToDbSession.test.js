@@ -1,6 +1,6 @@
 import config from 'config';
 import defineExpress from 'express';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 import asyncHandler from 'express-async-handler';
 import { agent as _agent } from 'supertest';
 
@@ -91,6 +91,31 @@ describe('Attach audit user to DB session', () => {
         res.json(userUpdated);
       }),
     );
+    mockApp.post(
+      '/updateAuthenticatedUserInIsolatedTransaction',
+      (req, _res, next) => {
+        req.models = models;
+        req.db = ctx.sequelize;
+        next();
+      },
+      authMiddleware,
+      attachAuditUserToDbSession,
+      asyncHandler(async (req, res) => {
+        let userUpdated;
+        await req.db.transaction(
+          { isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.READ_UNCOMMITTED },
+          async () => {
+            // Update the authenticated user to have a different display name
+            userUpdated = await req.models.User.update(
+              { displayName: `changed-by-${req.user.id}` },
+              { where: { id: req.user.id } },
+            );
+          },
+        );
+
+        res.json(userUpdated);
+      }),
+    );
 
     const asUser = async user => {
       const agent = _agent(mockApp);
@@ -120,6 +145,7 @@ describe('Attach audit user to DB session', () => {
     const changeRequests = await Promise.all([
       runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUser')),
       runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUserInTransaction')),
+      runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUserInIsolatedTransaction')),
       runInAFewRandomMs(() =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
@@ -128,6 +154,7 @@ describe('Attach audit user to DB session', () => {
       ),
       runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUser')),
       runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUserInTransaction')),
+      runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUserInIsolatedTransaction')),
       runInAFewRandomMs(() =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
@@ -136,6 +163,7 @@ describe('Attach audit user to DB session', () => {
       ),
       runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUser')),
       runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUserInTransaction')),
+      runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUserInIsolatedTransaction')),
       runInAFewRandomMs(() =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
@@ -144,6 +172,7 @@ describe('Attach audit user to DB session', () => {
       ),
       runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUser')),
       runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUserInTransaction')),
+      runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUserInIsolatedTransaction')),
       runInAFewRandomMs(() =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
