@@ -15,7 +15,6 @@ import {
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   RadioField,
-  TranslatedEnum,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
@@ -24,7 +23,7 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
-import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -174,9 +173,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     await writeAndViewEncounter(encounter.id, {
       departmentId,
       examinerId,
-      ...(newEncounterType
-        ? { encounterType: newEncounterType, submittedTime: getCurrentDateTimeString() }
-        : {}),
+      ...(newEncounterType && { encounterType: newEncounterType }),
     });
 
     await submitPatientMove(
