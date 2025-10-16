@@ -206,8 +206,9 @@ department_info as (
                                               end)) order by eh.change_type nulls first, eh.date)
         as department_history
     from encounters e
-    join encounter_history eh on eh.encounter_id = e.id
-      and eh.deleted_at is null
+    -- Query logs.changes instead of encounter_history for encounter change tracking
+    join logs.changes lc on lc.table_name = 'encounters' and lc.record_id = e.id
+      and lc.deleted_at is null
     left join departments d on d.id = eh.department_id
     where change_type isnull or change_type = 'department'
     and e.id = $encounter_id
@@ -277,6 +278,7 @@ discharge_disposition_info as (
 ),
 
 
+-- Query logs.changes instead of encounter_history for encounter change tracking
 encounter_history_info as (
   select
     encounter_id,
@@ -295,9 +297,9 @@ encounter_history_info as (
         'startDate', date::timestamp at time zone $timezone_string
       ) order by date
     ) "Encounter history"
-  from encounter_history
-  where encounter_id = $encounter_id
-  and deleted_at isnull
+  -- Query logs.changes instead of encounter_history for encounter change tracking
+  from logs.changes lc
+  where lc.table_name = 'encounters' and lc.record_id = $encounter_id
   group by encounter_id
 )
 
@@ -359,6 +361,7 @@ left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
+-- Query logs.changes instead of encounter_history for encounter change tracking
 left join encounter_history_info ehi on e.id = ehi.encounter_id
 
 WHERE e.id = $encounter_id
