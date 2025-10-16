@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
-import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
 import { MoveModal } from './MoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, NoteModalActionBlocker } from '../../../components';
@@ -178,14 +177,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="dischargemodal-9lol"
       />
-
-      {/* <ChangeEncounterTypeModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_TYPE}
-        onClose={onClose}
-        newType={newEncounterType}
-        data-testid="changeencountertypemodal-crha"
-      /> */}
 
       <EncounterRecordModal
         encounter={encounter}
