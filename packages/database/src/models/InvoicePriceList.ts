@@ -7,7 +7,7 @@ import type { InitOptions, Models } from '../types/model';
 export class InvoicePriceList extends Model {
   declare id: string;
   declare code: string;
-  declare name: string;
+  declare name?: string;
   declare rules?: Record<string, any>;
   declare visibilityStatus: string;
 
@@ -21,7 +21,7 @@ export class InvoicePriceList extends Model {
         },
         name: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         rules: {
           type: DataTypes.JSONB,

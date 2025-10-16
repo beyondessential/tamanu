@@ -41,7 +41,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     rules: {
       type: DataTypes.JSONB,
@@ -85,11 +85,11 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['price_list_id'], {
+  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['invoice_price_list_id'], {
     name: `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id`,
   });
 
-  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['price_list_id', 'invoice_product_id'], {
+  await query.addIndex(INVOICE_PRICE_LIST_ITEMS, ['invoice_price_list_id', 'invoice_product_id'], {
     name: `idx_${INVOICE_PRICE_LIST_ITEMS}_price_list_id_invoice_product_id_unique`,
     unique: true,
   });

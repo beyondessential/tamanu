@@ -1,5 +1,4 @@
 import { utils } from 'xlsx';
-
 import { REFERENCE_TYPE_VALUES } from '@tamanu/constants';
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
 import { statkey, updateStat } from '../stats';
@@ -76,16 +75,6 @@ const FOREIGN_KEY_SCHEMATA = {
       types: REFERENCE_TYPE_VALUES,
     },
   ],
-  InvoicePriceListItem: [
-    {
-      field: 'invoicePriceList',
-      model: 'InvoicePriceList',
-    },
-    {
-      field: 'invoiceProduct',
-      model: 'InvoiceProduct',
-    },
-  ],
 };
 
 export async function importSheet(
@@ -108,72 +97,6 @@ export async function importSheet(
     return stats;
   }
 
-  // Special handling for the price Lists sheet
-  if (sheetName === 'priceList') {
-    log.debug('Price Lists sheet; transforming to rows');
-    const headers = Object.keys(sheetRows[0]).map(h => h.trim());
-    const invoiceKey = headers.find(h => h.trim().toLowerCase() === 'invoiceproductid');
-    const priceListIds = headers.filter(h => h !== invoiceKey);
-
-    const tableRows = [];
-    const idCache = new Set();
-
-    // Create InvoicePriceList rows from headers
-    for (const plId of priceListIds) {
-      const values = { id: plId, code: plId, name: plId };
-      if (idCache.has(`InvoicePriceList|${values.id}`)) {
-        errors.push(new ValidationError(sheetName, 0, `duplicate id: ${values.id}`));
-        continue;
-      }
-      idCache.add(`InvoicePriceList|${values.id}`);
-      updateStat(stats, statkey('InvoicePriceList', sheetName), 'created', 0);
-      tableRows.push({ model: 'InvoicePriceList', sheetRow: 0, values });
-    }
-
-    // Create InvoicePriceListItem rows for each value
-    sheetRows.forEach((row, idx) => {
-      const invoiceProductId = row[invoiceKey];
-
-      if (!invoiceProductId) {
-        return;
-      }
-
-      for (const priceListId of priceListIds) {
-        const raw = row[priceListId];
-
-        if (raw === undefined || raw === null || `${raw}`.trim() === '') {
-          continue;
-        }
-        const num = Number(raw);
-        if (Number.isNaN(num)) {
-          errors.push(
-            new ValidationError(
-              sheetName,
-              idx,
-              `Invalid price value '${raw}' for priceList '${priceListId}' and invoiceProductId '${invoiceProductId}'`,
-            ),
-          );
-          return; // skip this row on error for now
-        }
-        const id = `${priceListId}-${invoiceProductId}`;
-        tableRows.push({
-          model: 'InvoicePriceListItem',
-          sheetRow: idx,
-          values: {
-            id,
-            priceListId: priceListId,
-            invoiceProductId: `${invoiceProductId}`,
-            price: num,
-          },
-        });
-      }
-    });
-
-    return await importRows(
-      { errors, log, models },
-      { rows: tableRows, sheetName, stats, foreignKeySchemata: FOREIGN_KEY_SCHEMATA, skipExisting },
-    );
-  }
 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];

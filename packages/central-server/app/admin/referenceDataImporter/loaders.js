@@ -226,12 +226,16 @@ async function validateObjectId(item, models, pushError) {
 
 export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
-  
+
   const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
   const normalizedVerb = verb.trim();
   const normalizedNoun = noun.trim();
-  
-  await validateObjectId({ ...item, noun: normalizedNoun, objectId: normalizedObjectId }, models, pushError);
+
+  await validateObjectId(
+    { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
+    models,
+    pushError,
+  );
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
@@ -239,7 +243,8 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id =
+        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -679,4 +684,146 @@ export async function procedureTypeLoader(item, { models, pushError }) {
   });
 
   return rows;
+}
+
+// Invoice Price List loader
+function parsePrice(value) {
+  if (value === undefined || value === null || `${value}`.trim() === '') {
+    return null;
+  }
+  const num = Number(value);
+  return Number.isNaN(num) ? undefined : num;
+}
+
+async function initializePriceLists(priceListCodes, models, state, pushError) {
+  const trimmedCodes = priceListCodes.map(c => c.trim());
+  const seen = new Set();
+  const priceListRows = [];
+
+  const existingPriceLists = await models.InvoicePriceList.findAll({
+    where: { code: { [Op.in]: trimmedCodes } },
+  });
+  const existingByCode = new Map(existingPriceLists.map(pl => [pl.code, pl.id]));
+
+  for (const code of priceListCodes) {
+    const trimmedCode = code.trim();
+    if (seen.has(trimmedCode)) {
+      pushError(`duplicate price list code: ${trimmedCode}`);
+      continue;
+    }
+    seen.add(trimmedCode);
+
+    const id = existingByCode.get(trimmedCode) || uuidv4();
+    state.codeToId.set(code, id);
+    priceListRows.push({ model: 'InvoicePriceList', values: { id, code: trimmedCode } });
+  }
+
+  return priceListRows;
+}
+
+function validateAndCollectPrices(item, priceListCodes, invoiceProductId, pushError) {
+  const pricesByCode = new Map();
+
+  for (const code of priceListCodes) {
+    const raw = item[code];
+    const price = parsePrice(raw);
+
+    if (price === undefined) {
+      pushError(
+        `Invalid price value '${raw}' for priceList '${code}' and invoiceProductId '${invoiceProductId}'`,
+      );
+      return null;
+    }
+
+    if (price !== null) {
+      pricesByCode.set(code, price);
+    }
+  }
+
+  return pricesByCode;
+}
+
+async function buildPriceListItems(pricesByCode, invoiceProductId, state, models, pushError) {
+  if (!state.existingItemsMap.has(invoiceProductId)) {
+    const existingItems = await models.InvoicePriceListItem.findAll({
+      where: { invoiceProductId },
+    });
+    const itemsMap = new Map(
+      existingItems.map(item => [`${item.invoicePriceListId}:${item.invoiceProductId}`, item.id]),
+    );
+    state.existingItemsMap.set(invoiceProductId, itemsMap);
+  }
+
+  const productItemsMap = state.existingItemsMap.get(invoiceProductId);
+  const rows = [];
+
+  for (const [code, price] of pricesByCode.entries()) {
+    const invoicePriceListId = state.codeToId.get(code);
+    if (!invoicePriceListId) {
+      pushError(`Could not find InvoicePriceList ID for code '${code}'`);
+      return [];
+    }
+
+    const itemKey = `${invoicePriceListId}:${invoiceProductId}`;
+    const id = productItemsMap.get(itemKey) || uuidv4();
+
+    rows.push({
+      model: 'InvoicePriceListItem',
+      values: { id, invoicePriceListId, invoiceProductId, price },
+    });
+  }
+
+  return rows;
+}
+
+export function invoicePriceListLoader() {
+  const state = {
+    initialized: false,
+    invoiceProductKey: null,
+    priceListCodes: [],
+    codeToId: new Map(),
+    existingItemsMap: new Map(),
+  };
+
+  async function processRow(item, { pushError, models }) {
+    const invoiceProductId = item[state.invoiceProductKey];
+    if (!invoiceProductId) return [];
+
+    const pricesByCode = validateAndCollectPrices(
+      item,
+      state.priceListCodes,
+      invoiceProductId,
+      pushError,
+    );
+    if (!pricesByCode) return [];
+
+    return buildPriceListItems(pricesByCode, invoiceProductId, state, models, pushError);
+  }
+
+  return async (rawItem, { pushError, models }) => {
+    // normalizeItemKeys
+    const item = Object.fromEntries(Object.entries(rawItem).map(([k, v]) => [k?.trim?.() ?? k, v]));
+
+    if (!state.initialized) {
+      const headers = Object.keys(item);
+      const invoiceProductKey = headers.find(h => h.toLowerCase() === 'invoiceproductid');
+
+      if (!invoiceProductKey) {
+        pushError('Missing required column: invoiceProductId');
+        return [];
+      }
+
+      const priceListCodes = headers.filter(h => h !== invoiceProductKey);
+      state.invoiceProductKey = invoiceProductKey;
+      state.priceListCodes = priceListCodes;
+      state.initialized = true;
+
+      const priceListRows = await initializePriceLists(priceListCodes, models, state, pushError);
+      const itemRows = await processRow(item, { pushError, models });
+
+      return [...priceListRows, ...itemRows];
+    }
+
+    return processRow(item, { pushError, models });
+  };
 }

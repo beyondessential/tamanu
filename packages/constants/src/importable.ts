@@ -70,8 +70,7 @@ export const OTHER_REFERENCE_TYPES = {
   LOCATION_GROUP: 'locationGroup',
   PATIENT_FIELD_DEFINITION: 'patientFieldDefinition',
   PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
-  PRICE_LIST: 'priceList',
-  PRICE_LIST_ITEM: 'priceListItem',
+  INVOICE_PRICE_LIST: 'invoicePriceList',
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 

@@ -13,6 +13,7 @@ import {
   medicationTemplateLoader,
   medicationSetLoader,
   procedureTypeLoader,
+  invoicePriceListLoader,
 } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
@@ -66,7 +67,9 @@ export default {
   },
   invoiceProduct: {},
 
-  invoicePriceList: {},
+  invoicePriceList: {
+    loader: invoicePriceListLoader(),
+  },
   invoicePriceListItem: {
     needs: ['invoicePriceList'],
   },
