@@ -1242,12 +1242,12 @@ export const globalSettings = {
             allowUnencryptedStorage: {
               description: 'Allow unencrypted storage on mobile devices',
               type: yup.boolean(),
-              defaultValue: false,
+              defaultValue: true,
             },
             allowUnprotected: {
               description: 'Allow mobile devices without screen lock with passcode',
               type: yup.boolean(),
-              defaultValue: false,
+              defaultValue: true,
             },
           },
         },
