@@ -5,7 +5,7 @@ import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
-import { ContentPane, EncounterTopBar } from '../../components';
+import { Button, ContentPane, EncounterTopBar } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
@@ -35,6 +35,8 @@ import { TabDisplayDraggable } from '../../components/TabDisplayDraggable';
 import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { isEqual } from 'lodash';
 import { ChartDataProvider } from '../../contexts/ChartData';
+import { getFullLocationName } from '../../utils/location';
+import { PlannedMoveActions } from './components/PlannedMoveActions';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -372,7 +374,13 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
-      <h3>Planned move component here</h3>
+      {encounter.plannedLocation && (
+        <PlannedMoveActions
+          encounter={encounter}
+          // openFinaliseMoveModal={() => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE)}
+          // openCancelMoveModal={() => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE)}
+        />
+      )}
       <DiagnosisView
         encounter={encounter}
         isTriage={getIsTriage(encounter)}
