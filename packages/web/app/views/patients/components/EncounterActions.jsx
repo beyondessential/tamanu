@@ -119,39 +119,57 @@ export const EncounterActions = React.memo(({ encounter }) => {
         />
       ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD),
-    },
-    {
-      label: (
-        <TranslatedText stringId="encounter.action.dischargeSummary" fallback="Discharge summary" />
-      ),
-      onClick: () => navigateToSummary(),
-      condition: () => encounter.endDate,
+      condition: () => !encounter.endDate,
     },
   ].filter(action => !action.condition || action.condition());
 
   return (
     <NoteModalActionBlocker>
       <ActionsContainer>
-        <StyledButton
-          size="small"
-          variant="outlined"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
-        >
-          <TranslatedText
-            stringId="encounter.action.prepareDischarge"
-            fallback="Prepare discharge"
-          />
-        </StyledButton>
-        <MoveButton
-          size="small"
-          color="primary"
-          onClick={() => {
-            setNewEncounterType(null);
-            setOpenModal(ENCOUNTER_MODALS.MOVE);
-          }}
-        >
-          <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-        </MoveButton>
+        {encounter.endDate ? (
+          <>
+            {/* TODO: check that this is the correct encounter summary */}
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD)}
+            >
+              <TranslatedText
+                stringId="encounter.action.encounterSummary"
+                fallback="Encounter summary"
+              />
+            </Button>
+            <Button size="small" onClick={() => navigateToSummary()}>
+              <TranslatedText
+                stringId="encounter.action.dischargeSummary"
+                fallback="Discharge summary"
+              />
+            </Button>
+          </>
+        ) : (
+          <>
+            <StyledButton
+              size="small"
+              variant="outlined"
+              onClick={() => setOpenModal(ENCOUNTER_MODALS.DISCHARGE)}
+            >
+              <TranslatedText
+                stringId="encounter.action.prepareDischarge"
+                fallback="Prepare discharge"
+              />
+            </StyledButton>
+            <MoveButton
+              size="small"
+              color="primary"
+              onClick={() => {
+                  setNewEncounterType(null);
+                  setOpenModal(ENCOUNTER_MODALS.MOVE);
+              }}
+            >
+              <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
+            </MoveButton>
+          </>
+        )}
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 
