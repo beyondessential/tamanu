@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
-import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
-import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { MoveModal } from './MoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, NoteModalActionBlocker } from '../../../components';
