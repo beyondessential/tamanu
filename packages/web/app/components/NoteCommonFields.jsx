@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -19,6 +19,7 @@ import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
+import { TranslatedSelectField } from './Translation/TranslatedSelect';
 import { useSettings } from '../contexts/Settings';
 
 export const StyledDivider = styled(Divider)`
