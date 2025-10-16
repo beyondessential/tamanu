@@ -60,7 +60,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
-    setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE);
+    setOpenModal(ENCOUNTER_MODALS.MOVE);
   };
 
   const actions = [
@@ -153,7 +153,10 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <MoveButton
           size="small"
           color="primary"
-          onClick={() => setOpenModal(ENCOUNTER_MODALS.MOVE)}
+          onClick={() => {
+            setNewEncounterType(null);
+            setOpenModal(ENCOUNTER_MODALS.MOVE);
+          }}
         >
           <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
         </MoveButton>
@@ -163,6 +166,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       {/* Hidden modals */}
       <MoveModal
         encounter={encounter}
+        newEncounterType={newEncounterType}
         open={openModal === ENCOUNTER_MODALS.MOVE}
         onClose={onClose}
         data-testid="MoveModal-00xl"
@@ -174,13 +178,14 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="dischargemodal-9lol"
       />
-      <ChangeEncounterTypeModal
+
+      {/* <ChangeEncounterTypeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.CHANGE_TYPE}
         onClose={onClose}
         newType={newEncounterType}
         data-testid="changeencountertypemodal-crha"
-      />
+      /> */}
 
       <EncounterRecordModal
         encounter={encounter}
