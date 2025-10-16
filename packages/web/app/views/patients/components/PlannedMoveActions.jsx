@@ -25,6 +25,7 @@ export const PlannedMoveActions = ({ encounter }) => {
   return (
     <>
       <Container>
+        {/* TODO: bed icon goes here */}
         <BodyText>
           <TranslatedText
             stringId="encounter.action.plannedLocationMove"
@@ -32,6 +33,7 @@ export const PlannedMoveActions = ({ encounter }) => {
           />
           <b>{getFullLocationName(encounter.plannedLocation)}</b>
         </BodyText>
+        {/* TODO: buttons need some styling */}
         <Button variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
           <TranslatedText
             stringId="encounter.action.finalisePatientMove"
