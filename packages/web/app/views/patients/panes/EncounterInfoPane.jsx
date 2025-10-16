@@ -4,7 +4,6 @@ import { DateDisplay, TranslatedEnum } from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
-  EncounterInfoCardHeader as InfoCardHeader,
   EncounterInfoCardItem as InfoCardItem,
 } from '../../../components/EncounterInfoCard';
 import { getDepartmentName } from '../../../utils/department';
