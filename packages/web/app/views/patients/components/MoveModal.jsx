@@ -186,7 +186,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
             ? {
-                plannedLocationId: encounter.locationId,
+                plannedLocationId: encounter.plannedLocationId || encounter.locationId,
                 action: PATIENT_MOVE_ACTIONS.PLAN,
               }
             : {
@@ -249,6 +249,8 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             ) : (
               <BasicMoveFields />
             )}
+            {/* TODO: this should spread the whole modal */}
+            <FormSeparatorLine />
             <SubmitRow
               onConfirm={submitForm}
               onCancel={onClose}
