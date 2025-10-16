@@ -20,7 +20,6 @@ const ENCOUNTER_MODALS = {
 
   DISCHARGE: 'discharge',
 
-  ENCOUNTER_RECORD: 'encounterRecord',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
 
   MOVE: 'move',
@@ -174,10 +173,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
       <EncounterRecordModal
         encounter={encounter}
-        open={
-          openModal === ENCOUNTER_MODALS.ENCOUNTER_RECORD ||
-          openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD
-        }
+        open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
         onClose={onClose}
         data-testid="encounterrecordmodal-00xl"
       />
