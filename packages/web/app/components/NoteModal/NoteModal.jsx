@@ -15,23 +15,17 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
-import { useMediaQuery } from '@material-ui/core';
 
 const NOTE_MODAL_DIMENSIONS = {
-  BREAKPOINTS: {
-    HEIGHT: 850, // px
-  },
   WIDTH: {
-    BASE: 500,
-    MIN: 400,
-    MAX: 500,
+    MIN: 480,
+    BASE_RATIO: 0.37,
+    MAX_RATIO: 0.9,
   },
   HEIGHT: {
-    BASE: 500,
-    MIN_DEFAULT: 450,
-    MIN_TREATMENT_PLAN: 500,
-    MAX_DEFAULT: 500,
-    MAX_TALL: 775,
+    MIN_DEFAULT: 415,
+    BASE_RATIO: 0.9,
+    MAX_RATIO: 0.9,
   },
 };
 
@@ -85,30 +79,48 @@ const MemoizedNoteModalContents = React.memo(
     cancelText,
     handleCreateOrEditNewNote,
   }) => {
-    const { BREAKPOINTS, WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
+    const { WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
 
-    const isHeightBreakpoint = useMediaQuery(`(min-height: ${BREAKPOINTS.HEIGHT}px)`);
-    const isTreatmentPlanEdit =
-      noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN;
+    const [viewport, setViewport] = useState({
+      vw: window.innerWidth,
+      vh: window.innerHeight,
+    });
 
-    const minConstraints = useMemo(() => {
-      if (isTreatmentPlanEdit) {
-        return [WIDTH.MIN, HEIGHT.MIN_TREATMENT_PLAN];
-      }
-      return [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
-    }, [isTreatmentPlanEdit, WIDTH, HEIGHT]);
+    useEffect(() => {
+      const handleResize = () => {
+        setViewport({ vw: window.innerWidth, vh: window.innerHeight });
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
+    const minConstraints = [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
 
     const maxConstraints = useMemo(() => {
-      const height = isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.MAX_DEFAULT;
-      return [WIDTH.MAX, height];
-    }, [isHeightBreakpoint, WIDTH, HEIGHT]);
+      const maxW = Math.max(WIDTH.MIN, Math.round(viewport.vw * WIDTH.MAX_RATIO));
+      const maxH = Math.max(HEIGHT.MIN_DEFAULT, Math.round(viewport.vh * HEIGHT.MAX_RATIO));
+      return [maxW, maxH];
+    }, [viewport, WIDTH, HEIGHT]);
+
+    const baseWidth = useMemo(
+      () => Math.max(WIDTH.MIN, Math.round(viewport.vw * WIDTH.BASE_RATIO)),
+      [viewport, WIDTH.MIN, WIDTH.BASE_RATIO],
+    );
+    const baseHeight = useMemo(
+      () => Math.max(HEIGHT.MIN_DEFAULT, Math.round(viewport.vh * HEIGHT.BASE_RATIO)),
+      [viewport, HEIGHT.MIN_DEFAULT, HEIGHT.BASE_RATIO],
+    );
 
     return (
       <FloatingMuiDialog
         open={open}
         onClose={onClose}
-        baseWidth={WIDTH.BASE}
-        baseHeight={isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.BASE}
+        baseWidth={baseWidth}
+        baseHeight={baseHeight}
         minConstraints={minConstraints}
         maxConstraints={maxConstraints}
       >
@@ -262,7 +274,7 @@ export const NoteModal = React.memo(() => {
         unblockRef.current();
       }
     };
-  }, [isNoteModalOpen, history, closeNoteModal]);
+  }, [isNoteModalOpen, history, closeNoteModal, getTranslation]);
 
   return (
     <>

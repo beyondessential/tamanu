@@ -105,6 +105,7 @@ export const SelectInput = ({
   isClearable = true,
   clearValue = undefined,
   customStyleObject,
+  $fontSize,
   ['data-testid']: dataTestId,
   ...props
 }) => {
@@ -129,7 +130,7 @@ export const SelectInput = ({
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
-      const fontSize = props.size === 'small' ? '11px' : '15px';
+      const fontSize = $fontSize || (props.size === 'small' ? '11px' : '15px');
       return {
         ...provided,
         borderColor,
