@@ -49,7 +49,12 @@ const SubmitRow = styled(FormSubmitCancelRow)`
 const BasicMoveFields = () => {
   return (
     <>
-      <SectionDescription>DESCRIPTION TO BE CONFIRMED</SectionDescription>
+      <SectionDescription>
+        <TranslatedText
+          stringId="patient.encounter.movePatient.location.description"
+          fallback="Select new patient location."
+        />
+      </SectionDescription>
       <Section columns={2} data-testid="formgrid-wyqp">
         <Field
           name="locationId"
@@ -99,10 +104,14 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
   return (
     <>
       <SectionDescription>
-        Select a location to plan the patient location move and reserve a bed. The new location will
+        <TranslatedText
+          stringId="patient.encounter.movePatient.location.advancedDescription"
+          fallback="Select a location to plan the patient location move and reserve a bed. The new location will
         not be reflected in the patient encounter until you finalise the move. If the change is not
-        finalised within 24 hours, the planned location move will be cancelled. Alternatively you
-        can finalise the patient move now using the option below.
+        finalised within :plannedMoveTimeoutHours hours, the planned location move will be
+        cancelled. Alternatively you can finalise the patient move now using the option below."
+          replacements={{ plannedMoveTimeoutHours }}
+        />
       </SectionDescription>
       <Section columns={2} data-testid="formgrid-wyqp">
         <Field
