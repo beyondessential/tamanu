@@ -138,11 +138,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
-      label: <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />,
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION),
-      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
-    },
-    {
       label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
       onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
       condition: () =>
