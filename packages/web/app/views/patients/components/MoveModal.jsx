@@ -161,7 +161,16 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       departmentId,
       examinerId,
     });
-    await submitPatientMove({ locationId, plannedLocationId, action });
+
+    await submitPatientMove(
+      action === PATIENT_MOVE_ACTIONS.PLAN
+        ? {
+            plannedLocationId,
+          }
+        : {
+            locationId: plannedLocationId || locationId,
+          },
+    );
   };
 
   return (
@@ -186,12 +195,9 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
             ? {
-                plannedLocationId: encounter.plannedLocationId || encounter.locationId,
                 action: PATIENT_MOVE_ACTIONS.PLAN,
               }
-            : {
-                locationId: encounter.locationId,
-              }),
+            : {}),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
