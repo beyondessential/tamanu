@@ -122,7 +122,7 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
         />
         <LocationAvailabilityWarningMessage
           locationId={plannedLocationId}
-          style={{ gridColumn: '2', marginTop: '-35px', fontSize: '12px' }}
+          style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
           data-testid="locationavailabilitywarningmessage-6ivs"
         />
         <Field
@@ -176,6 +176,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       open={open}
       onClose={onClose}
       data-testid="formmodal-httn"
+      width="md"
     >
       <Form
         initialValues={{
