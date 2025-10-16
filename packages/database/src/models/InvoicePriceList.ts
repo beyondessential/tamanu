@@ -1,5 +1,4 @@
 import { DataTypes } from 'sequelize';
-import { differenceInYears, parseISO } from 'date-fns';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
