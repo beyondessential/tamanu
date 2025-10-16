@@ -13,7 +13,6 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
 import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient';
-import { useSettings } from '../../../contexts/Settings';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const ENCOUNTER_MODALS = {
@@ -24,9 +23,6 @@ const ENCOUNTER_MODALS = {
   CHANGE_DIET: 'changeDiet',
 
   DISCHARGE: 'discharge',
-
-  FINALISE_MOVE: 'finaliseMove',
-  CANCEL_MOVE: 'cancelMove',
 
   ENCOUNTER_RECORD: 'encounterRecord',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
@@ -49,7 +45,6 @@ const ActionsContainer = styled.div`
 `;
 
 export const EncounterActions = React.memo(({ encounter }) => {
-  const { getSetting } = useSettings();
   const { navigateToSummary } = usePatientNavigation();
 
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
@@ -64,8 +59,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
   };
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
-
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -109,26 +102,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="encounter.action.finalisePatientMove"
-          fallback="Finalise patient move"
-        />
-      ),
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="encounter.action.cancelPatientMove"
-          fallback="Cancel patient move"
-        />
-      ),
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
     },
     {
       label: (
@@ -189,6 +162,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 
+      {/* Hidden modals */}
       <MoveModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.MOVE}
@@ -208,21 +182,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         newType={newEncounterType}
         data-testid="changeencountertypemodal-crha"
-      />
-
-      {/* Patient move modals These will probably move to that new component */}
-
-      <FinalisePatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
-        onClose={onClose}
-        data-testid="finalisepatientmovemodal-hvk3"
-      />
-      <CancelPatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
-        onClose={onClose}
-        data-testid="cancelpatientmovemodal-x8xx"
       />
 
       <EncounterRecordModal
