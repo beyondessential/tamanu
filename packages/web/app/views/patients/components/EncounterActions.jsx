@@ -15,7 +15,6 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 const ENCOUNTER_MODALS = {
   NONE: 'none',
 
-  CHANGE_TYPE: 'changeType',
   CHANGE_REASON: 'changeReason',
   CHANGE_DIET: 'changeDiet',
 
@@ -41,21 +40,21 @@ const ActionsContainer = styled.div`
   gap: 10px;
 `;
 
+const ENCOUNTER_TYPE_PROGRESSION = {
+  [ENCOUNTER_TYPES.TRIAGE]: 0,
+  [ENCOUNTER_TYPES.OBSERVATION]: 1,
+  [ENCOUNTER_TYPES.EMERGENCY]: 2,
+  [ENCOUNTER_TYPES.ADMISSION]: 3,
+};
+
+const isProgressionForward = (currentState, nextState) =>
+  ENCOUNTER_TYPE_PROGRESSION[nextState] > ENCOUNTER_TYPE_PROGRESSION[currentState];
+
 export const EncounterActions = React.memo(({ encounter }) => {
   const { navigateToSummary } = usePatientNavigation();
-
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
-
-  const progression = {
-    [ENCOUNTER_TYPES.TRIAGE]: 0,
-    [ENCOUNTER_TYPES.OBSERVATION]: 1,
-    [ENCOUNTER_TYPES.EMERGENCY]: 2,
-    [ENCOUNTER_TYPES.ADMISSION]: 3,
-  };
-  const isProgressionForward = (currentState, nextState) =>
-    progression[nextState] > progression[currentState];
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -88,7 +87,9 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
       ),
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
+      condition: () =>
+        isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION) ||
+        encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
       label: (
@@ -99,13 +100,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: (
-        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
-      ),
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE),
-      condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
       label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
