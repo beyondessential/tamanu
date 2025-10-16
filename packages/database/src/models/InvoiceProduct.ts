@@ -57,10 +57,12 @@ export class InvoiceProduct extends Model {
       as: 'labTestType',
       constraints: false,
     });
+    // Has many in the context of importing and storing data
     this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItems',
     });
+    // Has one in the context of fetching data from the api
     this.hasOne(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
