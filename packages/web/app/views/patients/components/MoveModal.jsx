@@ -78,22 +78,22 @@ const PATIENT_MOVE_ACTION_OPTIONS = [
   {
     label: (
       <TranslatedText
-        stringId="encounter.modal.patientMove.action.plan"
-        fallback="Plan"
-        data-testid="translatedtext-patient-move-action-plan"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.PLAN,
-  },
-  {
-    label: (
-      <TranslatedText
         stringId="encounter.modal.patientMove.action.finalise"
-        fallback="Finalise"
+        fallback="Finalise now"
         data-testid="translatedtext-patient-move-action-finalise"
       />
     ),
     value: PATIENT_MOVE_ACTIONS.FINALISE,
+  },
+  {
+    label: (
+      <TranslatedText
+        stringId="encounter.modal.patientMove.action.plan"
+        fallback="Plan change"
+        data-testid="translatedtext-patient-move-action-plan"
+      />
+    ),
+    value: PATIENT_MOVE_ACTIONS.PLAN,
   },
 ];
 
@@ -130,7 +130,7 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
           label={
             <TranslatedText
               stringId="encounter.modal.patientMove.action.label"
-              fallback="Would you like to plan or finalise the patient move?"
+              fallback="Would you like to finalise the patient location move now or plan change?"
               data-testid="translatedtext-l7v1"
             />
           }
