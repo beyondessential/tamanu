@@ -18,16 +18,9 @@ const Container = styled.div`
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
-const ENCOUNTER_MODALS = {
-  NONE: 'none',
-
-  FINALISE_MOVE: 'finaliseMove',
-  CANCEL_MOVE: 'cancelMove',
-};
-
 export const PlannedMoveActions = ({ encounter }) => {
-  const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
-  const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [finaliseModalOpen, setFinaliseModalOpen] = useState(false);
 
   return (
     <>
@@ -39,26 +32,27 @@ export const PlannedMoveActions = ({ encounter }) => {
           />
           <b>{getFullLocationName(encounter.plannedLocation)}</b>
         </BodyText>
-        <Button variant="outlined" onClick={() => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE)}>
+        <Button variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
           <TranslatedText
             stringId="encounter.action.finalisePatientMove"
             fallback="Finalise move"
           />
         </Button>
-        <Button variant="text" onClick={() => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE)}>
+        <Button variant="text" onClick={() => setCancelModalOpen(true)}>
           <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel" />
         </Button>
       </Container>
+
       <FinalisePatientMoveModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
-        onClose={onClose}
+        open={finaliseModalOpen}
+        onClose={() => setFinaliseModalOpen(false)}
         data-testid="finalisepatientmovemodal-hvk3"
       />
       <CancelPatientMoveModal
         encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
-        onClose={onClose}
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
         data-testid="cancelpatientmovemodal-x8xx"
       />
     </>
