@@ -39,13 +39,13 @@ const StyledButton = styled(Button)`
   max-height: 40px;
 `;
 
+const MoveButton = styled(StyledButton)`
+  margin-right: -7px;
+`;
+
 const ActionsContainer = styled.div`
   display: flex;
   gap: 10px;
-`;
-
-const StyledThreeDotMenu = styled(ThreeDotMenu)`
-  margin-left: -7px;
 `;
 
 export const EncounterActions = React.memo(({ encounter }) => {
@@ -184,14 +184,14 @@ export const EncounterActions = React.memo(({ encounter }) => {
             fallback="Prepare discharge"
           />
         </StyledButton>
-        <StyledButton
+        <MoveButton
           size="small"
           color="primary"
           onClick={() => setOpenModal(ENCOUNTER_MODALS.MOVE)}
         >
           <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />
-        </StyledButton>
-        <StyledThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
+        </MoveButton>
+        <ThreeDotMenu items={actions} data-testid="threedotmenu-5t9u" />
       </ActionsContainer>
 
       <MoveModal
