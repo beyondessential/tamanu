@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/constants';
 

@@ -225,8 +225,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     >
       <Form
         initialValues={{
-          // Used in creation of associated notes
-          submittedTime: getCurrentDateTimeString(),
           examinerId: encounter.examinerId,
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
