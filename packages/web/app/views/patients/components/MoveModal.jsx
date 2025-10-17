@@ -190,6 +190,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
             ? {
+                plannedLocationId: encounter.plannedLocationId,
                 action: PATIENT_MOVE_ACTIONS.PLAN,
               }
             : {}),
