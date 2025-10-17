@@ -13,8 +13,8 @@ import {
   medicationTemplateLoader,
   medicationSetLoader,
   procedureTypeLoader,
-  invoicePriceListLoader,
 } from './loaders';
+import { invoicePriceListLoader } from './invoicePriceListLoader';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
