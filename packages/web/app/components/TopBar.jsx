@@ -112,6 +112,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   flex: 2;
   flex-grow: 0;
   padding-left: 5px;
