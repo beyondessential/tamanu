@@ -292,7 +292,7 @@ const NoteTable = ({
   encounterId,
   hasPermission: hasEncounterNoteWritePermission,
   noteModalOnSaved,
-  noteType,
+  noteTypeId,
 }) => {
   const { currentUser } = useAuth();
   const { openNoteModal } = useNoteModal();
@@ -343,7 +343,7 @@ const NoteTable = ({
             currentUser={currentUser}
             handleEditNote={handleEditNote}
             handleViewNoteChangeLog={handleViewNoteChangeLog}
-            isNotFilteredByNoteType={!noteType}
+            isNotFilteredByNoteType={!noteTypeId}
             data-testid="notecontent-s6dd"
           />
         ),
@@ -353,7 +353,7 @@ const NoteTable = ({
     [
       hasEncounterNoteWritePermission,
       currentUser,
-      noteType,
+      noteTypeId,
       handleEditNote,
       handleViewNoteChangeLog,
     ],
@@ -371,14 +371,14 @@ const NoteTable = ({
         hideHeader
         allowExport={false}
         columns={COLUMNS}
-        key={noteType}
+        key={noteTypeId}
         endpoint={`encounter/${encounterId}/notes`}
-        fetchOptions={{ noteType }}
+        fetchOptions={{ noteTypeId }}
         elevated={false}
         noDataBackgroundColor={Colors.background}
         noDataMessage={
           <NoDataMessage data-testid="nodatamessage-78ud">
-            {noteType ? (
+            {noteTypeId ? (
               <TranslatedText
                 stringId="note.table.noDataOfType"
                 fallback="This patient has no notes of this type to display. Click ‘New note’ to add a note."

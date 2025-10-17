@@ -401,6 +401,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
+      if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+        baseWhere.code = {
+          [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
+        };
+      }
+
       return baseWhere;
     },
     {
@@ -907,18 +913,6 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
 createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },
 }));
-
-createSuggester(
-  'noteType',
-  'ReferenceData',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    type: REFERENCE_TYPES.NOTE_TYPE,
-    code: {
-      [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
-    },
-  }),
-);
 
 const routerEndpoints = suggestions.stack.map(layer => {
   const path = layer.route.path.replace('/', '').replaceAll('$', '');

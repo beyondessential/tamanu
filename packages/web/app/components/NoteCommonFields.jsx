@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -19,7 +19,6 @@ import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
 import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
-import { TranslatedSelectField } from './Translation/TranslatedSelect';
 import { useSettings } from '../contexts/Settings';
 
 export const StyledDivider = styled(Divider)`
@@ -56,7 +55,11 @@ export const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
 
-const renderOptionLabel = ({ value, label, code }, noteTypeCountByType) => {
+const renderOptionLabel = (option, noteTypeCountByType) => {
+  const code = option.code || option.value;
+  const label = option.name || option.label;
+  const value = option.id || option.value;
+  
   return code === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[value] ? (
     <StyledTooltip
       arrow
@@ -284,7 +287,14 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => {
+export const NoteTypeField = ({
+  required,
+  noteTypeCountByType,
+  onChange,
+  size,
+  disabled,
+  $fontSize,
+}) => {
   const noteTypeSuggester = useSuggester('noteType');
 
   return (
@@ -300,6 +310,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
       required={required}
       component={AutocompleteField}
       suggester={noteTypeSuggester}
+      $fontSize={$fontSize}
       transformOptions={types =>
         types
           .filter(option => !option.hideFromDropdown)
@@ -307,7 +318,8 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
             ...option,
             isDisabled:
               noteTypeCountByType &&
-              !!noteTypeCountByType[option.value],
+              option.code === NOTE_TYPES.TREATMENT_PLAN &&
+              !!noteTypeCountByType[option.id],
           }))
       }
       formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
@@ -321,9 +333,11 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
   );
 };
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
+export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled }) => {
+  const noteTypeCode = noteTypeId ? noteTypeId.replace('notetype-', '') : null;
+  
   const templateSuggester = useSuggester('template', {
-    baseQueryParameters: { type: noteType },
+    baseQueryParameters: { type: noteTypeCode },
   });
 
   return (
@@ -339,7 +353,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType || disabled}
+      disabled={!noteTypeCode || disabled}
       size={size}
       data-testid="field-ej08"
     />

@@ -71,7 +71,7 @@ export const CreateEditNoteForm = ({
               $fontSize="14px"
             />
             <NoteTemplateField
-              noteType={values.noteType}
+              noteTypeId={values.noteTypeId}
               onChangeTemplate={onChangeTemplate}
               disabled={disableFields}
             />

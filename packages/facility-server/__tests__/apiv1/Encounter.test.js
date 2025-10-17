@@ -8,6 +8,7 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
+  REFERENCE_TYPES,
   VITALS_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
@@ -150,21 +151,32 @@ describe('Encounter', () => {
     expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
   });
 
-  it('should get a list of notes filtered by noteType', async () => {
+  it('should get a list of notes filtered by noteTypeId', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+
+    // Get the noteTypeId for treatmentPlan
+    const treatmentPlanNoteType = await models.ReferenceData.findOne({
+      where: {
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        code: NOTE_TYPES.TREATMENT_PLAN,
+      },
+    });
+
     await Promise.all([
       models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
       models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
       models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
     ]);
 
-    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/notes?noteTypeId=${treatmentPlanNoteType.id}`,
+    );
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(2);
-    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+    expect(result.body.data.every(x => x.noteTypeId === treatmentPlanNoteType.id)).toEqual(true);
   });
 
   it('should get a list of changelog notes of a root note ordered DESC', async () => {

@@ -56,6 +56,19 @@ export async function up(query: QueryInterface) {
 }
 
 export async function down(query: QueryInterface) {
+  await query.sequelize.query(
+    `
+    UPDATE notes
+    SET note_type = reference_data.code
+    FROM reference_data
+    WHERE reference_data.id = notes.note_type_id
+      AND reference_data.type = :noteType
+    `,
+    {
+      replacements: { noteType: REFERENCE_TYPES.NOTE_TYPE },
+    },
+  );
+
   await query.removeColumn('notes', 'note_type_id');
 
   await query.sequelize.query(
