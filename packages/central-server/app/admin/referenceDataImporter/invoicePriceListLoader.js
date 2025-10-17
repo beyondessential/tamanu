@@ -134,7 +134,7 @@ export function invoicePriceListLoader() {
       const priceListRows = await initializePriceLists(priceListCodes, models, state, pushError);
       const itemRows = await processRow(item, state, { pushError, models });
 
-      return [...priceListRows, ...itemRows];
+      return itemRows.length > 0 ? [...priceListRows, ...itemRows] : [];
     }
 
     return processRow(item, state, { pushError, models });

@@ -14,7 +14,7 @@ export class InvoicePriceListExporter extends ModelExporter {
     const priceLists = await this.models.InvoicePriceList.findAll({ attributes: ['id', 'code'] });
 
     // If there are no price lists, create a blank spreadsheet with all the invoice products
-    if (priceLists.length === 1) {
+    if (priceLists.length === 0) {
       const products = await this.models.InvoiceProduct.findAll({
         attributes: ['id'],
       });
