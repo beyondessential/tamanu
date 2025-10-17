@@ -22,7 +22,7 @@ export class InvoicePriceListItem extends Model {
         },
         price: {
           type: DataTypes.DECIMAL,
-          allowNull: true,
+          allowNull: false,
         },
       },
       {

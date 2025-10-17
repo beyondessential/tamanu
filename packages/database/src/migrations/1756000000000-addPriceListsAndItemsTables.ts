@@ -78,10 +78,11 @@ export async function up(query: QueryInterface): Promise<void> {
         model: 'invoice_products',
         key: 'id',
       },
+      onDelete: 'CASCADE',
     },
     price: {
       type: DataTypes.DECIMAL,
-      allowNull: true,
+      allowNull: false,
     },
   });
 
