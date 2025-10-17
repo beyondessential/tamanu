@@ -147,7 +147,7 @@ describe('Programs import - Translation', () => {
     });
 
     if (programDataElements.length === 0)
-      throw new Error('No program data elements with options found in vitals-valid.xlsx');
+      throw new Error('No program data elements with options found in invalid-translation-string-ids.xlsx');
 
     const translations = await models.TranslatedString.findAll({
       where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
