@@ -21,7 +21,7 @@ test.describe('Notes Tests', () => {
   });
 
   test.describe('Create Note Tests', () => {
-    test('should create a treatment plan note with basic details', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0075]should create a treatment plan note with basic details', async ({ patientDetailsPage }) => {
       const noteContent = 'This is a test treatment plan note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -34,7 +34,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
     });
 
-    test('should create a discharge planning note and validate it is shown in the discharge modal', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0076]should create a discharge planning note and validate it is shown in the discharge modal', async ({ patientDetailsPage }) => {
       const noteContent = 'This is a discharge planning note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -59,7 +59,7 @@ test.describe('Notes Tests', () => {
       await prepareDischargeModal.cancelButton.click();
     });
 
-    test('should create an other note with basic details', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0077]should create an other note with basic details', async ({ patientDetailsPage }) => {
       const noteContent = 'This is a test other note';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -72,7 +72,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
     });
 
-    test('should validate form field values when creating a note', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0078]should validate form field values when creating a note', async ({ patientDetailsPage }) => {
       const noteContent = 'This is a test note for validation';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -96,7 +96,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.noteContents.first()).toContainText(noteContent);
     });
 
-    test('should not allow creating a note without required fields', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0079]should not allow creating a note without required fields', async ({ patientDetailsPage }) => {
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
       await newNoteModal?.waitForModalToLoad();
@@ -110,7 +110,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.getNewNoteModal().noteContentRequiredIndicator).toBeVisible();
     });
 
-    test('should allow cancelling note creation', async ({ patientDetailsPage }) => {
+    test('[T-0186][AT-0080]should allow cancelling note creation', async ({ patientDetailsPage }) => {
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
       await newNoteModal?.waitForModalToLoad();
@@ -133,7 +133,7 @@ test.describe('Notes Tests', () => {
   });
 
   test.describe('Edit Note Tests', () => {
-    test('should edit an existing note and view the change log', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0081]should edit an existing note and view the change log', async ({ patientDetailsPage }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const noteType = NOTE_TYPES.OTHER;
@@ -180,7 +180,7 @@ test.describe('Notes Tests', () => {
       await expect(changeLogModal!.changelogInfoDates.nth(1)).toHaveText(secondNoteFormattedDateTime);
       await changeLogModal!.closeButton.click();
     });
-    test('should update a treatment plan note and validate the change log', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0082]should update a treatment plan note and validate the change log', async ({ patientDetailsPage }) => {
       test.setTimeout(50000);
       const originalContent = 'Original treatment plan';
       const updatedContent = 'Updated treatment plan';
@@ -239,7 +239,7 @@ test.describe('Notes Tests', () => {
       // Close the modal
       await changeLogTreatmentPlanModal!.closeButton.click();
     });
-    test('should edit an discharge planning note and validate it is shown in the discharge modal', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0083]should edit an discharge planning note and validate it is shown in the discharge modal', async ({ patientDetailsPage }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -268,7 +268,7 @@ test.describe('Notes Tests', () => {
       ).toHaveText(updatedContent);
     });
 
-    test('should show edited indicator after editing a note', async ({ patientDetailsPage }) => {
+    test('[AT-0084]should show edited indicator after editing a note', async ({ patientDetailsPage }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -288,7 +288,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.editedButtons.first()).toBeVisible();
     });
 
-    test('should allow cancelling note edit', async ({ patientDetailsPage }) => {
+    test('[T-0191][AT-0085]should allow cancelling note edit', async ({ patientDetailsPage }) => {
       const originalContent = 'Original note content';
       const updatedContent = 'Updated note content';
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
@@ -317,7 +317,7 @@ test.describe('Notes Tests', () => {
 
   test.describe('Notes Table Tests', () => {
     test.setTimeout(60000);
-    test('treatment plan note should appear on top when creating multiple notes', async ({ patientDetailsPage }) => {
+    test('[T-0189][AT-0086]treatment plan note should appear on top when creating multiple notes', async ({ patientDetailsPage }) => {
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
         { type: NOTE_TYPES.OTHER, content: 'Other note' },
@@ -350,7 +350,7 @@ test.describe('Notes Tests', () => {
         await expect(patientDetailsPage.notesPane!.noteContents.nth(i)).toContainText(notes[noteIndex].content);
       }
     });
-    test('should display read more and show less button when note content is too long', async ({ patientDetailsPage }) => {
+    test('[T-0190][AT-0087]should display read more and show less button when note content is too long', async ({ patientDetailsPage }) => {
       const noteContent = testData.noteContent;
       const newNoteModal = patientDetailsPage.notesPane?.getNewNoteModal();
       await patientDetailsPage.notesPane?.newNoteButton.click();
@@ -362,7 +362,7 @@ test.describe('Notes Tests', () => {
       await expect(patientDetailsPage.notesPane!.showLessButton.first()).toBeVisible();
     });
 
-    test('should be able to filter notes by note type', async ({ patientDetailsPage }) => {
+    test('[T-0188][AT-0088]should be able to filter notes by note type', async ({ patientDetailsPage }) => {
       test.setTimeout(50000);
       const notes = [
         { type: NOTE_TYPES.DISCHARGE_PLANNING, content: 'Discharge planning note' },
