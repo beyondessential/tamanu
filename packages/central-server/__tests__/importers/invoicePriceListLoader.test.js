@@ -120,7 +120,6 @@ describe('Invoice price list import', () => {
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
-    console.log('didntSendReason', didntSendReason);
     expect(didntSendReason).toEqual('validationFailed');
     expect(stats).toEqual({});
     expect(errors[0]).toHaveProperty(
