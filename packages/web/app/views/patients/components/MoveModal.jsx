@@ -14,6 +14,7 @@ import {
   Heading3,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  ModalFormActionRow,
   RadioField,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
@@ -255,12 +256,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             ) : (
               <BasicMoveFields />
             )}
-            {/* TODO: this should spread the whole modal */}
-            <FormSeparatorLine />
-            <SubmitRow
+            <ModalFormActionRow
               onConfirm={submitForm}
               onCancel={onClose}
-              data-testid="formsubmitcancelrow-35ou"
+              data-testid="modalformactionrow-35ou"
             />
           </>
         )}
