@@ -6,26 +6,24 @@ import { v4 as uuidv4 } from 'uuid';
  * Checks for duplicate codes and creates a mapping from code to price list ID.
  */
 async function initializePriceLists(priceListCodes, models, state, pushError) {
-  const trimmedCodes = priceListCodes.map(c => c.trim());
   const seen = new Set();
   const priceListRows = [];
 
   const existingPriceLists = await models.InvoicePriceList.findAll({
-    where: { code: { [Op.in]: trimmedCodes } },
+    where: { code: { [Op.in]: priceListCodes } },
   });
   const existingByCode = new Map(existingPriceLists.map(pl => [pl.code, pl.id]));
 
   for (const code of priceListCodes) {
-    const trimmedCode = code.trim();
-    if (seen.has(trimmedCode)) {
-      pushError(`duplicate price list code: ${trimmedCode}`);
+    if (seen.has(code)) {
+      pushError(`duplicate price list code: ${code}`);
       continue;
     }
-    seen.add(trimmedCode);
+    seen.add(code);
 
-    const id = existingByCode.get(trimmedCode) || uuidv4();
+    const id = existingByCode.get(code) || uuidv4();
     state.priceListIdCache.set(code, id);
-    priceListRows.push({ model: 'InvoicePriceList', values: { id, code: trimmedCode } });
+    priceListRows.push({ model: 'InvoicePriceList', values: { id, code } });
   }
 
   return priceListRows;
