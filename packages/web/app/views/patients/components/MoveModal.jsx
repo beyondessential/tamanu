@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   BodyText,
   DynamicSelectField,
@@ -10,7 +9,6 @@ import {
   FormGrid,
   FormModal,
   FormSeparatorLine,
-  FormSubmitCancelRow,
   Heading3,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
