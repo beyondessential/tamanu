@@ -12,10 +12,12 @@ import {
   FormSeparatorLine,
   FormSubmitCancelRow,
   Heading3,
+  LargeBodyText,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   ModalFormActionRow,
   RadioField,
+  TranslatedEnum,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
@@ -24,7 +26,7 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
-import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -41,6 +43,11 @@ const SectionDescription = styled(BodyText)`
 
 const Section = styled(FormGrid)`
   margin-bottom: 30px;
+`;
+
+const EncounterChangeDescription = styled(LargeBodyText)`
+  margin-top: 5px;
+  margin-bottom: 20px;
 `;
 
 const BasicMoveFields = () => {
@@ -141,7 +148,38 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
   );
 };
 
-export const MoveModal = React.memo(({ open, onClose, encounter }) => {
+const getConfirmText = newEncounterType => {
+  if (newEncounterType) {
+    return (
+      <TranslatedText
+        stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+        fallback="Transfer to :newEncounterType"
+        replacements={{ newEncounterType }}
+      />
+    );
+  }
+  return <TranslatedText stringId="general.action.confirm" fallback="Confirm" />;
+};
+
+const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
+  return (
+    <EncounterChangeDescription>
+      <TranslatedText
+        stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
+        fallback="Changing encounter type from"
+      />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+      </b>{' '}
+      to{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+      </b>
+    </EncounterChangeDescription>
+  );
+};
+
+export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
   const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
@@ -157,6 +195,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     await writeAndViewEncounter(encounter.id, {
       departmentId,
       examinerId,
+      ...(newEncounterType && { encounterType: newEncounterType }),
     });
 
     await submitPatientMove(
@@ -199,6 +238,15 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         onSubmit={onSubmit}
         render={({ submitForm, values }) => (
           <>
+            {newEncounterType && (
+              <>
+                <EncounterTypeChangeDescription
+                  encounterType={encounter.encounterType}
+                  newEncounterType={newEncounterType}
+                />
+                <FormSeparatorLine />
+              </>
+            )}
             <SectionHeading>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.heading"
@@ -253,6 +301,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             )}
             <ModalFormActionRow
               onConfirm={submitForm}
+              confirmText={getConfirmText(newEncounterType)}
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
