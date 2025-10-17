@@ -81,7 +81,7 @@ export const LocationInput = React.memo(
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: '', name, groupValue: location.locationGroup.id } });
       }
 
       // Initialise the location group state
@@ -97,13 +97,13 @@ export const LocationInput = React.memo(
       onGroupChange(event.target.value);
       if (locationId) {
         setLocationId('');
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: '', name, groupValue: event.target.value } });
       }
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
-      onChange({ target: { value: event.target.value, name } });
+      onChange({ target: { value: event.target.value, name, groupValue: groupId } });
     };
 
     // Disable the location and location group fields if:

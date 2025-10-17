@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import { isNil } from 'lodash';
 import { USER_PREFERENCES_KEYS } from '@tamanu/constants';
 
 import { Colors } from '../../constants';
@@ -58,54 +59,36 @@ const FilterGrid = styled.div`
 export const DashboardTaskPane = React.memo(() => {
   const { facilityId } = useAuth();
   const userPreferencesMutation = useUserPreferencesMutation(facilityId);
-  const [hasLoadedUserPreferences, setHasLoadedUserPreferences] = useState(false);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
+  const clinicianDashboardTaskingTableFilter =
+    userPreferences?.clinicianDashboardTaskingTableFilter || {};
 
-  const [locationGroupId, setLocationGroupId] = useState();
-  const [locationId, setLocationId] = useState();
-  const [highPriority, setHighPriority] = useState();
-
-  // Get the initial filter state from the user preferences, after that rely on local state as
-  // reloading user preferences causes timing issues with locationId and locationGroupId
-  useEffect(() => {
-    if (isLoadingUserPreferences || hasLoadedUserPreferences) return;
-    setLocationGroupId(userPreferences?.clinicianDashboardTaskingTableFilter?.locationGroupId);
-    setLocationId(userPreferences?.clinicianDashboardTaskingTableFilter?.locationId);
-    setHighPriority(userPreferences?.clinicianDashboardTaskingTableFilter?.highPriority);
-    setHasLoadedUserPreferences(true);
-  }, [
-    isLoadingUserPreferences,
-    userPreferences?.clinicianDashboardTaskingTableFilter,
-    hasLoadedUserPreferences,
-    setHasLoadedUserPreferences,
-  ]);
-
-  // Helper function to mutate preferences with the latest values
   const updatePreferences = updates => {
     userPreferencesMutation.mutate({
       key: USER_PREFERENCES_KEYS.CLINICIAN_DASHBOARD_TASKING_TABLE_FILTER,
-      value: { locationGroupId, locationId, highPriority, ...updates },
+      value: { ...clinicianDashboardTaskingTableFilter, ...updates },
     });
   };
 
   const onLocationGroupChange = groupId => {
-    setLocationGroupId(groupId || undefined);
     updatePreferences({ locationGroupId: groupId || undefined });
   };
 
   const onLocationIdChange = e => {
-    const { value } = e.target;
-    setLocationId(value || undefined);
-    updatePreferences({ locationId: value || undefined });
+    const { value, groupValue } = e.target;
+    const updates = { locationId: value || undefined };
+    if (!isNil(groupValue)) {
+      updates.locationGroupId = groupValue;
+    }
+    updatePreferences(updates);
   };
 
   const onHighPriorityOnlyChange = e => {
     const { checked } = e.target;
-    setHighPriority(checked);
     updatePreferences({ highPriority: checked ? true : undefined });
   };
 
-  if (!hasLoadedUserPreferences) return null;
+  if (isLoadingUserPreferences) return null;
 
   return (
     <TabPane data-testid="tabpane-s00l">
@@ -138,8 +121,8 @@ export const DashboardTaskPane = React.memo(() => {
                   data-testid="translatedtext-kbsm"
                 />
               }
-              value={locationId}
-              groupValue={locationGroupId}
+              value={clinicianDashboardTaskingTableFilter.locationId}
+              groupValue={clinicianDashboardTaskingTableFilter.locationGroupId}
               autofill={false}
               isMulti={true}
               data-testid="locationinput-aabz"
@@ -152,7 +135,7 @@ export const DashboardTaskPane = React.memo(() => {
                   data-testid="translatedtext-crsm"
                 />
               }
-              value={highPriority}
+              value={clinicianDashboardTaskingTableFilter.highPriority}
               onChange={onHighPriorityOnlyChange}
               data-testid="styledcheckinput-fzec"
             />
@@ -160,7 +143,7 @@ export const DashboardTaskPane = React.memo(() => {
         </ActionRow>
       </TopBar>
       <DashboardTasksTable
-        searchParameters={{ locationId, locationGroupId, highPriority }}
+        searchParameters={clinicianDashboardTaskingTableFilter}
         data-testid="dashboardtaskstable-lyo3"
       />
     </TabPane>
