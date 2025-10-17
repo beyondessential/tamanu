@@ -57,40 +57,35 @@ async function processRow(item, state, { pushError, models }) {
   // Validate prices and build price list items
   const rows = [];
   for (const code of state.priceListCodes) {
-    const raw = item[code];
+    const rawPrice = item[code];
 
-    // Parse and validate price value
-    let price;
-    if (raw === undefined || raw === null || `${raw}`.trim() === '') {
-      price = null;
-    } else {
-      const num = Number(raw);
-      price = Number.isNaN(num) ? undefined : num;
+    // Skip empty values (treat as null)
+    if (rawPrice === undefined || rawPrice === null || `${rawPrice}`.trim() === '') {
+      continue;
     }
 
-    if (price === undefined) {
+    // Validate numeric price
+    const price = Number(rawPrice);
+    if (Number.isNaN(price)) {
       pushError(
-        `Invalid price value '${raw}' for priceList '${code}' and invoiceProductId '${invoiceProductId}'`,
+        `Invalid price value '${rawPrice}' for priceList '${code}' and invoiceProductId '${invoiceProductId}'`,
       );
       return [];
     }
 
-    // Only create rows for non-null prices
-    if (price !== null) {
-      const invoicePriceListId = state.priceListIdCache.get(code);
-      if (!invoicePriceListId) {
-        pushError(`Could not find InvoicePriceList ID for code '${code}'`);
-        return [];
-      }
-
-      const itemKey = `${invoicePriceListId}:${invoiceProductId}`;
-      const id = existingItemsMap.get(itemKey) || uuidv4();
-
-      rows.push({
-        model: 'InvoicePriceListItem',
-        values: { id, invoicePriceListId, invoiceProductId, price },
-      });
+    const invoicePriceListId = state.priceListIdCache.get(code);
+    if (!invoicePriceListId) {
+      pushError(`Could not find InvoicePriceList ID for code '${code}'`);
+      return [];
     }
+
+    const itemKey = `${invoicePriceListId}:${invoiceProductId}`;
+    const id = existingItemsMap.get(itemKey) || uuidv4();
+
+    rows.push({
+      model: 'InvoicePriceListItem',
+      values: { id, invoicePriceListId, invoiceProductId, price },
+    });
   }
 
   return rows;
