@@ -69,29 +69,6 @@ const BasicMoveFields = () => {
   );
 };
 
-const PATIENT_MOVE_ACTION_OPTIONS = [
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.finalise"
-        fallback="Finalise now"
-        data-testid="translatedtext-patient-move-action-finalise"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.FINALISE,
-  },
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.plan"
-        fallback="Plan change"
-        data-testid="translatedtext-patient-move-action-plan"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.PLAN,
-  },
-];
-
 const AdvancedMoveFields = ({ plannedLocationId }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
@@ -130,7 +107,28 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
             />
           }
           component={RadioField}
-          options={PATIENT_MOVE_ACTION_OPTIONS}
+          options={[
+            {
+              label: (
+                <TranslatedText
+                  stringId="encounter.modal.patientMove.action.finalise"
+                  fallback="Finalise now"
+                  data-testid="translatedtext-patient-move-action-finalise"
+                />
+              ),
+              value: PATIENT_MOVE_ACTIONS.FINALISE,
+            },
+            {
+              label: (
+                <TranslatedText
+                  stringId="encounter.modal.patientMove.action.plan"
+                  fallback="Plan change"
+                  data-testid="translatedtext-patient-move-action-plan"
+                />
+              ),
+              value: PATIENT_MOVE_ACTIONS.PLAN,
+            },
+          ]}
           style={{ gridColumn: '1/-1' }}
           data-testid="field-ryle"
         />
