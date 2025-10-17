@@ -14,7 +14,7 @@ const TopBarHeading = styled(Typography)`
   font-weight: 400;
   line-height: 24px;
   letter-spacing: 0;
-  color: ${props => props.theme.palette.text.primary};
+  color: ${(props) => props.theme.palette.text.primary};
   min-width: 250px;
 `;
 
@@ -37,7 +37,7 @@ const Bar = styled(Toolbar)`
 const Dot = styled.span`
   height: 15px;
   width: 15px;
-  background-color: ${props => props.color};
+  background-color: ${(props) => props.color};
   border-radius: 50%;
   margin-right: 10px;
   flex-shrink: 0;
