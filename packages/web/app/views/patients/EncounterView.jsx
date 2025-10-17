@@ -373,13 +373,7 @@ export const EncounterView = () => {
         }
         data-testid="encounterinfopane-nabb"
       />
-      {encounter.plannedLocation && (
-        <PlannedMoveActions
-          encounter={encounter}
-          // openFinaliseMoveModal={() => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE)}
-          // openCancelMoveModal={() => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE)}
-        />
-      )}
+      {encounter.plannedLocation && <PlannedMoveActions encounter={encounter} />}
       <DiagnosisView
         encounter={encounter}
         isTriage={getIsTriage(encounter)}
