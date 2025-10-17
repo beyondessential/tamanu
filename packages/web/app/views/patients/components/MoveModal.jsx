@@ -23,6 +23,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { notifyError } from '../../../utils';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -150,20 +151,23 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const clinicianSuggester = useSuggester('practitioner');
 
   const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-    await writeAndViewEncounter(encounter.id, {
-      departmentId,
-      examinerId,
-    });
-
-    await submitPatientMove(
-      action === PATIENT_MOVE_ACTIONS.PLAN
-        ? {
-            plannedLocationId,
-          }
-        : {
-            locationId: plannedLocationId || locationId,
-          },
-    );
+    try {
+      await writeAndViewEncounter(encounter.id, {
+        departmentId,
+        examinerId,
+      });
+      await submitPatientMove(
+        action === PATIENT_MOVE_ACTIONS.PLAN
+          ? {
+              plannedLocationId,
+            }
+          : {
+              locationId: plannedLocationId || locationId,
+            },
+      );
+    } catch (error) {
+      notifyError(error.message);
+    }
   };
 
   return (
