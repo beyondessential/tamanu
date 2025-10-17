@@ -43,10 +43,6 @@ const Section = styled(FormGrid)`
   margin-bottom: 30px;
 `;
 
-const SubmitRow = styled(FormSubmitCancelRow)`
-  margin-top: 20px;
-`;
-
 const BasicMoveFields = () => {
   return (
     <>
@@ -190,8 +186,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     >
       <Form
         initialValues={{
-          // Used in creation of associated notes
-          submittedTime: getCurrentDateTimeString(),
           examinerId: encounter.examinerId,
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
