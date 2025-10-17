@@ -12,6 +12,7 @@ import {
   FormSeparatorLine,
   FormSubmitCancelRow,
   Heading3,
+  LargeBodyText,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   ModalFormActionRow,
@@ -44,11 +45,8 @@ const Section = styled(FormGrid)`
   margin-bottom: 30px;
 `;
 
-const SubmitRow = styled(FormSubmitCancelRow)`
-  margin-top: 20px;
-`;
-
-const EncounterChangeDescription = styled(BodyText)`
+const EncounterChangeDescription = styled(LargeBodyText)`
+  margin-top: 5px;
   margin-bottom: 20px;
 `;
 
