@@ -14,7 +14,9 @@ import {
   Heading3,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
+  ModalFormActionRow,
   RadioField,
+  TranslatedEnum,
 } from '../../../components';
 import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
@@ -23,7 +25,7 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
-import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -44,6 +46,10 @@ const Section = styled(FormGrid)`
 
 const SubmitRow = styled(FormSubmitCancelRow)`
   margin-top: 20px;
+`;
+
+const EncounterChangeDescription = styled(BodyText)`
+  margin-bottom: 20px;
 `;
 
 const BasicMoveFields = () => {
@@ -157,6 +163,24 @@ const getConfirmText = newEncounterType => {
   return <TranslatedText stringId="general.action.confirm" fallback="Confirm" />;
 };
 
+const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
+  return (
+    <EncounterChangeDescription>
+      <TranslatedText
+        stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
+        fallback="Changing encounter type from"
+      />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+      </b>{' '}
+      to{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+      </b>
+    </EncounterChangeDescription>
+  );
+};
+
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
@@ -219,17 +243,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
           <>
             {newEncounterType && (
               <>
-                <BodyText>
-                  <TranslatedText
-                    stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-                    fallback="Changing encounter type from :currentEncounterType to :newEncounterType"
-                    replacements={{
-                      currentEncounterType: encounter.encounterType,
-                      newEncounterType: newEncounterType,
-                    }}
-                    data-testid="translatedtext-change-encounter-type"
-                  />
-                </BodyText>
+                <EncounterTypeChangeDescription
+                  encounterType={encounter.encounterType}
+                  newEncounterType={newEncounterType}
+                />
                 <FormSeparatorLine />
               </>
             )}
@@ -285,13 +302,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             ) : (
               <BasicMoveFields />
             )}
-            {/* TODO: this should spread the whole modal */}
-            <FormSeparatorLine />
-            <SubmitRow
+            <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={getConfirmText(newEncounterType)}
               onCancel={onClose}
-              data-testid="formsubmitcancelrow-35ou"
+              data-testid="modalformactionrow-35ou"
             />
           </>
         )}
