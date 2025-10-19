@@ -24,6 +24,7 @@ import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 import { notifyError } from '../../../utils';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -141,7 +142,7 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
+  // const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
@@ -153,18 +154,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
     try {
       await writeAndViewEncounter(encounter.id, {
+        submittedTime: getCurrentDateTimeString(),
         departmentId,
         examinerId,
+        ...(action === PATIENT_MOVE_ACTIONS.PLAN
+          ? { plannedLocationId }
+          : { locationId: plannedLocationId || locationId }),
       });
-      await submitPatientMove(
-        action === PATIENT_MOVE_ACTIONS.PLAN
-          ? {
-              plannedLocationId,
-            }
-          : {
-              locationId: plannedLocationId || locationId,
-            },
-      );
     } catch (error) {
       notifyError(error.message);
     }
