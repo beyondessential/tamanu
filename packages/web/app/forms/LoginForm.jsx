@@ -27,6 +27,7 @@ export const LoginAlert = styled(({ children, ...props }) => (
   border: oklch(from currentColor calc(l * 1.9) calc(c * 2) h) solid 1px;
   border-radius: 0.5em;
   margin-top: 1em;
+  white-space: pre-line;
 `;
 
 const LoginHeading = styled(Typography)`
