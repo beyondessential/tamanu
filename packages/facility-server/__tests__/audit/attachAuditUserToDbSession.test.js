@@ -147,39 +147,39 @@ describe('Attach audit user to DB session', () => {
   it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
     const changeRequests = await runWithDelay([
       () => userApp1.post('/updateAuthenticatedUser'),
-      () => userApp1.post('/updateAuthenticatedUserInTransaction'),
-      () => userApp1.post('/updateAuthenticatedUserInIsolatedTransaction'),
-      () =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user1.id } },
-        ),
-
-      () => userApp2.post('/updateAuthenticatedUserInIsolatedTransaction'),
-      () =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user2.id } },
-        ),
-      () => userApp2.post('/updateAuthenticatedUser'),
       () => userApp2.post('/updateAuthenticatedUserInTransaction'),
-
-      () => userApp3.post('/updateAuthenticatedUserInTransaction'),
-      () => userApp3.post('/updateAuthenticatedUser'),
-      () =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user3.id } },
-        ),
       () => userApp3.post('/updateAuthenticatedUserInIsolatedTransaction'),
-
       () =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
           { where: { id: user4.id } },
         ),
+
       () => userApp4.post('/updateAuthenticatedUserInIsolatedTransaction'),
+      () => userApp2.post('/updateAuthenticatedUser'),
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user3.id } },
+        ),
+      () => userApp1.post('/updateAuthenticatedUserInTransaction'),
+
       () => userApp4.post('/updateAuthenticatedUserInTransaction'),
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user2.id } },
+        ),
+      () => userApp3.post('/updateAuthenticatedUser'),
+      () => userApp1.post('/updateAuthenticatedUserInIsolatedTransaction'),
+
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user1.id } },
+        ),
+      () => userApp2.post('/updateAuthenticatedUserInIsolatedTransaction'),
+      () => userApp3.post('/updateAuthenticatedUserInTransaction'),
       () => userApp4.post('/updateAuthenticatedUser'),
     ]);
 
