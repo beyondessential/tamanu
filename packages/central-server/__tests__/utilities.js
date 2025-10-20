@@ -8,7 +8,6 @@ import { fake } from '@tamanu/fake-data/fake';
 import { asNewRole } from '@tamanu/shared/test-helpers';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-import { DEFAULT_JWT_SECRET } from '../dist/auth';
 import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase, initReporting } from '../dist/database';
@@ -60,7 +59,7 @@ export async function createTestContext() {
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
     agent.set('X-Tamanu-Client', SERVER_TYPES.WEBAPP);
-    const token = await buildToken({ userId: user.id }, DEFAULT_JWT_SECRET, {
+    const token = await buildToken({ userId: user.id }, null, {
       expiresIn: '1d',
       audience: JWT_TOKEN_TYPES.ACCESS,
       issuer: config.canonicalHostName,

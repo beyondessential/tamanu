@@ -18,6 +18,7 @@ import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormP
 import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 import { TranslatedText } from '~/ui/components/Translations/TranslatedText';
+import { getResetPasswordErrorMessage } from '@tamanu/errors';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
   const authCtx = useAuth();
@@ -55,16 +56,15 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
   const onSubmitForm = useCallback(async (values: ResetPasswordFormModel) => {
     try {
       if (!values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        setModalError('Please select a server to connect to');
-        return;
+        throw new Error('Please select a server to connect to');
       }
       await authCtx.requestResetPassword(values);
 
       setSuccess(true);
       setResetPasswordEmail(values.email);
     } catch (error) {
-      setModalError(error.message);
+      const message = getResetPasswordErrorMessage(error);
+      setModalError(message);
     }
   }, []);
 

@@ -1233,6 +1233,38 @@ export const globalSettings = {
         },
       },
     },
+    security: {
+      highRisk: true,
+      description: 'Security settings',
+      properties: {
+        reportNoUserError: {
+          description:
+            'Display "no such user" message when authenticating. This may weaken security by allowing attackers to determine valid usernames.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        loginAttempts: {
+          description: 'Login attempts settings',
+          properties: {
+            lockoutThreshold: {
+              description: 'Number of failed attempts before account is locked',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            observationWindow: {
+              description: 'Time interval in minutes that attempts must occur within',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            lockoutDuration: {
+              description: 'Duration of lockout in minutes',
+              type: yup.number().positive(),
+              defaultValue: 10,
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {

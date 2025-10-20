@@ -19,7 +19,7 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const LoginAlert = styled(({ children, ...props }) => (
+export const LoginAlert = styled(({ children, ...props }) => (
   <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
     {children}
   </Alert>
@@ -27,6 +27,7 @@ const LoginAlert = styled(({ children, ...props }) => (
   border: oklch(from currentColor calc(l * 1.9) calc(c * 2) h) solid 1px;
   border-radius: 0.5em;
   margin-top: 1em;
+  white-space: pre-line;
 `;
 
 const LoginHeading = styled(Typography)`

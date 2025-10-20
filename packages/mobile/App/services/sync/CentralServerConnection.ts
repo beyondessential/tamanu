@@ -10,7 +10,6 @@ import {
   generalErrorMessage,
   invalidDeviceMessage,
   invalidTokenMessage,
-  invalidUserCredentialsMessage,
   OutdatedVersionError,
 } from '../error';
 import { version } from '/root/package.json';
@@ -35,8 +34,8 @@ const fetchAndParse = async (
     throw new AuthenticationError(invalidDeviceMessage);
   }
 
-  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
-    throw new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+  if (problem.type.startsWith(ERROR_TYPE.AUTH) && !isLogin) {
+    throw new AuthenticationError(invalidTokenMessage);
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {

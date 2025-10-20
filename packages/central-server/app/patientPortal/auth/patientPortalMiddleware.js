@@ -45,7 +45,7 @@ export const patientPortalMiddleware = ({ secret }) =>
       return;
     }
 
-    const { portalUserId } = contents;
+    const { portalUserId } = contents.payload;
 
     const portalUser = await findPortalUserById(store.models, portalUserId);
     if (!portalUser) {
