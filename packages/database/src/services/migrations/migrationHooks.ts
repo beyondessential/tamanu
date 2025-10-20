@@ -7,8 +7,28 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
-const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
-  sequelize
+const tableNameMatch = (schema: string, table: string, matches: string[]) => {
+  const matchTableSchemas = matches
+    .map((match) => match.split('.'))
+    .map(([excludeSchema, excludeTable]) => ({ schema: excludeSchema, table: excludeTable }));
+  const wholeSchemaMatches = matchTableSchemas
+    .filter(({ table: matchTable }) => matchTable === '*')
+    .map(({ schema: matchSchema }) => matchSchema);
+  if (wholeSchemaMatches.includes(schema)) {
+    return true;
+  }
+
+  return matchTableSchemas.some(
+    ({ schema: matchSchema, table: matchTable }) => schema === matchSchema && table === matchTable,
+  );
+};
+
+export const tablesWithoutColumn = (
+  sequelize: Sequelize,
+  column: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) => {
+  return sequelize
     .query(
       `
     SELECT
@@ -33,44 +53,43 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, allExcludes)),
     );
-
-const tablesWithoutTrigger = (
+};
+export const tablesWithoutTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  return sequelize
     .query(
       `
       SELECT
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema in ('public', 'logs')
+      LEFT JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
+        AND t.table_schema = triggers.event_object_schema
+        AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
-        NOT EXISTS (
-          SELECT *
-          FROM pg_trigger p
-          WHERE p.tgname = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
-        )
-        AND privileges.privilege_type = 'TRIGGER'
-        AND t.table_schema IN ('public', 'logs')
+        t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
+        AND triggers.trigger_name IS NULL -- No matching trigger
+      GROUP BY t.table_schema, t.table_name -- Group to ensure unique results
     `,
       { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
-       rows
+      rows
         .map((row) => ({
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
+};
 
 const tablesWithTrigger = (
   sequelize: Sequelize,
@@ -134,7 +153,7 @@ export async function runPostMigration(log: Logger, sequelize: Sequelize) {
   // and SYNC_TICK_FLAGS.UPDATED_ELSEWHERE (not marked for sync) on facility
   // triggers will overwrite the default for future data, but this works for existing data
   const isFacilityServer = !!selectFacilityIds(config);
-  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0
+  const initialValue = isFacilityServer ? SYNC_TICK_FLAGS.LAST_UPDATED_ELSEWHERE : 0;
   for (const { schema, table } of await tablesWithoutColumn(sequelize, 'updated_at_sync_tick')) {
     log.info(`Adding updated_at_sync_tick column to ${schema}.${table}`);
     await sequelize.query(`
