@@ -3,7 +3,7 @@ import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   DEFAULT_LANGUAGE_CODE,
-} from '@tamanu/constants'; 
+} from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 
 import { normaliseSheetName } from './importerEndpoint';
@@ -56,9 +56,7 @@ export function generateTranslationsForData(model, sheetName, values) {
     if (isObject(recordText)) {
       Object.entries(recordText).forEach(([key, text]) => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
-        if (text) {
-          translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
-        }
+        translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
       });
     }
     const options = extractTranslatableOptions(values, dataType);
