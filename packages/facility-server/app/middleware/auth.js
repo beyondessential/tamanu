@@ -84,6 +84,9 @@ export async function centralServerLogin({
       facilityIds: selectFacilityIds(config),
       facilityDeviceId,
     },
+    backoff: {
+      maxAttempts: 1,
+    },
   });
 
   // we've logged in as a valid central user - update local database to match
