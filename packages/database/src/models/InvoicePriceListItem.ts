@@ -6,7 +6,7 @@ import type { InitOptions, Models } from '../types/model';
 export class InvoicePriceListItem extends Model {
   declare id: string;
   declare invoicePriceListId: string;
-  declare price: number;
+  declare price: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -22,7 +22,7 @@ export class InvoicePriceListItem extends Model {
         },
         price: {
           type: DataTypes.DECIMAL,
-          allowNull: false,
+          allowNull: true,
         },
       },
       {
