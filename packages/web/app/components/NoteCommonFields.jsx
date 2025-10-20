@@ -162,14 +162,19 @@ const NoteContentBox = styled(Box)`
   flex-direction: column;
   min-height: 0;
   margin-top: 1.2rem;
-  margin-bottom: 30px;
+`;
+
+const StyledField = styled(Field)`
+  &.MuiTextField-root {
+    min-height: ${props => `${props.$minHeight}px`};
+    padding-bottom: 12px;
+  }
 `;
 
 const fieldWrapperSx = {
   flex: 1,
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 0,
 };
 
 const inputContainerSx = {
@@ -185,7 +190,7 @@ const textareaSx = {
   minHeight: 0,
   overflow: 'auto',
   width: '100%',
-  boxSizing: 'border-box',  
+  boxSizing: 'border-box',
 };
 
 export const NoteContentField = ({
@@ -198,27 +203,34 @@ export const NoteContentField = ({
   ),
   onChange,
   size,
-}) => (
-  <NoteContentBox>
-    <Field
-      name="content"
-      label={label}
-      required
-      component={TextField}
-      multiline
-      onChange={onChange}
-      style={fieldWrapperSx}
-      InputProps={{
-        style: inputContainerSx,
-      }}
-      inputProps={{
-        style: textareaSx,
-      }}
-      data-testid="field-wxzr"
-      size={size}
-    />
-  </NoteContentBox>
-);
+  isEditMode = false,
+  isTreatmentPlanNote = false,
+}) => {
+  const minHeight = isEditMode && isTreatmentPlanNote ? 378 : 460;
+
+  return (
+    <NoteContentBox>
+      <StyledField
+        $minHeight={minHeight}
+        name="content"
+        label={label}
+        required
+        component={TextField}
+        multiline
+        onChange={onChange}
+        style={fieldWrapperSx}
+        InputProps={{
+          style: inputContainerSx,
+        }}
+        inputProps={{
+          style: textareaSx,
+        }}
+        data-testid="field-wxzr"
+        size={size}
+      />
+    </NoteContentBox>
+  );
+};
 
 export const NoteInfoSection = ({
   noteType,
@@ -272,7 +284,14 @@ export const NoteInfoSection = ({
   </StyledInfoCard>
 );
 
-export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, disabled }) => (
+export const NoteTypeField = ({
+  required,
+  noteTypeCountByType,
+  onChange,
+  size,
+  disabled,
+  $fontSize,
+}) => (
   <Field
     name="noteType"
     label={
@@ -285,6 +304,7 @@ export const NoteTypeField = ({ required, noteTypeCountByType, onChange, size, d
     required={required}
     component={TranslatedSelectField}
     enumValues={NOTE_TYPE_LABELS}
+    $fontSize={$fontSize}
     transformOptions={types =>
       types
         .filter(option => !option.hideFromDropdown)
