@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import styled from 'styled-components';
 
 import { FormSubmitCancelRow, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../constants/styles';
@@ -12,6 +13,12 @@ import {
   NoteModalDialogActions,
   DisabledWrapper,
 } from '../components/NoteModal/NoteModalCommonComponents';
+
+const StyledNoteModalDialogContent = styled(NoteModalDialogContent)`
+  .MuiInputBase-input {
+    font-size: 14px;
+  }
+`;
 
 export const CreateEditNoteForm = ({
   onSubmit,
@@ -48,31 +55,29 @@ export const CreateEditNoteForm = ({
 
   return (
     <>
-      <NoteModalDialogContent>
+      <StyledNoteModalDialogContent>
         <DisabledWrapper color={Colors.background}>
           <FormGrid columns={2} style={{ marginTop: 0 }}>
             <NoteTypeField
               required
               noteTypeCountByType={noteTypeCountByType}
               onChange={onChangeNoteType}
-              size="small"
               disabled={disableFields}
+              $fontSize="14px"
             />
             <NoteTemplateField
               noteType={values.noteType}
               onChangeTemplate={onChangeTemplate}
-              size="small"
               disabled={disableFields}
             />
-            <WrittenByField required size="small" disabled={disableFields} />
-            <NoteDateTimeField required size="small" disabled={disableFields} />
+            <WrittenByField required disabled={disableFields} />
+            <NoteDateTimeField required disabled={disableFields} />
           </FormGrid>
         </DisabledWrapper>
         <NoteContentField
           label={<TranslatedText stringId="note.modal.addNote.label" fallback="Add note" />}
-          size="small"
         />
-      </NoteModalDialogContent>
+      </StyledNoteModalDialogContent>
       <NoteModalDialogActions>
         <FormSubmitCancelRow
           style={{ marginTop: '0' }}

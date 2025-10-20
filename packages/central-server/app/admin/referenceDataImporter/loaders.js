@@ -8,9 +8,11 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
+  DEFAULT_LANGUAGE_CODE,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { isEmpty, isNil } from 'lodash';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
@@ -103,18 +105,48 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function translatedStringLoader(item) {
+export async function translatedStringLoader(item, { models, header }) {
   const { stringId, ...languages } = stripNotes(item);
-  return Object.entries(languages)
-    .filter(([, text]) => `${text}`.trim())
-    .map(([language, text]) => ({
+  const rows = [];
+  const languagesInSheet = header.filter(h => h !== 'stringId');
+  const existingTranslations = await models.TranslatedString.findAll({
+    where: { stringId, language: languagesInSheet },
+  });
+  const existingTranslationsMap = new Map(existingTranslations.map(t => [t.language, t]));
+  for (const language of languagesInSheet) {
+    if (language === DEFAULT_LANGUAGE_CODE) {
+      continue; // Ignore any edits to the default language
+    }
+
+    const text = languages[language];
+    const emptyCell = isNil(text) || isEmpty(`${text}`.trim());
+    if (emptyCell) {
+      const existing = existingTranslationsMap.get(language);
+      if (existing) {
+        // An empty cell means delete the translation for this language
+        rows.push({
+          model: 'TranslatedString',
+          values: {
+            stringId,
+            language,
+            deletedAt: new Date(),
+          },
+        });
+      }
+      continue;
+    }
+
+    rows.push({
       model: 'TranslatedString',
       values: {
         stringId,
         language,
         text,
       },
-    }));
+    });
+  }
+
+  return rows;
 }
 
 export async function patientDataLoader(item, { models, foreignKeySchemata }) {
@@ -226,12 +258,16 @@ async function validateObjectId(item, models, pushError) {
 
 export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
-  
+
   const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
   const normalizedVerb = verb.trim();
   const normalizedNoun = noun.trim();
-  
-  await validateObjectId({ ...item, noun: normalizedNoun, objectId: normalizedObjectId }, models, pushError);
+
+  await validateObjectId(
+    { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
+    models,
+    pushError,
+  );
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
@@ -239,7 +275,8 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id =
+        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
