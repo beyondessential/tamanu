@@ -32,7 +32,6 @@ import { TranslatedText } from '../../Translation/TranslatedText';
 import {
   ASSIGNMENT_SCHEDULE_INITIAL_VALUES,
   BOOKING_SLOT_TYPES,
-  INITIAL_UNTIL_DATE_MONTHS_INCREMENT,
   MODIFY_REPEATING_ASSIGNMENT_MODE,
 } from '../../../constants/locationAssignments';
 import { TimeSlotPicker } from '../LocationBookingForm/DateTimeRangeField/TimeSlotPicker';
@@ -47,10 +46,11 @@ import {
 import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
-import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
-import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
-import { OverlappingLeavesModal } from './OverlappingLeavesModal';
 import { useAuth } from '../../../contexts/Auth';
+import { useSettings } from '../../../contexts/Settings';
+import { ModifyRepeatingAssignmentModal } from './ModifyRepeatingAssignmentModal';
+import { OverlappingLeavesModal } from './OverlappingLeavesModal';
+import { OverlappingRepeatingAssignmentModal } from './OverlappingRepeatingAssignmentModal';
 
 const formStyles = {
   zIndex: 1000,
@@ -99,6 +99,8 @@ const StyledButton = styled(Button)`
 export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) => {
   const { getTranslation } = useTranslation();
   const { updateSelectedCell } = useLocationAssignmentsContext();
+  const { getSetting } = useSettings();
+  const maxFutureMonths = getSetting('locationAssignments.assignmentMaxFutureMonths') || 24;
 
   const { ability } = useAuth();
   const hasWritePermission = ability?.can?.('write', 'LocationSchedule');
@@ -190,6 +192,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
         setOverlappingRepeatingAssignments(overlapAssignments);
         return;
       }
+
       const overlappingLeaves = await checkOverlappingLeaves(payload);
       if (overlappingLeaves.length > 0) {
         setOverlappingLeaves(overlappingLeaves);
@@ -405,12 +408,11 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
       }
     };
 
-    const handleResetRepeatUntilDate = startTimeDate => {
+    const handleResetRepeatUntilDate = () => {
       const { untilDate: initialUntilDate } = initialValues.schedule || {};
       setFieldValue(
         'schedule.untilDate',
-        initialUntilDate ||
-          toDateString(add(startTimeDate, { months: INITIAL_UNTIL_DATE_MONTHS_INCREMENT })),
+        initialUntilDate || toDateString(add(new Date(), { months: maxFutureMonths })),
       );
     };
 
@@ -519,6 +521,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
               />
             }
             component={DateField}
+            max={format(add(new Date(), { months: 24 }), 'yyyy-MM-dd')}
             onChange={handleUpdateDate}
             required
             saveDateAsString
@@ -558,11 +561,12 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           {values.isRepeatingAssignment && !hideRepeatingFields && (
             <RepeatingFields
               schedule={values.schedule}
-              startTime={values.date}
+              startTime={values.date || toDateString(new Date())}
               setFieldValue={setFieldValue}
               setFieldError={setFieldError}
               handleResetRepeatUntilDate={handleResetRepeatUntilDate}
               readonly={isViewing && !isEditingMultipleRepeatingAssignments}
+              maxFutureMonths={maxFutureMonths}
               data-testid="repeatingappointmentfields-xd2i"
             />
           )}
@@ -639,17 +643,21 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           onConfirm={handleConfirmModifyRepeatingAssignment}
         />
       )}
-      <OverlappingRepeatingAssignmentModal
-        open={!!overlappingRepeatingAssignments}
-        onClose={() => setOverlappingRepeatingAssignments(null)}
-        overlappingRepeatingAssignments={overlappingRepeatingAssignments}
-      />
-      <OverlappingLeavesModal
-        open={!!overlappingLeaves}
-        onClose={handleCloseOverlappingLeaves}
-        overlappingLeaves={overlappingLeaves}
-        onConfirm={handleConfirmOverlappingLeaves}
-      />
+      {overlappingRepeatingAssignments && (
+        <OverlappingRepeatingAssignmentModal
+          open
+          onClose={() => setOverlappingRepeatingAssignments(null)}
+          overlappingRepeatingAssignments={overlappingRepeatingAssignments}
+        />
+      )}
+      {overlappingLeaves && (
+        <OverlappingLeavesModal
+          open
+          onClose={handleCloseOverlappingLeaves}
+          overlappingLeaves={overlappingLeaves}
+          onConfirm={handleConfirmOverlappingLeaves}
+        />
+      )}
     </>
   );
 };

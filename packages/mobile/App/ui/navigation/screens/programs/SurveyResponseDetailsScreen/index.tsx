@@ -79,6 +79,7 @@ function getAnswerText(type, answer): string | number {
     case FieldTypes.RADIO:
     case FieldTypes.CONDITION:
     case FieldTypes.USER_DATA:
+      return answer || 'N/A';
     case FieldTypes.BINARY:
     case FieldTypes.CHECKBOX:
       return answer.toLowerCase() === 'yes' ? 'Yes' : 'No';

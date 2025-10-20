@@ -16,6 +16,7 @@ import { useAdminUserPreferencesQuery, useAdminSettingsQuery } from '../../api/q
 import { useTranslation } from '../../contexts/Translation';
 import { useAuth } from '../../contexts/Auth';
 import { NoPermissionScreen } from '../NoPermissionScreen';
+import { ConditionalTooltip } from '../../components/Tooltip';
 
 const PlusIcon = styled(AddRounded)`
   && {
@@ -77,10 +78,7 @@ export const LocationAssignmentsAdminView = () => {
   const facilitySuggester = useSuggester('facility');
 
   // Load booking slot settings for selected facility
-  const { data: facilitySettings } = useAdminSettingsQuery(
-    'facility',
-    selectedFacilityId,
-  );
+  const { data: facilitySettings } = useAdminSettingsQuery('facility', selectedFacilityId);
   const bookingSlots = facilitySettings?.appointments?.bookingSlots;
 
   useEffect(() => {
@@ -117,7 +115,9 @@ export const LocationAssignmentsAdminView = () => {
             location.locationGroup &&
             location.locationGroup.isBookable !== LOCATION_BOOKABLE_VIEW.NO,
         )
-        .filter(location => (selectedFacilityId ? location.facilityId === selectedFacilityId : true))
+        .filter(location =>
+          selectedFacilityId ? location.facilityId === selectedFacilityId : true,
+        )
         .sort((a, b) => {
           const locationGroupComparison = a.locationGroup.name.localeCompare(b.locationGroup.name);
           if (locationGroupComparison !== 0) {
@@ -160,7 +160,7 @@ export const LocationAssignmentsAdminView = () => {
   if (!hasListPermission) {
     return (
       <div>
-        <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60"/>
+        <LocationAssignmentsTopBar data-testid="locationassignmentstopbar-0w60" />
         <Box height="calc(100vh - 107px)">
           <NoPermissionScreen showBackgroundImage={false} />
         </Box>
@@ -176,21 +176,48 @@ export const LocationAssignmentsAdminView = () => {
           suggester={facilitySuggester}
           value={selectedFacilityId}
           onChange={handleFacilityChange}
-          placeholder={getTranslation('admin.locationAssignments.facility.placeholder', 'Select a facility')}
+          placeholder={getTranslation(
+            'admin.locationAssignments.facility.placeholder',
+            'Select a facility',
+          )}
         />
         {hasCreatePermission && (
-          <NewAssignmentButton
-            onClick={() => openAssignmentDrawer()}
-            disabled={!selectedFacilityId}
-            data-testid="newassignmentbutton-sl1p"
+          <ConditionalTooltip
+            visible={!selectedFacilityId}
+            title={
+              <Box maxWidth="125px">
+                <TranslatedText
+                  stringId="locationAssignment.calendar.noFacility.tooltip"
+                  fallback="Please select a facility to assign a user"
+                  data-testid="translatedtext-no-facility-tooltip"
+                />
+              </Box>
+            }
+            PopperProps={{
+              popperOptions: {
+                positionFixed: true,
+                modifiers: {
+                  offset: {
+                    enabled: true,
+                    offset: '-50, -5',
+                  },
+                },
+              },
+            }}
           >
-            <PlusIcon data-testid="plusicon-ufmc" />
-            <TranslatedText
-              stringId="locationAssignment.calendar.assignUser"
-              fallback="Assign user"
-              data-testid="translatedtext-feur"
-            />
-          </NewAssignmentButton>
+            <NewAssignmentButton
+              onClick={() => openAssignmentDrawer()}
+              disabled={!selectedFacilityId}
+              data-testid="newassignmentbutton-sl1p"
+            >
+              <PlusIcon data-testid="plusicon-ufmc" />
+              <TranslatedText
+                stringId="locationAssignment.calendar.assignUser"
+                fallback="Assign user"
+                data-testid="translatedtext-feur"
+              />
+            </NewAssignmentButton>
+          </ConditionalTooltip>
         )}
       </LocationAssignmentsTopBar>
       {hasNoLocations ? (

@@ -11,7 +11,8 @@ const StyledTitleContents = styled(Box)`
   align-items: center;
   width: 100%;
   justify-content: space-between;
-  padding: 10px 19px;
+  padding: 4px 19px;
+  font-size: 14px;
 `;
 
 export const NoteModalDialogTitle = ({ title, onClose }) => {
