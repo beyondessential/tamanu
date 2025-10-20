@@ -118,6 +118,9 @@ export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
 
+export * from './InvoicePriceList';
+export * from './InvoicePriceListItem';
+
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
