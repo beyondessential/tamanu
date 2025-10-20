@@ -120,12 +120,14 @@ export const SurveyQuestion = ({ component, patient, inputRef, disabled, encount
   ) : (
     <TranslatedReferenceData category="programDataElement" value={id} fallback={defaultText} />
   );
-  const helperText = (
+  const helperText = componentDetail ? (
     <TranslatedReferenceData
       category="surveyScreenComponent.detail"
       value={componentId}
       fallback={componentDetail}
     />
+  ) : (
+    undefined
   );
   const options = mapOptionsToValues(componentOptions || defaultOptions);
   const translatedOptions = useMemo(() => {
