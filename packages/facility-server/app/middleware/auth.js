@@ -110,7 +110,7 @@ export async function centralServerLogin({
   return { central: true, user, localisation, allowedFacilities };
 }
 
-async function localLogin({ models, settings, email, password }) {
+async function localLogin({ models, settings, email, password, deviceId }) {
   const {
     auth: { secret, tokenDuration },
     canonicalHostName,
@@ -119,6 +119,7 @@ async function localLogin({ models, settings, email, password }) {
     {
       email,
       password,
+      deviceId,
     },
     { log, settings, tokenDuration, tokenIssuer: canonicalHostName, tokenSecret: secret },
   );
@@ -148,7 +149,7 @@ async function centralServerLoginWithLocalFallback({
 }) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test' && !process.env.IS_PLAYWRIGHT_TEST) {
-    return await localLogin({ models, settings, email, password });
+    return await localLogin({ models, settings, email, password, deviceId });
   }
 
   try {
@@ -168,7 +169,7 @@ async function centralServerLoginWithLocalFallback({
     }
 
     log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
-    return await localLogin({ models, settings, email, password });
+    return await localLogin({ models, settings, email, password, deviceId });
   }
 }
 
