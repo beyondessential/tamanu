@@ -6,8 +6,28 @@ import type { Logger } from 'winston';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 
-const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
-  sequelize
+const tableNameMatch = (schema: string, table: string, matches: string[]) => {
+  const matchTableSchemas = matches
+    .map((match) => match.split('.'))
+    .map(([excludeSchema, excludeTable]) => ({ schema: excludeSchema, table: excludeTable }));
+  const wholeSchemaMatches = matchTableSchemas
+    .filter(({ table: matchTable }) => matchTable === '*')
+    .map(({ schema: matchSchema }) => matchSchema);
+  if (wholeSchemaMatches.includes(schema)) {
+    return true;
+  }
+
+  return matchTableSchemas.some(
+    ({ schema: matchSchema, table: matchTable }) => schema === matchSchema && table === matchTable,
+  );
+};
+
+export const tablesWithoutColumn = (
+  sequelize: Sequelize,
+  column: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) => {
+  return sequelize
     .query(
       `
     SELECT
@@ -34,34 +54,32 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
         }))
         .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
     );
+};
 
-const tablesWithoutTrigger = (
+export const tablesWithoutTrigger = (
   sequelize: Sequelize,
   prefix: string,
   suffix: string,
   excludes: string[] = NON_SYNCING_TABLES,
-) =>
-  sequelize
+) => {
+  return sequelize
     .query(
       `
       SELECT
         t.table_schema as schema,
         t.table_name as table
       FROM information_schema.tables t
-      LEFT JOIN information_schema.table_privileges privileges
-        ON t.table_name = privileges.table_name AND privileges.table_schema = 'public'
+      LEFT JOIN information_schema.triggers triggers ON
+        t.table_name = triggers.event_object_table
+        AND t.table_schema = triggers.event_object_schema
+        AND triggers.trigger_name = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
       WHERE
-        NOT EXISTS (
-          SELECT *
-          FROM pg_trigger p
-          WHERE p.tgname = substring(concat($prefix::text, lower(t.table_name), $suffix::text), 0, 64)
-        )
-        AND privileges.privilege_type = 'TRIGGER'
-        AND t.table_schema IN ('public', 'logs')
+        t.table_schema IN ('public', 'logs')
         AND t.table_type != 'VIEW'
-        AND (t.table_schema || '.' || t.table_name) NOT IN ($excludes);
+        AND triggers.trigger_name IS NULL -- No matching trigger
+      GROUP BY t.table_schema, t.table_name -- Group to ensure unique results
     `,
-      { type: QueryTypes.SELECT, bind: { prefix, suffix, excludes } },
+      { type: QueryTypes.SELECT, bind: { prefix, suffix } },
     )
     .then((rows) =>
       rows
@@ -69,8 +87,9 @@ const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
+};
 
 const tablesWithTrigger = (
   sequelize: Sequelize,
