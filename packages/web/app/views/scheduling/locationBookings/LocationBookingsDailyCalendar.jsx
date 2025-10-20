@@ -8,7 +8,7 @@ import {
   setMinutes,
   differenceInMinutes,
 } from 'date-fns';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -29,6 +29,8 @@ import { useAuth } from '../../../contexts/Auth';
 import { useBookingSlots } from '../../../hooks/useBookingSlots';
 import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
+import { useDrop, useDrag } from 'react-dnd';
+import { useMoveLocationBookingMutation } from '../../../api/mutations/useMoveLocationBookingMutation';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -350,6 +352,8 @@ export const LocationBookingsDailyCalendar = ({
   } = useLocationBookingsContext();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
+  const scheduleRefs = useRef({});
+  const moveMutation = useMoveLocationBookingMutation();
 
   useEffect(() => {
     if (!selectedCell || (!selectedCell.locationId && !selectedCell.date)) {
@@ -440,6 +444,94 @@ export const LocationBookingsDailyCalendar = ({
   }, [bookingSlots, selectedDate]);
 
   const hourCount = timeSlots.length;
+
+  const pixelsPerMinute = 70 / 60; // 70px per hour
+
+  const getMinutesFromScheduleTop = useCallback(
+    (locationId, clientY) => {
+      const el = scheduleRefs.current[locationId];
+      if (!el) return 0;
+      const rect = el.getBoundingClientRect();
+      const offsetY = clientY - rect.top;
+      return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
+    },
+    [pixelsPerMinute],
+  );
+
+  const computeDropStartTime = useCallback(
+    (locationId, clientY) => {
+      if (!timeSlots?.length) return null;
+      const baseStart = timeSlots[0].start;
+      const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
+      return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
+    },
+    [timeSlots, getMinutesFromScheduleTop],
+  );
+
+  const snapToNearest15Minutes = useCallback((date) => {
+    if (!date) return date;
+    const snapped = new Date(date.getTime());
+    snapped.setSeconds(0, 0);
+    const m = snapped.getMinutes();
+    const floored = Math.floor(m / 15) * 15;
+    snapped.setMinutes(floored);
+    return snapped;
+  }, []);
+
+  const registerScheduleRef = useCallback((locationId, el) => {
+    if (el) scheduleRefs.current[locationId] = el;
+  }, []);
+
+  const DraggableAppointment = ({ appointment, children }) => {
+    const [{ isDragging }, dragRef] = useDrag(
+      () => ({
+        type: 'APPOINTMENT',
+        item: { id: appointment.id, appointment },
+        collect: monitor => ({ isDragging: monitor.isDragging() }),
+      }),
+      [appointment],
+    );
+    return (
+      <div ref={dragRef} style={{ opacity: isDragging ? 0.5 : 1, height: '100%', width: '100%' }}>
+        {children}
+      </div>
+    );
+  };
+
+  const DroppableSchedule = ({ locationId, children }) => {
+    const [, drop] = useDrop(
+      () => ({
+        accept: 'APPOINTMENT',
+        canDrop: (item) => item.appointment.locationId === locationId,
+        drop: (item, monitor) => {
+          const client = monitor.getClientOffset();
+          if (!client) return;
+          const initialClient = monitor.getInitialClientOffset();
+          const initialSource = monitor.getInitialSourceClientOffset();
+          // Align to the top border of the dragged tile
+          let topY = client.y;
+          if (initialClient && initialSource) {
+            topY = client.y - (initialClient.y - initialSource.y);
+          }
+          const rawStart = computeDropStartTime(locationId, topY);
+          const newStart = snapToNearest15Minutes(rawStart);
+          if (!newStart) return;
+          void moveMutation.mutateAsync({ id: item.appointment.id, startTime: toDateTimeString(newStart) });
+        },
+      }),
+      [locationId, computeDropStartTime, snapToNearest15Minutes, moveMutation],
+    );
+
+    const setRefs = useCallback(
+      (el) => {
+        registerScheduleRef(locationId, el);
+        drop(el);
+      },
+      [locationId, drop],
+    );
+
+    return <LocationSchedule ref={setRefs}>{children}</LocationSchedule>;
+  };
 
   // Helper function to find assigned user for a time slot
   const getAssignedUserForSlot = (locationId, slotIndex) => {
@@ -581,7 +673,7 @@ export const LocationBookingsDailyCalendar = ({
                   assignments={assignmentsByLocation[location.id] || []}
                 />
 
-                <LocationSchedule>
+                <DroppableSchedule locationId={location.id}>
                   {/* Time slot background grid */}
                   {timeSlots.map((_, slotIndex) => {
                     const isSelected =
@@ -620,18 +712,20 @@ export const LocationBookingsDailyCalendar = ({
                         }}
                         data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
                       >
-                        <AppointmentTile
-                          appointment={appointment}
-                          hideTime={false}
-                          className="appointment-tile"
-                          onEdit={() => openBookingForm(appointment)}
-                          onCancel={() => openCancelModal(appointment)}
-                          testIdPrefix={`${locationIndex}-${appointmentIndex}`}
-                        />
+                        <DraggableAppointment appointment={appointment}>
+                          <AppointmentTile
+                            appointment={appointment}
+                            hideTime={false}
+                            className="appointment-tile"
+                            onEdit={() => openBookingForm(appointment)}
+                            onCancel={() => openCancelModal(appointment)}
+                            testIdPrefix={`${locationIndex}-${appointmentIndex}`}
+                          />
+                        </DraggableAppointment>
                       </AppointmentWrapper>
                     );
                   })}
-                </LocationSchedule>
+                </DroppableSchedule>
               </LocationColumn>
             );
           })}
