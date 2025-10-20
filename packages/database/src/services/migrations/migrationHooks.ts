@@ -55,6 +55,7 @@ export const tablesWithoutColumn = (
         }))
         .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
+};
 
 const tablesWithoutTrigger = (
   sequelize: Sequelize,
