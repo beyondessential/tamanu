@@ -55,7 +55,8 @@ export class InvoicePriceList extends Model {
     return null; // syncs everywhere
   }
 
-  // Returns the id of the first PriceList whose rules match the provided inputs
+  // Returns the id of the PriceList whose rules match the provided inputs
+  // Throws an error if more than one match is found
   static async getIdForInputs(inputs: {
     patientType?: string;
     patientDOB?: string | null;
@@ -63,10 +64,6 @@ export class InvoicePriceList extends Model {
   }): Promise<string | null> {
     const { patientType, patientDOB, facilityId } = inputs ?? {};
 
-    console.log('inputs', inputs);
-
-    // Fetch visible price priceLists with rules
-    // Todo: add sort order
     const priceLists = await this.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       order: [
@@ -75,24 +72,13 @@ export class InvoicePriceList extends Model {
       ],
     });
 
+    const matches: string[] = [];
+
     for (const priceList of priceLists) {
       const rules = (priceList as any).rules as Record<string, any> | null | undefined;
       if (!rules || typeof rules !== 'object') {
         continue;
       }
-
-      console.log(
-        'equalsIfPresent(rules.facilityId, facilityId)',
-        equalsIfPresent(rules.facilityId, facilityId),
-      );
-      console.log(
-        'equalsIfPresent(rules.patientType, patientType)',
-        equalsIfPresent(rules.patientType, patientType),
-      );
-      console.log(
-        'matchesAgeIfPresent(rules.patientAge, patientDOB)',
-        matchesAgeIfPresent(rules.patientAge, patientDOB),
-      );
 
       const match =
         equalsIfPresent(rules.facilityId, facilityId) &&
@@ -100,10 +86,14 @@ export class InvoicePriceList extends Model {
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
       if (match) {
-        return priceList.id;
+        matches.push(priceList.id);
       }
     }
 
-    return null;
+    if (matches.length > 1) {
+      throw new Error(`Multiple price lists match the provided inputs: ${matches.join(', ')}`);
+    }
+
+    return matches[0] ?? null;
   }
 }

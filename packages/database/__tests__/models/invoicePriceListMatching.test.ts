@@ -265,7 +265,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
     vi.restoreAllMocks();
   });
 
-  it('returns the first matching price list id when facility, patientType and age match', async () => {
+  it('returns the matching price list id when facility, patientType and age match', async () => {
     const spy = vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       {
         id: 'pl-1',
@@ -343,10 +343,23 @@ describe('InvoicePriceList.getIdForInputs', () => {
     expect(id2).toBeNull();
   });
 
-  it('returns the first matching price list when multiple match', async () => {
+  it('throws an error when multiple price lists match', async () => {
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       { id: 'pl-1', rules: { facilityId: 'facility-1' } },
       { id: 'pl-2', rules: { facilityId: 'facility-1' } },
+    ]);
+
+    const inputs = buildInputs({ facilityId: 'facility-1' });
+
+    await expect(InvoicePriceList.getIdForInputs(inputs)).rejects.toThrow(
+      'Multiple price lists match the provided inputs: pl-1, pl-2',
+    );
+  });
+
+  it('returns the matching price list id when only one matches', async () => {
+    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
+      { id: 'pl-1', rules: { facilityId: 'facility-1' } },
+      { id: 'pl-2', rules: { facilityId: 'facility-2' } },
     ]);
 
     const inputs = buildInputs({ facilityId: 'facility-1' });
