@@ -145,7 +145,6 @@ describe('Attach audit user to DB session', () => {
   afterAll(() => ctx.close());
 
   it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
-    // Randomising the order of execution makes this test a little intermittent but tests are broader range of cases so worth it imo
     const changeRequests = await runWithDelay([
       () => userApp1.post('/updateAuthenticatedUser'),
       () => userApp1.post('/updateAuthenticatedUserInTransaction'),
