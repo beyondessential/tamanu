@@ -38,10 +38,12 @@ const HeadCellWrapper = styled.div`
 `;
 
 function round(float, { rounding } = {}) {
-  if (isNaN(float) || !isNumber(rounding)) {
+  const floatNumber = parseFloat(float);
+  if (isNaN(floatNumber) || !isNumber(rounding)) {
     return float;
   }
-  return float.toFixed(rounding);
+
+  return floatNumber.toFixed(rounding);
 }
 
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
@@ -216,7 +218,7 @@ export const RangeValidatedCell = React.memo(
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-    const float = round(parseFloat(value), config);
+    const float = round(value, config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [
