@@ -53,7 +53,7 @@ export const tablesWithoutColumn = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !tableNameMatch(schema, table, allExcludes)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
 };
 export const tablesWithoutTrigger = (
