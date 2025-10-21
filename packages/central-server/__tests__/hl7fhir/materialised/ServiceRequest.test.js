@@ -88,11 +88,21 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
+      
+      const { ReferenceData } = ctx.store.models;
+      const noteTypeReference = await ReferenceData.findOne({
+        where: {
+          type: 'noteType',
+          code: NOTE_TYPES.OTHER,
+        },
+      });
+
       await Note.bulkCreate([
         fake(Note, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
+          noteTypeId: noteTypeReference.id,
           recordType: ImagingRequest.name,
           recordId: ir.id,
           content: 'Suspected adenoma',
@@ -101,6 +111,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           date: '2022-03-06',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
           noteType: NOTE_TYPES.OTHER,
+          noteTypeId: noteTypeReference.id,
           recordType: ImagingRequest.name,
           recordId: ir.id,
           content: 'Patient may need mobility assistance',

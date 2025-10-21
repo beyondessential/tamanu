@@ -3,7 +3,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
-import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { chance, fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { addMinutes } from 'date-fns';
@@ -347,12 +347,19 @@ describe('Note', () => {
     });
 
     it('should filter notes correctly when they have revisions', async () => {
+      const medicalNoteType = await models.ReferenceData.findOne({
+        where: {
+          type: REFERENCE_TYPES.NOTE_TYPE,
+          code: NOTE_TYPES.MEDICAL,
+        },
+      });
+
       const results = await app.get(
-        `/api/encounter/${encounter.id}/notes?noteType=${NOTE_TYPES.MEDICAL}&rowsPerPage=10`,
+        `/api/encounter/${encounter.id}/notes?noteTypeId=${medicalNoteType.id}&rowsPerPage=10`,
       );
       expect(results).toHaveSucceeded();
       results.body.data.forEach((note) => {
-        expect(note).toHaveProperty('noteType', NOTE_TYPES.MEDICAL);
+        expect(note).toHaveProperty('noteTypeId', medicalNoteType.id);
         expect(note.content).toMatch('LATEST');
       });
     });

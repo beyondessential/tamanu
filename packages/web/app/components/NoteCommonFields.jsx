@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -11,7 +11,6 @@ import {
   DateTimeField,
   Field,
   TextField,
-  TranslatedSelectField,
   DateTimeInput,
 } from './Field';
 
@@ -56,8 +55,12 @@ export const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
 
-const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
+const renderOptionLabel = (option, noteTypeCountByType) => {
+  const code = option.code || option.value;
+  const label = option.name || option.label;
+  const value = option.id || option.value;
+  
+  return code === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[value] ? (
     <StyledTooltip
       arrow
       placement="top"
@@ -291,44 +294,50 @@ export const NoteTypeField = ({
   size,
   disabled,
   $fontSize,
-}) => (
-  <Field
-    name="noteType"
-    label={
-      <TranslatedText
-        stringId="note.type.label"
-        fallback="Type"
-        data-testid="translatedtext-43jz"
-      />
-    }
-    required={required}
-    component={TranslatedSelectField}
-    enumValues={NOTE_TYPE_LABELS}
-    $fontSize={$fontSize}
-    transformOptions={types =>
-      types
-        .filter(option => !option.hideFromDropdown)
-        .map(option => ({
-          ...option,
-          isDisabled:
-            noteTypeCountByType &&
-            option.value === NOTE_TYPES.TREATMENT_PLAN &&
-            !!noteTypeCountByType[option.value],
-        }))
-    }
-    formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    onChange={onChange}
-    menuPosition="absolute"
-    menuPlacement="auto"
-    size={size}
-    disabled={disabled}
-    data-testid="field-a0mv"
-  />
-);
+}) => {
+  const noteTypeSuggester = useSuggester('noteType');
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
+  return (
+    <Field
+      name="noteTypeId"
+      label={
+        <TranslatedText
+          stringId="note.type.label"
+          fallback="Type"
+          data-testid="translatedtext-43jz"
+        />
+      }
+      required={required}
+      component={AutocompleteField}
+      suggester={noteTypeSuggester}
+      $fontSize={$fontSize}
+      transformOptions={types =>
+        types
+          .filter(option => !option.hideFromDropdown)
+          .map(option => ({
+            ...option,
+            isDisabled:
+              noteTypeCountByType &&
+              option.code === NOTE_TYPES.TREATMENT_PLAN &&
+              !!noteTypeCountByType[option.id],
+          }))
+      }
+      formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
+      onChange={onChange}
+      menuPosition="absolute"
+      menuPlacement="auto"
+      size={size}
+      disabled={disabled}
+      data-testid="field-a0mv"
+    />
+  );
+};
+
+export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled }) => {
+  const noteTypeCode = noteTypeId ? noteTypeId.replace('notetype-', '') : null;
+  
   const templateSuggester = useSuggester('template', {
-    baseQueryParameters: { type: noteType },
+    baseQueryParameters: { type: noteTypeCode },
   });
 
   return (
@@ -344,7 +353,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType || disabled}
+      disabled={!noteTypeCode || disabled}
       size={size}
       data-testid="field-ej08"
     />

@@ -16,6 +16,7 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -398,6 +399,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
 
       if (typeName === REFERENCE_TYPES.DRUG && !canCreateSensitiveMedication) {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
+      }
+
+      if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+        baseWhere.code = {
+          [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
+        };
       }
 
       return baseWhere;

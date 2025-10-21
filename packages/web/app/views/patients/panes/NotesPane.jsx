@@ -6,24 +6,26 @@ import { NoteTableWithPermission } from '../../../components/NoteTable';
 import {
   ButtonWithPermissionCheck,
   TableButtonRow,
-  TranslatedSelectField,
+  AutocompleteInput,
 } from '../../../components';
+import { useSuggester } from '../../../api';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { useNoteModal } from '../../../contexts/NoteModal';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
-const StyledTranslatedSelectField = styled(TranslatedSelectField)`
+const StyledAutocompleteInput = styled(AutocompleteInput)`
   width: 200px;
 `;
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
-  const { noteType, setNoteType } = useEncounterNotesQuery();
+  const { noteTypeId, setNoteTypeId } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
+  const noteTypeSuggester = useSuggester('noteType');
 
   const noteModalOnSaved = async createdNote => {
     updateNoteModalProps({ note: createdNote });
@@ -43,12 +45,12 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   return (
     <TabPane>
       <TableButtonRow variant="small" justifyContent="space-between">
-        <StyledTranslatedSelectField
-          onChange={e => setNoteType(e.target.value)}
-          value={noteType}
+        <StyledAutocompleteInput
+          onChange={e => setNoteTypeId(e.target.value)}
+          value={noteTypeId}
           name="noteType"
-          enumValues={NOTE_TYPE_LABELS}
-          transformOptions={options => [
+          suggester={noteTypeSuggester}
+          transformSuggestions={suggestions => [
             {
               value: null,
               label: (
@@ -59,8 +61,8 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
                 />
               ),
             },
-            ...options.filter(
-              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.value),
+            ...suggestions.filter(
+              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.code),
             ),
           ]}
           isClearable={false}
@@ -86,8 +88,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         encounterId={encounter.id}
         verb="write"
         noun="EncounterNote"
-        noteModalOnSaved={noteModalOnSaved}
-        noteType={noteType}
+        noteTypeId={noteTypeId}
         data-testid="notetablewithpermission-ngp2"
       />
     </TabPane>

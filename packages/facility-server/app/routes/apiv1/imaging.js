@@ -130,6 +130,11 @@ imagingRequest.get(
         },
         {
           association: 'notes',
+          include: [
+            {
+              association: 'noteTypeReference',
+            },
+          ],
         },
       ],
     }); 

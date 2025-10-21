@@ -35,3 +35,7 @@ Reference to the [user](#!/source/source.tamanu.tamanu.users) who wrote this not
 {% docs notes__revised_by_id %}
 Reference to the [note](#!/source/source.tamanu.tamanu.notes) that is being revised.
 {% enddocs %}
+
+{% docs notes__note_type_id %}
+Reference to the note type ([Reference Data](#!/source/source.tamanu.tamanu.reference_data), `type = noteType`).
+{% enddocs %}
