@@ -1233,6 +1233,26 @@ export const globalSettings = {
         },
       },
     },
+    security: {
+      description: 'Security settings',
+      properties: {
+        mobile: {
+          description: 'Mobile security settings',
+          properties: {
+            allowUnencryptedStorage: {
+              description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
