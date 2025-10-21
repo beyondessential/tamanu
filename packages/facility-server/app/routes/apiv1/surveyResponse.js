@@ -61,7 +61,7 @@ surveyResponse.post(
       settings,
     } = req;
     // Responses for the vitals survey will check against 'Vitals' create permissions
-    // All others witll check against 'SurveyResponse' create permissions
+    // All others will check against 'SurveyResponse' create permissions
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
