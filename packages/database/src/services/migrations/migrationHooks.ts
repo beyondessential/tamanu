@@ -52,7 +52,7 @@ export const tablesWithoutColumn = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
 };
 
