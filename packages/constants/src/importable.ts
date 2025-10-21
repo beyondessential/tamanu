@@ -43,7 +43,6 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
