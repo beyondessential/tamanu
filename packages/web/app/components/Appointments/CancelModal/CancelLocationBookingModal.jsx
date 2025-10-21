@@ -2,6 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import { APPOINTMENT_STATUSES, OTHER_REFERENCE_TYPES } from '@tamanu/constants';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { formatDateTimeRange } from '../../../utils/dateTime';
@@ -144,10 +145,12 @@ const BottomModalContent = ({ cancelBooking, onClose }) => (
 );
 
 export const CancelLocationBookingModal = ({ appointment, open, onClose }) => {
+  const queryClient = useQueryClient();
   const { mutateAsync: updateBooking } = useLocationBookingMutation(
     { isEdit: true, skipConflictCheck: true },
     {
       onSuccess: () => {
+        queryClient.invalidateQueries(['upcomingAppointments', appointment.patientId]);
         toast.success(
           <TranslatedText
             stringId="scheduling.success.cancelBooking"
