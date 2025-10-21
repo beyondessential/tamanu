@@ -5,7 +5,6 @@ import { log } from '@tamanu/shared/services/logging';
 import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationContext';
 import { startFhirWorkerTasks } from '../tasks';
 import pkg from '../../package.json';
-import { setFhirRefreshTriggers } from '../tasks/fhir/setFhirRefreshTriggers';
 
 export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
   log.info(`Starting Central FHIR worker version ${pkg.version}`);
@@ -22,7 +21,6 @@ export const startFhirWorker = async ({ name, skipMigrationCheck, topics }) => {
     log.info(`FHIR worker restricted to topics: ${topics.join(', ')}`);
   }
 
-  await setFhirRefreshTriggers(context.store.sequelize);
   const worker = await startFhirWorkerTasks({ store: context.store, topics });
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
