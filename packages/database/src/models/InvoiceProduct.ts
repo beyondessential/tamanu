@@ -1,15 +1,7 @@
 import { DataTypes } from 'sequelize';
-import {
-  IMAGING_TYPES_VALUES,
-  OTHER_REFERENCE_TYPES,
-  REFERENCE_TYPES,
-  SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import type { ReferenceData } from './ReferenceData';
-import type { LabTestType } from './LabTestType';
 
 export class InvoiceProduct extends Model {
   declare id: string;
@@ -18,8 +10,6 @@ export class InvoiceProduct extends Model {
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
   declare visibilityStatus: string;
-  declare referenceData?: ReferenceData;
-  declare labTestType?: LabTestType;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -74,20 +64,5 @@ export class InvoiceProduct extends Model {
 
   static getFullReferenceAssociations() {
     return ['invoicePriceListItems'];
-  }
-
-  addVirtualFields() {
-    this.dataValues.type =
-      this.referenceData?.type ??
-      (this.labTestType?.code
-        ? OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-        : IMAGING_TYPES_VALUES.includes(this.id)
-          ? REFERENCE_TYPES.IMAGING_TYPE
-          : undefined);
-    this.dataValues.code =
-      this.referenceData?.code ??
-      this.labTestType?.code ??
-      (IMAGING_TYPES_VALUES.includes(this.id) ? this.id : undefined);
-    return this;
   }
 }

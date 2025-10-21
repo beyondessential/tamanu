@@ -573,29 +573,6 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
 }));
 
 createSuggester(
-  'invoiceProduct',
-  'InvoiceProduct',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-  }),
-  {
-    mapper: product => {
-      product.addVirtualFields();
-      return product;
-    },
-    includeBuilder: req => {
-      return [
-        {
-          model: req.models.ReferenceData,
-          as: 'referenceData',
-          attributes: ['code', 'type'],
-        },
-      ];
-    },
-  },
-);
-
-createSuggester(
   'practitioner',
   'User',
   ({ search }) => ({
