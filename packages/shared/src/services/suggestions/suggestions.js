@@ -27,7 +27,6 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -578,7 +577,6 @@ createSuggester(
   'InvoiceProduct',
   ({ endpoint, modelName }) => ({
     ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
   }),
   {
     mapper: product => {
