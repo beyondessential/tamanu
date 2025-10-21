@@ -14,8 +14,9 @@ import type { LabTestType } from './LabTestType';
 export class InvoiceProduct extends Model {
   declare id: string;
   declare name: string;
-  declare price: number;
   declare discountable: boolean;
+  declare sourceRecordType?: string;
+  declare sourceRecordId?: string;
   declare visibilityStatus: string;
   declare referenceData?: ReferenceData;
   declare labTestType?: LabTestType;
@@ -28,13 +29,17 @@ export class InvoiceProduct extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        price: {
-          type: DataTypes.DECIMAL,
-          allowNull: true,
-        },
         discountable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
+        },
+        sourceRecordType: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        sourceRecordId: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
@@ -47,16 +52,6 @@ export class InvoiceProduct extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'id',
-      as: 'referenceData',
-      constraints: false,
-    });
-    this.belongsTo(models.LabTestType, {
-      foreignKey: 'id',
-      as: 'labTestType',
-      constraints: false,
-    });
     // Has many in the context of importing and storing data
     this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
@@ -78,7 +73,7 @@ export class InvoiceProduct extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['referenceData', 'labTestType'];
+    return ['invoicePriceListItems'];
   }
 
   addVirtualFields() {
