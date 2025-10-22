@@ -43,11 +43,13 @@
     // and the errors will get stack traces.
     apiErrorsToken: false,
   },
-  "metaServer": {
-    "host": "https://meta.tamanu.app",
-    "serverId": null,
-    "timeoutMs": 20000
-  },
+  "metaServer": [
+      {
+      "host": "https://meta.tamanu.app",
+      "serverId": null,
+      "timeoutMs": 20000
+    },
+  ],
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
   },
