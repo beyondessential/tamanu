@@ -7,6 +7,22 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { GLOBAL_EXCLUDE_TABLES, NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
+const tableNameMatch = (schema: string, table: string, matches: string[]) => {
+  const matchTableSchemas = matches
+    .map(match => match.split('.'))
+    .map(([excludeSchema, excludeTable]) => ({ schema: excludeSchema, table: excludeTable }));
+  const wholeSchemaMatches = matchTableSchemas
+    .filter(({ table: matchTable }) => matchTable === '*')
+    .map(({ schema: matchSchema }) => matchSchema);
+  if (wholeSchemaMatches.includes(schema)) {
+    return true;
+  }
+
+  return matchTableSchemas.some(
+    ({ schema: matchSchema, table: matchTable }) => schema === matchSchema && table === matchTable,
+  );
+};
+
 export const tablesWithoutColumn = (
   sequelize: Sequelize,
   column: string,
@@ -37,7 +53,7 @@ export const tablesWithoutColumn = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, allExcludes)),
     );
 };
 export const tablesWithoutTrigger = (
@@ -72,7 +88,7 @@ export const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, allExcludes)),
     );
 };
 
@@ -107,7 +123,7 @@ export const tablesWithTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !allExcludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, allExcludes)),
     );
 };
 
