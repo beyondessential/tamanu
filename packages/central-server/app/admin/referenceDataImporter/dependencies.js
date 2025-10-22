@@ -14,6 +14,7 @@ import {
   medicationSetLoader,
   procedureTypeLoader,
 } from './loaders';
+import { invoicePriceListLoader } from './invoicePriceListLoader';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -65,6 +66,13 @@ export default {
     needs: ['labTestType'],
   },
   invoiceProduct: {},
+
+  invoicePriceList: {
+    loader: invoicePriceListLoader(),
+  },
+  invoicePriceListItem: {
+    needs: ['invoicePriceList'],
+  },
 
   role: {},
   permission: {

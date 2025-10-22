@@ -66,6 +66,10 @@ describe('Reference data exporter', () => {
       'Location',
       'Department',
       'TranslatedString',
+      // Invoice price list related models
+      'InvoicePriceListItem',
+      'InvoicePriceList',
+      'InvoiceProduct',
     ];
     for (const model of modelsToDestroy) {
       // FK constraints on patient facility table that prevent deleting patient table
@@ -662,6 +666,56 @@ describe('Reference data exporter', () => {
             ['test-string', 'test', 'សាកល្បង'],
           ],
           name: 'Translated String',
+        },
+      ],
+      '',
+    );
+  });
+
+  it('Should export Invoice Price Lists with headers for each price list code and rows per product with prices', async () => {
+    // Create products
+    const p1 = await models.InvoiceProduct.create({
+      id: 'prod-a',
+      code: 'PROD-A',
+      name: 'Product A',
+      discountable: false,
+    });
+    const p2 = await models.InvoiceProduct.create({
+      id: 'prod-b',
+      code: 'PROD-B',
+      name: 'Product B',
+      discountable: false,
+    });
+
+    // Create price lists (codes will be sorted alphabetically by exporter)
+    const pl1 = await models.InvoicePriceList.create({ id: 'pl-1', code: 'B' });
+    const pl2 = await models.InvoicePriceList.create({ id: 'pl-2', code: 'A' });
+
+    // Create price list items
+    await models.InvoicePriceListItem.create({
+      id: 'item-1',
+      invoiceProductId: p1.id,
+      invoicePriceListId: pl2.id, // code 'A'
+      price: 100,
+    });
+    await models.InvoicePriceListItem.create({
+      id: 'item-2',
+      invoiceProductId: p2.id,
+      invoicePriceListId: pl1.id, // code 'B'
+      price: 50,
+    });
+
+    await exporter(store, { 1: 'invoicePriceList' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['invoiceProductId', 'A', 'B'],
+            ['prod-a', '100', undefined],
+            ['prod-b', undefined, '50'],
+          ],
+          name: 'Invoice Price Lists',
         },
       ],
       '',
