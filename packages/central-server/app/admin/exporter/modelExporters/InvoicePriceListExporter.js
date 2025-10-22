@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ModelExporter } from './ModelExporter';
 
 // - First column: invoiceProductId
@@ -11,17 +12,29 @@ export class InvoicePriceListExporter extends ModelExporter {
 
   async getData() {
     // Fetch all price lists to determine columns (codes)
-    const priceLists = await this.models.InvoicePriceList.findAll({ attributes: ['id', 'code'] });
+    const priceLists = await this.models.InvoicePriceList.findAll({
+      attributes: ['id', 'code'],
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        deletedAt: null,
+      },
+    });
 
-    // If there are no price lists, create a blank spreadsheet with all the invoice products
+    // Fetch all products
+    const products = await this.models.InvoiceProduct.findAll({
+      attributes: ['id'],
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        deletedAt: null,
+      },
+    });
+
+    // If there are no price lists, return all products with just their IDs
     if (priceLists.length === 0) {
-      const products = await this.models.InvoiceProduct.findAll({
-        attributes: ['id'],
-      });
       return products.map(product => ({ invoiceProductId: product.id }));
     }
 
-    const codeById = new Map(priceLists.map(pl => [pl.id, pl.code]));
+    const priceListCodesById = new Map(priceLists.map(pl => [pl.id, pl.code]));
     this._priceListCodes = priceLists.map(pl => pl.code).sort();
 
     // Fetch all price list items (prices per product per list)
@@ -31,22 +44,28 @@ export class InvoicePriceListExporter extends ModelExporter {
 
     // Build rows keyed by invoiceProductId
     const rowsByProduct = new Map();
-    for (const item of items) {
-      const { invoiceProductId, invoicePriceListId, price } = item;
-      const code = codeById.get(invoicePriceListId);
-      if (!code) continue; // Safety: skip items for lists missing a code
-
-      let row = rowsByProduct.get(invoiceProductId);
-      if (!row) {
-        row = { invoiceProductId };
-        rowsByProduct.set(invoiceProductId, row);
-      }
-
-      // Use raw numeric/decimal value as-is; importer coerces via Number()
-      row[code] = price;
+    for (const product of products) {
+      rowsByProduct.set(product.id, { invoiceProductId: product.id });
     }
 
-    // Return only products that have at least one price entry
+    // Populate prices for products
+    for (const item of items) {
+      const { invoiceProductId, invoicePriceListId, price } = item;
+      const code = priceListCodesById.get(invoicePriceListId);
+
+      // Safety: skip items for lists missing a code
+      if (!code) {
+        continue;
+      }
+
+      const row = rowsByProduct.get(invoiceProductId);
+      if (row) {
+        // Use raw numeric/decimal value as-is; importer coerces via Number()
+        row[code] = price;
+      }
+    }
+
+    // Return all products, including those without price entries
     return [...rowsByProduct.values()];
   }
 

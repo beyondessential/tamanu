@@ -6,29 +6,27 @@ import { v4 as uuidv4 } from 'uuid';
  * Checks for duplicate codes and creates a mapping from code to price list ID.
  */
 async function initializePriceLists(priceListCodes, models, state, pushError) {
-  const trimmedCodes = priceListCodes.map(c => c.trim());
   const seen = new Set();
-  const priceListRows = [];
+  const priceLists = [];
 
   const existingPriceLists = await models.InvoicePriceList.findAll({
-    where: { code: { [Op.in]: trimmedCodes } },
+    where: { code: { [Op.in]: priceListCodes } },
   });
   const existingByCode = new Map(existingPriceLists.map(pl => [pl.code, pl.id]));
 
   for (const code of priceListCodes) {
-    const trimmedCode = code.trim();
-    if (seen.has(trimmedCode)) {
-      pushError(`duplicate price list code: ${trimmedCode}`);
+    if (seen.has(code)) {
+      pushError(`duplicate price list code: ${code}`);
       continue;
     }
-    seen.add(trimmedCode);
+    seen.add(code);
 
-    const id = existingByCode.get(trimmedCode) || uuidv4();
+    const id = existingByCode.get(code) || uuidv4();
     state.priceListIdCache.set(code, id);
-    priceListRows.push({ model: 'InvoicePriceList', values: { id, code: trimmedCode } });
+    priceLists.push({ model: 'InvoicePriceList', values: { id, code } });
   }
 
-  return priceListRows;
+  return priceLists;
 }
 
 /**
@@ -55,7 +53,7 @@ async function processRow(item, state, { pushError, models }) {
   );
 
   // Validate prices and build price list items
-  const rows = [];
+  const items = [];
   for (const code of state.priceListCodes) {
     const rawPrice = item[code];
 
@@ -82,13 +80,13 @@ async function processRow(item, state, { pushError, models }) {
     const itemKey = `${invoicePriceListId}:${invoiceProductId}`;
     const id = existingItemsMap.get(itemKey) || uuidv4();
 
-    rows.push({
+    items.push({
       model: 'InvoicePriceListItem',
       values: { id, invoicePriceListId, invoiceProductId, price },
     });
   }
 
-  return rows;
+  return items;
 }
 
 /**
@@ -126,10 +124,10 @@ export function invoicePriceListLoader() {
       state.priceListCodes = priceListCodes;
       state.initialized = true;
 
-      const priceListRows = await initializePriceLists(priceListCodes, models, state, pushError);
-      const itemRows = await processRow(item, state, { pushError, models });
+      const priceLists = await initializePriceLists(priceListCodes, models, state, pushError);
+      const items = await processRow(item, state, { pushError, models });
 
-      return itemRows.length > 0 ? [...priceListRows, ...itemRows] : [];
+      return [...priceLists, ...items];
     }
 
     return processRow(item, state, { pushError, models });

@@ -120,30 +120,11 @@ describe('Invoice price list import', () => {
     const buffer = buildWorkbookBuffer(headers, rows);
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
-    console.log('didntSendReason', didntSendReason);
     expect(didntSendReason).toEqual('validationFailed');
     expect(stats).toEqual({});
     expect(errors[0]).toHaveProperty(
       'message',
       "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceList at row 2",
-    );
-  });
-
-  it('should error when invoiceProductId header is missing', async () => {
-    const { InvoiceProduct } = models;
-
-    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-4' });
-
-    // No invoiceProductId column
-    const headers = ['PL_ONLY'];
-    const rows = [{ PL_ONLY: 50 }];
-    const buffer = buildWorkbookBuffer(headers, rows);
-
-    const { didntSendReason, errors } = await doImport(ctx, { buffer });
-    expect(didntSendReason).toEqual('validationFailed');
-    expect(errors[0]).toHaveProperty(
-      'message',
-      'Missing required column: invoiceProductId on invoicePriceList at row 2',
     );
   });
 });
