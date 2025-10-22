@@ -57,7 +57,7 @@ export class InvoicePriceList extends Model {
 
   // Returns the id of the PriceList whose rules match the provided inputs
   // Throws an error if more than one match is found
-  static async getIdForInputs(inputs: {
+  static async getIdForPatientEncounter(inputs: {
     patientType?: string;
     patientDOB?: string | null;
     facilityId?: string;
@@ -94,6 +94,7 @@ export class InvoicePriceList extends Model {
       throw new Error(`Multiple price lists match the provided inputs: ${matches.join(', ')}`);
     }
 
+    // Returns null if no matches are found
     return matches[0] ?? null;
   }
 }

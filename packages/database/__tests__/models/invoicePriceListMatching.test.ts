@@ -251,7 +251,7 @@ const buildInputs = (
   ...overrides,
 });
 
-describe('InvoicePriceList.getIdForInputs', () => {
+describe('InvoicePriceList.getIdForPatientEncounter', () => {
   beforeAll(() => {
     vi.useFakeTimers();
     vi.setSystemTime(FIXED_NOW);
@@ -284,7 +284,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
       patientDOB: '2010-10-15',
     });
 
-    const id = await InvoicePriceList.getIdForInputs(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
     expect(spy).toHaveBeenCalled();
     expect(id).toBe('pl-1');
   });
@@ -299,7 +299,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
       patientType: 'patientType-Charity',
     });
 
-    const id = await InvoicePriceList.getIdForInputs(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
     expect(id).toBeNull();
   });
 
@@ -311,7 +311,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
 
     const inputs = buildInputs({ patientDOB: '2010-10-14' });
 
-    const id1 = await InvoicePriceList.getIdForInputs(inputs);
+    const id1 = await InvoicePriceList.getIdForPatientEncounter(inputs);
     expect(id1).toBe('pl-1');
   });
 
@@ -324,7 +324,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
 
     const inputs = buildInputs({ patientDOB: '2010-10-14' });
 
-    const id = await InvoicePriceList.getIdForInputs(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
     expect(id).toBeNull();
   });
 
@@ -334,10 +334,10 @@ describe('InvoicePriceList.getIdForInputs', () => {
       { id: 'pl-2', rules: { patientAge: '>=65' } },
     ]);
 
-    const id1 = await InvoicePriceList.getIdForInputs(buildInputs({ patientDOB: null }));
+    const id1 = await InvoicePriceList.getIdForPatientEncounter(buildInputs({ patientDOB: null }));
     expect(id1).toBeNull();
 
-    const id2 = await InvoicePriceList.getIdForInputs(
+    const id2 = await InvoicePriceList.getIdForPatientEncounter(
       buildInputs({ patientDOB: 'not-a-date' as any }),
     );
     expect(id2).toBeNull();
@@ -351,7 +351,7 @@ describe('InvoicePriceList.getIdForInputs', () => {
 
     const inputs = buildInputs({ facilityId: 'facility-1' });
 
-    await expect(InvoicePriceList.getIdForInputs(inputs)).rejects.toThrow(
+    await expect(InvoicePriceList.getIdForPatientEncounter(inputs)).rejects.toThrow(
       'Multiple price lists match the provided inputs: pl-1, pl-2',
     );
   });
@@ -364,14 +364,14 @@ describe('InvoicePriceList.getIdForInputs', () => {
 
     const inputs = buildInputs({ facilityId: 'facility-1' });
 
-    const id = await InvoicePriceList.getIdForInputs(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
     expect(id).toBe('pl-1');
   });
 
   it('matches when unspecified rule fields are absent (treated as no constraint)', async () => {
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([{ id: 'pl-1', rules: {} }]);
 
-    const id = await InvoicePriceList.getIdForInputs(buildInputs({}));
+    const id = await InvoicePriceList.getIdForPatientEncounter(buildInputs({}));
     expect(id).toBe('pl-1');
   });
 });

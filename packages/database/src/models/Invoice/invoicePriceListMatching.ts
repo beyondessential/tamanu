@@ -23,7 +23,7 @@ const OPERATORS: Record<string, (a: number, b: number) => boolean> = {
  * @param dob - patient date of birth as ISO date string (e.g., "2010-10-15")
  */
 export const matchesAgeIfPresent = (
-  condition: string | undefined,
+  condition?: string | undefined,
   dob?: string | null,
 ): boolean => {
   if (!condition) {
@@ -35,15 +35,18 @@ export const matchesAgeIfPresent = (
   }
 
   const parsedDob = parseISO(dob);
-  if (Number.isNaN(parsedDob.getTime())) {
+  if (!parsedDob || isNaN(parsedDob.getTime())) {
     return false;
   }
 
   const ageYears = differenceInYears(new Date(), parsedDob);
 
-  const trimmed = condition.trim();
-  const match = trimmed.match(/^(<=|>=|<|>|=)\s*(\d{1,3})$/);
-  if (!match) return false;
+  const trimmedCondition = condition.trim();
+  // Parse age condition: operator (<=, >=, <, >, =) followed by optional whitespace and 1-3 digit age
+  const match = trimmedCondition.match(/^(<=|>=|<|>|=)\s*(\d{1,3})$/);
+  if (!match) {
+    return false;
+  }
   const [, op, value] = match;
   const operator = OPERATORS[op!]!;
   return operator(ageYears, Number(value));
