@@ -82,7 +82,7 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     price: {
       type: DataTypes.DECIMAL,
-      allowNull: false,
+      allowNull: true,
     },
   });
 

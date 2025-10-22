@@ -39,8 +39,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in invoice_price_list_items."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              invoice_price_list_items."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_price_list_items."
             data_tests:
               - not_null
           - name: invoice_price_list_id
