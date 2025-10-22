@@ -20,6 +20,7 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'labsCancellationReasons',
   'templates',
   'layouts',
+  'security.mobile',
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
