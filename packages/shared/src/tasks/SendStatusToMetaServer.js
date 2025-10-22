@@ -58,7 +58,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
-    console.log( path.join('http://', os.hostname()))
+    console.log(path.join('http://', os.hostname()));
     this.metaServerId =
       config.metaServer.serverId ||
       (
