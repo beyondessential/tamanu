@@ -26,9 +26,8 @@ export class SendStatusToMetaServer extends ScheduledTask {
     this.version = version;
   }
 
-  async fetch(path, options) {
-    const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
-    const response = await fetch(`${config.metaServer.host}/${path}`, {
+  async fetch(host, deviceKey, path, options) {
+    const response = await fetch(`${host}/${path}`, {
       ...options,
       headers: {
         Accept: 'application/json',
@@ -55,6 +54,27 @@ export class SendStatusToMetaServer extends ScheduledTask {
     return response.json();
   }
 
+  async fetchFromHosts(path, options) {
+    const metaServerHosts = config?.metaServer?.hosts;
+    if (!Array.isArray(metaServerHosts)) {
+      throw new Error('metaServer.hosts is not an array');
+    }
+    if (metaServerHosts.length === 0) {
+      throw new Error('No meta server hosts configured');
+    }
+
+    const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
+    for (const metaServerHost of metaServerHosts) {
+      try {
+        const response = await this.fetch(metaServerHost, deviceKey, path, options);
+        return response;
+      } catch (error) {
+        log.error(`Failed to fetch from meta server host: ${metaServerHost}`, { error });
+      }
+    }
+    throw new Error('No meta server host succeeded fetching the data');
+  }
+
   async getMetaServerId() {
     this.metaServerId = await this.models.LocalSystemFact.get(FACT_META_SERVER_ID);
     if (this.metaServerId) return this.metaServerId;
@@ -62,7 +82,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
     this.metaServerId =
       config.metaServer.serverId ||
       (
-        await this.fetch('servers', {
+        await this.fetchFromHosts('servers', {
           method: 'POST',
           body: JSON.stringify({
             host: config.canonicalHostName || path.join('http://', os.hostname()),
@@ -80,7 +100,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
       type: QueryTypes.SELECT,
     });
     const metaServerId = await this.getMetaServerId();
-    await this.fetch(`status/${metaServerId}`, {
+    await this.fetchFromHosts(`status/${metaServerId}`, {
       method: 'POST',
       body: JSON.stringify({
         currentSyncTick,
