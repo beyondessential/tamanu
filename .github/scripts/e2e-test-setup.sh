@@ -63,7 +63,7 @@ EOF
 
         referenceData: [
             {
-                 defaultSpreadsheet: true,
+                defaultSpreadsheet: true,
             },
         ],
     }
