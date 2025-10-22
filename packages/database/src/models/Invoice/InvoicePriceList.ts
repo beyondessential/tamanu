@@ -30,6 +30,7 @@ export class InvoicePriceList extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+          allowNull: false,
         },
       },
       {
