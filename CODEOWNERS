@@ -40,3 +40,8 @@ pm2*.config.js  @beyondessential/kamaka
 /.github/actions/    @beyondessential/kamaka
 /.github/scripts/    @beyondessential/kamaka
 /.github/workflows/  @beyondessential/kamaka
+
+#
+# Maui needs to be across any changes to database tables
+#
+/packages/database/src/migrations/ @beyondessential/maui
