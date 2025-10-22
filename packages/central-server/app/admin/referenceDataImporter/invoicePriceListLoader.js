@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
  */
 async function initializePriceLists(priceListCodes, models, state, pushError) {
   const seen = new Set();
-  const priceListRows = [];
+  const priceLists = [];
 
   const existingPriceLists = await models.InvoicePriceList.findAll({
     where: { code: { [Op.in]: priceListCodes } },
@@ -23,10 +23,10 @@ async function initializePriceLists(priceListCodes, models, state, pushError) {
 
     const id = existingByCode.get(code) || uuidv4();
     state.priceListIdCache.set(code, id);
-    priceListRows.push({ model: 'InvoicePriceList', values: { id, code } });
+    priceLists.push({ model: 'InvoicePriceList', values: { id, code } });
   }
 
-  return priceListRows;
+  return priceLists;
 }
 
 /**
@@ -53,7 +53,7 @@ async function processRow(item, state, { pushError, models }) {
   );
 
   // Validate prices and build price list items
-  const rows = [];
+  const items = [];
   for (const code of state.priceListCodes) {
     const rawPrice = item[code];
 
@@ -80,13 +80,13 @@ async function processRow(item, state, { pushError, models }) {
     const itemKey = `${invoicePriceListId}:${invoiceProductId}`;
     const id = existingItemsMap.get(itemKey) || uuidv4();
 
-    rows.push({
+    items.push({
       model: 'InvoicePriceListItem',
       values: { id, invoicePriceListId, invoiceProductId, price },
     });
   }
 
-  return rows;
+  return items;
 }
 
 /**
@@ -124,10 +124,10 @@ export function invoicePriceListLoader() {
       state.priceListCodes = priceListCodes;
       state.initialized = true;
 
-      const priceListRows = await initializePriceLists(priceListCodes, models, state, pushError);
-      const itemRows = await processRow(item, state, { pushError, models });
+      const priceLists = await initializePriceLists(priceListCodes, models, state, pushError);
+      const items = await processRow(item, state, { pushError, models });
 
-      return [...priceListRows, ...itemRows];
+      return [...priceLists, ...items];
     }
 
     return processRow(item, state, { pushError, models });
