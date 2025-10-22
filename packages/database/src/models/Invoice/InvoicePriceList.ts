@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
+import { matchesAgeIfPresent, equalsIfPresent } from './invoicePriceListMatching';
 
 export class InvoicePriceList extends Model {
   declare id: string;
@@ -53,5 +54,45 @@ export class InvoicePriceList extends Model {
 
   static async buildSyncLookupQueryDetails() {
     return null; // syncs everywhere
+  }
+
+  // Returns the id of the PriceList whose rules match the provided inputs
+  // Throws an error if more than one match is found
+  static async getIdForPatientEncounter(inputs: {
+    patientType?: string;
+    patientDOB?: string | null;
+    facilityId?: string;
+  }): Promise<string | null> {
+    const { patientType, patientDOB, facilityId } = inputs ?? {};
+
+    const priceLists = await this.findAll({
+      where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
+      order: [
+        ['createdAt', 'ASC'],
+        ['code', 'ASC'],
+      ],
+    });
+
+    const matches: string[] = [];
+
+    for (const priceList of priceLists) {
+      const rules = priceList.rules ?? {};
+
+      const match =
+        equalsIfPresent(rules.facilityId, facilityId) &&
+        equalsIfPresent(rules.patientType, patientType) &&
+        matchesAgeIfPresent(rules.patientAge, patientDOB);
+
+      if (match) {
+        matches.push(priceList.id);
+      }
+    }
+
+    if (matches.length > 1) {
+      throw new Error(`Multiple price lists match the provided inputs: ${matches.join(', ')}`);
+    }
+
+    // Returns null if no matches are found
+    return matches[0] ?? null;
   }
 }
