@@ -5485,7 +5485,7 @@ export const DIAGNOSES = splitIds(`
   Urethrolithiasis	N21.1
   Uricemia	E79.0
   Urinary incontinence	R32
-  Urinary retension	R33
+  Urinary retention	R33
   Urinary tract infection	N39.0
   Urinary tract infection, site not specified	N39.0
   Urinary tract infection, unspecified	N39.0
