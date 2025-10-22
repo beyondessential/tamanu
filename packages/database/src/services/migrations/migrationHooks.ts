@@ -7,8 +7,28 @@ import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
 import { NON_LOGGED_TABLES, NON_SYNCING_TABLES } from './constants';
 import { SYNC_TICK_FLAGS } from '../../sync/constants';
 
-const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
-  sequelize
+const tableNameMatch = (schema: string, table: string, matches: string[]) => {
+  const matchTableSchemas = matches
+    .map(match => match.split('.'))
+    .map(([excludeSchema, excludeTable]) => ({ schema: excludeSchema, table: excludeTable }));
+  const wholeSchemaMatches = matchTableSchemas
+    .filter(({ table: matchTable }) => matchTable === '*')
+    .map(({ schema: matchSchema }) => matchSchema);
+  if (wholeSchemaMatches.includes(schema)) {
+    return true;
+  }
+
+  return matchTableSchemas.some(
+    ({ schema: matchSchema, table: matchTable }) => schema === matchSchema && table === matchTable,
+  );
+};
+
+export const tablesWithoutColumn = (
+  sequelize: Sequelize,
+  column: string,
+  excludes: string[] = NON_SYNCING_TABLES,
+) => {
+  return sequelize
     .query(
       `
     SELECT
@@ -33,8 +53,9 @@ const tablesWithoutColumn = (sequelize: Sequelize, column: string) =>
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !NON_SYNCING_TABLES.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
+};
 
 const tablesWithoutTrigger = (
   sequelize: Sequelize,
@@ -67,7 +88,7 @@ const tablesWithoutTrigger = (
           schema: (row as any).schema as string,
           table: (row as any).table as string,
         }))
-        .filter(({ schema, table }) => !excludes.includes(`${schema}.${table}`)),
+        .filter(({ schema, table }) => !tableNameMatch(schema, table, excludes)),
     );
 
 const tablesWithTrigger = (
