@@ -13,9 +13,11 @@ import {
 // Mock dependencies
 vi.mock('config', () => ({
   default: {
-    metaServer: {
-      host: 'https://meta.example.com',
-    },
+    metaServer: [
+      {
+        host: 'https://meta.example.com',
+      },
+    ],
   },
 }));
 
