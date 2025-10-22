@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { ModelExporter } from './ModelExporter';
 
 // - First column: invoiceProductId
@@ -11,11 +12,21 @@ export class InvoicePriceListExporter extends ModelExporter {
 
   async getData() {
     // Fetch all price lists to determine columns (codes)
-    const priceLists = await this.models.InvoicePriceList.findAll({ attributes: ['id', 'code'] });
+    const priceLists = await this.models.InvoicePriceList.findAll({
+      attributes: ['id', 'code'],
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        deletedAt: null,
+      },
+    });
 
     // Fetch all products
     const products = await this.models.InvoiceProduct.findAll({
       attributes: ['id'],
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        deletedAt: null,
+      },
     });
 
     // If there are no price lists, return all products with just their IDs
