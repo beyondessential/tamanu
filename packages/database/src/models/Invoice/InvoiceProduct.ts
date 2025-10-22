@@ -6,10 +6,10 @@ import {
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import type { ReferenceData } from './ReferenceData';
-import type { LabTestType } from './LabTestType';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
+import type { ReferenceData } from '../ReferenceData';
+import type { LabTestType } from '../LabTestType';
 
 export class InvoiceProduct extends Model {
   declare id: string;
