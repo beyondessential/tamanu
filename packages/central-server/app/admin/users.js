@@ -14,6 +14,7 @@ import {
 } from '@tamanu/errors';
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
+import { subject } from '@casl/ability';
 
 export const usersRouter = express.Router();
 
@@ -379,7 +380,8 @@ usersRouter.put(
     if (!user) {
       throw new NotFoundError('User not found');
     }
-    req.checkPermission('write', user);
+    // only allow updating the user if the user has the write permission for the all users
+    req.checkPermission('write', subject('User', { id: String(Date.now()) }));
 
     const role = await Role.findByPk(fields.role);
     if (!role) {

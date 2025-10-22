@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { subject } from '@casl/ability';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { VISIBILITY_STATUSES } from '@tamanu/constants';
@@ -102,12 +103,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const { ability } = useAuth();
 
   const isPending = isUpdateUserPending || isValidateUserPending;
-  const canUpdateUser = ability.can(
-    'write',
-    new (function User() {
-      this.id = user.id;
-    })(),
-  );
+  // only allow updating the user if the user has the write permission for the all users
+  const canUpdateUser = ability.can('write', subject('User', { id: String(Date.now()) }));
 
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
@@ -300,6 +297,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                     allowSelectAll
                     suggester={facilitySuggester}
                     style={{ gridColumn: 'span 2' }}
+                    disabled={!canUpdateUser}
                   />
                 </FormGrid>
                 {canUpdateUser && (
