@@ -58,7 +58,7 @@ test.describe('Recently viewed patients details', () => {
     await allPatientsPage.goto();
   });
 
-  test('Most recently viewed patient appears at the top of the list and confirms the correct patient data in the list', async ({ allPatientsPage, api }) => {
+  test('[AT-0133]Most recently viewed patient appears at the top of the list and confirms the correct patient data in the list', async ({ allPatientsPage, api }) => {
     const newPatient = await createAndNavigateToPatient(allPatientsPage, api);
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName).toHaveText(newPatient.firstName + ' ' + newPatient.lastName);
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(newPatient.displayId);
@@ -67,7 +67,7 @@ test.describe('Recently viewed patients details', () => {
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate).toHaveText(expectedFormattedDate);
   });
 
-  test('Most recently viewed patient appears at the top of the list', async ({ allPatientsPage, api }) => {
+  test('[AT-0134]Most recently viewed patient appears at the top of the list', async ({ allPatientsPage, api }) => {
     // Create and view first patient
     const _firstPatient = await createAndNavigateToPatient(allPatientsPage, api);
     
@@ -79,7 +79,7 @@ test.describe('Recently viewed patients details', () => {
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(secondPatient.displayId);
   });
 
-  test('Clicking on a recently viewed patient navigates to their details', async ({ allPatientsPage, page, api }) => {
+  test('[AT-0135]Clicking on a recently viewed patient navigates to their details', async ({ allPatientsPage, page, api }) => {
     const newPatient = await createAndNavigateToPatient(allPatientsPage, api);
     
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(newPatient.displayId);
@@ -91,7 +91,7 @@ test.describe('Recently viewed patients details', () => {
     await expect(patientDetailsPage.healthIdText).toHaveText(newPatient.displayId);
   });
 
-  test('Recently viewed list updates when viewing same patient multiple times', async ({ allPatientsPage, api }) => {
+  test('[AT-0136]Recently viewed list updates when viewing same patient multiple times', async ({ allPatientsPage, api }) => {
     const newPatient = await createAndNavigateToPatient(allPatientsPage, api);
     
     // View patient second time
@@ -105,7 +105,7 @@ test.describe('Recently viewed patients details', () => {
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(newPatient.displayId);
   });
 
-  test('Navigating to 12 patients in the patient table and then verifying the last 6 recently viewed patient list', async ({allPatientsPage }) => {
+  test('[AT-0137]Navigating to 12 patients in the patient table and then verifying the last 6 recently viewed patient list', async ({allPatientsPage }) => {
     test.setTimeout(120000); // Set timeout to 2 minutes for this specific test
     
     // Stack to store patient details (LIFO - Last In, First Out)
@@ -146,7 +146,7 @@ test.describe('Recently viewed patient colors', () => {
     await allPatientsPage.goto();
   });
 
-  test('The patient with clinic admission color is yellow in recently viewed list', async ({allPatientsPage, api }) => {
+  test('[AT-0138]The patient with clinic admission color is yellow in recently viewed list', async ({allPatientsPage, api }) => {
     const newPatient = await createPatient(api, allPatientsPage.page);
     await createClinicEncounterViaApi(api, newPatient.id);
     await allPatientsPage.patientTable.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
@@ -157,7 +157,7 @@ test.describe('Recently viewed patient colors', () => {
     expect(color).toBe(PATIENT_COLORS.CLINIC_ADMISSION);
   });
 
-  test('The patient with hospital admission color is green in recently viewed list', async ({allPatientsPage, api }) => {
+  test('[AT-0139]The patient with hospital admission color is green in recently viewed list', async ({allPatientsPage, api }) => {
     const newPatient = await createPatient(api, allPatientsPage.page);
     await createHospitalAdmissionEncounterViaAPI(api, newPatient.id);
     await allPatientsPage.patientTable.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
@@ -168,7 +168,7 @@ test.describe('Recently viewed patient colors', () => {
     expect(color).toBe(PATIENT_COLORS.HOSPITAL_ADMISSION);
   });
 
-  test('The patient with triage admission color is red in recently viewed list', async ({allPatientsPage, api }) => {
+  test('[AT-0140]The patient with triage admission color is red in recently viewed list', async ({allPatientsPage, api }) => {
     const newPatient = await createPatient(api, allPatientsPage.page);
     await createTriageEncounterViaApi(api, allPatientsPage.page, newPatient.id);
     await allPatientsPage.patientTable.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
@@ -179,7 +179,7 @@ test.describe('Recently viewed patient colors', () => {
     expect(color).toBe(PATIENT_COLORS.TRIAGE_ADMISSION); 
   });
 
-  test('The patient with no admission color is blue in recently viewed list', async ({allPatientsPage, api }) => {
+  test('[AT-0141]The patient with no admission color is blue in recently viewed list', async ({allPatientsPage, api }) => {
     const newPatient = await createPatient(api, allPatientsPage.page);
     await allPatientsPage.patientTable.searchTable({ NHN: newPatient.displayId, advancedSearch: false });
     await allPatientsPage.patientTable.clickOnFirstRow();

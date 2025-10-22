@@ -111,7 +111,7 @@ export const globalSettings = {
         assignmentMaxFutureMonths: {
           description: 'The maximum number of months allowed when creating location assignments',
           type: yup.number().min(1),
-          defaultValue: 12,
+          defaultValue: 24,
         },
       },
     },
@@ -1238,6 +1238,26 @@ export const globalSettings = {
               description: 'Show outpatient appointments component on patient view',
               type: yup.boolean(),
               defaultValue: false,
+            },
+          },
+        },
+      },
+    },
+    security: {
+      description: 'Security settings',
+      properties: {
+        mobile: {
+          description: 'Mobile security settings',
+          properties: {
+            allowUnencryptedStorage: {
+              description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: true,
             },
           },
         },

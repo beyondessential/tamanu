@@ -58,7 +58,7 @@ export const LocationInput = React.memo(
           tag: enableLocationStatus ? LOCATION_AVAILABILITY_TAG_CONFIG[availability] : null,
         };
       },
-      baseQueryParameters: { filterByFacility: true, locationGroupId: groupId },
+      baseQueryParameters: { facilityId, filterByFacility: true, locationGroupId: groupId },
     });
     const locationGroupSuggester = useSuggester(locationGroupSuggesterType, {
       baseQueryParameters: {

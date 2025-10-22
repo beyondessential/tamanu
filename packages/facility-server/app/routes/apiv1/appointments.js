@@ -1,7 +1,7 @@
 import { format, addMilliseconds, differenceInMilliseconds, startOfDay, endOfDay, parse, isWithinInterval } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, Sequelize, literal } from 'sequelize';
+import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { omit } from 'lodash';
 import { z } from 'zod';
 
@@ -300,7 +300,7 @@ appointments.get(
       `),
       ],
     };
-    
+
     const bookableWhereClause = [LOCATION_BOOKABLE_VIEW.DAILY, LOCATION_BOOKABLE_VIEW.WEEKLY].includes(view) ? {
       '$location.locationGroup.is_bookable$': {
         [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, view]
@@ -474,7 +474,7 @@ appointments.put(
     const { models, params, settings } = req;
     const { id } = params;
     const { Appointment, LocationAssignment } = models;
-    
+
     const body = await moveAppointmentSchema.parseAsync(req.body);
 
     const bookingSlotStartTime = await settings[body.facilityId].get('appointments.bookingSlots.startTime');
@@ -581,3 +581,86 @@ const isSameClinicianAllocation = (startTime, locationAssignments, clinicianId) 
 
   return allocation.userId === clinicianId;
 };
+const getAppointmentTypeWhereQuery = (type, facilityId) => {
+  const facilityIdField =
+    type === 'outpatient' ? '$locationGroup.facility_id$' : '$location.facility_id$';
+  if (type === 'outpatient') {
+    return { locationGroupId: { [Op.not]: null }, [facilityIdField]: facilityId };
+  }
+  return { locationId: { [Op.not]: null }, [facilityIdField]: facilityId };
+};
+
+appointments.get(
+  '/hasPastAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+    req.checkListOrReadPermission('Appointment');
+
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { type, facilityId } = query;
+
+    const [{hasPastAppointment}] = await models.Appointment.sequelize.query(
+      `
+      SELECT EXISTS(
+        SELECT 1 FROM appointments
+        ${
+          type === 'outpatient'
+            ? 'LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id'
+            : 'LEFT JOIN locations ON appointments.location_id = locations.id'
+        }
+        WHERE patient_id = :patientId
+          AND status != :cancelledStatus
+          AND start_time < NOW()::date_time_string
+          AND ${type === 'outpatient' ? 'location_groups.facility_id = :facilityId' : 'locations.facility_id = :facilityId'}
+        LIMIT 1
+      ) as "hasPastAppointment"
+    `,
+      {
+        replacements: {
+          patientId,
+          facilityId,
+          cancelledStatus: APPOINTMENT_STATUSES.CANCELLED,
+          typeColumn: type === 'outpatient' ? 'location_group_id' : 'location_id',
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+
+    res.send(hasPastAppointment);
+  }),
+);
+
+appointments.get(
+  '/upcomingAppointments/:patientId',
+  asyncHandler(async (req, res) => {
+    req.checkListOrReadPermission('Appointment');
+
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { type, facilityId } = query;
+    const { Appointment } = models;
+
+    const upcomingAppointments = await Appointment.findAll({
+      where: {
+        patientId,
+        status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED },
+        startTime: { [Op.gt]: new Date() },
+        ...getAppointmentTypeWhereQuery(type, facilityId),
+      },
+      include: [
+        'locationGroup',
+        {
+          association: 'location',
+          include: ['locationGroup'],
+        },
+        'clinician',
+        'appointmentType',
+        'bookingType',
+        'patient'
+      ],
+      order: [['startTime', 'ASC']],
+    });
+
+    res.send(upcomingAppointments);
+  }),
+);

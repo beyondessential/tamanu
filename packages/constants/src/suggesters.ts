@@ -29,4 +29,5 @@ export const SUGGESTER_ENDPOINTS = [
   'nonSensitiveLabTestCategory',
   'role',
   'encounter',
+  'reportDefinition',
 ];

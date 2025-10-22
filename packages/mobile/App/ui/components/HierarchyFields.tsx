@@ -2,11 +2,13 @@ import React from 'react';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
+import styled from 'styled-components';
+import { REFERENCE_TYPES } from '@tamanu/constants';
+
 import { StyledView } from '/styled/common';
 import { useBackendEffect } from '~/ui/hooks';
 import { ReferenceDataType, ReferenceDataRelationType } from '~/types';
 import { theme } from '../styled/theme';
-import styled from 'styled-components';
 
 const HierarchyFieldContainer = styled(StyledView)`
   padding: 10px 8px 0 10px;
@@ -23,20 +25,33 @@ interface LocationHierarchyField {
 
 const useAddressHierarchy = (fields: LocationHierarchyField[], leafNodeType: ReferenceDataType) => {
   const [hierarchy, error, loading] = useBackendEffect(async ({ models }) => {
-    // choose any single entity from the leaf node level of the hierarchy
-    // then get its ancestors - that will serve as an example that gives us
-    // the types used at each level of this hierarchy
-    const entity = await models.ReferenceData.getNode({
-      type: leafNodeType,
-    });
-    const ancestors = await entity?.getAncestors();
+    // pick a representative node from the requested leaf type; if not present, fall back
+    // through known address types so incomplete hierarchies still render correctly
+    const fallbackOrder = [
+      leafNodeType,
+      REFERENCE_TYPES.SETTLEMENT,
+      REFERENCE_TYPES.SUBDIVISION,
+      REFERENCE_TYPES.DIVISION,
+    ] as ReferenceDataType[];
+
+    let entity = null as any;
+    for (const candidateType of fallbackOrder) {
+      const found = await models.ReferenceData.getNode({
+        type: candidateType,
+      });
+      if (found) {
+        entity = found;
+        break;
+      }
+    }
+
+    if (!entity) return null;
+    const ancestors = await entity.getAncestors();
     return [...ancestors, entity];
   });
 
   const configuredFieldTypes =
-    error || loading || !hierarchy
-      ? [leafNodeType] // If there is an error, or nothing is configured just display the bottom level field
-      : hierarchy.map(entity => entity.type);
+    error || loading || !hierarchy ? [leafNodeType] : hierarchy.map(entity => entity.type);
   return fields.filter(f => configuredFieldTypes.includes(f.referenceType));
 };
 

@@ -2,7 +2,7 @@ import { REPEAT_FREQUENCY } from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { fake } from '@tamanu/fake-data/fake';
 import { toDateString } from '@tamanu/utils/dateTime';
-import { addDays, addWeeks, addMonths, getISODay, parseISO } from 'date-fns';
+import { addDays, addWeeks, addMonths, getISODay, parseISO, subDays } from 'date-fns';
 import { generateFrequencyDates, getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
@@ -222,7 +222,7 @@ describe('Location Assignment API', () => {
     it('Should reject when create single assignment overlapping with user leaves', async () => {
       const { UserLeave } = models;
       const startDate = toDateString(new Date());
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -323,7 +323,7 @@ describe('Location Assignment API', () => {
       const { UserLeave } = models;
 
       const startDate = toDateString(new Date());
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -645,6 +645,7 @@ describe('Location Assignment API', () => {
       expect(createdAssignment).toBeTruthy();
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '12:00:00',
@@ -704,6 +705,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '10:00:00',
@@ -728,7 +730,7 @@ describe('Location Assignment API', () => {
       });
 
       const startDate = toDateString(addDays(new Date(), 1));
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -746,6 +748,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -768,6 +771,7 @@ describe('Location Assignment API', () => {
       });
 
       const result = await adminApp.put(`/api/admin/location-assignments/${assignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -804,6 +808,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${createdAssignment.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: tomorrow,
         startTime: '10:00:00',
@@ -861,6 +866,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: today,
         startTime: '10:00:00',
@@ -887,7 +893,7 @@ describe('Location Assignment API', () => {
       });
 
       const startDate = toDateString(addDays(new Date(), 1));
-      const endDate = toDateString(addDays(new Date(), 30));
+      const endDate = toDateString(addDays(new Date(), 1));
 
       await UserLeave.create({
         userId: testUser.id,
@@ -904,6 +910,7 @@ describe('Location Assignment API', () => {
       });
 
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToModify.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: startDate,
         startTime: '10:00:00',
@@ -942,6 +949,7 @@ describe('Location Assignment API', () => {
       const assignmentToUpdate = assignments[3];
       const newDate = toDateString(addWeeks(parseISO(assignmentToUpdate.date), 1));
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: newDate,
         startTime: '11:00:00',
@@ -997,12 +1005,12 @@ describe('Location Assignment API', () => {
 
     it('Should reject when new assignment template is overlapping with existing assignments', async () => {
       const { LocationAssignment } = models;
-      const today = toDateString(new Date());
+      const previousDate = toDateString(subDays(new Date(), 1));
 
       await adminApp.post('/api/admin/location-assignments').send({
         userId: testUser.id,
         locationId: testLocation.id,
-        date: today,
+        date: previousDate,
         startTime: '10:00:00',
         endTime: '11:00:00',
         repeatFrequency: 1,
@@ -1021,6 +1029,7 @@ describe('Location Assignment API', () => {
 
       const assignmentToUpdate = assignments[3];
       const updateResult = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: assignments[2].date,
         startTime: '10:00:00',
@@ -1062,6 +1071,7 @@ describe('Location Assignment API', () => {
       expect(createResult2).toHaveSucceeded();
 
       const updateResult2 = await adminApp.put(`/api/admin/location-assignments/${assignmentToUpdate.id}`).send({
+        userId: testUser.id,
         locationId: testLocation.id,
         date: toDateString(tomorrow),
         startTime: '10:00:00',

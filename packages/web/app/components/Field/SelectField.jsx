@@ -105,6 +105,7 @@ export const SelectInput = ({
   isClearable = true,
   clearValue = undefined,
   customStyleObject,
+  $fontSize,
   ['data-testid']: dataTestId,
   ...props
 }) => {
@@ -129,7 +130,7 @@ export const SelectInput = ({
     control: (provided, state) => {
       const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
       const borderColor = props.error ? Colors.alert : mainBorderColor;
-      const fontSize = props.size === 'small' ? '11px' : '15px';
+      const fontSize = $fontSize || (props.size === 'small' ? '11px' : '15px');
       return {
         ...provided,
         borderColor,
@@ -214,11 +215,27 @@ export const SelectInput = ({
             options={options.filter(option => option.value !== '')}
             menuPlacement="auto"
             menuPosition="fixed"
-            styles={customStyleObject || defaultStyles}
+            styles={
+              customStyleObject || {
+                ...defaultStyles,
+                control: (provided, state) => {
+                  const baseControl = defaultStyles.control(provided, state);
+                  return {
+                    ...baseControl,
+                    paddingTop: '4.3px',
+                    paddingBottom: '5px',
+                  };
+                },
+              }
+            }
             menuShouldBlockScroll="true"
-            placeholder={getTranslation('general.placeholder.select', 'Select')}
+            placeholder={
+              options.filter(option => option.value !== '').length > 7
+                ? getTranslation('general.placeholder.search...', 'Search...')
+                : getTranslation('general.placeholder.select', 'Select')
+            }
             isClearable={value !== '' && isClearable && !disabled}
-            isSearchable={false}
+            isSearchable
             tabIndex={inputProps.tabIndex}
             components={{
               Option: optionProps => <Option {...optionProps} data-testid={dataTestId} />,

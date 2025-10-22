@@ -15,11 +15,12 @@ import { FormGrid, TranslatedText, FormModal, Button, OutlinedButton } from '../
 import { Colors, FORM_TYPES } from '../../../constants';
 import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
-import { useUpdateUserMutation } from '../../../api/mutations';
+import { useUpdateUserMutation, useValidateUserMutation } from '../../../api/mutations';
 import { toast } from 'react-toastify';
 import { useTranslation } from '../../../contexts/Translation';
 import { UserLeaveSection } from './UserLeaveSection';
 import { useAuth } from '../../../contexts/Auth';
+import { isBcryptHash } from '@tamanu/utils/password';
 
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
@@ -65,7 +66,20 @@ const validationSchema = yup.object().shape({
   email: foreignKey(<TranslatedText stringId="validation.required.inline" fallback="*Required" />)
     .email()
     .translatedLabel(<TranslatedText stringId="admin.users.email.label" fallback="Email" />),
-  newPassword: yup.string().nullable(),
+  newPassword: yup
+    .string()
+    .nullable()
+    .test(
+      'password-is-not-hashed',
+      <TranslatedText
+        stringId="validation.password.isHashed"
+        fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
+      />,
+      function(value) {
+        if (!value) return true;
+        return !isBcryptHash(value);
+      },
+    ),
   confirmPassword: yup
     .string()
     .nullable()
@@ -76,17 +90,18 @@ const validationSchema = yup.object().shape({
         const { newPassword } = this.parent;
         // Only validate if both passwords are provided
         if (!newPassword && !value) return true;
-        if (newPassword && !value) return false;
-        if (!newPassword && value) return false;
         return newPassword === value;
       },
     ),
 });
 
 export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
-  const { mutate: updateUser } = useUpdateUserMutation(user.id);
+  const { mutate: updateUser, isPending: isUpdateUserPending } = useUpdateUserMutation(user.id);
+  const { mutateAsync: validateUser, isPending: isValidateUserPending } = useValidateUserMutation();
   const { getTranslation } = useTranslation();
   const { ability } = useAuth();
+
+  const isPending = isUpdateUserPending || isValidateUserPending;
   const canUpdateUser = ability.can(
     'write',
     new (function User() {
@@ -109,7 +124,36 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     },
   ];
 
-  const handleSubmit = async values => {
+  const handleSubmit = async (values, { setFieldError }) => {
+    // Only validate if email or displayName changed
+    const emailChanged = values.email !== user.email;
+    const displayNameChanged = values.displayName !== user.displayName;
+
+    if (emailChanged || displayNameChanged) {
+      const { isEmailUnique, isDisplayNameUnique } = await validateUser(values);
+
+      if (emailChanged && !isEmailUnique) {
+        setFieldError(
+          'email',
+          getTranslation(
+            'admin.users.add.error.email',
+            'Account already exists with this email address',
+          ),
+        );
+      }
+
+      if (displayNameChanged && !isDisplayNameUnique) {
+        setFieldError(
+          'displayName',
+          getTranslation('admin.users.add.error.displayName', 'Display name already exists'),
+        );
+      }
+
+      if ((emailChanged && !isEmailUnique) || (displayNameChanged && !isDisplayNameUnique)) {
+        return;
+      }
+    }
+
     updateUser(values, {
       onSuccess: () => {
         handleRefresh();
@@ -308,6 +352,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         component={TextField}
                         type="password"
                         required
+                        validateOnBlur
                       />
                     </FormGrid>
                   </>
@@ -322,10 +367,10 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
               <Box mt={2.5} mb={-1.5} display="flex" justifyContent="flex-end" gap="16px">
                 {allowSave ? (
                   <>
-                    <OutlinedButton onClick={onClose}>
+                    <OutlinedButton onClick={onClose} disabled={isPending}>
                       <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                     </OutlinedButton>
-                    <Button onClick={submitForm}>
+                    <Button onClick={submitForm} isSubmitting={isPending}>
                       <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                     </Button>
                   </>

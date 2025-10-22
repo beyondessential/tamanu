@@ -140,6 +140,7 @@ export const RepeatingFields = ({
   setFieldError,
   handleResetRepeatUntilDate,
   readonly,
+  maxFutureMonths,
 }) => {
   const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
@@ -257,6 +258,11 @@ export const RepeatingFields = ({
                 }),
                 'yyyy-MM-dd',
               )}
+              max={
+                maxFutureMonths
+                  ? format(add(new Date(), { months: maxFutureMonths }), 'yyyy-MM-dd')
+                  : undefined
+              }
               component={StyledDateField}
               data-testid="field-4flf"
             />

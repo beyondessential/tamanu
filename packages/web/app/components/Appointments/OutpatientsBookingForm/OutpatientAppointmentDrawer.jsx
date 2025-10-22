@@ -48,8 +48,9 @@ import { TimeWithFixedDateField } from './TimeWithFixedDateField';
 import { RepeatingFields } from '../RepeatingFields';
 import {
   APPOINTMENT_SCHEDULE_INITIAL_VALUES,
-  INITIAL_UNTIL_DATE_MONTHS_INCREMENT,
 } from '../../../constants/locationAssignments';
+
+export const INITIAL_UNTIL_DATE_MONTHS_INCREMENT = 6;
 
 const IconLabel = styled.div`
   display: flex;

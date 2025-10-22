@@ -1,4 +1,5 @@
 import { PatientDetailsPage } from '@pages/patients/PatientDetailsPage';
+import { createPatient } from '../utils/apiHelpers';
 import { expect } from '@playwright/test';
 import { Vaccine } from 'types/vaccine/Vaccine';
 import { addWeeks, startOfWeek, format } from 'date-fns';
@@ -272,4 +273,27 @@ export async function expectedDueDateWeek(date: Date, weeksToAdd: number) {
   const formattedUtcWeekStart = format(utcWeekStart, 'MM/dd/yyyy');
 
   return formattedUtcWeekStart;
+}
+
+/**
+ * Tests given elsewhere functionality across vaccine categories
+ * @param patientDetailsPage - The patient details page
+ * @param newPatientWithHospitalAdmission - The new patient with hospital admission
+ * @param category - The category of the vaccine
+ */
+export async function testGivenElsewhereForCategory(
+  patientDetailsPage: PatientDetailsPage,
+  newPatientWithHospitalAdmission: Awaited<ReturnType<typeof createPatient>>,
+  category: 'Routine' | 'Catchup' | 'Campaign' | 'Other',
+) {
+  const givenElsewhereReason = 'Given overseas';
+  const currentBrowserDate = patientDetailsPage.getCurrentBrowserDateISOFormat();
+  await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+  await patientDetailsPage.navigateToVaccineTab();
+
+  await addVaccineAndAssert(patientDetailsPage, true, category, 1, {
+    vaccineGivenElsewhere: givenElsewhereReason,
+    specificDate: currentBrowserDate,
+    viewVaccineRecord: true,
+  });
 }
