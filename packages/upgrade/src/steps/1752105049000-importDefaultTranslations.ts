@@ -74,10 +74,10 @@ async function downloadFromMetaServerHosts(
 ): Promise<Translation[]> {
   const metaServerHosts = (config as any)?.metaServer?.hosts;
   if (!Array.isArray(metaServerHosts)) {
-    throw new Error('metaServer is not an array');
+    throw new Error('metaServer.hosts is not an array');
   }
   if (metaServerHosts.length === 0) {
-    throw new Error('No meta servers configured');
+    throw new Error('No meta server hosts configured');
   }
 
   const { log } = stepArgs;
