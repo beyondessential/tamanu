@@ -74,13 +74,13 @@
       }
     }
   },
-  "metaServer": [
-    {
-      "host": "https://meta.tamanu.app",
-      "serverId": null,
-      "timeoutMs": 20000
-    },
-  ],
+  "metaServer": {
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
+    "serverId": null,
+    "timeoutMs": 20000,
+  },
   "senaite": {
     "enabled": false,
     "server": "https://192.168.33.100",

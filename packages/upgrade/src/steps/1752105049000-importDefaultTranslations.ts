@@ -67,26 +67,26 @@ async function download(
 
 // Tries each meta server in the array until one succeeds
 // Returns the translations or throws an error if all fail
-async function downloadFromMetaServerArray(
+async function downloadFromMetaServerHosts(
   artifactType: string,
   extractor: (resp: Response) => Promise<Translation[]>,
   stepArgs: StepArgs,
 ): Promise<Translation[]> {
-  const metaServerConfig = (config as any).metaServer;
-  if (!Array.isArray(metaServerConfig)) {
+  const metaServerHosts = (config as any)?.metaServer?.hosts;
+  if (!Array.isArray(metaServerHosts)) {
     throw new Error('metaServer is not an array');
   }
-  if (metaServerConfig.length === 0) {
+  if (metaServerHosts.length === 0) {
     throw new Error('No meta servers configured');
   }
 
   const { log } = stepArgs;
-  for (const metaServer of metaServerConfig) {
+  for (const metaServerHost of metaServerHosts) {
     try {
-      const rows = await download(metaServer.host, artifactType, extractor, stepArgs);
+      const rows = await download(metaServerHost, artifactType, extractor, stepArgs);
       return rows;
     } catch (error) {
-      log.error(`Failed to download from meta server host: ${metaServer.host}`, { error });
+      log.error(`Failed to download from meta server host: ${metaServerHost}`, { error });
     }
   }
   throw new Error('No meta server succeeded downloading the artifacts');
@@ -202,7 +202,7 @@ export const STEPS: Steps = [
       }
 
       try {
-        const rows = await downloadFromMetaServerArray('report-translations', xlsxExtractor, {
+        const rows = await downloadFromMetaServerHosts('report-translations', xlsxExtractor, {
           ...args,
           toVersion: zeroPatch,
         });
