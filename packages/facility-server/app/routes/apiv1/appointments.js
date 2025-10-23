@@ -1,4 +1,4 @@
-import { format, addMilliseconds, differenceInMilliseconds, startOfDay, endOfDay, parse, isWithinInterval } from 'date-fns';
+import { format, addMilliseconds, differenceInMilliseconds, parse, isWithinInterval } from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
@@ -487,8 +487,10 @@ appointments.put(
         throw new InvalidOperationError('Appointment not found');
       }
 
+      const oldStartTime = new Date(appointmentToMove.startTime);
+      const oldEndTime = new Date(appointmentToMove.endTime);
       const newStartTime = new Date(body.startTime);
-      const duration = differenceInMilliseconds(new Date(appointmentToMove.endTime), new Date(appointmentToMove.startTime));
+      const duration = differenceInMilliseconds(oldEndTime, oldStartTime);
       const newEndTime = addMilliseconds(newStartTime, duration);
 
       const locationAssignments = await LocationAssignment.findAll({
@@ -502,53 +504,57 @@ appointments.put(
         throw new InvalidOperationError(`Appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
       }
 
-      if (!isSameClinicianAllocation(appointmentToMove.startTime, locationAssignments, appointmentToMove.clinicianId)) {
+      if (!isSameClinicianAllocation(newStartTime, locationAssignments, appointmentToMove.clinicianId)) {
         throw new InvalidOperationError('Appointment time must be within the same clinician allocation');
       }
 
-      await appointmentToMove.update({
-        startTime: toDateTimeString(newStartTime),
-        endTime: toDateTimeString(newEndTime),
-      });
+      const isMovingEarlier = newStartTime < oldStartTime;
 
-      const appointmentsInDay = await Appointment.findAll({
+      const [rangeStart, rangeEnd] = isMovingEarlier
+        ? [newStartTime, oldStartTime] 
+        : [oldStartTime, newStartTime];
+
+      const appointmentsToShift = await Appointment.findAll({
         where: {
           [Op.and]: [
             { locationId: appointmentToMove.locationId },
             { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } },
-            { startTime: { [Op.between]: [toDateTimeString(startOfDay(newStartTime)), toDateTimeString(endOfDay(newStartTime))] } },
+            { startTime: { [Op.gte]: toDateTimeString(rangeStart) } },
+            { startTime: { [Op.lt]: toDateTimeString(rangeEnd) } },
             { id: { [Op.ne]: id } },
           ],
         },
         order: [['startTime', 'ASC']],
       });
 
-      let lastAppointmentEndTime = new Date(appointmentToMove.endTime);
+      const durationToMove = isMovingEarlier ? duration : -duration;
+      for (const appointment of appointmentsToShift) {
+        const currentStartTime = new Date(appointment.startTime);
+        const currentEndTime = new Date(appointment.endTime);
 
-      for (const appointment of appointmentsInDay) {
-        const appointmentStartTime = new Date(appointment.startTime);
+        const shiftedStartTime = addMilliseconds(currentStartTime, durationToMove);
 
-        if (appointmentStartTime < lastAppointmentEndTime) {
-          const duration = differenceInMilliseconds(new Date(appointment.endTime), appointmentStartTime);
-          const newStartTime = lastAppointmentEndTime;
-          const newEndTime = addMilliseconds(newStartTime, duration);
+        const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
+        const shiftedEndTime = addMilliseconds(shiftedStartTime, appointmentDuration);
 
-          if (!isValidBookingTime(newStartTime, newEndTime, bookingSlotStartTime, bookingSlotEndTime)) {
-            throw new InvalidOperationError(`Shifted appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
-          }
-
-          if (!isSameClinicianAllocation(appointment.startTime, locationAssignments, appointment.clinicianId)) {
-            throw new InvalidOperationError('Shifted appointment time must be within the same clinician allocation');
-          }
-
-          await appointment.update({
-            startTime: toDateTimeString(newStartTime),
-            endTime: toDateTimeString(newEndTime),
-          });
-
-          lastAppointmentEndTime = newEndTime;
+        if (!isValidBookingTime(shiftedStartTime, shiftedEndTime, bookingSlotStartTime, bookingSlotEndTime)) {
+          throw new InvalidOperationError(`Shifted appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`);
         }
+
+        if (!isSameClinicianAllocation(shiftedStartTime, locationAssignments, appointment.clinicianId)) {
+          throw new InvalidOperationError('Shifted appointment time must be within the same clinician allocation');
+        }
+
+        await appointment.update({
+          startTime: toDateTimeString(shiftedStartTime),
+          endTime: toDateTimeString(shiftedEndTime),
+        });
       }
+
+      await appointmentToMove.update({
+        startTime: toDateTimeString(newStartTime),
+        endTime: toDateTimeString(newEndTime),
+      });
     });
 
     res.status(200).send({
