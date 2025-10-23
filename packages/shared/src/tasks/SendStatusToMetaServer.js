@@ -16,8 +16,10 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
   constructor(context, overrideConfig = null) {
     const { 'service.type': serverType, 'service.version': version } = serviceContext();
-    const { schedule, jitterTime, enabled } =
+    const randomJitterMs = Math.random() * 5000; // 0-5000ms
+    const { schedule, jitterTime = randomJitterMs, enabled } =
       overrideConfig || config.schedules.sendStatusToMetaServer;
+
     super(schedule, log, jitterTime, enabled);
     this.context = context;
     this.models = context.models || context.store.models;
