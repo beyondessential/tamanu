@@ -288,6 +288,7 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "medicationDiscontinuer": {
       // every hour
