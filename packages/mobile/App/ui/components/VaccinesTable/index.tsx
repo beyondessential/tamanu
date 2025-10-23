@@ -104,8 +104,7 @@ export const VaccinesTable = ({
       }
     }
     return [filteredScheduledVaccines, cells];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientAdministeredVaccines, thresholds]);
+  }, [scheduledVaccines, selectedPatient, patientAdministeredVaccines, thresholds]);
 
   const error = scheduledVaccineError || administeredError;
   if (error) return <ErrorScreen error={error} />;
