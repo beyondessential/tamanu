@@ -4,7 +4,7 @@ import { ModelExporter } from './ModelExporter';
 // - First column: invoiceProductId
 // - Subsequent columns: one per InvoicePriceList.code
 // - Cell values: price for that product in that price list, blank if none
-export class InvoicePriceListExporter extends ModelExporter {
+export class InvoicePriceListItemExporter extends ModelExporter {
   constructor(context, dataType) {
     super(context, dataType);
     this._priceListCodes = [];
@@ -74,6 +74,6 @@ export class InvoicePriceListExporter extends ModelExporter {
   }
 
   customTabName() {
-    return 'Invoice Price Lists';
+    return 'Invoice Price List Items';
   }
 }

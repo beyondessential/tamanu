@@ -2,34 +2,6 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Initializes or retrieves existing price list records based on their codes.
- * Checks for duplicate codes and creates a mapping from code to price list ID.
- */
-async function initializePriceLists(priceListCodes, models, state, pushError) {
-  const seen = new Set();
-  const priceLists = [];
-
-  const existingPriceLists = await models.InvoicePriceList.findAll({
-    where: { code: { [Op.in]: priceListCodes } },
-  });
-  const existingByCode = new Map(existingPriceLists.map(pl => [pl.code, pl.id]));
-
-  for (const code of priceListCodes) {
-    if (seen.has(code)) {
-      pushError(`duplicate price list code: ${code}`);
-      continue;
-    }
-    seen.add(code);
-
-    const id = existingByCode.get(code) || uuidv4();
-    state.priceListIdCache.set(code, id);
-    priceLists.push({ model: 'InvoicePriceList', values: { id, code } });
-  }
-
-  return priceLists;
-}
-
-/**
  * Processes a single data row by validating prices and building price list items.
  * Validates prices for each price list code, then creates price list item records.
  */
@@ -93,7 +65,7 @@ async function processRow(item, state, { pushError, models }) {
  * Factory function that creates a stateful loader for invoice price list imports.
  * The loader maintains state across rows to track price lists and codes.
  */
-export function invoicePriceListLoader() {
+export function invoicePriceListItemLoader() {
   const state = {
     initialized: false,
     invoiceProductKey: null,
@@ -103,7 +75,7 @@ export function invoicePriceListLoader() {
 
   /**
    * Main loader function that processes each row of invoice price list import data.
-   * On first call (initialization), extracts price list codes from headers and creates price lists.
+   * On first call (initialization), extracts price list codes from headers and validates they exist.
    * On subsequent calls, processes each row to create/update price list items for products.
    */
   return async (rawItem, { pushError, models }) => {
@@ -122,12 +94,30 @@ export function invoicePriceListLoader() {
       const priceListCodes = headers.filter(h => h !== invoiceProductKey);
       state.invoiceProductKey = invoiceProductKey;
       state.priceListCodes = priceListCodes;
+
+      // Validate all price lists exist and cache their IDs
+      const existingPriceLists = await models.InvoicePriceList.findAll({
+        where: { code: { [Op.in]: priceListCodes } },
+      });
+
+      const seen = new Set();
+      for (const code of priceListCodes) {
+        if (seen.has(code)) {
+          pushError(`duplicate price list code: ${code}`);
+          continue;
+        }
+        seen.add(code);
+
+        const priceList = existingPriceLists.find(pl => pl.code === code);
+        if (!priceList) {
+          pushError(`InvoicePriceList with code '${code}' does not exist`);
+          continue;
+        }
+        state.priceListIdCache.set(code, priceList.id);
+      }
+
+      // eslint-disable-next-line require-atomic-updates
       state.initialized = true;
-
-      const priceLists = await initializePriceLists(priceListCodes, models, state, pushError);
-      const items = await processRow(item, state, { pushError, models });
-
-      return [...priceLists, ...items];
     }
 
     return processRow(item, state, { pushError, models });
