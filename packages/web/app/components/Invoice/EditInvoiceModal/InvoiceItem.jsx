@@ -14,7 +14,7 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../DateDisplay';
 import { useTranslation } from '../../../contexts/Translation';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../Field/PriceField';
 import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
 
@@ -121,11 +121,7 @@ export const InvoiceItemRow = ({
       casing: 'lower',
     },
   );
-  const hidePriceInput =
-    item?.product?.price ||
-    item?.product?.price === 0 ||
-    !item?.productId?.startsWith(REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT) ||
-    !editable;
+  const hidePriceInput = item?.product?.price || item?.product?.price === 0 || !editable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id, ...others }) => ({
