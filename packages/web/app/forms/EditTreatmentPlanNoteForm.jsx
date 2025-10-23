@@ -1,6 +1,7 @@
 import React from 'react';
+import { FormSubmitCancelRow } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import styled from 'styled-components';
-import { FormSubmitCancelRow } from '../components/ButtonRow';
 import {
   NoteContentField,
   NoteDateTimeField,
@@ -17,7 +18,6 @@ import {
   NoteModalDialogContent,
 } from '../components/NoteModal/NoteModalCommonComponents';
 import { TranslatedText } from '../components';
-import { Colors } from '../constants';
 
 const StyledNoteModalDialogContent = styled(NoteModalDialogContent)`
   .MuiInputBase-input {

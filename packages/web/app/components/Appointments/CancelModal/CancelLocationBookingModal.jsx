@@ -6,9 +6,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import { useLocationBookingMutation } from '../../../api/mutations';
 import { formatDateTimeRange } from '../../../utils/dateTime';
-import { BaseModal } from '../../BaseModal';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,

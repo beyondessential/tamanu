@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-import { FormGrid } from '../../components';
+import { FormGrid } from '@tamanu/ui-components';
 
 export const PatientDetailsHeading = styled.div`
   font-weight: 500;

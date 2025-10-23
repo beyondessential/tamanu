@@ -4,21 +4,24 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
+import {
+  Form,
+  Button,
+  FormSubmitCancelRow,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
-import { Form } from '../../Field';
-import { Colors } from '../../../constants';
-import { FormSubmitCancelRow } from '../../ButtonRow';
+
 import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { ThreeDotMenu } from '../../ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
-import { Button } from '../../Button';
 import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';

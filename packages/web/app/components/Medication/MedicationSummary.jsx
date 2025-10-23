@@ -3,13 +3,15 @@ import React from 'react';
 import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { DRUG_ROUTE_LABELS } from '@tamanu/constants';
+import {
+  TranslatedReferenceData,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { CheckSharp } from '@material-ui/icons';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
-
 import { Colors } from '../../constants';
 import { useTranslation } from '../../contexts/Translation';
 import { formatShortest } from '../DateDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../Translation';
 import { formatTimeSlot } from '../../utils/medications';
 
 const MidText = styled(Box)`

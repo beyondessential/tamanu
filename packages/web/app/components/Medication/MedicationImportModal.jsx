@@ -1,18 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TranslatedText } from '../Translation';
-import { Modal } from '../Modal';
-import { Box } from '@mui/material';
+import {
+  ConfirmCancelRow,
+  Modal,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { Colors } from '../../constants';
+import { Box } from '@mui/material';
 import styled from 'styled-components';
 import { AutocompleteInput } from '../Field';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
-  ConfirmCancelRow,
   formatShortest,
   Table,
-  TranslatedEnum,
-  TranslatedReferenceData,
   useSelectableColumn,
 } from '..';
 import { usePatientOngoingPrescriptionsQuery } from '../../api/queries/usePatientOngoingPrescriptionsQuery';
@@ -23,6 +25,7 @@ import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounterMedicationQuery } from '../../api/queries/useEncounterMedicationQuery';
 import { createPrescriptionHash } from '../../utils/medications';
+
 const DarkestText = styled(Box)`
   color: ${Colors.darkestText};
   font-size: 14px;

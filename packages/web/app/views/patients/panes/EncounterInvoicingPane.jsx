@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
-import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
-import { Colors, INVOICE_MODAL_TYPES } from '../../../constants';
+import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';

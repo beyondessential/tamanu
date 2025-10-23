@@ -6,9 +6,10 @@ import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { getCurrentRoute } from '../../store/router';
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { LogoLight, LogoLightNoText } from '../Logo';
-import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -17,7 +18,6 @@ import { checkAbility } from '../../utils/ability';
 import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 

@@ -1,20 +1,18 @@
 import React from 'react';
 import * as yup from 'yup';
-import { LAB_REQUEST_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
 import styled from 'styled-components';
+import { Form, FormGrid, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import {
   AutocompleteField,
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
   SuggesterSelectField,
 } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSettings } from '../../../contexts/Settings';
 
 const validationSchema = yup.object().shape({

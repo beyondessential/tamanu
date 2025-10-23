@@ -1,12 +1,13 @@
-import { SEX_LABELS, VACCINE_STATUS_LABELS } from '@tamanu/constants';
+import { SEX_LABELS } from '@tamanu/constants';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { format, startOfWeek, parseISO } from 'date-fns';
-
-import type { Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
-import type { OngoingPrescription } from '@tamanu/shared/schemas/patientPortal/responses/ongoingPrescription.schema';
-import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
-import type { Appointment } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
-import type { Location } from '@tamanu/shared/schemas/patientPortal/responses/location.schema';
+import type {
+  Location,
+  Appointment,
+  OngoingPrescription,
+  Patient,
+  AdministeredVaccine,
+} from '@tamanu/shared/schemas/patientPortal';
 
 export const formatDate = (dateString: string | null | undefined) => {
   if (!dateString) return '--/--/----';
@@ -76,27 +77,6 @@ export const formatVaccineFacilityOrCountry = (vaccine: AdministeredVaccine) => 
     return vaccine.givenBy || '--';
   }
   return vaccine.location?.name || '--';
-};
-
-export const formatVaccineStatus = (status: AdministeredVaccine['status']) => {
-  return VACCINE_STATUS_LABELS[status] || status;
-};
-
-export const getVaccineStatusColor = (status: AdministeredVaccine['status']) => {
-  switch (status) {
-    case 'SCHEDULED':
-      return 'primary';
-    case 'UPCOMING':
-      return 'info';
-    case 'DUE':
-      return 'success';
-    case 'OVERDUE':
-      return 'warning';
-    case 'MISSED':
-      return 'error';
-    default:
-      return 'default';
-  }
 };
 
 export const formatWeekOf = (dateString: string | null | undefined) => {

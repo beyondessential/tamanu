@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
-import { DataFetchingTable, Heading4, TranslatedText } from '../../components';
-import { getDueDate, getRecordAction, getStatusTag } from './accessors';
 import styled from 'styled-components';
-import { Colors } from '../../constants';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { DataFetchingTable, Heading4 } from '../../components';
+import { getDueDate, getRecordAction, getStatusTag } from './accessors';
 
 const Container = styled.div`
   padding: 0.9rem 1.2rem 0.8rem;

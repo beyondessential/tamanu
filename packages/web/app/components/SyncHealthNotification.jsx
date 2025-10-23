@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-import { ApiContext } from '../api';
+import { ApiContext } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
+import { Colors } from '../constants';
 
 const Container = styled.div`
   position: absolute;

@@ -14,11 +14,11 @@ import {
   LANGUAGE_NAME_STRING_ID,
 } from '@tamanu/constants';
 import { useApi } from '../../../api';
-import { Form, Button, SearchInput, TableFormFields, TextField } from '../../../components';
+import { TextField, Form, Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { SearchInput, TableFormFields } from '../../../components';
 import { AccessorField } from '../../patients/components/AccessorField';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { Colors } from '../../../constants';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { ReferenceDataSwitchInput } from './ReferenceDataSwitch';
 import { ThemedTooltip } from '../../../components/Tooltip';
