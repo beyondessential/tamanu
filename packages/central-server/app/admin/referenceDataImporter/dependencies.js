@@ -14,7 +14,7 @@ import {
   medicationSetLoader,
   procedureTypeLoader,
 } from './loaders';
-import { invoicePriceListLoader } from './invoicePriceListLoader';
+import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -67,10 +67,12 @@ export default {
   },
   invoiceProduct: {},
 
-  invoicePriceList: {
-    loader: invoicePriceListLoader(),
-  },
+  invoicePriceList: {},
   invoicePriceListItem: {
+    get loader() {
+      // Use a getter to create a fresh loader instance on each access
+      return invoicePriceListItemLoaderFactory();
+    },
     needs: ['invoicePriceList'],
   },
 

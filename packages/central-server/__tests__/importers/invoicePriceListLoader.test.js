@@ -1,10 +1,10 @@
 import { write, utils } from 'xlsx';
 import { fake } from '@tamanu/fake-data/fake';
-import { importerTransaction } from '../../dist/admin/importer/importerEndpoint';
-import { referenceDataImporter } from '../../dist/admin/referenceDataImporter';
+import { importerTransaction } from '../../app/admin/importer/importerEndpoint';
+import { referenceDataImporter } from '../../app/admin/referenceDataImporter';
 import { createTestContext } from '../utilities';
 
-// Build a minimal XLSX workbook buffer with a single sheet called 'invoicePriceList'
+// Build a minimal XLSX workbook buffer with a single sheet called 'invoicePriceListItem'
 function buildWorkbookBuffer(headers, rows) {
   const ws = {};
 
@@ -32,7 +32,7 @@ function buildWorkbookBuffer(headers, rows) {
   };
   ws['!ref'] = utils.encode_range(range);
 
-  const wb = { SheetNames: ['invoicePriceList'], Sheets: { invoicePriceList: ws } };
+  const wb = { SheetNames: ['invoicePriceListItem'], Sheets: { invoicePriceListItem: ws } };
   return write(wb, { type: 'buffer', bookType: 'xlsx' });
 }
 
@@ -41,12 +41,12 @@ async function doImport(ctx, { buffer }) {
     importer: referenceDataImporter,
     data: buffer,
     models: ctx.store.models,
-    includedDataTypes: ['invoicePriceList'],
+    includedDataTypes: ['invoicePriceListItem'],
     checkPermission: () => true,
   });
 }
 
-describe('Invoice price list import', () => {
+describe('Invoice price list item import', () => {
   let ctx;
   let models;
 
@@ -66,12 +66,16 @@ describe('Invoice price list import', () => {
     await InvoiceProduct.destroy({ where: {}, force: true });
   });
 
-  it('should create price lists and items from sheet headers and rows', async () => {
+  it('should create price list items from sheet headers and rows', async () => {
     const { InvoiceProduct, InvoicePriceList, InvoicePriceListItem } = models;
 
     // Create two products
     await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-1' });
     await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-2' });
+
+    // Create two price lists
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_B' });
 
     const headers = ['invoiceProductId', 'PL_A', 'PL_B'];
     const rows = [
@@ -83,18 +87,12 @@ describe('Invoice price list import', () => {
     const { errors, stats } = await doImport(ctx, { buffer });
     expect(errors).toBeEmpty();
 
-    // Expect 2 price lists created and 3 items
+    // Expect 3 items created
     expect(stats).toMatchObject({
-      InvoicePriceList: { created: 2, updated: 0, errored: 0 },
       InvoicePriceListItem: { created: 3, updated: 0, errored: 0 },
     });
 
     // Verify DB state
-    const plA = await InvoicePriceList.findOne({ where: { code: 'PL_A' } });
-    const plB = await InvoicePriceList.findOne({ where: { code: 'PL_B' } });
-    expect(plA).toBeTruthy();
-    expect(plB).toBeTruthy();
-
     const itemsProd1 = await InvoicePriceListItem.findAll({
       where: { invoiceProductId: 'prod-1' },
     });
@@ -111,9 +109,10 @@ describe('Invoice price list import', () => {
   });
 
   it('should validate non-numeric price values', async () => {
-    const { InvoiceProduct } = models;
+    const { InvoiceProduct, InvoicePriceList } = models;
 
     await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-3' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
 
     const headers = ['invoiceProductId', 'PL_A'];
     const rows = [{ invoiceProductId: 'prod-3', PL_A: 'abc' }];
@@ -124,7 +123,75 @@ describe('Invoice price list import', () => {
     expect(stats).toEqual({});
     expect(errors[0]).toHaveProperty(
       'message',
-      "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceList at row 2",
+      "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceListItem at row 2",
+    );
+  });
+
+  it('should error if price list does not exist', async () => {
+    const { InvoiceProduct } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-4' });
+
+    const headers = ['invoiceProductId', 'NONEXISTENT_PL'];
+    const rows = [{ invoiceProductId: 'prod-4', NONEXISTENT_PL: 100 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toEqual({});
+    expect(errors[0]).toHaveProperty(
+      'message',
+      "InvoicePriceList with code 'NONEXISTENT_PL' does not exist on invoicePriceListItem at row 2",
+    );
+  });
+
+  it('should error if invoice product does not exist', async () => {
+    const { InvoicePriceList } = models;
+
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A'];
+    const rows = [{ invoiceProductId: 'nonexistent-product', PL_A: 100 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toEqual({});
+    expect(errors[0]).toHaveProperty(
+      'message',
+      "Invoice product 'nonexistent-product' does not exist on invoicePriceListItem at row 2",
+    );
+  });
+
+  it('should error on duplicate price list codes in headers', async () => {
+    const { InvoiceProduct, InvoicePriceList } = models;
+
+    await InvoiceProduct.create({ ...fake(InvoiceProduct), id: 'prod-5' });
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['invoiceProductId', 'PL_A', 'PL_A'];
+    const rows = [{ invoiceProductId: 'prod-5', PL_A: 100 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { didntSendReason } = await doImport(ctx, { buffer });
+    expect(didntSendReason).toEqual('validationFailed');
+  });
+
+  it('should error if invoiceProductId column is missing', async () => {
+    const { InvoicePriceList } = models;
+
+    await InvoicePriceList.create({ ...fake(InvoicePriceList), code: 'PL_A' });
+
+    const headers = ['productId', 'PL_A']; // wrong column name
+    const rows = [{ productId: 'prod-6', PL_A: 100 }];
+    const buffer = buildWorkbookBuffer(headers, rows);
+
+    const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(stats).toEqual({});
+    expect(errors[0]).toHaveProperty(
+      'message',
+      'Missing required column: invoiceProductId on invoicePriceListItem at row 2',
     );
   });
 });
