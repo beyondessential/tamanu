@@ -31,8 +31,8 @@ surveyResponse.get(
     res.send({
       ...surveyResponseRecord.forResponse(),
       components,
-      answers: answers.map(answer => {
-        const transformedAnswer = transformedAnswers.find(a => a.id === answer.id);
+      answers: answers.map((answer) => {
+        const transformedAnswer = transformedAnswers.find((a) => a.id === answer.id);
         return {
           ...answer.dataValues,
           originalBody: answer.body,
@@ -54,11 +54,11 @@ surveyResponse.post(
       settings,
     } = req;
     // Responses for the vitals survey will check against 'Vitals' create permissions
-    // All others witll check against 'SurveyResponse' create permissions
+    // All others will check against 'SurveyResponse' create permissions
     const noun = await models.Survey.getResponsePermissionCheck(body.surveyId);
     req.checkPermission('create', noun);
 
-    const getDefaultId = async type =>
+    const getDefaultId = async (type) =>
       models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
