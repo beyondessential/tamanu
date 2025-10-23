@@ -30,6 +30,7 @@ export class InvoicePriceList extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+          allowNull: false,
         },
       },
       {
@@ -75,10 +76,7 @@ export class InvoicePriceList extends Model {
     const matches: string[] = [];
 
     for (const priceList of priceLists) {
-      const rules = (priceList as any).rules as Record<string, any> | null | undefined;
-      if (!rules || typeof rules !== 'object') {
-        continue;
-      }
+      const rules = priceList.rules ?? {};
 
       const match =
         equalsIfPresent(rules.facilityId, facilityId) &&
