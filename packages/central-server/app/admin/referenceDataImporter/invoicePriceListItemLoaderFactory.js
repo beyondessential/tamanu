@@ -65,7 +65,7 @@ async function processRow(item, state, { pushError, models }) {
  * Factory function that creates a stateful loader for invoice price list imports.
  * The loader maintains state across rows to track price lists and codes.
  */
-export function invoicePriceListItemLoader() {
+export function invoicePriceListItemLoaderFactory() {
   const state = {
     initialized: false,
     invoiceProductKey: null,
