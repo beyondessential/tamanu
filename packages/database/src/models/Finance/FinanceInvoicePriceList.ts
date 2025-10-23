@@ -2,9 +2,9 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
-import { matchesAgeIfPresent, equalsIfPresent } from './invoicePriceListMatching';
+import { matchesAgeIfPresent, equalsIfPresent } from './FinanceinvoicePriceListMatching';
 
-export class InvoicePriceList extends Model {
+export class FinanceInvoicePriceList extends Model {
   declare id: string;
   declare code: string;
   declare name?: string;
@@ -42,7 +42,7 @@ export class InvoicePriceList extends Model {
   }
 
   static initRelations(models: Models) {
-    this.hasMany(models.InvoicePriceListItem, {
+    this.hasMany(models.FinanceInvoicePriceListItem, {
       foreignKey: 'invoicePriceListId',
       as: 'invoicePriceListItems',
     });

@@ -8,7 +8,7 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceItem extends Model {
+export class FinanceInvoiceItem extends Model {
   declare id: string;
   declare orderDate: string;
   declare productId?: string;
@@ -67,12 +67,12 @@ export class InvoiceItem extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.Invoice, {
+    this.belongsTo(models.FinanceInvoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
     });
 
-    this.hasOne(models.InvoiceItemDiscount, {
+    this.hasOne(models.FinanceInvoiceItemDiscount, {
       foreignKey: 'invoiceItemId',
       as: 'discount',
     });
@@ -82,7 +82,7 @@ export class InvoiceItem extends Model {
       as: 'orderedByUser',
     });
 
-    this.belongsTo(models.InvoiceProduct, {
+    this.belongsTo(models.FinanceInvoiceProduct, {
       foreignKey: 'productId',
       as: 'product',
     });
@@ -108,7 +108,7 @@ export class InvoiceItem extends Model {
   static getListReferenceAssociations(models: Models) {
     return [
       {
-        model: models.InvoiceProduct,
+        model: models.FinanceInvoiceProduct,
         as: 'product',
         include: [
           {
@@ -129,7 +129,7 @@ export class InvoiceItem extends Model {
         attributes: ['displayName'],
       },
       {
-        model: models.InvoiceItemDiscount,
+        model: models.FinanceInvoiceItemDiscount,
         as: 'discount',
       },
     ];

@@ -8,29 +8,19 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurerPayment extends Model {
+export class FinanceInvoiceInsurer extends Model {
   declare id: string;
-  declare insurerId: string;
-  declare status: string;
-  declare reason?: string;
-  declare invoicePaymentId?: string;
-  declare insurer?: string;
+  declare percentage: number;
+  declare invoiceId?: string;
+  declare insurerId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        insurerId: {
-          type: DataTypes.STRING,
+        percentage: {
+          type: DataTypes.DECIMAL,
           allowNull: false,
-        },
-        status: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        reason: {
-          type: DataTypes.STRING,
-          allowNull: true,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
@@ -38,14 +28,14 @@ export class InvoiceInsurerPayment extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.InvoicePayment, {
-      foreignKey: 'invoicePaymentId',
-      as: 'detail',
+    this.belongsTo(models.FinanceInvoice, {
+      foreignKey: 'invoiceId',
+      as: 'invoice',
     });
+
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'insurerId',
       as: 'insurer',
-      constraints: false,
     });
   }
 
@@ -54,7 +44,7 @@ export class InvoiceInsurerPayment extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'invoice_payments', 'invoices', 'encounters'],
+      [this.tableName, 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
   }
@@ -62,25 +52,7 @@ export class InvoiceInsurerPayment extends Model {
   static async buildSyncLookupQueryDetails() {
     return {
       select: await buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, ['invoice_payments', 'invoices', 'encounters']),
+      joins: buildEncounterLinkedLookupJoins(this, ['invoices', 'encounters']),
     };
-  }
-
-  static getFullReferenceAssociations() {
-    return [
-      {
-        model: this.sequelize.models.InvoicePayment,
-        as: 'detail',
-      },
-    ];
-  }
-
-  static getListReferenceAssociations(models: Models) {
-    return [
-      {
-        model: models.ReferenceData,
-        as: 'insurer',
-      },
-    ];
   }
 }

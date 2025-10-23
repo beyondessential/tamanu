@@ -9,7 +9,7 @@ import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedS
 import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 
-export class Invoice extends Model {
+export class FinanceInvoice extends Model {
   declare id: string;
   declare displayId: string;
   declare date: string;
@@ -54,22 +54,22 @@ export class Invoice extends Model {
       as: 'encounter',
     });
 
-    this.hasOne(models.InvoiceDiscount, {
+    this.hasOne(models.FinanceInvoiceDiscount, {
       foreignKey: 'invoiceId',
       as: 'discount',
     });
 
-    this.hasMany(models.InvoiceInsurer, {
+    this.hasMany(models.FinanceInvoiceInsurer, {
       foreignKey: 'invoiceId',
       as: 'insurers',
     });
 
-    this.hasMany(models.InvoiceItem, {
+    this.hasMany(models.FinanceInvoiceItem, {
       foreignKey: 'invoiceId',
       as: 'items',
     });
 
-    this.hasMany(models.InvoicePayment, {
+    this.hasMany(models.FinanceInvoicePayment, {
       foreignKey: 'invoiceId',
       as: 'payments',
     });
@@ -95,12 +95,12 @@ export class Invoice extends Model {
     return [
       'encounter',
       {
-        model: models.InvoiceDiscount,
+        model: models.FinanceInvoiceDiscount,
         as: 'discount',
         include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
       },
       {
-        model: models.InvoiceInsurer,
+        model: models.FinanceInvoiceInsurer,
         as: 'insurers',
         include: [
           {
@@ -110,14 +110,14 @@ export class Invoice extends Model {
         ],
       },
       {
-        model: models.InvoiceItem,
+        model: models.FinanceInvoiceItem,
         as: 'items',
-        include: models.InvoiceItem.getListReferenceAssociations(models),
+        include: models.FinanceInvoiceItem.getListReferenceAssociations(models),
       },
       {
-        model: models.InvoicePayment,
+        model: models.FinanceInvoicePayment,
         as: 'payments',
-        include: models.InvoicePayment.getListReferenceAssociations(models),
+        include: models.FinanceInvoicePayment.getListReferenceAssociations(models),
       },
     ];
   }

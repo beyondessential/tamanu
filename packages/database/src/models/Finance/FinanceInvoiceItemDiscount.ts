@@ -10,7 +10,7 @@ import {
 
 const INVOICE_ITEMS_DISCOUNT_TYPE_VALUES = Object.values(INVOICE_ITEMS_DISCOUNT_TYPES);
 
-export class InvoiceItemDiscount extends Model {
+export class FinanceInvoiceItemDiscount extends Model {
   declare id: string;
   declare amount: number;
   declare type: (typeof INVOICE_ITEMS_DISCOUNT_TYPE_VALUES)[number];
@@ -37,7 +37,7 @@ export class InvoiceItemDiscount extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.InvoiceItem, {
+    this.belongsTo(models.FinanceInvoiceItem, {
       foreignKey: 'invoiceItemId',
       as: 'invoiceItem',
     });

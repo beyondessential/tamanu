@@ -8,19 +8,23 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurer extends Model {
+export class FinanceInvoicePatientPayment extends Model {
   declare id: string;
-  declare percentage: number;
-  declare invoiceId?: string;
-  declare insurerId?: string;
+  declare methodId: string;
+  declare chequeNumber?: string;
+  declare invoicePaymentId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        percentage: {
-          type: DataTypes.DECIMAL,
+        methodId: {
+          type: DataTypes.STRING,
           allowNull: false,
+        },
+        chequeNumber: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
@@ -28,14 +32,14 @@ export class InvoiceInsurer extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.Invoice, {
-      foreignKey: 'invoiceId',
-      as: 'invoice',
+    this.belongsTo(models.FinanceInvoicePayment, {
+      foreignKey: 'invoicePaymentId',
+      as: 'detail',
     });
-
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'insurerId',
-      as: 'insurer',
+      foreignKey: 'methodId',
+      as: 'method',
+      constraints: false,
     });
   }
 
@@ -44,7 +48,7 @@ export class InvoiceInsurer extends Model {
       return null;
     }
     return buildEncounterLinkedSyncFilter(
-      [this.tableName, 'invoices', 'encounters'],
+      [this.tableName, 'invoice_payments', 'invoices', 'encounters'],
       markedForSyncPatientsTable,
     );
   }
@@ -52,7 +56,16 @@ export class InvoiceInsurer extends Model {
   static async buildSyncLookupQueryDetails() {
     return {
       select: await buildEncounterLinkedLookupSelect(this),
-      joins: buildEncounterLinkedLookupJoins(this, ['invoices', 'encounters']),
+      joins: buildEncounterLinkedLookupJoins(this, ['invoice_payments', 'invoices', 'encounters']),
     };
+  }
+
+  static getListReferenceAssociations(models: Models) {
+    return [
+      {
+        model: models.ReferenceData,
+        as: 'method',
+      },
+    ];
   }
 }

@@ -108,7 +108,7 @@ export * from './RefreshToken';
 export * from './Permission';
 export * from './Role';
 
-export * from './Invoice';
+export * from './Finance';
 
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';

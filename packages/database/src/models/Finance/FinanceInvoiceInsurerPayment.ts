@@ -8,21 +8,27 @@ import {
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoicePatientPayment extends Model {
+export class FinanceInvoiceInsurerPayment extends Model {
   declare id: string;
-  declare methodId: string;
-  declare chequeNumber?: string;
+  declare insurerId: string;
+  declare status: string;
+  declare reason?: string;
   declare invoicePaymentId?: string;
+  declare insurer?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        methodId: {
+        insurerId: {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        chequeNumber: {
+        status: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        reason: {
           type: DataTypes.STRING,
           allowNull: true,
         },
@@ -32,13 +38,13 @@ export class InvoicePatientPayment extends Model {
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.InvoicePayment, {
+    this.belongsTo(models.FinanceInvoicePayment, {
       foreignKey: 'invoicePaymentId',
       as: 'detail',
     });
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'methodId',
-      as: 'method',
+      foreignKey: 'insurerId',
+      as: 'insurer',
       constraints: false,
     });
   }
@@ -60,11 +66,20 @@ export class InvoicePatientPayment extends Model {
     };
   }
 
+  static getFullReferenceAssociations() {
+    return [
+      {
+        model: this.sequelize.models.FinanceInvoicePayment,
+        as: 'detail',
+      },
+    ];
+  }
+
   static getListReferenceAssociations(models: Models) {
     return [
       {
         model: models.ReferenceData,
-        as: 'method',
+        as: 'insurer',
       },
     ];
   }

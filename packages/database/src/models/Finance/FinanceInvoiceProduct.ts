@@ -11,7 +11,7 @@ import type { InitOptions, Models } from '../../types/model';
 import type { ReferenceData } from '../ReferenceData';
 import type { LabTestType } from '../LabTestType';
 
-export class InvoiceProduct extends Model {
+export class FinanceInvoiceProduct extends Model {
   declare id: string;
   declare name: string;
   declare price: number;
@@ -58,12 +58,12 @@ export class InvoiceProduct extends Model {
       constraints: false,
     });
     // Has many in the context of importing and storing data
-    this.hasMany(models.InvoicePriceListItem, {
+    this.hasMany(models.FinanceInvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItems',
     });
     // Has one in the context of fetching data from the api
-    this.hasOne(models.InvoicePriceListItem, {
+    this.hasOne(models.FinanceInvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
     });

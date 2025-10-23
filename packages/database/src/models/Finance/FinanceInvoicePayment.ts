@@ -2,51 +2,56 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type Models } from '../../types/model';
+import { dateType, type InitOptions, type Models } from '../../types/model';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceDiscount extends Model {
+export class FinanceInvoicePayment extends Model {
   declare id: string;
-  declare percentage: number;
-  declare reason?: string;
-  declare isManual: boolean;
-  declare appliedTime: string;
+  declare date: string;
+  declare receiptNumber: string;
+  declare amount: number;
   declare invoiceId?: string;
-  declare appliedByUserId?: string;
+  declare updatedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        percentage: {
+        date: dateType('date', {
+          allowNull: false,
+        }),
+        receiptNumber: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        amount: {
           type: DataTypes.DECIMAL,
           allowNull: false,
         },
-        reason: DataTypes.STRING,
-        isManual: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
-        },
-        appliedTime: dateTimeType('appliedTime', {
-          allowNull: false,
-        }),
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.Invoice, {
+    this.belongsTo(models.FinanceInvoice, {
       foreignKey: 'invoiceId',
       as: 'invoice',
     });
-
+    this.hasOne(models.FinanceInvoicePatientPayment, {
+      foreignKey: 'invoicePaymentId',
+      as: 'patientPayment',
+    });
+    this.hasOne(models.FinanceInvoiceInsurerPayment, {
+      foreignKey: 'invoicePaymentId',
+      as: 'insurerPayment',
+    });
     this.belongsTo(models.User, {
-      foreignKey: 'appliedByUserId',
-      as: 'appliedByUser',
+      foreignKey: 'updatedByUserId',
+      as: 'updatedByUser',
     });
   }
 
@@ -65,5 +70,24 @@ export class InvoiceDiscount extends Model {
       select: await buildEncounterLinkedLookupSelect(this),
       joins: buildEncounterLinkedLookupJoins(this, ['invoices', 'encounters']),
     };
+  }
+
+  static getListReferenceAssociations(models: Models) {
+    return [
+      {
+        model: models.User,
+        as: 'updatedByUser',
+      },
+      {
+        model: models.FinanceInvoicePatientPayment,
+        as: 'patientPayment',
+        include: models.FinanceInvoicePatientPayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.FinanceInvoiceInsurerPayment,
+        as: 'insurerPayment',
+        include: models.FinanceInvoiceInsurerPayment.getListReferenceAssociations(models),
+      },
+    ];
   }
 }
