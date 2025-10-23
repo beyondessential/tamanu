@@ -9,6 +9,7 @@ import { FACT_CURRENT_SYNC_TICK, FACT_META_SERVER_ID } from '@tamanu/constants';
 
 import { ScheduledTask } from './ScheduledTask';
 import { serviceContext } from '../services/logging/context';
+import { getMetaServerHosts } from '../utils';
 
 export class SendStatusToMetaServer extends ScheduledTask {
   getName() {
@@ -55,13 +56,7 @@ export class SendStatusToMetaServer extends ScheduledTask {
   }
 
   async fetchFromHosts(path, options) {
-    const metaServerHosts = config?.metaServer?.hosts;
-    if (!Array.isArray(metaServerHosts)) {
-      throw new Error('metaServer.hosts is not an array');
-    }
-    if (metaServerHosts.length === 0) {
-      throw new Error('No meta server hosts configured');
-    }
+    const metaServerHosts = getMetaServerHosts();
 
     const deviceKey = await this.models.LocalSystemFact.getDeviceKey();
     for (const metaServerHost of metaServerHosts) {

@@ -1,4 +1,3 @@
-import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { uniqBy } from 'lodash';
 import * as xlsx from 'xlsx';
@@ -13,6 +12,7 @@ import {
   ENGLISH_COUNTRY_CODE,
   ENGLISH_LANGUAGE_NAME,
 } from '@tamanu/constants';
+import { getMetaServerHosts } from '@tamanu/shared/utils';
 
 interface Artifact {
   artifact_type: string;
@@ -72,13 +72,7 @@ async function downloadFromMetaServerHosts(
   extractor: (resp: Response) => Promise<Translation[]>,
   stepArgs: StepArgs,
 ): Promise<Translation[]> {
-  const metaServerHosts = (config as any)?.metaServer?.hosts;
-  if (!Array.isArray(metaServerHosts)) {
-    throw new Error('metaServer.hosts is not an array');
-  }
-  if (metaServerHosts.length === 0) {
-    throw new Error('No meta server hosts configured');
-  }
+  const metaServerHosts = getMetaServerHosts();
 
   const { log } = stepArgs;
   for (const metaServerHost of metaServerHosts) {
