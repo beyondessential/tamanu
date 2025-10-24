@@ -293,6 +293,10 @@ export async function importRows(
           existing.set(normalizedValues);
           const hasValueChanges = checkForChanges(existing, normalizedValues, model);
 
+          if (model === 'ReferenceData' && existing.systemRequired && hasValueChanges) {
+            throw new Error('Cannot modify system-required reference data');
+          }
+
           if (!hasUpdatedStats) {
             if (hasValueChanges) {
               updateStat(stats, statkey(model, sheetName), 'updated');
