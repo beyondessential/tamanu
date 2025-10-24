@@ -916,18 +916,21 @@ describe('Suggestions', () => {
   });
 
   it('should handle complex includes in invoiceProduct suggester', async () => {
-    const referenceData = await models.ReferenceData.create({
-      id: 'test-ref-data-id',
-      code: 'TEST_PRODUCT',
-      type: 'labTestType',
-      name: 'Test Reference Product',
-      visibilityStatus: 'current',
+    const { id: categoryId } = await models.ReferenceData.create({
+      ...fake(models.ReferenceData),
+      name: 'Test Lab Test Category',
+      type: 'labTestCategory',
+    });
+    const labTestType = await models.LabTestType.create({
+      id: 'test-lab-test-type-id',
+      code: 'TEST_LAB_TEST_TYPE',
+      labTestCategoryId: categoryId,
     });
 
     const invoiceProduct = await models.InvoiceProduct.create({
       name: 'Test Invoice Product',
       sourceRecordType: 'labTestType',
-      sourceRecordId: referenceData.id,
+      sourceRecordId: labTestType.id,
       discountable: true,
       visibilityStatus: 'current',
     });
