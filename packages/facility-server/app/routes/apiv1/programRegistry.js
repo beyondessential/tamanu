@@ -6,15 +6,24 @@ import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
   VISIBILITY_STATUSES,
+  SURVEY_TYPES,
+  CHARTING_DATA_ELEMENT_IDS,
 } from '@tamanu/constants';
 import { deepRenameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { simpleGet, simpleGetList } from '@tamanu/shared/utils/crudHelpers';
+import { NotFoundError } from '@tamanu/errors';
 
 import {
   makeFilter,
   makeSimpleTextFilterFactory,
   makeSubstringTextFilterFactory,
 } from '../../utils/query';
+import {
+  fetchAnswersWithHistory,
+  fetchGraphData,
+  fetchChartInstances,
+  deleteChartInstance,
+} from '../../routeHandlers/charts';
 
 export const programRegistry = express.Router();
 
@@ -348,4 +357,64 @@ programRegistry.get(
       count,
     });
   }),
+);
+
+// Get list of charts available for a specific program registry
+programRegistry.get(
+  '/:id/linkedCharts',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id: programRegistryId } = params;
+
+    req.checkPermission('list', subject('ProgramRegistry', { id: programRegistryId }));
+    req.checkPermission('list', 'Survey');
+
+    const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+    if (!registry) {
+      throw new NotFoundError('Program registry not found');
+    }
+
+    const charts = await models.Survey.findAll({
+      where: {
+        programId: registry.programId,
+        surveyType: {
+          [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE],
+        },
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
+      order: [['name', 'ASC']],
+    });
+
+    res.send({
+      data: charts.map(c => c.forResponse()),
+      count: charts.length,
+    });
+  }),
+);
+
+programRegistry.get(
+  '/patient/:patientId/charts/:surveyId',
+  fetchAnswersWithHistory({
+    permissionAction: 'read',
+    permissionNoun: 'Charting',
+  }),
+);
+
+programRegistry.get(
+  '/patient/:patientId/graphData/charts/:dataElementId',
+  fetchGraphData({
+    permissionAction: 'read',
+    permissionNoun: 'Charting',
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded
+  }),
+);
+
+programRegistry.get(
+  '/patient/:patientId/charts/:chartSurveyId/chartInstances',
+  fetchChartInstances(), 
+);
+
+programRegistry.delete(
+  '/patient/:patientId/chartInstances/:chartInstanceResponseId',
+  deleteChartInstance(),
 );
