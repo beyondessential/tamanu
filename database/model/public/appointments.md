@@ -87,3 +87,11 @@ Boolean specify if the appointment is high priority.
 {% docs appointments__encounter_id %}
 Reference to the [encounter](#!/source/source.tamanu.tamanu.encounters) linked to this appointment
 {% enddocs %}
+
+{% docs appointments__additional_clinician_id %}
+Reference to an additional [clinician](#!/source/source.tamanu.tamanu.users)
+{% enddocs %}
+
+{% docs appointments__link_encounter_id %}
+Reference to the related [encounter](#!/source/source.tamanu.tamanu.encounters) of the appointment
+{% enddocs %}

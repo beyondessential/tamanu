@@ -26,12 +26,24 @@ const LoadingContainer = styled.div`
   z-index: 9999;
 `;
 
-const Title = styled.h1`
+const TitleContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 20px;
+`;
+
+const Title = styled.h1`
   margin: 0px;
 `;
 
-export const AdminViewContainer = ({ title, showLoadingIndicator, children, className }) => (
+const TitleActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+export const AdminViewContainer = ({ title, titleActions, showLoadingIndicator, children, className }) => (
   <OuterContainer className={className} data-testid="outercontainer-ueni">
     {showLoadingIndicator && (
       <LoadingContainer data-testid="loadingcontainer-0uay">
@@ -39,7 +51,10 @@ export const AdminViewContainer = ({ title, showLoadingIndicator, children, clas
       </LoadingContainer>
     )}
     <ContentContainer data-testid="contentcontainer-andg">
-      <Title data-testid="title-6kns">{title}</Title>
+      <TitleContainer>
+        <Title data-testid="title-6kns">{title}</Title>
+        {titleActions && <TitleActions>{titleActions}</TitleActions>}
+      </TitleContainer>
       {children}
     </ContentContainer>
   </OuterContainer>

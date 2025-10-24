@@ -17,11 +17,12 @@ import {
 } from '@tamanu/constants';
 import { getWeekdayOrdinalPosition } from '@tamanu/utils/appointmentScheduling';
 
-import { Colors } from '../../../constants';
-import { DateField, Field, NumberField, TranslatedSelectField } from '../../Field';
-import { TranslatedText } from '../../Translation';
-import { SmallBodyText } from '../../Typography';
-import { RepeatCharacteristicsDescription } from './RepeatCharacteristicsDescription';
+import { Colors } from '../../constants';
+import { DateField, Field, NumberField, TranslatedSelectField } from '../Field';
+import { TranslatedText } from '../Translation';
+import { SmallBodyText } from '../Typography';
+import { RepeatCharacteristicsDescription } from './OutpatientsBookingForm/RepeatCharacteristicsDescription';
+import { ENDS_MODES } from '../../constants/locationAssignments';
 
 const Container = styled('div')`
   width: 100%;
@@ -61,9 +62,9 @@ const StyledTranslatedSelectField = styled(TranslatedSelectField)`
       }
     }
     width: 108px;
-    margin-block-start: 12px;
+    margin-block-start: ${({ disabled }) => (disabled ? '20px' : '11px')};
     & .MuiInputBase-input {
-      padding-block: 11px;
+      padding-block: ${({ disabled }) => (disabled ? '11.875px' : '11px')};
       padding-inline: 13px 10px;
       &.Mui-disabled {
         background-color: ${Colors.background};
@@ -119,6 +120,7 @@ const StyledFormLabel = styled(FormLabel)`
   font-size: 12px;
   font-weight: 500;
   color: ${Colors.darkText};
+  margin-bottom: 10px;
   :focus {
     color: ${Colors.darkText};
   }
@@ -130,26 +132,22 @@ const StyledRadioGroup = styled(RadioGroup)`
 
 const DEFAULT_OCCURRENCE_COUNT = 2;
 
-export const ENDS_MODES = {
-  ON: 'on',
-  AFTER: 'after',
-};
-
-export const RepeatingAppointmentFields = ({
-  values,
+export const RepeatingFields = ({
+  schedule,
+  startTime,
   initialValues,
   setFieldValue,
   setFieldError,
   handleResetRepeatUntilDate,
   readonly,
+  maxFutureMonths,
 }) => {
   const { occurrenceCount: initialOccurrenceCount } = initialValues?.schedule || {};
-  const { startTime, schedule } = values;
   const { interval, frequency, occurrenceCount, untilDate } = schedule;
   const [endsMode, setEndsMode] = useState(schedule.untilDate ? ENDS_MODES.ON : ENDS_MODES.AFTER);
   const startTimeDate = useMemo(() => startTime && parseISO(startTime), [startTime]);
 
-  const handleChangeEndsMode = (e) => {
+  const handleChangeEndsMode = e => {
     const newModeValue = e.target.value;
     if (newModeValue === ENDS_MODES.ON) {
       handleResetRepeatUntilDate(startTimeDate);
@@ -163,7 +161,7 @@ export const RepeatingAppointmentFields = ({
     setEndsMode(newModeValue);
   };
 
-  const handleFrequencyChange = (e) => {
+  const handleFrequencyChange = e => {
     if (e.target.value === REPEAT_FREQUENCY.MONTHLY) {
       setFieldValue('schedule.nthWeekday', getWeekdayOrdinalPosition(startTimeDate));
     } else if (e.target.value === REPEAT_FREQUENCY.WEEKLY) {
@@ -172,11 +170,11 @@ export const RepeatingAppointmentFields = ({
   };
 
   const validateKeyboardEnteredNumber = (name, min = 1, max = 99) => {
-    const inputValue = get(values, name);
+    const inputValue = get(schedule, name);
     if (inputValue > max) {
-      setFieldValue(name, max);
+      setFieldValue(`schedule.${name}`, max);
     } else if (inputValue < min || inputValue === '') {
-      setFieldValue(name, min);
+      setFieldValue(`schedule.${name}`, min);
     }
   };
 
@@ -188,7 +186,7 @@ export const RepeatingAppointmentFields = ({
           min={1}
           max={99}
           disabled={readonly}
-          onBlur={() => validateKeyboardEnteredNumber('schedule.interval')}
+          onBlur={() => validateKeyboardEnteredNumber('interval')}
           label={
             <TranslatedText
               stringId="outpatientAppointment.repeating.repeatEvery.label"
@@ -260,6 +258,11 @@ export const RepeatingAppointmentFields = ({
                 }),
                 'yyyy-MM-dd',
               )}
+              max={
+                maxFutureMonths
+                  ? format(add(new Date(), { months: maxFutureMonths }), 'yyyy-MM-dd')
+                  : undefined
+              }
               component={StyledDateField}
               data-testid="field-4flf"
             />
@@ -285,7 +288,7 @@ export const RepeatingAppointmentFields = ({
               min={DEFAULT_OCCURRENCE_COUNT}
               max={99}
               onBlur={() =>
-                validateKeyboardEnteredNumber('schedule.occurrenceCount', DEFAULT_OCCURRENCE_COUNT)
+                validateKeyboardEnteredNumber('occurrenceCount', DEFAULT_OCCURRENCE_COUNT)
               }
               value={endsMode === ENDS_MODES.AFTER ? occurrenceCount : ''}
               disabled={readonly || endsMode !== ENDS_MODES.AFTER}

@@ -10,6 +10,7 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
   MODIFY_REPEATING_APPOINTMENT_MODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
 import { NotFoundError, EditConflictError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
@@ -273,6 +274,7 @@ appointments.get(
         orderBy = 'startTime',
         patientNameOrId,
         includeCancelled = false,
+        view,
         ...queries
       },
     } = req;
@@ -296,6 +298,12 @@ appointments.get(
       `),
       ],
     };
+    
+    const bookableWhereClause = [LOCATION_BOOKABLE_VIEW.DAILY, LOCATION_BOOKABLE_VIEW.WEEKLY].includes(view) ? {
+      '$location.locationGroup.is_bookable$': {
+        [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, view]
+      }
+    } : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
       if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
@@ -330,6 +338,7 @@ appointments.get(
           cancelledStatusWhereClause,
           isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
+          bookableWhereClause,
           ...filters,
         ],
       },
@@ -350,7 +359,7 @@ appointments.post(
     req.checkPermission('create', 'Appointment');
 
     const { models, body } = req;
-    const { startTime, endTime, locationId, patientId } = body;
+    const { startTime, endTime, locationId, patientId, procedureTypeIds } = body;
     const { Appointment, PatientFacility, Location } = models;
 
     try {
@@ -380,7 +389,13 @@ appointments.post(
           transaction,
         });
 
-        return await Appointment.create(body, { transaction });
+        const appointment = await Appointment.create(body, { transaction });
+
+        if (procedureTypeIds) {
+          await appointment.setProcedureTypes(procedureTypeIds);
+        }
+
+        return appointment;
       });
 
       res.status(201).send(result);
@@ -398,7 +413,7 @@ appointments.put(
     const { models, body, params, query } = req;
     const { id } = params;
     const { skipConflictCheck = false } = query;
-    const { startTime, endTime, locationId } = body;
+    const { startTime, endTime, locationId, procedureTypeIds } = body;
     const { Appointment } = models;
 
     try {
@@ -431,6 +446,9 @@ appointments.put(
         }
 
         const updatedRecord = await existingBooking.update(body, { transaction });
+
+        await updatedRecord.setProcedureTypes(procedureTypeIds);
+
         return updatedRecord;
       });
 
