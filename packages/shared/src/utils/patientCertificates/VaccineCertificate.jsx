@@ -39,6 +39,7 @@ const columns = getTranslation => [
     title: getTranslation('pdf.table.column.vaccine', 'Vaccine'),
     customStyles: { minWidth: 30 },
     accessor: ({ scheduledVaccine, vaccineName }) => vaccineName || (scheduledVaccine || {}).label,
+    allowWrap: true,
   },
   {
     key: 'vaccineBrand',
