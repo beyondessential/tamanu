@@ -49,14 +49,22 @@ export function generateTranslationsForData(model, sheetName, values) {
     const recordText = extractTranslatableRecordText(values, dataType);
     if (recordText && isString(recordText)) {
       const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
-      translationData.push([stringId, recordText, DEFAULT_LANGUAGE_CODE]);
+      translationData.push({ stringId, text: recordText, language: DEFAULT_LANGUAGE_CODE });
     }
 
     // Handle records with multiple translatable text fields by adding another layer of nesting
     if (isObject(recordText)) {
       Object.entries(recordText).forEach(([key, text]) => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
-        translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
+        if (text) {
+          translationData.push({ stringId, text, language: DEFAULT_LANGUAGE_CODE });
+        } else {
+          translationData.push({
+            stringId,
+            deletedAt: new Date(),
+            language: DEFAULT_LANGUAGE_CODE,
+          });
+        }
       });
     }
     const options = extractTranslatableOptions(values, dataType);
@@ -65,11 +73,11 @@ export function generateTranslationsForData(model, sheetName, values) {
 
     if (options.length > 0) {
       for (const option of options) {
-        translationData.push([
-          getReferenceDataOptionStringId(values.id, dataType, option),
-          option,
-          DEFAULT_LANGUAGE_CODE,
-        ]);
+        translationData.push({
+          stringId: getReferenceDataOptionStringId(values.id, dataType, option),
+          text: option,
+          language: DEFAULT_LANGUAGE_CODE,
+        });
       }
     }
   }
