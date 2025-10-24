@@ -75,7 +75,9 @@ export const PatientProgramRegistryView = () => {
   );
 
   // Check if there are linked charts for this program registry
-  const { data: { chartSurveys = [] } = {}, isLoading: isLoadingCharts } = useProgramRegistryLinkedChartsQuery(programRegistryId);
+  const { data: { chartSurveys = [] } = {} } = useProgramRegistryLinkedChartsQuery(
+    programRegistryId,
+  );
   const hasLinkedCharts = chartSurveys.length > 0;
 
   const patientRoutes = usePatientRoutes();
@@ -131,10 +133,7 @@ export const PatientProgramRegistryView = () => {
         {/* Charts section - only show if there are linked charts */}
         {hasLinkedCharts && patient && (
           <Row>
-            <ProgramRegistryChartsView 
-              programRegistryId={programRegistryId} 
-              patient={patient}
-            />
+            <ProgramRegistryChartsView programRegistryId={programRegistryId} patient={patient} />
           </Row>
         )}
       </Container>
