@@ -78,12 +78,15 @@ apiv1.get(
   }),
 );
 
-apiv1.get('/public/translation/languageOptions', async (req, res) => {
-  req.flagPermissionChecked();
-  const { TranslatedString } = req.models;
-  const response = await TranslatedString.getPossibleLanguages();
-  res.send(response);
-});
+apiv1.get(
+  '/public/translation/languageOptions',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { TranslatedString } = req.models;
+    const response = await TranslatedString.getPossibleLanguages();
+    res.send(response);
+  }),
+);
 
 apiv1.get(
   '/public/translation/:language',
