@@ -115,6 +115,7 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "timeSync": {
       "enabled": false,
