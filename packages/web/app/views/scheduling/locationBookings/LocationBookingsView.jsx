@@ -4,6 +4,8 @@ import { parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { VIEW_TYPES } from '@tamanu/constants';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
@@ -184,15 +186,17 @@ export const LocationBookingsView = () => {
             onChange={handleDateChange}
             data-testid="dateselector-daily"
           />
-          <CalendarInnerWrapper data-testid="calendarinnerwrapper-daily">
-            <LocationBookingsDailyCalendar
-              locationsQuery={locationsQuery}
-              selectedDate={selectedDate}
-              openBookingForm={openBookingForm}
-              openCancelModal={openCancelModal}
-              data-testid="locationbookingsdailycalendar-main"
-            />
-          </CalendarInnerWrapper>
+          <DndProvider backend={HTML5Backend}>
+            <CalendarInnerWrapper data-testid="calendarinnerwrapper-daily">
+              <LocationBookingsDailyCalendar
+                locationsQuery={locationsQuery}
+                selectedDate={selectedDate}
+                openBookingForm={openBookingForm}
+                openCancelModal={openCancelModal}
+                data-testid="locationbookingsdailycalendar-main"
+              />
+            </CalendarInnerWrapper>
+          </DndProvider>
         </CalendarWrapper>
       ) : (
         <LocationBookingsCalendar
