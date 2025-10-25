@@ -5,6 +5,7 @@ import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { toast } from 'react-toastify';
+import { subject } from '@casl/ability';
 
 import { Field, Form, DateField } from '../../../components/Field';
 import { TranslatedText, Button, Heading3, BodyText, FormSubmitButton } from '../../../components';
@@ -94,12 +95,8 @@ const validationSchema = yup.object().shape({
 
 export const UserLeaveSection = ({ user }) => {
   const { ability } = useAuth();
-  const canUpdateUser = ability.can(
-    'write',
-    new (function User() {
-      this.id = user.id;
-    })(),
-  );
+  // only allow updating the user if the user has the write permission for the all users
+  const canUpdateUser = ability.can('write', subject('User', { id: String(Date.now()) }));
   const { getTranslation } = useTranslation();
   const queryClient = useQueryClient();
   const [leaveToDelete, setLeaveToDelete] = useState(null);
