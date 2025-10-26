@@ -477,11 +477,12 @@ const userLeaveSchema = yup.object().shape({
 usersRouter.post(
   '/:id/leaves',
   asyncHandler(async (req, res) => {
-    const { models, params, body, user: currentUser, db } = req;
+    const { models, params, body, db } = req;
     const { id: userId } = params;
     const { UserLeave, LocationAssignment } = models;
 
-    req.checkPermission('write', currentUser);
+    // only allow updating the user if the user has the write permission for the all users
+    req.checkPermission('write', subject('User', { id: String(Date.now()) }));
 
     const data = await userLeaveSchema.validate(body);
     const { startDate, endDate } = data;
@@ -569,9 +570,8 @@ usersRouter.delete(
     const { models, params } = req;
     const { id: userId, leaveId } = params;
 
-    const user = await models.User.findByPk(userId);
-
-    req.checkPermission('write', user);
+    // only allow updating the user if the user has the write permission for the all users
+    req.checkPermission('write', subject('User', { id: String(Date.now()) }));
 
     const leave = await models.UserLeave.findOne({
       where: { id: leaveId, userId },
