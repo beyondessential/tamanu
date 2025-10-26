@@ -7,6 +7,8 @@ import {
   setHours,
   setMinutes,
   differenceInMinutes,
+  addMinutes,
+  isSameDay,
 } from 'date-fns';
 import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
@@ -57,7 +59,6 @@ const TimeColumn = styled.div`
 `;
 
 const TimeSlot = styled.div`
-  height: 70px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -67,6 +68,7 @@ const TimeSlot = styled.div`
   background: ${Colors.white};
   position: relative;
   top: -12px;
+  height: ${props => props.height}px;
 `;
 
 const LocationColumn = styled.div`
@@ -115,7 +117,6 @@ const LocationNameText = styled.div`
 const LocationSchedule = styled.div`
   position: relative;
   flex: 1;
-  min-height: calc(70px * var(--hour-count));
 `;
 
 const AppointmentWrapper = styled.div`
@@ -137,9 +138,9 @@ const AppointmentWrapper = styled.div`
   }
 
   .appointment-tile {
-    height: calc(100% - 4px);
-    margin-top: 2px;
-    margin-bottom: 2px;
+    height: calc(100% - 2px);
+    margin-top: 1px;
+    margin-bottom: 1px;
     width: 100%;
     font-size: 11px;
     padding-inline: 5px;
@@ -212,7 +213,7 @@ const TimeGridCell = styled(Box)`
   position: absolute;
   left: 0;
   right: 0;
-  height: 70px;
+  height: ${props => props.height}px;
   background: ${Colors.white};
   border: 2px solid transparent;
   cursor: pointer;
@@ -336,6 +337,96 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
   );
 };
 
+const DroppableSchedule = ({ locationId, timeSlots, slotDuration, children }) => {
+  const scheduleRefs = useRef({});
+  const moveMutation = useMoveLocationBookingMutation();
+  const pixelsPerMinute = 70 / 60; // 70px per hour
+
+  const getMinutesFromScheduleTop = useCallback(
+    (locationId, clientY) => {
+      const el = scheduleRefs.current[locationId];
+      if (!el) return 0;
+      const rect = el.getBoundingClientRect();
+      const offsetY = clientY - rect.top;
+      return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
+    },
+    [pixelsPerMinute],
+  );
+
+  const computeDropStartTime = useCallback(
+    (locationId, clientY) => {
+      if (!timeSlots?.length) return null;
+      const baseStart = timeSlots[0].start;
+      const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
+      return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
+    },
+    [timeSlots, getMinutesFromScheduleTop],
+  );
+
+  const snapToNearestSlot = useCallback(
+    date => {
+      if (!date) return date;
+      const baseStart = timeSlots[0].start;
+
+      // Calculate the time difference from baseStart in milliseconds
+      const timeDiff = date.getTime() - baseStart.getTime();
+
+      // Calculate which slot this falls into (floor to get the previous slot)
+      const slotIndex = Math.floor(timeDiff / slotDuration);
+
+      // Calculate the snapped time
+      const snappedTime = baseStart.getTime() + slotIndex * slotDuration;
+
+      return new Date(snappedTime);
+    },
+    [timeSlots, slotDuration],
+  );
+
+  const registerScheduleRef = useCallback((locationId, el) => {
+    if (el) scheduleRefs.current[locationId] = el;
+  }, []);
+
+  const [, drop] = useDrop(
+    () => ({
+      accept: 'APPOINTMENT',
+      canDrop: item => item.appointment.locationId === locationId,
+      drop: (item, monitor) => {
+        const client = monitor.getClientOffset();
+        if (!client) return;
+        // The initial position of the appointment element itself when dragging started
+        const initialClient = monitor.getInitialClientOffset();
+        // The initial position of the appointment element itself when the drag operation started
+        const initialSource = monitor.getInitialSourceClientOffset();
+        // Align to the top border of the dragged tile
+        let topY = client.y;
+        if (initialClient && initialSource) {
+          // 3: padding to account for the border of the dragged tile
+          topY = client.y - (initialClient.y - initialSource.y) + 3;
+        }
+        const rawStart = computeDropStartTime(locationId, topY);
+        const newStart = snapToNearestSlot(rawStart);
+
+        if (!newStart) return;
+        moveMutation.mutateAsync({
+          id: item.appointment.id,
+          startTime: toDateTimeString(newStart),
+        });
+      },
+    }),
+    [locationId, computeDropStartTime, snapToNearestSlot, moveMutation],
+  );
+
+  const setRefs = useCallback(
+    el => {
+      registerScheduleRef(locationId, el);
+      drop(el);
+    },
+    [locationId, drop],
+  );
+
+  return <LocationSchedule ref={setRefs}>{children}</LocationSchedule>;
+};
+
 export const LocationBookingsDailyCalendar = ({
   locationsQuery,
   selectedDate,
@@ -352,8 +443,6 @@ export const LocationBookingsDailyCalendar = ({
   } = useLocationBookingsContext();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
-  const scheduleRefs = useRef({});
-  const moveMutation = useMoveLocationBookingMutation();
 
   useEffect(() => {
     if (!selectedCell || (!selectedCell.locationId && !selectedCell.date)) {
@@ -414,7 +503,9 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(selectedDate);
+  const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
+    selectedDate,
+  );
 
   // Generate hourly time slots based on booking slot time range
   const timeSlots = useMemo(() => {
@@ -435,7 +526,10 @@ export const LocationBookingsDailyCalendar = ({
 
     let currentHour = startTime;
     while (currentHour < endTime) {
-      const nextHour = addHours(currentHour, 1);
+      let nextHour = addHours(currentHour, 1);
+      const durationMinutes = differenceInMinutes(endTime, currentHour);
+      if (durationMinutes < 60) nextHour = addMinutes(currentHour, durationMinutes);
+
       slots.push({ start: currentHour, end: nextHour });
       currentHour = nextHour;
     }
@@ -443,94 +537,24 @@ export const LocationBookingsDailyCalendar = ({
     return slots;
   }, [bookingSlots, selectedDate]);
 
-  const hourCount = timeSlots.length;
-
-  const pixelsPerMinute = 70 / 60; // 70px per hour
-
-  const getMinutesFromScheduleTop = useCallback(
-    (locationId, clientY) => {
-      const el = scheduleRefs.current[locationId];
-      if (!el) return 0;
-      const rect = el.getBoundingClientRect();
-      const offsetY = clientY - rect.top;
-      return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
-    },
-    [pixelsPerMinute],
-  );
-
-  const computeDropStartTime = useCallback(
-    (locationId, clientY) => {
-      if (!timeSlots?.length) return null;
-      const baseStart = timeSlots[0].start;
-      const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
-      return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
-    },
-    [timeSlots, getMinutesFromScheduleTop],
-  );
-
-  const snapToNearest15Minutes = useCallback((date) => {
-    if (!date) return date;
-    const snapped = new Date(date.getTime());
-    snapped.setSeconds(0, 0);
-    const m = snapped.getMinutes();
-    const floored = Math.floor(m / 15) * 15;
-    snapped.setMinutes(floored);
-    return snapped;
-  }, []);
-
-  const registerScheduleRef = useCallback((locationId, el) => {
-    if (el) scheduleRefs.current[locationId] = el;
-  }, []);
-
   const DraggableAppointment = ({ appointment, children }) => {
     const [{ isDragging }, dragRef] = useDrag(
       () => ({
         type: 'APPOINTMENT',
         item: { id: appointment.id, appointment },
         collect: monitor => ({ isDragging: monitor.isDragging() }),
+        canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
       }),
       [appointment],
     );
     return (
-      <div ref={dragRef} style={{ opacity: isDragging ? 0.5 : 1, height: '100%', width: '100%' }}>
+      <div
+        ref={dragRef}
+        style={{ opacity: isDragging ? 0.5 : 1, height: '100%', width: '100%', display: 'flex' }}
+      >
         {children}
       </div>
     );
-  };
-
-  const DroppableSchedule = ({ locationId, children }) => {
-    const [, drop] = useDrop(
-      () => ({
-        accept: 'APPOINTMENT',
-        canDrop: (item) => item.appointment.locationId === locationId,
-        drop: (item, monitor) => {
-          const client = monitor.getClientOffset();
-          if (!client) return;
-          const initialClient = monitor.getInitialClientOffset();
-          const initialSource = monitor.getInitialSourceClientOffset();
-          // Align to the top border of the dragged tile
-          let topY = client.y;
-          if (initialClient && initialSource) {
-            topY = client.y - (initialClient.y - initialSource.y);
-          }
-          const rawStart = computeDropStartTime(locationId, topY);
-          const newStart = snapToNearest15Minutes(rawStart);
-          if (!newStart) return;
-          void moveMutation.mutateAsync({ id: item.appointment.id, startTime: toDateTimeString(newStart) });
-        },
-      }),
-      [locationId, computeDropStartTime, snapToNearest15Minutes, moveMutation],
-    );
-
-    const setRefs = useCallback(
-      (el) => {
-        registerScheduleRef(locationId, el);
-        drop(el);
-      },
-      [locationId, drop],
-    );
-
-    return <LocationSchedule ref={setRefs}>{children}</LocationSchedule>;
   };
 
   // Helper function to find assigned user for a time slot
@@ -645,21 +669,22 @@ export const LocationBookingsDailyCalendar = ({
       {...props}
     >
       <ScrollWrapper>
-        <CalendarGrid
-          $locationCount={filteredLocations.length}
-          style={{ '--hour-count': hourCount }}
-        >
+        <CalendarGrid $locationCount={filteredLocations.length}>
           {/* Time column */}
           <TimeColumn>
             {/* Empty header space */}
             <Box sx={{ height: '140px', background: Colors.white }} />
 
             {/* Time slots */}
-            {timeSlots.map((slot, index) => (
-              <TimeSlot key={index} data-testid={`time-slot-${index}`}>
-                {format(slot.start, 'h:mm a')}
-              </TimeSlot>
-            ))}
+            {timeSlots.map((slot, index) => {
+              const durationMinutes = differenceInMinutes(slot.end, slot.start);
+              const height = (durationMinutes / 60) * 70; // 70px per hour
+              return (
+                <TimeSlot key={index} data-testid={`time-slot-${index}`} height={height}>
+                  {format(slot.start, 'h:mm a')}
+                </TimeSlot>
+              );
+            })}
           </TimeColumn>
 
           {/* Location columns */}
@@ -673,9 +698,22 @@ export const LocationBookingsDailyCalendar = ({
                   assignments={assignmentsByLocation[location.id] || []}
                 />
 
-                <DroppableSchedule locationId={location.id}>
+                <DroppableSchedule
+                  locationId={location.id}
+                  timeSlots={timeSlots}
+                  slotDuration={slotDuration}
+                >
                   {/* Time slot background grid */}
-                  {timeSlots.map((_, slotIndex) => {
+                  {timeSlots.map((slot, slotIndex) => {
+                    const durationMinutes = differenceInMinutes(slot.end, slot.start);
+                    const height = (durationMinutes / 60) * 70; // 70px per hour
+
+                    // Calculate cumulative top position
+                    const cumulativeTop = timeSlots.slice(0, slotIndex).reduce((sum, prevSlot) => {
+                      const prevDurationMinutes = differenceInMinutes(prevSlot.end, prevSlot.start);
+                      return sum + (prevDurationMinutes / 60) * 70;
+                    }, 0);
+
                     const isSelected =
                       selectedTimeCell?.locationId === location.id &&
                       selectedTimeCell?.slotIndex === slotIndex;
@@ -684,8 +722,9 @@ export const LocationBookingsDailyCalendar = ({
                       <TimeGridCell
                         key={slotIndex}
                         className={isSelected ? 'selected' : ''}
+                        height={height}
                         sx={{
-                          top: slotIndex * 70,
+                          top: cumulativeTop,
                           borderBlockEnd:
                             slotIndex < timeSlots.length - 1
                               ? `max(0.0625rem, 1px) solid ${Colors.outline}`

@@ -77,6 +77,7 @@ export const useBookingSlots = (date, type = BOOKING_SLOT_TYPES.BOOKINGS, bookin
   return {
     isPending,
     slots,
+    slotDuration: ms(slotDuration),
     slotContaining,
     endOfSlotContaining,
   };
