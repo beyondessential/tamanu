@@ -135,13 +135,20 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   const [warningModalOpen, setShowWarningModal] = useState(false);
   const [resolveFn, setResolveFn] = useState(null);
   const [selectedPatientId, setSelectedPatientId] = useState(initialValues?.patientId ?? null);
-  const [selectedClinicianId, setSelectedClinicianId] = useState(null);
-  const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedSeparateDate, setSelectedSeparateDate] = useState(null);
+  const [selectedClinicianId, setSelectedClinicianId] = useState(
+    initialValues?.clinicianId ?? null,
+  );
+  const [selectedAdditionalClinicianId, setSelectedAdditionalClinicianId] = useState(
+    initialValues?.additionalClinicianId ?? null,
+  );
+  const [selectedDate, setSelectedDate] = useState(initialValues?.date ?? null);
+  const [selectedSeparateDate, setSelectedSeparateDate] = useState({
+    startDate: initialValues?.startDate ?? null,
+    endDate: initialValues?.endDate ?? null,
+  });
+  const [isOvernight, setIsOvernight] = useState(initialValues?.overnight ?? false);
   const [clinicianHasLeave, setClinicianHasLeave] = useState(false);
   const [additionalClinicianHasLeave, setAdditionalClinicianHasLeave] = useState(false);
-  const [isOvernight, setIsOvernight] = useState(false);
 
   const patientSuggester = usePatientSuggester();
   const clinicianSuggester = useSuggester('practitioner');
@@ -180,6 +187,14 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
   });
 
   useEffect(() => {
+    handleCheckClinicianOnLeave();
+  }, [selectedClinicianId, selectedDate, selectedSeparateDate, isOvernight]);
+
+  useEffect(() => {
+    handleCheckAdditionalClinicianOnLeave();
+  }, [selectedAdditionalClinicianId, selectedDate, selectedSeparateDate, isOvernight]);
+
+  const handleCheckClinicianOnLeave = async () => {
     const shouldCheckOnLeave =
       selectedClinicianId &&
       (isOvernight
@@ -192,17 +207,15 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           endDate: selectedSeparateDate.endDate,
         }
       : { startDate: selectedDate, endDate: selectedDate };
-    checkOnLeave(
-      { userId: selectedClinicianId, payload },
-      {
-        onSuccess: ({ isOnLeave }) => {
-          setClinicianHasLeave(isOnLeave);
-        },
-      },
-    );
-  }, [selectedClinicianId, selectedDate, selectedSeparateDate, isOvernight]);
+    try {
+      const { isOnLeave } = await checkOnLeave({ userId: selectedClinicianId, payload });
+      setClinicianHasLeave(isOnLeave);
+    } catch (error) {
+      setClinicianHasLeave(false);
+    }
+  };
 
-  useEffect(() => {
+  const handleCheckAdditionalClinicianOnLeave = async () => {
     const shouldCheckOnLeave =
       selectedAdditionalClinicianId &&
       (isOvernight
@@ -215,15 +228,14 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
           endDate: selectedSeparateDate.endDate,
         }
       : { startDate: selectedDate, endDate: selectedDate };
-    checkOnLeave(
-      { userId: selectedAdditionalClinicianId, payload },
-      {
-        onSuccess: ({ isOnLeave }) => {
-          setAdditionalClinicianHasLeave(isOnLeave);
-        },
-      },
-    );
-  }, [selectedAdditionalClinicianId, selectedDate, selectedSeparateDate, isOvernight]);
+
+    try {
+      const { isOnLeave } = await checkOnLeave({ userId: selectedAdditionalClinicianId, payload });
+      setAdditionalClinicianHasLeave(isOnLeave);
+    } catch (error) {
+      setAdditionalClinicianHasLeave(false);
+    }
+  };
 
   const handleShowWarningModal = async () =>
     new Promise(resolve => {
