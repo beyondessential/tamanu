@@ -121,8 +121,8 @@ const LocationSchedule = styled.div`
 
 const AppointmentWrapper = styled.div`
   position: absolute;
-  left: 4px;
-  right: 4px;
+  left: 2px;
+  right: 2px;
   z-index: 1;
 
   &::before {
