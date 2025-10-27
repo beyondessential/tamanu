@@ -98,7 +98,7 @@ export class Encounter extends BaseModel implements IEncounter {
   labRequests: LabRequest[];
 
   @OneToMany(() => EncounterHistory, encounterHistory => encounterHistory.encounter)
-  encounterHistory: LabRequest[];
+  encounterHistories: EncounterHistory[];
 
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, {
     eager: true,
