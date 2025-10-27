@@ -277,7 +277,6 @@ discharge_disposition_info as (
 ),
 
 
--- Query logs.changes instead of encounter_history for encounter change tracking
 encounter_history_info as (
   select
     encounter_id,
@@ -360,7 +359,6 @@ left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
--- Query logs.changes instead of encounter_history for encounter change tracking
 left join encounter_history_info ehi on e.id = ehi.encounter_id
 
 WHERE e.id = $encounter_id

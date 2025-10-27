@@ -1,4 +1,14 @@
-import { BeforeInsert, Column, Entity, In, Index, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import {
+  AfterInsert,
+  BeforeInsert,
+  Column,
+  Entity,
+  In,
+  Index,
+  ManyToOne,
+  OneToMany,
+  RelationId,
+} from 'typeorm';
 import { addHours, startOfDay, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 
@@ -16,6 +26,7 @@ import { Department } from './Department';
 import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
+import { EncounterHistory } from './EncounterHistory';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
@@ -86,6 +97,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @OneToMany(() => LabRequest, labRequest => labRequest.encounter)
   labRequests: LabRequest[];
 
+  @OneToMany(() => EncounterHistory, encounterHistory => encounterHistory.encounter)
+  encounterHistories: EncounterHistory[];
+
   @OneToMany(() => Diagnosis, diagnosis => diagnosis.encounter, {
     eager: true,
   })
@@ -115,6 +129,11 @@ export class Encounter extends BaseModel implements IEncounter {
   @BeforeInsert()
   async markPatientForSync(): Promise<void> {
     await Patient.markForSync(this.patient);
+  }
+
+  @AfterInsert()
+  async snapshotEncounter(): Promise<void> {
+    await EncounterHistory.createSnapshot(this, { date: this.startDate });
   }
 
   static async getCurrentEncounterForPatient(patientId: string): Promise<Encounter | undefined> {
