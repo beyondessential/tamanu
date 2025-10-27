@@ -671,18 +671,12 @@ export class Encounter extends Model {
         isClinicianChanged,
       ].filter(Boolean);
 
-      if (snapshotChanges.length > 1) {
-        // Will revert all the changes above if error is thrown as this is in a transaction
-        throw new InvalidOperationError(
-          'Encounter type, department, location and clinician must be changed in separate operations',
-        );
-      }
-
-      // multiple changes in 1 update transaction is not supported at the moment
-      if (snapshotChanges.length === 1) {
+      // Create snapshot for any changes, with null changeType when multiple changes occur
+      if (snapshotChanges.length > 0) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
-          changeType,
+          // Only set changeType when exactly one change occurred
+          changeType: snapshotChanges.length === 1 ? changeType : undefined,
           submittedTime,
         });
       }

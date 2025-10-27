@@ -120,3 +120,5 @@ sources:
                       - location
                       - department
                       - examiner
+                  config:
+                    where: 'change_type IS NOT NULL'

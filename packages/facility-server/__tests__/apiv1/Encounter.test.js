@@ -1824,7 +1824,7 @@ describe('Encounter', () => {
       });
 
       describe('multiple changes in 1 encounter update', () => {
-        it('throws an error if multiple changes happen in 1 encounter update', async () => {
+        it('should allow multiple changes in 1 encounter update and create snapshot with null changeType', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [clinician] = await models.User.findAll({ limit: 1 });
@@ -1848,19 +1848,16 @@ describe('Encounter', () => {
             submittedTime: locationChangeSubmittedTime,
           });
 
-          expect(updateResult).toHaveRequestError();
-          expect(updateResult.body.error.message).toEqual(
-            'Encounter type, department, location and clinician must be changed in separate operations',
-          );
+          expect(updateResult).toHaveSucceeded();
 
           const newEncounter = await models.Encounter.findByPk(result.body.id);
 
-          // Confirm that the encounter has not been changed if an error has been thrown
+          // Confirm that the encounter has been changed
           expect(newEncounter).toMatchObject({
             patientId: patient.id,
             examinerId: clinician.id,
-            locationId: oldLocation.id,
-            departmentId: oldDepartment.id,
+            locationId: newLocation.id,
+            departmentId: newDepartment.id,
           });
 
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
@@ -1870,15 +1867,24 @@ describe('Encounter', () => {
             order: [['date', 'ASC']],
           });
 
-          // only 1 encounter history for initial encounter snapshot
-          expect(encounterHistoryRecords).toHaveLength(1);
+          // Should have 2 records: initial snapshot and the multiple-changes snapshot
+          expect(encounterHistoryRecords).toHaveLength(2);
           expect(encounterHistoryRecords[0]).toMatchObject({
             encounterId: encounter.id,
-            departmentId: encounter.departmentId,
-            locationId: encounter.locationId,
+            departmentId: oldDepartment.id,
+            locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: null, // changeType should be null when multiple changes occur
           });
         });
       });
