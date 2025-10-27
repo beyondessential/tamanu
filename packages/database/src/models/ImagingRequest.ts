@@ -19,7 +19,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { ImagingRequestArea } from './ImagingRequestArea';
 import type { Encounter } from './Encounter';
 import type { User } from './User';
-import type { CreateNoteParams, Note } from './Note';
+import type { Note } from './Note';
 import type { Location } from './Location';
 import type { LocationGroup } from './LocationGroup';
 
@@ -141,16 +141,6 @@ export class ImagingRequest extends Model {
         },
       },
     );
-  }
-
-  async createNote(params: CreateNoteParams) {
-    const { models } = this.sequelize;
-
-    return models.Note.createWithNoteType({
-      ...params,
-      recordId: this.id,
-      recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
-    });
   }
 
   async getNotes(options: any = {}) {

@@ -1,6 +1,6 @@
 import config from 'config';
 import { endOfDay, parseISO, startOfDay } from 'date-fns';
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES } from '@tamanu/constants';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -72,7 +72,7 @@ with
       record_id,
       string_agg(
         concat(
-          'Note type: ', note_type,
+          'Note type: ', note_type_id,
           ', Content: ', "content",
           ', Note date: ', to_char(n."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ),
@@ -205,13 +205,13 @@ with
       record_id encounter_id,
       json_agg(
         json_build_object(
-          'Note type', note_type,
+          'Note type', note_type_id,
           'Content', "content",
           'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ) order by ni.date asc
       ) "Notes"
     from notes n
-    where note_type != 'system'
+    where note_type_id != '${NOTE_TYPES.SYSTEM}'
     group by record_id
   ),
   note_history as (
@@ -230,7 +230,7 @@ with
       from notes
     ) matched_vals
     on matched_vals.id = n.id
-    where note_type = 'system'
+    where note_type_id = '${NOTE_TYPES.SYSTEM}'
     and n.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   first_from_table as (

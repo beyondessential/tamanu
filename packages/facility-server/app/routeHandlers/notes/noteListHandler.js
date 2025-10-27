@@ -91,7 +91,7 @@ export const noteListHandler = recordType =>
           [
             // Pin TREATMENT_PLAN on top
             Sequelize.literal(
-              `case when "noteTypeReference"."code" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
+              `case when "Note"."note_type_id" = '${NOTE_TYPES.TREATMENT_PLAN}' then 0 else 1 end`,
             ),
           ],
           [

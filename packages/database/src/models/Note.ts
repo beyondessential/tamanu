@@ -1,7 +1,6 @@
 import { DataTypes } from 'sequelize';
 import {
   NOTE_RECORD_TYPE_VALUES,
-  REFERENCE_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -17,7 +16,7 @@ import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
 export interface CreateNoteParams {
-  noteType: string;
+  noteTypeId: string;
   content: string;
   authorId: string;
   recordType?: string;
@@ -31,7 +30,6 @@ export interface CreateNoteParams {
 
 export class Note extends Model {
   declare id: string;
-  declare noteType: string;
   declare noteTypeId?: string;
   declare recordType: string;
   declare date: string;
@@ -47,10 +45,6 @@ export class Note extends Model {
         id: {
           ...primaryKey,
           type: DataTypes.UUID,
-        },
-        noteType: {
-          type: DataTypes.STRING,
-          allowNull: true,
         },
         noteTypeId: {
           type: DataTypes.STRING(255),
@@ -126,42 +120,17 @@ export class Note extends Model {
   static async createForRecord(
     recordId: string,
     recordType: string,
-    noteType: string,
+    noteTypeId: string,
     content: string,
     authorId: string,
   ) {
-    const { models } = this.sequelize;
-    const noteTypeReference = await models.ReferenceData.findOne({
-      where: {
-        type: REFERENCE_TYPES.NOTE_TYPE,
-        code: noteType,
-      },
-    });
-
     return Note.create({
       recordId,
       recordType,
-      noteType,
-      noteTypeId: noteTypeReference?.id,
+      noteTypeId,
       date: getCurrentDateTimeString(),
       content,
       authorId,
-    });
-  }
-
-  static async createWithNoteType(params: CreateNoteParams) {
-    const { noteType } = params;
-    const { models } = this.sequelize;
-    const noteTypeReference = await models.ReferenceData.findOne({
-      where: {
-        type: REFERENCE_TYPES.NOTE_TYPE,
-        code: noteType,
-      },
-    });
-
-    return Note.create({
-      ...params,
-      noteTypeId: noteTypeReference?.id,
     });
   }
 

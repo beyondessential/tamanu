@@ -57,7 +57,7 @@ const FloatingMuiDialog = withModalFloating(StyledMuiDialog);
 
 const getOnBehalfOfId = (noteFormMode, currentUserId, newData, note) => {
   // When editing non treatment plan notes, we just want to retain the previous onBehalfOfId;
-  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteTypeReference?.code !== NOTE_TYPES.TREATMENT_PLAN) {
+  if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN) {
     return note.onBehalfOfId;
   }
 

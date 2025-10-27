@@ -1,13 +1,12 @@
 import { Op, DataTypes } from 'sequelize';
 
-import { ENCOUNTER_TYPES, NOTE_RECORD_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { CreateNoteParams } from './Note';
 
 export class Triage extends Model {
   declare id: string;
@@ -128,13 +127,4 @@ export class Triage extends Model {
     });
   }
 
-  async createNote(params: CreateNoteParams) {
-    const { models } = this.sequelize;
-
-    return models.Note.createWithNoteType({
-      ...params,
-      recordId: this.id,
-      recordType: NOTE_RECORD_TYPES.TRIAGE,
-    });
-  }
 }

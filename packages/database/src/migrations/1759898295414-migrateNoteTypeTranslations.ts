@@ -1,7 +1,7 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
 import { prefixMap, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-const makeNoteTypeId = (code: string): string => `notetype-${code}`;
+const makeNoteTypeId = (noteType: string): string => `notetype-${noteType}`;
 
 interface Translation {
   string_id: string;
@@ -26,9 +26,12 @@ export async function up(query: QueryInterface): Promise<void> {
   if (existingTranslations.length > 0) {
     const migratedTranslations = existingTranslations
       .map((translation) => {
-        const oldCode = translation.string_id.replace(`${notTypePrefix}.`, '');
-        const newStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(oldCode)}`;
-        
+        // Replace to get noteType, e.g. 'note.property.type.treatmentPlan' -> 'treatmentPlan'
+        const noteType = translation.string_id.replace(`${notTypePrefix}.`, '');
+
+        // Create string_id for the new translation, e.g. 'refData.noteType.notetype-treatmentPlan'
+        const newStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(noteType)}`;
+
         return {
           string_id: newStringId,
           language: translation.language,
@@ -36,13 +39,28 @@ export async function up(query: QueryInterface): Promise<void> {
         };
       })
       .filter(Boolean);
-    
+
     translationsToInsert.push(...migratedTranslations);
   }
 
-
   if (translationsToInsert.length > 0) {
-    await query.bulkInsert('translated_strings', translationsToInsert);
+    for (const translation of translationsToInsert) {
+      await query.sequelize.query(
+        `
+        INSERT INTO translated_strings (string_id, language, text)
+        VALUES (:string_id, :language, :text)
+        ON CONFLICT (string_id, language) DO UPDATE SET
+          text = EXCLUDED.text
+        `,
+        {
+          replacements: {
+            string_id: translation.string_id,
+            language: translation.language,
+            text: translation.text,
+          },
+        },
+      );
+    }
   }
 }
 

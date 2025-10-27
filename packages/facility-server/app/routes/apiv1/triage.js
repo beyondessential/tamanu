@@ -70,7 +70,7 @@ triage.post(
     // so put it into a single note record
     if (notes) {
       await triageRecord.createNote({
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
         content: notes,
       });
     }

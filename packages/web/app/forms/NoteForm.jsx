@@ -22,7 +22,7 @@ export const NoteForm = ({
   const { currentUser } = useAuth();
 
   const renderForm = ({ submitForm, values, setValues }) => {
-    const isTreatmentPlan = note?.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN;
+    const isTreatmentPlan = note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
 
     if (noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && isTreatmentPlan) {
       return (
@@ -78,7 +78,7 @@ export const NoteForm = ({
           ),
         writtenById: foreignKey().translatedLabel(
           noteFormMode === NOTE_FORM_MODES.EDIT_NOTE &&
-            note?.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN ? (
+            note?.noteTypeId === NOTE_TYPES.TREATMENT_PLAN ? (
             <TranslatedText
               stringId="validation.rule.updatedByOnBehalfOf"
               fallback="Updated by (or on behalf of)"

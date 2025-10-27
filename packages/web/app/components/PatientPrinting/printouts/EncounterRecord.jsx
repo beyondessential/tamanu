@@ -567,7 +567,7 @@ export const EncounterRecord = React.memo(
                     <ChildNote data-testid={`childnote-wtgf-${index}`}>{note.content}</ChildNote>
                     <NoteMeta data-testid={`notemeta-q7d7-${index}`}>
                       <span>
-                        {note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
+                        {note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN ? 'Last updated: ' : ''}
                       </span>
                       <span>{note.author?.displayName || ''} </span>
                       {note.onBehalfOf ? (

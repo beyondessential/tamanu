@@ -97,7 +97,8 @@ from
   left join departments d on d.id = e.department_id
   left join users u_supervising on u_supervising.id=e.examiner_id
   left join users u_requesting on u_requesting.id=ir.requested_by_id
-  left join notes n on n.record_id = ir.id and n.note_type = 'areaToBeImaged'
+  left join notes n on n.record_id = ir.id
+  left join reference_data rd on rd.id = n.note_type_id and rd.code = 'areaToBeImaged'
   left join imaging_request_areas ira on ira.imaging_request_id = ir.id
   left join reference_data rdi on rdi.id = ira.area_id
 where

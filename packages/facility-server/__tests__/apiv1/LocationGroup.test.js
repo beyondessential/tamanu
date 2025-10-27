@@ -91,21 +91,21 @@ describe('Location groups', () => {
     it('returns the latest edited handover note of the latest created note', async () => {
       const note1 = await models.Note.create({
         content: 'Note 1',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(6),
       });
       const note2 = await models.Note.create({
         content: 'Note 2',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(4),
       });
       const note2Edited = await models.Note.create({
         content: 'Note 2 edited',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         revisedById: note2.id,
@@ -113,7 +113,7 @@ describe('Location groups', () => {
       });
       await models.Note.create({
         content: 'Note 1 edited',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         revisedById: note1.id,
@@ -135,21 +135,21 @@ describe('Location groups', () => {
     it('returns the latest root handover note if it has not been edited', async () => {
       const note1 = await models.Note.create({
         content: 'Note 1',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(6),
       });
       const note2 = await models.Note.create({
         content: 'Note 2',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         date: getDateTimeSubtractedFromNow(4),
       });
       await models.Note.create({
         content: 'Note 1 edited',
-        noteType: NOTE_TYPES.HANDOVER,
+        noteTypeId: NOTE_TYPES.HANDOVER,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         recordId: encounter.id,
         revisedById: note1.id,

@@ -8,7 +8,7 @@ import { ConfirmCancelRow } from './ButtonRow';
 import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 const getChangelogContext = note => {
-  const isTreatmentPlan = note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN;
+  const isTreatmentPlan = note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
 
   return {
     date: isTreatmentPlan ? note.date : note.revisedBy?.date || note.date,

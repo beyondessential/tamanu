@@ -3,7 +3,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from '@tamanu/database/demoData/patients';
-import { NOTE_RECORD_TYPES, NOTE_TYPES, REFERENCE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { chance, fake } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import { addMinutes } from 'date-fns';
@@ -61,7 +61,7 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/api/labRequest/${labRequest.body[0].id}/notes`).send({
         content,
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
       });
 
       expect(response).toHaveSucceeded();
@@ -82,7 +82,7 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/api/labRequest/${sensitiveLabRequest.id}/notes`).send({
         content,
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
       });
 
       expect(response).toBeForbidden();
@@ -103,7 +103,7 @@ describe('Note', () => {
       const content = chance.paragraph();
       const response = await app.post(`/api/encounter/${encounter.id}/notes`).send({
         content,
-        noteType: NOTE_TYPES.SYSTEM,
+        noteTypeId: NOTE_TYPES.SYSTEM,
       });
 
       expect(response).toHaveSucceeded();
@@ -137,7 +137,7 @@ describe('Note', () => {
       it('should forbid writing notes on a forbidden record', async () => {
         const response = await noPermsApp.post(`/api/encounter/${encounter.id}/notes`).send({
           content: chance.paragraph(),
-          noteType: NOTE_TYPES.SYSTEM,
+          noteTypeId: NOTE_TYPES.SYSTEM,
         });
 
         expect(response).toBeForbidden();
@@ -275,12 +275,12 @@ describe('Note', () => {
         ...new Array(12).fill(0),
 
         // some notes to test filtering by note type
-        { noteType: NOTE_TYPES.MEDICAL, content: 'NOTE FILTER 1' },
-        { noteType: NOTE_TYPES.MEDICAL, content: 'NOTE FILTER 2' },
-        { noteType: NOTE_TYPES.MEDICAL, content: 'NOTE FILTER 3' },
+        { noteTypeId: NOTE_TYPES.OTHER, content: 'NOTE FILTER 1' },
+        { noteTypeId: NOTE_TYPES.OTHER, content: 'NOTE FILTER 2' },
+        { noteTypeId: NOTE_TYPES.OTHER, content: 'NOTE FILTER 3' },
 
         // one to check that treatment plans get sorted to the top
-        { noteType: NOTE_TYPES.TREATMENT_PLAN, content: 'TREATMENT' },
+        { noteTypeId: NOTE_TYPES.TREATMENT_PLAN, content: 'TREATMENT' },
 
         // for testing making notes historical
         { content: 'TO BE HISTORICAL' },
@@ -331,7 +331,7 @@ describe('Note', () => {
 
       const returnedRecords = [...firstPage.body.data, ...secondPage.body.data];
       const firstNonTreatment = returnedRecords.findIndex(
-        (x) => x.noteType !== NOTE_TYPES.TREATMENT_PLAN,
+        (x) => x.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN,
       );
 
       // treatment plans should be first, in descending date order
@@ -347,19 +347,12 @@ describe('Note', () => {
     });
 
     it('should filter notes correctly when they have revisions', async () => {
-      const medicalNoteType = await models.ReferenceData.findOne({
-        where: {
-          type: REFERENCE_TYPES.NOTE_TYPE,
-          code: NOTE_TYPES.MEDICAL,
-        },
-      });
-
       const results = await app.get(
-        `/api/encounter/${encounter.id}/notes?noteTypeId=${medicalNoteType.id}&rowsPerPage=10`,
+        `/api/encounter/${encounter.id}/notes?noteTypeId=${NOTE_TYPES.OTHER}&rowsPerPage=10`,
       );
       expect(results).toHaveSucceeded();
       results.body.data.forEach((note) => {
-        expect(note).toHaveProperty('noteTypeId', medicalNoteType.id);
+        expect(note).toHaveProperty('noteTypeId', NOTE_TYPES.OTHER);
         expect(note.content).toMatch('LATEST');
       });
     });

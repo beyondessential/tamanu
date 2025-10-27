@@ -3,7 +3,6 @@ import asyncHandler from 'express-async-handler';
 import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
-  REFERENCE_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/errors';
@@ -18,7 +17,7 @@ patientCarePlan.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { PatientCarePlan, ReferenceData },
+      models: { PatientCarePlan },
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     if (!req.body.content) {
@@ -26,13 +25,8 @@ patientCarePlan.post(
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
 
-    const treatmentPlanNoteType = await ReferenceData.findOne({
-      where: { type: REFERENCE_TYPES.NOTE_TYPE, code: NOTE_TYPES.TREATMENT_PLAN },
-    });
-
     await newCarePlan.createNote({
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
-      noteTypeId: treatmentPlanNoteType?.id,
+      noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
       date: req.body.date,
       content: req.body.content,
       authorId: req.user.id,
@@ -53,12 +47,11 @@ patientCarePlan.get(
       include: [
         { model: models.User, as: 'author' },
         { model: models.User, as: 'onBehalfOf' },
-        { model: models.ReferenceData, as: 'noteTypeReference' },
       ],
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        '$noteTypeReference.code$': NOTE_TYPES.TREATMENT_PLAN,
+        noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       // TODO add test to verify this order
@@ -76,16 +69,11 @@ patientCarePlan.post(
 
     const { models } = req;
 
-    const treatmentPlanNoteType = await models.ReferenceData.findOne({
-      where: { type: REFERENCE_TYPES.NOTE_TYPE, code: NOTE_TYPES.TREATMENT_PLAN },
-    });
-
     const newNote = await models.Note.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
-      noteTypeId: treatmentPlanNoteType?.id,
+      noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
       content: req.body.content,
       authorId: req.user.id,
       onBehalfOfId: req.body.onBehalfOfId,

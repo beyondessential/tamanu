@@ -183,7 +183,7 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter((note) => note.noteTypeReference.code === NOTE_TYPES.OTHER)
+          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
           .map((note) => note.content)
           .join('\n')}
         label={

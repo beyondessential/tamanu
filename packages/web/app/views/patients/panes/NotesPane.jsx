@@ -89,6 +89,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         verb="write"
         noun="EncounterNote"
         noteTypeId={noteTypeId}
+        noteModalOnSaved={noteModalOnSaved}
         data-testid="notetablewithpermission-ngp2"
       />
     </TabPane>

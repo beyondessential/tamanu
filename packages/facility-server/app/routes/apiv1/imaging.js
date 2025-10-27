@@ -205,7 +205,7 @@ imagingRequest.put(
         notes.note = otherNote.content;
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -220,7 +220,7 @@ imagingRequest.put(
         notes.areaNote = areaNote.content || '';
       } else {
         const noteObject = await imagingRequestObject.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });
@@ -280,7 +280,7 @@ imagingRequest.post(
 
       if (note) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           content: note,
           authorId: user.id,
         });
@@ -289,7 +289,7 @@ imagingRequest.post(
 
       if (areaNote) {
         const noteObject = await newImagingRequest.createNote({
-          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+          noteTypeId: NOTE_TYPES.AREA_TO_BE_IMAGED,
           content: areaNote,
           authorId: user.id,
         });

@@ -80,7 +80,7 @@ const getAllNotes = async (models, encounterIds) => {
         [Op.like]: 'Changed location from%',
       },
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      noteTypeId: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });
@@ -91,7 +91,7 @@ const getAllNotes = async (models, encounterIds) => {
         [Op.like]: 'Changed department from%',
       },
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      noteTypeId: NOTE_TYPES.SYSTEM,
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     },
   });

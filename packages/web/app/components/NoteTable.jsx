@@ -119,7 +119,7 @@ const getIndividualNotePermissionCheck = (ability, currentUser, note) => {
     return true;
   }
 
-  if (note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN) {
+  if (note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN) {
     return (
       ability?.can('write', NOTE_PERMISSION_TYPES.TREATMENT_PLAN_NOTE) ||
       ability?.can('write', NOTE_PERMISSION_TYPES.OTHER_PRACTITIONER_ENCOUNTER_NOTE)
@@ -158,7 +158,7 @@ const NoteContent = ({
   const handleReadMore = useCallback(() => setContentIsExpanded(true), []);
   const handleReadLess = useCallback(() => setContentIsExpanded(false), []);
 
-  const isTreatmentPlan = note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN;
+  const isTreatmentPlan = note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN;
   const showNoteMetaPrefix = isTreatmentPlan && note.revisedById;
   const noteAuthorName =
     isTreatmentPlan || !note.revisedBy
@@ -205,7 +205,7 @@ const NoteContent = ({
         </NoteContentContainer>
         {hasIndividualNotePermission &&
           hasEncounterNoteWritePermission &&
-          note.noteTypeReference?.code !== NOTE_TYPES.SYSTEM && (
+          note.noteTypeId !== NOTE_TYPES.SYSTEM && (
             <NoteModalActionBlocker>
               <StyledEditIcon
                 onClick={() => handleEditNote(note)}
@@ -263,7 +263,7 @@ const NoteContent = ({
           </NoteFooterTextElement>
         )}
         <DateDisplay
-          date={(note.noteTypeReference?.code !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
+          date={(note.noteTypeId !== NOTE_TYPES.TREATMENT_PLAN && note.revisedBy?.date) || note.date}
           showTime
           data-testid="datedisplay-yaha"
         />
@@ -307,7 +307,7 @@ const NoteTable = ({
 
       openNoteModal({
         title:
-          note.noteTypeReference?.code === NOTE_TYPES.TREATMENT_PLAN ? (
+          note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN ? (
             <TranslatedText
               stringId="note.modal.updateTreatmentPlan.title"
               fallback="Update treatment plan"

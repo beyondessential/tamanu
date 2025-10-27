@@ -8,10 +8,6 @@ Also see the deprecated [`note_items`](#!/source/source.tamanu.tamanu.note_items
 This is the current version (3) of the notes system.
 {% enddocs %}
 
-{% docs notes__note_type %}
-Type of note recorded.
-{% enddocs %}
-
 {% docs notes__record_id %}
 Polymorphic relationship to the record to which the note is attached (id).
 {% enddocs %}

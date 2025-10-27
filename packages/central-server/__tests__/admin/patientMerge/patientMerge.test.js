@@ -175,7 +175,7 @@ describe('Patient merge', () => {
     const [keep, merge] = await makeTwoPatients(models);
 
     const note = await merge.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
     });
 
     const { updates } = await mergePatient(models, keep.id, merge.id);

@@ -1154,7 +1154,7 @@ medication.put(
           authorId: req.user.id,
           recordId: existingMar.prescription.encounterPrescription.encounterId,
           date: getCurrentDateTimeString(),
-          noteType: NOTE_TYPES.SYSTEM,
+          noteTypeId: NOTE_TYPES.SYSTEM,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         });
         await existingMar.save();
