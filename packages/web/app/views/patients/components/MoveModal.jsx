@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   BodyText,
   DynamicSelectField,
@@ -10,23 +9,21 @@ import {
   FormGrid,
   FormModal,
   FormSeparatorLine,
-  FormSubmitCancelRow,
   Heading3,
-  LargeBodyText,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   ModalFormActionRow,
   RadioField,
-  TranslatedEnum,
 } from '../../../components';
-import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
-import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { notifyError } from '../../../utils';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -43,11 +40,6 @@ const SectionDescription = styled(BodyText)`
 
 const Section = styled(FormGrid)`
   margin-bottom: 30px;
-`;
-
-const EncounterChangeDescription = styled(LargeBodyText)`
-  margin-top: 5px;
-  margin-bottom: 20px;
 `;
 
 const BasicMoveFields = () => {
@@ -77,29 +69,6 @@ const BasicMoveFields = () => {
     </>
   );
 };
-
-const PATIENT_MOVE_ACTION_OPTIONS = [
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.finalise"
-        fallback="Finalise now"
-        data-testid="translatedtext-patient-move-action-finalise"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.FINALISE,
-  },
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.plan"
-        fallback="Plan change"
-        data-testid="translatedtext-patient-move-action-plan"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.PLAN,
-  },
-];
 
 const AdvancedMoveFields = ({ plannedLocationId }) => {
   const { getSetting } = useSettings();
@@ -139,7 +108,28 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
             />
           }
           component={RadioField}
-          options={PATIENT_MOVE_ACTION_OPTIONS}
+          options={[
+            {
+              label: (
+                <TranslatedText
+                  stringId="encounter.modal.patientMove.action.finalise"
+                  fallback="Finalise now"
+                  data-testid="translatedtext-patient-move-action-finalise"
+                />
+              ),
+              value: PATIENT_MOVE_ACTIONS.FINALISE,
+            },
+            {
+              label: (
+                <TranslatedText
+                  stringId="encounter.modal.patientMove.action.plan"
+                  fallback="Plan change"
+                  data-testid="translatedtext-patient-move-action-plan"
+                />
+              ),
+              value: PATIENT_MOVE_ACTIONS.PLAN,
+            },
+          ]}
           style={{ gridColumn: '1/-1' }}
           data-testid="field-ryle"
         />
@@ -148,41 +138,10 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
   );
 };
 
-const getConfirmText = newEncounterType => {
-  if (newEncounterType) {
-    return (
-      <TranslatedText
-        stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-        fallback="Transfer to :newEncounterType"
-        replacements={{ newEncounterType }}
-      />
-    );
-  }
-  return <TranslatedText stringId="general.action.confirm" fallback="Confirm" />;
-};
-
-const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
-  return (
-    <EncounterChangeDescription>
-      <TranslatedText
-        stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from"
-      />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-      </b>{' '}
-      to{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-      </b>
-    </EncounterChangeDescription>
-  );
-};
-
-export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
+export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
+  // const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
@@ -192,21 +151,18 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const clinicianSuggester = useSuggester('practitioner');
 
   const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-    await writeAndViewEncounter(encounter.id, {
-      departmentId,
-      examinerId,
-      ...(newEncounterType && { encounterType: newEncounterType }),
-    });
-
-    await submitPatientMove(
-      action === PATIENT_MOVE_ACTIONS.PLAN
-        ? {
-            plannedLocationId,
-          }
-        : {
-            locationId: plannedLocationId || locationId,
-          },
-    );
+    try {
+      await writeAndViewEncounter(encounter.id, {
+        submittedTime: getCurrentDateTimeString(),
+        departmentId,
+        examinerId,
+        ...(action === PATIENT_MOVE_ACTIONS.PLAN
+          ? { plannedLocationId }
+          : { locationId: plannedLocationId || locationId }),
+      });
+    } catch (error) {
+      notifyError(error.message);
+    }
   };
 
   return (
@@ -229,6 +185,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
           departmentId: encounter.departmentId,
           ...(enablePatientMoveActions
             ? {
+                plannedLocationId: encounter.plannedLocationId,
                 action: PATIENT_MOVE_ACTIONS.PLAN,
               }
             : {}),
@@ -237,15 +194,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
         onSubmit={onSubmit}
         render={({ submitForm, values }) => (
           <>
-            {newEncounterType && (
-              <>
-                <EncounterTypeChangeDescription
-                  encounterType={encounter.encounterType}
-                  newEncounterType={newEncounterType}
-                />
-                <FormSeparatorLine />
-              </>
-            )}
             <SectionHeading>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.heading"
@@ -300,7 +248,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             )}
             <ModalFormActionRow
               onConfirm={submitForm}
-              confirmText={getConfirmText(newEncounterType)}
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />

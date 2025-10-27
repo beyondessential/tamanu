@@ -1,0 +1,118 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: encounter_history
+        description: "{{ doc('table__encounter_history') }}"
+        config:
+          tags:
+            - clinical
+          meta:
+            triggers:
+              - fhir_refresh
+              - notify_encounter_history_changed
+              - record_encounter_history_changelog
+              - set_encounter_history_updated_at
+              - set_encounter_history_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in encounter_history."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in encounter_history."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in encounter_history."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in encounter_history."
+          - name: date
+            data_type: character(19)
+            description: "{{ doc('generic__date') }} in encounter_history."
+            data_tests:
+              - not_null
+            config:
+              meta:
+                masking: datetime
+          - name: encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__encounter_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'encounters')
+                    field: id
+          - name: department_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__department_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'departments')
+                    field: id
+          - name: location_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__location_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'locations')
+                    field: id
+          - name: examiner_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__examiner_id') }}"
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
+          - name: encounter_type
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__encounter_type') }}"
+            data_tests:
+              - not_null
+              - accepted_values:
+                  arguments:
+                    values:
+                      - admission
+                      - clinic
+                      - imaging
+                      - emergency
+                      - observation
+                      - triage
+                      - surveyResponse
+                      - vaccination
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in encounter_history."
+            data_tests:
+              - not_null
+          - name: actor_id
+            data_type: character varying(255)
+            description: "{{ doc('encounter_history__actor_id') }}"
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('tamanu', 'users')
+                    field: id
+          - name: change_type
+            data_type: array
+            description: "{{ doc('encounter_history__change_type') }}"
+            data_tests:
+              - not_null:
+                  config:
+                    where: change_type IS NOT NULL

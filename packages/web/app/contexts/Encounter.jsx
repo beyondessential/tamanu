@@ -24,8 +24,8 @@ export const EncounterContext = React.createContext({
   isLoadingEncounter: false,
   setIsLoadingEncounter: () => {},
   writeAndViewEncounter: async () => {},
-  loadEncounter: () => {},
-  createEncounter: () => {},
+  loadEncounter: async () => {},
+  createEncounter: async () => {},
 });
 
 export const useEncounter = () => useContext(EncounterContext);

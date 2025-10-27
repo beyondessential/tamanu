@@ -2,6 +2,7 @@ import { Op, DataTypes } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
@@ -279,7 +280,10 @@ export class Encounter extends Model {
       as: 'documents',
     });
 
-    // EncounterHistory relationship removed - now using logs.changes for encounter change tracking
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistories',
+    });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'patientBillingTypeId',
@@ -306,7 +310,10 @@ export class Encounter extends Model {
       },
     });
 
-    // EncounterHistory relationship removed - now using logs.changes for encounter change tracking
+    this.hasMany(models.EncounterHistory, {
+      foreignKey: 'encounterId',
+      as: 'encounterHistory',
+    });
 
     this.hasMany(models.Appointment, {
       foreignKey: 'encounterId',
@@ -402,10 +409,18 @@ export class Encounter extends Model {
 
   static async create(...args: any): Promise<any> {
     const [data, options] = args;
-    const encounter = (await super.create(data, options)) as Encounter;
+    const { actorId, ...encounterData } = data;
+    const encounter = (await super.create(encounterData, options)) as Encounter;
 
-    // Encounter history is now automatically tracked via logs.changes triggers
-    // No need for manual EncounterHistory.createSnapshot calls
+    const { EncounterHistory } = this.sequelize.models;
+    await EncounterHistory.createSnapshot(
+      encounter,
+      {
+        actorId: actorId || encounter.examinerId,
+        submittedTime: encounter.startDate,
+      },
+      options,
+    );
 
     return encounter;
   }
@@ -564,7 +579,8 @@ export class Encounter extends Model {
 
   async update(...args: any): Promise<any> {
     const [data, user] = args;
-    const { Location } = this.sequelize.models;
+    const { Location, EncounterHistory } = this.sequelize.models;
+    const changeTypes: string[] = [];
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -582,11 +598,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
+        changeTypes.push(EncounterChangeType.EncounterType);
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
+        changeTypes.push(EncounterChangeType.Location);
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -633,15 +651,28 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
+        changeTypes.push(EncounterChangeType.Department);
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
+        changeTypes.push(EncounterChangeType.Examiner);
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
-      const updatedEncounter = await super.update({ ...data, ...additionalChanges }, user);
+      const { submittedTime, ...encounterData } = data;
+      const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
+
+      // Create snapshot with array of change types
+      if (changeTypes.length > 0) {
+        await EncounterHistory.createSnapshot(updatedEncounter, {
+          actorId: user?.id,
+          changeType: changeTypes,
+          submittedTime,
+        });
+      }
+
       return updatedEncounter;
     };
 
