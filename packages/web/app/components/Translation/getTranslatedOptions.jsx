@@ -6,17 +6,18 @@ export const getTranslatedOptions = (options, prefix, TranslatedTextProps = {}) 
   if (!options) return [];
 
   return options.map((option, index) => {
-    const { label, ...rest } = option;
+    const { value, label, ...rest } = option;
     return typeof label === 'string'
       ? {
           label: (
             <TranslatedText
-              stringId={`${prefix}.${toCamelCase(label)}`}
+              stringId={`${prefix}.${toCamelCase(value)}`}
               fallback={label}
               {...TranslatedTextProps}
               data-testid={`translatedtext-x1yr-${index}`}
             />
           ),
+          value,
           ...rest,
         }
       : option;

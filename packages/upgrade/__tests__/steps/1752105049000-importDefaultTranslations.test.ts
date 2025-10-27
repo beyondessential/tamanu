@@ -14,7 +14,9 @@ import {
 vi.mock('config', () => ({
   default: {
     metaServer: {
-      host: 'https://meta.example.com',
+      hosts: [
+        'https://meta.example.com',
+      ],
     },
   },
 }));
@@ -431,7 +433,7 @@ describe('1752105049000-importDefaultTranslations', () => {
         'Failed to import default report translations, you will need to manually import them',
         expect.objectContaining({
           error: expect.objectContaining({
-            message: expect.stringContaining('No report-translations artifact found'),
+            message: expect.stringContaining('No meta server succeeded downloading the artifacts'),
           }),
         }),
       );
