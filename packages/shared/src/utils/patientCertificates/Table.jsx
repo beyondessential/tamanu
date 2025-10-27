@@ -34,7 +34,7 @@ const TH = ({ customStyles, ...props }) => (
   <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.td, customStyles]} />
+  <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
 export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle }) => {
