@@ -724,6 +724,119 @@ describe('Reference data exporter', () => {
       '',
     );
   });
+
+  describe('Invoice Product', () => {
+    it('Should export invoice products with correct source record type', async () => {
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-0',
+        name: 'Invoice Product Ad hoc',
+        discountable: false,
+      });
+
+      const drug = await createDrug(models, {
+        id: 'drug-1',
+        name: 'Drug 1',
+        code: 'drug-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-1',
+        name: 'Invoice Product 1',
+        discountable: true,
+        sourceRecordType: 'ReferenceData',
+        sourceRecordId: drug.id,
+      });
+
+      const procedure = await createProcedure(models, {
+        id: 'procedure-1',
+        name: 'Procedure 1',
+        code: 'procedure-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-2',
+        name: 'Invoice Product 2',
+        discountable: false,
+        sourceRecordType: 'ReferenceData',
+        sourceRecordId: procedure.id,
+      });
+
+      const labTestCategory = await createLabTestCategory(models, {
+        id: 'labTestCategory-1',
+        name: 'Lab Test Category 1',
+        code: 'labTestCategory-1',
+      });
+      const labTestType = await createTestType(models, {
+        id: 'labTestType-1',
+        name: 'Lab Test Type 1',
+        code: 'labTestType-1',
+        labTestCategoryId: labTestCategory.id,
+      });
+      const labTestPanel = await createLabTestPanel(models, {
+        id: 'labTestPanel-1',
+        name: 'Lab Test Panel 1',
+        code: 'labTestPanel-1',
+        labTestTypesIds: [labTestType.id],
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-3',
+        name: 'Invoice Product 3',
+        discountable: true,
+        sourceRecordType: 'LabTestPanel',
+        sourceRecordId: labTestPanel.id,
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-4',
+        name: 'Invoice Product 4',
+        discountable: true,
+        sourceRecordType: 'LabTestType',
+        sourceRecordId: labTestType.id,
+      });
+      await exporter(store, { 1: 'invoiceProduct' });
+      expect(writeExcelFile).toBeCalledWith(
+        [
+          {
+            data: [
+              [
+                'id',
+                'name',
+                'discountable',
+                'sourceRecordType',
+                'sourceRecordId',
+                'visibilityStatus',
+              ],
+              ['invoiceProduct-0', 'Invoice Product Ad hoc', false, undefined, null, 'current'],
+              ['invoiceProduct-1', 'Invoice Product 1', true, 'Drug', 'drug-1', 'current'],
+              [
+                'invoiceProduct-2',
+                'Invoice Product 2',
+                false,
+                'Procedure',
+                'procedure-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-3',
+                'Invoice Product 3',
+                true,
+                'LabTestPanel',
+                'labTestPanel-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-4',
+                'Invoice Product 4',
+                true,
+                'LabTestType',
+                'labTestType-1',
+                'current',
+              ],
+            ],
+            name: 'Invoice Product',
+          },
+        ],
+        '',
+      );
+    });
+  });
 });
 
 describe('Permission and Roles exporter', () => {
@@ -900,111 +1013,5 @@ describe('Permission and Roles exporter', () => {
       ],
       '',
     );
-  });
-
-  describe('Invoice Product', () => {
-    it('Should export invoice products with correct source record type', async () => {
-      const drug = await createDrug(models, {
-        id: 'drug-1',
-        name: 'Drug 1',
-        code: 'drug-1',
-      });
-      await createInvoiceProduct(models, {
-        id: 'invoiceProduct-1',
-        name: 'Invoice Product 1',
-        discountable: true,
-        sourceRecordType: 'ReferenceData',
-        sourceRecordId: drug.id,
-      });
-
-      const procedure = await createProcedure(models, {
-        id: 'procedure-1',
-        name: 'Procedure 1',
-        code: 'procedure-1',
-      });
-      await createInvoiceProduct(models, {
-        id: 'invoiceProduct-2',
-        name: 'Invoice Product 2',
-        discountable: false,
-        sourceRecordType: 'ReferenceData',
-        sourceRecordId: procedure.id,
-      });
-
-      const labTestCategory = await createLabTestCategory(models, {
-        id: 'labTestCategory-1',
-        name: 'Lab Test Category 1',
-        code: 'labTestCategory-1',
-      });
-      const labTestType = await createTestType(models, {
-        id: 'labTestType-1',
-        name: 'Lab Test Type 1',
-        code: 'labTestType-1',
-        labTestCategoryId: labTestCategory.id,
-      });
-      const labTestPanel = await createLabTestPanel(models, {
-        id: 'labTestPanel-1',
-        name: 'Lab Test Panel 1',
-        code: 'labTestPanel-1',
-        labTestTypesIds: [labTestType.id],
-      });
-      await createInvoiceProduct(models, {
-        id: 'invoiceProduct-3',
-        name: 'Invoice Product 3',
-        discountable: true,
-        sourceRecordType: 'LabTestPanel',
-        sourceRecordId: labTestPanel.id,
-      });
-      await createInvoiceProduct(models, {
-        id: 'invoiceProduct-4',
-        name: 'Invoice Product 4',
-        discountable: true,
-        sourceRecordType: 'LabTestType',
-        sourceRecordId: labTestType.id,
-      });
-      await exporter(store, { 1: 'invoiceProduct' });
-      expect(writeExcelFile).toBeCalledWith(
-        [
-          {
-            data: [
-              [
-                'id',
-                'name',
-                'discountable',
-                'sourceRecordType',
-                'sourceRecordId',
-                'visibilityStatus',
-              ],
-              ['invoiceProduct-1', 'Invoice Product 1', true, 'Drug', 'drug-1', 'current'],
-              [
-                'invoiceProduct-2',
-                'Invoice Product 2',
-                false,
-                'Procedure',
-                'procedure-1',
-                'current',
-              ],
-              [
-                'invoiceProduct-3',
-                'Invoice Product 3',
-                true,
-                'LabTestPanel',
-                'labTestPanel-1',
-                'current',
-              ],
-              [
-                'invoiceProduct-4',
-                'Invoice Product 4',
-                true,
-                'LabTestType',
-                'labTestType-1',
-                'current',
-              ],
-            ],
-            name: 'Invoice Product',
-          },
-        ],
-        '',
-      );
-    });
   });
 });

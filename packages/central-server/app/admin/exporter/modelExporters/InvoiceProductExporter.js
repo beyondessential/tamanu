@@ -19,17 +19,25 @@ export class InvoiceProductExporter extends ReferenceDataExporter {
     // Here we undo that mapping, ensuring that we handle the fact that multiple categories map to the 'ReferenceData' model.
     return invoiceProducts.map(invoiceProduct => {
       const { sourceRefDataRecord, ...product } = invoiceProduct.dataValues;
-      let sourceRecordType;
+      let sourceRecordCategory;
       if (sourceRefDataRecord) {
-        sourceRecordType = INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES[sourceRefDataRecord.type];
+        sourceRecordCategory =
+          INVOICE_PRODUCT_REFERENCE_DATA_TYPE_CATEGORIES[sourceRefDataRecord.type];
       } else {
-        sourceRecordType = Object.entries(INVOICE_ITEMS_CATEGORIES_MODELS).find(
+        sourceRecordCategory = Object.entries(INVOICE_ITEMS_CATEGORIES_MODELS).find(
           ([value]) => value === product.sourceRecordType,
         )?.[0];
       }
+
+      if (product.sourceRecordType && !sourceRecordCategory) {
+        throw new Error(
+          `Unmapped invoice item category for model type: ${product.sourceRecordType}`,
+        );
+      }
+
       return {
         ...product,
-        sourceRecordType,
+        sourceRecordType: sourceRecordCategory,
       };
     });
   }
