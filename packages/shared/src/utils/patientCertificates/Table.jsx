@@ -33,13 +33,8 @@ const TR = props => <View {...props} style={tableStyles.tr} />;
 const TH = ({ customStyles, ...props }) => (
   <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
-const TD = ({ customStyles, allowWrap, ...props }) => (
-  <Text
-    wrap={allowWrap !== undefined ? allowWrap : false}
-    hyphenationCallback={allowWrap ? (word) => [word] : undefined}
-    {...props}
-    style={[tableStyles.td, customStyles]}
-  />
+const TD = ({ customStyles, ...props }) => (
+  <Text {...props} style={[tableStyles.td, customStyles]} />
 );
 
 export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle }) => {
@@ -63,11 +58,10 @@ export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle 
       {data.map((row, rowIndex) => (
         // eslint-disable-next-line react/no-array-index-key
         <TR key={rowIndex}>
-          {visibleColumns.map(({ accessor, key, customStyles, allowWrap }, columnIndex) => (
+          {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
             <TD
               key={key}
               customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
-              allowWrap={allowWrap}
             >
               {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
             </TD>
