@@ -110,9 +110,9 @@ sources:
                     to: source('tamanu', 'users')
                     field: id
           - name: change_type
-            data_type: ARRAY
+            data_type: array
             description: "{{ doc('encounter_history__change_type') }}"
             data_tests:
               - not_null:
                   config:
-                    where: 'change_type IS NOT NULL'
+                    where: change_type IS NOT NULL
