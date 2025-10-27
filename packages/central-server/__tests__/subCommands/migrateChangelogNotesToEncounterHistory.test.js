@@ -4,7 +4,12 @@ import { Op } from 'sequelize';
 import { getCurrentDateTimeString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { fake } from '@tamanu/fake-data/fake';
-import { EncounterChangeType, NOTE_RECORD_TYPES, NOTE_TYPES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  EncounterChangeType,
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  SYSTEM_USER_UUID,
+} from '@tamanu/constants';
 
 import { createTestContext } from '../utilities';
 import { migrateDataInBatches } from '../../dist/subCommands/migrateDataInBatches/migrateDataInBatches';
@@ -122,7 +127,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
 
   const NOTE_SUB_COMMAND_NAME = 'ChangelogNotesToEncounterHistory';
 
-  const getDateSubtractedFromNow = (daysToSubtract) =>
+  const getDateSubtractedFromNow = daysToSubtract =>
     toDateTimeString(sub(new Date(), { days: daysToSubtract }));
 
   const createEncounter = async (encounterPatient, overrides = {}) => {
@@ -267,7 +272,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: newLocation.id,
         examinerId: clinician.id,
         encounterType: 'admission',
-        changeType: EncounterChangeType.Location,
+        changeType: [EncounterChangeType.Location],
         actorId: SYSTEM_USER_UUID,
         date: locationChangeNoteDate,
       });
@@ -374,7 +379,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: newLocation.id,
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
-        changeType: EncounterChangeType.Location,
+        changeType: [EncounterChangeType.Location],
         actorId: SYSTEM_USER_UUID,
       });
 
@@ -385,7 +390,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: newLocation.id,
         examinerId: oldUser.id,
         encounterType: oldEncounterType,
-        changeType: EncounterChangeType.Department,
+        changeType: [EncounterChangeType.Department],
         actorId: SYSTEM_USER_UUID,
       });
 
@@ -396,7 +401,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: newLocation.id,
         examinerId: newUser.id,
         encounterType: oldEncounterType,
-        changeType: EncounterChangeType.Examiner,
+        changeType: [EncounterChangeType.Examiner],
         actorId: SYSTEM_USER_UUID,
       });
 
@@ -407,7 +412,7 @@ describe('migrateChangelogNotesToEncounterHistory', () => {
         locationId: newLocation.id,
         examinerId: newUser.id,
         encounterType: newEncounterType,
-        changeType: EncounterChangeType.EncounterType,
+        changeType: [EncounterChangeType.EncounterType],
         actorId: SYSTEM_USER_UUID,
       });
     });

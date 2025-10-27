@@ -82,10 +82,10 @@ export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQue
               case when lag(n.actor_id) over w isnull then null
                   else lag(n.actor_id) over w
               end as actor_id,
-              case when lag(n.content) over w like 'Changed department%' then 'department'
-                  when lag(n.content) over w like 'Changed location%' then 'location'
-                  when lag(n.content) over w like 'Changed supervising clinician%' then 'supervising clinician'
-                  when lag(n.content) over w like 'Changed type%' then 'type'
+              case when lag(n.content) over w like 'Changed department%' then ARRAY['department']
+                  when lag(n.content) over w like 'Changed location%' then ARRAY['location']
+                  when lag(n.content) over w like 'Changed supervising clinician%' then ARRAY['examiner']
+                  when lag(n.content) over w like 'Changed type%' then ARRAY['encounter_type']
                   else null
               end as change_type,
               -- For the encounter_history when the encounter is first created:
@@ -278,7 +278,13 @@ export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQue
           select
               DISTINCT ON(record_id)
               actor_id,
-              (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] AS change_type,
+              CASE 
+                  WHEN (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] = 'department' THEN ARRAY['department']
+                  WHEN (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] = 'location' THEN ARRAY['location']
+                  WHEN (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] = 'supervising clinician' THEN ARRAY['examiner']
+                  WHEN (regexp_matches(content, 'Changed (.*) from (.*) to (.*)'))[1] = 'type' THEN ARRAY['encounter_type']
+                  ELSE NULL
+              END AS change_type,
               date,
               department_id,
               location_id,
@@ -404,10 +410,9 @@ export const getChangelogToEncounterHistoryQuery = allEncounterNotesSystemSubQue
               record_id,
               date,
               actor_id,
-              case when change_type = 'type' then 'encounter_type'
-                  when change_type = 'supervising clinician' then 'examiner'
-                  else change_type
-              end as change_type,
+              -- change_type is already an array from the CTEs above
+              -- Map old values to EncounterChangeType constants if needed
+              change_type,
               department_id,
               location_id,
               examiner_id,
