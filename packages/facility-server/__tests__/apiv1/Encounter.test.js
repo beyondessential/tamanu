@@ -1543,7 +1543,6 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // Query logs.changes instead of encounter_history for encounter change tracking
           const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
               encounterId: encounter.id,
@@ -1853,6 +1852,7 @@ describe('Encounter', () => {
 
           const newEncounter = await models.Encounter.findByPk(result.body.id);
 
+          // Confirm that the encounter has been changed
           expect(newEncounter).toMatchObject({
             patientId: patient.id,
             examinerId: clinician.id,
