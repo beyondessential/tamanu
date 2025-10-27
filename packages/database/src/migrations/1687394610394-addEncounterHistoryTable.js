@@ -1,7 +1,5 @@
 import Sequelize, { DataTypes } from 'sequelize';
 
-// TODO: DEPRECATED - This migration created encounter_history table which will be removed
-// after migrating data to logs.changes table
 export async function up(query) {
   await query.createTable('encounter_history', {
     id: {

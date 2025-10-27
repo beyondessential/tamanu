@@ -8,8 +8,6 @@ import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLo
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import type { Encounter } from './Encounter';
 
-// TODO: DEPRECATED - This model will be removed after migrating encounter_history to logs.changes
-// All encounter history functionality should be replaced with queries to logs.changes table
 export class EncounterHistory extends Model {
   declare id: string;
   declare encounterType: string;
@@ -72,8 +70,6 @@ export class EncounterHistory extends Model {
     });
   }
 
-  // TODO: DEPRECATED - Replace with logs.changes functionality
-  // This method should be replaced with ChangeLog.create() calls
   static async createSnapshot(
     encounter: Encounter,
     {
