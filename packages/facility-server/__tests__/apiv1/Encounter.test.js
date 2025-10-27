@@ -1867,15 +1867,24 @@ describe('Encounter', () => {
             order: [['date', 'ASC']],
           });
 
-          // only 1 encounter history for initial encounter snapshot
-          expect(encounterHistoryRecords).toHaveLength(1);
+          // Should have 2 records: initial snapshot and the multiple-changes snapshot
+          expect(encounterHistoryRecords).toHaveLength(2);
           expect(encounterHistoryRecords[0]).toMatchObject({
             encounterId: encounter.id,
-            departmentId: encounter.departmentId,
-            locationId: encounter.locationId,
+            departmentId: oldDepartment.id,
+            locationId: oldLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
+          });
+          expect(encounterHistoryRecords[1]).toMatchObject({
+            encounterId: encounter.id,
+            departmentId: newDepartment.id,
+            locationId: newLocation.id,
+            examinerId: encounter.examinerId,
+            encounterType: encounter.encounterType,
+            actorId: user.id,
+            changeType: [EncounterChangeType.Location, EncounterChangeType.Department], // changeType should be array when multiple changes occur
           });
         });
       });
