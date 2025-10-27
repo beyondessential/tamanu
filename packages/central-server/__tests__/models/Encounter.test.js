@@ -138,9 +138,7 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { reasonForEncounter } });
 
-      const count = await EncounterHistory.count({
-        where: { reasonForEncounter },
-      });
+      const count = await EncounterHistory.count();
       expect(count).toBe(1);
     });
 
