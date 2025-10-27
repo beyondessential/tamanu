@@ -4,6 +4,7 @@ import config from 'config';
 import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
   DOCUMENT_SOURCES,
+  EncounterChangeType,
   IMAGING_REQUEST_STATUS_TYPES,
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
@@ -1457,13 +1458,10 @@ describe('Encounter', () => {
           expect(result).toHaveSucceeded();
           const encounter = await models.Encounter.findByPk(result.body.id);
 
-          // Query logs.changes instead of encounter_history for encounter change tracking
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(1);
@@ -1497,13 +1495,10 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // Query logs.changes instead of encounter_history for encounter change tracking
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1524,7 +1519,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
             actorId: user.id,
           });
         });
@@ -1549,12 +1544,10 @@ describe('Encounter', () => {
           expect(updateResult).toHaveSucceeded();
 
           // Query logs.changes instead of encounter_history for encounter change tracking
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1574,7 +1567,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
             actorId: user.id,
           });
         });
@@ -1599,13 +1592,10 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // Query logs.changes instead of encounter_history for encounter change tracking
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1625,7 +1615,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Examiner,
+            changeType: [EncounterChangeType.Examiner],
             actorId: user.id,
           });
         });
@@ -1651,13 +1641,10 @@ describe('Encounter', () => {
 
           expect(updateResult).toHaveSucceeded();
 
-          // Query logs.changes instead of encounter_history for encounter change tracking
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1677,7 +1664,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: newEncounterType,
-            changeType: EncounterChangeType.EncounterType,
+            changeType: [EncounterChangeType.EncounterType],
             actorId: user.id,
           });
         });
