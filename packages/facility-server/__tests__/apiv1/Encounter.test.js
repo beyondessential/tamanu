@@ -1519,7 +1519,7 @@ describe('Encounter', () => {
             locationId: newLocation.id,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
             actorId: user.id,
           });
         });
@@ -1566,7 +1566,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
             actorId: user.id,
           });
         });
@@ -1614,7 +1614,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
-            changeType: EncounterChangeType.Examiner,
+            changeType: [EncounterChangeType.Examiner],
             actorId: user.id,
           });
         });
@@ -1663,7 +1663,7 @@ describe('Encounter', () => {
             locationId: encounter.locationId,
             examinerId: encounter.examinerId,
             encounterType: newEncounterType,
-            changeType: EncounterChangeType.EncounterType,
+            changeType: [EncounterChangeType.EncounterType],
             actorId: user.id,
           });
         });
@@ -1752,7 +1752,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1762,7 +1762,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
 
           const clinicianChangeSubmittedTime = getCurrentDateTimeString();
@@ -1798,7 +1798,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1808,7 +1808,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
           expect(encounterHistoryRecords[3]).toMatchObject({
             date: clinicianChangeSubmittedTime,
@@ -1818,13 +1818,13 @@ describe('Encounter', () => {
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Examiner,
+            changeType: [EncounterChangeType.Examiner],
           });
         });
       });
 
       describe('multiple changes in 1 encounter update', () => {
-        it('should allow multiple changes in 1 encounter update and create snapshot with null changeType', async () => {
+        it('should allow multiple changes in 1 encounter update and create snapshot with array of changeTypes', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [clinician] = await models.User.findAll({ limit: 1 });
@@ -1884,7 +1884,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: null, // changeType should be null when multiple changes occur
+            changeType: [EncounterChangeType.Location, EncounterChangeType.Department], // changeType should be array when multiple changes occur
           });
         });
       });

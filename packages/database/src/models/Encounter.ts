@@ -580,7 +580,7 @@ export class Encounter extends Model {
   async update(...args: any): Promise<any> {
     const [data, user] = args;
     const { Location, EncounterHistory } = this.sequelize.models;
-    let changeType: string | undefined;
+    const changeTypes: string[] = [];
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -598,13 +598,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
-        changeType = EncounterChangeType.EncounterType;
+        changeTypes.push(EncounterChangeType.EncounterType);
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
-        changeType = EncounterChangeType.Location;
+        changeTypes.push(EncounterChangeType.Location);
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -651,32 +651,24 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
-        changeType = EncounterChangeType.Department;
+        changeTypes.push(EncounterChangeType.Department);
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
-        changeType = EncounterChangeType.Examiner;
+        changeTypes.push(EncounterChangeType.Examiner);
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
-      const snapshotChanges = [
-        isEncounterTypeChanged,
-        isDepartmentChanged,
-        isLocationChanged,
-        isClinicianChanged,
-      ].filter(Boolean);
-
-      // Create snapshot for any changes, with null changeType when multiple changes occur
-      if (snapshotChanges.length > 0) {
+      // Create snapshot with array of change types
+      if (changeTypes.length > 0) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
-          // Only set changeType when exactly one change occurred
-          changeType: snapshotChanges.length === 1 ? changeType : undefined,
+          changeType: changeTypes,
           submittedTime,
         });
       }
