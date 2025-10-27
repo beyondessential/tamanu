@@ -53,6 +53,7 @@ describe('Reference data exporter', () => {
 
     const modelsToDestroy = [
       'AdministeredVaccine',
+      'EncounterHistory',
       'Encounter',
       'ScheduledVaccine',
       'LabTestPanelLabTestTypes',
