@@ -42,6 +42,18 @@ export class InvoiceProduct extends Model {
   }
 
   static initRelations(models: Models) {
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourceRefDataRecord',
+    });
+    this.belongsTo(models.LabTestPanel, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourceLabTestPanelRecord',
+    });
+    this.belongsTo(models.LabTestType, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourceLabTestTypeRecord',
+    });
     // Has many in the context of importing and storing data
     this.hasMany(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',

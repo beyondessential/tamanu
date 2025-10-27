@@ -13,6 +13,7 @@ import {
   medicationTemplateLoader,
   medicationSetLoader,
   procedureTypeLoader,
+  invoiceProductLoader,
 } from './loaders';
 import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
 
@@ -65,7 +66,10 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
-  invoiceProduct: {},
+  invoiceProduct: {
+    loader: invoiceProductLoader,
+    needs: ['procedureType', 'drug', 'labTestType', 'labTestPanel'],
+  },
 
   invoicePriceList: {},
   invoicePriceListItem: {

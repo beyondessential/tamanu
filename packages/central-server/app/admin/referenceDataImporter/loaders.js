@@ -9,6 +9,8 @@ import {
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
   DEFAULT_LANGUAGE_CODE,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
@@ -713,6 +715,66 @@ export async function procedureTypeLoader(item, { models, pushError }) {
         surveyId: surveyId,
       },
     });
+  });
+
+  return rows;
+}
+
+export async function invoiceProductLoader(item, { models, pushError }) {
+  const { sourceRecordType, sourceRecordId } = item;
+  console.log('item', item);
+  const rows = [];
+
+  if (!sourceRecordType && sourceRecordId) {
+    pushError(`Must provide a source record type if providing a source record ID.`);
+    return [];
+  }
+
+  if (sourceRecordType && !sourceRecordId) {
+    pushError(`Must provide a source record ID if providing a source record type.`);
+    return [];
+  }
+
+  if (!sourceRecordType && !sourceRecordId) {
+    return [
+      {
+        model: 'InvoiceProduct',
+        values: {
+          id: uuidv4(),
+          ...item,
+        },
+      },
+    ];
+  }
+
+  const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
+  if (!validCategories.includes(sourceRecordType)) {
+    pushError(
+      `Invalid source record type: "${sourceRecordType}". Must be one of: ${validCategories.join(', ')}.`,
+    );
+    return [];
+  }
+
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[sourceRecordType];
+  const existingRecord = await models[modelName].findOne({
+    where: { id: sourceRecordId },
+  });
+  console.log('existingRecord', existingRecord);
+  if (!existingRecord) {
+    pushError(
+      `Source record with ID "${sourceRecordId}" and type "${sourceRecordType}" does not exist.`,
+    );
+    return [];
+  }
+
+  const newInvoiceProduct = {
+    id: uuidv4(),
+    ...item,
+    sourceRecordType: modelName,
+  };
+  rows.push({
+    model: 'InvoiceProduct',
+    values: newInvoiceProduct,
   });
 
   return rows;
