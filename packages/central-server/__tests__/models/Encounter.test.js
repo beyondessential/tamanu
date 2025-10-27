@@ -109,7 +109,7 @@ describe('Encounter', () => {
 
   describe('beforeBulkDestroy', () => {
     it('should destroy all associated records', async () => {
-      const { Encounter } = models;
+      const { Encounter, EncounterHistory } = models;
       const encounterIds = [];
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -121,22 +121,12 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { id: { [Op.in]: encounterIds } } });
 
-      const changelogs = await models.ChangeLog.findAll();
-
-      console.log(changelogs);
-
-      // Query logs.changes instead of encounter_history for encounter change tracking
-      const count = await models.ChangeLog.count({
-        where: {
-          tableName: 'encounters',
-          recordId: { [Op.in]: encounterIds },
-        },
-      });
+      const count = await EncounterHistory.count();
       expect(count).toBe(1);
     });
 
     it('should work without specifying IDs', async () => {
-      const { Encounter } = models;
+      const { Encounter, EncounterHistory } = models;
       const reasonForEncounter = 'A very adequate reason';
       for (let i = 0; i < 3; i++) {
         const { encounter } = await makeEncounterWithAssociations(models);
@@ -148,14 +138,8 @@ describe('Encounter', () => {
 
       await Encounter.destroy({ where: { reasonForEncounter } });
 
-      // Query logs.changes instead of encounter_history for encounter change tracking
-      const count = await models.ChangeLog.count({
-        where: {
-          tableName: 'encounters',
-          recordData: {
-            [Op.contains]: { reasonForEncounter },
-          },
-        },
+      const count = await EncounterHistory.count({
+        where: { reasonForEncounter },
       });
       expect(count).toBe(1);
     });
