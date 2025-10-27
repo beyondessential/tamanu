@@ -1,35 +1,26 @@
 /* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
-import { SettingPath } from '../types';
+import { SettingPath, SettingsSchema } from '../types';
 import { buildSettings } from '..';
 import { settingsCache } from '../cache';
 import { Models } from './readers/SettingsDBReader';
+import { globalSettings } from '../schema/global';
+import { facilitySettings } from '../schema/facility';
 
-export const KEYS_EXPOSED_TO_FRONT_END = [
-  'audit',
-  'appointments',
-  'ageDisplayFormat',
-  'customisations',
-  'features',
-  'fields',
-  'imagingCancellationReasons',
-  'imagingPriorities',
-  'insurer',
-  'customisations',
-  'printMeasures',
-  'invoice',
-  'labsCancellationReasons',
-  'templates',
-  'layouts',
-  'security.mobile',
-  'triageCategories',
-  'upcomingVaccinations',
-  'vaccinations',
-  'vitalEditReasons',
-  'medications',
-  'sync',
-  'mobileSync',
-] as const;
+// Extract top-level keys from settings schema that have exposedToWeb: true
+const extractExposedKeys = (schema: SettingsSchema): string[] => {
+  const keys: string[] = [];
+  for (const [key, value] of Object.entries(schema.properties)) {
+    if (value.exposedToWeb) keys.push(key);
+  }
+  return keys;
+};
+
+const getExposedKeys = (): string[] => {
+  const globalKeys = extractExposedKeys(globalSettings);
+  const facilityKeys = extractExposedKeys(facilitySettings);
+  return [...globalKeys, ...facilityKeys];
+};
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -46,11 +37,13 @@ export class ReadSettings<Path = SettingPath> {
 
   // This is what is called on login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
+  // Settings are automatically extracted based on exposedToWeb: true in the schema
   async getFrontEndSettings() {
     let settings = settingsCache.getFrontEndSettings();
     if (!settings) {
       const allSettings = await this.getAll();
-      settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+      const exposedKeys = getExposedKeys();
+      settings = pick(allSettings, exposedKeys);
       settingsCache.setFrontEndSettings(settings);
     }
     return settings;
