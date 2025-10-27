@@ -234,21 +234,18 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     });
 
     it("won't sync sensitive encounter history", async () => {
-      // Query logs.changes instead of encounter_history for encounter change tracking
-      const sensitiveEncounterHistory = await models.ChangeLog.findOne({
+      const sensitiveEncounterHistory = await models.EncounterHistory.findOne({
         where: {
-          tableName: 'encounters',
-          recordId: sensitiveEncounter.id,
+          encounterId: sensitiveEncounter.id,
         },
       });
-      const nonSensitiveEncounterHistory = await models.ChangeLog.findOne({
+      const nonSensitiveEncounterHistory = await models.EncounterHistory.findOne({
         where: {
-          tableName: 'encounters',
-          recordId: nonSensitiveEncounter.id,
+          encounterId: nonSensitiveEncounter.id,
         },
       });
       await checkSensitiveRecordFiltering({
-        model: models.ChangeLog,
+        model: models.EncounterHistory,
         sensitiveId: sensitiveEncounterHistory.id,
         nonSensitiveId: nonSensitiveEncounterHistory.id,
       });
