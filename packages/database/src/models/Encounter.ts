@@ -2,7 +2,7 @@ import { Op, DataTypes } from 'sequelize';
 
 import {
   ENCOUNTER_TYPE_VALUES,
-  // EncounterChangeType,
+  EncounterChangeType,
   NOTE_TYPES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
@@ -409,7 +409,8 @@ export class Encounter extends Model {
 
   static async create(...args: any): Promise<any> {
     const [data, options] = args;
-    const encounter = (await super.create(data, options)) as Encounter;
+    const { actorId, ...encounterData } = data;
+    const encounter = (await super.create(encounterData, options)) as Encounter;
 
     const { EncounterHistory } = this.sequelize.models;
     await EncounterHistory.createSnapshot(

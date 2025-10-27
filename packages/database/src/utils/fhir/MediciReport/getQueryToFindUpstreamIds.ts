@@ -8,6 +8,7 @@ export function fromEncounters(
 ) {
   const {
     Encounter,
+    EncounterHistory,
 
     ImagingRequest,
     ImagingRequestArea,
@@ -37,18 +38,14 @@ export function fromEncounters(
     case Encounter.tableName:
       return { where: { id } };
 
-    // Query logs.changes instead of encounter_history for encounter change tracking
-    case 'encounter_history':
+    case EncounterHistory.tableName:
       return {
         include: [
           {
-            model: models.ChangeLog,
-            as: 'changeLog',
+            model: EncounterHistory,
+            as: 'encounterHistory',
             required: true,
-            where: {
-              tableName: 'encounters',
-              recordId: id,
-            },
+            where: { id },
           },
         ],
       };
