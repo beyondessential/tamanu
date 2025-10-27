@@ -15,7 +15,6 @@ import {
   ModalFormActionRow,
   RadioField,
 } from '../../../components';
-import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
