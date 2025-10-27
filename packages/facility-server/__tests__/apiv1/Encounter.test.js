@@ -1695,12 +1695,11 @@ describe('Encounter', () => {
           });
           expect(updateResult).toHaveSucceeded();
 
-          let encounterHistoryRecords = await models.ChangeLog.findAll({
+          let encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
+            order: [['date', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(2);
@@ -1729,12 +1728,11 @@ describe('Encounter', () => {
 
           expect(updateResult2).toHaveSucceeded();
 
-          encounterHistoryRecords = await models.ChangeLog.findAll({
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
+            order: [['date', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(3);
@@ -1755,7 +1753,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1765,7 +1763,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
 
           const clinicianChangeSubmittedTime = getCurrentDateTimeString();
@@ -1776,12 +1774,11 @@ describe('Encounter', () => {
 
           expect(updateResult3).toHaveSucceeded();
 
-          encounterHistoryRecords = await models.ChangeLog.findAll({
+          encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
+            order: [['date', 'ASC']],
           });
 
           expect(encounterHistoryRecords).toHaveLength(4);
@@ -1802,7 +1799,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Location,
+            changeType: [EncounterChangeType.Location],
           });
           expect(encounterHistoryRecords[2]).toMatchObject({
             date: departmentChangeSubmittedTime,
@@ -1812,7 +1809,7 @@ describe('Encounter', () => {
             examinerId: encounter.examinerId,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Department,
+            changeType: [EncounterChangeType.Department],
           });
           expect(encounterHistoryRecords[3]).toMatchObject({
             date: clinicianChangeSubmittedTime,
@@ -1822,13 +1819,13 @@ describe('Encounter', () => {
             examinerId: newClinician.id,
             encounterType: encounter.encounterType,
             actorId: user.id,
-            changeType: EncounterChangeType.Examiner,
+            changeType: [EncounterChangeType.Examiner],
           });
         });
       });
 
       describe('multiple changes in 1 encounter update', () => {
-        it('throws an error if multiple changes happen in 1 encounter update', async () => {
+        it('should allow multiple changes in 1 encounter update and create snapshot with array of changeTypes', async () => {
           const [oldLocation, newLocation] = await models.Location.findAll({ limit: 2 });
           const [oldDepartment, newDepartment] = await models.Department.findAll({ limit: 2 });
           const [clinician] = await models.User.findAll({ limit: 1 });
@@ -1852,27 +1849,22 @@ describe('Encounter', () => {
             submittedTime: locationChangeSubmittedTime,
           });
 
-          expect(updateResult).toHaveRequestError();
-          expect(updateResult.body.error.message).toEqual(
-            'Encounter type, department, location and clinician must be changed in separate operations',
-          );
+          expect(updateResult).toHaveSucceeded();
 
           const newEncounter = await models.Encounter.findByPk(result.body.id);
 
-          // Confirm that the encounter has not been changed if an error has been thrown
           expect(newEncounter).toMatchObject({
             patientId: patient.id,
             examinerId: clinician.id,
-            locationId: oldLocation.id,
-            departmentId: oldDepartment.id,
+            locationId: newLocation.id,
+            departmentId: newDepartment.id,
           });
 
-          const encounterHistoryRecords = await models.ChangeLog.findAll({
+          const encounterHistoryRecords = await models.EncounterHistory.findAll({
             where: {
-              tableName: 'encounters',
-              recordId: encounter.id,
+              encounterId: encounter.id,
             },
-            order: [['loggedAt', 'ASC']],
+            order: [['date', 'ASC']],
           });
 
           // only 1 encounter history for initial encounter snapshot
