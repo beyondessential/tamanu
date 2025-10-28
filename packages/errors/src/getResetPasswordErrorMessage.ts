@@ -10,7 +10,7 @@ export function getResetPasswordErrorMessage(error: Problem | BaseError): string
   if (error.type === ERROR_TYPE.RATE_LIMITED) {
     return `User locked out. ${Math.ceil(
       error.extra.get('retry-after') / 60,
-    )} minutes remaining.`;
+    )} minute(s) remaining.`;
   }
   return error.message;
 }
