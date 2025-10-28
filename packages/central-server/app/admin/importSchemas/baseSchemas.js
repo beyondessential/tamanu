@@ -19,6 +19,7 @@ import {
   DRUG_UNITS,
   PERMISSION_NOUNS,
   INVOICE_ITEMS_CATEGORIES_MODELS,
+  INVOICE_ITEMS_CATEGORIES,
 } from '@tamanu/constants';
 import config from 'config';
 import {
@@ -343,6 +344,7 @@ export const UserFacility = yup.object().shape({
 export const InvoiceProduct = yup.object().shape({
   id: yup.string().required(),
   name: yup.string().required(),
+  category: yup.string().oneOf(Object.values(INVOICE_ITEMS_CATEGORIES)),
   sourceRecordType: yup
     .string()
     .oneOf(Array.from(new Set(Object.values(INVOICE_ITEMS_CATEGORIES_MODELS)))),

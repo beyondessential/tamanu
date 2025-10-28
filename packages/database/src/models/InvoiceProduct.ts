@@ -7,6 +7,7 @@ export class InvoiceProduct extends Model {
   declare id: string;
   declare name: string;
   declare discountable: boolean;
+  declare category?: string;
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
   declare visibilityStatus: string;
@@ -22,6 +23,10 @@ export class InvoiceProduct extends Model {
         discountable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
+        },
+        category: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
         sourceRecordType: {
           type: DataTypes.STRING,

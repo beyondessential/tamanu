@@ -721,21 +721,20 @@ export async function procedureTypeLoader(item, { models, pushError }) {
 }
 
 export async function invoiceProductLoader(item, { models, pushError }) {
-  const { sourceRecordType, sourceRecordId } = item;
-  console.log('item', item);
+  const { category, sourceRecordId } = item;
   const rows = [];
 
-  if (!sourceRecordType && sourceRecordId) {
-    pushError(`Must provide a source record type if providing a source record ID.`);
+  if (!category && sourceRecordId) {
+    pushError(`Must provide a category if providing a sourceRecordId.`);
     return [];
   }
 
-  if (sourceRecordType && !sourceRecordId) {
-    pushError(`Must provide a source record ID if providing a source record type.`);
+  if (category && !sourceRecordId) {
+    pushError(`Must provide a sourceRecordId if providing a category.`);
     return [];
   }
 
-  if (!sourceRecordType && !sourceRecordId) {
+  if (!category && !sourceRecordId) {
     return [
       {
         model: 'InvoiceProduct',
@@ -748,21 +747,29 @@ export async function invoiceProductLoader(item, { models, pushError }) {
   }
 
   const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
-  if (!validCategories.includes(sourceRecordType)) {
-    pushError(
-      `Invalid source record type: "${sourceRecordType}". Must be one of: ${validCategories.join(', ')}.`,
-    );
+  if (!validCategories.includes(category)) {
+    pushError(`Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`);
     return [];
   }
 
-  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[sourceRecordType];
-  const existingRecord = await models[modelName].findOne({
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
+  if (!modelName) {
+    pushError(`No model mapped to category: "${category}".`);
+    return [];
+  }
+
+  const model = models[modelName];
+  if (!model) {
+    pushError(`Model not found: "${modelName}".`);
+    return [];
+  }
+
+  const existingRecord = await model.findOne({
     where: { id: sourceRecordId },
   });
-  console.log('existingRecord', existingRecord);
   if (!existingRecord) {
     pushError(
-      `Source record with ID "${sourceRecordId}" and type "${sourceRecordType}" does not exist.`,
+      `Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`,
     );
     return [];
   }
@@ -770,7 +777,8 @@ export async function invoiceProductLoader(item, { models, pushError }) {
   const newInvoiceProduct = {
     id: uuidv4(),
     ...item,
-    sourceRecordType: modelName,
+    category,
+    sourceRecordId,
   };
   rows.push({
     model: 'InvoiceProduct',

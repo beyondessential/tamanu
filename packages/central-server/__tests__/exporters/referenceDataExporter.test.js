@@ -19,7 +19,12 @@ import {
   destroyPermission,
 } from './referenceDataUtils';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
-import { REFERENCE_DATA_TRANSLATION_PREFIX, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/utils/dateTime';
@@ -742,7 +747,8 @@ describe('Reference data exporter', () => {
         id: 'invoiceProduct-1',
         name: 'Invoice Product 1',
         discountable: true,
-        sourceRecordType: 'ReferenceData',
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
         sourceRecordId: drug.id,
       });
 
@@ -755,7 +761,8 @@ describe('Reference data exporter', () => {
         id: 'invoiceProduct-2',
         name: 'Invoice Product 2',
         discountable: false,
-        sourceRecordType: 'ReferenceData',
+        category: INVOICE_ITEMS_CATEGORIES.PROCEDURE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE],
         sourceRecordId: procedure.id,
       });
 
@@ -780,14 +787,16 @@ describe('Reference data exporter', () => {
         id: 'invoiceProduct-3',
         name: 'Invoice Product 3',
         discountable: true,
-        sourceRecordType: 'LabTestPanel',
+        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL],
         sourceRecordId: labTestPanel.id,
       });
       await createInvoiceProduct(models, {
         id: 'invoiceProduct-4',
         name: 'Invoice Product 4',
         discountable: true,
-        sourceRecordType: 'LabTestType',
+        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
         sourceRecordId: labTestType.id,
       });
       await exporter(store, { 1: 'invoiceProduct' });
@@ -795,15 +804,8 @@ describe('Reference data exporter', () => {
         [
           {
             data: [
-              [
-                'id',
-                'name',
-                'discountable',
-                'sourceRecordType',
-                'sourceRecordId',
-                'visibilityStatus',
-              ],
-              ['invoiceProduct-0', 'Invoice Product Ad hoc', false, undefined, null, 'current'],
+              ['id', 'name', 'discountable', 'category', 'sourceRecordId', 'visibilityStatus'],
+              ['invoiceProduct-0', 'Invoice Product Ad hoc', false, null, null, 'current'],
               ['invoiceProduct-1', 'Invoice Product 1', true, 'Drug', 'drug-1', 'current'],
               [
                 'invoiceProduct-2',

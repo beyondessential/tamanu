@@ -1,6 +1,10 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
+  await query.addColumn('invoice_products', 'category', {
+    type: DataTypes.STRING,
+    allowNull: true,
+  });
   await query.addColumn('invoice_products', 'source_record_type', {
     type: DataTypes.STRING,
     allowNull: true,

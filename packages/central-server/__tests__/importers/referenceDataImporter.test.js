@@ -629,7 +629,7 @@ describe('Data definition import', () => {
       expect(errors).toContainValidationError(
         'invoiceProduct',
         2,
-        'Source record with ID "Drug-love" and type "Drug" does not exist.',
+        'Source record with ID "Drug-love" and category "Drug" does not exist.',
       );
     });
   });

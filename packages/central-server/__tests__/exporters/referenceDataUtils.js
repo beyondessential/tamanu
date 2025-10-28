@@ -56,12 +56,13 @@ export async function createLabTestCategory(models, { id, name, code }) {
 
 export async function createInvoiceProduct(
   models,
-  { id, name, discountable, sourceRecordType, sourceRecordId },
+  { id, name, discountable, category, sourceRecordType, sourceRecordId },
 ) {
   return await models.InvoiceProduct.create({
     id,
     name,
     discountable,
+    category,
     sourceRecordType,
     sourceRecordId,
   });

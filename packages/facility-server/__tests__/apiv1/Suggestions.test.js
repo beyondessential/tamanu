@@ -4,6 +4,8 @@ import {
   SURVEY_TYPES,
   VISIBILITY_STATUSES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import {
   buildDiagnosis,
@@ -929,7 +931,8 @@ describe('Suggestions', () => {
 
     const invoiceProduct = await models.InvoiceProduct.create({
       name: 'Test Invoice Product',
-      sourceRecordType: 'labTestType',
+      category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+      sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
       sourceRecordId: labTestType.id,
       discountable: true,
       visibilityStatus: 'current',
