@@ -11,8 +11,8 @@ import {
   TextInput,
   TranslatedText,
 } from '../../../../components';
+import { Colors } from '../../../../constants/styles';
 import { JSONEditor } from './JSONEditor';
-import { Colors } from '../../../../constants';
 import { ConditionalTooltip } from '../../../../components/Tooltip';
 import { MultiAutocompleteInput } from '../../../../components/Field/MultiAutocompleteField';
 import { useSuggester } from '../../../../api';

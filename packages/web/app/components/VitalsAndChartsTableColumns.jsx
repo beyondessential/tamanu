@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getNormalRangeByAge } from '@tamanu/ui-components';
 import {
   PROGRAM_DATA_ELEMENT_TYPES,
   VISIBILITY_STATUSES,
@@ -18,7 +19,6 @@ import {
 import { DateDisplay } from './DateDisplay';
 import { VitalVectorIcon } from './Icons/VitalVectorIcon';
 import { useVitalChartData } from '../contexts/VitalChartData';
-import { getNormalRangeByAge } from '../utils';
 import { useUserPreferencesQuery } from '../api/queries/useUserPreferencesQuery';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useChartData } from '../contexts/ChartData';
@@ -28,7 +28,7 @@ const IconButton = styled(IconButtonComponent)`
   padding: 9px 5px;
 `;
 
-const getExportOverrideTitle = (date) => {
+const getExportOverrideTitle = date => {
   const shortestDate = DateDisplay.stringFormat(date, formatShortest);
   const timeWithSeconds = DateDisplay.stringFormat(date, formatTimeWithSeconds);
   return `${shortestDate} ${timeWithSeconds}`;
@@ -128,7 +128,7 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 
     chartKeys = ['select-all', ''].includes(graphFilter)
       ? allGraphedChartKeys
-      : graphFilter.split(',').filter((key) => allGraphedChartKeys.includes(key));
+      : graphFilter.split(',').filter(key => allGraphedChartKeys.includes(key));
   }
 
   return (
@@ -160,12 +160,11 @@ const TitleCell = React.memo(({ value, selectedChartSurveyName }) => {
 });
 
 const getRecordedDateAccessor = (date, patient, onCellClick, isEditEnabled, chartTitle) => {
-  return (cells) => {
+  return cells => {
     const { answerId, value, config, validationCriteria, historyLogs, component } = cells[date];
     const isCalculatedQuestion =
       component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.CALCULATED;
-    const isMultiSelect =
-      component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
+    const isMultiSelect = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT;
     const isPhoto = component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO;
     const handleCellClick = () => {
       onCellClick(cells[date]);
@@ -214,11 +213,13 @@ export const getChartsTableColumns = (
   return [
     {
       key: 'measure',
-      title: <TranslatedText
-        stringId="general.table.column.measure"
-        fallback="Measure"
-        data-testid="translatedtext-l9f5"
-      />,
+      title: (
+        <TranslatedText
+          stringId="general.table.column.measure"
+          fallback="Measure"
+          data-testid="translatedtext-l9f5"
+        />
+      ),
       sortable: false,
       accessor: ({ value, config, validationCriteria }) => (
         <RangeTooltipCell
@@ -236,7 +237,7 @@ export const getChartsTableColumns = (
     // create a column for each reading
     ...recordedDates
       .sort((a, b) => b.localeCompare(a))
-      .map((date) => ({
+      .map(date => ({
         title: <DateHeadCell value={date} data-testid={`dateheadcell-${date}`} />,
         sortable: false,
         key: date,
