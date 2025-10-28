@@ -67,6 +67,10 @@ export class InvoiceProduct extends Model {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
     });
+    this.hasMany(models.InvoiceInsuranceContractItem, {
+      foreignKey: 'invoiceProductId',
+      as: 'invoiceInsuranceContractItems',
+    });
   }
 
   static buildSyncFilter() {
