@@ -14,7 +14,7 @@ import { DrugExporter } from './DrugExporter';
 import { MedicationTemplateExporter } from './MedicationTemplateExporter';
 import { MedicationSetExporter } from './MedicationSetExporter';
 import { ProcedureTypeExporter } from './ProcedureTypeExporter';
-import { InvoicePriceListExporter } from './InvoicePriceListExporter';
+import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -30,7 +30,7 @@ const CustomExportersByDataType = {
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: MedicationTemplateExporter,
   [REFERENCE_TYPES.MEDICATION_SET]: MedicationSetExporter,
   [REFERENCE_TYPES.PROCEDURE_TYPE]: ProcedureTypeExporter,
-  invoicePriceList: InvoicePriceListExporter,
+  invoicePriceListItem: InvoicePriceListItemExporter,
 };
 
 export const createModelExporter = (context, dataType) => {
