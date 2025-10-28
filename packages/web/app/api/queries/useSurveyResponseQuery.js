@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { cloneDeep } from 'lodash';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
+import { getPatientDataDisplayValue } from '@tamanu/ui-components';
 import { useApi } from '../useApi';
 import { useTranslation } from '../../contexts/Translation';
-import { getPatientDataDisplayValue } from '../../utils/survey';
 
 export const useSurveyResponseQuery = surveyResponseId => {
   const api = useApi();

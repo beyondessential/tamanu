@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { Button } from '@tamanu/ui-components';
 import EmailIcon from '@material-ui/icons/Email';
 import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmationForm';
-import { Button } from '..';
 import { FormModal } from '../FormModal';
 import { TranslatedText } from '../Translation/TranslatedText';
 

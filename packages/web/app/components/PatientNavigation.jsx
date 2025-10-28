@@ -2,8 +2,8 @@ import { goBack } from 'connected-react-router';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { Colors } from '../constants';
-import { BackButton } from './Button';
+import { BackButton } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker';
 

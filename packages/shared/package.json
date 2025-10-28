@@ -83,6 +83,11 @@
       "import": "./dist/esm/schemas/*.js",
       "types": "./dist/esm/schemas/*.d.ts"
     },
+    "./schemas/patientPortal": {
+      "require": "./dist/cjs/schemas/patientPortal/index.js",
+      "import": "./dist/esm/schemas/patientPortal/index.js",
+      "types": "./dist/esm/schemas/patientPortal/index.d.ts"
+    },
     "./schemas/patientPortal/*": {
       "require": "./dist/cjs/schemas/patientPortal/*.js",
       "import": "./dist/esm/schemas/patientPortal/*.js",

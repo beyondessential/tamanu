@@ -2,19 +2,21 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
 import {
   BodyText,
-  Button,
   Field,
-  Form,
-  FormSubmitButton,
-  TextButton,
-  TextField,
 } from '../components';
-import { Colors } from '../constants';
+import {
+  TextField,
+  Form,
+  Button,
+  TextButton,
+  FormSubmitButton,
+  FormGrid,
+  TranslatedText
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
-import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
 const FormTitleSection = styled.div`
