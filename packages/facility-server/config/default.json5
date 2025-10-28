@@ -75,9 +75,11 @@
     }
   },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "senaite": {
     "enabled": false,
@@ -113,6 +115,7 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "timeSync": {
       "enabled": false,

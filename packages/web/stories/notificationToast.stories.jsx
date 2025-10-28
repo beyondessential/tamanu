@@ -1,8 +1,7 @@
 import React from 'react';
 
 import 'react-toastify/dist/ReactToastify.css';
-import { CustomToastContainer } from '../app/customToastContainer';
-import { Button } from '../app/components';
+import { Button, CustomToastContainer } from '@tamanu/ui-components';
 import { notifyError, notifyInfo, notifySuccess } from '../app/utils';
 import { Slide } from 'react-toastify';
 import { ClearIcon } from '../app/components/Icons/ClearIcon';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent } from '@mui/material';
-import { type Appointment } from '@tamanu/shared/schemas/patientPortal/responses/appointment.schema';
+import { type Appointment } from '@tamanu/shared/schemas/patientPortal';
 
 import { LabelValueList } from '../../../components/LabelValueList';
 import {
@@ -17,7 +17,7 @@ interface AppointmentCardProps {
 
 export const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment }) => {
   return (
-    <Card variant="secondary">
+    <Card>
       <CardContent>
         <LabelValueList>
           <LabelValueList.ListItem
