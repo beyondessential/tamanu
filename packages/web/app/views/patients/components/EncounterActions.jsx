@@ -162,8 +162,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
               size="small"
               color="primary"
               onClick={() => {
-                  setNewEncounterType(null);
-                  setOpenModal(ENCOUNTER_MODALS.MOVE);
+                setNewEncounterType(null);
+                setOpenModal(ENCOUNTER_MODALS.MOVE);
               }}
             >
               <TranslatedText stringId="encounter.action.movePatient" fallback="Move patient" />

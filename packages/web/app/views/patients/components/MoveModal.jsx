@@ -19,7 +19,6 @@ import {
   RadioField,
   TranslatedEnum,
 } from '../../../components';
-import { usePatientMove } from '../../../api/mutations';
 import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
@@ -182,7 +181,6 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
@@ -193,20 +191,14 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
   const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
     await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
       departmentId,
       examinerId,
       ...(newEncounterType && { encounterType: newEncounterType }),
+      ...(action === PATIENT_MOVE_ACTIONS.PLAN
+        ? { plannedLocationId }
+        : { locationId: plannedLocationId || locationId }),
     });
-
-    await submitPatientMove(
-      action === PATIENT_MOVE_ACTIONS.PLAN
-        ? {
-            plannedLocationId,
-          }
-        : {
-            locationId: plannedLocationId || locationId,
-          },
-    );
   };
 
   return (
