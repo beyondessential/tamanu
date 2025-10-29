@@ -28,7 +28,7 @@ export const createEncounter = async ({
   diagnosisCount = chance.integer({ min: 1, max: 5 }),
   isDischarged = chance.bool(),
 }: CreateEncounterParams): Promise<{ encounter: Encounter }> => {
-  const { Encounter, EncounterHistory, Note, Discharge, EncounterDiagnosis } = models;
+  const { Encounter, Note, Discharge, EncounterDiagnosis } = models;
 
   const encounter = await Encounter.create(
     fake(Encounter, {
@@ -37,15 +37,6 @@ export const createEncounter = async ({
       locationId: locationId || (await randomRecordId(models, 'Location')),
       examinerId: userId || (await randomRecordId(models, 'User')),
       startDate: '2023-12-21T04:59:51.851Z',
-    }),
-  );
-
-  await EncounterHistory.create(
-    fake(EncounterHistory, {
-      examinerId: userId || (await randomRecordId(models, 'User')),
-      encounterId: encounter.id,
-      departmentId: departmentId || (await randomRecordId(models, 'Department')),
-      locationId: locationId || (await randomRecordId(models, 'Location')),
     }),
   );
 
