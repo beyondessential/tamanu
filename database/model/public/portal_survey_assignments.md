@@ -40,3 +40,7 @@ Timestamp when the survey was assigned to the patient for completion through the
 
 This field is provided a value by the Tamanu web frontend when a survey assignment is created.
 {% enddocs %}
+
+{% docs portal_survey_assignments__facility_id %}
+The facility that the survey was assigned from
+{% enddocs %}

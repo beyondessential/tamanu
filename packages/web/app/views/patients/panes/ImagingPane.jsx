@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
+import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
 import {
-  Button,
-  ButtonWithPermissionCheck,
   TableButtonRow,
   NoteModalActionBlocker,
 } from '../../../components';

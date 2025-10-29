@@ -36,78 +36,75 @@ export const EmptyChartsTable = ({ noDataMessage, isLoading = false }) => (
   />
 );
 
-export const ChartsTable = React.memo(({
-  selectedSurveyId,
-  selectedChartSurveyName,
-  noDataMessage,
-  currentInstanceId,
-}) => {
-  const { ability } = useAuth();
-  const patient = useSelector((state) => state.patient);
-  const { encounter } = useEncounter();
-  const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
-    encounter.id,
-    selectedSurveyId,
-    currentInstanceId,
-  );
-  const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedCell, setSelectedCell] = useState(null);
-  const { getSetting } = useSettings();
-  const isChartingEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
-  const hasReadPermission = ability.can('read', subject('Charting', { id: selectedSurveyId }));
-  const showFooterLegend = data.some((entry) =>
-    recordedDates.some((date) => entry[date].historyLogs.length > 1),
-  );
-
-  const onCellClick = useCallback((clickedCell) => {
-    setOpenEditModal(true);
-    setSelectedCell(clickedCell);
-  }, []);
-
-  // create a column for each reading
-  const columns = getChartsTableColumns(
-    selectedChartSurveyName,
-    patient,
-    recordedDates,
-    onCellClick,
-    isChartingEditEnabled && hasReadPermission,
-  );
-
-  // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
-  // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
-  if (selectedSurveyId && isLoading) {
-    return (
-      <Box mt={2} data-testid="box-zgmh">
-        <LoadingIndicator height="400px" data-testid="loadingindicator-i4u9" />
-      </Box>
+export const ChartsTable = React.memo(
+  ({ selectedSurveyId, selectedChartSurveyName, noDataMessage, currentInstanceId }) => {
+    const { ability } = useAuth();
+    const patient = useSelector(state => state.patient);
+    const { encounter } = useEncounter();
+    const { data, recordedDates, error, isLoading } = useEncounterChartsQuery(
+      encounter.id,
+      selectedSurveyId,
+      currentInstanceId,
     );
-  }
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [selectedCell, setSelectedCell] = useState(null);
+    const { getSetting } = useSettings();
+    const isChartingEditEnabled = getSetting(SETTING_KEYS.FEATURES_ENABLE_CHARTING_EDIT);
+    const hasReadPermission = ability.can('read', subject('Charting', { id: selectedSurveyId }));
+    const showFooterLegend = data.some(entry =>
+      recordedDates.some(date => entry[date].historyLogs.length > 1),
+    );
 
-  if (data.length === 0) {
-    return <EmptyChartsTable noDataMessage={noDataMessage} data-testid="emptychartstable-w6z7" />;
-  }
+    const onCellClick = useCallback(clickedCell => {
+      setOpenEditModal(true);
+      setSelectedCell(clickedCell);
+    }, []);
 
-  return (
-    <>
-      <EditVitalCellModal
-        open={openEditModal}
-        dataPoint={selectedCell}
-        onClose={() => {
-          setOpenEditModal(false);
-        }}
-        data-testid="editvitalcellmodal-2jqx"
-      />
-      <StyledDynamicColumnTable
-        columns={columns}
-        data={data}
-        elevated={false}
-        errorMessage={error?.message}
-        count={data.length}
-        allowExport
-        showFooterLegend={showFooterLegend}
-        data-testid="dynamiccolumntable-ddeu"
-        isBodyScrollable
-      />
-    </>
-  );
-});
+    // create a column for each reading
+    const columns = getChartsTableColumns(
+      selectedChartSurveyName,
+      patient,
+      recordedDates,
+      onCellClick,
+      isChartingEditEnabled && hasReadPermission,
+    );
+
+    // There is a bug in react-query that even if the query is not enabled, it will still return isLoading = true
+    // So we need to check if the selectedSurveyId is null here to avoid showing the loading indicator
+    if (selectedSurveyId && isLoading) {
+      return (
+        <Box mt={2} data-testid="box-zgmh">
+          <LoadingIndicator height="400px" data-testid="loadingindicator-i4u9" />
+        </Box>
+      );
+    }
+
+    if (data.length === 0) {
+      return <EmptyChartsTable noDataMessage={noDataMessage} data-testid="emptychartstable-w6z7" />;
+    }
+
+    return (
+      <>
+        <EditVitalCellModal
+          open={openEditModal}
+          dataPoint={selectedCell}
+          onClose={() => {
+            setOpenEditModal(false);
+          }}
+          data-testid="editvitalcellmodal-2jqx"
+        />
+        <StyledDynamicColumnTable
+          columns={columns}
+          data={data}
+          elevated={false}
+          errorMessage={error?.message}
+          count={data.length}
+          allowExport
+          showFooterLegend={showFooterLegend}
+          data-testid="dynamiccolumntable-ddeu"
+          isBodyScrollable
+        />
+      </>
+    );
+  },
+);
