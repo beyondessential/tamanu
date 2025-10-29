@@ -1,9 +1,8 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { ApiContext, Modal } from '@tamanu/ui-components';
 import { PatientProgramRegistryUpdateModal } from '../app/features/ProgramRegistry/PatientProgramRegistryUpdateModal.jsx';
-import { ApiContext } from '../app/api';
-import { Modal } from '../app/components/Modal';
 import { InfoPaneList } from '../app/components/PatientInfoPane/InfoPaneList';
 import { PatientProgramRegistryForm } from '../app/views/programRegistry/PatientProgramRegistryForm';
 import { ProgramRegistryListItem } from '../app/views/programRegistry/ProgramRegistryListItem';

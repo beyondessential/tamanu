@@ -1,9 +1,11 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { Colors } from '../../constants';
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistrationQuery } from '../../api/queries/usePatientProgramRegistrationQuery';
@@ -12,7 +14,6 @@ import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistra
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { TranslatedReferenceData, TranslatedText } from '../../components';
 import { PatientNavigation } from '../../components/PatientNavigation';
 import { usePatientRoutes } from '../../routes/PatientRoutes';
 import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';

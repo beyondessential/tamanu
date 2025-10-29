@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
+import { ButtonWithPermissionCheck, Button } from '@tamanu/ui-components';
 import {
-  Button,
-  ButtonWithPermissionCheck,
   ContentPane,
   TableButtonRow,
   TranslatedText,

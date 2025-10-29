@@ -1233,6 +1233,26 @@ export const globalSettings = {
         },
       },
     },
+    security: {
+      description: 'Security settings',
+      properties: {
+        mobile: {
+          description: 'Mobile security settings',
+          properties: {
+            allowUnencryptedStorage: {
+              description: 'Allow unencrypted storage on mobile devices',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+            allowUnprotected: {
+              description: 'Allow mobile devices without screen lock with passcode',
+              type: yup.boolean(),
+              defaultValue: true,
+            },
+          },
+        },
+      },
+    },
     templates: {
       description: 'Strings to be inserted into emails/PDFs',
       properties: {
@@ -1274,7 +1294,7 @@ export const globalSettings = {
             body: {
               type: yup.string().trim().min(1),
               defaultValue:
-                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nYour 6-digit login code is: $loginCode$\n\nDo not respond to this email.',
+                'A new patient form request has been sent from $facilityName$ for $firstName$ $lastName$. Please follow the below link to log in to your Tamanu Patient Portal to access and complete this form.\n\n$loginLink$\n\nDo not respond to this email.',
             },
           },
         },
