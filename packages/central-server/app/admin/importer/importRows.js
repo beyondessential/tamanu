@@ -313,7 +313,7 @@ export async function importRows(
       try {
         await models.TranslatedString.bulkCreate(recordTranslationData, {
           validate: true,
-          updateOnDuplicate: ['text'],
+          updateOnDuplicate: ['text', 'deletedAt'],
         });
       } catch (err) {
         if (!(err instanceof AggregateError)) {
