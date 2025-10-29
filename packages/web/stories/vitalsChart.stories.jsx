@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { addDays, addHours, format } from 'date-fns';
-import { Modal } from '../app/components/Modal';
+import { Modal } from '@tamanu/ui-components';
 import { LineChart } from '../app/components/Charts/LineChart';
 import { EncounterContext } from '../app/contexts/Encounter';
 import { getVitalChartProps } from '../app/components/Charts/helpers/getVitalChartProps';

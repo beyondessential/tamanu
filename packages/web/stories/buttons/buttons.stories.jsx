@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, OutlinedButton } from '../../app/components';
+import { Button, OutlinedButton } from '@tamanu/ui-components';
 
 export default {
   argTypes: {
