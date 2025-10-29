@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { useParams } from 'react-router-dom';
-import { Table, DateDisplay, Heading5, TranslatedText } from '../../components';
+import { Table, DateDisplay, Heading5 } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
 import { useTableSorting } from '../../components/Table/useTableSorting';
-import { Colors } from '../../constants';
 
 const Container = styled.div`
   display: flex;

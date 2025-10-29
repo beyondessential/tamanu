@@ -2,9 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { getStatus } from '../../../utils/lab';
-import { DateDisplay, Modal, ModalLoader, Table } from '../../../components';
+import { DateDisplay, Table } from '../../../components';
 import { useApi } from '../../../api';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedText, Modal, ModalLoader } from '@tamanu/ui-components';
+
 
 const COLUMNS = [
   {

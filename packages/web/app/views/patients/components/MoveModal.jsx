@@ -2,15 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
   FormSeparatorLine,
-  FormSubmitCancelRow,
   Heading3,
   LargeBodyText,
   LocalisedLocationField,
@@ -19,11 +18,9 @@ import {
   RadioField,
   TranslatedEnum,
 } from '../../../components';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 

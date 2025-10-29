@@ -2,7 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, PLACE_OF_DEATHS } from '@tamanu/constants';
+import { MANNER_OF_DEATHS, PLACE_OF_DEATHS, FORM_TYPES } from '@tamanu/constants';
 import { ageInMonths, ageInYears, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   ArrayField,
@@ -12,19 +12,17 @@ import {
   DateTimeField,
   Field,
   FieldWithTooltip,
-  FormGrid,
   FormSeparatorLine,
   NumberField,
   PaginatedForm,
   RadioField,
-  TextField,
   TimeWithUnitField,
-  TranslatedSelectField,
 } from '../components';
+import { TextField, TranslatedSelectField, FormGrid } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { DeathFormScreen } from './DeathFormScreen';
 import { SummaryScreenThree, SummaryScreenTwo } from './DeathFormSummaryScreens';
-import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS, FORM_TYPES } from '../constants';
+import { BINARY_OPTIONS, BINARY_UNKNOWN_OPTIONS } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
@@ -51,7 +49,7 @@ const attendingClinicianLabel = (
 );
 
 const mannerOfDeathVisibilityCriteria = {
-  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter((x) => x !== 'Disease'),
+  mannerOfDeath: Object.values(MANNER_OF_DEATHS).filter(x => x !== 'Disease'),
 };
 
 export const DeathForm = React.memo(
@@ -102,7 +100,10 @@ export const DeathForm = React.memo(
                 />,
               ),
           }),
-          clinicianId: yup.string().required().translatedLabel(attendingClinicianLabel),
+          clinicianId: yup
+            .string()
+            .required()
+            .translatedLabel(attendingClinicianLabel),
           lastSurgeryDate: yup
             .date()
             .max(
@@ -157,7 +158,7 @@ export const DeathForm = React.memo(
                 data-testid="translatedtext-x1yy"
               />
             }
-            component={(props) => (
+            component={props => (
               <DateTimeField {...props} InputProps={{}} data-testid="datetimefield-8fsq" />
             )}
             saveDateAsString

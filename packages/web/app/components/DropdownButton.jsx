@@ -13,8 +13,9 @@ import {
 } from '@material-ui/core';
 import LockIcon from '@material-ui/icons/Lock';
 
-import { Colors } from '../constants';
-import { Button, FormSubmitButton } from './Button';
+import { Button, FormSubmitButton } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+
 import { withPermissionCheck } from './withPermissionCheck';
 import { withPermissionTooltip } from './withPermissionTooltip';
 
