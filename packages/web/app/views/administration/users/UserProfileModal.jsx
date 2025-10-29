@@ -2,18 +2,18 @@ import React, { useMemo } from 'react';
 import { subject } from '@casl/ability';
 import styled from 'styled-components';
 import * as yup from 'yup';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { FORM_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 import {
   Field,
-  Form,
   TextField,
   AutocompleteField,
   MultiAutocompleteField,
   SelectField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
-import { FormGrid, TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
+import { Form, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../../constants';
 import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
 import { useUpdateUserMutation, useValidateUserMutation } from '../../../api/mutations';

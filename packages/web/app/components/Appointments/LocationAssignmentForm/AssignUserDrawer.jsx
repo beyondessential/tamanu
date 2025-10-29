@@ -10,7 +10,6 @@ import {
   useLocationAssignmentDeleteMutation,
   useLocationAssignmentOverlappingAssignmentsMutation,
 } from '../../../api/mutations';
-import { FORM_TYPES, FORM_STATUSES } from '../../../constants';
 import { useOverlappingLeavesQuery } from '../../../api/queries/useOverlappingLeavesQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { useLocationAssignmentsContext } from '../../../contexts/LocationAssignments';
@@ -22,11 +21,10 @@ import {
   AutocompleteField,
   DateField,
   Field,
-  Form,
   LocalisedLocationField,
   SwitchField,
 } from '../../Field';
-import { FormGrid } from '../../FormGrid';
+import { FormGrid, Form } from '@tamanu/ui-components';
 import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import {
@@ -43,7 +41,7 @@ import {
   getLastFrequencyDate,
   getWeekdayOrdinalPosition,
 } from '@tamanu/utils/appointmentScheduling';
-import { DAYS_OF_WEEK, REPEAT_FREQUENCY } from '@tamanu/constants';
+import { DAYS_OF_WEEK, REPEAT_FREQUENCY, FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { isNumber } from 'lodash';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/Auth';
@@ -272,7 +270,7 @@ export const AssignUserDrawer = ({ open, onClose, initialValues, facilityId }) =
           />,
         );
         // Force the form to show errors by setting submit status
-        setStatus({ submitStatus: FORM_STATUSES.SUBMIT_ATTEMPTED });
+        setStatus({ submitStatus: SUBMIT_ATTEMPTED_STATUS });
       } else {
         setFieldError('date', ''); // Clear error if no overlapping leaves
       }
