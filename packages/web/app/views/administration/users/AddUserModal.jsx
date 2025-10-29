@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import {
   Field,
-  Form,
   TextField,
   AutocompleteField,
   MultiAutocompleteField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
-import { FormGrid, TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
+import { Form, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../../constants';
+import { FORM_TYPES } from '@tamanu/constants';
 import { Box } from '@mui/material';
 import { useCreateUserMutation, useValidateUserMutation } from '../../../api/mutations';
 import { toast } from 'react-toastify';

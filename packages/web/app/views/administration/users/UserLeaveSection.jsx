@@ -5,10 +5,10 @@ import { Box, Divider } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatShort } from '@tamanu/utils/dateTime';
 import { toast } from 'react-toastify';
-
-import { Field, Form, DateField } from '../../../components/Field';
+import { FORM_TYPES } from '@tamanu/constants';
+import { Field, Form, DateField } from '@tamanu/ui-components';
 import { TranslatedText, Button, Heading3, BodyText, FormSubmitButton } from '../../../components';
-import { Colors, FORM_TYPES } from '../../../constants';
+import { Colors } from '../../../constants';
 import {
   useCreateUserLeaveMutation,
   useDeleteUserLeaveMutation,
