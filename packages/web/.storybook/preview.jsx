@@ -11,6 +11,7 @@ import { LocalisationProvider } from '../app/contexts/Localisation';
 import { history, store } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';
 import { defaultEndpoints } from './__mocks__/defaultEndpoints';
+import { AuthProvider } from '../app/contexts/Auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,21 +24,23 @@ const queryClient = new QueryClient({
 
 const preview = {
   decorators: [
-    (Story) => (
+    Story => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <StylesProvider injectFirst>
             <MuiThemeProvider theme={theme}>
               <ThemeProvider theme={theme}>
                 <QueryClientProvider client={queryClient}>
-                  <CssBaseline />
-                  <LocalisationProvider>
-                    <TranslationProvider>
-                      <MockedApi endpoints={defaultEndpoints}>
-                        <Story />
-                      </MockedApi>
-                    </TranslationProvider>
-                  </LocalisationProvider>
+                  <AuthProvider>
+                    <CssBaseline />
+                    <LocalisationProvider>
+                      <TranslationProvider>
+                        <MockedApi endpoints={defaultEndpoints}>
+                          <Story />
+                        </MockedApi>
+                      </TranslationProvider>
+                    </LocalisationProvider>
+                  </AuthProvider>
                 </QueryClientProvider>
               </ThemeProvider>
             </MuiThemeProvider>

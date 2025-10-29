@@ -1,16 +1,16 @@
 import React from 'react';
 import * as yup from 'yup';
 
+import { Form, FormGrid } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+
 import { useSuggester } from '../../../api';
 import {
   AutocompleteField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
   ModalFormActionRow,
 } from '../../../components';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const LabRequestChangeLabModal = React.memo(

@@ -8,10 +8,11 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { useLocationsQuery } from '../../../api/queries';
-import { Button, PageContainer, TopBar, TranslatedText } from '../../../components';
+import { PageContainer, TopBar } from '../../../components';
 import { CancelLocationBookingModal } from '../../../components/Appointments/CancelModal/CancelLocationBookingModal';
 import { LocationBookingDrawer } from '../../../components/Appointments/LocationBookingForm/LocationBookingDrawer';
-import { Colors } from '../../../constants';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';

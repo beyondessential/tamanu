@@ -2,9 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { usePatientMove } from '../../../api/mutations';
-import { LargeBodyText, Modal } from '../../../components';
+import { LargeBodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+
 
 const Container = styled.div`
   margin: 70px 0 80px;
