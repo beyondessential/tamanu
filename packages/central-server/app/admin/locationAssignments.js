@@ -48,7 +48,7 @@ const getLocationAssignmentsSchema = z.object({
 locationAssignmentsRouter.get(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'User');
+    req.checkPermission('list', 'LocationSchedule');
 
     const { LocationAssignment, LocationAssignmentTemplate, User, Location, LocationGroup } =
       req.models;
@@ -138,7 +138,7 @@ const createLocationAssignmentSchema = z
 locationAssignmentsRouter.post(
   '/',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'User');
+    req.checkPermission('create', 'LocationSchedule');
 
     const body = await createLocationAssignmentSchema.parseAsync(req.body);
 
@@ -201,7 +201,7 @@ const updateLocationAssignmentSchema = z
 locationAssignmentsRouter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'User');
+    req.checkPermission('write', 'LocationSchedule');
 
     const { id } = req.params;
     const body = await updateLocationAssignmentSchema.parseAsync(req.body);
@@ -279,7 +279,7 @@ const deleteLocationAssignmentSchema = z.object({
 locationAssignmentsRouter.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'User');
+    req.checkPermission('delete', 'LocationSchedule');
 
     const { id } = req.params;
     const { models, db } = req;
@@ -329,7 +329,7 @@ locationAssignmentsRouter.post(
   '/overlapping-assignments',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    req.checkPermission('list', 'User');
+    req.checkPermission('list', 'LocationSchedule');
 
     const body = await overlappingAssignmentsSchema.parseAsync(req.body);
 
