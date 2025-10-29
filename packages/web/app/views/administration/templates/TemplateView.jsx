@@ -2,9 +2,10 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { TEMPLATE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { ContentPane, PageContainer, TopBar } from '../../../components';
-import { Colors } from '../../../constants';
 import { NewTemplateForm } from './NewTemplateForm';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
@@ -13,7 +14,6 @@ import { TEMPLATE_ENDPOINT } from '../constants';
 import { TemplateList } from './TemplateList';
 import { EditTemplateModal } from './EditTemplateModal';
 import { useRefreshCount } from '../../../hooks/useRefreshCount';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const ContentContainer = styled.div`
   padding: 32px 30px;

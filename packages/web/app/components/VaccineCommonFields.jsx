@@ -4,7 +4,7 @@ import Divider from '@material-ui/core/Divider';
 import { CheckCircleRounded } from '@material-ui/icons';
 
 import { VACCINE_CATEGORIES, INJECTION_SITE_LABELS } from '@tamanu/constants';
-
+import { Colors } from '../constants';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 import {
   AutocompleteField,
@@ -13,15 +13,16 @@ import {
   Field,
   LocalisedLocationField,
   RadioField,
+} from './Field';
+import {
+  TranslatedSelectField,
   SelectField,
   TextField,
   BaseSelectField,
-  TranslatedSelectField,
-} from './Field';
-import { FormSubmitCancelRow } from './ButtonRow';
+  FormSubmitCancelRow,
+} from '@tamanu/ui-components';
 import { useSuggester } from '../api';
 import { useAuth } from '../contexts/Auth';
-import { Colors } from '../constants';
 import { TranslatedText } from './Translation/TranslatedText';
 
 export const FullWidthCol = styled.div`

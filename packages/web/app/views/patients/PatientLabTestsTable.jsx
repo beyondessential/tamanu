@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
 import { formatTimeWithSeconds } from '@tamanu/utils/dateTime';
+import { TranslatedText, TranslatedReferenceData, TranslatedOption } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { Table } from '../../components/Table';
 import { DateHeadCell, RangeValidatedCell } from '../../components/FormattedTableCell';
-import { Colors } from '../../constants';
 import { LabTestResultModal } from './LabTestResultModal';
-import { BodyText, DateDisplay, TranslatedReferenceData } from '../../components';
-import { TranslatedText } from '../../components/Translation/TranslatedText';
-import { TranslatedOption } from '../../components/Translation/TranslatedOptions';
+import { BodyText, DateDisplay } from '../../components';
 
 const COLUMN_WIDTHS = [150, 120, 120];
 
