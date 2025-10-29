@@ -107,7 +107,7 @@ describe('Sync Lookup data', () => {
       PatientProgramRegistrationCondition,
       PatientSecondaryId,
       PortalSurveyAssignment,
-      Permission, 
+      Permission,
       ReportDefinitionVersion,
       Setting,
       Template,
