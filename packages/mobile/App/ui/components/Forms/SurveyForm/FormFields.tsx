@@ -20,7 +20,7 @@ import { SectionHeader } from '../../SectionHeader';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { FORM_STATUSES } from '/helpers/constants';
+import { SUBMIT_ATTEMPTED_STATUS } from '/helpers/constants';
 import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '../../LoadingScreen';
@@ -157,7 +157,7 @@ export const FormFields = ({
       await handleSubmit();
     } else {
       // Only show error messages once the user has attempted to submit the form
-      setStatus(FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED);
+      setStatus(SUBMIT_ATTEMPTED_STATUS);
 
       const firstErroredQuestion = components.find(({ dataElement }) =>
         pageErrors.includes(dataElement.code),

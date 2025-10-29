@@ -393,6 +393,7 @@ describe('Sync Lookup data', () => {
         patientId: patient.id,
         surveyId: survey.id,
         assignedById: examiner.id,
+        facilityId: facility.id,
       }),
     );
     const surveyResponse = await SurveyResponse.create(

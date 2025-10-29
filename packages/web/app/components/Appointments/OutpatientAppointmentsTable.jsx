@@ -7,15 +7,15 @@ import {
   formatShortest,
   formatTime,
 } from '@tamanu/utils/dateTime';
+import { Button } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 import { Table } from '../Table';
-import { Colors } from '../../constants';
 import { TranslatedText } from '../Translation';
 import useOverflow from '../../hooks/useOverflow';
 import { TableTooltip } from '../Table/TableTooltip';
 import { MenuButton } from '../MenuButton';
 import { useTableSorting } from '../Table/useTableSorting';
-import { Button } from '../Button';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
 import { useHasPastOutpatientAppointmentsQuery, useUpcomingOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
