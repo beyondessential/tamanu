@@ -1,9 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { ButtonBase, Typography } from '@material-ui/core';
-import { Modal } from '../../Modal';
-import { OutlinedButton } from '../../Button';
-import { Colors } from '../../../constants';
+import { OutlinedButton, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { isErrorUnknownAllow404s, useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { BookUserIcon } from '../../Icons/BookUserIcon';
@@ -12,7 +11,6 @@ import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
-import { TranslatedText } from '../../Translation/TranslatedText';
 import { IPSQRCodeModal } from './IPSQRCodeModal';
 import { SendToPatientModal } from './SendToPatientModal';
 import { IdCardIcon } from '../icons/IdCardIcon';
@@ -153,14 +151,15 @@ const PRINT_OPTIONS = {
     ),
     icon: PatientPortalIcon,
     component: SendToPatientModal,
-    condition: getSetting => getSetting('features.patientPortal'),
+    condition: (getSetting, ability) =>
+      getSetting('features.patientPortal') && ability?.can('create', 'PatientPortalRegistration'),
   },
 };
 
 const PrintOptionList = ({ className, setCurrentlyPrinting, patient }) => {
   const { getSetting } = useSettings();
   const { ability } = useAuth();
-  const isDeceased = Boolean(patient?.dateOfDeath); 
+  const isDeceased = Boolean(patient?.dateOfDeath);
   const isVisible = condition => !condition || condition(getSetting, ability);
 
   return (

@@ -8,21 +8,19 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { round } from '@tamanu/shared/utils/invoice';
 import {
   AutocompleteField,
-  Button,
   DateField,
   Field,
-  Form,
   NoteModalActionBlocker,
   NumberField,
-  TextField,
-  TranslatedText,
 } from '../components';
+import { TextField, Form, DefaultIconButton, TranslatedText, Button } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import { useSuggester } from '../api';
-import { Colors, FORM_TYPES, CHEQUE_PAYMENT_METHOD_ID } from '../constants';
+import { CHEQUE_PAYMENT_METHOD_ID } from '../constants';
+import { FORM_TYPES } from '@tamanu/constants';
 import { useCreatePatientPayment, useUpdatePatientPayment } from '../api/mutations';
 import { ConfirmPaidModal } from '../components/Invoice/EditInvoiceModal/ConfirmPaidModal';
 import { ThemedTooltip } from '../components/Tooltip';
-import { DefaultIconButton } from '../components/Button';
 
 const IconButton = styled(DefaultIconButton)`
   cursor: pointer;

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkMandatory, checkVisibility } from '../../app/utils';
+import { checkMandatory, checkVisibility } from '@tamanu/ui-components';
 
 describe('checkVisibility()', () => {
-  const generateAllComponents = (components) =>
+  const generateAllComponents = components =>
     components.map((component, index) => ({
       code: `component-${component.code}`,
       required: false,

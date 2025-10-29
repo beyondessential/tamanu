@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Form } from '@tamanu/ui-components';
 import { AutocompleteField, Field, Heading4 } from '../../app/components';
 import { MockedApi } from '../utils/mockedApi';
 import { LinkedField } from '../../app/components/Field/LinkedField';
-import { Form } from '../../app/components/Field';
 import { TranslationProvider } from '../../app/contexts/Translation';
 import { createDummySuggester, mapToSuggestions } from '../utils';
 

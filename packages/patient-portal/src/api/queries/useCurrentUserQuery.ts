@@ -1,17 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  PatientSchema,
-  type Patient,
-} from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 import { useApi } from '../useApi';
-import { transformSingle } from '@utils/transformData';
 
 export const useCurrentUserQuery = () => {
   const api = useApi();
 
-  return useQuery<unknown, Error, Patient>({
+  return useQuery<unknown, Error, PatientWithAdditionalData>({
     queryKey: ['me'],
     queryFn: () => api.get('me'),
-    select: transformSingle<Patient>(PatientSchema),
   });
 };
