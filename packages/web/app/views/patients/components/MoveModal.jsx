@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -38,12 +38,13 @@ const SectionDescription = styled(BodyText)`
 `;
 
 const StyledFormGrid = styled(FormGrid)`
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   position: relative;
 `;
 
 const MoveActionsContainer = styled.div`
   position: relative;
+  margin-bottom: 20px;
 `;
 
 const CancelMoveButton = styled(Button)`
@@ -81,29 +82,43 @@ const BasicMoveFields = () => {
   );
 };
 
-const AdvancedMoveFields = () => {
+const AdvancedMoveFields = ({ clearPlannedMove }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const { setFieldValue, values, initialValues } = useFormikContext();
+  const { values, initialValues, dirty } = useFormikContext();
 
-  return (
-    <>
-      <SectionDescription>
-        <TranslatedText
-          stringId="patient.encounter.movePatient.location.advancedDescription"
-          fallback="Select a location to plan the patient location move and reserve a bed. The new location will
+  const hasExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
+
+  const description = hasExistingPlannedMove ? (
+    <TranslatedText
+      stringId="patient.encounter.movePatient.location.advancedDescription.existing"
+      fallback="The below location is a current planned move. You can finalise the move, change the location, or clear the fields to cancel the move."
+    />
+  ) : (
+    <TranslatedText
+      stringId="patient.encounter.movePatient.location.advancedDescription"
+      fallback="Select a location to plan the patient location move and reserve a bed. The new location will
         not be reflected in the patient encounter until you finalise the move. If the change is not
         finalised within :plannedMoveTimeoutHours hours, the planned location move will be
         cancelled. Alternatively you can finalise the patient move now using the option below."
-          replacements={{ plannedMoveTimeoutHours }}
-        />
-      </SectionDescription>
+      replacements={{ plannedMoveTimeoutHours }}
+    />
+  );
+
+  return (
+    <>
+      <SectionDescription>{description}</SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
+          onChange={() => {
+            if (hasExistingPlannedMove) {
+              clearPlannedMove();
+            }
+          }}
         />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
@@ -148,12 +163,9 @@ const AdvancedMoveFields = () => {
             data-testid="field-ryle"
           />
         )}
-        {initialValues.plannedLocationId && values.plannedLocationId && (
+        {!dirty && hasExistingPlannedMove && (
           <CancelMoveButton
-            onClick={() => {
-              setFieldValue('locationGroup', '');
-              setFieldValue('plannedLocationId', '');
-            }}
+            onClick={clearPlannedMove}
             variant="outlined"
             data-testid="button-cancel-patient-move"
           >
@@ -170,6 +182,28 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+
+  const defaultInitialFormValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+    ...(enablePatientMoveActions
+      ? { plannedLocationId: encounter.plannedLocationId, action: PATIENT_MOVE_ACTIONS.PLAN }
+      : {}),
+  };
+
+  const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
+
+  const clearPlannedMove = () => {
+    setInitialFormValues({
+      ...defaultInitialFormValues,
+      plannedLocationId: null,
+    });
+  };
+
+  const handleCloseModal = () => {
+    setInitialFormValues(defaultInitialFormValues);
+    onClose();
+  };
 
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
@@ -206,18 +240,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       width="md"
     >
       <Form
-        initialValues={{
-          examinerId: encounter.examinerId,
-          departmentId: encounter.departmentId,
-          ...(enablePatientMoveActions
-            ? {
-                plannedLocationId: encounter.plannedLocationId,
-                action: PATIENT_MOVE_ACTIONS.PLAN,
-              }
-            : {}),
-        }}
+        initialValues={initialFormValues}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
+        enableReinitialize
         render={({ submitForm, values }) => (
           <>
             <SectionHeading>
@@ -268,13 +294,16 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
             </SectionHeading>
             {enablePatientMoveActions ? (
-              <AdvancedMoveFields plannedLocationId={values?.plannedLocationId} />
+              <AdvancedMoveFields
+                plannedLocationId={values?.plannedLocationId}
+                clearPlannedMove={clearPlannedMove}
+              />
             ) : (
               <BasicMoveFields />
             )}
             <ModalFormActionRow
               onConfirm={submitForm}
-              onCancel={onClose}
+              onCancel={handleCloseModal}
               data-testid="modalformactionrow-35ou"
             />
           </>
