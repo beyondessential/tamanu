@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { BodyText, Button, TranslatedText } from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import styled from 'styled-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { TAMANU_COLORS, TextButton } from '@tamanu/ui-components';
 import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
+
+import { BedIcon } from '../../../assets/icons/BedIcon';
 
 const Container = styled.div`
   display: flex;
@@ -13,9 +15,17 @@ const Container = styled.div`
   height: 40px;
   align-items: center;
   justify-content: flex-start;
-  padding: 30px;
+  padding: 30px 25px;
   background-color: ${TAMANU_COLORS.white};
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
+`;
+
+const FinaliseButton = styled(Button)`
+  margin-left: 10px;
+`;
+
+const CancelButton = styled(TextButton)`
+  font-size: 14px;
 `;
 
 export const PlannedMoveActions = ({ encounter }) => {
@@ -25,7 +35,7 @@ export const PlannedMoveActions = ({ encounter }) => {
   return (
     <>
       <Container>
-        {/* TODO: bed icon goes here */}
+        <BedIcon color={TAMANU_COLORS.softText} />
         <BodyText>
           <TranslatedText
             stringId="encounter.action.plannedLocationMove"
@@ -33,16 +43,12 @@ export const PlannedMoveActions = ({ encounter }) => {
           />
           <b>{getFullLocationName(encounter.plannedLocation)}</b>
         </BodyText>
-        {/* TODO: buttons need some styling */}
-        <Button variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
-          <TranslatedText
-            stringId="encounter.action.finalisePatientMove"
-            fallback="Finalise move"
-          />
-        </Button>
-        <Button variant="text" onClick={() => setCancelModalOpen(true)}>
+        <FinaliseButton variant="outlined" onClick={() => setFinaliseModalOpen(true)}>
+          <TranslatedText stringId="encounter.action.finalisePatientMove" fallback="Finalise" />
+        </FinaliseButton>
+        <CancelButton variant="text" onClick={() => setCancelModalOpen(true)}>
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-        </Button>
+        </CancelButton>
       </Container>
 
       <FinalisePatientMoveModal

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -22,7 +22,6 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 import { notifyError } from '../../../utils';
-import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
@@ -70,13 +69,10 @@ const BasicMoveFields = () => {
   );
 };
 
-const AdvancedMoveFields = ({ plannedLocationId, encounter, onClose }) => {
+const AdvancedMoveFields = ({ plannedLocationId }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { setFieldValue } = useFormikContext();
-  const clearPlannedLocation = async () => {
-    setFieldValue('plannedLocationId', null);
-  };
 
   return (
     <>
@@ -140,12 +136,16 @@ const AdvancedMoveFields = ({ plannedLocationId, encounter, onClose }) => {
           />
         )}
       </Section>
-      <Button
-        onClick={() => setFieldValue('plannedLocationId', null)}
-        data-testid="button-cancel-patient-move"
-      >
-        <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
-      </Button>
+      {plannedLocationId && (
+        <Button
+          onClick={() => {
+            setFieldValue('plannedLocationId', undefined);
+          }}
+          data-testid="button-cancel-patient-move"
+        >
+          <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
+        </Button>
+      )}
     </>
   );
 };
@@ -253,11 +253,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
             </SectionHeading>
             {enablePatientMoveActions ? (
-              <AdvancedMoveFields
-                plannedLocationId={values?.plannedLocationId}
-                encounter={encounter}
-                onClose={onClose}
-              />
+              <AdvancedMoveFields plannedLocationId={values?.plannedLocationId} />
             ) : (
               <BasicMoveFields />
             )}
