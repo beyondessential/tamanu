@@ -52,12 +52,17 @@ invoiceItemsRoute.get(
           },
           {
             model: models.ReferenceData,
-            as: 'referenceData',
+            as: 'sourceRefDataRecord',
             attributes: ['code', 'type'],
           },
           {
             model: models.LabTestType,
-            as: 'labTestType',
+            as: 'sourceLabTestTypeRecord',
+            attributes: ['code'],
+          },
+          {
+            model: models.LabTestPanel,
+            as: 'sourceLabTestPanelRecord',
             attributes: ['code'],
           },
         ],
