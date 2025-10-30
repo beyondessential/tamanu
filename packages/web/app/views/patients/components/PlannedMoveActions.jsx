@@ -41,7 +41,7 @@ export const PlannedMoveActions = ({ encounter }) => {
           />
         </Button>
         <Button variant="text" onClick={() => setCancelModalOpen(true)}>
-          <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel" />
+          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </Button>
       </Container>
 
