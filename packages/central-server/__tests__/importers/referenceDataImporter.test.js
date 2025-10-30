@@ -616,7 +616,7 @@ describe('Data definition import', () => {
       });
       expect(errors).toBeEmpty();
       expect(stats).toMatchObject({
-        InvoiceProduct: { created: 4, updated: 0, errored: 0 },
+        InvoiceProduct: { created: 6, updated: 0, errored: 0 },
       });
     });
 

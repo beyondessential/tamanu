@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { IMAGING_AREA_TYPES, OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import {
   administeredVaccineLoader,
   labTestPanelLoader,
@@ -68,7 +68,7 @@ export default {
   },
   invoiceProduct: {
     loader: invoiceProductLoader,
-    needs: ['procedureType', 'drug', 'labTestType', 'labTestPanel'],
+    needs: [OTHER_REFERENCE_TYPES.LAB_TEST_TYPE, OTHER_REFERENCE_TYPES.LAB_TEST_PANEL],
   },
 
   invoicePriceList: {},

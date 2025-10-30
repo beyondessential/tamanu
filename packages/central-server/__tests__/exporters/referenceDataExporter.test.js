@@ -15,11 +15,15 @@ import {
   createProcedure,
   createRole,
   createTestType,
+  createImagingType,
+  createImagingArea,
   createVaccine,
   destroyPermission,
 } from './referenceDataUtils';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import {
+  IMAGING_AREA_TYPES,
+  IMAGING_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -761,8 +765,8 @@ describe('Reference data exporter', () => {
         id: 'invoiceProduct-2',
         name: 'Invoice Product 2',
         discountable: false,
-        category: INVOICE_ITEMS_CATEGORIES.PROCEDURE,
-        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE],
+        category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
         sourceRecordId: procedure.id,
       });
 
@@ -799,6 +803,34 @@ describe('Reference data exporter', () => {
         sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
         sourceRecordId: labTestType.id,
       });
+
+      // These aren't currently being used in the Imaging module (see TAMP-126)
+      const imagingType = await createImagingType(models, {
+        id: 'imagingType-1',
+        name: 'Imaging Type 1',
+        code: IMAGING_TYPES.X_RAY,
+      });
+      const imagingArea = await createImagingArea(models, IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA, {
+        id: 'imagingArea-1',
+        name: 'Imaging Area 1',
+        code: 'imagingArea-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-5',
+        name: 'Invoice Product 5',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE],
+        sourceRecordId: imagingType.id,
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-6',
+        name: 'Invoice Product 6',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_AREA],
+        sourceRecordId: imagingArea.id,
+      });
       await exporter(store, { 1: 'invoiceProduct' });
       expect(writeExcelFile).toBeCalledWith(
         [
@@ -811,7 +843,7 @@ describe('Reference data exporter', () => {
                 'invoiceProduct-2',
                 'Invoice Product 2',
                 false,
-                'Procedure',
+                'ProcedureType',
                 'procedure-1',
                 'current',
               ],
@@ -829,6 +861,22 @@ describe('Reference data exporter', () => {
                 true,
                 'LabTestType',
                 'labTestType-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-5',
+                'Invoice Product 5',
+                true,
+                'ImagingType',
+                'imagingType-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-6',
+                'Invoice Product 6',
+                true,
+                'ImagingArea',
+                'imagingArea-1',
                 'current',
               ],
             ],

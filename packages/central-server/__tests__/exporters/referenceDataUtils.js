@@ -21,6 +21,14 @@ export async function createDiagnosis(models) {
   });
 }
 
+export async function createImagingType(models, data) {
+  return await models.ReferenceData.create({ type: 'imagingType', ...data });
+}
+
+export async function createImagingArea(models, areaType, data) {
+  return await models.ReferenceData.create({ type: areaType, ...data });
+}
+
 export async function createTestType(models, data) {
   const testType = await models.LabTestType.create({ ...data });
   return testType;
