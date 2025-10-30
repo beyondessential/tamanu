@@ -1,5 +1,5 @@
 {% docs table__invoice_insurance_contract_items %}
-Table for insurance contracts items used for invoicing.
+Table for insurance contract items used for invoicing.
 {% enddocs %}
 
 {% docs invoice_insurance_contract_items__invoice_insurance_contract_id %}
