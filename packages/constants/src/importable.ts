@@ -167,3 +167,12 @@ export const ASSET_MIME_TYPES = {
   png: 'image/png',
   svg: 'image/svg',
 };
+
+export const LOCATION_BOOKABLE_VIEW = {
+  ALL: 'all',
+  NO: 'no',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+};
+
+export const LOCATION_BOOKABLE_VIEW_VALUES = Object.values(LOCATION_BOOKABLE_VIEW);
