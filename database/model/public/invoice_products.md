@@ -15,7 +15,7 @@ The category of the product.
 {% enddocs %}
 
 {% docs invoice_products__source_record_type %}
-The underlying database model of the source record for the product. 
+The underlying database model of the source record for the product.
 {% enddocs %}
 
 {% docs invoice_products__source_record_id %}
