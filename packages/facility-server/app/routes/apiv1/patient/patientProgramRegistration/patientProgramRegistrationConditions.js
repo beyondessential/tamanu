@@ -65,6 +65,7 @@ patientProgramRegistrationConditions.get(
         recordId: {
           [Op.in]: conditionIds,
         },
+        migrationContext: null,
       },
       include: [
         {
