@@ -6,6 +6,7 @@ import { ApplicationContext, CENTRAL_SERVER_APP_TYPES } from '../ApplicationCont
 import { startScheduledTasks } from '../tasks';
 import { CentralSyncManager } from '../sync/CentralSyncManager';
 import pkg from '../../package.json';
+import { setFhirRefreshTriggers } from '../tasks/fhir/setFhirRefreshTriggers';
 
 export const startTasks = async ({ skipMigrationCheck }) => {
   log.info(`Starting Central tasks runner version ${pkg.version}`);
@@ -13,6 +14,11 @@ export const startTasks = async ({ skipMigrationCheck }) => {
   const context = await new ApplicationContext().init({ appType: CENTRAL_SERVER_APP_TYPES.TASKS });
   await context.store.sequelize.assertUpToDate({ skipMigrationCheck });
   context.centralSyncManager = new CentralSyncManager(context);
+
+  // We manage the fhir trigger state here, as it's the only singleton process that reliably runs on any central-server instance
+  // The fhir processes won't run if they are disabled in the config, but we still want to ensure the triggers are set up correctly
+  // even if the fhir integration is disabled
+  await setFhirRefreshTriggers(context.store.sequelize);
 
   const stopScheduledTasks = await startScheduledTasks(context);
 

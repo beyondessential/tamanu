@@ -12,7 +12,6 @@ sources:
             - deprecated
           meta:
             triggers:
-              - fhir_refresh
               - notify_note_items_changed
               - record_note_items_changelog
               - set_note_items_updated_at
