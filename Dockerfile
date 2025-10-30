@@ -3,6 +3,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 COPY package.json package-lock.json COPYRIGHT LICENSE-GPL LICENSE-BSL ./
+COPY patches/ patches/
 
 FROM base AS build-base
 RUN apk add --no-cache \

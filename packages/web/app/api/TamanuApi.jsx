@@ -189,13 +189,14 @@ export class TamanuApi extends ApiClient {
 
   async login(email, password) {
     const output = await super.login(email, password);
-    const { localisation, server, availableFacilities, permissions, role } = output;
+    const { localisation, server, availableFacilities, permissions, role, settings } = output;
     saveToLocalStorage({
       localisation,
       server,
       availableFacilities,
       permissions,
       role,
+      settings,
     });
     return output;
   }

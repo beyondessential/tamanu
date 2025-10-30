@@ -12,8 +12,8 @@ import {
   DateField,
   LocalisedField,
   SearchField,
-  BaseSelectField,
 } from '../../components';
+import { BaseSelectField } from '@tamanu/ui-components';
 import { useProgramRegistryQuery } from '../../api/queries/useProgramRegistryQuery';
 import { useSexOptions } from '../../hooks';
 import { TranslatedText } from '../../components/Translation/TranslatedText';

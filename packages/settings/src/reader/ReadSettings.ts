@@ -15,11 +15,13 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'imagingPriorities',
   'insurer',
   'customisations',
+  'locationAssignments',
   'printMeasures',
   'invoice',
   'labsCancellationReasons',
   'templates',
   'layouts',
+  'security.mobile',
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
@@ -28,6 +30,8 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'sync',
   'mobileSync',
 ] as const;
+
+export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -47,6 +51,11 @@ export class ReadSettings<Path = SettingPath> {
   async getFrontEndSettings() {
     const allSettings = await this.getAll();
     return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+  }
+
+  async getPatientPortalSettings() {
+    const allSettings = await this.getAll();
+    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
   }
 
   async getAll() {
