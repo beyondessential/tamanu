@@ -345,14 +345,14 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
 
   it('throws an error when multiple price lists match', async () => {
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { facilityId: 'facility-1' } },
-      { id: 'pl-2', rules: { facilityId: 'facility-1' } },
+      { id: 'pl-1', code: 'code-1', name: 'Price List One', rules: { facilityId: 'facility-1' } },
+      { id: 'pl-2', code: 'code-2', name: 'Price List Two', rules: { facilityId: 'facility-1' } },
     ]);
 
     const inputs = buildInputs({ facilityId: 'facility-1' });
 
     await expect(InvoicePriceList.getIdForPatientEncounter(inputs)).rejects.toThrow(
-      'Multiple price lists match the provided inputs: pl-1, pl-2',
+      'Multiple price lists match the provided inputs: Price List One, Price List Two',
     );
   });
 
