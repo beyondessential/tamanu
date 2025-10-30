@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
@@ -22,6 +22,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 import { notifyError } from '../../../utils';
+import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -68,9 +69,16 @@ const BasicMoveFields = () => {
   );
 };
 
-const AdvancedMoveFields = ({ plannedLocationId }) => {
+const AdvancedMoveFields = ({ plannedLocationId, encounter, onClose }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
+
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+
+  const handleCancelPatientMove = () => {
+    onClose();
+    setCancelModalOpen(true);
+  };
 
   return (
     <>
@@ -132,6 +140,15 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
           data-testid="field-ryle"
         />
       </Section>
+      <Button onClick={handleCancelPatientMove} data-testid="button-cancel-patient-move">
+        <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
+      </Button>
+      <CancelPatientMoveModal
+        encounter={encounter}
+        open={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        data-testid="cancelpatientmovemodal-x8xx"
+      />
     </>
   );
 };
@@ -139,7 +156,6 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
-  // const { mutateAsync: submitPatientMove } = usePatientMove(encounter.id, onClose);
 
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
@@ -240,7 +256,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
             </SectionHeading>
             {enablePatientMoveActions ? (
-              <AdvancedMoveFields plannedLocationId={values?.plannedLocationId} />
+              <AdvancedMoveFields
+                plannedLocationId={values?.plannedLocationId}
+                encounter={encounter}
+                onClose={onClose}
+              />
             ) : (
               <BasicMoveFields />
             )}
