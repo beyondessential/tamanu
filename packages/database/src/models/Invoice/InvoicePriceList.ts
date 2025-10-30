@@ -73,7 +73,7 @@ export class InvoicePriceList extends Model {
       ],
     });
 
-    const matches: string[] = [];
+    const matches: Array<{ id: string; name: string }> = [];
 
     for (const priceList of priceLists) {
       const rules = priceList.rules ?? {};
@@ -84,15 +84,17 @@ export class InvoicePriceList extends Model {
         matchesAgeIfPresent(rules.patientAge, patientDOB);
 
       if (match) {
-        matches.push(priceList.id);
+        matches.push({ id: priceList.id, name: priceList.name || priceList.code });
       }
     }
 
     if (matches.length > 1) {
-      throw new Error(`Multiple price lists match the provided inputs: ${matches.join(', ')}`);
+      throw new Error(
+        `Multiple price lists match the provided inputs: ${matches.map(match => match.name).join(', ')}`,
+      );
     }
 
     // Returns null if no matches are found
-    return matches[0] ?? null;
+    return matches[0] ? matches[0].id : null;
   }
 }

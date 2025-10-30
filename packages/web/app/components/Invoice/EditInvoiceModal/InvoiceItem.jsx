@@ -291,8 +291,6 @@ export const InvoiceItemRow = ({
       productName: value.productName,
       productCode: value.code,
       productDiscountable: value.discountable,
-      product: { ...item.product, price: value.price },
-      ...(value.price !== null && { productPrice: value.price }),
     });
   };
 

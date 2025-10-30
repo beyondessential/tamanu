@@ -14,7 +14,6 @@ import type { LabTestType } from '../LabTestType';
 export class InvoiceProduct extends Model {
   declare id: string;
   declare name: string;
-  declare price: number;
   declare discountable: boolean;
   declare visibilityStatus: string;
   declare referenceData?: ReferenceData;
@@ -27,10 +26,6 @@ export class InvoiceProduct extends Model {
         name: {
           type: DataTypes.TEXT,
           allowNull: false,
-        },
-        price: {
-          type: DataTypes.DECIMAL,
-          allowNull: true,
         },
         discountable: {
           type: DataTypes.BOOLEAN,

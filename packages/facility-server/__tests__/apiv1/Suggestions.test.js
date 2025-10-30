@@ -929,7 +929,6 @@ describe('Suggestions', () => {
     const invoiceProduct = await models.InvoiceProduct.create({
       id: referenceData.id,
       name: 'Test Invoice Product',
-      price: 100,
       discountable: true,
       visibilityStatus: 'current',
     });
