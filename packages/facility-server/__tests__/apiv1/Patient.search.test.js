@@ -163,7 +163,8 @@ describe('Patient search', () => {
   afterAll(() => ctx.close());
 
   it('should error if user has insufficient permissions', async () => {
-    const response = await baseApp
+    const noPermsApp = await baseApp.asRole('base');
+    const response = await noPermsApp
       .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)
       .query({
         displayId: 'really-shouldnt-show-up',

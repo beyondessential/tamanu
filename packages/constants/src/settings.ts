@@ -18,6 +18,7 @@ export const SETTING_KEYS = {
   FEATURES_ENABLE_VITAL_EDIT: 'features.enableVitalEdit',
   VITAL_EDIT_REASONS: 'vitalEditReasons',
   FILE_CHOOSER_MB_SIZE_LIMIT: 'fileChooserMbSizeLimit',
+  SECURITY_LOGIN_ATTEMPTS: 'security.loginAttempts',
 };
 
 export const SETTINGS_SCOPES = {

@@ -2,6 +2,12 @@
 
 This file contains essential Tamanu-specific information for LLM agents.
 
+## Preferences
+
+- Prefer `??` over `||`
+- Prefer `Boolean(t)` over `!!t`
+- Always add dependencies to the package they're used in instead of relying on them being available implicitly
+
 ## Styling and UI
 
 - `packages/web/app/constants/styles.js` - web styling constants and colours
