@@ -19,7 +19,7 @@ invoiceItemsRoute.get(
     // Determine price list for this invoice based on encounter context
     const { Invoice } = models;
     const invoiceId = params.id;
-    const { encounter } = await Invoice.findByPk(invoiceId, {
+    const invoice = await Invoice.findByPk(invoiceId, {
       include: [
         {
           association: 'encounter',
@@ -33,6 +33,15 @@ invoiceItemsRoute.get(
         },
       ],
     });
+
+    if (!invoice) {
+      return res.status(404).send({ message: 'Invoice not found' });
+    }
+
+    const { encounter } = invoice;
+    if (!encounter) {
+      return res.status(404).send({ message: 'Encounter not found for this invoice' });
+    }
 
     const inputs = {
       patientType:
