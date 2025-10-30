@@ -1,0 +1,56 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: user_leaves
+        description: "{{ doc('table__user_leaves') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_user_leaves_changed
+              - record_user_leaves_changelog
+              - set_user_leaves_updated_at
+              - set_user_leaves_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: uuid
+            description: "{{ doc('generic__id') }} in user_leaves."
+            data_tests:
+              - unique
+              - not_null
+          - name: start_date
+            data_type: character(10)
+            description: "{{ doc('user_leaves__start_date') }}"
+            data_tests:
+              - not_null
+          - name: end_date
+            data_type: character(10)
+            description: "{{ doc('user_leaves__end_date') }}"
+            data_tests:
+              - not_null
+          - name: user_id
+            data_type: character varying(255)
+            description: "{{ doc('user_leaves__user_id') }}"
+            data_tests:
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in user_leaves."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in user_leaves."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in user_leaves."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in user_leaves."
+            data_tests:
+              - not_null

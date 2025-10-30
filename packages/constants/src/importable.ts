@@ -43,7 +43,6 @@ export const REFERENCE_TYPES = {
   ARRIVAL_MODE: 'arrivalMode',
   VACCINE_NOT_GIVEN_REASON: 'vaccineNotGivenReason',
   VACCINE_CIRCUMSTANCE: 'vaccineCircumstance',
-  ADDITIONAL_INVOICE_PRODUCT: 'additionalInvoiceProduct',
   SPECIMEN_TYPE: 'specimenType',
   INSURER: 'insurer',
   PAYMENT_METHOD: 'paymentMethod',
@@ -168,3 +167,12 @@ export const ASSET_MIME_TYPES = {
   png: 'image/png',
   svg: 'image/svg',
 };
+
+export const LOCATION_BOOKABLE_VIEW = {
+  ALL: 'all',
+  NO: 'no',
+  DAILY: 'daily',
+  WEEKLY: 'weekly',
+};
+
+export const LOCATION_BOOKABLE_VIEW_VALUES = Object.values(LOCATION_BOOKABLE_VIEW);

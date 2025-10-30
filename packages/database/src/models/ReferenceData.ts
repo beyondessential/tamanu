@@ -10,6 +10,7 @@ export class ReferenceData extends Model {
   declare type: string;
   declare name: string;
   declare visibilityStatus: string;
+  declare systemRequired: boolean;
   declare parent?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -31,6 +32,11 @@ export class ReferenceData extends Model {
         visibilityStatus: {
           type: DataTypes.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
+        systemRequired: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
         },
       },
       {

@@ -287,6 +287,7 @@ patientProgramRegistration.get(
       where: {
         tableName: 'patient_program_registrations',
         recordId: registration.id,
+        migrationContext: null,
       },
       include: [
         {
