@@ -10,20 +10,14 @@ export const equalsIfPresent = (
   return ruleVal === inputVal;
 };
 
-const OPERATORS: Record<string, (a: number, b: number) => boolean> = {
-  '<': (a: number, b: number) => a < b,
-  '<=': (a: number, b: number) => a <= b,
-  '>': (a: number, b: number) => a > b,
-  '>=': (a: number, b: number) => a >= b,
-  '=': (a: number, b: number) => a === b,
-};
-
 /**
- * @param condition - Age condition string (e.g., ">=18", "<65", "=21")
+ * @param condition - Age condition as:
+ *   - number (exact age): 30
+ *   - object: { min: 15, max: 64 } or { min: 65 } or { max: 14 }
  * @param dob - patient date of birth as ISO date string (e.g., "2010-10-15")
  */
 export const matchesAgeIfPresent = (
-  condition?: string | undefined,
+  condition?: number | { min?: number; max?: number } | undefined,
   dob?: string | null,
 ): boolean => {
   if (!condition) {
@@ -41,13 +35,14 @@ export const matchesAgeIfPresent = (
 
   const ageYears = differenceInYears(new Date(), parsedDob);
 
-  const trimmedCondition = condition.trim();
-  // Parse age condition: operator (<=, >=, <, >, =) followed by optional whitespace and 1-3 digit age
-  const match = trimmedCondition.match(/^(<=|>=|<|>|=)\s*(\d{1,3})$/);
-  if (!match) {
-    return false;
+  // Handle exact numeric value
+  if (typeof condition === 'number') {
+    return ageYears === condition;
   }
-  const [, op, value] = match;
-  const operator = OPERATORS[op!]!;
-  return operator(ageYears, Number(value));
+
+  // Handle object format: { min?: number, max?: number }
+  const { min, max } = condition;
+  const meetsMin = min === undefined || ageYears >= min;
+  const meetsMax = max === undefined || ageYears <= max;
+  return meetsMin && meetsMax;
 };
