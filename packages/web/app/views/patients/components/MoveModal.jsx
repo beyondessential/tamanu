@@ -23,6 +23,7 @@ import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 import { notifyError } from '../../../utils';
 import { CancelPatientMoveModal } from './CancelPatientMoveModal';
+import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -72,12 +73,9 @@ const BasicMoveFields = () => {
 const AdvancedMoveFields = ({ plannedLocationId, encounter, onClose }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-
-  const [cancelModalOpen, setCancelModalOpen] = useState(false);
-
-  const handleCancelPatientMove = () => {
-    onClose();
-    setCancelModalOpen(true);
+  const { setFieldValue } = useFormikContext();
+  const clearPlannedLocation = async () => {
+    setFieldValue('plannedLocationId', null);
   };
 
   return (
@@ -104,51 +102,50 @@ const AdvancedMoveFields = ({ plannedLocationId, encounter, onClose }) => {
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
           data-testid="locationavailabilitywarningmessage-6ivs"
         />
-        <Field
-          name="action"
-          label={
-            <TranslatedText
-              stringId="encounter.modal.patientMove.action.label"
-              fallback="Would you like to finalise the patient location move now or plan change?"
-              data-testid="translatedtext-l7v1"
-            />
-          }
-          component={RadioField}
-          options={[
-            {
-              label: (
-                <TranslatedText
-                  stringId="encounter.modal.patientMove.action.finalise"
-                  fallback="Finalise now"
-                  data-testid="translatedtext-patient-move-action-finalise"
-                />
-              ),
-              value: PATIENT_MOVE_ACTIONS.FINALISE,
-            },
-            {
-              label: (
-                <TranslatedText
-                  stringId="encounter.modal.patientMove.action.plan"
-                  fallback="Plan change"
-                  data-testid="translatedtext-patient-move-action-plan"
-                />
-              ),
-              value: PATIENT_MOVE_ACTIONS.PLAN,
-            },
-          ]}
-          style={{ gridColumn: '1/-1' }}
-          data-testid="field-ryle"
-        />
+        {plannedLocationId && (
+          <Field
+            name="action"
+            label={
+              <TranslatedText
+                stringId="encounter.modal.patientMove.action.label"
+                fallback="Would you like to finalise the patient location move now or plan change?"
+                data-testid="translatedtext-l7v1"
+              />
+            }
+            component={RadioField}
+            options={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.finalise"
+                    fallback="Finalise now"
+                    data-testid="translatedtext-patient-move-action-finalise"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.FINALISE,
+              },
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.plan"
+                    fallback="Plan change"
+                    data-testid="translatedtext-patient-move-action-plan"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.PLAN,
+              },
+            ]}
+            style={{ gridColumn: '1/-1' }}
+            data-testid="field-ryle"
+          />
+        )}
       </Section>
-      <Button onClick={handleCancelPatientMove} data-testid="button-cancel-patient-move">
+      <Button
+        onClick={() => setFieldValue('plannedLocationId', null)}
+        data-testid="button-cancel-patient-move"
+      >
         <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
       </Button>
-      <CancelPatientMoveModal
-        encounter={encounter}
-        open={cancelModalOpen}
-        onClose={() => setCancelModalOpen(false)}
-        data-testid="cancelpatientmovemodal-x8xx"
-      />
     </>
   );
 };
