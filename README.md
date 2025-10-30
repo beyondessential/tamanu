@@ -1,5 +1,7 @@
 # Tamanu
 
+Patient portal demo
+
 > This is a [monorepo](https://github.com/babel/babel/blob/master/doc/design/monorepo.md)
 
 | Package | Runbook | Description |
