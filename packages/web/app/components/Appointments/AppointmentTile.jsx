@@ -7,9 +7,9 @@ import { useLocation } from 'react-router';
 import styled, { css } from 'styled-components';
 
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
-import { Colors } from '../../constants';
-import { UnstyledHtmlButton } from '../Button';
 import { getPatientNameAsString } from '../PatientNameDisplay';
 import { ThemedTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';

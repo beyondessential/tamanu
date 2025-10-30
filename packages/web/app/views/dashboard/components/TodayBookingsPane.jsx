@@ -10,11 +10,12 @@ import TimelineDot from '@material-ui/lab/TimelineDot';
 import { USER_PREFERENCES_KEYS, WS_EVENTS } from '@tamanu/constants';
 import { useNavigate } from 'react-router';
 import { endOfDay, startOfDay } from 'date-fns';
-import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
 import { Box } from '@material-ui/core';
+import { formatTime, toDateTimeString } from '@tamanu/utils/dateTime';
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
-import { Heading4, TranslatedText } from '../../../components';
-import { Colors } from '../../../constants';
+import { Heading4 } from '../../../components';
 import {
   APPOINTMENT_STATUS_COLORS,
   AppointmentStatusIndicator,

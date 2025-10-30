@@ -3,6 +3,7 @@ import { SurveyView } from '../programs/SurveyView';
 import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getAnswersFromData } from '@tamanu/ui-components';
 import { usePatientProgramRegistrySurveysQuery } from '../../api/queries/usePatientProgramRegistrySurveysQuery';
 import { useAuth } from '../../contexts/Auth';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../api/queries';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { getAnswersFromData } from '../../utils';
 import { useApi } from '../../api';
 import { TranslatedText } from '../../components/index.js';
 

@@ -4,15 +4,14 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import { pluralize } from 'inflection';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { FORM_TYPES } from '@tamanu/constants/forms';
+import { Form, FormSubmitButton, ButtonRow, FormGrid } from '@tamanu/ui-components';
 
 import { useApi } from '../../../api';
-import { Field, Form } from '../../../components/Field';
+import { Field } from '../../../components/Field';
 import { ExpandedMultiSelectField } from '../../../components/Field/ExpandedMultiSelectField';
-import { FormGrid } from '../../../components/FormGrid';
-import { ButtonRow, TranslatedText } from '../../../components';
-import { FormSubmitButton } from '../../../components/Button';
+import { TranslatedText } from '../../../components';
 import { saveFile } from '../../../utils/fileSystemAccess';
-import { FORM_TYPES } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifySuccess } from '../../../utils';
 
@@ -38,7 +37,7 @@ const ExportForm = ({
           />
         }
         component={ExpandedMultiSelectField}
-        options={dataTypes.map((value) => ({ value, label: startCase(value) }))}
+        options={dataTypes.map(value => ({ value, label: startCase(value) }))}
         data-testid="field-aww5"
       />
     )}
@@ -54,7 +53,7 @@ export const ExporterView = memo(
     const { getTranslation } = useTranslation();
 
     const onSubmit = useCallback(
-      async (queryParameters) => {
+      async queryParameters => {
         await saveFile({
           defaultFileName: `${title} export ${getCurrentDateTimeString()}`,
           getData: async () => api.download(`admin/export/${endpoint}`, queryParameters),
@@ -81,7 +80,7 @@ export const ExporterView = memo(
     }, [title]);
 
     const renderForm = useCallback(
-      (props) => (
+      props => (
         <ExportForm
           dataTypes={dataTypes}
           dataTypesSelectable={dataTypesSelectable}

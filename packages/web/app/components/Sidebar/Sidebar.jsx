@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
 import { useNavigate, useLocation } from 'react-router';
-
+import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { LogoLight, LogoLightNoText } from '../Logo';
 import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
@@ -15,7 +15,6 @@ import { checkAbility } from '../../utils/ability';
 import { FULL_VERSION } from '../../utils/env';
 import { useAuth } from '../../contexts/Auth';
 import { useApi } from '../../api';
-import { TranslatedText, TranslatedReferenceData } from '../Translation';
 import { KebabMenu } from './KebabMenu';
 import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
 

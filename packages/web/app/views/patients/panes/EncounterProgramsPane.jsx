@@ -1,9 +1,9 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Button, TableButtonRow, NoteModalActionBlocker } from '../../../components';
+import { TableButtonRow, NoteModalActionBlocker } from '../../../components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const EncounterProgramsPane = React.memo(({ patient }) => {
   const params = useParams();

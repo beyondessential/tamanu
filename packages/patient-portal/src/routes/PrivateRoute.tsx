@@ -3,9 +3,9 @@ import { Navigate } from 'react-router';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
-import { type Patient } from '@tamanu/shared/schemas/patientPortal/responses/patient.schema';
+import { type PatientWithAdditionalData } from '@tamanu/shared/schemas/patientPortal';
 
-const CurrentUserContext = createContext<Patient | undefined>(undefined);
+const CurrentUserContext = createContext<PatientWithAdditionalData | undefined>(undefined);
 
 const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
   return (

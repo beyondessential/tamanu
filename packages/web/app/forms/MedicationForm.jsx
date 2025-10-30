@@ -11,6 +11,7 @@ import {
   MEDICATION_DURATION_UNITS_LABELS,
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
+  FORM_TYPES,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -35,19 +36,21 @@ import {
   CheckInput,
   DateField,
   DateTimeField,
-  Dialog,
   Field,
+  NumberField,
+  SmallBodyText,
+} from '../components';
+import {
+  TextField,
+  SelectField,
+  TranslatedSelectField,
   Form,
   FormCancelButton,
   FormGrid,
   FormSubmitButton,
-  NumberField,
-  SelectField,
-  SmallBodyText,
-  TextField,
-  TranslatedSelectField,
-} from '../components';
-import { Colors, FORM_TYPES, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
+  Dialog,
+} from '@tamanu/ui-components';
+import { Colors, MAX_AGE_TO_RECORD_WEIGHT } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { getAgeDurationFromDate } from '@tamanu/utils/date';
@@ -440,7 +443,9 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       borderRadius="3px"
                       width="187px"
                       height="fit-content"
-                      border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
+                      border={`1px solid ${
+                        checked ? Colors.primary : Colors.outline
+                      }`}
                     >
                       <CheckInput
                         label={
@@ -765,7 +770,9 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
-                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
+                checkedIcon={
+                  <StyledIcon className="far fa-check-square" $color={Colors.midText} />
+                }
               />
               <Field
                 name="isPrn"

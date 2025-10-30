@@ -8,17 +8,22 @@ import {
   LAB_REQUEST_STATUS_LABELS,
   LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
+import {
+  OutlinedButton,
+  Button,
+  MODAL_TRANSITION_DURATION,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedEnum,
+} from '@tamanu/ui-components';
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
-  Button,
   DateDisplay,
   Heading2,
   MenuButton,
-  MODAL_TRANSITION_DURATION,
-  OutlinedButton,
   TableButtonRow,
   Tile,
   TileContainer,
@@ -39,14 +44,9 @@ import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
-import { Colors } from '../../constants';
-import {
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
-} from '../../components/Translation';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   display: flex;

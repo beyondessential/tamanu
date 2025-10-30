@@ -10,6 +10,7 @@ import { LocalisationProvider } from '../app/contexts/Localisation';
 import { store } from './__mocks__/store';
 import { MockedApi } from '../stories/utils/mockedApi';
 import { defaultEndpoints } from './__mocks__/defaultEndpoints';
+import { AuthProvider } from '../app/contexts/Auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,6 +29,7 @@ const preview = {
           <MuiThemeProvider theme={theme}>
             <ThemeProvider theme={theme}>
               <QueryClientProvider client={queryClient}>
+                <AuthProvider>
                 <CssBaseline />
                 <LocalisationProvider>
                   <TranslationProvider>
@@ -36,6 +38,7 @@ const preview = {
                     </MockedApi>
                   </TranslationProvider>
                 </LocalisationProvider>
+                </AuthProvider>
               </QueryClientProvider>
             </ThemeProvider>
           </MuiThemeProvider>

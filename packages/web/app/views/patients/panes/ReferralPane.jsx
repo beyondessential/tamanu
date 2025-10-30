@@ -1,10 +1,8 @@
 import React from 'react';
-
 import { useNavigate, useParams } from 'react-router';
-
-import { Button, ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
+import { Button, TranslatedText } from '@tamanu/ui-components';
+import { ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 export const ReferralPane = React.memo(({ patient }) => {
   const navigate = useNavigate();
