@@ -15,7 +15,7 @@ import { QueryTypes } from 'sequelize';
  * @param {import('sequelize').Sequelize} db
  * @param {string} invoiceId
  */
-export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes, invoicePriceListId) => {
+export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
   const encounterId = await db
     .query(
       `SELECT i."encounter_id" as "encounterId" from invoices i where i.id = :invoiceId and i.deleted_at is null`,
@@ -99,7 +99,6 @@ select
 	coalesce(fpc."productCode",fi."productCode",fl."productCode") as "productCode",
 	coalesce(fpc."sourceType",fi."sourceType",fl."sourceType") as "productType",
 	fpd.name as "productName",
-	ipl.price as "productPrice",
 	fpd.discountable as "productDiscountable",
 	coalesce(fpc."date",fi."date",fl."date") as "orderDate",
 	coalesce(fpc."sourceId",fi."sourceId",fl."sourceId") as "sourceId",
@@ -109,14 +108,12 @@ from filtered_products fpd
 left join filtered_procedures fpc on fpc."productId" = fpd.id
 left join filtered_imagings fi on fi."productId" = fpd.id
 left join filtered_labtests fl on fl."productId" = fpd.id
-left join invoice_price_list_items ipl on ipl.deleted_at is null and ipl.invoice_product_id = fpd.id and ipl.invoice_price_list_id = :invoicePriceListId
 join users u on u.deleted_at is null and coalesce(fpc."orderedByUserId",fi."orderedByUserId",fl."orderedByUserId") = u.id;`,
     {
       replacements: {
         encounterId,
         imagingType: REFERENCE_TYPES.IMAGING_TYPE,
         imagingTypes,
-        invoicePriceListId,
         excludedLabRequestStatuses: [
           LAB_REQUEST_STATUSES.RECEPTION_PENDING,
           LAB_REQUEST_STATUSES.CANCELLED,
