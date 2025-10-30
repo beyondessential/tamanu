@@ -37,8 +37,20 @@ const SectionDescription = styled(BodyText)`
   padding: 0;
 `;
 
-const Section = styled(FormGrid)`
+const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 30px;
+  position: relative;
+`;
+
+const MoveActionsContainer = styled.div`
+  position: relative;
+`;
+
+const CancelMoveButton = styled(Button)`
+  margin-top: 10px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
 `;
 
 const BasicMoveFields = () => {
@@ -50,7 +62,7 @@ const BasicMoveFields = () => {
           fallback="Select new patient location."
         />
       </SectionDescription>
-      <Section columns={2} data-testid="formgrid-wyqp">
+      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
           name="locationId"
           component={LocalisedLocationField}
@@ -64,15 +76,15 @@ const BasicMoveFields = () => {
           required
           data-testid="field-tykg"
         />
-      </Section>
+      </StyledFormGrid>
     </>
   );
 };
 
-const AdvancedMoveFields = ({ plannedLocationId }) => {
+const AdvancedMoveFields = () => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, values, initialValues } = useFormikContext();
 
   return (
     <>
@@ -86,7 +98,7 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
           replacements={{ plannedMoveTimeoutHours }}
         />
       </SectionDescription>
-      <Section columns={2} data-testid="formgrid-wyqp">
+      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
@@ -94,11 +106,13 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
-          locationId={plannedLocationId}
+          locationId={values.plannedLocationId}
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
           data-testid="locationavailabilitywarningmessage-6ivs"
         />
-        {plannedLocationId && (
+      </StyledFormGrid>
+      <MoveActionsContainer>
+        {values.plannedLocationId && (
           <Field
             name="action"
             label={
@@ -131,21 +145,22 @@ const AdvancedMoveFields = ({ plannedLocationId }) => {
                 value: PATIENT_MOVE_ACTIONS.PLAN,
               },
             ]}
-            style={{ gridColumn: '1/-1' }}
             data-testid="field-ryle"
           />
         )}
-      </Section>
-      {plannedLocationId && (
-        <Button
-          onClick={() => {
-            setFieldValue('plannedLocationId', undefined);
-          }}
-          data-testid="button-cancel-patient-move"
-        >
-          <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
-        </Button>
-      )}
+        {initialValues.plannedLocationId && values.plannedLocationId && (
+          <CancelMoveButton
+            onClick={() => {
+              setFieldValue('locationGroup', '');
+              setFieldValue('plannedLocationId', '');
+            }}
+            variant="outlined"
+            data-testid="button-cancel-patient-move"
+          >
+            <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
+          </CancelMoveButton>
+        )}
+      </MoveActionsContainer>
     </>
   );
 };
@@ -217,7 +232,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Please select the clinician and department for the patient."
               />
             </SectionDescription>
-            <Section columns={2} data-testid="formgrid-wyqp">
+            <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
               <Field
                 name="examinerId"
                 component={DynamicSelectField}
@@ -244,7 +259,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 required
                 data-testid="field-tykg"
               />
-            </Section>
+            </StyledFormGrid>
             <FormSeparatorLine />
             <SectionHeading>
               <TranslatedText
