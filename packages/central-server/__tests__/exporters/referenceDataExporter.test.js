@@ -723,7 +723,7 @@ describe('Reference data exporter', () => {
             ['prod-a', '100', undefined],
             ['prod-b', undefined, '50'],
           ],
-          name: 'Invoice Price Lists',
+          name: 'Invoice Price List',
         },
       ],
       '',
