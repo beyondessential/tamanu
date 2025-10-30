@@ -27,9 +27,6 @@ sources:
             description: "{{ doc('invoice_products__name') }}"
             data_tests:
               - not_null
-          - name: price
-            data_type: numeric
-            description: "{{ doc('invoice_products__price') }}"
           - name: discountable
             data_type: boolean
             description: "{{ doc('invoice_products__discountable') }}"
