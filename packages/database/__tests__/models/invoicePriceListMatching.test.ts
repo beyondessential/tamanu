@@ -15,163 +15,208 @@ describe('matchesAgeIfPresent', () => {
     vi.useRealTimers();
   });
 
-  describe('exact age matching', () => {
+  describe('exact numeric value', () => {
+    it.each([
+      { condition: 15, dob: '2010-10-14', expected: true, description: 'exact match' },
+      { condition: 15, dob: '2010-10-15', expected: false, description: 'no match when younger' },
+      { condition: 15, dob: '2009-10-14', expected: false, description: 'no match when older' },
+      { condition: 0, dob: '2025-10-14', expected: true, description: 'exact age 0' },
+      { condition: 120, dob: '1905-10-14', expected: true, description: 'exact age 120' },
+      { condition: 65, dob: '1960-10-14', expected: true, description: 'exact age 65' },
+    ])('$description', ({ condition, dob, expected }) => {
+      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
+    });
+  });
+
+  describe('min only', () => {
     it.each([
       {
-        condition: '=15',
-        dob: '2010-10-14',
+        condition: { min: 65 },
+        dob: '1960-10-14',
         expected: true,
-        description: 'matches exact age with = operator',
+        description: 'age 65 matches min 65',
       },
       {
-        condition: '=15',
-        dob: '2010-10-15',
+        condition: { min: 65 },
+        dob: '1959-10-14',
+        expected: true,
+        description: 'age 66 matches min 65',
+      },
+      {
+        condition: { min: 65 },
+        dob: '1960-10-15',
         expected: false,
-        description: 'does not match when age is younger',
+        description: 'age 64 does not match min 65',
       },
       {
-        condition: '=  15',
-        dob: '2010-10-14',
+        condition: { min: 0 },
+        dob: '2025-10-14',
         expected: true,
-        description: 'handles whitespace after operator',
+        description: 'age 0 matches min 0',
       },
       {
-        condition: '  =  15  ',
-        dob: '2010-10-14',
+        condition: { min: 18 },
+        dob: '2007-10-14',
         expected: true,
-        description: 'handles whitespace around operator and number',
+        description: 'age 18 matches min 18',
+      },
+      {
+        condition: { min: 18 },
+        dob: '2007-10-15',
+        expected: false,
+        description: 'age 17 does not match min 18',
       },
     ])('$description', ({ condition, dob, expected }) => {
       expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
     });
   });
 
-  describe('less than operators', () => {
+  describe('max only', () => {
     it.each([
       {
-        condition: '<18',
+        condition: { max: 14 },
         dob: '2010-10-15',
         expected: true,
-        description: 'age 14 is less than 18',
+        description: 'age 14 matches max 14',
       },
       {
-        condition: '<14',
-        dob: '2010-10-15',
-        expected: false,
-        description: 'age 14 is not less than 14',
-      },
-      {
-        condition: '<15',
-        dob: '2010-10-15',
+        condition: { max: 14 },
+        dob: '2011-10-14',
         expected: true,
-        description: 'age 14 is less than 15',
+        description: 'age 14 matches max 14 (same day)',
       },
       {
-        condition: '<=15',
-        dob: '2010-10-14',
-        expected: true,
-        description: 'age 15 is less than or equal to 15',
-      },
-      {
-        condition: '<=14',
+        condition: { max: 14 },
         dob: '2010-10-14',
         expected: false,
-        description: 'age 15 is not less than or equal to 14',
+        description: 'age 15 does not match max 14',
       },
       {
-        condition: '<=18',
-        dob: '2010-10-14',
+        condition: { max: 0 },
+        dob: '2025-10-14',
         expected: true,
-        description: 'age 15 is less than or equal to 18',
+        description: 'age 0 matches max 0',
+      },
+      {
+        condition: { max: 0 },
+        dob: '2024-10-14',
+        expected: false,
+        description: 'age 1 does not match max 0',
+      },
+      {
+        condition: { max: 18 },
+        dob: '2007-10-14',
+        expected: true,
+        description: 'age 18 matches max 18',
+      },
+      {
+        condition: { max: 18 },
+        dob: '2006-10-14',
+        expected: false,
+        description: 'age 19 does not match max 18',
       },
     ])('$description', ({ condition, dob, expected }) => {
       expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
     });
+  });
 
+  describe('min and max (range)', () => {
     it.each([
       {
-        condition: '<18',
-        dob: '2007-10-14',
-        expected: false,
-        description: 'exactly 18 years old is not < 18',
+        condition: { min: 15, max: 64 },
+        dob: '2010-10-14',
+        expected: true,
+        description: 'age 15 matches range 15-64',
       },
-      { condition: '<18', dob: '2007-10-15', expected: true, description: 'age 17 is < 18' },
       {
-        condition: '<=18',
+        condition: { min: 15, max: 64 },
+        dob: '1960-10-15',
+        expected: true,
+        description: 'age 64 matches range 15-64',
+      },
+      {
+        condition: { min: 15, max: 64 },
+        dob: '1960-10-14',
+        expected: false,
+        description: 'age 65 does not match range 15-64',
+      },
+      {
+        condition: { min: 15, max: 64 },
+        dob: '2010-10-15',
+        expected: false,
+        description: 'age 14 does not match range 15-64',
+      },
+      {
+        condition: { min: 15, max: 64 },
+        dob: '1990-10-14',
+        expected: true,
+        description: 'age 35 matches range 15-64',
+      },
+      {
+        condition: { min: 0, max: 0 },
+        dob: '2025-10-14',
+        expected: true,
+        description: 'age 0 matches range 0-0',
+      },
+      {
+        condition: { min: 0, max: 0 },
+        dob: '2024-10-14',
+        expected: false,
+        description: 'age 1 does not match range 0-0',
+      },
+    ])('$description', ({ condition, dob, expected }) => {
+      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
+    });
+  });
+
+  describe('boundary conditions', () => {
+    it.each([
+      {
+        condition: { max: 18 },
         dob: '2007-10-14',
         expected: true,
-        description: 'exactly 18 years old is <= 18',
+        description: 'exactly 18 years old matches max 18',
       },
       {
-        condition: '<=18',
+        condition: { max: 18 },
+        dob: '2007-10-15',
+        expected: true,
+        description: 'age 17 matches max 18',
+      },
+      {
+        condition: { max: 18 },
         dob: '2006-10-13',
         expected: false,
-        description: 'age 19+1 day is not <= 18',
+        description: 'age 19+1 day does not match max 18',
       },
-    ])('handles boundary condition: $description', ({ condition, dob, expected }) => {
-      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
-    });
-  });
-
-  describe('greater than operators', () => {
-    it.each([
       {
-        condition: '>65',
-        dob: '1950-10-14',
+        condition: { min: 65 },
+        dob: '1960-10-14',
         expected: true,
-        description: 'age 75 is greater than 65',
+        description: 'exactly 65 years old matches min 65',
       },
       {
-        condition: '>75',
-        dob: '1950-10-14',
+        condition: { min: 65 },
+        dob: '1959-10-13',
+        expected: true,
+        description: 'age 66+1 day matches min 65',
+      },
+      {
+        condition: { min: 65 },
+        dob: '1960-10-15',
         expected: false,
-        description: 'age 75 is not greater than 75',
-      },
-      {
-        condition: '>74',
-        dob: '1950-10-14',
-        expected: true,
-        description: 'age 75 is greater than 74',
-      },
-      {
-        condition: '>=65',
-        dob: '1960-10-14',
-        expected: true,
-        description: 'age 65 is greater than or equal to 65',
-      },
-      {
-        condition: '>=66',
-        dob: '1960-10-14',
-        expected: false,
-        description: 'age 65 is not greater than or equal to 66',
-      },
-      {
-        condition: '>=60',
-        dob: '1960-10-14',
-        expected: true,
-        description: 'age 65 is greater than or equal to 60',
+        description: 'age 64 does not match min 65',
       },
     ])('$description', ({ condition, dob, expected }) => {
       expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
     });
+  });
 
-    it.each([
-      {
-        condition: '>65',
-        dob: '1960-10-14',
-        expected: false,
-        description: 'exactly 65 years old is not > 65',
-      },
-      { condition: '>65', dob: '1959-10-13', expected: true, description: 'age 66+1 day is > 65' },
-      {
-        condition: '>=65',
-        dob: '1960-10-14',
-        expected: true,
-        description: 'exactly 65 years old is >= 65',
-      },
-      { condition: '>=65', dob: '1960-10-15', expected: false, description: 'age 64 is not >= 65' },
-    ])('handles boundary condition: $description', ({ condition, dob, expected }) => {
-      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
+  describe('empty object', () => {
+    it('matches any age when neither min nor max is specified', () => {
+      expect(matchesAgeIfPresent({}, '2010-10-14')).toBe(true);
+      expect(matchesAgeIfPresent({}, '1950-10-14')).toBe(true);
+      expect(matchesAgeIfPresent({}, '2025-10-14')).toBe(true);
     });
   });
 
@@ -183,60 +228,15 @@ describe('matchesAgeIfPresent', () => {
       { dob: 'not-a-date', description: 'invalid date string' },
       { dob: 'invalid', description: 'invalid string' },
     ])('returns false for $description', ({ dob }) => {
-      expect(matchesAgeIfPresent('=15', dob as any)).toBe(false);
+      expect(matchesAgeIfPresent(15, dob as any)).toBe(false);
+      expect(matchesAgeIfPresent({ min: 15 }, dob as any)).toBe(false);
     });
   });
 
-  describe('invalid condition formats', () => {
-    it.each([
-      { condition: '<', description: 'operator without number' },
-      { condition: '>=', description: 'operator without number' },
-      { condition: 'abc', description: 'non-numeric value' },
-      { condition: '<abc', description: 'operator with non-numeric value' },
-      { condition: '!15', description: 'invalid operator !' },
-      { condition: '~15', description: 'invalid operator ~' },
-      { condition: '1234', description: 'number with 4 digits' },
-      { condition: '<1234', description: 'operator with 4 digit number' },
-      { condition: '15', description: 'number without operator' },
-      { condition: '5', description: '1 digit number without operator' },
-      { condition: '100', description: '3 digit number without operator' },
-    ])('returns false for $description', ({ condition }) => {
-      expect(matchesAgeIfPresent(condition, '2010-10-14')).toBe(false);
-    });
-  });
-
-  describe('edge cases', () => {
-    it.each([
-      { condition: '=0', dob: '2025-10-14', expected: true, description: 'exact age 0' },
-      { condition: '<1', dob: '2025-10-14', expected: true, description: 'less than 1 year old' },
-      {
-        condition: '>=0',
-        dob: '2025-10-14',
-        expected: true,
-        description: 'greater than or equal to 0',
-      },
-    ])('handles age 0 (newborn): $description', ({ condition, dob, expected }) => {
-      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
-    });
-
-    it.each([
-      { condition: '=120', dob: '1905-10-14', expected: true, description: 'exact age 120' },
-      { condition: '>100', dob: '1905-10-14', expected: true, description: 'greater than 100' },
-      {
-        condition: '<=120',
-        dob: '1905-10-14',
-        expected: true,
-        description: 'less than or equal to 120',
-      },
-    ])('handles very old ages: $description', ({ condition, dob, expected }) => {
-      expect(matchesAgeIfPresent(condition, dob)).toBe(expected);
-    });
-
-    it('handles leap year dates', () => {
-      vi.setSystemTime(new Date('2024-02-29T12:00:00Z'));
-      expect(matchesAgeIfPresent('=4', '2020-02-29')).toBe(true);
-      expect(matchesAgeIfPresent('<5', '2020-02-29')).toBe(true);
-      vi.setSystemTime(new Date('2025-10-14T12:00:00Z')); // Reset
+  describe('no condition', () => {
+    it('returns true when condition is undefined or null', () => {
+      expect(matchesAgeIfPresent(undefined, '2010-10-14')).toBe(true);
+      expect(matchesAgeIfPresent(null as any, '2010-10-14')).toBe(true);
     });
   });
 });
@@ -269,11 +269,19 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     const spy = vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       {
         id: 'pl-1',
-        rules: { facilityId: 'facility-1', patientType: 'patientType-Charity', patientAge: '<18' },
+        rules: {
+          facilityId: 'facility-1',
+          patientType: 'patientType-Charity',
+          patientAge: { max: 17 },
+        },
       },
       {
         id: 'pl-2',
-        rules: { facilityId: 'facility-1', patientType: 'patientType-Private', patientAge: '>=65' },
+        rules: {
+          facilityId: 'facility-1',
+          patientType: 'patientType-Private',
+          patientAge: { min: 65 },
+        },
       },
     ]);
 
@@ -303,10 +311,10 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     expect(id).toBeNull();
   });
 
-  it('supports exact age matching with = operator', async () => {
+  it('supports exact age matching with numeric value', async () => {
     // Age 15 exactly on 2025-10-14 if DOB is 2010-10-14
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { patientAge: '=15' } },
+      { id: 'pl-1', rules: { patientAge: 15 } },
     ]);
 
     const inputs = buildInputs({ patientDOB: '2010-10-14' });
@@ -315,23 +323,10 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
     expect(id1).toBe('pl-1');
   });
 
-  it('does not match age rules without explicit operator', async () => {
-    // Age 15 exactly on 2025-10-14 if DOB is 2010-10-14
-    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { patientAge: '15' } },
-      { id: 'pl-2', rules: { patientAge: '15' } },
-    ]);
-
-    const inputs = buildInputs({ patientDOB: '2010-10-14' });
-
-    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
-    expect(id).toBeNull();
-  });
-
   it('does not match age-based rules if DOB is missing or invalid', async () => {
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { patientAge: '<18' } },
-      { id: 'pl-2', rules: { patientAge: '>=65' } },
+      { id: 'pl-1', rules: { patientAge: { max: 17 } } },
+      { id: 'pl-2', rules: { patientAge: { min: 65 } } },
     ]);
 
     const id1 = await InvoicePriceList.getIdForPatientEncounter(buildInputs({ patientDOB: null }));
