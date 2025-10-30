@@ -16,7 +16,7 @@ export class InvoiceItem extends Model {
   declare note?: string;
   declare sourceId?: string;
   declare productName: string;
-  declare productPrice: number;
+  declare productPrice?: number;
   declare productCode: string;
   declare productDiscountable: boolean;
   declare invoiceId?: string;
@@ -51,7 +51,7 @@ export class InvoiceItem extends Model {
         },
         productPrice: {
           type: DataTypes.DECIMAL,
-          allowNull: false,
+          allowNull: true,
         },
         productCode: {
           type: DataTypes.STRING,

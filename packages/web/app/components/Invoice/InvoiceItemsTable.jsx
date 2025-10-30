@@ -28,18 +28,19 @@ const PriceText = styled.span`
   text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const getInvoiceItemTotalPrice = invoiceItem => {
-  return new Decimal(invoiceItem?.product?.invoicePriceListItem?.price || 0)
-    .times(invoiceItem?.quantity || 1)
-    .toNumber();
+const getInvoiceItemTotalPrice = (value, qty) => {
+  return new Decimal(value).times(qty).toNumber();
 };
 
 const getInvoiceItemPriceDisplay = invoiceItem => {
-  return formatDisplayPrice(
-    isNaN(parseFloat(invoiceItem?.product?.invoicePriceListItem?.price))
-      ? undefined
-      : getInvoiceItemTotalPrice(invoiceItem),
-  );
+  const rawValue = invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
+
+  if (isNaN(parseFloat(rawValue))) {
+    return 0;
+  }
+  const qty = invoiceItem.quantity || 1;
+  const totalPrice = getInvoiceItemTotalPrice(rawValue, qty);
+  return formatDisplayPrice(totalPrice);
 };
 
 const getPrice = row => {
