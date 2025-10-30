@@ -1,4 +1,4 @@
-import { IMAGING_AREA_TYPES, OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import {
   administeredVaccineLoader,
   labTestPanelLoader,
