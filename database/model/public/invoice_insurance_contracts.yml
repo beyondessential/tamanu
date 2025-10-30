@@ -39,8 +39,7 @@ sources:
             description: "{{ doc('generic__deleted_at') }} in invoice_insurance_contracts."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              invoice_insurance_contracts."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_insurance_contracts."
             data_tests:
               - not_null
           - name: code
@@ -56,8 +55,7 @@ sources:
             description: "{{ doc('invoice_insurance_contracts__default_coverage') }}"
           - name: visibility_status
             data_type: text
-            description: "{{ doc('generic__visibility_status') }} in
-              invoice_insurance_contracts."
+            description: "{{ doc('generic__visibility_status') }} in invoice_insurance_contracts."
             data_tests:
               - not_null
             config:
