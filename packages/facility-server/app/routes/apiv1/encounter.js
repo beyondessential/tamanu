@@ -19,7 +19,6 @@ import {
 } from '@tamanu/constants';
 import {
   simpleGet,
-  simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
