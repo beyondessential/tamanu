@@ -241,14 +241,18 @@ describe('matchesAgeIfPresent', () => {
   });
 });
 
-// Helper to build inputs similar to production usage
-const buildInputs = (
+// Helper to build mock encounter objects
+const buildMockEncounter = (
   overrides: Partial<{ patientType: string; patientDOB: string | null; facilityId: string }>,
 ) => ({
-  patientType: undefined,
-  patientDOB: undefined,
-  facilityId: undefined,
-  ...overrides,
+  patientBillingTypeId: overrides.patientType,
+  patient: {
+    dateOfBirth: overrides.patientDOB,
+    additionalData: overrides.patientType ? [] : [{ patientBillingTypeId: undefined }],
+  },
+  location: {
+    facilityId: overrides.facilityId,
+  },
 });
 
 describe('InvoicePriceList.getIdForPatientEncounter', () => {
@@ -266,6 +270,25 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
   });
 
   it('returns the matching price list id when facility, patientType and age match', async () => {
+    const mockEncounter = buildMockEncounter({
+      facilityId: 'facility-1',
+      patientType: 'patientType-Charity',
+      // 2010-10-15 is 14 years old on 2025-10-14
+      patientDOB: '2010-10-15',
+    });
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
     const spy = vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       {
         id: 'pl-1',
@@ -285,88 +308,186 @@ describe('InvoicePriceList.getIdForPatientEncounter', () => {
       },
     ]);
 
-    const inputs = buildInputs({
-      facilityId: 'facility-1',
-      patientType: 'patientType-Charity',
-      // 2010-10-15 is 14 years old on 2025-10-14
-      patientDOB: '2010-10-15',
-    });
-
-    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(spy).toHaveBeenCalled();
     expect(id).toBe('pl-1');
   });
 
   it('returns null when no price list rules match', async () => {
-    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
-      { id: 'pl-1', rules: { facilityId: 'facility-1', patientType: 'patientType-Private' } },
-    ]);
-
-    const inputs = buildInputs({
+    const mockEncounter = buildMockEncounter({
       facilityId: 'facility-1',
       patientType: 'patientType-Charity',
     });
 
-    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
+    vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
+      { id: 'pl-1', rules: { facilityId: 'facility-1', patientType: 'patientType-Private' } },
+    ]);
+
+    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(id).toBeNull();
   });
 
   it('supports exact age matching with numeric value', async () => {
     // Age 15 exactly on 2025-10-14 if DOB is 2010-10-14
+    const mockEncounter = buildMockEncounter({ patientDOB: '2010-10-14' });
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       { id: 'pl-1', rules: { patientAge: 15 } },
     ]);
 
-    const inputs = buildInputs({ patientDOB: '2010-10-14' });
-
-    const id1 = await InvoicePriceList.getIdForPatientEncounter(inputs);
+    const id1 = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(id1).toBe('pl-1');
   });
 
   it('does not match age-based rules if DOB is missing or invalid', async () => {
+    const mockEncounterNullDob = buildMockEncounter({ patientDOB: null });
+    const mockEncounterInvalidDob = buildMockEncounter({ patientDOB: 'not-a-date' as any });
+
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       { id: 'pl-1', rules: { patientAge: { max: 17 } } },
       { id: 'pl-2', rules: { patientAge: { min: 65 } } },
     ]);
 
-    const id1 = await InvoicePriceList.getIdForPatientEncounter(buildInputs({ patientDOB: null }));
+    const mockFindByPk1 = vi.fn().mockResolvedValue(mockEncounterNullDob);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk1,
+          },
+        },
+      },
+      configurable: true,
+    });
+
+    const id1 = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(id1).toBeNull();
 
-    const id2 = await InvoicePriceList.getIdForPatientEncounter(
-      buildInputs({ patientDOB: 'not-a-date' as any }),
-    );
+    const mockFindByPk2 = vi.fn().mockResolvedValue(mockEncounterInvalidDob);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk2,
+          },
+        },
+      },
+      configurable: true,
+    });
+
+    const id2 = await InvoicePriceList.getIdForPatientEncounter('encounter-2');
     expect(id2).toBeNull();
   });
 
   it('throws an error when multiple price lists match', async () => {
+    const mockEncounter = buildMockEncounter({ facilityId: 'facility-1' });
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       { id: 'pl-1', code: 'code-1', name: 'Price List One', rules: { facilityId: 'facility-1' } },
       { id: 'pl-2', code: 'code-2', name: 'Price List Two', rules: { facilityId: 'facility-1' } },
     ]);
 
-    const inputs = buildInputs({ facilityId: 'facility-1' });
-
-    await expect(InvoicePriceList.getIdForPatientEncounter(inputs)).rejects.toThrow(
+    await expect(InvoicePriceList.getIdForPatientEncounter('encounter-1')).rejects.toThrow(
       'Multiple price lists match the provided inputs: Price List One, Price List Two',
     );
   });
 
   it('returns the matching price list id when only one matches', async () => {
+    const mockEncounter = buildMockEncounter({ facilityId: 'facility-1' });
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([
       { id: 'pl-1', rules: { facilityId: 'facility-1' } },
       { id: 'pl-2', rules: { facilityId: 'facility-2' } },
     ]);
 
-    const inputs = buildInputs({ facilityId: 'facility-1' });
-
-    const id = await InvoicePriceList.getIdForPatientEncounter(inputs);
+    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(id).toBe('pl-1');
   });
 
   it('matches when unspecified rule fields are absent (treated as no constraint)', async () => {
+    const mockEncounter = buildMockEncounter({});
+
+    const mockFindByPk = vi.fn().mockResolvedValue(mockEncounter);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
     vi.spyOn(InvoicePriceList as any, 'findAll').mockResolvedValue([{ id: 'pl-1', rules: {} }]);
 
-    const id = await InvoicePriceList.getIdForPatientEncounter(buildInputs({}));
+    const id = await InvoicePriceList.getIdForPatientEncounter('encounter-1');
     expect(id).toBe('pl-1');
+  });
+
+  it('throws an error when encounter is not found', async () => {
+    const mockFindByPk = vi.fn().mockResolvedValue(null);
+    Object.defineProperty(InvoicePriceList, 'sequelize', {
+      value: {
+        models: {
+          Encounter: {
+            findByPk: mockFindByPk,
+          },
+        },
+      },
+      configurable: true,
+    });
+
+    await expect(InvoicePriceList.getIdForPatientEncounter('non-existent')).rejects.toThrow(
+      'Encounter not found: non-existent',
+    );
   });
 });

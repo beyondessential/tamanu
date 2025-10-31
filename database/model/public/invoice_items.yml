@@ -65,8 +65,6 @@ sources:
           - name: product_price
             data_type: numeric
             description: "{{ doc('invoice_items__product_price') }}"
-            data_tests:
-              - not_null
           - name: ordered_by_user_id
             data_type: character varying(255)
             description: "{{ doc('invoice_items__ordered_by_user_id') }}"

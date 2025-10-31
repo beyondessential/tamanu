@@ -16,7 +16,7 @@ export class InvoiceItem extends Model {
   declare note?: string;
   declare sourceId?: string;
   declare productName: string;
-  declare productPrice: number;
+  declare productPrice?: number;
   declare productCode: string;
   declare productDiscountable: boolean;
   declare invoiceId?: string;
@@ -51,7 +51,7 @@ export class InvoiceItem extends Model {
         },
         productPrice: {
           type: DataTypes.DECIMAL,
-          allowNull: false,
+          allowNull: true,
         },
         productCode: {
           type: DataTypes.STRING,
@@ -105,23 +105,41 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models) {
+  static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
+    const productInclude = [
+      {
+        model: models.ReferenceData,
+        as: 'sourceRefDataRecord',
+        attributes: ['code', 'type'],
+      },
+      {
+        model: models.LabTestType,
+        as: 'sourceLabTestTypeRecord',
+        attributes: ['code'],
+      },
+      {
+        model: models.LabTestPanel,
+        as: 'sourceLabTestPanelRecord',
+        attributes: ['code'],
+      },
+    ];
+
+    if (invoicePriceListId) {
+      productInclude.push({
+        // @ts-ignore
+        model: models.InvoicePriceListItem,
+        where: { invoicePriceListId },
+        as: 'invoicePriceListItem',
+        attributes: ['price', 'invoicePriceListId'],
+        required: false,
+      });
+    }
+
     return [
       {
         model: models.InvoiceProduct,
         as: 'product',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'referenceData',
-            attributes: ['code', 'type'],
-          },
-          {
-            model: models.LabTestType,
-            as: 'labTestType',
-            attributes: ['code'],
-          },
-        ],
+        include: productInclude,
       },
       {
         model: models.User,

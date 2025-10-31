@@ -58,12 +58,27 @@ export class InvoicePriceList extends Model {
 
   // Returns the id of the PriceList whose rules match the provided inputs
   // Throws an error if more than one match is found
-  static async getIdForPatientEncounter(inputs: {
-    patientType?: string;
-    patientDOB?: string | null;
-    facilityId?: string;
-  }): Promise<string | null> {
-    const { patientType, patientDOB, facilityId } = inputs ?? {};
+  static async getIdForPatientEncounter(encounterId: string): Promise<string | null> {
+    const { models } = this.sequelize;
+    const encounter = await models.Encounter.findByPk(encounterId, {
+      include: [
+        {
+          association: 'patient',
+          include: [{ association: 'additionalData' }],
+        },
+        'location',
+      ],
+    });
+
+    if (!encounter) {
+      throw new Error(`Encounter not found: ${encounterId}`);
+    }
+
+    const patientType =
+      encounter.patientBillingTypeId ||
+      encounter?.patient?.additionalData?.[0]?.patientBillingTypeId;
+    const patientDOB = encounter?.patient?.dateOfBirth;
+    const facilityId = encounter?.location?.facilityId;
 
     const priceLists = await this.findAll({
       where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
