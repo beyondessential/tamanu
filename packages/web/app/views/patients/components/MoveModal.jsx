@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
@@ -87,9 +88,9 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { values, initialValues, dirty } = useFormikContext();
 
-  const hasExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
+  const isExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
 
-  const description = hasExistingPlannedMove ? (
+  const description = isExistingPlannedMove ? (
     <TranslatedText
       stringId="patient.encounter.movePatient.location.advancedDescription.existing"
       fallback="The below location is a current planned move. You can finalise the move, change the location, or clear the fields to cancel the move."
@@ -114,8 +115,8 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
-          onChange={() => {
-            if (hasExistingPlannedMove) {
+          onClear={() => {
+            if (isExistingPlannedMove) {
               clearPlannedMove();
             }
           }}
@@ -163,7 +164,7 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
             data-testid="field-ryle"
           />
         )}
-        {!dirty && hasExistingPlannedMove && (
+        {!dirty && isExistingPlannedMove && (
           <CancelMoveButton
             onClick={clearPlannedMove}
             variant="outlined"
@@ -244,6 +245,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
         enableReinitialize
+        validationSchema={yup.object().shape({
+          examinerId: yup.string().required(),
+          departmentId: yup.string().required(),
+        })}
         render={({ submitForm, values }) => (
           <>
             <SectionHeading>
