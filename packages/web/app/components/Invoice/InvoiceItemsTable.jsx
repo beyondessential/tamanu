@@ -24,10 +24,10 @@ const PriceCell = styled.div`
 `;
 
 const PriceText = styled.span`
-  text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${(props) => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const getPrice = row => {
+const getPrice = (row) => {
   const price = getInvoiceItemPriceDisplay(row);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(row);
 
@@ -49,7 +49,7 @@ const getPrice = row => {
   );
 };
 
-const getInvoiceItemDetails = row => {
+const getInvoiceItemDetails = (row) => {
   if (row.productDiscountable) {
     return row.productName;
   }
@@ -168,7 +168,7 @@ export const InvoiceItemsTable = ({ invoice }) => {
       headStyle={denseTableStyle.head}
       statusCellStyle={denseTableStyle.statusCell}
       disablePagination
-      // data={invoice.items}
+      data={invoice.items}
       data-testid="datafetchingtable-66i5"
     />
   );
