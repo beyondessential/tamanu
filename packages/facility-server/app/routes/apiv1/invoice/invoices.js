@@ -241,7 +241,6 @@ invoiceRoute.put(
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
 
-        console.log('itemData', itemData);
         //update or create item
         await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 

@@ -3,9 +3,8 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import {
   getInvoiceItemDiscountPriceDisplay,
-  formatDisplayPrice,
+  getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import Decimal from 'decimal.js';
 
 import { Colors, denseTableStyle } from '../../constants';
 import { DataFetchingTable } from '../Table';
@@ -27,21 +26,6 @@ const PriceCell = styled.div`
 const PriceText = styled.span`
   text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
-
-const getInvoiceItemTotalPrice = (value, qty) => {
-  return new Decimal(value).times(qty).toNumber();
-};
-
-const getInvoiceItemPriceDisplay = invoiceItem => {
-  const rawValue = invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
-
-  if (isNaN(parseFloat(rawValue))) {
-    return 0;
-  }
-  const qty = invoiceItem.quantity || 1;
-  const totalPrice = getInvoiceItemTotalPrice(rawValue, qty);
-  return formatDisplayPrice(totalPrice);
-};
 
 const getPrice = row => {
   const price = getInvoiceItemPriceDisplay(row);
