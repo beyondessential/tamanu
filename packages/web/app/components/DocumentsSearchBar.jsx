@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Form, FormSubmitButton, TextButton, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 import Typography from '@material-ui/core/Typography';
-import { DynamicSelectField, Form, Field, SearchField } from './Field';
-import { FormGrid } from './FormGrid';
-import { FormSubmitButton, TextButton } from './Button';
-import { Colors } from '../constants';
+import { DynamicSelectField, Field, SearchField } from './Field';
 import { TranslatedText } from './Translation/TranslatedText';
 
 const DOCUMENT_TYPE_OPTIONS = [

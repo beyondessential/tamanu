@@ -44,9 +44,11 @@
     apiErrorsToken: false,
   },
   "metaServer": {
-    "host": "https://meta.tamanu.app",
+    "hosts": [
+      "https://meta.tamanu.app",
+    ],
     "serverId": null,
-    "timeoutMs": 20000
+    "timeoutMs": 20000,
   },
   "updateUrls": {
     "mobile": "https://meta.tamanu.app/versions/~{minVersion}/mobile",
@@ -219,6 +221,10 @@
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
     },
+    "dhis2IntegrationProcessor": {
+      "enabled": false,
+      "schedule": "0 2 * * *"
+    },
     "automaticLabTestResultPublisher": {
       "enabled": false,
       "schedule": "*/15 * * * *",
@@ -284,6 +290,7 @@
       "enabled": true,
       // every minute
       "schedule": "* * * * *",
+      jitterTime: "30s",
     },
     "medicationDiscontinuer": {
       // every hour
@@ -378,6 +385,18 @@
         }
       }
     },
+    "omniLab": {
+      "enabled": false,
+      // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
+      // New keys may be issued by running `npx node dist apiKeys issue fhirIntegration <email> -e '100 years'`
+      // If this is changed, all API keys using this secret will be revoked and must be reissued
+      "secret": null
+    },
+    "dhis2": {
+      "enabled": false,
+      "username": "",
+      "password": ""
+    }
   },
   // on the central-server, don't read these values from config!
   // use the getLocalisation() helper in packages/central-server/app/localisation.js

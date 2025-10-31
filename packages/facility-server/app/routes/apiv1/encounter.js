@@ -333,6 +333,8 @@ encounterRelations.get(
 
     // Add medicationAdministrationRecords with condition for same day
     if (marDate) {
+      req.checkPermission('list', 'MedicationAdministration');
+
       const startOfMarDate = `${marDate} 00:00:00`;
       const endOfMarDate = `${marDate} 23:59:59`;
       baseQueryOptions.include.push({
@@ -689,6 +691,7 @@ async function getAnswersWithHistory(req) {
     WHERE sr.encounter_id = :encounterId
       AND sr.deleted_at IS NULL
       AND lc.table_name = 'survey_response_answers'
+      AND lc.migration_context IS NULL
     GROUP BY lc.record_id
   `;
 

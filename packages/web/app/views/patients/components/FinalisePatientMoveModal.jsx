@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
-import { BodyText, Modal } from '../../../components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { BodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
-import { Colors } from '../../../constants';
 import { getFullLocationName } from '../../../utils/location';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};

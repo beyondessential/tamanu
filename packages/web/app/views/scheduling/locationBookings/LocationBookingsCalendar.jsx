@@ -21,7 +21,7 @@ import { LocationBookingsCalendarBody } from './LocationBookingsCalendarBody';
 import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader';
 import { partitionAppointmentsByLocation } from './utils';
 
-const getDisplayableDates = (date) => {
+const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
   const end = endOfWeek(endOfMonth(date), { weekStartsOn: 1 });
   return eachDayOfInterval({ start, end });
@@ -95,6 +95,7 @@ export const LocationBookingsCalendar = ({
 
   const {
     filters: { bookingTypeId, clinicianId, patientNameOrId },
+    viewType,
   } = useLocationBookingsContext();
   // When filtering only by location, don’t hide locations that contain no appointments
   const areNonLocationFiltersActive =
@@ -109,6 +110,7 @@ export const LocationBookingsCalendar = ({
       clinicianId,
       bookingTypeId,
       patientNameOrId,
+      view: viewType,
     },
     { keepPreviousData: true },
   );
@@ -116,7 +118,7 @@ export const LocationBookingsCalendar = ({
   const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
 
   const filteredLocations = areNonLocationFiltersActive
-    ? locations?.filter((location) => appointmentsByLocation[location.id])
+    ? locations?.filter(location => appointmentsByLocation[location.id])
     : locations;
 
   return (

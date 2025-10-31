@@ -20,6 +20,7 @@ import { toCountryDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { add } from 'date-fns';
 import { getOrderClause } from '../../database/utils';
 import { ForbiddenError } from '@tamanu/errors';
+import { dateCustomValidation } from '@tamanu/utils/dateTime';
 
 export const user = express.Router();
 
@@ -166,6 +167,41 @@ user.post(
   }),
 );
 
+const checkOnLeaveSchema = z.object({
+  startDate: dateCustomValidation,
+  endDate: dateCustomValidation,
+});
+
+user.post(
+  '/:userId/check-on-leave',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { UserLeave },
+      params,
+      body,
+    } = req;
+
+    const { userId } = params;
+    const { startDate, endDate } = await checkOnLeaveSchema.parseAsync(body);
+
+    req.checkPermission('read', 'User');
+
+    const leave = await UserLeave.findOne({
+      where: {
+        userId,
+        startDate: {
+          [Op.lte]: endDate,
+        },
+        endDate: {
+          [Op.gte]: startDate,
+        },
+      },
+    });
+
+    res.send({ isOnLeave: !!leave });
+  }),
+);
+
 const clinicianTasksQuerySchema = z.object({
   orderBy: z
     .enum(['dueTime', 'location', 'patientName', 'encounter.patient.displayId', 'name'])
@@ -189,6 +225,8 @@ user.get(
   asyncHandler(async (req, res) => {
     const { models } = req;
     req.checkPermission('read', 'Tasking');
+
+    const hasMedicationPermission = req.ability.can('list', 'MedicationAdministration');
 
     const query = await clinicianTasksQuerySchema.parseAsync(req.query);
     const {
@@ -259,8 +297,8 @@ user.get(
             [Op.or]: [
               // Include all non-medication tasks
               { taskType: { [Op.ne]: TASK_TYPES.MEDICATION_DUE_TASK } },
-              // For medication_due_task, only include if there's at least one MAR that is NOT recorded AND NOT paused
-              {
+              // For medication_due_task, only include if user has medication permissions AND there's at least one MAR that is NOT recorded AND NOT paused
+              ...(hasMedicationPermission ? [{ 
                 [Op.and]: [
                   { taskType: TASK_TYPES.MEDICATION_DUE_TASK },
                   // Check if there exists at least one MAR at the same dueTime that is not recorded and not paused
@@ -291,7 +329,7 @@ user.get(
                     )
                   `),
                 ],
-              },
+              }] : []),
             ],
           },
         ],

@@ -12,7 +12,7 @@ import { SERVER_TYPES } from '@tamanu/constants';
 import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
-import { patientPortalModule } from './patientPortal/patientPortalRoutes';
+import { patientPortalApi } from './patientPortalApi';
 
 import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
@@ -98,6 +98,7 @@ export async function createApi(ctx) {
 
   express.use((req, res, next) => {
     req.models = store.models; // cross-compatibility with facility for shared middleware
+    req.db = store.sequelize;
     req.store = store;
     req.emailService = emailService;
     req.reportSchemaStores = reportSchemaStores;
@@ -117,7 +118,7 @@ export async function createApi(ctx) {
   // Patient Portal - must go before main API to avoid main authentication
   express.use('/api/portal', async (req, res, next) => {
     const patientPortalEnabled = await req.settings.get('features.patientPortal');
-    return patientPortalEnabled ? patientPortalModule(req, res, next) : res.status(501).end();
+    return patientPortalEnabled ? patientPortalApi(req, res, next) : res.status(501).end();
   });
 
   // API

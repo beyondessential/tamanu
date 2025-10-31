@@ -2,9 +2,15 @@ import React from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { FormGrid } from '../components/FormGrid';
-import { BodyText, Button, Field, Form, FormSubmitButton, TextField } from '../components';
-import { Colors } from '../constants';
+import {
+  FormGrid,
+  TextField,
+  Form,
+  FormSubmitButton,
+  Button,
+} from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
+import { BodyText, Field } from '../components';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 import { LoginAlert } from './LoginForm';

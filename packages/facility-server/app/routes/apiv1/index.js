@@ -30,6 +30,7 @@ import { invoices } from './invoice';
 import { labRequest, labTest, labTestPanel, labTestType } from './labs';
 import { labRequestLog } from './labRequestLog';
 import { location } from './location';
+import { locationAssignments } from './locationAssignments';
 import { locationGroup } from './locationGroup';
 import { medication } from './medication';
 import { notes } from './note';
@@ -78,12 +79,15 @@ apiv1.get(
   }),
 );
 
-apiv1.get('/public/translation/languageOptions', async (req, res) => {
-  req.flagPermissionChecked();
-  const { TranslatedString } = req.models;
-  const response = await TranslatedString.getPossibleLanguages();
-  res.send(response);
-});
+apiv1.get(
+  '/public/translation/languageOptions',
+  asyncHandler(async (req, res) => {
+    req.flagPermissionChecked();
+    const { TranslatedString } = req.models;
+    const response = await TranslatedString.getPossibleLanguages();
+    res.send(response);
+  }),
+);
 
 apiv1.get(
   '/public/translation/:language',
@@ -162,6 +166,7 @@ referenceDataRoutes.use('/department', department);
 referenceDataRoutes.use('/facility', facility);
 referenceDataRoutes.use('/labRequestLog', labRequestLog);
 referenceDataRoutes.use('/location', location);
+referenceDataRoutes.use('/locationAssignments', locationAssignments);
 referenceDataRoutes.use('/locationGroup', locationGroup);
 referenceDataRoutes.use('/patientFieldDefinition', patientFieldDefinition);
 referenceDataRoutes.use('/template', template);

@@ -100,6 +100,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './AppointmentSchedule';
+export * from './AppointmentProcedureType';
 export * from './DocumentMetadata';
 export * from './Template';
 
@@ -156,3 +157,8 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './UserLeave';
+
+export * from './LocationAssignmentTemplate';
+export * from './LocationAssignment';
+export * from './DHIS2PushLog';

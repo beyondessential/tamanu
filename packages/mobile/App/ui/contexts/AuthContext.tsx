@@ -84,7 +84,7 @@ const Provider = ({
     // Destructure the local password out of the user object - it only needs to be in
     // the database, we don't need or want to store it in app state as well.
     const userData = { ...authenticatedUser };
-    delete userData.localPassword;
+    delete userData.password;
     setUser(userData);
     setContextUserAndAbility(userData);
     setSignedInStatus(true);

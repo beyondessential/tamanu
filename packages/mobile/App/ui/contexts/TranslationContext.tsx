@@ -8,6 +8,7 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
 import { DevSettings } from 'react-native';
 import { useBackend } from '../hooks';
 import { isEmpty, upperFirst } from 'lodash';
@@ -16,6 +17,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import { LanguageOption } from '~/models/TranslatedString';
 import { getEnumStringId } from '../components/Translations/TranslatedEnum';
 import { getReferenceDataStringId } from '../components/Translations/TranslatedReferenceData';
+import { SYNC_EVENT_ACTIONS } from '~/services/sync/types';
 
 export type Casing = 'lower' | 'upper' | 'sentence';
 
@@ -111,8 +113,7 @@ const TranslationContext = createContext<TranslationContextData>({
 } as TranslationContextData);
 
 export const TranslationProvider = ({ children }: PropsWithChildren<object>): ReactElement => {
-  const DEFAULT_LANGUAGE = 'en';
-  const { models } = useBackend();
+  const { models, syncManager } = useBackend();
   const [isDebugMode, setIsDebugMode] = useState(false);
   const [translations, setTranslations] = useState({});
   const [languageOptions, setLanguageOptions] = useState(null);
@@ -120,17 +121,27 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   const [host, setHost] = useState(null);
 
   const getLanguageOptions = useCallback(async () => {
-    const languageOptionArray = await models.TranslatedString.getLanguageOptions();
+    let languageOptionArray = await models.TranslatedString.getLanguageOptions();
+
+    // Filter out the default language if we have a custom English language
+    if (languageOptionArray.some(({ languageCode }) => languageCode === ENGLISH_LANGUAGE_CODE)) {
+      languageOptionArray = languageOptionArray.filter(
+        ({ languageCode }) => languageCode !== DEFAULT_LANGUAGE_CODE,
+      );
+    }
+
     if (languageOptionArray.length > 0) setLanguageOptions(languageOptionArray);
   }, [models.TranslatedString]);
 
-  const setLanguageState = useCallback(
-    async (languageCode: string = DEFAULT_LANGUAGE) => {
+  // Used to routinely fetch the
+  const getLatestTranslations = useCallback(
+    async (languageCode: string | null) => {
+      if (!languageCode) return;
+
       await writeLanguage(languageCode);
-      if (!languageOptions) getLanguageOptions();
       const translations = await models.TranslatedString.getForLanguage(languageCode);
       if (isEmpty(translations) && host) {
-        // If we dont have translations synced down, fetch from the public server endpoint directly
+        // If we don't have translations synced down, fetch from the public server endpoint directly
         const response = await fetch(`${host}/api/public/translation/${languageCode}`);
         const data = await response.json();
         setTranslations(data);
@@ -138,7 +149,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
         setTranslations(translations);
       }
     },
-    [getLanguageOptions, host, languageOptions, models.TranslatedString],
+    [host, models.TranslatedString],
   );
 
   const getTranslation = (
@@ -179,7 +190,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
 
   const restoreLanguage = async () => {
     const languageCode = await readConfig('language');
-    setLanguage(languageCode || DEFAULT_LANGUAGE);
+    setLanguage(languageCode);
   };
 
   useEffect(() => {
@@ -187,8 +198,21 @@ export const TranslationProvider = ({ children }: PropsWithChildren<object>): Re
   }, [translations]);
 
   useEffect(() => {
-    setLanguageState(language);
-  }, [language, setLanguageState, host]);
+    getLanguageOptions();
+    getLatestTranslations(language);
+  }, [language, getLatestTranslations, getLanguageOptions]);
+
+  // Reload latest translations on successful sync
+  useEffect(() => {
+    const handler = () => {
+      getLanguageOptions();
+      getLatestTranslations(language);
+    };
+
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
+
+    return () => syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_SUCCESS, handler);
+  }, [language, getLatestTranslations, getLanguageOptions, syncManager.emitter]);
 
   useEffect(() => {
     restoreLanguage();

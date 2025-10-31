@@ -5,6 +5,7 @@ export const GLOBAL_EXCLUDE_TABLES = [
 
 export const NON_SYNCING_TABLES = [
   'logs.debug_logs',
+  'logs.dhis2_pushes',
   'logs.fhir_writes',
   'public.devices',
   'public.fhir_materialise_jobs',
@@ -25,9 +26,7 @@ export const NON_SYNCING_TABLES = [
 
 export const NON_LOGGED_TABLES = [
   // logs
-  'logs.changes',
-  'logs.accesses',
-  'logs.debug_logs',
+  'logs.*',
 
   // internal authentication tables
   'public.one_time_logins',

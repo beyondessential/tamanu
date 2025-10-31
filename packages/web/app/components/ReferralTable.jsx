@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 
 import { REFERRAL_STATUSES, REFERRAL_STATUS_LABELS } from '@tamanu/constants';
 import { DataFetchingTable } from './Table';
+import { DeleteButton } from '@tamanu/ui-components';
 import { DateDisplay } from './DateDisplay';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { isErrorUnknownAllow404s, useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
 import { TranslatedText, TranslatedEnum } from './Translation';
 
