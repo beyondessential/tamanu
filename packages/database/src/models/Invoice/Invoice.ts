@@ -4,10 +4,10 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES,
   SYNC_DIRECTIONS,
 } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 
 export class Invoice extends Model {
   declare id: string;
