@@ -105,7 +105,7 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models, options?: { invoicePriceListId?: string }) {
+  static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
     const productInclude = [
       {
         model: models.ReferenceData,
@@ -124,11 +124,11 @@ export class InvoiceItem extends Model {
       },
     ];
 
-    if (options?.invoicePriceListId) {
+    if (invoicePriceListId) {
       productInclude.push({
         // @ts-ignore
         model: models.InvoicePriceListItem,
-        where: { invoicePriceListId: options.invoicePriceListId },
+        where: { invoicePriceListId },
         as: 'invoicePriceListItem',
         attributes: ['price', 'invoicePriceListId'],
         required: false,

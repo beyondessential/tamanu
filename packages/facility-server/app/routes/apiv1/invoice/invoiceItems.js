@@ -10,11 +10,20 @@ invoiceItemsRoute.get(
   asyncHandler(async (req, res) => {
     const { models, params } = req;
     const invoiceId = params.id;
-    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(invoiceId);
+    const invoice = await models.Invoice.findByPk(invoiceId);
 
-    const associations = models.InvoiceItem.getListReferenceAssociations(models, {
+    if (!invoice) {
+      throw new Error(`Invoice not found: ${invoiceId}`);
+    }
+
+    const invoicePriceListId = await models.InvoicePriceList.getIdForPatientEncounter(
+      invoice.encounterId,
+    );
+
+    const associations = models.InvoiceItem.getListReferenceAssociations(
+      models,
       invoicePriceListId,
-    });
+    );
 
     const response = await getResourceList(req, 'InvoiceItem', 'invoiceId', {
       skipPermissionCheck: true,

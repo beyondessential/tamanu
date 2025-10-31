@@ -89,7 +89,7 @@ export class Invoice extends Model {
     return buildEncounterLinkedLookupFilter(this);
   }
 
-  static getFullReferenceAssociations() {
+  static getFullReferenceAssociations(invoicePriceListId?: string) {
     const { models } = this.sequelize;
 
     return [
@@ -112,7 +112,7 @@ export class Invoice extends Model {
       {
         model: models.InvoiceItem,
         as: 'items',
-        include: models.InvoiceItem.getListReferenceAssociations(models),
+        include: models.InvoiceItem.getListReferenceAssociations(models, invoicePriceListId),
       },
       {
         model: models.InvoicePayment,
