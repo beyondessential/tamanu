@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { Route, Redirect, RouteProps } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { Box, Container, CircularProgress } from '@mui/material';
 import { PageHeader } from './header/PageHeader';
 import { useCurrentUserQuery } from '@api/queries/useCurrentUserQuery';
@@ -18,29 +18,21 @@ const PrivatePageLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const PrivateRoute = (props: RouteProps) => {
-  const { component: Component, ...restProps } = props;
+export const PrivateRoute = ({ element }: { element: React.ReactElement }) => {
   const { data: user, isError, isPending } = useCurrentUserQuery();
 
+  if (isPending) {
+    return <CircularProgress />;
+  }
+
+  if (isError || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
   return (
-    <Route
-      {...restProps}
-      render={routeProps => {
-        if (isPending) {
-          return <CircularProgress />;
-        }
-
-        if (isError || !user) {
-          return <Redirect to="/login" />;
-        }
-
-        return (
-          <CurrentUserContext.Provider value={user}>
-            <PrivatePageLayout>{Component && <Component {...routeProps} />}</PrivatePageLayout>
-          </CurrentUserContext.Provider>
-        );
-      }}
-    />
+    <CurrentUserContext.Provider value={user}>
+      <PrivatePageLayout>{element}</PrivatePageLayout>
+    </CurrentUserContext.Provider>
   );
 };
 

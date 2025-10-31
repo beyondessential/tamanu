@@ -12,7 +12,7 @@ export const PATIENT_CATEGORY_LABELS = {
   [PATIENT_CATEGORIES.INPATIENT]: 'Inpatients',
 };
 
-const CATEGORY_PATH = `/patients/:category(${Object.values(PATIENT_CATEGORIES).join('|')})`;
+const CATEGORY_PATH = `/patients/:category`;
 const PATIENT_PATH = `${CATEGORY_PATH}/:patientId`;
 const ENCOUNTER_PATH = `${PATIENT_PATH}/encounter/:encounterId`;
 const SUMMARY_PATH = `${ENCOUNTER_PATH}/summary`;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
@@ -308,7 +308,7 @@ export const LocationBookingsTable = ({ patient }) => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const actions = [
     {
@@ -325,7 +325,7 @@ export const LocationBookingsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/locations?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

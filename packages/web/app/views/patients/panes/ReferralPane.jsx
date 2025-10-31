@@ -1,16 +1,14 @@
 import React from 'react';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ContentPane, NoteModalActionBlocker, TableButtonRow } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
 
 export const ReferralPane = React.memo(({ patient }) => {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const params = useParams();
   const handleNewReferral = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/referrals/new`));
+    navigate(`/patients/${params.category}/${params.patientId}/referrals/new`);
   return (
     <ContentPane data-testid="contentpane-ztqm">
       <TableButtonRow variant="small" data-testid="tablebuttonrow-4sww">

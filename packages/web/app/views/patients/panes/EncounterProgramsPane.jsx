@@ -1,21 +1,17 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useParams, useNavigate } from 'react-router';
 import { TableButtonRow, NoteModalActionBlocker } from '../../../components';
 import { Button, TranslatedText } from '@tamanu/ui-components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
 
 export const EncounterProgramsPane = React.memo(({ patient }) => {
-  const dispatch = useDispatch();
   const params = useParams();
+  const navigate = useNavigate();
 
   const handleNewSurvey = () =>
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/programs/new`,
-      ),
+    navigate(
+      `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/programs/new`,
     );
 
   return (

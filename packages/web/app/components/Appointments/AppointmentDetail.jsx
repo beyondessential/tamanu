@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { push } from 'connected-react-router';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';
@@ -68,13 +68,14 @@ const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(statu
 
 const PatientInfo = ({ patient }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const handlePatientInfoContainerClick = useCallback(async () => {
     await dispatch(reloadPatient(id));
-    dispatch(push(`/patients/all/${id}`));
-  }, [dispatch, id]);
+    navigate(`/patients/all/${id}`);
+  }, [dispatch, id, navigate]);
 
   return (
     <PatientInfoContainer

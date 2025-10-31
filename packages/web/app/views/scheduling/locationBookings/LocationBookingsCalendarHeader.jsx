@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { formatISO, isSameDay, isSameMonth, isThisMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
@@ -98,7 +98,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const isFirstDisplayedDate = (date) => isSameDay(date, displayedDates[0]);
+  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
   const [monthPickerRefreshKey, setMonthPickerRefreshKey] = useState(Date.now());
 
   const location = useLocation();
@@ -133,12 +133,12 @@ export const LocationBookingsCalendarHeader = ({ monthOf, setMonthOf, displayedD
           This week
         </GoToThisWeekButton>
       </StyledFirstHeaderCell>
-      {displayedDates.map((d) => {
+      {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
           ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-            ? FIRST_DISPLAYED_DAY_ID
-            : null;
+          ? FIRST_DISPLAYED_DAY_ID
+          : null;
         return (
           <DayHeaderCell
             date={d}
