@@ -30,7 +30,6 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -584,6 +583,10 @@ createSuggester(
   },
 );
 
+createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
+  DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+);
+
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete
@@ -622,30 +625,6 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
     [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
   },
 }));
-
-createSuggester(
-  'invoiceProduct',
-  'InvoiceProduct',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
-  }),
-  {
-    mapper: product => {
-      product.addVirtualFields();
-      return product;
-    },
-    includeBuilder: req => {
-      return [
-        {
-          model: req.models.ReferenceData,
-          as: 'referenceData',
-          attributes: ['code', 'type'],
-        },
-      ];
-    },
-  },
-);
 
 createSuggester(
   'practitioner',
