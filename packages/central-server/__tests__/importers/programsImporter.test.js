@@ -159,7 +159,10 @@ describe('Programs import', () => {
   it('should properly skip surveys as obsolete', async () => {
     await doImport({ file: 'valid', dryRun: false });
     await doImport({ file: 'obsolete', dryRun: false });
-    const { didntSendReason, errors, stats } = await doImport({ file: 'obsolete-clone', dryRun: true });
+    const { didntSendReason, errors, stats } = await doImport({
+      file: 'obsolete-clone',
+      dryRun: true,
+    });
     console.log('stats', stats);
     expect(errors).toBeEmpty();
     expect(didntSendReason).toEqual('dryRun');
@@ -1186,6 +1189,42 @@ describe('Programs import', () => {
       const generatedStringIds = translatedStrings.map(translation => translation.stringId);
 
       expect(generatedStringIds).toEqual(expect.arrayContaining(expectedStringIds));
+    });
+
+    it('should handle spaces, dots, and semicolons in option strings', async () => {
+      await doImport({
+        file: 'invalid-translation-string-ids',
+        dryRun: false,
+      });
+
+      // find all elements with options
+      const programDataElements = await models.ProgramDataElement.findAll({
+        where: {
+          defaultOptions: {
+            [Op.ne]: null,
+          },
+        },
+      });
+
+      if (programDataElements.length === 0)
+        throw new Error(
+          'No program data elements with options found in invalid-translation-string-ids.xlsx',
+        );
+
+      const translations = await models.TranslatedString.findAll({
+        where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
+      });
+      const stringIds = translations.map(translation => translation.stringId);
+
+      const expectedStringIds = programDataElements
+        .map(pde =>
+          normaliseOptions(pde.defaultOptions).map(option =>
+            getReferenceDataOptionStringId(pde.id, 'programDataElement', option),
+          ),
+        )
+        .flat();
+
+      expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
     });
   });
 });
