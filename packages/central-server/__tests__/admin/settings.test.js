@@ -70,20 +70,20 @@ describe('Settings Admin', () => {
 
     // Loop through each scope and do a put request with the settings object and scope to save to DB
     const saveResponses = await Promise.all(
-      Object.values(SETTINGS_SCOPES).map(async (scope) => {
+      Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
         return saveSettings(scopeTestJsons[scope], scope, facilityId);
       }),
     );
 
     // Ensure all saving responses were successful
-    saveResponses.forEach((response) => {
+    saveResponses.forEach(response => {
       expect(response).toHaveSucceeded();
     });
 
     // Loop through each scope and get the json object of settings saved to the DB when fetching by scope
     const getResponses = await Promise.all(
-      Object.values(SETTINGS_SCOPES).map(async (scope) => {
+      Object.values(SETTINGS_SCOPES).map(async scope => {
         const facilityId = scope === SETTINGS_SCOPES.FACILITY ? facility.id : null;
         const getResponse = await getSettings(scope, facilityId);
         return { getResponse, scope };
@@ -185,7 +185,7 @@ describe('Settings Admin', () => {
     const endpointResponse = await adminApp.get('/v1/admin/facilities');
     expect(endpointResponse).toHaveSucceeded();
 
-    const plainFacilityList = [facility1, facility2].map((facility) => {
+    const plainFacilityList = [facility1, facility2].map(facility => {
       const { id, name } = facility.get({ plain: true });
       return { id, name };
     });
@@ -194,15 +194,13 @@ describe('Settings Admin', () => {
   });
   it('Calling delete cache should reset the cache', async () => {
     settingsCache.setAllSettings({ dog: 'woof' });
-    settingsCache.setFrontEndSettings({ cat: 'meow' });
     const res = await adminApp.delete('/v1/admin/settings/cache');
     expect(res).toHaveSucceeded();
     expect(res.status).toEqual(204);
     expect(settingsCache).toEqual(
       expect.objectContaining({
-        allSettingsCache: null,
-        frontEndSettingsCache: null,
-        expirationTimestamp: null,
+        allSettingsCache: new Map(),
+        expirationTimestamps: new Map(),
       }),
     );
   });

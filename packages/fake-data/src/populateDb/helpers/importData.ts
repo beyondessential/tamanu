@@ -1,3 +1,8 @@
+import {
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { fake } from '../../fake/index.js';
 
 import type {
@@ -46,7 +51,11 @@ export const generateImportData = async ({
   user: User;
   programRegistry: ProgramRegistry;
 }> => {
-  const referenceData = await ReferenceData.create(fake(ReferenceData));
+  const referenceData = await ReferenceData.create(
+    fake(ReferenceData, {
+      type: REFERENCE_TYPES.DRUG,
+    }),
+  );
   await ReferenceDataRelation.create(fake(ReferenceDataRelation));
 
   const facility = await Facility.create(fake(Facility));
@@ -102,7 +111,9 @@ export const generateImportData = async ({
 
   const invoiceProduct = await InvoiceProduct.create(
     fake(InvoiceProduct, {
-      id: referenceData.id,
+      category: INVOICE_ITEMS_CATEGORIES.DRUG,
+      sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+      sourceRecordId: referenceData.id,
     }),
   );
 

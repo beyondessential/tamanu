@@ -1,10 +1,8 @@
 import React from 'react';
 
-import { BaseModal } from './BaseModal';
 import { NoteInfoSection, StyledDivider, WrittenByText } from './NoteCommonFields';
-import { TranslatedReferenceData, TranslatedText } from './Translation';
 import { NoteChangeLogs } from './NoteChangeLogs';
-import { ConfirmCancelRow } from './ButtonRow';
+import { ConfirmCancelRow, BaseModal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 
 const getChangelogContext = note => {

@@ -1,13 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { ButtonWithPermissionCheck, AutocompleteInput } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
-import {
-  ButtonWithPermissionCheck,
-  TableButtonRow,
-  AutocompleteInput,
-} from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { useSuggester } from '../../../api';
 import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';

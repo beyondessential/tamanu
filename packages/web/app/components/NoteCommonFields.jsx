@@ -5,19 +5,11 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
-import {
-  AutocompleteField,
-  AutocompleteInput,
-  DateTimeField,
-  Field,
-  TextField,
-  DateTimeInput,
-} from './Field';
+import { AutocompleteField, AutocompleteInput, DateTimeField, Field, DateTimeInput, TextField, FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../constants/styles';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
-import { Colors } from '../constants';
-import { FormGrid } from './FormGrid';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
 
@@ -156,7 +148,7 @@ export const NoteDateTimeField = ({ required, disabled, size }) => {
   );
 };
 
-/* Very sensitive styling below, results in the text field being growable / shrinkable, 
+/* Very sensitive styling below, results in the text field being growable / shrinkable,
 and deals with in-field scrolling at small heights */
 
 const NoteContentBox = styled(Box)`
