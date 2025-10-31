@@ -105,28 +105,41 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models) {
+  static getListReferenceAssociations(models: Models, options?: { invoicePriceListId?: string }) {
+    const productInclude = [
+      {
+        model: models.ReferenceData,
+        as: 'sourceRefDataRecord',
+        attributes: ['code', 'type'],
+      },
+      {
+        model: models.LabTestType,
+        as: 'sourceLabTestTypeRecord',
+        attributes: ['code'],
+      },
+      {
+        model: models.LabTestPanel,
+        as: 'sourceLabTestPanelRecord',
+        attributes: ['code'],
+      },
+    ];
+
+    if (options?.invoicePriceListId) {
+      productInclude.push({
+        // @ts-ignore
+        model: models.InvoicePriceListItem,
+        where: { invoicePriceListId: options.invoicePriceListId },
+        as: 'invoicePriceListItem',
+        attributes: ['price', 'invoicePriceListId'],
+        required: false,
+      });
+    }
+
     return [
       {
         model: models.InvoiceProduct,
         as: 'product',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'sourceRefDataRecord',
-            attributes: ['code', 'type'],
-          },
-          {
-            model: models.LabTestType,
-            as: 'sourceLabTestTypeRecord',
-            attributes: ['code'],
-          },
-          {
-            model: models.LabTestPanel,
-            as: 'sourceLabTestPanelRecord',
-            attributes: ['code'],
-          },
-        ],
+        include: productInclude,
       },
       {
         model: models.User,

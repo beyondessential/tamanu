@@ -121,7 +121,8 @@ export const InvoiceItemRow = ({
       casing: 'lower',
     },
   );
-  const hidePriceInput = item?.product?.price || item?.product?.price === 0 || !editable;
+  // Todo: Determine input state based on productPriceManualEntry when it's implemented
+  const hidePriceInput = item.productPrice === undefined || !editable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id, ...others }) => ({
