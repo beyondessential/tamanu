@@ -22,7 +22,6 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
-import { notifyError } from '../../../utils';
 import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
@@ -182,16 +181,21 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
 
+  const clinicianSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const defaultInitialFormValues = {
     examinerId: encounter.examinerId,
     departmentId: encounter.departmentId,
-    ...(enablePatientMoveActions
-      ? { plannedLocationId: encounter.plannedLocationId, action: PATIENT_MOVE_ACTIONS.PLAN }
-      : {}),
+    ...(enablePatientMoveActions && {
+      plannedLocationId: encounter.plannedLocationId,
+      action: PATIENT_MOVE_ACTIONS.PLAN,
+    }),
   };
-
   const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
 
   const clearPlannedMove = () => {
@@ -200,30 +204,8 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       plannedLocationId: null,
     });
   };
-
-  const handleCloseModal = () => {
+  const resetForm = () => {
     setInitialFormValues(defaultInitialFormValues);
-    onClose();
-  };
-
-  const departmentSuggester = useSuggester('department', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-  const clinicianSuggester = useSuggester('practitioner');
-
-  const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-    try {
-      await writeAndViewEncounter(encounter.id, {
-        submittedTime: getCurrentDateTimeString(),
-        departmentId,
-        examinerId,
-        ...(action === PATIENT_MOVE_ACTIONS.PLAN
-          ? { plannedLocationId }
-          : { locationId: plannedLocationId || locationId }),
-      });
-    } catch (error) {
-      notifyError(error.message);
-    }
   };
 
   return (
@@ -243,7 +225,18 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={initialFormValues}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={onSubmit}
+        onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
+          const locationData =
+            action === PATIENT_MOVE_ACTIONS.PLAN
+              ? { plannedLocationId }
+              : { locationId: plannedLocationId || locationId };
+          await writeAndViewEncounter(encounter.id, {
+            submittedTime: getCurrentDateTimeString(),
+            departmentId,
+            examinerId,
+            ...locationData,
+          });
+        }}
         enableReinitialize
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
@@ -308,7 +301,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             )}
             <ModalFormActionRow
               onConfirm={submitForm}
-              onCancel={handleCloseModal}
+              onCancel={() => {
+                resetForm();
+                onClose();
+              }}
               data-testid="modalformactionrow-35ou"
             />
           </>
