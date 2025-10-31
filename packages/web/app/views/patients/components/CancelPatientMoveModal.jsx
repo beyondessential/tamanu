@@ -6,7 +6,6 @@ import { LargeBodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
 
-
 const Container = styled.div`
   margin: 70px 0 80px;
 `;
@@ -20,7 +19,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     <Modal
       title={
         <TranslatedText
-          stringId="patient.modal.cancelMove.title"
+          stringId="encounter.action.cancelPatientMove"
           fallback="Cancel move"
           data-testid="translatedtext-cancel-move-title"
         />
