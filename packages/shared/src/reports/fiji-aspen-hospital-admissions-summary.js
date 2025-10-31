@@ -3,6 +3,7 @@ import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
+import { NOTE_TYPES } from '@tamanu/constants';
 
 const FIELDS = [
   'Reporting period',
@@ -112,7 +113,7 @@ with
       reporting_months rm
       left join admission_data a on a.start_date between rm.month and (rm.month + interval '1' month - interval '1' day)
       left join notes n on a.id = n.record_id
-    where n.note_type = 'system' and n.content like 'Changed department%'
+    where n.note_type_id = '${NOTE_TYPES.SYSTEM}' and n.content like 'Changed department%'
     group by rm.month, a.facility_name
   ),
   available_beds as (

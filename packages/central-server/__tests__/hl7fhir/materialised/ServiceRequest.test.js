@@ -88,11 +88,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           imagingType: 'xRay',
         }),
       );
+      
       await Note.bulkCreate([
         fake(Note, {
           date: '2022-03-05',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
           content: 'Suspected adenoma',
@@ -100,7 +101,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
         fake(Note, {
           date: '2022-03-06',
           visibilityStatus: VISIBILITY_STATUSES.CURRENT,
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
           recordType: ImagingRequest.name,
           recordId: ir.id,
           content: 'Patient may need mobility assistance',

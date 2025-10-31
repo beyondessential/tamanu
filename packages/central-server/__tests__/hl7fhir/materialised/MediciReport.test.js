@@ -183,7 +183,7 @@ describe(`Materialised - MediciReport`, () => {
         content: 'Root note',
         authorId: resources.practitioner.id,
         date: toDateTimeString(sub(new Date(), { days: 8 })),
-        noteType: NOTE_TYPES.OTHER,
+        noteTypeId: NOTE_TYPES.OTHER,
       }),
     );
 
@@ -297,7 +297,7 @@ describe(`Materialised - MediciReport`, () => {
         notes: [
           {
             content: rootNote.content,
-            noteType: rootNote.noteType,
+            noteTypeId: rootNote.noteTypeId,
             revisedById: rootNote.id,
           },
         ],
@@ -318,7 +318,7 @@ describe(`Materialised - MediciReport`, () => {
           authorId: resources.practitioner.id,
           date: toDateTimeString(sub(new Date(), { days: 6 })),
           revisedById: rootNote.id,
-          noteType: NOTE_TYPES.OTHER,
+          noteTypeId: NOTE_TYPES.OTHER,
         }),
       );
 
@@ -333,7 +333,7 @@ describe(`Materialised - MediciReport`, () => {
         notes: [
           {
             content: changelog1.content,
-            noteType: changelog1.noteType,
+            noteTypeId: changelog1.noteTypeId,
             revisedById: changelog1.revisedById,
           },
         ],

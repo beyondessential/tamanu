@@ -110,6 +110,7 @@ describe('CentralSyncManager.updateLookupTable', () => {
     await models.ProgramDataElement.truncate({ cascade: true, force: true });
     await models.SurveyScreenComponent.truncate({ cascade: true, force: true });
     await models.ReferenceData.truncate({ cascade: true, force: true });
+    await models.TranslatedString.truncate({ cascade: true, force: true });
     await models.User.truncate({ cascade: true, force: true });
     await models.User.create({
       id: SYSTEM_USER_UUID,

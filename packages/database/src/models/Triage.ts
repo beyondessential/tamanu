@@ -126,4 +126,5 @@ export class Triage extends Model {
       });
     });
   }
+
 }

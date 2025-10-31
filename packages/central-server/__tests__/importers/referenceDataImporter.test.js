@@ -360,11 +360,16 @@ describe('Data definition import', () => {
       const { stats } = await doImport({ file: 'valid' });
 
       // It should create a translation for each record in the reference data table
-      const refDataTableRecords = await ReferenceData.findAll({ raw: true });
+      const refDataTableRecords = await ReferenceData.findAll({ 
+        where: { 
+          type: { [Op.not]: REFERENCE_TYPES.NOTE_TYPE } 
+        }, 
+        raw: true 
+      });
       const expectedStringIds = refDataTableRecords.map(
         ({ type, id }) => `${REFERENCE_DATA_TRANSLATION_PREFIX}.${type}.${id}`,
       );
-
+      
       // Filter out the clinical/patient record types as they dont get translated
       const translatableNonRefDataTableImports = Object.keys(stats).filter(key =>
         OTHER_REFERENCE_TYPE_VALUES.includes(camelCase(key)),

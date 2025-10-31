@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes } from 'sequelize';
 import { simpleGet, simplePost, simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { VISIBILITY_STATUSES } from '@tamanu/constants';
+import { NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
 
 export const locationGroup = express.Router();
 
@@ -64,7 +64,7 @@ locationGroup.get(
               FROM notes
               WHERE revised_by_id IS NULL
                 AND record_type = 'Encounter'
-                AND note_type = 'handover'
+                AND note_type_id = :noteTypeHandoverId
                 AND deleted_at IS NULL) n
         WHERE n.row_num = 1
       ),
@@ -162,6 +162,7 @@ locationGroup.get(
         replacements: {
           id: req.params.id,
           facilityId,
+          noteTypeHandoverId: NOTE_TYPES.HANDOVER,
         },
         type: QueryTypes.SELECT,
       },

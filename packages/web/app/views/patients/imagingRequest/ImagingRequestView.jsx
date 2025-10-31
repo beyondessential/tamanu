@@ -180,8 +180,8 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
-          .map(note => note.content)
+          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
+          .map((note) => note.content)
           .join('\n')}
         label={
           <TranslatedText

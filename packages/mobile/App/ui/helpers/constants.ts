@@ -227,7 +227,8 @@ export const NOTE_RECORD_TYPES = {
 };
 
 export const NOTE_TYPES = {
-  TREATMENT_PLAN: 'treatmentPlan',
+  TREATMENT_PLAN: 'notetype-treatmentPlan',
+  ADMISSION: 'admission',
   MEDICAL: 'medical',
   SURGICAL: 'surgical',
   NURSING: 'nursing',
@@ -235,13 +236,13 @@ export const NOTE_TYPES = {
   PHARMACY: 'pharmacy',
   PHYSIOTHERAPY: 'physiotherapy',
   SOCIAL: 'social',
-  DISCHARGE: 'discharge',
-  AREA_TO_BE_IMAGED: 'areaToBeImaged',
-  RESULT_DESCRIPTION: 'resultDescription',
-  SYSTEM: 'system',
-  OTHER: 'other',
-  CLINICAL_MOBILE: 'clinicalMobile',
-  HANDOVER: 'handover',
+  DISCHARGE: 'notetype-discharge',
+  AREA_TO_BE_IMAGED: 'notetype-areaToBeImaged',
+  RESULT_DESCRIPTION: 'notetype-resultDescription',
+  SYSTEM: 'notetype-system',
+  OTHER: 'notetype-other',
+  CLINICAL_MOBILE: 'notetype-clinicalMobile',
+  HANDOVER: 'notetype-handover',
 };
 
 export const FORM_STATUSES = {

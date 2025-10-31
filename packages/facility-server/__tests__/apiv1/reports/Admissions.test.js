@@ -6,7 +6,7 @@ import {
   randomReferenceData,
 } from '@tamanu/database/demoData';
 import { subDays } from 'date-fns';
-import { ENCOUNTER_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { findOneOrCreate } from '@tamanu/shared/test-helpers';
 import { format } from '@tamanu/utils/dateTime';
 import { Op } from 'sequelize';
@@ -182,7 +182,7 @@ describe('Admissions report', () => {
       const departmentChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
-          noteType: 'system',
+          noteTypeId: NOTE_TYPES.SYSTEM,
           content: {
             [Op.like]: 'Changed department from%',
           },
@@ -192,7 +192,7 @@ describe('Admissions report', () => {
       const locationChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
-          noteType: 'system',
+          noteTypeId: NOTE_TYPES.SYSTEM,
           content: {
             [Op.like]: 'Changed location from%',
           },
