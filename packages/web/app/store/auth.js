@@ -1,3 +1,4 @@
+import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -37,7 +38,8 @@ export const login =
       const loginInfo = await api.login(email, password);
       await handleLoginSuccess(dispatch, loginInfo);
     } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, error: error.message });
+      const message = getLoginErrorMessage(error);
+      dispatch({ type: LOGIN_FAILURE, error: message });
     }
   };
 
@@ -123,7 +125,8 @@ export const requestPasswordReset =
       await api.requestPasswordReset(email);
       dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
     } catch (error) {
-      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
+      const message = getResetPasswordErrorMessage(error);
+      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
     }
   };
 

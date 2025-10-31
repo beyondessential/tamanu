@@ -1,5 +1,3 @@
-import config from 'config';
-import crypto from 'crypto';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
@@ -12,23 +10,14 @@ import { login } from './login';
 import { refresh } from './refresh';
 import { userInfo, userMiddleware } from './userMiddleware';
 
-export const DEFAULT_JWT_SECRET = config.auth.secret || crypto.randomUUID();
-export const DEFAULT_JWT_REFRESH_SECRET = config.auth.refreshToken.secret || crypto.randomUUID();
-
 export const authModule = express.Router();
 
 authModule.use('/resetPassword', resetPassword);
 authModule.use('/changePassword', changePassword);
-authModule.post(
-  '/login',
-  login({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET }),
-);
-authModule.post(
-  '/refresh',
-  refresh({ secret: DEFAULT_JWT_SECRET, refreshSecret: DEFAULT_JWT_REFRESH_SECRET }),
-);
+authModule.post('/login', login);
+authModule.post('/refresh', refresh);
 
-authModule.use(userMiddleware({ secret: DEFAULT_JWT_SECRET }));
+authModule.use(userMiddleware);
 authModule.get('/user/me', userInfo);
 
 authModule.get('/permissions', asyncHandler(getPermissions));
