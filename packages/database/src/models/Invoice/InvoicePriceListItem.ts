@@ -6,6 +6,7 @@ import type { InitOptions, Models } from '../../types/model';
 export class InvoicePriceListItem extends Model {
   declare id: string;
   declare invoicePriceListId: string;
+  declare invoiceProductId: string;
   declare price: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {

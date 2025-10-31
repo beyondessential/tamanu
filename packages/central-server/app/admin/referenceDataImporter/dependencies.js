@@ -77,7 +77,7 @@ export default {
       // Use a getter to create a fresh loader instance on each access
       return invoicePriceListItemLoaderFactory();
     },
-    needs: ['invoicePriceList'],
+    needs: ['invoicePriceList', 'invoiceProduct'],
   },
 
   role: {},
