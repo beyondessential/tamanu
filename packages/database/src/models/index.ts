@@ -121,6 +121,8 @@ export * from './InvoiceInsurerPayment';
 
 export * from './InvoicePriceList';
 export * from './InvoicePriceListItem';
+export * from './InvoiceInsuranceContract';
+export * from './InvoiceInsuranceContractItem';
 
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
