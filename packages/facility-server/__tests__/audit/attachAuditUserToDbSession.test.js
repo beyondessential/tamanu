@@ -15,7 +15,7 @@ import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
 const runWithDelay = async (callbacks, delay = 50) => {
-  return Promise.all(
+  return await Promise.all(
     callbacks.map(async (callback, index) => {
       await sleepAsync(delay * index);
       return await callback();
@@ -79,6 +79,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -101,6 +102,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
