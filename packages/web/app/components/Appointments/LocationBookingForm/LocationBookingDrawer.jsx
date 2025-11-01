@@ -29,6 +29,7 @@ import { BodyText } from '../../Typography';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { sub } from 'date-fns';
 
+
 const formStyles = {
   zIndex: 1000,
   position: 'absolute',
