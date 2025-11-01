@@ -1,5 +1,7 @@
 export * from './Invoice';
 export * from './InvoiceDiscount';
+export * from './InvoiceInsuranceContract';
+export * from './InvoiceInsuranceContractItem';
 export * from './InvoiceInsurer';
 export * from './InvoiceInsurerPayment';
 export * from './InvoiceItem';
