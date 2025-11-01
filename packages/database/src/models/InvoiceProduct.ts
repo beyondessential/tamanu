@@ -1,24 +1,16 @@
 import { DataTypes } from 'sequelize';
-import {
-  IMAGING_TYPES_VALUES,
-  OTHER_REFERENCE_TYPES,
-  REFERENCE_TYPES,
-  SYNC_DIRECTIONS,
-  VISIBILITY_STATUSES,
-} from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from './Model';
 import type { InitOptions, Models } from '../types/model';
-import type { ReferenceData } from './ReferenceData';
-import type { LabTestType } from './LabTestType';
 
 export class InvoiceProduct extends Model {
   declare id: string;
   declare name: string;
-  declare price: number;
   declare discountable: boolean;
+  declare category?: string;
+  declare sourceRecordType?: string;
+  declare sourceRecordId?: string;
   declare visibilityStatus: string;
-  declare referenceData?: ReferenceData;
-  declare labTestType?: LabTestType;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -28,13 +20,21 @@ export class InvoiceProduct extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        price: {
-          type: DataTypes.DECIMAL,
-          allowNull: true,
-        },
         discountable: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
+        },
+        category: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        sourceRecordType: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        sourceRecordId: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
         visibilityStatus: {
           type: DataTypes.STRING,
@@ -48,14 +48,26 @@ export class InvoiceProduct extends Model {
 
   static initRelations(models: Models) {
     this.belongsTo(models.ReferenceData, {
-      foreignKey: 'id',
-      as: 'referenceData',
-      constraints: false,
+      foreignKey: 'sourceRecordId',
+      as: 'sourceRefDataRecord',
+    });
+    this.belongsTo(models.LabTestPanel, {
+      foreignKey: 'sourceRecordId',
+      as: 'sourceLabTestPanelRecord',
     });
     this.belongsTo(models.LabTestType, {
-      foreignKey: 'id',
-      as: 'labTestType',
-      constraints: false,
+      foreignKey: 'sourceRecordId',
+      as: 'sourceLabTestTypeRecord',
+    });
+    // Has many in the context of importing and storing data
+    this.hasMany(models.InvoicePriceListItem, {
+      foreignKey: 'invoiceProductId',
+      as: 'invoicePriceListItems',
+    });
+    // Has one in the context of fetching data from the api
+    this.hasOne(models.InvoicePriceListItem, {
+      foreignKey: 'invoiceProductId',
+      as: 'invoicePriceListItem',
     });
   }
 
@@ -68,21 +80,6 @@ export class InvoiceProduct extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['referenceData', 'labTestType'];
-  }
-
-  addVirtualFields() {
-    this.dataValues.type =
-      this.referenceData?.type ??
-      (this.labTestType?.code
-        ? OTHER_REFERENCE_TYPES.LAB_TEST_TYPE
-        : IMAGING_TYPES_VALUES.includes(this.id)
-          ? REFERENCE_TYPES.IMAGING_TYPE
-          : undefined);
-    this.dataValues.code =
-      this.referenceData?.code ??
-      this.labTestType?.code ??
-      (IMAGING_TYPES_VALUES.includes(this.id) ? this.id : undefined);
-    return this;
+    return ['invoicePriceListItems'];
   }
 }

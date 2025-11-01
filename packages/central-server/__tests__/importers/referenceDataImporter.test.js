@@ -600,6 +600,40 @@ describe('Data definition import', () => {
     );
   });
 
+  describe('Invoice Product', () => {
+    it('should import an invoice product', async () => {
+      const { errors, stats } = await doImport({ file: 'valid-invoice-product', dryRun: true });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 1, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should import an invoice product which has a source record', async () => {
+      const { errors, stats } = await doImport({
+        file: 'valid-invoice-product-and-sources',
+        dryRun: true,
+      });
+      expect(errors).toBeEmpty();
+      expect(stats).toMatchObject({
+        InvoiceProduct: { created: 6, updated: 0, errored: 0 },
+      });
+    });
+
+    it('should not import an invoice product when the source record does not exist', async () => {
+      const { didntSendReason, errors } = await doImport({
+        file: 'invalid-invoice-product-missing-source',
+        dryRun: true,
+      });
+      expect(didntSendReason).toEqual('validationFailed');
+      expect(errors).toContainValidationError(
+        'invoiceProduct',
+        2,
+        'Source record with ID "Drug-love" and category "Drug" does not exist.',
+      );
+    });
+  });
+
   describe('Procedure Type Survey', () => {
     let testSurvey1;
     let testSurvey2;

@@ -1,4 +1,4 @@
-import { REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import {
   administeredVaccineLoader,
   labTestPanelLoader,
@@ -13,7 +13,9 @@ import {
   medicationTemplateLoader,
   medicationSetLoader,
   procedureTypeLoader,
+  invoiceProductLoader,
 } from './loaders';
+import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -64,7 +66,19 @@ export default {
     loader: labTestPanelLoader,
     needs: ['labTestType'],
   },
-  invoiceProduct: {},
+  invoiceProduct: {
+    loader: invoiceProductLoader,
+    needs: [OTHER_REFERENCE_TYPES.LAB_TEST_TYPE, OTHER_REFERENCE_TYPES.LAB_TEST_PANEL],
+  },
+
+  invoicePriceList: {},
+  invoicePriceListItem: {
+    get loader() {
+      // Use a getter to create a fresh loader instance on each access
+      return invoicePriceListItemLoaderFactory();
+    },
+    needs: ['invoicePriceList', 'invoiceProduct'],
+  },
 
   role: {},
   permission: {
