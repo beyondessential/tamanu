@@ -89,9 +89,11 @@ export const PATIENT_MOVE_ACTIONS = {
 const PlannedMoveFields = ({ clearPlannedMove }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const { values, initialValues, dirty } = useFormikContext();
+  const { values, initialValues } = useFormikContext();
 
-  const isExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
+  const isExistingPlannedMove =
+    initialValues?.plannedLocationId &&
+    initialValues?.plannedLocationId === values?.plannedLocationId;
 
   const description = isExistingPlannedMove ? (
     <TranslatedText
@@ -167,7 +169,7 @@ const PlannedMoveFields = ({ clearPlannedMove }) => {
             data-testid="field-ryle"
           />
         )}
-        {!dirty && isExistingPlannedMove && (
+        {isExistingPlannedMove && (
           <CancelMoveButton
             onClick={clearPlannedMove}
             variant="outlined"
@@ -202,7 +204,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   };
   const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
 
-  // Internal location field useEffect state is triggered by the changing on initialValues
+  // Internal LocationField's useEffect state is triggered by the changing on initialValues
   // so we need to clear the planned location id in a slightly unusual way
   const clearPlannedMove = () => {
     setInitialFormValues({
