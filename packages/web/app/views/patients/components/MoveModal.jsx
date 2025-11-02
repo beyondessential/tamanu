@@ -183,14 +183,14 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+
   const { writeAndViewEncounter } = useEncounter();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
-
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const defaultInitialFormValues = {
     examinerId: encounter.examinerId,
@@ -202,6 +202,8 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   };
   const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
 
+  // Internal location field useEffect state is triggered by the changing on initialValues
+  // so we need to clear the planned location id in a slightly unusual way
   const clearPlannedMove = () => {
     setInitialFormValues({
       ...defaultInitialFormValues,
