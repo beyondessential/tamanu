@@ -1216,7 +1216,7 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       const nonSensitivePrescription = await models.Prescription.create(
         fake(models.Prescription),
       );
-      
+
       const sensitiveEncounterPrescription = await models.EncounterPrescription.create(
         fake(models.EncounterPrescription, {
           encounterId: sensitiveEncounter.id,
