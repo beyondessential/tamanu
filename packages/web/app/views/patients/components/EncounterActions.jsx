@@ -147,7 +147,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       label: (
         <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
       ),
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_TYPE),
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.CLINIC,
     },
     {
