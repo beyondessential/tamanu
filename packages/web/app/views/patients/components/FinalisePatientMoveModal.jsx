@@ -109,7 +109,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
                 fallback="Current location:"
                 data-testid="translatedtext-patient-modal-move-finalise-current-location"
               />{' '}
-              <span> {getFullLocationName(location)}</span>
+              <span>{getFullLocationName(location)}</span>
             </Card>
           </Location>
           <Dots data-testid="box-dots">
