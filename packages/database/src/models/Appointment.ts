@@ -1,4 +1,4 @@
-import { DataTypes, type BelongsToGetAssociationMixin } from 'sequelize';
+import { DataTypes, Op, type BelongsToGetAssociationMixin } from 'sequelize';
 import { omit } from 'lodash';
 
 import { APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
@@ -26,11 +26,13 @@ export class Appointment extends Model {
   declare isHighPriority: boolean;
   declare patientId?: string;
   declare clinicianId?: string;
+  declare additionalClinicianId?: string;
   declare locationGroupId?: string;
   declare locationId?: string;
   declare bookingTypeId?: string;
   declare appointmentTypeId?: string;
   declare encounterId?: string;
+  declare linkEncounterId?: string;
   declare scheduleId?: string;
 
   declare getSchedule: BelongsToGetAssociationMixin<AppointmentSchedule>;
@@ -60,6 +62,7 @@ export class Appointment extends Model {
     return [
       { association: 'patient', include: ['village'] },
       'clinician',
+      'additionalClinician',
       {
         association: 'location',
         include: ['locationGroup'],
@@ -68,7 +71,20 @@ export class Appointment extends Model {
       'appointmentType',
       'bookingType',
       'encounter',
+      {
+        association: 'linkEncounter',
+        as: 'linkEncounter',
+        include: [{
+          association: 'location',
+          include: ['facility'],
+        }],
+      },
       'schedule',
+      {
+        association: 'appointmentProcedureTypes',
+        include: ['procedureType'],
+        separate: true,
+      },
     ];
   }
 
@@ -81,6 +97,11 @@ export class Appointment extends Model {
     this.belongsTo(models.User, {
       as: 'clinician',
       foreignKey: 'clinicianId',
+    });
+
+    this.belongsTo(models.User, {
+      as: 'additionalClinician',
+      foreignKey: 'additionalClinicianId',
     });
 
     this.belongsTo(models.LocationGroup, {
@@ -108,9 +129,26 @@ export class Appointment extends Model {
       as: 'encounter',
     });
 
+    this.belongsTo(models.Encounter, {
+      foreignKey: 'linkEncounterId',
+      as: 'linkEncounter',
+    });
+
     this.belongsTo(models.AppointmentSchedule, {
       foreignKey: 'scheduleId',
       as: 'schedule',
+    });
+
+    this.hasMany(models.AppointmentProcedureType, {
+      foreignKey: 'appointmentId',
+      as: 'appointmentProcedureTypes',
+    });
+
+    this.belongsToMany(models.ReferenceData, {
+      foreignKey: 'appointmentId',
+      otherKey: 'procedureTypeId',
+      as: 'procedureTypes',
+      through: models.AppointmentProcedureType,
     });
   }
 
@@ -167,5 +205,46 @@ export class Appointment extends Model {
       'createdAt',
       'updatedAt',
     ]) as AppointmentCreateData;
+  }
+
+  async setProcedureTypes(procedureTypeIds: string[]) {
+    const { AppointmentProcedureType } = this.sequelize.models;
+
+    const uniqueProcedureTypeIds = [...new Set(procedureTypeIds || [])];
+
+    if (uniqueProcedureTypeIds.length === 0) {
+      await AppointmentProcedureType.destroy({
+        where: { appointmentId: this.id },
+      });
+      return;
+    }
+
+    await AppointmentProcedureType.destroy({
+      where: {
+        appointmentId: this.id,
+        procedureTypeId: {
+          [Op.notIn]: uniqueProcedureTypeIds,
+        },
+      },
+    });
+
+    await AppointmentProcedureType.restore({
+      where: {
+        appointmentId: this.id,
+        procedureTypeId: {
+          [Op.in]: uniqueProcedureTypeIds,
+        },
+      },
+    });
+
+    await AppointmentProcedureType.bulkCreate(
+      uniqueProcedureTypeIds.map(procedureTypeId => ({
+        appointmentId: this.id,
+        procedureTypeId,
+      })),
+      {
+        ignoreDuplicates: true,
+      },
+    );
   }
 }

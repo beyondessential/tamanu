@@ -143,3 +143,9 @@ sources:
           - name: schedule_id
             data_type: uuid
             description: "{{ doc('appointments__schedule_id') }}"
+          - name: additional_clinician_id
+            data_type: character varying(255)
+            description: "{{ doc('appointments__additional_clinician_id') }}"
+          - name: link_encounter_id
+            data_type: character varying(255)
+            description: "{{ doc('appointments__link_encounter_id') }}"

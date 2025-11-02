@@ -3,8 +3,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import styled from 'styled-components';
-import { TextButton as BaseTextButton } from '../../../../../components';
-import { TranslatedText } from '../../../../../components/Translation/TranslatedText';
+import { TranslatedText, TextButton as BaseTextButton} from '@tamanu/ui-components';
 
 const TextButton = styled(BaseTextButton)`
   font-weight: 500;

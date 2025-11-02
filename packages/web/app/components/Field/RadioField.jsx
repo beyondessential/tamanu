@@ -6,9 +6,9 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormHelperText from '@material-ui/core/FormHelperText';
+import { TranslatedEnumField } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
-import { Colors } from '../../constants';
-import { TranslatedEnumField } from '../Translation/TranslatedEnumIInput';
 
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },

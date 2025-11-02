@@ -7,6 +7,7 @@ import { fakeEncounter } from '../.storybook/__mocks__/defaultEndpoints.js';
 
 import { PatientHistory } from '../app/components/PatientHistory';
 import { MockedApi } from './utils/mockedApi';
+import { MockSettingsProvider } from './utils/mockSettingsProvider.jsx';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -49,7 +50,9 @@ const Container = styled.div`
 storiesOf('PatientHistory', module)
   .addDecorator(story => (
     <Container>
-      <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      <MockSettingsProvider mockSettings={{}}>
+        <MockedApi endpoints={endpoints}>{story()}</MockedApi>
+      </MockSettingsProvider>
     </Container>
   ))
   .add('Basic Example', () => <PatientHistory patient={patient} onItemClick={console.log} />);

@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { get as lodashGet, pick } from 'lodash';
 import { SettingPath } from '../types';
 import { buildSettings } from '..';
@@ -16,11 +15,13 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'imagingPriorities',
   'insurer',
   'customisations',
+  'locationAssignments',
   'printMeasures',
   'invoice',
   'labsCancellationReasons',
   'templates',
   'layouts',
+  'security.mobile',
   'triageCategories',
   'upcomingVaccinations',
   'vaccinations',
@@ -29,6 +30,8 @@ export const KEYS_EXPOSED_TO_FRONT_END = [
   'sync',
   'mobileSync',
 ] as const;
+
+export const KEYS_EXPOSED_TO_PATIENT_PORTAL = ['features', 'fileChooserMbSizeLimit'] as const;
 
 export class ReadSettings<Path = SettingPath> {
   models: Models;
@@ -43,23 +46,23 @@ export class ReadSettings<Path = SettingPath> {
     return lodashGet(settings, key as string) as T;
   }
 
-  // This is what is called on login. This gets only settings relevant to
+  // This is what is called on tamanu-web login. This gets only settings relevant to
   // the frontend so only what is needed is sent. No sensitive data is sent.
   async getFrontEndSettings() {
-    let settings = settingsCache.getFrontEndSettings();
-    if (!settings) {
-      const allSettings = await this.getAll();
-      settings = pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
-      settingsCache.setFrontEndSettings(settings);
-    }
-    return settings;
+    const allSettings = await this.getAll();
+    return pick(allSettings, KEYS_EXPOSED_TO_FRONT_END);
+  }
+
+  async getPatientPortalSettings() {
+    const allSettings = await this.getAll();
+    return pick(allSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL);
   }
 
   async getAll() {
-    let settings = settingsCache.getAllSettings();
+    let settings = settingsCache.getAllSettings(this.facilityId);
     if (!settings) {
       settings = await buildSettings(this.models, this.facilityId);
-      settingsCache.setAllSettings(settings);
+      settingsCache.setAllSettings(settings, this.facilityId);
     }
     return settings;
   }
