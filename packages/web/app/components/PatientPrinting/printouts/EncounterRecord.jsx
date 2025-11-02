@@ -303,7 +303,7 @@ const COLUMNS = {
       style: { width: '20%' },
     },
     {
-      key: 'insructions',
+      key: 'instructions',
       title: 'Instructions',
       accessor: ({ prescription }) => prescription || '',
       style: { width: '30%' },
