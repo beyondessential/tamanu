@@ -137,6 +137,7 @@ export const LimitedLinesCell = ({
   isOneLine = false,
   disableTooltip = false,
   isEdited = false,
+  ...tooltipProps
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -181,6 +182,7 @@ export const LimitedLinesCell = ({
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         data-testid="tabletooltip-fs9r"
+        {...tooltipProps}
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
