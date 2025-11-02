@@ -86,10 +86,10 @@ export const PATIENT_MOVE_ACTIONS = {
   FINALISE: 'finalise',
 };
 
-const PlannedMoveFields = ({ clearPlannedMove }) => {
+const PlannedMoveFields = () => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const { values, initialValues } = useFormikContext();
+  const { values, initialValues, setFieldValue } = useFormikContext();
 
   const isExistingPlannedMove =
     initialValues?.plannedLocationId &&
@@ -120,10 +120,9 @@ const PlannedMoveFields = ({ clearPlannedMove }) => {
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
+          value={values.plannedLocationId}
           onClear={() => {
-            if (isExistingPlannedMove) {
-              clearPlannedMove();
-            }
+            setFieldValue('plannedLocationId', null);
           }}
         />
         <LocationAvailabilityWarningMessage
@@ -171,7 +170,9 @@ const PlannedMoveFields = ({ clearPlannedMove }) => {
         )}
         {isExistingPlannedMove && (
           <CancelMoveButton
-            onClick={clearPlannedMove}
+            onClick={() => {
+              setFieldValue('plannedLocationId', null);
+            }}
             variant="outlined"
             data-testid="button-cancel-patient-move"
           >
@@ -204,14 +205,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   };
   const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
 
-  // Internal LocationField's useEffect state is triggered by the changing on initialValues
-  // so we need to clear the planned location id in a slightly unusual way
-  const clearPlannedMove = () => {
-    setInitialFormValues({
-      ...defaultInitialFormValues,
-      plannedLocationId: null,
-    });
-  };
   const resetForm = () => {
     setInitialFormValues(defaultInitialFormValues);
   };
@@ -299,11 +292,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePatientMoveActions ? (
-              <PlannedMoveFields clearPlannedMove={clearPlannedMove} />
-            ) : (
-              <BasicMoveFields />
-            )}
+            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               onCancel={() => {
