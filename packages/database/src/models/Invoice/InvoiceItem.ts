@@ -106,7 +106,7 @@ export class InvoiceItem extends Model {
   }
 
   static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
-    const productInclude = [
+    const productInclude: Record<string, any>[] = [
       {
         model: models.ReferenceData,
         as: 'sourceRefDataRecord',
@@ -126,7 +126,6 @@ export class InvoiceItem extends Model {
 
     if (invoicePriceListId) {
       productInclude.push({
-        // @ts-ignore
         model: models.InvoicePriceListItem,
         where: { invoicePriceListId },
         as: 'invoicePriceListItem',
