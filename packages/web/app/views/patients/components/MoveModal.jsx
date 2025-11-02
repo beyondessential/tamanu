@@ -86,7 +86,7 @@ export const PATIENT_MOVE_ACTIONS = {
   FINALISE: 'finalise',
 };
 
-const AdvancedMoveFields = ({ clearPlannedMove }) => {
+const PlannedMoveFields = ({ clearPlannedMove }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { values, initialValues, dirty } = useFormikContext();
@@ -248,7 +248,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
         })}
-        render={({ submitForm, values }) => (
+        render={({ submitForm }) => (
           <>
             <SectionHeading>
               <TranslatedText
@@ -298,10 +298,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
               />
             </SectionHeading>
             {enablePatientMoveActions ? (
-              <AdvancedMoveFields
-                plannedLocationId={values?.plannedLocationId}
-                clearPlannedMove={clearPlannedMove}
-              />
+              <PlannedMoveFields clearPlannedMove={clearPlannedMove} />
             ) : (
               <BasicMoveFields />
             )}
