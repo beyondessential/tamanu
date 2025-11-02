@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import { Button, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
@@ -23,6 +24,7 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -37,8 +39,21 @@ const SectionDescription = styled(BodyText)`
   padding: 0;
 `;
 
-const Section = styled(FormGrid)`
-  margin-bottom: 30px;
+const StyledFormGrid = styled(FormGrid)`
+  margin-bottom: 20px;
+  position: relative;
+`;
+
+const MoveActionsContainer = styled.div`
+  position: relative;
+  margin-bottom: 20px;
+`;
+
+const CancelMoveButton = styled(Button)`
+  margin-top: 10px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
 `;
 
 const EncounterChangeDescription = styled(LargeBodyText)`
@@ -55,7 +70,7 @@ const BasicMoveFields = () => {
           fallback="Select new patient location."
         />
       </SectionDescription>
-      <Section columns={2} data-testid="formgrid-wyqp">
+      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
           name="locationId"
           component={LocalisedLocationField}
@@ -69,7 +84,7 @@ const BasicMoveFields = () => {
           required
           data-testid="field-tykg"
         />
-      </Section>
+      </StyledFormGrid>
     </>
   );
 };
@@ -97,49 +112,97 @@ const PATIENT_MOVE_ACTION_OPTIONS = [
   },
 ];
 
-const AdvancedMoveFields = ({ plannedLocationId }) => {
+const AdvancedMoveFields = ({ clearPlannedMove }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
+  const { values, initialValues, dirty } = useFormikContext();
 
-  return (
-    <>
-      <SectionDescription>
-        <TranslatedText
-          stringId="patient.encounter.movePatient.location.advancedDescription"
-          fallback="Select a location to plan the patient location move and reserve a bed. The new location will
+  const isExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
+
+  const description = isExistingPlannedMove ? (
+    <TranslatedText
+      stringId="patient.encounter.movePatient.location.advancedDescription.existing"
+      fallback="The below location is a current planned move. You can finalise the move, change the location, or clear the fields to cancel the move."
+    />
+  ) : (
+    <TranslatedText
+      stringId="patient.encounter.movePatient.location.advancedDescription"
+      fallback="Select a location to plan the patient location move and reserve a bed. The new location will
         not be reflected in the patient encounter until you finalise the move. If the change is not
         finalised within :plannedMoveTimeoutHours hours, the planned location move will be
         cancelled. Alternatively you can finalise the patient move now using the option below."
-          replacements={{ plannedMoveTimeoutHours }}
-        />
-      </SectionDescription>
-      <Section columns={2} data-testid="formgrid-wyqp">
+      replacements={{ plannedMoveTimeoutHours }}
+    />
+  );
+
+  return (
+    <>
+      <SectionDescription>{description}</SectionDescription>
+      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
+          onClear={() => {
+            if (isExistingPlannedMove) {
+              clearPlannedMove();
+            }
+          }}
         />
         <LocationAvailabilityWarningMessage
-          locationId={plannedLocationId}
+          locationId={values.plannedLocationId}
           style={{ gridColumn: '2', fontSize: '12px', marginTop: '-15px' }}
           data-testid="locationavailabilitywarningmessage-6ivs"
         />
-        <Field
-          name="action"
-          label={
-            <TranslatedText
-              stringId="encounter.modal.patientMove.action.label"
-              fallback="Would you like to finalise the patient location move now or plan change?"
-              data-testid="translatedtext-l7v1"
-            />
-          }
-          component={RadioField}
-          options={PATIENT_MOVE_ACTION_OPTIONS}
-          style={{ gridColumn: '1/-1' }}
-          data-testid="field-ryle"
-        />
-      </Section>
+      </StyledFormGrid>
+      <MoveActionsContainer>
+        {values.plannedLocationId && (
+          <Field
+            name="action"
+            label={
+              <TranslatedText
+                stringId="encounter.modal.patientMove.action.label"
+                fallback="Would you like to finalise the patient location move now or plan change?"
+                data-testid="translatedtext-l7v1"
+              />
+            }
+            component={RadioField}
+            options={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.finalise"
+                    fallback="Finalise now"
+                    data-testid="translatedtext-patient-move-action-finalise"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.FINALISE,
+              },
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.plan"
+                    fallback="Plan change"
+                    data-testid="translatedtext-patient-move-action-plan"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.PLAN,
+              },
+            ]}
+            data-testid="field-ryle"
+          />
+        )}
+        {!dirty && isExistingPlannedMove && (
+          <CancelMoveButton
+            onClick={clearPlannedMove}
+            variant="outlined"
+            data-testid="button-cancel-patient-move"
+          >
+            <TranslatedText stringId="encounter.action.cancelPatientMove" fallback="Cancel move" />
+          </CancelMoveButton>
+        )}
+      </MoveActionsContainer>
     </>
   );
 };
@@ -179,23 +242,31 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const { getSetting } = useSettings();
   const { writeAndViewEncounter } = useEncounter();
 
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
-
+  const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
-  const clinicianSuggester = useSuggester('practitioner');
 
-  const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-    await writeAndViewEncounter(encounter.id, {
-      submittedTime: getCurrentDateTimeString(),
-      departmentId,
-      examinerId,
-      ...(newEncounterType && { encounterType: newEncounterType }),
-      ...(action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId }
-        : { locationId: plannedLocationId || locationId }),
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+
+  const defaultInitialFormValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+    ...(enablePatientMoveActions && {
+      plannedLocationId: encounter.plannedLocationId,
+      action: PATIENT_MOVE_ACTIONS.PLAN,
+    }),
+  };
+  const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
+
+  const clearPlannedMove = () => {
+    setInitialFormValues({
+      ...defaultInitialFormValues,
+      plannedLocationId: null,
     });
+  };
+  const resetForm = () => {
+    setInitialFormValues(defaultInitialFormValues);
   };
 
   return (
@@ -213,17 +284,25 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
       width="md"
     >
       <Form
-        initialValues={{
-          examinerId: encounter.examinerId,
-          departmentId: encounter.departmentId,
-          ...(enablePatientMoveActions
-            ? {
-                action: PATIENT_MOVE_ACTIONS.PLAN,
-              }
-            : {}),
-        }}
+        initialValues={initialFormValues}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={onSubmit}
+        onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
+          const locationData =
+            action === PATIENT_MOVE_ACTIONS.PLAN
+              ? { plannedLocationId }
+              : { locationId: plannedLocationId || locationId };
+          await writeAndViewEncounter(encounter.id, {
+            submittedTime: getCurrentDateTimeString(),
+            departmentId,
+            examinerId,
+            ...locationData,
+          });
+        }}
+        enableReinitialize
+        validationSchema={yup.object().shape({
+          examinerId: yup.string().required(),
+          departmentId: yup.string().required(),
+        })}
         render={({ submitForm, values }) => (
           <>
             {newEncounterType && (
@@ -247,7 +326,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 fallback="Please select the clinician and department for the patient."
               />
             </SectionDescription>
-            <Section columns={2} data-testid="formgrid-wyqp">
+            <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
               <Field
                 name="examinerId"
                 component={DynamicSelectField}
@@ -274,7 +353,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 required
                 data-testid="field-tykg"
               />
-            </Section>
+            </StyledFormGrid>
             <FormSeparatorLine />
             <SectionHeading>
               <TranslatedText
@@ -283,14 +362,20 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
               />
             </SectionHeading>
             {enablePatientMoveActions ? (
-              <AdvancedMoveFields plannedLocationId={values?.plannedLocationId} />
+              <AdvancedMoveFields
+                plannedLocationId={values?.plannedLocationId}
+                clearPlannedMove={clearPlannedMove}
+              />
             ) : (
               <BasicMoveFields />
             )}
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={getConfirmText(newEncounterType)}
-              onCancel={onClose}
+              onCancel={() => {
+                resetForm();
+                onClose();
+              }}
               data-testid="modalformactionrow-35ou"
             />
           </>

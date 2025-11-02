@@ -18,7 +18,7 @@ import {
 
 const SearchBar = styled('search')`
   display: flex;
-  gap: 0.625rem;
+  gap: 0.5rem;
 `;
 
 const FormListener = () => {
@@ -28,7 +28,7 @@ const FormListener = () => {
 };
 
 export const LocationBookingsFilter = () => {
-  const { filters, setFilters } = useLocationBookingsContext();
+  const { filters, setFilters, viewType } = useLocationBookingsContext();
   const { getTranslation } = useTranslation();
   const { facilityId } = useAuth();
 
@@ -66,6 +66,7 @@ export const LocationBookingsFilter = () => {
               label={getTranslation('general.area.label', 'Area')}
               component={FilterField}
               endpoint="bookableLocationGroup"
+              baseQueryParameters={{ isBookable: viewType }}
               onChange={(e) =>
                 updateUserPreferences({ ...filters, locationGroupIds: e.target.value })
               }
