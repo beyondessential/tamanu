@@ -7,8 +7,6 @@ import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTyp
 import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
 import { ChangeClinicianModal } from '../../../components/ChangeClinicianModal';
 import { BeginPatientMoveModal } from './BeginPatientMoveModal';
-import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
-import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
@@ -326,18 +324,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
         onClose={onClose}
         data-testid="beginpatientmovemodal-2upr"
-      />
-      <FinalisePatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
-        onClose={onClose}
-        data-testid="finalisepatientmovemodal-hvk3"
-      />
-      <CancelPatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
-        onClose={onClose}
-        data-testid="cancelpatientmovemodal-x8xx"
       />
       <EncounterRecordModal
         encounter={encounter}
