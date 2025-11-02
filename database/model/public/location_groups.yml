@@ -70,7 +70,7 @@ sources:
             data_tests:
               - not_null
           - name: is_bookable
-            data_type: boolean
+            data_type: character varying(255)
             description: "{{ doc('location_groups__is_bookable') }}"
             data_tests:
               - not_null

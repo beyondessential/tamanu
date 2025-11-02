@@ -1,5 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
-import { Op } from 'sequelize';
+import { AggregateError, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -309,6 +309,7 @@ export async function importRows(
         await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
+
       const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
       try {
         await models.TranslatedString.bulkCreate(recordTranslationData, {
