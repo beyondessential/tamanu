@@ -39,6 +39,7 @@ const Dot = styled.div`
 `;
 
 const Card = styled.div`
+  padding: 20px 35px 20px 30px;
   border: 1px solid ${Colors.outline};
   font-size: 14px;
   line-height: 21px;
