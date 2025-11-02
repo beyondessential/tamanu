@@ -66,8 +66,6 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
   const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
   const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
-  const onFinaliseLocationChange = () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE);
-  const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
@@ -163,28 +161,6 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       ),
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.finalisePatientMove"
-          fallback="Finalise patient move"
-          data-testid="translatedtext-10xc"
-        />
-      ),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onFinaliseLocationChange,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.cancelPatientMove"
-          fallback="Cancel patient move"
-          data-testid="translatedtext-0d5b"
-        />
-      ),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onCancelLocationChange,
     },
     {
       label: (
