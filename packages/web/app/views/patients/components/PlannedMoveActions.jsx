@@ -21,7 +21,7 @@ const Container = styled.div`
 
 const FinaliseButton = styled(Button)`
   padding: 8px 12px;
-  margin-left: 10px;
+  margin-left: 5px;
   min-width: 66px;
   font-size: 12px;
 `;
