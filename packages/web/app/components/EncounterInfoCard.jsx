@@ -2,14 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
-const CardHeader = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-  color: ${props => props.theme.palette.text.tertiary};
-  font-size: 16px;
-`;
-
 const CardBody = styled.div`
   position: relative;
   max-width: 1050px;

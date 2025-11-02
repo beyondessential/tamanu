@@ -1,6 +1,7 @@
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import React from 'react';
 
-export const BedIcon = ({ color = '#326699', size = 17 }) => {
+export const BedIcon = ({ color = TAMANU_COLORS.primary, size = 17 }) => {
   return (
     <svg
       width={size}

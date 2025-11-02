@@ -33,7 +33,7 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.primary};
+  background: ${({ theme }) => theme.palette.primary.main};
   border-radius: 50%;
   opacity: ${props => props.opacity || 1};
 `;
@@ -47,14 +47,14 @@ const Card = styled.div`
   width: 100%;
   margin-left: 20px;
   border-radius: 3px;
-  color: ${TAMANU_COLORS.darkestText};
+  color: ${({ theme }) => theme.palette.text.primary};
 
   span {
     font-weight: 500;
   }
 
   &.active {
-    border: 1px solid ${TAMANU_COLORS.primary};
+    border: 1px solid ${({ theme }) => theme.palette.primary.main};
   }
 `;
 
