@@ -47,17 +47,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
-  const onDischargeOpen = () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE);
-  const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
-  const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
-  const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
-  const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
-  const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
-  const onViewEncounterProgressRecord = () =>
-    setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD);
-  const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
-  const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
 
   if (encounter.endDate) {
     return (
@@ -65,7 +55,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
         <StyledButton
           size="small"
           variant="outlined"
-          onClick={onViewEncounterRecord}
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD)}
           data-testid="styledbutton-00iz"
         >
           <TranslatedText
@@ -178,7 +168,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <ActionsContainer>
         {encounter.endDate ? (
           <>
-            {/* TODO: check that this is the correct encounter summary */}
             <Button
               size="small"
               variant="outlined"
