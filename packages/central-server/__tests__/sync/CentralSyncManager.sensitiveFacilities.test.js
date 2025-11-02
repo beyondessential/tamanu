@@ -1213,8 +1213,9 @@ describe('CentralSyncManager Sensitive Facilities', () => {
 
       // Create prescriptions that are only linked through patient_ongoing_prescriptions (no encounters)
       const sensitivePrescription = await models.Prescription.create(fake(models.Prescription));
-      const nonSensitivePrescription = await models.Prescription.create(fake(models.Prescription));
-
+      const nonSensitivePrescription = await models.Prescription.create(
+        fake(models.Prescription),
+      );
       const sensitiveEncounterPrescription = await models.EncounterPrescription.create(
         fake(models.EncounterPrescription, {
           encounterId: sensitiveEncounter.id,
@@ -1236,12 +1237,13 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         }),
       );
 
-      const nonSensitivePatientOngoingPrescription = await models.PatientOngoingPrescription.create(
-        fake(models.PatientOngoingPrescription, {
-          patientId: testPatient.id,
-          prescriptionId: nonSensitivePrescription.id,
-        }),
-      );
+      const nonSensitivePatientOngoingPrescription =
+        await models.PatientOngoingPrescription.create(
+          fake(models.PatientOngoingPrescription, {
+            patientId: testPatient.id,
+            prescriptionId: nonSensitivePrescription.id,
+          }),
+        );
 
       const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
       await centralSyncManager.updateLookupTable();
