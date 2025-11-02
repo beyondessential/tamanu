@@ -2,14 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { Colors } from '../constants';
 
-const CardHeader = styled.div`
-  border-bottom: 1px solid ${Colors.softOutline};
-  padding-bottom: 10px;
-  margin-bottom: 15px;
-  color: ${props => props.theme.palette.text.tertiary};
-  font-size: 16px;
-`;
-
 const CardBody = styled.div`
   position: relative;
   max-width: 1050px;
@@ -71,12 +63,6 @@ const InfoCardEntry = ({ label, value }) => (
     <CardLabel data-testid="cardlabel-0v8z">{label}</CardLabel>
     <CardValue data-testid="cardvalue-1v8z">{value}</CardValue>
   </CardEntry>
-);
-
-export const EncounterInfoCardHeader = ({ label, value, ...props }) => (
-  <CardHeader {...props} data-testid="cardheader-g3z5">
-    <InfoCardEntry label={label} value={value} data-testid="infocardentry-s893" />
-  </CardHeader>
 );
 
 export const EncounterInfoCardItem = ({

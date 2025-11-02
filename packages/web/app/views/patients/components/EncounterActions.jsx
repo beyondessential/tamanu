@@ -47,6 +47,49 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
+  const onDischargeOpen = () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE);
+  const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
+  const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
+  const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
+  const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
+  const onViewSummary = () => navigateToSummary();
+  const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
+  const onViewEncounterProgressRecord = () =>
+    setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD);
+  const onChangeReason = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON);
+  const onChangeDiet = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET);
+
+  if (encounter.endDate) {
+    return (
+      <ActionsContainer data-testid="actionscontainer-w92z">
+        <StyledButton
+          size="small"
+          variant="outlined"
+          onClick={onViewEncounterRecord}
+          data-testid="styledbutton-00iz"
+        >
+          <TranslatedText
+            stringId="patient.encounter.action.encounterSummary"
+            fallback="Encounter summary"
+            data-testid="translatedtext-ftbh"
+          />
+        </StyledButton>
+        <br />
+        <StyledButton
+          size="small"
+          color="primary"
+          onClick={onViewSummary}
+          data-testid="styledbutton-0m1p"
+        >
+          <TranslatedText
+            stringId="patient.encounter.action.dischargeSummary"
+            fallback="Discharge summary"
+            data-testid="translatedtext-0hzq"
+          />
+        </StyledButton>
+      </ActionsContainer>
+    );
+  }
 
   const progression = {
     [ENCOUNTER_TYPES.TRIAGE]: 0,
@@ -198,7 +241,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         newType={newEncounterType}
         data-testid="changeencountertypemodal-crha"
       />
-
       <EncounterRecordModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}

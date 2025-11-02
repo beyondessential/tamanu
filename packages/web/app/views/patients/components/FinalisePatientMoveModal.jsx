@@ -33,27 +33,28 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.primary};
+  background: ${({ theme }) => theme.palette.primary.main};
   border-radius: 50%;
   opacity: ${props => props.opacity || 1};
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
-  border-radius: 5px;
   border: 1px solid ${Colors.outline};
   font-size: 14px;
   line-height: 21px;
   background: white;
   width: 100%;
   margin-left: 20px;
+  border-radius: 3px;
+  color: ${({ theme }) => theme.palette.text.primary};
 
   span {
     font-weight: 500;
   }
 
   &.active {
-    border: 1px solid ${TAMANU_COLORS.primary};
+    border: 1px solid ${({ theme }) => theme.palette.primary.main};
   }
 `;
 
@@ -108,7 +109,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
                 fallback="Current location:"
                 data-testid="translatedtext-patient-modal-move-finalise-current-location"
               />{' '}
-              <span> {getFullLocationName(location)}</span>
+              <span>{getFullLocationName(location)}</span>
             </Card>
           </Location>
           <Dots data-testid="box-dots">
@@ -132,8 +133,8 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
       <ModalActionRow
         confirmText={
           <TranslatedText
-            stringId="general.action.confirm"
-            fallback="Confirm"
+            stringId="patient.modal.finaliseMove.confirm"
+            fallback="Finalise location move"
             data-testid="translatedtext-confirm-action"
           />
         }
