@@ -21,11 +21,16 @@ const Container = styled.div`
 `;
 
 const FinaliseButton = styled(Button)`
+  padding: 8px 12px;
   margin-left: 10px;
+  min-width: 66px;
+  font-size: 12px;
 `;
 
 const CancelButton = styled(TextButton)`
-  font-size: 14px;
+  color: ${TAMANU_COLORS.darkestText};
+  text-decoration: underline;
+  font-size: 12px;
 `;
 
 export const PlannedMoveActions = ({ encounter }) => {

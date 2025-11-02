@@ -46,6 +46,8 @@ const Card = styled.div`
   background: white;
   width: 100%;
   margin-left: 20px;
+  border-radius: 3px;
+  color: ${TAMANU_COLORS.darkestText};
 
   span {
     font-weight: 500;
