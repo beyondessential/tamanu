@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import SingleBedIcon from '@material-ui/icons/SingleBed';
-import { Modal, TranslatedText } from '@tamanu/ui-components';
+import { BedIcon } from '../../../assets/icons/BedIcon';
+import { Modal, TAMANU_COLORS, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { BodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
@@ -11,7 +11,6 @@ import { usePatientMove } from '../../../api/mutations';
 import { getFullLocationName } from '../../../utils/location';
 
 const Text = styled(BodyText)`
-  color: ${props => props.theme.palette.text.secondary};
   margin-top: 10px;
   margin-bottom: 40px;
 `;
@@ -19,16 +18,14 @@ const Text = styled(BodyText)`
 const Container = styled.div`
   display: flex;
   margin: 40px auto 60px;
-  padding: 0 30px;
+  justify-content: center;
 `;
 
-const BedIcon = styled(SingleBedIcon)`
-  color: ${Colors.softText};
-  font-size: 50px;
-
-  &.MuiSvgIcon-colorPrimary {
-    color: ${props => props.theme.palette.primary.main};
-  }
+const Dots = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 12px;
 `;
 
 const Dot = styled.div`
@@ -36,26 +33,36 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.darkText};
+  background: ${({ theme }) => theme.palette.primary.main};
   border-radius: 50%;
+  opacity: ${props => props.opacity || 1};
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
-  border-radius: 5px;
   border: 1px solid ${Colors.outline};
   font-size: 14px;
   line-height: 21px;
+  background: white;
+  width: 100%;
+  margin-left: 20px;
+  border-radius: 3px;
+  color: ${({ theme }) => theme.palette.text.primary};
 
   span {
     font-weight: 500;
   }
 
   &.active {
-    border: 1px solid white;
-    background: white;
-    box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid ${({ theme }) => theme.palette.primary.main};
   }
+`;
+
+const Location = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }) => {
@@ -89,47 +96,45 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
         <Box
           display="flex"
           flexDirection="column"
-          alignItems="center"
-          py={1}
-          data-testid="box-f8a6"
-        >
-          <BedIcon data-testid="bedicon-5mw8" />
-          <Dot data-testid="dot-f4o0" />
-          <Dot data-testid="dot-v34s" />
-          <Dot data-testid="dot-ww01" />
-          <BedIcon color="primary" data-testid="bedicon-xy5f" />
-        </Box>
-        <Box
-          display="flex"
-          flexDirection="column"
           alignItems="stretch"
           justifyContent="space-between"
           ml={2}
           data-testid="box-476j"
         >
-          <Card data-testid="card-enqf">
-            <TranslatedText
-              stringId="patient.modal.finaliseMove.currentLocation"
-              fallback="Current location:"
-              data-testid="translatedtext-patient-modal-move-finalise-current-location"
-            />{' '}
-            <span>{getFullLocationName(location)}</span>
-          </Card>
-          <Card className="active" data-testid="card-rmih">
-            <TranslatedText
-              stringId="patient.modal.finaliseMove.newLocation"
-              fallback="New location:"
-              data-testid="translatedtext-patient-modal-move-finalise-new-location"
-            />{' '}
-            <span>{getFullLocationName(plannedLocation)}</span>
-          </Card>
+          <Location>
+            <BedIcon size={34} color={TAMANU_COLORS.softText} data-testid="bedicon-5mw8" />
+            <Card data-testid="card-enqf">
+              <TranslatedText
+                stringId="patient.modal.finaliseMove.currentLocation"
+                fallback="Current location:"
+                data-testid="translatedtext-patient-modal-move-finalise-current-location"
+              />{' '}
+              <span>{getFullLocationName(location)}</span>
+            </Card>
+          </Location>
+          <Dots data-testid="box-dots">
+            <Dot opacity={0.33} data-testid="dot-1" />
+            <Dot opacity={0.67} data-testid="dot-2" />
+            <Dot opacity={1} data-testid="dot-3" />
+          </Dots>
+          <Location>
+            <BedIcon size={34} color={TAMANU_COLORS.primary} data-testid="bedicon-xy5f" />
+            <Card className="active" data-testid="card-rmih">
+              <TranslatedText
+                stringId="patient.modal.finaliseMove.newLocation"
+                fallback="New location:"
+                data-testid="translatedtext-patient-modal-move-finalise-new-location"
+              />{' '}
+              <span>{getFullLocationName(plannedLocation)}</span>
+            </Card>
+          </Location>
         </Box>
       </Container>
       <ModalActionRow
         confirmText={
           <TranslatedText
-            stringId="general.action.confirm"
-            fallback="Confirm"
+            stringId="patient.modal.finaliseMove.confirm"
+            fallback="Finalise location move"
             data-testid="translatedtext-confirm-action"
           />
         }
