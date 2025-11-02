@@ -45,10 +45,10 @@ export const LocationInput = React.memo(
     locationGroupBaseQueryParameters = {},
     facilityId: facilityIdOverride,
   }) => {
-    const [groupId, setGroupId] = useState(groupValue);
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
 
+    const [groupId, setGroupId] = useState(groupValue);
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
@@ -83,6 +83,12 @@ export const LocationInput = React.memo(
         setLocationId(value);
       }
     }, [value]);
+
+    useEffect(() => {
+      if (groupValue) {
+        setGroupId(groupValue);
+      }
+    }, [groupValue]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
