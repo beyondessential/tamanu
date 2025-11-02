@@ -33,7 +33,7 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: ${Colors.darkText};
+  background: ${Colors.primary};
   border-radius: 50%;
   opacity: ${props => props.opacity || 1};
 `;
