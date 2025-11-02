@@ -21,7 +21,6 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
-import { PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
@@ -80,6 +79,11 @@ const BasicMoveFields = () => {
       </StyledFormGrid>
     </>
   );
+};
+
+export const PATIENT_MOVE_ACTIONS = {
+  PLAN: 'plan',
+  FINALISE: 'finalise',
 };
 
 const AdvancedMoveFields = ({ clearPlannedMove }) => {
