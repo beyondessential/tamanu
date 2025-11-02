@@ -12,10 +12,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
-  height: 40px;
   align-items: center;
   justify-content: flex-start;
-  padding: 30px 25px;
+  padding: 10px 25px;
   background-color: ${TAMANU_COLORS.white};
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
