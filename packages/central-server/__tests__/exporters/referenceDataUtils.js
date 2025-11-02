@@ -21,6 +21,14 @@ export async function createDiagnosis(models) {
   });
 }
 
+export async function createImagingType(models, data) {
+  return await models.ReferenceData.create({ type: 'imagingType', ...data });
+}
+
+export async function createImagingArea(models, areaType, data) {
+  return await models.ReferenceData.create({ type: areaType, ...data });
+}
+
 export async function createTestType(models, data) {
   const testType = await models.LabTestType.create({ ...data });
   return testType;
@@ -39,6 +47,8 @@ export async function createLabTestPanel(models, { id, name, code, labTestTypesI
       labTestTypeId,
     });
   }
+
+  return panel;
 }
 
 export async function createLabTestCategory(models, { id, name, code }) {
@@ -50,6 +60,20 @@ export async function createLabTestCategory(models, { id, name, code }) {
   });
 
   return labTestCategory;
+}
+
+export async function createInvoiceProduct(
+  models,
+  { id, name, discountable, category, sourceRecordType, sourceRecordId },
+) {
+  return await models.InvoiceProduct.create({
+    id,
+    name,
+    discountable,
+    category,
+    sourceRecordType,
+    sourceRecordId,
+  });
 }
 
 export async function createPatientFieldDefCategory(models) {
@@ -166,4 +190,22 @@ export async function createAdministeredVaccineData(models, vaccine) {
   );
 
   return { encounter, administeredVaccine };
+}
+
+export async function createDrug(models, { id, name, code }) {
+  return await models.ReferenceData.create({
+    id,
+    name,
+    code,
+    type: 'drug',
+  });
+}
+
+export async function createProcedure(models, { id, name, code }) {
+  return await models.ReferenceData.create({
+    id,
+    name,
+    code,
+    type: 'procedureType',
+  });
 }

@@ -42,9 +42,8 @@ export const login =
   };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role } =
+  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
     loginInfo;
-
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
   } else {
@@ -54,6 +53,14 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     if (onlyFacilityId) {
       await dispatch(setFacilityId(onlyFacilityId));
     }
+  }
+
+  // If settings are provided from central server login, dispatch them
+  if (settings) {
+    dispatch({
+      type: SET_SETTINGS,
+      settings,
+    });
   }
 
   dispatch({
