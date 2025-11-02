@@ -7,8 +7,6 @@ import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTyp
 import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
 import { ChangeClinicianModal } from '../../../components/ChangeClinicianModal';
 import { BeginPatientMoveModal } from './BeginPatientMoveModal';
-import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
-import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
@@ -66,8 +64,6 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
   const onChangeDepartment = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DEPARTMENT);
   const onChangeClinician = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_CLINICIAN);
   const onPlanLocationChange = () => setOpenModal(ENCOUNTER_MODALS.BEGIN_MOVE);
-  const onFinaliseLocationChange = () => setOpenModal(ENCOUNTER_MODALS.FINALISE_MOVE);
-  const onCancelLocationChange = () => setOpenModal(ENCOUNTER_MODALS.CANCEL_MOVE);
   const onChangeLocation = () => setOpenModal(ENCOUNTER_MODALS.CHANGE_LOCATION);
   const onViewSummary = () => navigateToSummary();
   const onViewEncounterRecord = () => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD);
@@ -163,28 +159,6 @@ const EncounterActionDropdown = ({ encounter, setOpenModal, setNewEncounterType 
       ),
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.finalisePatientMove"
-          fallback="Finalise patient move"
-          data-testid="translatedtext-10xc"
-        />
-      ),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onFinaliseLocationChange,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="patient.encounter.action.cancelPatientMove"
-          fallback="Cancel patient move"
-          data-testid="translatedtext-0d5b"
-        />
-      ),
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onCancelLocationChange,
     },
     {
       label: (
@@ -350,18 +324,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         open={openModal === ENCOUNTER_MODALS.BEGIN_MOVE}
         onClose={onClose}
         data-testid="beginpatientmovemodal-2upr"
-      />
-      <FinalisePatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.FINALISE_MOVE}
-        onClose={onClose}
-        data-testid="finalisepatientmovemodal-hvk3"
-      />
-      <CancelPatientMoveModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CANCEL_MOVE}
-        onClose={onClose}
-        data-testid="cancelpatientmovemodal-x8xx"
       />
       <EncounterRecordModal
         encounter={encounter}
