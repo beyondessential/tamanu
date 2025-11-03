@@ -234,7 +234,6 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 };
 
 const HospitalAdmissionFields = () => {
-  const dietSuggester = useSuggester('diet');
   return (
     <>
       <FormSeparatorLine />
@@ -295,7 +294,7 @@ const HospitalAdmissionFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
 
   const { writeAndViewEncounter } = useEncounter();
 
@@ -304,32 +303,57 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
+
   const onSubmit = async values => {
-    const { locationId, plannedLocationId, action, dietIds, ...rest } = values;
+    const { locationId, plannedLocationId, action, ...rest } = values;
 
     const locationData =
-      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
+      enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
         ? { plannedLocationId: plannedLocationId || null }
         : { locationId: plannedLocationId || locationId };
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
-
-    const dietIdsData = dietIds
-      ? {
-          dietIds: JSON.stringify(Array.isArray(dietIds) ? dietIds : [dietIds]),
-        }
-      : {};
 
     const payload = {
       submittedTime: getCurrentDateTimeString(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
-      ...dietIdsData,
     };
 
     await writeAndViewEncounter(encounter.id, payload);
   };
+
+  const validationSchema = yup.object().shape({
+    examinerId: yup.string().required(),
+    departmentId: yup.string().required(),
+    ...(enablePlannedPatientMove
+      ? {
+          plannedLocationId: yup.string().nullable(),
+          action: yup
+            .string()
+            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+            .nullable(),
+        }
+      : { plannedLocationId: yup.string().nullable() }),
+    ...(isAdmittingToHospital && {
+      admissionTime: yup.date().required(),
+      patientBillingTypeId: yup.string().nullable(),
+      dietIds: yup.mixed().nullable(),
+    }),
+  });
+
+  const initialValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+    ...(enablePlannedPatientMove && {
+      plannedLocationId: encounter.plannedLocationId,
+      action: PATIENT_MOVE_ACTIONS.PLAN,
+    }),
+    ...(isAdmittingToHospital && { admissionTime: new Date() }),
+  };
+
   return (
     <FormModal
       title={
@@ -349,35 +373,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
       width="md"
     >
       <Form
-        initialValues={{
-          examinerId: encounter.examinerId,
-          departmentId: encounter.departmentId,
-          ...(enablePatientMoveActions && {
-            plannedLocationId: encounter.plannedLocationId,
-            action: PATIENT_MOVE_ACTIONS.PLAN,
-          }),
-          ...(newEncounterType === ENCOUNTER_TYPES.ADMISSION && {
-            admissionTime: new Date(),
-          }),
-        }}
+        initialValues={initialValues}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        validationSchema={yup.object().shape({
-          examinerId: yup.string().required(),
-          departmentId: yup.string().required(),
-          locationId: yup.string().nullable(),
-          plannedLocationId: yup.string().nullable(),
-          action: yup
-            .string()
-            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
-            .nullable(),
-          admissionTime:
-            newEncounterType === ENCOUNTER_TYPES.ADMISSION
-              ? yup.date().required()
-              : yup.date().nullable(),
-          patientBillingTypeId: yup.string().nullable(),
-          dietIds: yup.mixed().nullable(),
-        })}
+        validationSchema={validationSchema}
         render={({ submitForm }) => (
           <>
             {newEncounterType && (
@@ -436,8 +435,8 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
-            {newEncounterType === ENCOUNTER_TYPES.ADMISSION && <HospitalAdmissionFields />}
+            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {isAdmittingToHospital && <HospitalAdmissionFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={
