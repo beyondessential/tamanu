@@ -8,7 +8,6 @@ import {
   FormGrid,
   TextField,
   useApi,
-  useAuth,
   useSettings,
   useSuggester,
 } from '@tamanu/ui-components';
@@ -177,6 +176,7 @@ const TriageFields = () => {
   const { getSetting } = useSettings();
   const triageCategories = getSetting('triageCategories');
   const triageReasonSuggester = useSuggester('triageReason');
+  const secondaryTriageReasonSuggester = useSuggester('triageReason');
 
   return (
     <>
@@ -225,7 +225,6 @@ const TriageFields = () => {
         style={{ gridColumn: '1/-1' }}
         data-testid="field-4vw2"
       />
-      {/* TODO: confirm how these should be handled. also a bit weird */}
       <div style={{ gridColumn: '1 / -1' }}>
         <Field
           name="chiefComplaintId"
@@ -253,7 +252,7 @@ const TriageFields = () => {
             />
           }
           component={DynamicSelectField}
-          suggester={triageReasonSuggester}
+          suggester={secondaryTriageReasonSuggester}
           data-testid="field-1ktz"
         />
       </div>
@@ -280,7 +279,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
 
   // TODO: figure out how to handle multiple triages
-  const triage = encounter.triages[0];
+  const triage = encounter.triages?.[0];
 
   const onSubmit = async values => {
     const {
@@ -296,14 +295,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       reasonForEncounter,
     } = values;
 
-    await writeAndViewEncounter(encounter.id, {
-      startDate,
-      referralSourceId,
-      patientBillingTypeId,
-      dietIds,
-      reasonForEncounter,
-    });
-
     if (encounter.encounterType === ENCOUNTER_TYPES.TRIAGE) {
       await api.put(`triage/${triage.id}`, {
         encounterId: encounter.id,
@@ -315,6 +306,14 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
         secondaryComplaintId,
       });
     }
+
+    await writeAndViewEncounter(encounter.id, {
+      startDate,
+      referralSourceId,
+      patientBillingTypeId,
+      dietIds,
+      reasonForEncounter,
+    });
   };
 
   return (
@@ -332,11 +331,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
           patientBillingTypeId: encounter.patientBillingTypeId,
           dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
           reasonForEncounter: encounter.reasonForEncounter,
-          chiefComplaintId: triage.chiefComplaintId,
-          secondaryComplaintId: triage.secondaryComplaintId,
-          arrivalTime: triage.arrivalTime,
-          arrivalModeId: triage.arrivalModeId,
-          score: triage.score,
+          ...(triage && {
+            chiefComplaintId: triage.chiefComplaintId,
+            secondaryComplaintId: triage.secondaryComplaintId,
+            arrivalTime: triage.arrivalTime,
+            arrivalModeId: triage.arrivalModeId,
+            score: triage.score,
+          }),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
