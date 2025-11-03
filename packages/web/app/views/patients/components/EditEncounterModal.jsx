@@ -26,20 +26,7 @@ import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
-  position: relative;
 `;
-
-const InfoPopupLabel = React.memo(() => (
-  <span>
-    <span>
-      <TranslatedText
-        stringId="patient.modal.triage.triageScore.label"
-        fallback="Triage score"
-        data-testid="translatedtext-0xff"
-      />
-    </span>
-  </span>
-));
 
 const HospitalAdmissionFields = () => {
   const referralSourceSuggester = useSuggester('referralSource');
@@ -58,7 +45,7 @@ const HospitalAdmissionFields = () => {
         required
         data-testid="field-admission-time"
       />
-      <div />
+      <div /> {/* TODO: Estimated discharge date goes here in next pr */}
       <LocalisedField
         name="patientBillingTypeId"
         label={
@@ -130,7 +117,7 @@ const ClinicFields = () => {
         required
         data-testid="field-admission-time"
       />
-      <div />
+      <div /> {/* TODO: Estimated discharge date goes here in next pr */}
       <LocalisedField
         name="patientBillingTypeId"
         label={
@@ -219,7 +206,13 @@ const TriageFields = () => {
       />
       <Field
         name="score"
-        label={<InfoPopupLabel data-testid="infopopuplabel-5isv" />}
+        label={
+          <TranslatedText
+            stringId="patient.modal.triage.triageScore.label"
+            fallback="Triage score"
+            data-testid="translatedtext-0xff"
+          />
+        }
         component={RadioField}
         fullWidth
         options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
@@ -262,13 +255,18 @@ const TriageFields = () => {
 };
 
 const FormFields = ({ encounterType }) => {
-  return (
-    <StyledFormGrid>
-      {encounterType === ENCOUNTER_TYPES.ADMISSION && <HospitalAdmissionFields />}
-      {encounterType === ENCOUNTER_TYPES.CLINIC && <ClinicFields />}
-      {encounterType === ENCOUNTER_TYPES.TRIAGE && <TriageFields />}
-    </StyledFormGrid>
-  );
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return <HospitalAdmissionFields />;
+    case ENCOUNTER_TYPES.CLINIC:
+      return <ClinicFields />;
+    case ENCOUNTER_TYPES.TRIAGE:
+    case ENCOUNTER_TYPES.EMERGENCY:
+    case ENCOUNTER_TYPES.OBSERVATION:
+      return <TriageFields />;
+    default:
+      return null;
+  }
 };
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
@@ -276,7 +274,11 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const { writeAndViewEncounter } = useEncounter();
 
+  console.log('encounter', encounter);
+
   const triage = encounter.triages?.[0];
+
+  console.log('triage', triage);
 
   const onSubmit = async values => {
     const {
@@ -324,7 +326,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={{
           startDate: encounter.startDate,
-
           ...(encounter.encounterType !== ENCOUNTER_TYPES.CLINIC && {
             dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
           }),
@@ -335,7 +336,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
             reasonForEncounter: encounter.reasonForEncounter,
           }),
 
-          ...(encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && {
+          ...(triage && {
             chiefComplaintId: triage.chiefComplaintId,
             secondaryComplaintId: triage.secondaryComplaintId,
             arrivalTime: triage.arrivalTime,
@@ -347,7 +348,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <FormFields encounterType={encounter.encounterType} />
+            <StyledFormGrid>
+              <FormFields encounterType={encounter.encounterType} />
+            </StyledFormGrid>
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={'Save changes'}
