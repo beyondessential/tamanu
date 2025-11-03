@@ -277,7 +277,6 @@ discharge_disposition_info as (
 ),
 
 
--- Query logs.changes instead of encounter_history for encounter change tracking
 encounter_history_info as (
   select
     encounter_id,
