@@ -1,113 +1,344 @@
 import React from 'react';
 import styled from 'styled-components';
-import * as yup from 'yup';
 
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Button, DateTimeField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
-  BodyText,
+  DateTimeField,
+  Form,
+  FormGrid,
+  TextField,
+  useApi,
+  useSettings,
+  useSuggester,
+} from '@tamanu/ui-components';
+import {
   DynamicSelectField,
   Field,
   FormModal,
-  FormSeparatorLine,
-  Heading3,
-  LargeBodyText,
   LocalisedField,
-  LocalisedLocationField,
-  LocationAvailabilityWarningMessage,
   ModalFormActionRow,
   RadioField,
   SuggesterSelectField,
-  TranslatedEnum,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
-import { useSettings } from '../../../contexts/Settings';
-import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
-import { useFormikContext } from 'formik';
-
-const SectionHeading = styled(Heading3)`
-  color: ${TAMANU_COLORS.darkestText};
-  margin: 10px 0;
-  padding: 0;
-`;
-
-const SectionDescription = styled(BodyText)`
-  color: ${TAMANU_COLORS.midText};
-  margin: 0;
-  margin-bottom: 20px;
-  padding: 0;
-`;
+import { ENCOUNTER_TYPES } from '@tamanu/constants';
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
   position: relative;
 `;
 
-export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
-  const { writeAndViewEncounter } = useEncounter();
+const InfoPopupLabel = React.memo(() => (
+  <span>
+    <span>
+      <TranslatedText
+        stringId="patient.modal.triage.triageScore.label"
+        fallback="Triage score"
+        data-testid="translatedtext-0xff"
+      />
+    </span>
+  </span>
+));
+
+const HospitalAdmissionFields = () => {
+  const referralSourceSuggester = useSuggester('referralSource');
 
   return (
-    <FormModal title={} open={open} onClose={onClose} data-testid="formmodal-httn" width="md">
+    <>
+      <Field
+        name="startDate"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.admissionTime.label"
+            fallback="Admission date & time"
+          />
+        }
+        required
+        data-testid="field-admission-time"
+      />
+      <LocalisedField
+        name="patientBillingTypeId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.patientBillingTypeId.label"
+            fallback="Patient type"
+            data-testid="translatedtext-67v8"
+          />
+        }
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
+        data-testid="localisedfield-amji"
+      />
+      <Field
+        name="referralSourceId"
+        component={DynamicSelectField}
+        suggester={referralSourceSuggester}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.referralSource.label"
+            fallback="Referral source"
+          />
+        }
+        data-testid="field-referral-source"
+      />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <LocalisedField
+          name="dietIds"
+          component={SuggesterSelectField}
+          endpoint="diet"
+          isMulti
+          label={
+            <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
+          }
+          data-testid="field-diet"
+        />
+      </div>
+      <div style={{ gridColumn: '1 / -1' }}>
+        <LocalisedField
+          name="reasonForEncounter"
+          component={TextField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.reasonForEncounter.label"
+              fallback="Reason for encounter"
+            />
+          }
+          data-testid="field-diet"
+        />
+      </div>
+    </>
+  );
+};
+
+const ClinicFields = () => {
+  const referralSourceSuggester = useSuggester('referralSource');
+
+  return (
+    <>
+      <Field
+        name="startDate"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.checkInDate.label"
+            fallback="Check-in date & time"
+          />
+        }
+        required
+        data-testid="field-admission-time"
+      />
+      {/* TODO: should be an empty field space here */}
+      <LocalisedField
+        name="patientBillingTypeId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.patientBillingTypeId.label"
+            fallback="Patient type"
+            data-testid="translatedtext-67v8"
+          />
+        }
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
+        data-testid="localisedfield-amji"
+      />
+      <Field
+        name="referralSourceId"
+        component={DynamicSelectField}
+        suggester={referralSourceSuggester}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.referralSource.label"
+            fallback="Referral source"
+          />
+        }
+        data-testid="field-referral-source"
+      />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <LocalisedField
+          name="reasonForEncounter"
+          component={TextField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.reasonForEncounter.label"
+              fallback="Reason for encounter"
+            />
+          }
+          data-testid="field-reason-for-encounter"
+        />
+      </div>
+    </>
+  );
+};
+
+const TriageFields = () => {
+  const { getSetting } = useSettings();
+  const triageCategories = getSetting('triageCategories');
+  const triageReasonSuggester = useSuggester('triageReason');
+
+  return (
+    <>
+      {/* TODO: confirm if this should be encounter or triage date? Sometihng looks a bit weird */}
+      <Field
+        name="startDate"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.arrivalTime.label"
+            fallback="Arrival date & time"
+          />
+        }
+        required
+        data-testid="field-admission-time"
+      />
+      <Field
+        name="triageTime"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.triageTime.label"
+            fallback="Triage date & time"
+          />
+        }
+        required
+        data-testid="field-admission-time"
+      />
+      <LocalisedField
+        name="arrivalModeId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.arrivalModeId.label"
+            fallback="Arrival mode"
+            data-testid="translatedtext-7qdb"
+          />
+        }
+        component={SuggesterSelectField}
+        endpoint="arrivalMode"
+        data-testid="localisedfield-hjex"
+      />
+      <Field
+        name="score"
+        label={<InfoPopupLabel data-testid="infopopuplabel-5isv" />}
+        component={RadioField}
+        fullWidth
+        options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
+        style={{ gridColumn: '1/-1' }}
+        data-testid="field-4vw2"
+      />
+      {/* TODO: confirm how these should be handled. also a bit weird */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="chiefComplaintId"
+          label={
+            <TranslatedText
+              stringId="patient.modal.triage.chiefComplaint.label"
+              fallback="Chief complaint"
+              data-testid="translatedtext-tdrb"
+            />
+          }
+          component={DynamicSelectField}
+          suggester={triageReasonSuggester}
+          required
+          data-testid="field-a7cu"
+        />
+      </div>
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="secondaryComplaintId"
+          label={
+            <TranslatedText
+              stringId="patient.modal.triage.secondaryComplaint.label"
+              fallback="Secondary complaint"
+              data-testid="translatedtext-1xyf"
+            />
+          }
+          component={DynamicSelectField}
+          suggester={triageReasonSuggester}
+          data-testid="field-1ktz"
+        />
+      </div>
+    </>
+  );
+};
+
+const getFormFields = encounterType => {
+  switch (encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return <HospitalAdmissionFields />;
+    case ENCOUNTER_TYPES.CLINIC:
+      return <ClinicFields />;
+    case ENCOUNTER_TYPES.TRIAGE:
+      return <TriageFields />;
+    default:
+      return 'No form fields found';
+  }
+};
+
+export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
+  const api = useApi();
+
+  const { writeAndViewEncounter } = useEncounter();
+
+  const onSubmit = async values => {
+    const {
+      startDate,
+      arrivalTime,
+      triageTime,
+      arrivalModeId,
+      score,
+      chiefComplaintId,
+      secondaryComplaintId,
+      referralSourceId,
+      patientBillingTypeId,
+      dietIds,
+      reasonForEncounter,
+    } = values;
+
+    await writeAndViewEncounter(encounter.id, {
+      startDate,
+      referralSourceId,
+      patientBillingTypeId,
+      dietIds,
+      reasonForEncounter,
+    });
+
+    if (encounter.encounterType === ENCOUNTER_TYPES.TRIAGE) {
+      await api.post('triage', {
+        arrivalTime,
+        triageTime,
+        arrivalModeId,
+        score,
+        chiefComplaintId,
+        secondaryComplaintId,
+      });
+    }
+  };
+
+  return (
+    <FormModal
+      title="Edit encounter details"
+      open={open}
+      onClose={onClose}
+      data-testid="formmodal-httn"
+      width="md"
+    >
       <Form
-        initialValues={initialValues}
+        initialValues={{
+          startDate: encounter.startDate,
+          referralSourceId: encounter.referralSourceId,
+          patientBillingTypeId: encounter.patientBillingTypeId,
+          dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
+          reasonForEncounter: encounter.reasonForEncounter,
+        }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        validationSchema={yup.object().shape(validationObject)}
         render={({ submitForm }) => (
           <>
-            <SectionHeading>
-              <TranslatedText
-                stringId="patient.encounter.modal.movePatient.section.move.heading"
-                fallback="Patient care"
-              />
-            </SectionHeading>
-            <SectionDescription>
-              <TranslatedText
-                stringId="patient.encounter.modal.movePatient.section.move.description"
-                fallback="Please select the clinician and department for the patient."
-              />
-            </SectionDescription>
-            <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-              <Field
-                name="examinerId"
-                component={DynamicSelectField}
-                suggester={clinicianSuggester}
-                label={
-                  <TranslatedText
-                    stringId="patient.encounter.movePatient.supervisingClinician.label"
-                    fallback="Supervising clinician"
-                  />
-                }
-                required
-                data-testid="field-tykg"
-              />
-              <Field
-                name="departmentId"
-                component={DynamicSelectField}
-                suggester={departmentSuggester}
-                label={
-                  <TranslatedText
-                    stringId="patient.encounter.movePatient.department.label"
-                    fallback="Department"
-                  />
-                }
-                required
-                data-testid="field-tykg"
-              />
-            </StyledFormGrid>
-            <FormSeparatorLine />
-            <SectionHeading>
-              <TranslatedText
-                stringId="patient.encounter.modal.movePatient.section.basic.heading"
-                fallback="Move location"
-              />
-            </SectionHeading>
+            <StyledFormGrid columns={2}>{getFormFields(encounter.encounterType)}</StyledFormGrid>
             <ModalFormActionRow
               onConfirm={submitForm}
-              confirmText={}
+              confirmText={'TEST'}
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
