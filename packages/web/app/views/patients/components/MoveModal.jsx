@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -120,10 +120,6 @@ const PlannedMoveFields = () => {
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
-          value={values.plannedLocationId}
-          onClear={() => {
-            setFieldValue('plannedLocationId', null);
-          }}
         />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
@@ -195,20 +191,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     baseQueryParameters: { filterByFacility: true },
   });
 
-  const defaultInitialFormValues = {
-    examinerId: encounter.examinerId,
-    departmentId: encounter.departmentId,
-    ...(enablePatientMoveActions && {
-      plannedLocationId: encounter.plannedLocationId,
-      action: PATIENT_MOVE_ACTIONS.PLAN,
-    }),
-  };
-  const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
-
-  const resetForm = () => {
-    setInitialFormValues(defaultInitialFormValues);
-  };
-
   return (
     <FormModal
       title={
@@ -224,13 +206,20 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       width="md"
     >
       <Form
-        initialValues={initialFormValues}
+        initialValues={{
+          examinerId: encounter.examinerId,
+          departmentId: encounter.departmentId,
+          ...(enablePatientMoveActions && {
+            plannedLocationId: encounter.plannedLocationId,
+            action: PATIENT_MOVE_ACTIONS.PLAN,
+          }),
+        }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
           const locationData =
             action === PATIENT_MOVE_ACTIONS.PLAN
-              ? { plannedLocationId }
-              : { locationId: plannedLocationId || locationId };
+              ? { plannedLocationId: plannedLocationId || null }
+              : { locationId: plannedLocationId || locationId || null };
           await writeAndViewEncounter(encounter.id, {
             submittedTime: getCurrentDateTimeString(),
             departmentId,
@@ -295,10 +284,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
-              onCancel={() => {
-                resetForm();
-                onClose();
-              }}
+              onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
           </>
