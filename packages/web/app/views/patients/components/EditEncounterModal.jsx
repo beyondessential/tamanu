@@ -260,17 +260,14 @@ const TriageFields = () => {
   );
 };
 
-const getFormFields = encounterType => {
-  switch (encounterType) {
-    case ENCOUNTER_TYPES.ADMISSION:
-      return <HospitalAdmissionFields />;
-    case ENCOUNTER_TYPES.CLINIC:
-      return <ClinicFields />;
-    case ENCOUNTER_TYPES.TRIAGE:
-      return <TriageFields />;
-    default:
-      return 'No form fields found';
-  }
+const FormFields = ({ encounterType }) => {
+  return (
+    <StyledFormGrid>
+      {encounterType === ENCOUNTER_TYPES.ADMISSION && <HospitalAdmissionFields />}
+      {encounterType === ENCOUNTER_TYPES.CLINIC && <ClinicFields />}
+      {encounterType === ENCOUNTER_TYPES.TRIAGE && <TriageFields />}
+    </StyledFormGrid>
+  );
 };
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
@@ -278,7 +275,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const { writeAndViewEncounter } = useEncounter();
 
-  // TODO: figure out how to handle multiple triages
   const triage = encounter.triages?.[0];
 
   const onSubmit = async values => {
@@ -327,11 +323,18 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       <Form
         initialValues={{
           startDate: encounter.startDate,
-          referralSourceId: encounter.referralSourceId,
-          patientBillingTypeId: encounter.patientBillingTypeId,
-          dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
-          reasonForEncounter: encounter.reasonForEncounter,
-          ...(triage && {
+
+          ...(encounter.encounterType !== ENCOUNTER_TYPES.CLINIC && {
+            dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
+          }),
+
+          ...(encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && {
+            referralSourceId: encounter.referralSourceId,
+            patientBillingTypeId: encounter.patientBillingTypeId,
+            reasonForEncounter: encounter.reasonForEncounter,
+          }),
+
+          ...(encounter.encounterType === ENCOUNTER_TYPES.TRIAGE && {
             chiefComplaintId: triage.chiefComplaintId,
             secondaryComplaintId: triage.secondaryComplaintId,
             arrivalTime: triage.arrivalTime,
@@ -343,7 +346,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
         onSubmit={onSubmit}
         render={({ submitForm }) => (
           <>
-            <StyledFormGrid columns={2}>{getFormFields(encounter.encounterType)}</StyledFormGrid>
+            <FormFields encounterType={encounter.encounterType} />
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={'Save changes'}
