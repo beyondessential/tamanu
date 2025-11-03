@@ -123,6 +123,7 @@ describe('Sync Lookup data', () => {
       Encounter,
       EncounterDiagnosis,
       EncounterDiet,
+      EncounterHistory,
       EncounterPrescription,
       PatientOngoingPrescription,
       PharmacyOrder,
@@ -280,6 +281,14 @@ describe('Sync Lookup data', () => {
       fake(Discharge, {
         encounterId: encounter1.id,
         dischargerId: examiner.id,
+      }),
+    );
+    await EncounterHistory.create(
+      fake(EncounterHistory, {
+        examinerId: examiner.id,
+        encounterId: encounter1.id,
+        departmentId: department.id,
+        locationId: location.id,
       }),
     );
     await EncounterDiet.create(
