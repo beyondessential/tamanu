@@ -207,7 +207,7 @@ department_info as (
         as department_history
     from encounters e
     join encounter_history eh on eh.encounter_id = e.id
-    and eh.deleted_at is null
+      and eh.deleted_at is null
     left join departments d on d.id = eh.department_id
     where change_type isnull or 'department' = ANY(change_type)
     and e.id = $encounter_id
