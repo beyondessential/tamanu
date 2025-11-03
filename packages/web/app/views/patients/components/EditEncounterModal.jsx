@@ -274,11 +274,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const { writeAndViewEncounter } = useEncounter();
 
-  console.log('encounter', encounter);
-
   const triage = encounter.triages?.[0];
-
-  console.log('triage', triage);
 
   const onSubmit = async values => {
     const {
