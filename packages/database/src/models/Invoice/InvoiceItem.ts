@@ -14,7 +14,8 @@ export class InvoiceItem extends Model {
   declare productId?: string;
   declare quantity: number;
   declare note?: string;
-  declare sourceId?: string;
+  declare sourceRecordType?: string;
+  declare sourceRecordId?: string;
   declare productName: string;
   declare productPrice?: number;
   declare productCode: string;
@@ -41,8 +42,12 @@ export class InvoiceItem extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        sourceId: {
-          type: DataTypes.UUID,
+        sourceRecordType: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        sourceRecordId: {
+          type: DataTypes.STRING,
           allowNull: true,
         },
         productName: {
