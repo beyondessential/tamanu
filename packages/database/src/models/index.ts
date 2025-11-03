@@ -111,6 +111,9 @@ export * from './Role';
 
 export * from './Invoice';
 
+export * from './InvoicePriceList';
+export * from './InvoicePriceListItem';
+
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
 export * from './MedicationAdministrationRecordDose';
