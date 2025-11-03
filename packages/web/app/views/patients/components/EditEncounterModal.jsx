@@ -58,6 +58,7 @@ const HospitalAdmissionFields = () => {
         required
         data-testid="field-admission-time"
       />
+      <div />
       <LocalisedField
         name="patientBillingTypeId"
         label={
@@ -129,7 +130,7 @@ const ClinicFields = () => {
         required
         data-testid="field-admission-time"
       />
-      {/* TODO: should be an empty field space here */}
+      <div />
       <LocalisedField
         name="patientBillingTypeId"
         label={
