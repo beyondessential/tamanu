@@ -8,23 +8,14 @@ import { EditEncounterModal } from './EditEncounterModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
-import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
-import { ChangeDietModal } from '../../../components/ChangeDietModal';
 import { isInpatient } from '../../../utils/isInpatient';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
-
-  CHANGE_REASON: 'changeReason',
-  CHANGE_DIET: 'changeDiet',
-
   DISCHARGE: 'discharge',
-
   EDIT: 'edit',
-
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
-
   MOVE: 'move',
 };
 
@@ -238,19 +229,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
         onClose={onClose}
         data-testid="encounterrecordmodal-00xl"
-      />
-
-      <ChangeReasonModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
-        onClose={onClose}
-        data-testid="changereasonmodal-a2yv"
-      />
-      <ChangeDietModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_DIET}
-        onClose={onClose}
-        data-testid="changedietmodal-imzd"
       />
     </NoteModalActionBlocker>
   );
