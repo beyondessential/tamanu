@@ -69,9 +69,9 @@ export class InvoiceProduct extends Model {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
     });
-    this.hasMany(models.InvoiceInsuranceContractItem, {
+    this.hasMany(models.InvoiceInsurancePlanItem, {
       foreignKey: 'invoiceProductId',
-      as: 'invoiceInsuranceContractItems',
+      as: 'invoiceInsurancePlanItems',
     });
   }
 

@@ -16,9 +16,9 @@ export class InvoiceItem extends Model {
   declare note?: string;
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
-  declare productName: string;
+  declare productName?: string;
   declare productPrice?: number;
-  declare productCode: string;
+  declare productCode?: string;
   declare productDiscountable: boolean;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
@@ -52,7 +52,7 @@ export class InvoiceItem extends Model {
         },
         productName: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         productPrice: {
           type: DataTypes.DECIMAL,
@@ -60,7 +60,7 @@ export class InvoiceItem extends Model {
         },
         productCode: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         productDiscountable: {
           type: DataTypes.BOOLEAN,
