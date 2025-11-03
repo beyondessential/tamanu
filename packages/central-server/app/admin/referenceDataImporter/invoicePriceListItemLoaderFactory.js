@@ -1,9 +1,5 @@
 import { productMatrixByCodeLoaderFactory } from './ProductMatrixByCodeLoaderFactory';
 
-/**
- * Thin wrapper that configures the generic matrix loader for price list items.
- * Preserves existing behavior and error messages.
- */
 export function invoicePriceListItemLoaderFactory() {
   return productMatrixByCodeLoaderFactory({
     parentModel: 'InvoicePriceList',

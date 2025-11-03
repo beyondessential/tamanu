@@ -8,20 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
  * - First column header (case-insensitive) is `invoiceProductId`.
  * - Remaining headers are parent codes (e.g., price list codes, insurance contract codes).
  * - Each row provides numeric values for product/code pairs.
- *
- * Config:
- * {
- *   parentModel: string,         // e.g., 'InvoicePriceList' | 'InvoiceInsuranceContract'
- *   itemModel: string,           // e.g., 'InvoicePriceListItem' | 'InvoiceInsuranceContractItem'
- *   parentIdField: string,       // e.g., 'invoicePriceListId' | 'invoiceInsuranceContractId'
- *   valueField: string,          // e.g., 'price' | 'coverageValue'
- *   messages: {
- *     duplicateCode: (code) => string,
- *     missingParentByCode: (code) => string,
- *     couldNotFindParentId: (code) => string,
- *     invalidValue: (raw, code, invoiceProductId) => string,
- *   }
- * }
  */
 export function productMatrixByCodeLoaderFactory(config) {
   const { parentModel, itemModel, parentIdField, valueField, messages } = config;

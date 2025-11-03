@@ -1,9 +1,5 @@
 import { productMatrixByCodeLoaderFactory } from './ProductMatrixByCodeLoaderFactory';
 
-/**
- * Thin wrapper that configures the generic matrix loader for insurance contract items.
- * Preserves existing behavior and error messages.
- */
 export function invoiceInsuranceContractItemLoaderFactory() {
   return productMatrixByCodeLoaderFactory({
     parentModel: 'InvoiceInsuranceContract',

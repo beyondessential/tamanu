@@ -6,15 +6,6 @@ import { ModelExporter } from './ModelExporter';
  * - First column: invoiceProductId
  * - Subsequent columns: one per parent model code (e.g., price list code, contract code)
  * - Cell values: value field from the junction/item model for product x parent pair
- *
- * Config options (pass via subclass constructor):
- * {
- *   parentModel: 'InvoicePriceList' | 'InvoiceInsuranceContract',
- *   itemModel: 'InvoicePriceListItem' | 'InvoiceInsuranceContractItem',
- *   parentIdField: 'invoicePriceListId' | 'invoiceInsuranceContractId',
- *   valueField: 'price' | 'coverageValue',
- *   tabName: 'Invoice Price List Items' | 'Invoice Insurance Contract Items'
- * }
  */
 export class ProductMatrixByCodeExporter extends ModelExporter {
   constructor(context, dataType, config) {
