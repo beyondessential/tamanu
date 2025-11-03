@@ -3,9 +3,9 @@ import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 
-export class InvoiceInsuranceContractItem extends Model {
+export class InvoiceInsurancePlanItem extends Model {
   declare id: string;
-  declare invoiceInsuranceContractId: string;
+  declare invoiceInsurancePlanId: string;
   declare invoiceProductId: string;
   declare coverageValue?: number;
 
@@ -13,7 +13,7 @@ export class InvoiceInsuranceContractItem extends Model {
     super.init(
       {
         id: primaryKey,
-        invoiceInsuranceContractId: {
+        invoiceInsurancePlanId: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
@@ -30,17 +30,17 @@ export class InvoiceInsuranceContractItem extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
-          { fields: ['invoiceInsuranceContractId'] },
-          { unique: true, fields: ['invoiceProductId', 'invoiceInsuranceContractId'] },
+          { fields: ['invoiceInsurancePlanId'] },
+          { unique: true, fields: ['invoiceProductId', 'invoiceInsurancePlanId'] },
         ],
       },
     );
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.InvoiceInsuranceContract, {
-      foreignKey: 'invoiceInsuranceContractId',
-      as: 'invoiceInsuranceContract',
+    this.belongsTo(models.InvoiceInsurancePlan, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'invoiceInsurancePlan',
     });
 
     this.belongsTo(models.InvoiceProduct, {
