@@ -1,29 +1,46 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
+<<<<<<<< HEAD:packages/database/src/models/Invoice/InvoiceInsurer.ts
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../../types/model';
+========
+import { Model } from './Model';
+import type { InitOptions, Models } from '../types/model';
+import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+>>>>>>>> 43b838840f (add invoice insurance contracts):packages/database/src/models/InvoicesInvoiceInsuranceContract.ts
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurer extends Model {
+export class InvoicesInvoiceInsuranceContract extends Model {
   declare id: string;
-  declare percentage: number;
-  declare invoiceId?: string;
-  declare insurerId?: string;
+  declare invoiceId: string;
+  declare invoiceInsuranceContractId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        percentage: {
-          type: DataTypes.DECIMAL,
+        invoiceId: {
+          type: DataTypes.TEXT,
+          allowNull: false,
+        },
+        invoiceInsuranceContractId: {
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [
+          { fields: ['invoiceId'] },
+          { fields: ['invoiceInsuranceContractId'] },
+          { unique: true, fields: ['invoiceId', 'invoiceInsuranceContractId'] },
+        ],
+      },
     );
   }
 
@@ -33,10 +50,14 @@ export class InvoiceInsurer extends Model {
       as: 'invoice',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'insurerId',
-      as: 'insurer',
+    this.belongsTo(models.InvoiceInsuranceContract, {
+      foreignKey: 'invoiceInsuranceContractId',
+      as: 'invoiceInsuranceContract',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
