@@ -236,21 +236,34 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 const HospitalAdmissionFields = () => {
   const dietSuggester = useSuggester('diet');
   return (
-    <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+    <>
       <FormSeparatorLine />
-      <Field
-        name="admissionTime"
-        component={DateTimeField}
-        label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.admissionTime.label"
-            fallback="Admission date & time"
-          />
-        }
-        required
-        data-testid="field-admission-time"
-      />
-      {/* <Field
+      <SectionHeading>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.encounterDetails.heading"
+          fallback="Encounter details"
+        />
+      </SectionHeading>
+      <SectionDescription>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.encounterDetails.description"
+          fallback="Update hospital admission encounter details below."
+        />
+      </SectionDescription>
+      <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+        <Field
+          name="admissionTime"
+          component={DateTimeField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.admissionTime.label"
+              fallback="Admission date & time"
+            />
+          }
+          required
+          data-testid="field-admission-time"
+        />
+        {/* <Field
         name="estimatedDischargeDate"
         component={DateField}
         label={
@@ -262,32 +275,33 @@ const HospitalAdmissionFields = () => {
         required
         data-testid="field-estimated-discharge-date"
       /> */}
-      <LocalisedField
-        name="patientBillingTypeId"
-        label={
-          <TranslatedText
-            stringId="general.localisedField.patientBillingTypeId.label"
-            fallback="Patient type"
-            data-testid="translatedtext-67v8"
-          />
-        }
-        endpoint="patientBillingType"
-        component={SuggesterSelectField}
-        data-testid="localisedfield-amji"
-      />
-      <div style={{ gridColumn: '1 / -1' }}>
-        <Field
-          name="diet"
-          component={DynamicSelectField}
-          suggester={dietSuggester}
+        <LocalisedField
+          name="patientBillingTypeId"
           label={
-            <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
+            <TranslatedText
+              stringId="general.localisedField.patientBillingTypeId.label"
+              fallback="Patient type"
+              data-testid="translatedtext-67v8"
+            />
           }
-          required
-          data-testid="field-diet"
+          endpoint="patientBillingType"
+          component={SuggesterSelectField}
+          data-testid="localisedfield-amji"
         />
-      </div>
-    </StyledFormGrid>
+        <div style={{ gridColumn: '1 / -1' }}>
+          <Field
+            name="dietId"
+            component={DynamicSelectField}
+            suggester={dietSuggester}
+            label={
+              <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
+            }
+            required
+            data-testid="field-diet"
+          />
+        </div>
+      </StyledFormGrid>
+    </>
   );
 };
 
