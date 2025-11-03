@@ -191,28 +191,22 @@ const PlannedMoveFields = () => {
 };
 
 const EncounterTypeChange = ({ newEncounterType }) => {
-  if (newEncounterType) {
-    switch (newEncounterType) {
-      case ENCOUNTER_TYPES.ADMISSION:
-        return (
+  switch (newEncounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      );
+    default:
+      return (
+        <>
           <TranslatedText
-            stringId="encounter.action.admitToHospital"
-            fallback="Admit to hospital"
-          />
-        );
-      default:
-        return (
-          <>
-            <TranslatedText
-              stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-              fallback="Transfer to"
-            />{' '}
-            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-          </>
-        );
-    }
+            stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+            fallback="Transfer to"
+          />{' '}
+          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+        </>
+      );
   }
-  return <TranslatedText stringId="general.action.confirm" fallback="Confirm" />;
 };
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
@@ -294,8 +288,6 @@ const HospitalAdmissionFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
-  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
-
   const { writeAndViewEncounter } = useEncounter();
 
   const clinicianSuggester = useSuggester('practitioner');
@@ -303,6 +295,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
 
   const onSubmit = async values => {
@@ -310,49 +303,46 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
     const locationData =
       enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId: plannedLocationId || null }
+        ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
         : { locationId: plannedLocationId || locationId };
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
-    const payload = {
+    await writeAndViewEncounter(encounter.id, {
       submittedTime: getCurrentDateTimeString(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
-    };
-
-    await writeAndViewEncounter(encounter.id, payload);
+    });
   };
 
-  const validationSchema = yup.object().shape({
+  const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
-    ...(enablePlannedPatientMove
-      ? {
-          plannedLocationId: yup.string().nullable(),
-          action: yup
-            .string()
-            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
-            .nullable(),
-        }
-      : { plannedLocationId: yup.string().nullable() }),
-    ...(isAdmittingToHospital && {
-      admissionTime: yup.date().required(),
-      patientBillingTypeId: yup.string().nullable(),
-      dietIds: yup.mixed().nullable(),
-    }),
-  });
+  };
 
   const initialValues = {
     examinerId: encounter.examinerId,
     departmentId: encounter.departmentId,
-    ...(enablePlannedPatientMove && {
-      plannedLocationId: encounter.plannedLocationId,
-      action: PATIENT_MOVE_ACTIONS.PLAN,
-    }),
-    ...(isAdmittingToHospital && { admissionTime: new Date() }),
   };
+
+  if (enablePlannedPatientMove) {
+    validationObject.plannedLocationId = yup.string().nullable();
+    validationObject.action = yup
+      .string()
+      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+      .nullable();
+
+    initialValues.plannedLocationId = encounter.plannedLocationId;
+  }
+
+  if (isAdmittingToHospital) {
+    validationObject.admissionTime = yup.date().required();
+    validationObject.patientBillingTypeId = yup.string().nullable();
+    validationObject.dietIds = yup.mixed().nullable();
+
+    initialValues.admissionTime = new Date();
+  }
 
   return (
     <FormModal
@@ -376,7 +366,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
         initialValues={initialValues}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        validationSchema={validationSchema}
+        validationSchema={yup.object().shape(validationObject)}
         render={({ submitForm }) => (
           <>
             {newEncounterType && (
