@@ -8,6 +8,7 @@ import {
   FormGrid,
   TextField,
   useApi,
+  useAuth,
   useSettings,
   useSuggester,
 } from '@tamanu/ui-components';
@@ -179,7 +180,6 @@ const TriageFields = () => {
 
   return (
     <>
-      {/* TODO: confirm if this should be encounter or triage date? Sometihng looks a bit weird */}
       <Field
         name="arrivalTime"
         component={DateTimeField}
@@ -189,7 +189,6 @@ const TriageFields = () => {
             fallback="Arrival date & time"
           />
         }
-        required
         data-testid="field-admission-time"
       />
       <Field
@@ -280,6 +279,9 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
 
   const { writeAndViewEncounter } = useEncounter();
 
+  // TODO: figure out how to handle multiple triages
+  const triage = encounter.triages[0];
+
   const onSubmit = async values => {
     const {
       startDate,
@@ -303,7 +305,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     });
 
     if (encounter.encounterType === ENCOUNTER_TYPES.TRIAGE) {
-      await api.post('triage', {
+      await api.put(`triage/${triage.id}`, {
         encounterId: encounter.id,
         arrivalTime,
         triageTime: startDate,
@@ -330,6 +332,11 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
           patientBillingTypeId: encounter.patientBillingTypeId,
           dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
           reasonForEncounter: encounter.reasonForEncounter,
+          chiefComplaintId: triage.chiefComplaintId,
+          secondaryComplaintId: triage.secondaryComplaintId,
+          arrivalTime: triage.arrivalTime,
+          arrivalModeId: triage.arrivalModeId,
+          score: triage.score,
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
