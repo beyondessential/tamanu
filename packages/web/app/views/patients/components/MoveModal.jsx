@@ -4,14 +4,7 @@ import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import {
-  Button,
-  DateField,
-  DateTimeField,
-  Form,
-  FormGrid,
-  TAMANU_COLORS,
-} from '@tamanu/ui-components';
+import { Button, DateTimeField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
