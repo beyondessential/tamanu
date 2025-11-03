@@ -311,14 +311,22 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
-    await writeAndViewEncounter(encounter.id, {
+
+    const locationData =
+      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
+        ? { plannedLocationId: plannedLocationId || null }
+        : { locationId: plannedLocationId || locationId };
+
+    const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
+
+    const payload = {
       submittedTime: getCurrentDateTimeString(),
       ...rest,
-      ...(enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId: plannedLocationId || null }
-        : { locationId: plannedLocationId || locationId }),
-      ...(newEncounterType && { encounterType: newEncounterType }),
-    });
+      ...locationData,
+      ...encounterTypeData,
+    };
+
+    await writeAndViewEncounter(encounter.id, payload);
   };
   return (
     <FormModal
