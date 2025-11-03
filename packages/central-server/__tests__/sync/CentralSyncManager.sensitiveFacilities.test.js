@@ -859,24 +859,30 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         });
       });
 
-      it("won't sync sensitive encounter invoice insurers", async () => {
-        const sensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
-          fake(models.InvoiceInsurer, {
+      it("won't sync sensitive encounter invoice insurance contracts", async () => {
+        const contractA = await models.InvoiceInsuranceContract.create(
+          fake(models.InvoiceInsuranceContract),
+        );
+        const contractB = await models.InvoiceInsuranceContract.create(
+          fake(models.InvoiceInsuranceContract),
+        );
+        const sensitiveLink = await models.InvoicesInvoiceInsuranceContract.create(
+          fake(models.InvoicesInvoiceInsuranceContract, {
             invoiceId: sensitiveInvoice.id,
-            insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            invoiceInsuranceContractId: contractA.id,
           }),
         );
-        const nonSensitiveInvoiceInsurer = await models.InvoiceInsurer.create(
-          fake(models.InvoiceInsurer, {
+        const nonSensitiveLink = await models.InvoicesInvoiceInsuranceContract.create(
+          fake(models.InvoicesInvoiceInsuranceContract, {
             invoiceId: nonSensitiveInvoice.id,
-            insurerId: (await models.ReferenceData.create(fake(models.ReferenceData))).id,
+            invoiceInsuranceContractId: contractB.id,
           }),
         );
 
         await checkSensitiveRecordFiltering({
-          model: models.InvoiceInsurer,
-          sensitiveId: sensitiveInvoiceInsurer.id,
-          nonSensitiveId: nonSensitiveInvoiceInsurer.id,
+          model: models.InvoicesInvoiceInsuranceContract,
+          sensitiveId: sensitiveLink.id,
+          nonSensitiveId: nonSensitiveLink.id,
         });
       });
     });

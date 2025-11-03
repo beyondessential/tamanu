@@ -45,6 +45,12 @@ export class InvoiceInsuranceContract extends Model {
       foreignKey: 'invoiceInsuranceContractId',
       as: 'invoiceInsuranceContractItems',
     });
+
+    // Link to invoices via join table
+    this.hasMany(models.InvoicesInvoiceInsuranceContract, {
+      foreignKey: 'invoiceInsuranceContractId',
+      as: 'invoices',
+    });
   }
 
   static buildSyncFilter() {

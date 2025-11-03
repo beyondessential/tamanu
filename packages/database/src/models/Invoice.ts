@@ -59,9 +59,10 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
-    this.hasMany(models.InvoiceInsurer, {
+    // Link to invoice insurance contracts via join table
+    this.hasMany(models.InvoicesInvoiceInsuranceContract, {
       foreignKey: 'invoiceId',
-      as: 'insurers',
+      as: 'invoiceInsuranceContracts',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -100,16 +101,6 @@ export class Invoice extends Model {
         include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
       },
       {
-        model: models.InvoiceInsurer,
-        as: 'insurers',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'insurer',
-          },
-        ],
-      },
-      {
         model: models.InvoiceItem,
         as: 'items',
         include: models.InvoiceItem.getListReferenceAssociations(models),
@@ -118,6 +109,16 @@ export class Invoice extends Model {
         model: models.InvoicePayment,
         as: 'payments',
         include: models.InvoicePayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoicesInvoiceInsuranceContract,
+        as: 'invoiceInsuranceContracts',
+        include: [
+          {
+            model: models.InvoiceInsuranceContract,
+            as: 'invoiceInsuranceContract',
+          },
+        ],
       },
     ];
   }
