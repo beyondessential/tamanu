@@ -346,7 +346,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
             <StyledFormGrid columns={2}>{getFormFields(encounter.encounterType)}</StyledFormGrid>
             <ModalFormActionRow
               onConfirm={submitForm}
-              confirmText={'TEST'}
+              confirmText={'Save changes'}
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
