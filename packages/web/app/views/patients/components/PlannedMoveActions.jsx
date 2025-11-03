@@ -12,20 +12,24 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 10px;
-  height: 40px;
   align-items: center;
   justify-content: flex-start;
-  padding: 30px 25px;
+  padding: 10px 25px;
   background-color: ${TAMANU_COLORS.white};
   border-bottom: 1px solid ${TAMANU_COLORS.outline};
 `;
 
 const FinaliseButton = styled(Button)`
-  margin-left: 10px;
+  padding: 8px 12px;
+  margin-left: 5px;
+  min-width: 66px;
+  font-size: 12px;
 `;
 
 const CancelButton = styled(TextButton)`
-  font-size: 14px;
+  color: ${TAMANU_COLORS.darkestText};
+  text-decoration: underline;
+  font-size: 12px;
 `;
 
 export const PlannedMoveActions = ({ encounter }) => {

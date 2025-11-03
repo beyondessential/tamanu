@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -89,35 +89,14 @@ const BasicMoveFields = () => {
   );
 };
 
-const PATIENT_MOVE_ACTION_OPTIONS = [
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.finalise"
-        fallback="Finalise now"
-        data-testid="translatedtext-patient-move-action-finalise"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.FINALISE,
-  },
-  {
-    label: (
-      <TranslatedText
-        stringId="encounter.modal.patientMove.action.plan"
-        fallback="Plan change"
-        data-testid="translatedtext-patient-move-action-plan"
-      />
-    ),
-    value: PATIENT_MOVE_ACTIONS.PLAN,
-  },
-];
-
-const AdvancedMoveFields = ({ clearPlannedMove }) => {
+const PlannedMoveFields = () => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
-  const { values, initialValues, dirty } = useFormikContext();
+  const { values, initialValues, setFieldValue } = useFormikContext();
 
-  const isExistingPlannedMove = initialValues.plannedLocationId && values.plannedLocationId;
+  const isExistingPlannedMove =
+    initialValues?.plannedLocationId &&
+    initialValues?.plannedLocationId === values?.plannedLocationId;
 
   const description = isExistingPlannedMove ? (
     <TranslatedText
@@ -144,11 +123,6 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
           component={LocalisedLocationField}
           required
           data-testid="field-n625"
-          onClear={() => {
-            if (isExistingPlannedMove) {
-              clearPlannedMove();
-            }
-          }}
         />
         <LocationAvailabilityWarningMessage
           locationId={values.plannedLocationId}
@@ -193,9 +167,11 @@ const AdvancedMoveFields = ({ clearPlannedMove }) => {
             data-testid="field-ryle"
           />
         )}
-        {!dirty && isExistingPlannedMove && (
+        {isExistingPlannedMove && (
           <CancelMoveButton
-            onClick={clearPlannedMove}
+            onClick={() => {
+              setFieldValue('plannedLocationId', null);
+            }}
             variant="outlined"
             data-testid="button-cancel-patient-move"
           >
@@ -240,34 +216,14 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+
   const { writeAndViewEncounter } = useEncounter();
 
   const clinicianSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
-
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
-
-  const defaultInitialFormValues = {
-    examinerId: encounter.examinerId,
-    departmentId: encounter.departmentId,
-    ...(enablePatientMoveActions && {
-      plannedLocationId: encounter.plannedLocationId,
-      action: PATIENT_MOVE_ACTIONS.PLAN,
-    }),
-  };
-  const [initialFormValues, setInitialFormValues] = useState(defaultInitialFormValues);
-
-  const clearPlannedMove = () => {
-    setInitialFormValues({
-      ...defaultInitialFormValues,
-      plannedLocationId: null,
-    });
-  };
-  const resetForm = () => {
-    setInitialFormValues(defaultInitialFormValues);
-  };
 
   return (
     <FormModal
@@ -284,13 +240,20 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
       width="md"
     >
       <Form
-        initialValues={initialFormValues}
+        initialValues={{
+          examinerId: encounter.examinerId,
+          departmentId: encounter.departmentId,
+          ...(enablePatientMoveActions && {
+            plannedLocationId: encounter.plannedLocationId,
+            action: PATIENT_MOVE_ACTIONS.PLAN,
+          }),
+        }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
           const locationData =
             action === PATIENT_MOVE_ACTIONS.PLAN
-              ? { plannedLocationId }
-              : { locationId: plannedLocationId || locationId };
+              ? { plannedLocationId: plannedLocationId || null }
+              : { locationId: plannedLocationId || locationId || null };
           await writeAndViewEncounter(encounter.id, {
             submittedTime: getCurrentDateTimeString(),
             departmentId,
@@ -298,12 +261,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             ...locationData,
           });
         }}
-        enableReinitialize
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
+          locationId: yup.string().nullable(),
+          plannedLocationId: yup.string().nullable(),
+          action: yup
+            .string()
+            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+            .nullable(),
         })}
-        render={({ submitForm, values }) => (
+        render={({ submitForm }) => (
           <>
             {newEncounterType && (
               <>
@@ -361,21 +329,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePatientMoveActions ? (
-              <AdvancedMoveFields
-                plannedLocationId={values?.plannedLocationId}
-                clearPlannedMove={clearPlannedMove}
-              />
-            ) : (
-              <BasicMoveFields />
-            )}
+            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={getConfirmText(newEncounterType)}
-              onCancel={() => {
-                resetForm();
-                onClose();
-              }}
+              onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
           </>

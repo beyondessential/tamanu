@@ -279,12 +279,9 @@ export class AutocompleteInput extends Component {
   };
 
   handleClearValue = () => {
-    const { onChange, name, onClear } = this.props;
+    const { onChange, name } = this.props;
     onChange({ target: { value: undefined, name } });
     this.setState({ selectedOption: { value: '', tag: null } });
-    if (onClear) {
-      onClear();
-    }
   };
 
   clearOptions = () => {
@@ -520,7 +517,6 @@ AutocompleteInput.propTypes = {
   onChange: PropTypes.func.isRequired,
   value: PropTypes.string,
   multiSection: PropTypes.bool,
-  onClear: PropTypes.func,
 
   suggester: PropTypes.shape({
     fetchCurrentOption: PropTypes.func.isRequired,

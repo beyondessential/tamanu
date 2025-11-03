@@ -7,7 +7,7 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
 
 const Container = styled.div`
-  margin: 70px 0 80px;
+  margin: 70px 30px 80px;
 `;
 
 export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) => {
@@ -41,8 +41,8 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
       <ModalActionRow
         confirmText={
           <TranslatedText
-            stringId="general.action.confirm"
-            fallback="Confirm"
+            stringId="patient.modal.cancelMove.confirm"
+            fallback="Cancel location move"
             data-testid="translatedtext-confirm-action"
           />
         }

@@ -54,6 +54,39 @@ export const EncounterActions = React.memo(({ encounter }) => {
   const [openModal, setOpenModal] = useState(ENCOUNTER_MODALS.NONE);
   const [newEncounterType, setNewEncounterType] = useState();
   const onClose = () => setOpenModal(ENCOUNTER_MODALS.NONE);
+  const onViewSummary = () => navigateToSummary();
+
+  if (encounter.endDate) {
+    return (
+      <ActionsContainer data-testid="actionscontainer-w92z">
+        <StyledButton
+          size="small"
+          variant="outlined"
+          onClick={() => setOpenModal(ENCOUNTER_MODALS.ENCOUNTER_RECORD)}
+          data-testid="styledbutton-00iz"
+        >
+          <TranslatedText
+            stringId="patient.encounter.action.encounterSummary"
+            fallback="Encounter summary"
+            data-testid="translatedtext-ftbh"
+          />
+        </StyledButton>
+        <br />
+        <StyledButton
+          size="small"
+          color="primary"
+          onClick={onViewSummary}
+          data-testid="styledbutton-0m1p"
+        >
+          <TranslatedText
+            stringId="patient.encounter.action.dischargeSummary"
+            fallback="Discharge summary"
+            data-testid="translatedtext-0hzq"
+          />
+        </StyledButton>
+      </ActionsContainer>
+    );
+  }
 
   const onChangeEncounterType = type => {
     setNewEncounterType(type);
@@ -128,7 +161,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <ActionsContainer>
         {encounter.endDate ? (
           <>
-            {/* TODO: check that this is the correct encounter summary */}
             <Button
               size="small"
               variant="outlined"
@@ -188,7 +220,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         onClose={onClose}
         data-testid="dischargemodal-9lol"
       />
-
       <EncounterRecordModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
