@@ -263,18 +263,6 @@ const HospitalAdmissionFields = () => {
           required
           data-testid="field-admission-time"
         />
-        {/* <Field
-        name="estimatedDischargeDate"
-        component={DateField}
-        label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
-            fallback="Estimated discharge date"
-          />
-        }
-        required
-        data-testid="field-estimated-discharge-date"
-      /> */}
         <LocalisedField
           name="patientBillingTypeId"
           label={
@@ -381,7 +369,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
               ? yup.date().required()
               : yup.date().nullable(),
           patientBillingTypeId: yup.string().nullable(),
-          diet: yup.string().nullable(),
+          dietId: yup.string().nullable(),
         })}
         render={({ submitForm }) => (
           <>
