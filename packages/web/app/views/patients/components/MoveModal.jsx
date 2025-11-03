@@ -278,9 +278,10 @@ const HospitalAdmissionFields = () => {
         />
         <div style={{ gridColumn: '1 / -1' }}>
           <Field
-            name="dietId"
-            component={DynamicSelectField}
+            name="dietIds"
+            component={SuggesterSelectField}
             suggester={dietSuggester}
+            isMulti
             label={
               <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
             }
@@ -305,7 +306,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   });
 
   const onSubmit = async values => {
-    const { locationId, plannedLocationId, action, ...rest } = values;
+    const { locationId, plannedLocationId, action, dietIds, ...rest } = values;
 
     const locationData =
       enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
@@ -314,11 +315,18 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
+    const dietIdsData = dietIds
+      ? {
+          dietIds: JSON.stringify(Array.isArray(dietIds) ? dietIds : [dietIds]),
+        }
+      : {};
+
     const payload = {
       submittedTime: getCurrentDateTimeString(),
       ...rest,
       ...locationData,
       ...encounterTypeData,
+      ...dietIdsData,
     };
 
     await writeAndViewEncounter(encounter.id, payload);
@@ -369,7 +377,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
               ? yup.date().required()
               : yup.date().nullable(),
           patientBillingTypeId: yup.string().nullable(),
-          dietId: yup.string().nullable(),
+          dietIds: yup.mixed().nullable(),
         })}
         render={({ submitForm }) => (
           <>
