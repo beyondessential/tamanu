@@ -4,6 +4,7 @@ import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { MoveModal } from './MoveModal';
+import { EditEncounterModal } from './EditEncounterModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
@@ -19,6 +20,8 @@ const ENCOUNTER_MODALS = {
   CHANGE_DIET: 'changeDiet',
 
   DISCHARGE: 'discharge',
+
+  EDIT: 'edit',
 
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
 
@@ -212,6 +215,12 @@ export const EncounterActions = React.memo(({ encounter }) => {
         open={openModal === ENCOUNTER_MODALS.MOVE}
         onClose={onClose}
         data-testid="MoveModal-00xl"
+      />
+
+      <EditEncounterModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.EDIT}
+        onClose={onClose}
       />
 
       <DischargeModal
