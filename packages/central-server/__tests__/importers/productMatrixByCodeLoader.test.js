@@ -46,7 +46,7 @@ async function doImport(ctx, { buffer }) {
   });
 }
 
-describe('Invoice price list item import', () => {
+describe('Product Matrix By Code Loader', () => {
   let ctx;
   let models;
 
