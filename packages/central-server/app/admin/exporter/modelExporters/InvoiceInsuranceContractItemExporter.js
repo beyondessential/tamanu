@@ -10,7 +10,7 @@ export class InvoiceInsuranceContractItemExporter extends ProductMatrixByCodeExp
       itemModel: 'InvoiceInsuranceContractItem',
       parentIdField: 'invoiceInsuranceContractId',
       valueField: 'coverageValue',
-      tabName: 'Invoice Insurance Contract Items',
+      tabName: 'Invoice Insurance Items',
     });
   }
 }
