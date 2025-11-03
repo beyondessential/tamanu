@@ -181,7 +181,7 @@ const TriageFields = () => {
     <>
       {/* TODO: confirm if this should be encounter or triage date? Sometihng looks a bit weird */}
       <Field
-        name="startDate"
+        name="arrivalTime"
         component={DateTimeField}
         label={
           <TranslatedText
@@ -193,7 +193,7 @@ const TriageFields = () => {
         data-testid="field-admission-time"
       />
       <Field
-        name="triageTime"
+        name="startDate"
         component={DateTimeField}
         label={
           <TranslatedText
@@ -284,7 +284,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
     const {
       startDate,
       arrivalTime,
-      triageTime,
       arrivalModeId,
       score,
       chiefComplaintId,
@@ -307,7 +306,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       await api.post('triage', {
         encounterId: encounter.id,
         arrivalTime,
-        triageTime,
+        triageTime: startDate,
         arrivalModeId,
         score,
         chiefComplaintId,
