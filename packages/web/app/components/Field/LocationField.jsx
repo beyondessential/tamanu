@@ -77,6 +77,7 @@ export const LocationInput = React.memo(
 
     useEffect(() => {
       setLocationId(value ?? '');
+      if (!value) setGroupId('');
     }, [value]);
 
     // when the location is selected, set the group value automatically if it's not set yet
