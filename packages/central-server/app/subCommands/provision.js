@@ -7,7 +7,6 @@ import { readFile, utils } from 'xlsx';
 import {
   GENERAL_IMPORTABLE_DATA_TYPES,
   PERMISSION_IMPORTABLE_DATA_TYPES,
-  REFERENCE_TYPES,
   SETTINGS_SCOPES,
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
@@ -27,7 +26,7 @@ import { programImporter } from '../admin/programImporter/programImporter';
  */
 function validateFullReferenceDataImport(file) {
   // These are two very unique cases. 'user' has special logic and 'administeredVaccine' is a special case used for existing deployments.
-  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine', REFERENCE_TYPES.NOTE_TYPE];
+  const EXCLUDED_FROM_FULL_IMPORT_CHECK = ['user', 'administeredVaccine'];
 
   log.debug('Parse XLSX workbook for validation');
   const workbook = readFile(file);

@@ -425,7 +425,7 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       }
 
       if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
-        baseWhere.code = {
+        baseWhere.id = {
           [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
         };
       }

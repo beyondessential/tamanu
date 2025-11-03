@@ -1,5 +1,5 @@
 import { QueryInterface, QueryTypes } from 'sequelize';
-import { prefixMap, NOTE_TYPE_LABELS, REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
+import { REFERENCE_TYPES, REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
 const makeNoteTypeId = (noteType: string): string => `notetype-${noteType}`;
 
@@ -10,14 +10,8 @@ interface Translation {
 }
 
 export async function up(query: QueryInterface): Promise<void> {
-  const notTypePrefix = prefixMap.get(NOTE_TYPE_LABELS);
-
-  if (!notTypePrefix) {
-    throw new Error('NOTE_TYPE_LABELS prefix not found');
-  }
-
   const existingTranslations = await query.sequelize.query<Translation>(
-    `SELECT string_id, language, text FROM translated_strings WHERE string_id ILIKE '${notTypePrefix}%'`,
+    `SELECT string_id, language, text FROM translated_strings WHERE string_id ILIKE 'note.property.type%'`,
     { type: QueryTypes.SELECT }
   );
 
@@ -27,7 +21,7 @@ export async function up(query: QueryInterface): Promise<void> {
     const migratedTranslations = existingTranslations
       .map((translation) => {
         // Replace to get noteType, e.g. 'note.property.type.treatmentPlan' -> 'treatmentPlan'
-        const noteType = translation.string_id.replace(`${notTypePrefix}.`, '');
+        const noteType = translation.string_id.replace(`note.property.type.`, '');
 
         // Create string_id for the new translation, e.g. 'refData.noteType.notetype-treatmentPlan'
         const newStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${REFERENCE_TYPES.NOTE_TYPE}.${makeNoteTypeId(noteType)}`;

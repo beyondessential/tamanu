@@ -16,7 +16,7 @@ function getParentRecordVerb(verb) {
 async function checkIfTreatmentPlanNote(models, noteTypeId) {
   if (!noteTypeId) return false;
   const noteTypeRef = await models.ReferenceData.findByPk(noteTypeId);
-  return noteTypeRef?.code === NOTE_TYPES.TREATMENT_PLAN;
+  return noteTypeRef?.id === NOTE_TYPES.TREATMENT_PLAN;
 }
 
 // Encounter notes have their own permission checks, every other type

@@ -58,7 +58,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
               ),
             },
             ...suggestions.filter(
-              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.code),
+              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.id),
             ),
           ]}
           isClearable={false}

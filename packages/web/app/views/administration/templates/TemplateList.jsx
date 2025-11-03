@@ -1,34 +1,66 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { DataFetchingTable, DateDisplay, TranslatedEnum } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
-import { TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '@tamanu/ui-components';
+import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 
 const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
 
-export const TemplateList = React.memo((props) => (
-  <DataFetchingTable
-    endpoint={TEMPLATE_ENDPOINT}
-    columns={[
-      {
-        key: 'type',
-        title: (
-          <TranslatedText
-            stringId="general.type.label"
-            fallback="Type"
-            data-testid="translatedtext-vrku"
-          />
-        ),
-        accessor: (record) => (
-          <TranslatedEnum
-            value={record.type}
-            enumValues={TEMPLATE_TYPE_LABELS}
-            data-testid="translatedenum-kmfz"
-          />
-        ),
-        sortable: false,
-      },
+export const TemplateList = React.memo((props) => {
+  const { data: noteTypes = [] } = useSuggestionsQuery('noteType');
+  
+  const noteTypeNameMap = useMemo(() => {
+    const map = new Map();
+    noteTypes.forEach(noteType => {
+      map.set(noteType.id, noteType.name);
+    });
+    return map;
+  }, [noteTypes]);
+
+  const renderTemplateType = (type) => {
+    // If it's Patient Letter, use TranslatedEnum with TEMPLATE_TYPE_LABELS
+    if (type === TEMPLATE_TYPES.PATIENT_LETTER) {
+      return (
+        <TranslatedEnum
+          value={type}
+          enumValues={TEMPLATE_TYPE_LABELS}
+          data-testid="translatedenum-kmfz"
+        />
+      );
+    }
+    
+    // Otherwise, assume it's a note type ID from reference data
+    const fallbackName = noteTypeNameMap.get(type) || type;
+    
+    return (
+      <TranslatedReferenceData
+        value={type}
+        fallback={fallbackName}
+        category={REFERENCE_TYPES.NOTE_TYPE}
+        data-testid="translatedreferencedata-template-type"
+      />
+    );
+  };
+
+  return (
+    <DataFetchingTable
+      endpoint={TEMPLATE_ENDPOINT}
+      columns={[
+        {
+          key: 'type',
+          title: (
+            <TranslatedText
+              stringId="general.type.label"
+              fallback="Type"
+              data-testid="translatedtext-vrku"
+            />
+          ),
+          accessor: (record) => renderTemplateType(record.type),
+          sortable: false,
+        },
       {
         key: 'name',
         title: (
@@ -97,7 +129,8 @@ export const TemplateList = React.memo((props) => (
         data-testid="translatedtext-wgb7"
       />
     }
-    {...props}
-    data-testid="datafetchingtable-jb8p"
-  />
-));
+      {...props}
+      data-testid="datafetchingtable-jb8p"
+    />
+  );
+});

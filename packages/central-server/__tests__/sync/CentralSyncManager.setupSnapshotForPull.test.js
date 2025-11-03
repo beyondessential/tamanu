@@ -433,7 +433,6 @@ describe('CentralSyncManager.setupSnapshotForPull', () => {
       const outgoingChanges = (await centralSyncManager.getOutgoingChanges(sessionId, {})).filter(
         ({ recordId }) => recordId !== SYSTEM_USER_UUID,
       );
-      console.log('outgoingChanges', JSON.stringify(outgoingChanges, null, 2));
       
       expect(outgoingChanges.length).toBe(3);
       expect(outgoingChanges.map(r => r.recordId).sort()).toEqual(

@@ -19,15 +19,6 @@ export const NOTE_TYPES = {
   HANDOVER: 'notetype-handover',
 };
 
-export const NOTE_TYPE_LABELS = {
-  [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
-  [NOTE_TYPES.CLINICAL_MOBILE]: 'Clinical note (mobile)',
-  [NOTE_TYPES.DISCHARGE]: 'Discharge planning',
-  [NOTE_TYPES.HANDOVER]: 'Handover note',
-  [NOTE_TYPES.OTHER]: 'Other',
-  [NOTE_TYPES.SYSTEM]: 'System',
-};
-
 export const NOTE_PERMISSION_TYPES = {
   OTHER_PRACTITIONER_ENCOUNTER_NOTE: 'OtherPractitionerEncounterNote',
   TREATMENT_PLAN_NOTE: 'TreatmentPlanNote',

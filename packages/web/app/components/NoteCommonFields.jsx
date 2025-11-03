@@ -48,11 +48,10 @@ export const StyledFormGrid = styled(FormGrid)`
 `;
 
 const renderOptionLabel = (option, noteTypeCountByType) => {
-  const code = option.code || option.value;
   const label = option.name || option.label;
   const value = option.id || option.value;
   
-  return code === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[value] ? (
+  return option.id === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[value] ? (
     <StyledTooltip
       arrow
       placement="top"
@@ -310,7 +309,7 @@ export const NoteTypeField = ({
             ...option,
             isDisabled:
               noteTypeCountByType &&
-              option.code === NOTE_TYPES.TREATMENT_PLAN &&
+              option.id === NOTE_TYPES.TREATMENT_PLAN &&
               !!noteTypeCountByType[option.id],
           }))
       }
@@ -326,10 +325,8 @@ export const NoteTypeField = ({
 };
 
 export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled }) => {
-  const noteTypeCode = noteTypeId ? noteTypeId.replace('notetype-', '') : null;
-  
   const templateSuggester = useSuggester('template', {
-    baseQueryParameters: { type: noteTypeCode },
+    baseQueryParameters: { type: noteTypeId },
   });
 
   return (
@@ -345,7 +342,7 @@ export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteTypeCode || disabled}
+      disabled={!noteTypeId || disabled}
       size={size}
       data-testid="field-ej08"
     />
