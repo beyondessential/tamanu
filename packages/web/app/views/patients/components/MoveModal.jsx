@@ -231,6 +231,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
+          locationId: yup.string().nullable(),
+          plannedLocationId: yup.string().nullable(),
+          action: yup
+            .string()
+            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+            .nullable(),
         })}
         render={({ submitForm }) => (
           <>
