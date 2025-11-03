@@ -38,8 +38,6 @@ export function normaliseSheetName(name, modelName) {
       .join(' '),
   );
 
-  console.log('normalise', name, modelName, norm, normMapping[norm]);
-
   // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
     return PROGRAM_REFERENCE_TYPES.PROGRAM_REGISTRY_CLINICAL_STATUS;
