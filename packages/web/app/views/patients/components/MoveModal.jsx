@@ -23,7 +23,7 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
-import { ENCOUNTER_TYPE_LABELS, PATIENT_MOVE_ACTIONS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
 
 const SectionHeading = styled(Heading3)`
@@ -87,6 +87,11 @@ const BasicMoveFields = () => {
       </StyledFormGrid>
     </>
   );
+};
+
+const PATIENT_MOVE_ACTIONS = {
+  PLAN: 'plan',
+  FINALISE: 'finalise',
 };
 
 const PlannedMoveFields = () => {
@@ -185,13 +190,25 @@ const PlannedMoveFields = () => {
 
 const getConfirmText = newEncounterType => {
   if (newEncounterType) {
-    return (
-      <TranslatedText
-        stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-        fallback="Transfer to :newEncounterType"
-        replacements={{ newEncounterType }}
-      />
-    );
+    switch (newEncounterType) {
+      case ENCOUNTER_TYPES.ADMISSION:
+        return (
+          <TranslatedText
+            stringId="encounter.action.admitToHospital"
+            fallback="Admit to hospital"
+          />
+        );
+      default:
+        return (
+          <>
+            <TranslatedText
+              stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+              fallback="Transfer to"
+            />{' '}
+            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+          </>
+        );
+    }
   }
   return <TranslatedText stringId="general.action.confirm" fallback="Confirm" />;
 };
@@ -227,13 +244,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
   return (
     <FormModal
-      title={
-        <TranslatedText
-          stringId="patient.encounter.action.movePatient"
-          fallback="Move patient"
-          data-testid="translatedtext-o1ut"
-        />
-      }
+      title={getConfirmText(newEncounterType)}
       open={open}
       onClose={onClose}
       data-testid="formmodal-httn"
