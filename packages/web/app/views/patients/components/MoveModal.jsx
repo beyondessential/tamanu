@@ -277,15 +277,14 @@ const HospitalAdmissionFields = () => {
           data-testid="localisedfield-amji"
         />
         <div style={{ gridColumn: '1 / -1' }}>
-          <Field
+          <LocalisedField
             name="dietIds"
             component={SuggesterSelectField}
-            suggester={dietSuggester}
+            endpoint="diet"
             isMulti
             label={
               <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
             }
-            required
             data-testid="field-diet"
           />
         </div>
