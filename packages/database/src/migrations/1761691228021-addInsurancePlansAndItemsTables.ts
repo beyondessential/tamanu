@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-const INSURANCE_CONTRACTS = 'invoice_insurance_contracts';
-const INSURANCE_CONTRACT_ITEMS = 'invoice_insurance_contract_items';
+const INSURANCE_CONTRACTS = 'invoice_insurance_plans';
+const INSURANCE_CONTRACT_ITEMS = 'invoice_insurance_plan_items';
 
 const baseFields = {
   id: {
@@ -60,7 +60,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
   await query.createTable(INSURANCE_CONTRACT_ITEMS, {
     ...baseFields,
-    invoice_insurance_contract_id: {
+    invoice_insurance_plan_id: {
       type: DataTypes.TEXT,
       allowNull: false,
       references: {
@@ -84,12 +84,12 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  await query.addIndex(INSURANCE_CONTRACT_ITEMS, ['invoice_insurance_contract_id'], {
-    name: `idx_${INSURANCE_CONTRACT_ITEMS}_invoice_insurance_contract_id`,
+  await query.addIndex(INSURANCE_CONTRACT_ITEMS, ['invoice_insurance_plan_id'], {
+    name: `idx_${INSURANCE_CONTRACT_ITEMS}_invoice_insurance_plan_id`,
   });
 
-  await query.addIndex(INSURANCE_CONTRACT_ITEMS, ['invoice_product_id', 'invoice_insurance_contract_id'], {
-    name: `idx_${INSURANCE_CONTRACT_ITEMS}_invoice_product_id_invoice_insurance_contract_id_unique`,
+  await query.addIndex(INSURANCE_CONTRACT_ITEMS, ['invoice_product_id', 'invoice_insurance_plan_id'], {
+    name: `idx_${INSURANCE_CONTRACT_ITEMS}_invoice_product_id_invoice_insurance_plan_id_unique`,
     unique: true,
   });
 }

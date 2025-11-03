@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 
-export class InvoiceInsuranceContract extends Model {
+export class InvoiceInsurancePlan extends Model {
   declare id: string;
   declare code: string;
   declare name?: string;
@@ -41,9 +41,9 @@ export class InvoiceInsuranceContract extends Model {
   }
 
   static initRelations(models: Models) {
-    this.hasMany(models.InvoiceInsuranceContractItem, {
-      foreignKey: 'invoiceInsuranceContractId',
-      as: 'invoiceInsuranceContractItems',
+    this.hasMany(models.InvoiceInsurancePlanItem, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'invoiceInsurancePlanItems',
     });
   }
 
