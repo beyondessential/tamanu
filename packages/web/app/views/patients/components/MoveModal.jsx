@@ -227,7 +227,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             ...locationData,
           });
         }}
-        enableReinitialize
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
