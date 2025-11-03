@@ -71,8 +71,15 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
   INVOICE_PRICE_LIST: 'invoicePriceList',
   INVOICE_PRICE_LIST_ITEM: 'invoicePriceListItem',
+  INVOICE_INSURANCE_CONTRACT: 'invoiceInsuranceContract',
+  INVOICE_INSURANCE_CONTRACT_ITEM: 'invoiceInsuranceContractItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
+
+/*
+invoice Insurance Contract Item
+patient Field Definition Category
+ */
 
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 

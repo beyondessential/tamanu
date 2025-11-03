@@ -20,6 +20,7 @@ const normMapping = {
   procedure: 'procedureType',
   // This is needed to handle the way we are exporting that data
   patientFieldDefCategory: OTHER_REFERENCE_TYPES.PATIENT_FIELD_DEFINITION_CATEGORY,
+  invoiceInsuranceItem: OTHER_REFERENCE_TYPES.INVOICE_INSURANCE_CONTRACT_ITEM,
   // We need mapping for program registry imports because program registry data is imported in the
   // worksheet sheets called registry and registryCondition but the full model names
   // are ProgramRegistry and ProgramRegistryCondition which are used everywhere else.
@@ -36,6 +37,8 @@ export function normaliseSheetName(name, modelName) {
       .map(word => singularize(word))
       .join(' '),
   );
+
+  console.log('normalise', name, modelName, norm, normMapping[norm]);
 
   // Exceptions where the sheet name for the program/survey/etc is not consistent with the model name
   if (modelName === 'ProgramRegistryClinicalStatus') {
