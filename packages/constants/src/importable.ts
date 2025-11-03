@@ -76,11 +76,6 @@ export const OTHER_REFERENCE_TYPES = {
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 
-/*
-invoice Insurance Contract Item
-patient Field Definition Category
- */
-
 export const OTHER_REFERENCE_TYPE_VALUES = Object.values(OTHER_REFERENCE_TYPES);
 
 // Reference data imported through the program importer rather than the reference data importer
