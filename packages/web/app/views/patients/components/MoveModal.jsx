@@ -4,7 +4,14 @@ import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Button, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  Button,
+  DateField,
+  DateTimeField,
+  Form,
+  FormGrid,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
@@ -13,10 +20,12 @@ import {
   FormSeparatorLine,
   Heading3,
   LargeBodyText,
+  LocalisedField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
   ModalFormActionRow,
   RadioField,
+  SuggesterSelectField,
   TranslatedEnum,
 } from '../../../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
@@ -231,6 +240,64 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
   );
 };
 
+const HospitalAdmissionFields = () => {
+  const dietSuggester = useSuggester('diet');
+  return (
+    <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+      <FormSeparatorLine />
+      <Field
+        name="admissionTime"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.admissionTime.label"
+            fallback="Admission date & time"
+          />
+        }
+        required
+        data-testid="field-admission-time"
+      />
+      {/* <Field
+        name="estimatedDischargeDate"
+        component={DateField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+            fallback="Estimated discharge date"
+          />
+        }
+        required
+        data-testid="field-estimated-discharge-date"
+      /> */}
+      <LocalisedField
+        name="patientBillingTypeId"
+        label={
+          <TranslatedText
+            stringId="general.localisedField.patientBillingTypeId.label"
+            fallback="Patient type"
+            data-testid="translatedtext-67v8"
+          />
+        }
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
+        data-testid="localisedfield-amji"
+      />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <Field
+          name="diet"
+          component={DynamicSelectField}
+          suggester={dietSuggester}
+          label={
+            <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
+          }
+          required
+          data-testid="field-diet"
+        />
+      </div>
+    </StyledFormGrid>
+  );
+};
+
 export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterType }) => {
   const { getSetting } = useSettings();
   const enablePatientMoveActions = getSetting('features.patientPlannedMove');
@@ -242,6 +309,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const onSubmit = async values => {
+    const { locationId, plannedLocationId, action, ...rest } = values;
+    await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
+      ...rest,
+      ...(enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
+        ? { plannedLocationId: plannedLocationId || null }
+        : { locationId: plannedLocationId || locationId }),
+      ...(newEncounterType && { encounterType: newEncounterType }),
+    });
+  };
   return (
     <FormModal
       title={
@@ -268,20 +346,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             plannedLocationId: encounter.plannedLocationId,
             action: PATIENT_MOVE_ACTIONS.PLAN,
           }),
+          ...(newEncounterType === ENCOUNTER_TYPES.ADMISSION && {
+            admissionTime: new Date(),
+          }),
         }}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-          const locationData =
-            action === PATIENT_MOVE_ACTIONS.PLAN
-              ? { plannedLocationId: plannedLocationId || null }
-              : { locationId: plannedLocationId || locationId || null };
-          await writeAndViewEncounter(encounter.id, {
-            submittedTime: getCurrentDateTimeString(),
-            departmentId,
-            examinerId,
-            ...locationData,
-          });
-        }}
+        onSubmit={onSubmit}
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
@@ -351,6 +421,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
               />
             </SectionHeading>
             {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {newEncounterType === ENCOUNTER_TYPES.ADMISSION && <HospitalAdmissionFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={
