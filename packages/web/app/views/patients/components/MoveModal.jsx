@@ -188,7 +188,7 @@ const PlannedMoveFields = () => {
   );
 };
 
-const getConfirmText = newEncounterType => {
+const EncounterTypeChange = ({ newEncounterType }) => {
   if (newEncounterType) {
     switch (newEncounterType) {
       case ENCOUNTER_TYPES.ADMISSION:
@@ -223,7 +223,7 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
       <b>
         <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
       </b>{' '}
-      to{' '}
+      <TranslatedText stringId="general.action.to" fallback="to" />{' '}
       <b>
         <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
       </b>
@@ -244,7 +244,17 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
   return (
     <FormModal
-      title={getConfirmText(newEncounterType)}
+      title={
+        newEncounterType ? (
+          <EncounterTypeChange newEncounterType={newEncounterType} />
+        ) : (
+          <TranslatedText
+            stringId="patient.encounter.action.movePatient"
+            fallback="Move patient"
+            data-testid="translatedtext-o1ut"
+          />
+        )
+      }
       open={open}
       onClose={onClose}
       data-testid="formmodal-httn"
@@ -343,7 +353,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
-              confirmText={getConfirmText(newEncounterType)}
+              confirmText={
+                newEncounterType ? (
+                  <EncounterTypeChange newEncounterType={newEncounterType} />
+                ) : (
+                  <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                )
+              }
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
