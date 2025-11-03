@@ -362,6 +362,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             .string()
             .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
             .nullable(),
+          admissionTime:
+            newEncounterType === ENCOUNTER_TYPES.ADMISSION
+              ? yup.date().required()
+              : yup.date().nullable(),
+          patientBillingTypeId: yup.string().nullable(),
+          diet: yup.string().nullable(),
         })}
         render={({ submitForm }) => (
           <>
