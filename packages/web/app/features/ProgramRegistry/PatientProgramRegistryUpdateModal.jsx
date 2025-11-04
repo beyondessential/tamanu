@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import {
-  Modal,
-  TranslatedText,
   Field,
   AutocompleteField,
   ModalFormActionRow,
@@ -10,7 +9,7 @@ import {
 import { useSuggester } from '../../api';
 import { useUpdateProgramRegistryMutation } from '../../api/mutations';
 import { RelatedConditionsForm } from './RelatedConditionsForm';
-import { useAuth } from '../../contexts/Auth.js';
+import { useAuth } from '../../contexts/Auth'
 
 const StyledAutocompleteField = styled(AutocompleteField)`
   width: 300px;

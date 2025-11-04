@@ -8,9 +8,13 @@ import {
   REFERENCE_DATA_RELATION_TYPES,
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
+  DEFAULT_LANGUAGE_CODE,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
+import { isEmpty, isNil } from 'lodash';
 import { GENERIC_SURVEY_EXPORT_REPORT_ID, REPORT_DEFINITIONS } from '@tamanu/shared/reports';
 
 function stripNotes(fields) {
@@ -103,18 +107,48 @@ export function administeredVaccineLoader(item) {
   ];
 }
 
-export function translatedStringLoader(item) {
+export async function translatedStringLoader(item, { models, header }) {
   const { stringId, ...languages } = stripNotes(item);
-  return Object.entries(languages)
-    .filter(([, text]) => `${text}`.trim())
-    .map(([language, text]) => ({
+  const rows = [];
+  const languagesInSheet = header.filter(h => h !== 'stringId');
+  const existingTranslations = await models.TranslatedString.findAll({
+    where: { stringId, language: languagesInSheet },
+  });
+  const existingTranslationsMap = new Map(existingTranslations.map(t => [t.language, t]));
+  for (const language of languagesInSheet) {
+    if (language === DEFAULT_LANGUAGE_CODE) {
+      continue; // Ignore any edits to the default language
+    }
+
+    const text = languages[language];
+    const emptyCell = isNil(text) || isEmpty(`${text}`.trim());
+    if (emptyCell) {
+      const existing = existingTranslationsMap.get(language);
+      if (existing) {
+        // An empty cell means delete the translation for this language
+        rows.push({
+          model: 'TranslatedString',
+          values: {
+            stringId,
+            language,
+            deletedAt: new Date(),
+          },
+        });
+      }
+      continue;
+    }
+
+    rows.push({
       model: 'TranslatedString',
       values: {
         stringId,
         language,
         text,
       },
-    }));
+    });
+  }
+
+  return rows;
 }
 
 export async function patientDataLoader(item, { models, foreignKeySchemata }) {
@@ -226,12 +260,16 @@ async function validateObjectId(item, models, pushError) {
 
 export async function permissionLoader(item, { models, pushError }) {
   const { verb, noun, objectId = null, ...roles } = stripNotes(item);
-  
+
   const normalizedObjectId = objectId && objectId.trim() !== '' ? objectId : null;
   const normalizedVerb = verb.trim();
   const normalizedNoun = noun.trim();
-  
-  await validateObjectId({ ...item, noun: normalizedNoun, objectId: normalizedObjectId }, models, pushError);
+
+  await validateObjectId(
+    { ...item, noun: normalizedNoun, objectId: normalizedObjectId },
+    models,
+    pushError,
+  );
 
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
@@ -239,7 +277,8 @@ export async function permissionLoader(item, { models, pushError }) {
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
     .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
-      const id = `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
+      const id =
+        `${role}-${normalizedVerb}-${normalizedNoun}-${normalizedObjectId || 'any'}`.toLowerCase();
 
       const isDeleted = yCell === 'n';
       const deletedAt = isDeleted ? new Date() : null;
@@ -676,6 +715,74 @@ export async function procedureTypeLoader(item, { models, pushError }) {
         surveyId: surveyId,
       },
     });
+  });
+
+  return rows;
+}
+
+export async function invoiceProductLoader(item, { models, pushError }) {
+  const { category, sourceRecordId } = item;
+  const rows = [];
+
+  if (!category && sourceRecordId) {
+    pushError(`Must provide a category if providing a sourceRecordId.`);
+    return [];
+  }
+
+  if (category && !sourceRecordId) {
+    pushError(`Must provide a sourceRecordId if providing a category.`);
+    return [];
+  }
+
+  if (!category && !sourceRecordId) {
+    return [
+      {
+        model: 'InvoiceProduct',
+        values: {
+          id: uuidv4(),
+          ...item,
+        },
+      },
+    ];
+  }
+
+  const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
+  if (!validCategories.includes(category)) {
+    pushError(`Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`);
+    return [];
+  }
+
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
+  if (!modelName) {
+    pushError(`No model mapped to category: "${category}".`);
+    return [];
+  }
+
+  const model = models[modelName];
+  if (!model) {
+    pushError(`Model not found: "${modelName}".`);
+    return [];
+  }
+
+  const existingRecord = await model.findOne({
+    where: { id: sourceRecordId },
+  });
+  if (!existingRecord) {
+    pushError(
+      `Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`,
+    );
+    return [];
+  }
+
+  const newInvoiceProduct = {
+    id: uuidv4(),
+    ...item,
+    category,
+    sourceRecordId,
+  };
+  rows.push({
+    model: 'InvoiceProduct',
+    values: newInvoiceProduct,
   });
 
   return rows;

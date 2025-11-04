@@ -82,7 +82,6 @@ export async function centralServerLogin(models, email, password, deviceId) {
     await models.User.upsert({
       id,
       ...userDetails,
-      password,
       deletedAt: null,
     });
     await models.UserLocalisationCache.upsert({

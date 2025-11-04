@@ -2,17 +2,15 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@mui/material';
 
-import { Colors, PATIENT_STATUS_COLORS } from '../../../constants';
+import { Button, TranslatedText, TranslatedReferenceData, TranslatedEnum } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { PATIENT_STATUS_COLORS } from '../../../constants';
 import { formatShortest } from '../../../components/DateDisplay';
 import { DataFetchingTable } from '../../../components/Table';
-import {
-  TranslatedText,
-  TranslatedReferenceData,
-  TranslatedEnum,
-} from '../../../components/Translation';
+
 import { usePatientCurrentEncounterQuery } from '../../../api/queries';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
-import { Button } from '../../../components';
+
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { useTranslation } from '../../../contexts/Translation';
