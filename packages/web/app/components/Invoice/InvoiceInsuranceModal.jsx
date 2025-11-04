@@ -1,24 +1,36 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Typography } from '@material-ui/core';
+import { useSuggester } from '@tamanu/ui-components';
 import { Modal } from '../Modal';
 import { TranslatedText } from '../Translation';
 import { ModalActionRow } from '../ModalActionRow';
-import { useFinaliseInvoice } from '../../api/mutations/useInvoiceMutation';
+import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
+import { MultiAutocompleteInput } from '../Field';
 
-const ContentText = styled.div`
-  margin: 20px 18px 50px 18px;
+const ModalBody = styled.div`
+  margin: 20px 0 50px;
+
+  p {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
 `;
 
 export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
-  const { mutate } = useFinaliseInvoice(invoice);
+  const { mutate } = useInvoiceInsurancePlansMutation(invoice);
+  const insurancePlanSuggester = useSuggester('invoiceInsurancePlan');
+  const [selectedPlans, setSelectedPlans] = React.useState([]);
+
+  console.log('selectedPlans', selectedPlans);
 
   const onConfirm = async () => {
-    mutate(
-      {},
-      {
-        onSuccess: onClose,
+    const data = { invoiceInsurancePlanIds: selectedPlans };
+    mutate(data, {
+      onSuccess: () => {
+        onClose();
       },
-    );
+    });
   };
 
   return (
@@ -30,12 +42,26 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
       open={open}
       onClose={onClose}
     >
-      <ContentText>
-        <TranslatedText
-          stringId="invoice.modal.insurancePlans.text"
-          fallback="Select or remove the insurers you would like to apply to this patient invoice below."
+      <ModalBody>
+        <Typography>
+          <TranslatedText
+            stringId="invoice.modal.insurancePlans.text"
+            fallback="Select or remove the insurers you would like to apply to this patient invoice below."
+          />
+        </Typography>
+        <MultiAutocompleteInput
+          name="insurancePlans"
+          label={
+            <TranslatedText
+              stringId="invoice.modal.insurancePlans.label"
+              fallback="Insurance plans"
+            />
+          }
+          value={selectedPlans}
+          onChange={({ target }) => setSelectedPlans(target.value)}
+          suggester={insurancePlanSuggester}
         />
-      </ContentText>
+      </ModalBody>
       <ModalActionRow onConfirm={onConfirm} onCancel={onClose} />
     </Modal>
   );

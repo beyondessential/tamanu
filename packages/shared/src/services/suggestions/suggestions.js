@@ -587,6 +587,10 @@ createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
   DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
 );
 
+createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
+  DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+);
+
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 // Location groups filtered by facility. Used in the survey form autocomplete

@@ -9,6 +9,7 @@ import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
+import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
 
 const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
@@ -336,3 +337,4 @@ invoiceRoute.delete(
 
 invoiceRoute.use(invoiceItemsRoute);
 invoiceRoute.use(patientPaymentRoute);
+invoiceRoute.use(insurancePlansRoute);

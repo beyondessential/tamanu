@@ -79,11 +79,11 @@ export const useInvoiceInsurancePlansMutation = invoice => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
-      await api.put(`invoices/${invoice?.id}`);
+    mutationFn: async body => {
+      await api.put(`invoices/${invoice?.id}/insurancePlans`, body);
     },
     onSuccess: async () => {
-      // queryClient.removeQueries([`encounter/${invoice?.encounterId}/invoice`]);
+      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
   });
