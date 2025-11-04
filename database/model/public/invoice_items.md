@@ -52,9 +52,9 @@ products can change discountability it is stored here for the record.
 {% enddocs %}
 
 {% docs invoice_items__source_record_type %}
-TODO
+The underlying model that the source record belongs to.
 {% enddocs %}
 
 {% docs invoice_items__source_record_id %}
-TODO
+Foreign key relation for record type.
 {% enddocs %}
