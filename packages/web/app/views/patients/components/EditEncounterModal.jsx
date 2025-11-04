@@ -289,7 +289,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       reasonForEncounter,
     } = values;
 
-    if (encounter.encounterType === ENCOUNTER_TYPES.TRIAGE) {
+    if (triage) {
       await api.put(`triage/${triage.id}`, {
         encounterId: encounter.id,
         arrivalTime,
