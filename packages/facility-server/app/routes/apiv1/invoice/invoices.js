@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -10,8 +9,7 @@ import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { round } from 'lodash';
-
-const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -38,7 +36,7 @@ const createInvoiceSchema = z
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId: invoiceNumberGenerator(),
+    displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
 invoiceRoute.post(
