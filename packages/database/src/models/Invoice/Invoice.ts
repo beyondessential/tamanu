@@ -126,12 +126,9 @@ export class Invoice extends Model {
     ];
   }
 
-  static async addItemToInvoice(
-    newItem: Procedure,
+  private static async getInProgressInvoiceForEncounter(
     encounterId: string,
-    invoiceProduct: InvoiceProduct,
-    orderedByUserId: string = SYSTEM_USER_UUID,
-  ) {
+  ): Promise<Invoice | null> {
     const invoices = await this.findAll({
       where: {
         encounterId,
@@ -140,14 +137,27 @@ export class Invoice extends Model {
     });
 
     if (invoices.length === 0) {
-      return; // No in progress invoice for encounter
+      return null; // No in progress invoice for encounter
     }
 
     if (invoices.length > 1) {
       throw new Error(`Multiple in progress invoices found for encounter: ${encounterId}`);
     }
 
-    const invoice = invoices[0]!;
+    return invoices[0]!;
+  }
+
+  static async addItemToInvoice(
+    newItem: Procedure,
+    encounterId: string,
+    invoiceProduct: InvoiceProduct,
+    orderedByUserId: string = SYSTEM_USER_UUID,
+  ) {
+    const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
+
+    if (!invoice) {
+      return;
+    }
 
     await this.sequelize.models.InvoiceItem.create({
       invoiceId: invoice.id,
@@ -157,49 +167,23 @@ export class Invoice extends Model {
       orderedByUserId,
       orderDate: new Date(),
       quantity: 1,
-      productName: invoiceProduct.name,
-      productPrice: 0, // Stub, this field will be removed
-      productCode: '', // Stub, this field will be removed
       productDiscountable: invoiceProduct.discountable,
     });
   }
 
   static async removeItemFromInvoice(removedItem: Procedure, encounterId: string) {
-    const invoices = await this.findAll({
-      where: {
-        encounterId,
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      },
-    });
+    const invoice = await this.getInProgressInvoiceForEncounter(encounterId);
 
-    if (invoices.length === 0) {
-      return; // No in progress invoice for encounter
+    if (!invoice) {
+      return;
     }
 
-    if (invoices.length > 1) {
-      throw new Error(`Multiple in progress invoices found for encounter: ${encounterId}`);
-    }
-
-    const invoice = invoices[0]!;
-
-    const existingItems = await this.sequelize.models.InvoiceItem.findAll({
+    await this.sequelize.models.InvoiceItem.destroy({
       where: {
         invoiceId: invoice.id,
+        sourceRecordType: removedItem.getModelName(),
+        sourceRecordId: removedItem.id,
       },
     });
-
-    const itemsForRemoval = existingItems.filter(
-      item =>
-        removedItem.getModelName() === item.sourceRecordType &&
-        removedItem.id === item.sourceRecordId,
-    );
-
-    for (const item of itemsForRemoval) {
-      await this.sequelize.models.InvoiceItem.destroy({
-        where: {
-          id: item.id,
-        },
-      });
-    }
   }
 }
