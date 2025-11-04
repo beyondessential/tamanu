@@ -45,7 +45,17 @@ const HospitalAdmissionFields = () => {
         required
         data-testid="field-admission-time"
       />
-      <div /> {/* TODO: Estimated discharge date goes here in next pr */}
+      <Field
+        name="estimatedDischargeDate"
+        component={DateTimeField}
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+            fallback="Discharge date & time"
+          />
+        }
+        data-testid="field-discharge-date"
+      />
       <LocalisedField
         name="patientBillingTypeId"
         label={
@@ -117,7 +127,6 @@ const ClinicFields = () => {
         required
         data-testid="field-admission-time"
       />
-      <div /> {/* TODO: Estimated discharge date goes here in next pr */}
       <LocalisedField
         name="patientBillingTypeId"
         label={
