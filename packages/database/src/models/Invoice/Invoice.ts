@@ -64,9 +64,9 @@ export class Invoice extends Model {
     });
 
     // Link to invoice insurance contracts via join table
-    this.hasMany(models.InvoicesInvoiceInsuranceContract, {
+    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
-      as: 'invoiceInsuranceContracts',
+      as: 'invoiceInsurancePlans',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -115,12 +115,12 @@ export class Invoice extends Model {
         include: models.InvoicePayment.getListReferenceAssociations(models),
       },
       {
-        model: models.InvoicesInvoiceInsuranceContract,
-        as: 'invoiceInsuranceContracts',
+        model: models.InvoicesInvoiceInsurancePlan,
+        as: 'invoiceInsurancePlans',
         include: [
           {
-            model: models.InvoiceInsuranceContract,
-            as: 'invoiceInsuranceContract',
+            model: models.InvoiceInsurancePlan,
+            as: 'invoiceInsurancePlan',
           },
         ],
       },

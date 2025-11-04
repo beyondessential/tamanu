@@ -1,6 +1,6 @@
 import { DataTypes, QueryInterface, Sequelize } from 'sequelize';
 
-const tableName = 'invoices_invoice_insurance_contracts';
+const tableName = 'invoices_invoice_insurance_plans';
 
 const baseFields = {
   id: {
@@ -34,15 +34,15 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.createTable(tableName, {
     ...baseFields,
     invoice_id: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
       allowNull: false,
       references: { model: 'invoices', key: 'id' },
       onDelete: 'CASCADE',
     },
-    invoice_insurance_contract_id: {
+    invoice_insurance_plan_id: {
       type: DataTypes.STRING,
       allowNull: false,
-      references: { model: 'invoice_insurance_contracts', key: 'id' },
+      references: { model: 'invoice_insurance_plans', key: 'id' },
       onDelete: 'CASCADE',
     },
   });
@@ -50,12 +50,12 @@ export async function up(query: QueryInterface): Promise<void> {
   // Composite unique index to prevent duplicate links
   await query.addConstraint(tableName, {
     type: 'unique',
-    fields: ['invoice_id', 'invoice_insurance_contract_id'],
-    name: `${tableName}_invoice_contract_unique`,
+    fields: ['invoice_id', 'invoice_insurance_plan_id'],
+    name: `${tableName}_invoice_plan_unique`,
   });
 
   await query.addIndex(tableName, ['invoice_id']);
-  await query.addIndex(tableName, ['invoice_insurance_contract_id']);
+  await query.addIndex(tableName, ['invoice_insurance_plan_id']);
 
   // Remove Invoice Insurers table
   await query.dropTable('invoice_insurers');
@@ -64,5 +64,5 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   await query.dropTable(tableName);
 
-  // Not practical to add invoice_insurers table back and not in use at time of removal
+  // Not practical way to add invoice_insurers table back and not in use at time of removal
 }
