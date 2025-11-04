@@ -46,7 +46,6 @@ export class InvoiceInsurancePlan extends Model {
       as: 'invoiceInsurancePlanItems',
     });
 
-    // Link to invoices via join table
     this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceInsurancePlanId',
       as: 'invoices',

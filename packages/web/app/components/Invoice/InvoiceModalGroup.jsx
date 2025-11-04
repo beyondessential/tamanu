@@ -7,6 +7,7 @@ import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
+import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 
 export const InvoiceModalGroup = ({
   initialModalType,
@@ -29,9 +30,9 @@ export const InvoiceModalGroup = ({
     setInvoice(cloneDeep(initialInvoice));
   }, [initialInvoice]);
 
-  const handleCloseInvoiceModal = (type) => {
+  const handleCloseInvoiceModal = type => {
     const isCloseAll = !type;
-    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter((modal) => modal !== type));
+    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter(modal => modal !== type));
     if (isCloseAll) {
       onClose();
     }
@@ -40,7 +41,7 @@ export const InvoiceModalGroup = ({
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const handleTemporaryUpdateInvoice = (data) => {
+  const handleTemporaryUpdateInvoice = data => {
     setInvoice({ ...invoice, ...data });
   };
 
@@ -68,6 +69,22 @@ export const InvoiceModalGroup = ({
     <>
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
         <UpsertInvoiceModal
+          open
+          encounterId={encounterId}
+          invoice={invoice}
+          onClose={() => {
+            if (invoiceModal.length === 1) {
+              return handleCloseInvoiceModal();
+            }
+            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
+          }}
+          onCreateSuccess={handleCreateInvoiceSuccess}
+          onTemporaryUpdate={handleTemporaryUpdateInvoice}
+          data-testid="upsertinvoicemodal-wt5z"
+        />
+      )}
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.INSURANCE) && (
+        <InvoiceInsuranceModal
           open
           encounterId={encounterId}
           invoice={invoice}
