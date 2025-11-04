@@ -36,16 +36,6 @@ products can change price it is stored here for the record.
 [Who](#!/source/source.tamanu.tamanu.users) ordered the item.
 {% enddocs %}
 
-{% docs invoice_items__source_id %}
-Items can be direct references to [procedures](#!/source/source.tamanu.tamanu.procedures),
-[lab tests](#!/source/source.tamanu.tamanu.lab_tests), and
-[imagings](#!/source/source.tamanu.tamanu.imaging_requests).
-
-In those cases, this field is set to the id of the "source" row.
-
-If this is set, the item is not editable.
-{% enddocs %}
-
 {% docs invoice_items__product_code %}
 Code of the product.
 {% enddocs %}
@@ -59,4 +49,12 @@ Whether this product can be discounted.
 
 This is usually copied from the [product](#!/source/source.tamanu.tamanu.invoice_products); as
 products can change discountability it is stored here for the record.
+{% enddocs %}
+
+{% docs invoice_items__source_record_type %}
+The underlying model that the source record belongs to.
+{% enddocs %}
+
+{% docs invoice_items__source_record_id %}
+Foreign key relation for record type.
 {% enddocs %}

@@ -1,19 +1,19 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
 
-export class InvoiceInsuranceContractItem extends Model {
+export class InvoicePriceListItem extends Model {
   declare id: string;
-  declare invoiceInsuranceContractId: string;
+  declare invoicePriceListId: string;
   declare invoiceProductId: string;
-  declare coverageValue?: number;
+  declare price: number | null;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        invoiceInsuranceContractId: {
+        invoicePriceListId: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
@@ -21,7 +21,7 @@ export class InvoiceInsuranceContractItem extends Model {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        coverageValue: {
+        price: {
           type: DataTypes.DECIMAL,
           allowNull: true,
         },
@@ -30,17 +30,17 @@ export class InvoiceInsuranceContractItem extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
-          { fields: ['invoiceInsuranceContractId'] },
-          { unique: true, fields: ['invoiceProductId', 'invoiceInsuranceContractId'] },
+          { fields: ['invoicePriceListId'] },
+          { unique: true, fields: ['invoicePriceListId', 'invoiceProductId'] },
         ],
       },
     );
   }
 
   static initRelations(models: Models) {
-    this.belongsTo(models.InvoiceInsuranceContract, {
-      foreignKey: 'invoiceInsuranceContractId',
-      as: 'invoiceInsuranceContract',
+    this.belongsTo(models.InvoicePriceList, {
+      foreignKey: 'invoicePriceListId',
+      as: 'invoicePriceList',
     });
 
     this.belongsTo(models.InvoiceProduct, {

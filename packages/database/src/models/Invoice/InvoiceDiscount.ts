@@ -1,40 +1,40 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoicesInvoiceInsuranceContract extends Model {
+export class InvoiceDiscount extends Model {
   declare id: string;
-  declare invoiceId: string;
-  declare invoiceInsuranceContractId: string;
+  declare percentage: number;
+  declare reason?: string;
+  declare isManual: boolean;
+  declare appliedTime: string;
+  declare invoiceId?: string;
+  declare appliedByUserId?: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        invoiceId: {
-          type: DataTypes.TEXT,
+        percentage: {
+          type: DataTypes.DECIMAL,
           allowNull: false,
         },
-        invoiceInsuranceContractId: {
-          type: DataTypes.TEXT,
+        reason: DataTypes.STRING,
+        isManual: {
+          type: DataTypes.BOOLEAN,
           allowNull: false,
         },
+        appliedTime: dateTimeType('appliedTime', {
+          allowNull: false,
+        }),
       },
-      {
-        ...options,
-        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-        indexes: [
-          { fields: ['invoiceId'] },
-          { fields: ['invoiceInsuranceContractId'] },
-          { unique: true, fields: ['invoiceId', 'invoiceInsuranceContractId'] },
-        ],
-      },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
     );
   }
 
@@ -44,14 +44,10 @@ export class InvoicesInvoiceInsuranceContract extends Model {
       as: 'invoice',
     });
 
-    this.belongsTo(models.InvoiceInsuranceContract, {
-      foreignKey: 'invoiceInsuranceContractId',
-      as: 'invoiceInsuranceContract',
+    this.belongsTo(models.User, {
+      foreignKey: 'appliedByUserId',
+      as: 'appliedByUser',
     });
-  }
-
-  static buildSyncFilter() {
-    return null; // syncs everywhere
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

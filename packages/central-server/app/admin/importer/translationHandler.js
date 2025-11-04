@@ -3,7 +3,7 @@ import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
   DEFAULT_LANGUAGE_CODE,
-} from '@tamanu/constants'; 
+} from '@tamanu/constants';
 import { getReferenceDataOptionStringId } from '@tamanu/shared/utils/translation';
 
 import { normaliseSheetName } from './importerEndpoint';
@@ -49,7 +49,7 @@ export function generateTranslationsForData(model, sheetName, values) {
     const recordText = extractTranslatableRecordText(values, dataType);
     if (recordText && isString(recordText)) {
       const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
-      translationData.push([stringId, recordText, DEFAULT_LANGUAGE_CODE]);
+      translationData.push({ stringId, text: recordText, language: DEFAULT_LANGUAGE_CODE });
     }
 
     // Handle records with multiple translatable text fields by adding another layer of nesting
@@ -57,7 +57,7 @@ export function generateTranslationsForData(model, sheetName, values) {
       Object.entries(recordText).forEach(([key, text]) => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
         if (text) {
-          translationData.push([stringId, text, DEFAULT_LANGUAGE_CODE]);
+          translationData.push({ stringId, text, language: DEFAULT_LANGUAGE_CODE });
         }
       });
     }
@@ -67,39 +67,14 @@ export function generateTranslationsForData(model, sheetName, values) {
 
     if (options.length > 0) {
       for (const option of options) {
-        translationData.push([
-          getReferenceDataOptionStringId(values.id, dataType, option),
-          option,
-          DEFAULT_LANGUAGE_CODE,
-        ]);
+        translationData.push({
+          stringId: getReferenceDataOptionStringId(values.id, dataType, option),
+          text: option,
+          language: DEFAULT_LANGUAGE_CODE,
+        });
       }
     }
   }
 
   return translationData;
-}
-
-export async function bulkUpsertTranslationDefaults(models, translationData) {
-  if (translationData.length === 0) return;
-
-  const duplicates = translationData.filter(
-    (item, index, self) => self.findIndex(t => t[0] === item[0]) !== index,
-  );
-
-  if (duplicates.length > 0) {
-    const stringIds = duplicates.map(d => d[0]);
-    throw new Error(`Duplicates stringId found for stringIds: ${stringIds.join(', ')}`);
-  }
-
-  await models.TranslatedString.sequelize.query(
-    `
-      INSERT INTO translated_strings (string_id, text, language)
-      VALUES ${translationData.map(() => '(?)').join(',')}
-        ON CONFLICT (string_id, language) DO UPDATE SET text = excluded.text;
-    `,
-    {
-      replacements: translationData,
-      type: models.TranslatedString.sequelize.QueryTypes.INSERT,
-    },
-  );
 }
