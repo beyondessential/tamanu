@@ -8,7 +8,6 @@ import { EditEncounterModal } from './EditEncounterModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
-import { isInpatient } from '../../../utils/isInpatient';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const ENCOUNTER_MODALS = {
