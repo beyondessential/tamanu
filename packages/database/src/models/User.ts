@@ -315,8 +315,8 @@ export class User extends Model {
     if (this.isSuperUser()) return CAN_ACCESS_ALL_FACILITIES;
 
     const restrictUsersToFacilities = await Setting.get('auth.restrictUsersToFacilities');
-    const hasLoginPermission = await this.hasPermission('login', 'Facility');
-    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities || hasLoginPermission;
+    // Remove facility permission check - all users can access all non-sensitive facilities
+    const hasAllNonSensitiveFacilityAccess = !restrictUsersToFacilities;
 
     const sensitiveFacilities = await Facility.count({ where: { isSensitive: true } });
     if (hasAllNonSensitiveFacilityAccess && sensitiveFacilities === 0)

@@ -106,7 +106,7 @@ adminRoutes.delete(
 adminRoutes.get(
   '/facilities',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Facility');
+    req.flagPermissionChecked(); // No permission check needed - users should be able to see all facilities
     const { Facility } = req.store.models;
     const data = await Facility.findAll({ attributes: ['id', 'name'] });
     res.send(data);
