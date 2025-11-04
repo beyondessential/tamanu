@@ -61,8 +61,9 @@ export function generateTranslationsForData(model, sheetName, values) {
         } else {
           translationData.push({
             stringId,
-            deletedAt: new Date(),
+            text: '',
             language: DEFAULT_LANGUAGE_CODE,
+            deletedAt: new Date(),
           });
         }
       });
