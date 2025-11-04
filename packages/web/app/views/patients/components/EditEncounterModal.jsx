@@ -265,13 +265,12 @@ const FormFields = ({ encounterType }) => {
     case ENCOUNTER_TYPES.OBSERVATION:
       return <TriageFields />;
     default:
-      return null;
+      return 'No edit template for this encounter type found';
   }
 };
 
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
-
   const { writeAndViewEncounter } = useEncounter();
 
   const triage = encounter.triages?.[0];
