@@ -132,17 +132,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
-      label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
-      condition: () =>
-        [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
-    },
-    {
-      label: <TranslatedText stringId="encounter.action.changeDiet" fallback="Change diet" />,
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET),
-      condition: () => isInpatient(encounter.encounterType),
-    },
-    {
       label: (
         <TranslatedText
           stringId="encounter.action.encounterProgressRecord"
