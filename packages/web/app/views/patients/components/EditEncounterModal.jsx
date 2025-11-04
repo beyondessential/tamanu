@@ -322,7 +322,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
         initialValues={{
           startDate: encounter.startDate,
           ...(encounter.encounterType !== ENCOUNTER_TYPES.CLINIC && {
-            dietIds: JSON.stringify(encounter.diets.map(diet => diet.id)),
+            dietIds: JSON.stringify(encounter.diets?.map(diet => diet.id)),
           }),
 
           ...(encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && {
