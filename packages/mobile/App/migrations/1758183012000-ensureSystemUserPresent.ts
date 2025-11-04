@@ -7,7 +7,7 @@ export class ensureSystemUserPresent1758183012000 implements MigrationInterface 
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       INSERT INTO "users"
-      (id, email, display_name, role)
+      (id, email, displayName, role)
       VALUES
       ('${SYSTEM_USER_UUID}', 'system', 'System', 'system')
       ON CONFLICT (id) DO NOTHING;
