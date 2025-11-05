@@ -613,7 +613,6 @@ encounterRelations.get(
 
 encounterRelations.delete('/:id/programResponses/:surveyResponseId', deleteSurveyResponse);
 
-
 encounterRelations.get(
   '/:id/vitals',
   fetchAnswersWithHistory({

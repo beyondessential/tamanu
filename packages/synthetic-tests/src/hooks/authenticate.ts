@@ -1,12 +1,12 @@
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 function extractUserIdFromJwt(token: string): string {
   try {
-    const decoded = jwt.decode(token) as any;
+    const decoded = jose.decodeJwt(token);
     if (!decoded || !decoded.userId) {
       throw new Error('JWT token does not contain userId');
     }
-    return decoded.userId;
+    return decoded.userId as string;
   } catch (error) {
     throw new Error(`Failed to decode JWT token: ${error.message}`);
   }

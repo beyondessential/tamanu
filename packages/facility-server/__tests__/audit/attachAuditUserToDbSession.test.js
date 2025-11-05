@@ -14,9 +14,13 @@ import bodyParser from 'body-parser';
 import { SYSTEM_USER_UUID } from '@tamanu/constants';
 import { sleepAsync } from '@tamanu/utils/sleepAsync';
 
-const runInAFewRandomMs = async callback => {
-  await sleepAsync(Math.floor(Math.random() * 100));
-  return await callback();
+const runWithDelay = async (callbacks, delay = 50) => {
+  return await Promise.all(
+    callbacks.map(async (callback, index) => {
+      await sleepAsync(delay * index);
+      return await callback();
+    }),
+  );
 };
 
 describe('Attach audit user to DB session', () => {
@@ -56,6 +60,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -74,6 +79,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -96,6 +102,7 @@ describe('Attach audit user to DB session', () => {
       (req, _res, next) => {
         req.models = models;
         req.db = ctx.sequelize;
+        req.settings = ctx.settings;
         next();
       },
       authMiddleware,
@@ -119,7 +126,12 @@ describe('Attach audit user to DB session', () => {
 
     const asUser = async user => {
       const agent = _agent(mockApp);
-      const token = await buildToken(user, facilityIds[0], '1d');
+      const token = await buildToken({
+        user,
+        deviceId: ctx.deviceId,
+        facilityId: facilityIds[0],
+        expiresIn: '1d',
+      });
       agent.set('authorization', `Bearer ${token}`);
       agent.user = user;
       return agent;
@@ -141,44 +153,42 @@ describe('Attach audit user to DB session', () => {
   afterAll(() => ctx.close());
 
   it('audit log updated_by_user_id should match authenticated user with multiple simultaneous requests', async () => {
-    // Randomising the order of execution makes this test a little intermittent but tests are broader range of cases so worth it imo
-    const changeRequests = await Promise.all([
-      runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUser')),
-      runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUserInTransaction')),
-      runInAFewRandomMs(() => userApp1.post('/updateAuthenticatedUserInIsolatedTransaction')),
-      runInAFewRandomMs(() =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user1.id } },
-        ),
-      ),
-      runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUser')),
-      runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUserInTransaction')),
-      runInAFewRandomMs(() => userApp2.post('/updateAuthenticatedUserInIsolatedTransaction')),
-      runInAFewRandomMs(() =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user2.id } },
-        ),
-      ),
-      runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUser')),
-      runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUserInTransaction')),
-      runInAFewRandomMs(() => userApp3.post('/updateAuthenticatedUserInIsolatedTransaction')),
-      runInAFewRandomMs(() =>
-        models.User.update(
-          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
-          { where: { id: user3.id } },
-        ),
-      ),
-      runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUser')),
-      runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUserInTransaction')),
-      runInAFewRandomMs(() => userApp4.post('/updateAuthenticatedUserInIsolatedTransaction')),
-      runInAFewRandomMs(() =>
+    const changeRequests = await runWithDelay([
+      () => userApp1.post('/updateAuthenticatedUser'),
+      () => userApp2.post('/updateAuthenticatedUserInTransaction'),
+      () => userApp3.post('/updateAuthenticatedUserInIsolatedTransaction'),
+      () =>
         models.User.update(
           { displayName: `changed-by-${SYSTEM_USER_UUID}` },
           { where: { id: user4.id } },
         ),
-      ),
+
+      () => userApp4.post('/updateAuthenticatedUserInIsolatedTransaction'),
+      () => userApp2.post('/updateAuthenticatedUser'),
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user3.id } },
+        ),
+      () => userApp1.post('/updateAuthenticatedUserInTransaction'),
+
+      () => userApp4.post('/updateAuthenticatedUserInTransaction'),
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user2.id } },
+        ),
+      () => userApp3.post('/updateAuthenticatedUser'),
+      () => userApp1.post('/updateAuthenticatedUserInIsolatedTransaction'),
+
+      () =>
+        models.User.update(
+          { displayName: `changed-by-${SYSTEM_USER_UUID}` },
+          { where: { id: user1.id } },
+        ),
+      () => userApp2.post('/updateAuthenticatedUserInIsolatedTransaction'),
+      () => userApp3.post('/updateAuthenticatedUserInTransaction'),
+      () => userApp4.post('/updateAuthenticatedUser'),
     ]);
 
     // Get the created audit entries
@@ -193,6 +203,7 @@ describe('Attach audit user to DB session', () => {
     );
     expect(changes).toHaveLength(changeRequests.length);
 
+    // Each user should be shown to have updated their own record in the audit log
     changes.forEach(change => {
       expect(`changed-by-${change.updated_by_user_id}`).toEqual(change.record_data.display_name);
     });

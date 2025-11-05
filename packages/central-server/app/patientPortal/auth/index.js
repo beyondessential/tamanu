@@ -1,13 +1,13 @@
 import express from 'express';
-import { DEFAULT_JWT_SECRET } from '../../auth';
+import config from 'config';
 import { patientPortalLogin, requestLoginToken } from './patientPortalLogin';
 import { patientPortalMiddleware } from './patientPortalMiddleware';
 import { verifyRegistration } from './verifyRegistration';
 
 export const authModule = express.Router();
 
-authModule.post('/login', patientPortalLogin({ secret: DEFAULT_JWT_SECRET }));
+authModule.post('/login', patientPortalLogin({ secret: config.auth.secret }));
 authModule.post('/request-login-token', requestLoginToken);
 authModule.post('/verify-registration', verifyRegistration);
 
-authModule.use(patientPortalMiddleware({ secret: DEFAULT_JWT_SECRET }));
+authModule.use(patientPortalMiddleware({ secret: config.auth.secret }));
