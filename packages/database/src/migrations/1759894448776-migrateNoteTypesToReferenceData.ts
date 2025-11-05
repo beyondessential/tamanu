@@ -150,6 +150,11 @@ export async function up(query: QueryInterface) {
     },
   );
 
+  await query.changeColumn('notes', 'note_type_id', {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  });
+
   await query.removeColumn('notes', 'note_type');
 }
 

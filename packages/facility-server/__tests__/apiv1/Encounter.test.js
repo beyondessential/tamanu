@@ -134,7 +134,7 @@ describe('Encounter', () => {
         'Test 1',
       ),
       models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.OTHER, 'Test 3'),
       models.Note.createForRecord(
         otherEncounter.id,
         'Encounter',
