@@ -166,7 +166,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               data-testid="translatedtext-49f7"
             />
           }
-          value={getDiet(encounter)}
+          value={getDiet(encounter) + 'abcdef'}
           icon={dietIcon}
           data-testid="infocarditem-m5lp"
         />
@@ -217,6 +217,19 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
         icon={arrivalDateIcon}
         data-testid="infocarditem-18xs"
       />
+      {isInpatient(encounter.encounterType) && (
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.estimatedDischargeDate.label"
+              fallback="Estimated discharge date"
+              data-testid="translatedtext-49f7"
+            />
+          }
+          value={<DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />}
+          icon={arrivalDateIcon} // TODO: should be a slight variation of the arrival date icon
+        />
+      )}
       <InfoCardItem
         label={
           <TranslatedText
