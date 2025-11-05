@@ -16,7 +16,6 @@ import {
   LabRequestView,
   PatientView,
 } from '../views';
-import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
 import { ProgramsView } from '../views/programs/ProgramsView';
 import { ReferralsView } from '../views/referrals/ReferralsView';
 import { PatientProgramRegistryView } from '../views/programRegistry/PatientProgramRegistryView';
@@ -30,6 +29,8 @@ import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
+import { TranslatedEnumField } from '@tamanu/ui-components';
+import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
 // in the breadcrumbs. It is the only place where breadcrumbs use url params to render the title.
@@ -85,7 +86,12 @@ export const usePatientRoutes = () => {
           path: `${PATIENT_PATHS.ENCOUNTER}/:modal?`,
           component: EncounterView,
           navigateTo: () => navigateToEncounter(encounter.id),
-          title: getEncounterType(encounter || {}),
+          title: (
+            <TranslatedEnumField
+              enumValues={ENCOUNTER_TYPE_LABELS}
+              value={encounter.encounterType}
+            />
+          ),
           routes: [
             {
               path: `${PATIENT_PATHS.SUMMARY}/view`,
