@@ -53,7 +53,7 @@ const HospitalAdmissionFields = () => {
         label={
           <TranslatedText
             stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
-            fallback="Estimated discharge date & time"
+            fallback="Estimated discharge date"
           />
         }
         data-testid="field-discharge-date"
