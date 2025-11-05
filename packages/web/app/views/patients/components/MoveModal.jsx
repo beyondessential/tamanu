@@ -4,7 +4,14 @@ import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Button, DateTimeField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  Button,
+  DateField,
+  DateTimeField,
+  Form,
+  FormGrid,
+  TAMANU_COLORS,
+} from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
@@ -255,6 +262,18 @@ const HospitalAdmissionFields = () => {
           }
           required
           data-testid="field-admission-time"
+        />
+        <Field
+          name="estimatedEndDate"
+          component={DateField}
+          saveDateAsString
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+              fallback="Estimated discharge date"
+            />
+          }
+          data-testid="field-discharge-date"
         />
         <LocalisedField
           name="patientBillingTypeId"
