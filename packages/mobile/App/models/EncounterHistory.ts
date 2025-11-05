@@ -66,8 +66,10 @@ export class EncounterHistory extends BaseModel {
         ...row,
       };
       // Convert changeType to ARRAY because central server expects it to be ARRAY
-      if (row.data?.changeType && typeof row.data.changeType === 'string') {
-        sanitizedRow.data.changeType = row.data.changeType.split(',');
+      if (typeof row.data?.changeType === 'string') {
+        // Handle empty string (from empty array) by converting to empty array
+        sanitizedRow.data.changeType =
+          row.data.changeType === '' ? [] : row.data.changeType.split(',');
       }
 
       return sanitizedRow;
