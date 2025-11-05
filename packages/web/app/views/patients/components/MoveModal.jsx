@@ -435,11 +435,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={
-                newEncounterType ? (
-                  <EncounterChangeText newEncounterType={newEncounterType} />
-                ) : (
-                  <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                )
+                newEncounterType && <EncounterChangeText newEncounterType={newEncounterType} />
               }
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
