@@ -339,6 +339,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
       .nullable();
 
     initialValues.plannedLocationId = encounter.plannedLocationId;
+    initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   }
 
   if (isAdmittingToHospital) {
