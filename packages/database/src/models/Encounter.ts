@@ -13,7 +13,13 @@ import { dischargeOutpatientEncounters } from '@tamanu/shared/utils/dischargeOut
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
-import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
+import {
+  dateTimeType,
+  dateType,
+  type InitOptions,
+  type ModelProperties,
+  type Models,
+} from '../types/model';
 import type { Location } from './Location';
 import type { Patient } from './Patient';
 import type { Discharge } from './Discharge';
@@ -27,6 +33,7 @@ export class Encounter extends Model {
   declare encounterType?: string;
   declare startDate: string;
   declare endDate?: string;
+  declare estimatedEndDate?: string;
   declare reasonForEncounter?: string;
   declare deviceId?: string;
   declare plannedLocationStartTime?: string;
@@ -85,6 +92,7 @@ export class Encounter extends Model {
           allowNull: false,
         }),
         endDate: dateTimeType('endDate'),
+        estimatedEndDate: dateType('estimatedEndDate'),
         reasonForEncounter: DataTypes.TEXT,
         deviceId: DataTypes.TEXT,
         plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),

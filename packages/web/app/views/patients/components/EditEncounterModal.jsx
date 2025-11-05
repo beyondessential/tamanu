@@ -49,6 +49,7 @@ const HospitalAdmissionFields = () => {
       <Field
         name="estimatedEndDate"
         component={DateField}
+        saveDateAsString
         label={
           <TranslatedText
             stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
@@ -284,8 +285,6 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
 
   const triage = encounter.triages?.[0];
-
-  console.log(encounter);
 
   const onSubmit = async values => {
     const {
