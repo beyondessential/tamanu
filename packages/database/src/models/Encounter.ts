@@ -421,6 +421,7 @@ export class Encounter extends Model {
     await EncounterHistory.createSnapshot(
       encounter,
       {
+        // No change_type (NULL) for initial snapshots as these are treated differently in integration reports
         actorId: actorId || encounter.examinerId,
         submittedTime: encounter.startDate,
       },
