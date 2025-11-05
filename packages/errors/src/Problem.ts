@@ -36,6 +36,11 @@ export class Problem extends Error {
     this.detail = detail;
   }
 
+  withResponse(response: Response): Problem {
+    this.response = response;
+    return this;
+  }
+
   public static fromError(error: Error): Problem {
     if (error instanceof YupValidationError || error instanceof $ZodError) {
       error = new ValidationError(error.message).withCause(error);
