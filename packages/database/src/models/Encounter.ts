@@ -421,6 +421,7 @@ export class Encounter extends Model {
     await EncounterHistory.createSnapshot(
       encounter,
       {
+        // No change_type (NULL) for initial snapshots as these are treated differently in integration reports
         actorId: actorId || encounter.examinerId,
         submittedTime: encounter.startDate,
       },
@@ -585,7 +586,7 @@ export class Encounter extends Model {
   async update(...args: any): Promise<any> {
     const [data, user] = args;
     const { Location, EncounterHistory } = this.sequelize.models;
-    let changeType: string | undefined;
+    const changeTypes: string[] = [];
 
     const updateEncounter = async () => {
       const additionalChanges: {
@@ -603,13 +604,13 @@ export class Encounter extends Model {
       const isEncounterTypeChanged =
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
-        changeType = EncounterChangeType.EncounterType;
+        changeTypes.push(EncounterChangeType.EncounterType);
         await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
-        changeType = EncounterChangeType.Location;
+        changeTypes.push(EncounterChangeType.Location);
         await this.addLocationChangeNote(
           'Changed location',
           data.locationId,
@@ -656,38 +657,24 @@ export class Encounter extends Model {
 
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
-        changeType = EncounterChangeType.Department;
+        changeTypes.push(EncounterChangeType.Department);
         await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
-        changeType = EncounterChangeType.Examiner;
+        changeTypes.push(EncounterChangeType.Examiner);
         await this.updateClinician(data.examinerId, data.submittedTime, user);
       }
 
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
 
-      const snapshotChanges = [
-        isEncounterTypeChanged,
-        isDepartmentChanged,
-        isLocationChanged,
-        isClinicianChanged,
-      ].filter(Boolean);
-
-      if (snapshotChanges.length > 1) {
-        // Will revert all the changes above if error is thrown as this is in a transaction
-        throw new InvalidOperationError(
-          'Encounter type, department, location and clinician must be changed in separate operations',
-        );
-      }
-
-      // multiple changes in 1 update transaction is not supported at the moment
-      if (snapshotChanges.length === 1) {
+      // Create snapshot with array of change types
+      if (changeTypes.length > 0) {
         await EncounterHistory.createSnapshot(updatedEncounter, {
           actorId: user?.id,
-          changeType,
+          changeType: changeTypes,
           submittedTime,
         });
       }
@@ -702,7 +689,7 @@ export class Encounter extends Model {
     // If the update is not already in a transaction, wrap it in one
     // Having nested transactions can cause bugs in postgres so only conditionally wrap
     return this.sequelize.transaction(async () => {
-      await updateEncounter();
+      return await updateEncounter();
     });
   }
 }
