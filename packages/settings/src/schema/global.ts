@@ -105,6 +105,16 @@ export const globalSettings = {
         },
       },
     },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        assignmentMaxFutureMonths: {
+          description: 'The maximum number of months allowed when creating location assignments',
+          type: yup.number().min(1),
+          defaultValue: 24,
+        },
+      },
+    },
     features: {
       description: 'Toggle features on/off',
       properties: {
@@ -1234,8 +1244,35 @@ export const globalSettings = {
       },
     },
     security: {
+      highRisk: true,
       description: 'Security settings',
       properties: {
+        reportNoUserError: {
+          description:
+            'Display "no such user" message when authenticating. This may weaken security by allowing attackers to determine valid usernames.',
+          type: yup.boolean(),
+          defaultValue: false,
+        },
+        loginAttempts: {
+          description: 'Login attempts settings',
+          properties: {
+            lockoutThreshold: {
+              description: 'Number of failed attempts before account is locked',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            observationWindow: {
+              description: 'Time interval in minutes that attempts must occur within',
+              type: yup.number().positive().integer(),
+              defaultValue: 10,
+            },
+            lockoutDuration: {
+              description: 'Duration of lockout in minutes',
+              type: yup.number().positive(),
+              defaultValue: 10,
+            },
+          },
+        },
         mobile: {
           description: 'Mobile security settings',
           properties: {

@@ -1,6 +1,7 @@
 export * from './User';
 export * from './UserRecentlyViewedPatient';
 export * from './UserPreference';
+export * from './UserLoginAttempt';
 export * from './LocalSystemFact';
 export * from './PortalUser';
 export * from './Device';
@@ -99,6 +100,7 @@ export * from './UserLocalisationCache';
 export * from './Asset';
 export * from './Appointment';
 export * from './AppointmentSchedule';
+export * from './AppointmentProcedureType';
 export * from './DocumentMetadata';
 export * from './Template';
 
@@ -117,6 +119,9 @@ export * from './InvoiceItemDiscount';
 export * from './InvoicePayment';
 export * from './InvoicePatientPayment';
 export * from './InvoiceInsurerPayment';
+
+export * from './InvoicePriceList';
+export * from './InvoicePriceListItem';
 
 export * from './ReferenceDrug';
 export * from './MedicationAdministrationRecord';
@@ -155,4 +160,8 @@ export * from './SyncLookupTick';
 
 export * from './AccessLog';
 export * from './ChangeLog';
+export * from './UserLeave';
+
+export * from './LocationAssignmentTemplate';
+export * from './LocationAssignment';
 export * from './DHIS2PushLog';
