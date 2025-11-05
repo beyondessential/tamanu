@@ -296,6 +296,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
+      estimatedDischargeDate,
     } = values;
 
     if (triage) {
@@ -316,6 +317,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
+      estimatedDischargeDate,
     });
   };
 
@@ -338,6 +340,10 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
             referralSourceId: encounter.referralSourceId,
             patientBillingTypeId: encounter.patientBillingTypeId,
             reasonForEncounter: encounter.reasonForEncounter,
+          }),
+
+          ...(encounter.encounterType === ENCOUNTER_TYPES.ADMISSION && {
+            estimatedDischargeDate: encounter.estimatedDischargeDate,
           }),
 
           ...(triage && {
