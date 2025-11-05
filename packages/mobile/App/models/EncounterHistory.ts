@@ -82,7 +82,7 @@ export class EncounterHistory extends BaseModel {
         ...row,
       };
       // Convert changeType to string because Sqlite does not support ARRAY type
-      if (Array.isArray(row.data.changeType)) {
+      if (row.data?.changeType && Array.isArray(row.data.changeType)) {
         sanitizedRow.data.changeType = row.data.changeType.join(',');
       }
 

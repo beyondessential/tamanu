@@ -19,7 +19,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     <Modal
       title={
         <TranslatedText
-          stringId="patient.modal.cancelMove.title"
+          stringId="encounter.action.cancelPatientMove"
           fallback="Cancel move"
           data-testid="translatedtext-cancel-move-title"
         />
