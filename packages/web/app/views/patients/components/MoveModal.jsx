@@ -63,76 +63,7 @@ const EncounterChangeDescription = styled(LargeBodyText)`
   margin-bottom: 20px;
 `;
 
-// Reusable section component
-const FormSection = ({ heading, description, children, showSeparator = false }) => (
-  <>
-    {showSeparator && <FormSeparatorLine />}
-    {heading && (
-      <SectionHeading>
-        <TranslatedText {...heading} />
-      </SectionHeading>
-    )}
-    {description && (
-      <SectionDescription>
-        {typeof description === 'object' && !React.isValidElement(description) ? (
-          <TranslatedText {...description} />
-        ) : (
-          description
-        )}
-      </SectionDescription>
-    )}
-    {children}
-  </>
-);
-
-// Helper to render fields from configuration
-const renderFields = fields => {
-  return fields.map((fieldConfig, index) => {
-    const {
-      name,
-      component,
-      label,
-      suggester,
-      endpoint,
-      isMulti,
-      required,
-      dataTestId,
-      ...rest
-    } = fieldConfig;
-    const FieldComponent = endpoint ? LocalisedField : Field;
-
-    return (
-      <FieldComponent
-        key={name || index}
-        name={name}
-        component={component}
-        suggester={suggester}
-        endpoint={endpoint}
-        isMulti={isMulti}
-        label={label && <TranslatedText {...label} />}
-        required={required}
-        data-testid={dataTestId}
-        {...rest}
-      />
-    );
-  });
-};
-
 const BasicMoveFields = () => {
-  const fields = [
-    {
-      name: 'locationId',
-      component: LocalisedLocationField,
-      label: {
-        stringId: 'patient.encounter.movePatient.location.label',
-        fallback: 'New location',
-        'data-testid': 'translatedtext-35a6',
-      },
-      required: true,
-      dataTestId: 'field-tykg',
-    },
-  ];
-
   return (
     <>
       <SectionDescription>
@@ -142,7 +73,19 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        {renderFields(fields)}
+        <Field
+          name="locationId"
+          component={LocalisedLocationField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.location.label"
+              fallback="New location"
+              data-testid="translatedtext-35a6"
+            />
+          }
+          required
+          data-testid="field-tykg"
+        />
       </StyledFormGrid>
     </>
   );
@@ -178,29 +121,6 @@ const PlannedMoveFields = () => {
     />
   );
 
-  const actionOptions = [
-    {
-      label: (
-        <TranslatedText
-          stringId="encounter.modal.patientMove.action.finalise"
-          fallback="Finalise now"
-          data-testid="translatedtext-patient-move-action-finalise"
-        />
-      ),
-      value: PATIENT_MOVE_ACTIONS.FINALISE,
-    },
-    {
-      label: (
-        <TranslatedText
-          stringId="encounter.modal.patientMove.action.plan"
-          fallback="Plan change"
-          data-testid="translatedtext-patient-move-action-plan"
-        />
-      ),
-      value: PATIENT_MOVE_ACTIONS.PLAN,
-    },
-  ];
-
   return (
     <>
       <SectionDescription>{description}</SectionDescription>
@@ -229,7 +149,28 @@ const PlannedMoveFields = () => {
               />
             }
             component={RadioField}
-            options={actionOptions}
+            options={[
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.finalise"
+                    fallback="Finalise now"
+                    data-testid="translatedtext-patient-move-action-finalise"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.FINALISE,
+              },
+              {
+                label: (
+                  <TranslatedText
+                    stringId="encounter.modal.patientMove.action.plan"
+                    fallback="Plan change"
+                    data-testid="translatedtext-patient-move-action-plan"
+                  />
+                ),
+                value: PATIENT_MOVE_ACTIONS.PLAN,
+              },
+            ]}
             data-testid="field-ryle"
           />
         )}
@@ -249,24 +190,23 @@ const PlannedMoveFields = () => {
   );
 };
 
-const TypeChangeText = ({ newEncounterType }) => {
-  if (newEncounterType === ENCOUNTER_TYPES.ADMISSION) {
-    return (
-      <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
-    );
-  }
-
-  return (
-    <TranslatedText
-      stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-      fallback="Transfer to :newEncounterType"
-      replacements={{
-        newEncounterType: (
+const EncounterTypeChange = ({ newEncounterType }) => {
+  switch (newEncounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return (
+        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+      );
+    default:
+      return (
+        <>
+          <TranslatedText
+            stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+            fallback="Transfer to"
+          />{' '}
           <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-        ),
-      }}
-    />
-  );
+        </>
+      );
+  }
 };
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
@@ -274,106 +214,75 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
     <EncounterChangeDescription>
       <TranslatedText
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from :encounterType to :newEncounterType"
-        replacements={{
-          encounterType: (
-            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-          ),
-          newEncounterType: (
-            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-          ),
-        }}
-      />
+        fallback="Changing encounter type from"
+      />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+      </b>{' '}
+      <TranslatedText stringId="general.action.to" fallback="to" />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+      </b>
     </EncounterChangeDescription>
   );
 };
 
 const HospitalAdmissionFields = () => {
-  const fields = [
-    {
-      name: 'admissionTime',
-      component: DateTimeField,
-      label: {
-        stringId: 'patient.encounter.movePatient.admissionTime.label',
-        fallback: 'Admission date & time',
-      },
-      required: true,
-      dataTestId: 'field-admission-time',
-    },
-    {
-      name: 'patientBillingTypeId',
-      endpoint: 'patientBillingType',
-      component: SuggesterSelectField,
-      label: {
-        stringId: 'general.localisedField.patientBillingTypeId.label',
-        fallback: 'Patient type',
-        'data-testid': 'translatedtext-67v8',
-      },
-      dataTestId: 'localisedfield-amji',
-    },
-    {
-      name: 'dietIds',
-      endpoint: 'diet',
-      component: SuggesterSelectField,
-      isMulti: true,
-      label: {
-        stringId: 'patient.encounter.movePatient.diet.label',
-        fallback: 'Diet',
-      },
-      dataTestId: 'field-diet',
-      wrapperStyle: { gridColumn: '1 / -1' },
-    },
-  ];
-
   return (
-    <FormSection
-      showSeparator
-      heading={{
-        stringId: 'patient.encounter.modal.movePatient.section.encounterDetails.heading',
-        fallback: 'Encounter details',
-      }}
-      description={{
-        stringId: 'patient.encounter.modal.movePatient.section.encounterDetails.description',
-        fallback: 'Update hospital admission encounter details below.',
-      }}
-    >
+    <>
+      <FormSeparatorLine />
+      <SectionHeading>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.encounterDetails.heading"
+          fallback="Encounter details"
+        />
+      </SectionHeading>
+      <SectionDescription>
+        <TranslatedText
+          stringId="patient.encounter.modal.movePatient.section.encounterDetails.description"
+          fallback="Update hospital admission encounter details below."
+        />
+      </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        {fields.map((fieldConfig, index) => {
-          const {
-            wrapperStyle,
-            name,
-            component,
-            suggester,
-            endpoint,
-            isMulti,
-            label,
-            required,
-            dataTestId,
-          } = fieldConfig;
-          const FieldComponent = endpoint ? LocalisedField : Field;
-          const field = (
-            <FieldComponent
-              key={name || index}
-              name={name}
-              component={component}
-              suggester={suggester}
-              endpoint={endpoint}
-              isMulti={isMulti}
-              label={label && <TranslatedText {...label} />}
-              required={required}
-              data-testid={dataTestId}
+        <Field
+          name="admissionTime"
+          component={DateTimeField}
+          label={
+            <TranslatedText
+              stringId="patient.encounter.movePatient.admissionTime.label"
+              fallback="Admission date & time"
             />
-          );
-          return wrapperStyle ? (
-            <div key={name || index} style={wrapperStyle}>
-              {field}
-            </div>
-          ) : (
-            field
-          );
-        })}
+          }
+          required
+          data-testid="field-admission-time"
+        />
+        <LocalisedField
+          name="patientBillingTypeId"
+          label={
+            <TranslatedText
+              stringId="general.localisedField.patientBillingTypeId.label"
+              fallback="Patient type"
+              data-testid="translatedtext-67v8"
+            />
+          }
+          endpoint="patientBillingType"
+          component={SuggesterSelectField}
+          data-testid="localisedfield-amji"
+        />
+        <div style={{ gridColumn: '1 / -1' }}>
+          <LocalisedField
+            name="dietIds"
+            component={SuggesterSelectField}
+            endpoint="diet"
+            isMulti
+            label={
+              <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
+            }
+            data-testid="field-diet"
+          />
+        </div>
       </StyledFormGrid>
-    </FormSection>
+    </>
   );
 };
 
@@ -439,7 +348,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     <FormModal
       title={
         newEncounterType ? (
-          <TypeChangeText newEncounterType={newEncounterType} />
+          <EncounterTypeChange newEncounterType={newEncounterType} />
         ) : (
           <TranslatedText
             stringId="patient.encounter.action.movePatient"
@@ -458,78 +367,80 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
         validationSchema={yup.object().shape(validationObject)}
-        render={({ submitForm }) => {
-          const patientCareFields = [
-            {
-              name: 'examinerId',
-              component: DynamicSelectField,
-              suggester: clinicianSuggester,
-              label: {
-                stringId: 'patient.encounter.movePatient.supervisingClinician.label',
-                fallback: 'Supervising clinician',
-              },
-              required: true,
-              dataTestId: 'field-tykg',
-            },
-            {
-              name: 'departmentId',
-              component: DynamicSelectField,
-              suggester: departmentSuggester,
-              label: {
-                stringId: 'patient.encounter.movePatient.department.label',
-                fallback: 'Department',
-              },
-              required: true,
-              dataTestId: 'field-tykg',
-            },
-          ];
-
-          return (
-            <>
-              {newEncounterType && (
-                <>
-                  <EncounterTypeChangeDescription
-                    encounterType={encounter.encounterType}
-                    newEncounterType={newEncounterType}
-                  />
-                  <FormSeparatorLine />
-                </>
-              )}
-              <FormSection
-                heading={{
-                  stringId: 'patient.encounter.modal.movePatient.section.move.heading',
-                  fallback: 'Patient care',
-                }}
-                description={{
-                  stringId: 'patient.encounter.modal.movePatient.section.move.description',
-                  fallback: 'Please select the clinician and department for the patient.',
-                }}
-              >
-                <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-                  {renderFields(patientCareFields)}
-                </StyledFormGrid>
-              </FormSection>
-              <FormSeparatorLine />
-              <FormSection
-                heading={{
-                  stringId: 'patient.encounter.modal.movePatient.section.basic.heading',
-                  fallback: 'Move location',
-                }}
-              >
-                {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
-              </FormSection>
-              {isAdmittingToHospital && <HospitalAdmissionFields />}
-              <ModalFormActionRow
-                onConfirm={submitForm}
-                confirmText={
-                  newEncounterType && <TypeChangeText newEncounterType={newEncounterType} />
-                }
-                onCancel={onClose}
-                data-testid="modalformactionrow-35ou"
+        render={({ submitForm }) => (
+          <>
+            {newEncounterType && (
+              <>
+                <EncounterTypeChangeDescription
+                  encounterType={encounter.encounterType}
+                  newEncounterType={newEncounterType}
+                />
+                <FormSeparatorLine />
+              </>
+            )}
+            <SectionHeading>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.heading"
+                fallback="Patient care"
               />
-            </>
-          );
-        }}
+            </SectionHeading>
+            <SectionDescription>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.move.description"
+                fallback="Please select the clinician and department for the patient."
+              />
+            </SectionDescription>
+            <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
+              <Field
+                name="examinerId"
+                component={DynamicSelectField}
+                suggester={clinicianSuggester}
+                label={
+                  <TranslatedText
+                    stringId="patient.encounter.movePatient.supervisingClinician.label"
+                    fallback="Supervising clinician"
+                  />
+                }
+                required
+                data-testid="field-tykg"
+              />
+              <Field
+                name="departmentId"
+                component={DynamicSelectField}
+                suggester={departmentSuggester}
+                label={
+                  <TranslatedText
+                    stringId="patient.encounter.movePatient.department.label"
+                    fallback="Department"
+                  />
+                }
+                required
+                data-testid="field-tykg"
+              />
+            </StyledFormGrid>
+            <FormSeparatorLine />
+            <SectionHeading>
+              <TranslatedText
+                stringId="patient.encounter.modal.movePatient.section.basic.heading"
+                fallback="Move location"
+              />
+            </SectionHeading>
+            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {isAdmittingToHospital && <HospitalAdmissionFields />}
+            <ModalFormActionRow
+              onConfirm={submitForm}
+              confirmText={
+                newEncounterType ? (
+                  <EncounterTypeChange newEncounterType={newEncounterType} />
+                ) : (
+                  <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                )
+              }
+              onCancel={onClose}
+              data-testid="modalformactionrow-35ou"
+            />
+          </>
+        )}
         data-testid="form-0lgu"
       />
     </FormModal>
