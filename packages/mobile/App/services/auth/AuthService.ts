@@ -150,7 +150,10 @@ export class AuthService {
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { server, email } = params;
     await this.centralServer.connect(server);
-    await this.centralServer.post('resetPassword', {}, { email });
+    await this.centralServer.post('resetPassword', {}, {
+      email,
+      deviceId: this.centralServer.deviceId,
+    });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
