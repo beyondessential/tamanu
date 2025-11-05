@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
@@ -22,6 +22,8 @@ import { useSuggester } from '../../../api';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { useFormikContext } from 'formik';
+import { FinalisePatientMoveModal } from './FinalisePatientMoveModal';
+import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -86,10 +88,13 @@ export const PATIENT_MOVE_ACTIONS = {
   FINALISE: 'finalise',
 };
 
-const PlannedMoveFields = () => {
+const PlannedMoveFields = ({ encounter, onClose }) => {
   const { getSetting } = useSettings();
   const plannedMoveTimeoutHours = getSetting('templates.plannedMoveTimeoutHours');
   const { values, initialValues, setFieldValue } = useFormikContext();
+
+  const [finaliseModalOpen, setFinaliseModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
   const isExistingPlannedMove =
     initialValues?.plannedLocationId &&
@@ -176,6 +181,25 @@ const PlannedMoveFields = () => {
           </CancelMoveButton>
         )}
       </MoveActionsContainer>
+
+      <FinalisePatientMoveModal
+        encounter={encounter}
+        open={finaliseModalOpen}
+        onClose={() => {
+          setFinaliseModalOpen(false);
+          onClose();
+        }}
+        data-testid="finalisepatientmovemodal-hvk3"
+      />
+      <CancelPatientMoveModal
+        encounter={encounter}
+        open={cancelModalOpen}
+        onClose={() => {
+          setCancelModalOpen(false);
+          onClose();
+        }}
+        data-testid="cancelpatientmovemodal-x8xx"
+      />
     </>
   );
 };
@@ -190,6 +214,37 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
+  const onSubmit = async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
+    // TODO: logic to handle cancelling/confirming planned move within this modal
+    if (action === PATIENT_MOVE_ACTIONS.PLAN && initialValues?.plannedLocationId) {
+      if (!plannedLocationId) {
+        setCancelModalOpen(true);
+        return;
+      }
+    }
+
+    if (
+      action === PATIENT_MOVE_ACTIONS.FINALISE &&
+      initialValues?.plannedLocationId &&
+      initialValues?.plannedLocationId === plannedLocationId
+    ) {
+      setFinaliseModalOpen(true);
+      return;
+    }
+
+    const locationData =
+      action === PATIENT_MOVE_ACTIONS.PLAN
+        ? { plannedLocationId: plannedLocationId || null }
+        : { locationId: plannedLocationId || locationId };
+
+    await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
+      departmentId,
+      examinerId,
+      ...locationData,
+    });
+  };
 
   return (
     <FormModal
@@ -215,18 +270,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
           }),
         }}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-          const locationData =
-            action === PATIENT_MOVE_ACTIONS.PLAN
-              ? { plannedLocationId: plannedLocationId || null }
-              : { locationId: plannedLocationId || locationId || null };
-          await writeAndViewEncounter(encounter.id, {
-            submittedTime: getCurrentDateTimeString(),
-            departmentId,
-            examinerId,
-            ...locationData,
-          });
-        }}
+        onSubmit={onSubmit}
         validationSchema={yup.object().shape({
           examinerId: yup.string().required(),
           departmentId: yup.string().required(),
@@ -286,7 +330,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {enablePatientMoveActions ? (
+              <PlannedMoveFields encounter={encounter} />
+            ) : (
+              <BasicMoveFields />
+            )}
             <ModalFormActionRow
               onConfirm={submitForm}
               onCancel={onClose}
