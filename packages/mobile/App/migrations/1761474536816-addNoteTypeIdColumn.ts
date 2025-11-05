@@ -1,28 +1,40 @@
-import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableColumn, TableForeignKey } from 'typeorm';
 
+const tableName = 'notes';
+const columnName = 'noteTypeId';
 export class addNoteTypeIdColumn1761474536816 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.addColumn(
-      'note',
+      tableName,
       new TableColumn({
-        name: 'noteTypeId',
+        name: columnName,
         type: 'varchar',
         isNullable: true,
       }),
     );
+    await queryRunner.createForeignKey(
+      tableName,
+      new TableForeignKey({
+        columnNames: [columnName],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'reference_data',
+      }),
+    );
 
     await queryRunner.query(`
-      UPDATE note
-      SET noteTypeId = 'notetype-' || noteType
+      UPDATE ${tableName}
+      SET ${columnName} = 'notetype-' || noteType
       WHERE noteType IS NOT NULL
     `);
 
-    await queryRunner.dropColumn('note', 'noteType');
+    await queryRunner.dropColumn(tableName, 'noteType');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
+    const tableObject = await queryRunner.getTable(tableName);
+
     await queryRunner.addColumn(
-      'note',
+      tableObject,
       new TableColumn({
         name: 'noteType',
         type: 'varchar',
@@ -31,17 +43,15 @@ export class addNoteTypeIdColumn1761474536816 implements MigrationInterface {
     );
 
     await queryRunner.query(`
-      UPDATE note
-      SET noteType = REPLACE(noteTypeId, 'notetype-', '')
+      UPDATE ${tableName}
+      SET noteType = REPLACE(${columnName}, 'notetype-', '')
       WHERE noteTypeId IS NOT NULL
     `);
 
-    await queryRunner.query(`
-      UPDATE note
-      SET noteType = 'other'
-      WHERE noteType IS NULL
-    `);
-
-    await queryRunner.dropColumn('note', 'noteTypeId');
+    const foreignKey = tableObject.foreignKeys.find(
+      fk => fk.columnNames.indexOf(columnName) !== 0,
+    );
+    await queryRunner.dropForeignKey(tableObject, foreignKey);
+    await queryRunner.dropColumn(tableObject, columnName);
   }
 }

@@ -228,14 +228,6 @@ export const NOTE_RECORD_TYPES = {
 
 export const NOTE_TYPES = {
   TREATMENT_PLAN: 'notetype-treatmentPlan',
-  ADMISSION: 'admission',
-  MEDICAL: 'medical',
-  SURGICAL: 'surgical',
-  NURSING: 'nursing',
-  DIETARY: 'dietary',
-  PHARMACY: 'pharmacy',
-  PHYSIOTHERAPY: 'physiotherapy',
-  SOCIAL: 'social',
   DISCHARGE: 'notetype-discharge',
   AREA_TO_BE_IMAGED: 'notetype-areaToBeImaged',
   RESULT_DESCRIPTION: 'notetype-resultDescription',
