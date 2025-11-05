@@ -421,6 +421,7 @@ export class Encounter extends Model {
     await EncounterHistory.createSnapshot(
       encounter,
       {
+        changeType: [],
         actorId: actorId || encounter.examinerId,
         submittedTime: encounter.startDate,
       },
