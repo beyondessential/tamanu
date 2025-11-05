@@ -51,7 +51,7 @@ const HospitalAdmissionFields = () => {
         label={
           <TranslatedText
             stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
-            fallback="Discharge date & time"
+            fallback="Estimated discharge date & time"
           />
         }
         data-testid="field-discharge-date"
@@ -343,7 +343,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
           }),
 
           ...(encounter.encounterType === ENCOUNTER_TYPES.ADMISSION && {
-            estimatedDischargeDate: encounter.estimatedDischargeDate,
+            estimatedEndDate: encounter.estimatedEndDate,
           }),
 
           ...(triage && {
