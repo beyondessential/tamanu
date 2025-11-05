@@ -200,7 +200,7 @@ department_info as (
         eh.encounter_id,
         json_agg(
           json_build_object('department', d.name,
-                            'assignedTime', (case when eh.change_type is null
+                            'assignedTime', (case when cardinality(eh.change_type) = 0
                                               then e.start_date::timestamp at time zone $timezone_string
                                               else eh.date::timestamp at time zone $timezone_string
                                               end)) order by eh.change_type nulls first, eh.date)
@@ -209,7 +209,7 @@ department_info as (
     join encounter_history eh on eh.encounter_id = e.id
       and eh.deleted_at is null
     left join departments d on d.id = eh.department_id
-    where change_type isnull or 'department' = ANY(change_type)
+    where cardinality(change_type) = 0 or 'department' = ANY(change_type)
     and e.id = $encounter_id
     and e.deleted_at isnull
     group by eh.encounter_id
@@ -222,7 +222,7 @@ location_info as (
       json_build_object('location', l.name,
                         'locationGroup', lg.name,
                         'facility', f.name,
-                        'assignedTime', ((case when eh.change_type is null
+                        'assignedTime', ((case when cardinality(eh.change_type) = 0
                                             then e.start_date::timestamp at time zone $timezone_string
                                             else eh.date::timestamp at time zone $timezone_string end))) order by eh.change_type nulls first, eh.date)
     as location_history
@@ -232,7 +232,7 @@ location_info as (
   left join locations l on eh.location_id = l.id
   left join location_groups lg on l.location_group_id = lg.id
   left join facilities f on l.facility_id = f.id
-  where change_type isnull or 'location' = ANY(change_type)
+  where cardinality(change_type) = 0 or 'location' = ANY(change_type)
   and e.id = $encounter_id
   and e.deleted_at isnull
   group by eh.encounter_id
