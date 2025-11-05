@@ -688,7 +688,7 @@ export class Encounter extends Model {
     // If the update is not already in a transaction, wrap it in one
     // Having nested transactions can cause bugs in postgres so only conditionally wrap
     return this.sequelize.transaction(async () => {
-      await updateEncounter();
+      return await updateEncounter();
     });
   }
 }
