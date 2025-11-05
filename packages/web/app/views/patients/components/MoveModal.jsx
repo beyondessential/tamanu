@@ -4,7 +4,14 @@ import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { Button, DateTimeField, Form, FormGrid, TAMANU_COLORS } from '@tamanu/ui-components';
+import {
+  Button,
+  DateTimeField,
+  Form,
+  FormGrid,
+  TAMANU_COLORS,
+  useTranslation,
+} from '@tamanu/ui-components';
 import {
   BodyText,
   DynamicSelectField,
@@ -190,39 +197,37 @@ const PlannedMoveFields = () => {
   );
 };
 
-const EncounterTypeChange = ({ newEncounterType }) => {
-  switch (newEncounterType) {
-    case ENCOUNTER_TYPES.ADMISSION:
-      return (
-        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
-      );
-    default:
-      return (
-        <>
-          <TranslatedText
-            stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-            fallback="Transfer to"
-          />{' '}
-          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-        </>
-      );
+const EncounterChangeText = ({ newEncounterType }) => {
+  if (newEncounterType === ENCOUNTER_TYPES.ADMISSION) {
+    return (
+      <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+    );
   }
+  return (
+    <TranslatedText
+      stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+      fallback="Transfer to :newEncounterType"
+      replacements={{
+        newEncounterType: (
+          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+        ),
+      }}
+    />
+  );
 };
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
+  const { getEnumTranslation } = useTranslation();
   return (
     <EncounterChangeDescription>
       <TranslatedText
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from"
-      />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-      </b>{' '}
-      <TranslatedText stringId="general.action.to" fallback="to" />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-      </b>
+        fallback="Changing encounter type from :encounterType to :newEncounterType"
+        replacements={{
+          encounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType)}</b>,
+          newEncounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType)}</b>,
+        }}
+      />
     </EncounterChangeDescription>
   );
 };
@@ -348,7 +353,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     <FormModal
       title={
         newEncounterType ? (
-          <EncounterTypeChange newEncounterType={newEncounterType} />
+          <EncounterChangeText newEncounterType={newEncounterType} />
         ) : (
           <TranslatedText
             stringId="patient.encounter.action.movePatient"
@@ -431,7 +436,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
               onConfirm={submitForm}
               confirmText={
                 newEncounterType ? (
-                  <EncounterTypeChange newEncounterType={newEncounterType} />
+                  <EncounterChangeText newEncounterType={newEncounterType} />
                 ) : (
                   <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
                 )
