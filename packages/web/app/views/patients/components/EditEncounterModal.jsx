@@ -46,7 +46,7 @@ const HospitalAdmissionFields = () => {
         data-testid="field-admission-time"
       />
       <Field
-        name="estimatedDischargeDate"
+        name="estimatedEndDate"
         component={DateTimeField}
         label={
           <TranslatedText
@@ -296,7 +296,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
-      estimatedDischargeDate,
+      estimatedEndDate,
     } = values;
 
     if (triage) {
@@ -317,7 +317,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
-      estimatedDischargeDate,
+      estimatedEndDate,
     });
   };
 
