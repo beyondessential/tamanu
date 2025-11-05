@@ -13,10 +13,10 @@ import {
   ButtonRow,
   SmallGridSpacer,
   TranslatedText,
-  TranslatedReferenceData,
+  TranslatedEnum,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TEMPLATE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 import { Colors } from '../../../constants';
 
@@ -61,20 +61,20 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
 
     options.push({
       value: TEMPLATE_TYPES.PATIENT_LETTER,
-      label: <TranslatedText stringId="template.property.type.patientLetter" fallback="Patient letter" />,
+      label: (
+        <TranslatedEnum
+          value={TEMPLATE_TYPES.PATIENT_LETTER}
+          enumValues={TEMPLATE_TYPE_LABELS}
+          data-testid="translatedenum-kmfz"
+        />
+      ),
     });
 
     if (noteTypes.length > 0) {
       noteTypes.forEach(noteType => {
         options.push({
           value: noteType.id,
-          label: (
-            <TranslatedReferenceData
-              value={noteType.id}
-              fallback={noteType.name}
-              category={REFERENCE_TYPES.NOTE_TYPE}
-            />
-          ),
+          label: noteType.name,
         });
       });
     }

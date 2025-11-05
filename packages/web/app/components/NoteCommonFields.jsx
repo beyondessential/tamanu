@@ -1,12 +1,18 @@
 import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
-import { AutocompleteField, AutocompleteInput, DateTimeField, Field, DateTimeInput, TextField, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
+import {
+  AutocompleteField,
+  AutocompleteInput,
+  DateTimeField,
+  Field,
+  DateTimeInput,
+  TextField,
+  FormGrid,
+} from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -26,45 +32,10 @@ const StyledInfoCard = styled(InfoCard)`
   }
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-gupn">
-    {props.children}
-  </Tooltip>
-))`
-  z-index: 1500;
-
-  & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
-    font-weight: 400;
-    font-size: 11px;
-    line-height: 15px;
-  }
-`;
-
 export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
-
-const renderOptionLabel = (option, noteTypeCountByType) => {
-  const label = option.name || option.label;
-  const value = option.id || option.value;
-  
-  return option.id === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[value] ? (
-    <StyledTooltip
-      arrow
-      placement="top"
-      followCursor
-      title="This note type already exists for this encounter"
-      data-testid="styledtooltip-tj9s"
-    >
-      <div>{label}</div>
-    </StyledTooltip>
-  ) : (
-    <div>{label}</div>
-  );
-};
 
 export const PreviouslyWrittenByField = ({
   label = (
@@ -286,7 +257,10 @@ export const NoteTypeField = ({
   disabled,
   $fontSize,
 }) => {
-  const noteTypeSuggester = useSuggester('noteType');
+  const noteTypeSuggester = useSuggester('noteType', {
+    filterer: ({ id }) =>
+      !(noteTypeCountByType && id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType[id]),
+  });
 
   return (
     <Field
@@ -302,18 +276,6 @@ export const NoteTypeField = ({
       component={AutocompleteField}
       suggester={noteTypeSuggester}
       $fontSize={$fontSize}
-      transformOptions={types =>
-        types
-          .filter(option => !option.hideFromDropdown)
-          .map(option => ({
-            ...option,
-            isDisabled:
-              noteTypeCountByType &&
-              option.id === NOTE_TYPES.TREATMENT_PLAN &&
-              !!noteTypeCountByType[option.id],
-          }))
-      }
-      formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
       onChange={onChange}
       menuPosition="absolute"
       menuPlacement="auto"

@@ -21,7 +21,9 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { noteTypeId, setNoteTypeId } = useEncounterNotesQuery();
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
-  const noteTypeSuggester = useSuggester('noteType');
+  const noteTypeSuggester = useSuggester('noteType', {
+    filterer: ({ id }) => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(id),
+  });
 
   const noteModalOnSaved = async createdNote => {
     updateNoteModalProps({ note: createdNote });
@@ -46,21 +48,6 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           value={noteTypeId}
           name="noteType"
           suggester={noteTypeSuggester}
-          transformSuggestions={suggestions => [
-            {
-              value: null,
-              label: (
-                <TranslatedText
-                  stringId="general.select.all"
-                  fallback="All"
-                  data-testid="translatedtext-awa7"
-                />
-              ),
-            },
-            ...suggestions.filter(
-              option => ![NOTE_TYPES.CLINICAL_MOBILE, NOTE_TYPES.SYSTEM].includes(option.id),
-            ),
-          ]}
           isClearable={false}
           data-testid="styledtranslatedselectfield-oy9y"
         />
