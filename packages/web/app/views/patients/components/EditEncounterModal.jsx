@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
+  DateField,
   DateTimeField,
   Form,
   FormGrid,
@@ -47,7 +48,7 @@ const HospitalAdmissionFields = () => {
       />
       <Field
         name="estimatedEndDate"
-        component={DateTimeField}
+        component={DateField}
         label={
           <TranslatedText
             stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
@@ -283,6 +284,8 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const { writeAndViewEncounter } = useEncounter();
 
   const triage = encounter.triages?.[0];
+
+  console.log(encounter);
 
   const onSubmit = async values => {
     const {

@@ -2,7 +2,7 @@ import { DataTypes, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface): Promise<void> {
   await query.addColumn('encounters', 'estimated_end_date', {
-    type: DataTypes.DATETIMESTRING,
+    type: DataTypes.DATESTRING,
     allowNull: true,
   });
 }
