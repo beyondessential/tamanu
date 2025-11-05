@@ -8,7 +8,6 @@ import {
   BaseSelectField,
   InstructionField,
   PhotoField,
-  SignatureField,
   PatientDataDisplayField,
 } from '@tamanu/ui-components';
 import {
@@ -20,6 +19,7 @@ import {
   ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
+  SignatureField,
 } from '../Field';
 
 const QUESTION_COMPONENTS = {
