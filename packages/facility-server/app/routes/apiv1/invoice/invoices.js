@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -46,9 +46,7 @@ invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const {
-      body: { facilityId, ...body },
-    } = req;
+    const { body } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -92,10 +90,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z
-          .string()
-          .uuid()
-          .default(uuidv4),
+        id: z.string().uuid().default(uuidv4),
         percentage: z.coerce
           .number()
           .min(0)
@@ -108,10 +103,7 @@ const updateInvoiceSchema = z
       .optional(),
     items: z
       .object({
-        id: z
-          .string()
-          .uuid()
-          .default(uuidv4),
+        id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
@@ -121,16 +113,10 @@ const updateInvoiceSchema = z
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
-        sourceId: z
-          .string()
-          .uuid()
-          .optional(),
+        sourceId: z.string().uuid().optional(),
         discount: z
           .object({
-            id: z
-              .string()
-              .uuid()
-              .default(uuidv4),
+            id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().optional(),

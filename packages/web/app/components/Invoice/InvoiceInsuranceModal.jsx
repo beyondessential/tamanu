@@ -18,11 +18,12 @@ const ModalBody = styled.div`
 `;
 
 export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
-  const { mutate } = useInvoiceInsurancePlansMutation(invoice);
+  const defaultValues =
+    invoice.invoiceInsurancePlans?.map(invoice => invoice.invoiceInsurancePlanId) || [];
+  const [selectedPlans, setSelectedPlans] = React.useState(defaultValues);
   const insurancePlanSuggester = useSuggester('invoiceInsurancePlan');
-  const [selectedPlans, setSelectedPlans] = React.useState([]);
 
-  console.log('selectedPlans', selectedPlans);
+  const { mutate } = useInvoiceInsurancePlansMutation(invoice.id, invoice.encounterId);
 
   const onConfirm = async () => {
     const data = { invoiceInsurancePlanIds: selectedPlans };
@@ -46,7 +47,7 @@ export const InvoiceInsuranceModal = ({ open, onClose, invoice }) => {
         <Typography>
           <TranslatedText
             stringId="invoice.modal.insurancePlans.text"
-            fallback="Select or remove the insurers you would like to apply to this patient invoice below."
+            fallback="Select or remove the insurance plans you would like to apply to this patient invoice below."
           />
         </Typography>
         <MultiAutocompleteInput

@@ -74,16 +74,16 @@ export const useDeleteInvoice = invoice => {
   });
 };
 
-export const useInvoiceInsurancePlansMutation = invoice => {
+export const useInvoiceInsurancePlansMutation = (invoiceId, encounterId) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async body => {
-      await api.put(`invoices/${invoice?.id}/insurancePlans`, body);
+      await api.put(`invoices/${invoiceId}/insurancePlans`, body);
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+      await queryClient.invalidateQueries([`encounter/${encounterId}/invoice`]);
     },
     onError: error => notifyError(error.message),
   });

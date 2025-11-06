@@ -47,13 +47,6 @@ export async function up(query: QueryInterface): Promise<void> {
     },
   });
 
-  // Composite unique index to prevent duplicate links
-  await query.addConstraint(tableName, {
-    type: 'unique',
-    fields: ['invoice_id', 'invoice_insurance_plan_id'],
-    name: `${tableName}_invoice_plan_unique`,
-  });
-
   await query.addIndex(tableName, ['invoice_id']);
   await query.addIndex(tableName, ['invoice_insurance_plan_id']);
 
