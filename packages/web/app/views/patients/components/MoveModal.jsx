@@ -225,6 +225,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
 
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  } else {
+    validationObject.locationId = yup.string().nullable();
+
+    initialValues.locationId = encounter.locationId;
   }
 
   return (
