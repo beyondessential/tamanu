@@ -29,7 +29,7 @@ import { Colors } from '../constants';
 import { useAuth } from '../contexts/Auth';
 import { NoteModal } from '../components/NoteModal/NoteModal';
 import { ENCOUNTER_TAB_NAMES } from '../constants/encounterTabNames';
-import { TranslatedEnumField } from '@tamanu/ui-components';
+import { TranslatedEnum } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 // This component gets the programRegistryId and uses it to render the title of the program registry
@@ -87,10 +87,7 @@ export const usePatientRoutes = () => {
           component: EncounterView,
           navigateTo: () => navigateToEncounter(encounter.id),
           title: (
-            <TranslatedEnumField
-              enumValues={ENCOUNTER_TYPE_LABELS}
-              value={encounter.encounterType}
-            />
+            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
           ),
           routes: [
             {
