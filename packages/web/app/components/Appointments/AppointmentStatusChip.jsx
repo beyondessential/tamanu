@@ -8,7 +8,7 @@ import { Colors } from '../../constants/styles';
 import { APPOINTMENT_STATUS_COLORS } from './appointmentStatusIndicators';
 
 const Toggle = styled(ToggleButton)`
-  &&&&&&& {
+  &&&&& {
     line-height: 1.35;
     min-inline-size: 4.625rem;
     padding-block: 0.35rem;
