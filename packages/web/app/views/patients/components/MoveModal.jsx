@@ -66,13 +66,6 @@ const BasicMoveFields = () => {
         <Field
           name="locationId"
           component={LocalisedLocationField}
-          label={
-            <TranslatedText
-              stringId="patient.encounter.movePatient.location.label"
-              fallback="New location"
-              data-testid="translatedtext-35a6"
-            />
-          }
           required
           data-testid="field-tykg"
         />
@@ -209,17 +202,21 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
         initialValues={{
           examinerId: encounter.examinerId,
           departmentId: encounter.departmentId,
-          ...(enablePatientMoveActions && {
-            plannedLocationId: encounter.plannedLocationId,
-            action: PATIENT_MOVE_ACTIONS.PLAN,
-          }),
+          ...(enablePatientMoveActions
+            ? {
+                plannedLocationId: encounter.plannedLocationId,
+                action: PATIENT_MOVE_ACTIONS.PLAN,
+              }
+            : {
+                locationId: encounter.locationId,
+              }),
         }}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
           const locationData =
             action === PATIENT_MOVE_ACTIONS.PLAN
               ? { plannedLocationId: plannedLocationId || null }
-              : { locationId: plannedLocationId || locationId || null };
+              : { locationId: plannedLocationId || locationId };
           await writeAndViewEncounter(encounter.id, {
             submittedTime: getCurrentDateTimeString(),
             departmentId,
