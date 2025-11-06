@@ -11,7 +11,6 @@ import {
 } from '@material-ui/core';
 import { ChevronLeft, Lock } from '@material-ui/icons';
 import MuiToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
-import { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 
 import { TAMANU_COLORS } from '../../constants';
 import { withPermissionCheck } from '../withPermissionCheck';
@@ -322,17 +321,12 @@ export const UnstyledHtmlButton = styled.button`
 `;
 
 /**
- * @privateRemarks It’s a bit of a mission to override MUI’s baked-in styles. When creating a
+ * @privateRemarks It's a bit of a mission to override MUI's baked-in styles. When creating a
  * `styled` version of this component, the selector will need specificity higher than (0,5,0) to
  * override the styles declared here.
  */
 export const ToggleButton = styled(MuiToggleButton)`
-  .${toggleButtonGroupClasses.root}
-    &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
-   .${toggleButtonGroupClasses.firstButton},
-   .${toggleButtonGroupClasses.middleButton},
-   .${toggleButtonGroupClasses.lastButton}
- ) {
+  &&&&&& {
     appearance: none;
     background-color: ${TAMANU_COLORS.white};
     border-color: ${TAMANU_COLORS.softText};
