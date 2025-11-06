@@ -194,10 +194,15 @@ appointments.put(
 
 const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
-const searchableFields = [
+const CONTAINS_SEARCHABLE_FIELDS = [
+  'patient.first_name',
+  'patient.last_name',
+  'patient.display_id',
+];
+
+const EXACT_MATCH_SEARCHABLE_FIELDS = [
   'startTime',
   'endTime',
-  'type',
   'appointmentTypeId',
   'bookingTypeId',
   'status',
@@ -205,10 +210,9 @@ const searchableFields = [
   'locationId',
   'locationGroupId',
   'patientId',
-  'patient.first_name',
-  'patient.last_name',
-  'patient.display_id',
 ];
+
+const ALL_SEARCHABLE_FIELDS = [...CONTAINS_SEARCHABLE_FIELDS, ...EXACT_MATCH_SEARCHABLE_FIELDS];
 
 const sortKeys = {
   patientName: Sequelize.fn(
@@ -298,7 +302,7 @@ appointments.get(
     };
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
+      if (!ALL_SEARCHABLE_FIELDS.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
 
@@ -310,7 +314,9 @@ appointments.get(
       if (queryValue === '' || queryValue.length === 0) {
         comparison = { [Op.not]: null };
       } else if (typeof queryValue === 'string') {
-        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+        comparison = EXACT_MATCH_SEARCHABLE_FIELDS.includes(queryField)
+          ? { [Op.eq]: queryValue }
+          : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
       } else {
         comparison = { [Op.in]: queryValue };
       }
