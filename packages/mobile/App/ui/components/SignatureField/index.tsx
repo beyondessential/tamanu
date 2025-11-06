@@ -6,6 +6,7 @@ import { StyledView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 import { BaseInputProps } from '../../interfaces/BaseInputProps';
 import { useBackend } from '~/ui/hooks';
+import { saveFileInDocuments } from '~/ui/helpers/file';
 
 const SIGNATURE_WIDTH = Math.min(Dimensions.get('window').width - 40, 400);
 const SIGNATURE_HEIGHT = 150;
@@ -73,9 +74,14 @@ export const SignatureField = React.memo(({ onChange, value }: SignatureFieldPro
         return;
       }
 
+      // Save signature to file (similar to photo upload pattern)
+      const timestamp = new Date().getTime();
+      const fileName = `signature-${timestamp}.svg`;
+      const filePath = await saveFileInDocuments(base64Data, fileName);
+
       // Create attachment similar to photo upload
       const { id } = await models.Attachment.createAndSaveOne({
-        data: base64Data,
+        filePath,
         type: 'image/svg+xml',
         size: base64Data.length,
       });
