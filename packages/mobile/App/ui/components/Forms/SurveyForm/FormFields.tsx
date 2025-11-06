@@ -28,7 +28,7 @@ import { ErrorScreen } from '../../ErrorScreen';
 import { TranslatedText } from '../../Translations/TranslatedText';
 
 interface UseScrollToFirstError {
-  setQuestionPosition: (questionCode: string) => (yPosition: string)  => void;
+  setQuestionPosition: (questionCode: string) => (yPosition: number)  => void;
   scrollToQuestion: (scrollViewRef: any, questionCode: string) => void;
 }
 
