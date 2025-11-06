@@ -63,7 +63,7 @@ EOF
 
         referenceData: [
             {
-                url: 'https://bes-tamanu-dev-referencedata.s3.ap-southeast-2.amazonaws.com/referencedata/default.xlsx',
+                defaultSpreadsheet: true,
             },
         ],
     }
