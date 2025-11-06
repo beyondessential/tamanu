@@ -223,7 +223,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 data-testid="translatedtext-49f7"
               />
             }
-            value={getDiet(encounter) + 'abcdef'}
+            value={getDiet(encounter)}
             icon={dietIcon}
             data-testid="infocarditem-m5lp"
           />
