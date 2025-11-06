@@ -16,6 +16,7 @@ import { getDepartmentName } from '../../../utils/department';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import {
   arrivalDateIcon,
+  estimatedDischargeDateIcon,
   departmentIcon,
   dietIcon,
   encounterTypeIcon,
@@ -30,7 +31,7 @@ import { isInpatient } from '../../../utils/isInpatient';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
-import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 
@@ -154,6 +155,39 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
   );
 };
 
+const getStartDateLabel = encounter => {
+  switch (encounter.encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return (
+        <TranslatedText
+          stringId="encounter.admissionDate.label"
+          fallback="Admission date"
+          data-testid="translatedtext-i6p7"
+        />
+      );
+
+    case ENCOUNTER_TYPES.TRIAGE:
+    case ENCOUNTER_TYPES.EMERGENCY:
+    case ENCOUNTER_TYPES.OBSERVATION:
+      return (
+        <TranslatedText
+          stringId="encounter.arrivalDate.label"
+          fallback="Arrival date"
+          data-testid="translatedtext-i6p7"
+        />
+      );
+
+    default:
+      return (
+        <TranslatedText
+          stringId="general.date.label"
+          fallback="Date"
+          data-testid="translatedtext-i6p7"
+        />
+      );
+  }
+};
+
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => {
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
 
@@ -243,13 +277,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
       </InfoCardFirstColumn>
       <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
         <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.arrivalDate.label"
-              fallback="Arrival date"
-              data-testid="translatedtext-i6p7"
-            />
-          }
+          label={getStartDateLabel(encounter)}
           value={
             <>
               <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
@@ -299,7 +327,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 </>
               )
             }
-            icon={arrivalDateIcon} // TODO: should be a slight variation of the arrival date icon
+            icon={estimatedDischargeDateIcon}
           />
         )}
         <InfoCardItem
