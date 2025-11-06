@@ -44,6 +44,7 @@ const Toggle = styled(ToggleButton)`
       cursor: not-allowed;
     }
   }
+
   &&&&&& {
     line-height: 1.35;
     min-inline-size: 4.625rem;
