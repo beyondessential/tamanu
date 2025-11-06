@@ -327,11 +327,12 @@ export const UnstyledHtmlButton = styled.button`
  * override the styles declared here.
  */
 export const ToggleButton = styled(MuiToggleButton)`
-  .${toggleButtonGroupClasses.root} &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
-    .${toggleButtonGroupClasses.firstButton},
-    .${toggleButtonGroupClasses.middleButton},
-    .${toggleButtonGroupClasses.lastButton}
-  ) {
+  .${toggleButtonGroupClasses.root}
+    &.${toggleButtonClasses.root}.${toggleButtonGroupClasses.grouped}:is(
+   .${toggleButtonGroupClasses.firstButton},
+   .${toggleButtonGroupClasses.middleButton},
+   .${toggleButtonGroupClasses.lastButton}
+ ) {
     appearance: none;
     background-color: ${TAMANU_COLORS.white};
     border-color: ${TAMANU_COLORS.softText};
