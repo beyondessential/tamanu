@@ -416,17 +416,22 @@ export class Encounter extends Model {
     const [data, options] = args;
     const { actorId, ...encounterData } = data;
 
-    const existingOpenEncounter = await this.findOne({
-      where: {
-        patientId: encounterData.patientId,
-        endDate: null,
-      },
-    });
+    // Check if patient already has an open encounter (excluding soft-deleted ones)
+    if (encounterData.patientId) {
+      const existingOpenEncounter = await this.findOne({
+        where: {
+          patientId: encounterData.patientId,
+          endDate: null,
+          deletedAt: null,
+        },
+        transaction: options?.transaction,
+      });
 
-    if (existingOpenEncounter) {
-      throw new InvalidOperationError(
-        'This patient already has an active encounter. The active encounter must be discharged before a new encounter can be created.',
-      );
+      if (existingOpenEncounter) {
+        throw new InvalidOperationError(
+          'This patient already has an active encounter. The active encounter must be discharged before a new encounter can be created.',
+        );
+      }
     }
 
     const encounter = (await super.create(encounterData, options)) as Encounter;
