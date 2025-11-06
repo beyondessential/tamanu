@@ -8,9 +8,8 @@ import {
   setMinutes,
   differenceInMinutes,
   addMinutes,
-  isSameDay,
 } from 'date-fns';
-import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -31,8 +30,6 @@ import { useAuth } from '../../../contexts/Auth';
 import { useBookingSlots } from '../../../hooks/useBookingSlots';
 import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
-import { useDrop, useDrag } from 'react-dnd';
-import { useMoveLocationBookingMutation } from '../../../api/mutations/useMoveLocationBookingMutation';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -260,7 +257,7 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
       },
     },
   };
-
+  console.log('test')
   return (
     <LocationHeader data-testid="location-header">
       <AssignmentSection data-testid="assignment-section">
@@ -335,96 +332,6 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
       </LocationTitle>
     </LocationHeader>
   );
-};
-
-const DroppableSchedule = ({ locationId, timeSlots, slotDuration, children }) => {
-  const scheduleRefs = useRef({});
-  const moveMutation = useMoveLocationBookingMutation();
-  const pixelsPerMinute = 70 / 60; // 70px per hour
-
-  const getMinutesFromScheduleTop = useCallback(
-    (locationId, clientY) => {
-      const el = scheduleRefs.current[locationId];
-      if (!el) return 0;
-      const rect = el.getBoundingClientRect();
-      const offsetY = clientY - rect.top;
-      return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
-    },
-    [pixelsPerMinute],
-  );
-
-  const computeDropStartTime = useCallback(
-    (locationId, clientY) => {
-      if (!timeSlots?.length) return null;
-      const baseStart = timeSlots[0].start;
-      const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
-      return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
-    },
-    [timeSlots, getMinutesFromScheduleTop],
-  );
-
-  const snapToNearestSlot = useCallback(
-    date => {
-      if (!date) return date;
-      const baseStart = timeSlots[0].start;
-
-      // Calculate the time difference from baseStart in milliseconds
-      const timeDiff = date.getTime() - baseStart.getTime();
-
-      // Calculate which slot this falls into (floor to get the previous slot)
-      const slotIndex = Math.floor(timeDiff / slotDuration);
-
-      // Calculate the snapped time
-      const snappedTime = baseStart.getTime() + slotIndex * slotDuration;
-
-      return new Date(snappedTime);
-    },
-    [timeSlots, slotDuration],
-  );
-
-  const registerScheduleRef = useCallback((locationId, el) => {
-    if (el) scheduleRefs.current[locationId] = el;
-  }, []);
-
-  const [, drop] = useDrop(
-    () => ({
-      accept: 'APPOINTMENT',
-      canDrop: item => item.appointment.locationId === locationId,
-      drop: (item, monitor) => {
-        const client = monitor.getClientOffset();
-        if (!client) return;
-        // The initial position of the appointment element itself when dragging started
-        const initialClient = monitor.getInitialClientOffset();
-        // The initial position of the appointment element itself when the drag operation started
-        const initialSource = monitor.getInitialSourceClientOffset();
-        // Align to the top border of the dragged tile
-        let topY = client.y;
-        if (initialClient && initialSource) {
-          // 3: padding to account for the border of the dragged tile
-          topY = client.y - (initialClient.y - initialSource.y) + 3;
-        }
-        const rawStart = computeDropStartTime(locationId, topY);
-        const newStart = snapToNearestSlot(rawStart);
-
-        if (!newStart) return;
-        moveMutation.mutateAsync({
-          id: item.appointment.id,
-          startTime: toDateTimeString(newStart),
-        });
-      },
-    }),
-    [locationId, computeDropStartTime, snapToNearestSlot, moveMutation],
-  );
-
-  const setRefs = useCallback(
-    el => {
-      registerScheduleRef(locationId, el);
-      drop(el);
-    },
-    [locationId, drop],
-  );
-
-  return <LocationSchedule ref={setRefs}>{children}</LocationSchedule>;
 };
 
 export const LocationBookingsDailyCalendar = ({
@@ -503,7 +410,7 @@ export const LocationBookingsDailyCalendar = ({
 
   const canCreateAppointment = ability.can('create', 'Appointment');
 
-  const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
+  const { slots: bookingSlots, isPending: isBookingSlotsLoading } = useBookingSlots(
     selectedDate,
   );
 
@@ -536,26 +443,6 @@ export const LocationBookingsDailyCalendar = ({
 
     return slots;
   }, [bookingSlots, selectedDate]);
-
-  const DraggableAppointment = ({ appointment, children }) => {
-    const [{ isDragging }, dragRef] = useDrag(
-      () => ({
-        type: 'APPOINTMENT',
-        item: { id: appointment.id, appointment },
-        collect: monitor => ({ isDragging: monitor.isDragging() }),
-        canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
-      }),
-      [appointment],
-    );
-    return (
-      <div
-        ref={dragRef}
-        style={{ opacity: isDragging ? 0.5 : 1, height: '100%', width: '100%', display: 'flex' }}
-      >
-        {children}
-      </div>
-    );
-  };
 
   // Helper function to find assigned user for a time slot
   const getAssignedUserForSlot = (locationId, slotIndex) => {
@@ -698,10 +585,7 @@ export const LocationBookingsDailyCalendar = ({
                   assignments={assignmentsByLocation[location.id] || []}
                 />
 
-                <DroppableSchedule
-                  locationId={location.id}
-                  timeSlots={timeSlots}
-                  slotDuration={slotDuration}
+                <LocationSchedule
                 >
                   {/* Time slot background grid */}
                   {timeSlots.map((slot, slotIndex) => {
@@ -751,20 +635,18 @@ export const LocationBookingsDailyCalendar = ({
                         }}
                         data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
                       >
-                        <DraggableAppointment appointment={appointment}>
-                          <AppointmentTile
-                            appointment={appointment}
-                            hideTime={false}
-                            className="appointment-tile"
-                            onEdit={() => openBookingForm(appointment)}
-                            onCancel={() => openCancelModal(appointment)}
-                            testIdPrefix={`${locationIndex}-${appointmentIndex}`}
-                          />
-                        </DraggableAppointment>
+                        <AppointmentTile
+                          appointment={appointment}
+                          hideTime={false}
+                          className="appointment-tile"
+                          onEdit={() => openBookingForm(appointment)}
+                          onCancel={() => openCancelModal(appointment)}
+                          testIdPrefix={`${locationIndex}-${appointmentIndex}`}
+                        />
                       </AppointmentWrapper>
                     );
                   })}
-                </DroppableSchedule>
+                </LocationSchedule>
               </LocationColumn>
             );
           })}
