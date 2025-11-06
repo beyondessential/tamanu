@@ -289,8 +289,9 @@ export class SurveyResponse extends Model {
       );
     }
 
-    // Extract date - chart entries have dateRecorded field, form responses use startTime/endTime
-    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded];
+    // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
+    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
+      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
 
     if (!forceNewEncounter) {
       // First, check for open encounter (active encounter takes precedence)

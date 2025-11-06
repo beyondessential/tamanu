@@ -9,7 +9,7 @@ export const fetchChartInstances = (options = {}) =>
       permissionAction = 'read',
     } = options;
 
-    const { db, params } = req;
+    const { db, params, models } = req;
     const { id: encounterId, patientId, chartSurveyId } = params;
 
     if (!encounterId && !patientId) {
@@ -18,9 +18,42 @@ export const fetchChartInstances = (options = {}) =>
 
     req.checkPermission(permissionAction, subject('Charting', { id: chartSurveyId }));
 
-    const encounterFilter = encounterId
-    ? 'sr.encounter_id = :encounterId'
-    : 'e.patient_id = :patientId AND e.deleted_at IS NULL';
+    const survey = await models.Survey.findByPk(chartSurveyId);
+    const isChartLinkedToProgramRegistry = survey?.programId != null;
+
+    let encounterFilter;
+    let currentEncounterEndDate = null;
+    let encounterPatientId = patientId;
+
+    if (encounterId) {
+      const currentEncounter = await models.Encounter.findByPk(encounterId);
+      if (!currentEncounter) {
+        throw new Error(`Encounter with id ${encounterId} not found`);
+      }
+      encounterPatientId = currentEncounter.patientId;
+
+      if (isChartLinkedToProgramRegistry) {
+        // Chart is linked to program registry: show instances from current and future encounters
+        if (currentEncounter.endDate) {
+          currentEncounterEndDate = currentEncounter.endDate;
+          encounterFilter = `
+            e.patient_id = :encounterPatientId 
+            AND e.end_date <= :currentEncounterEndDate
+            AND e.deleted_at IS NULL
+          `;
+        } else {
+          encounterFilter = `
+            e.patient_id = :encounterPatientId 
+            AND e.deleted_at IS NULL
+          `;
+        }
+      } else {
+        // Chart is NOT linked to program registry: only show in the encounter where created
+        encounterFilter = 'sr.encounter_id = :encounterId';
+      }
+    } else {
+      encounterFilter = 'e.patient_id = :patientId AND e.deleted_at IS NULL';
+    }
 
     const results = await db.query(
       `
@@ -38,7 +71,7 @@ export const fetchChartInstances = (options = {}) =>
             survey_response_answers sra
           ON
             sr.id = sra.response_id
-          ${patientId ? 'JOIN encounters e ON sr.encounter_id = e.id' : ''}
+          JOIN encounters e ON sr.encounter_id = e.id
           WHERE
             sr.survey_id = :chartSurveyId AND
             ${encounterFilter} AND
@@ -57,6 +90,8 @@ export const fetchChartInstances = (options = {}) =>
           chartSurveyId,
           encounterId,
           patientId,
+          encounterPatientId,
+          currentEncounterEndDate,
           complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
           complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
           complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
