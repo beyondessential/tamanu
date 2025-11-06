@@ -388,6 +388,18 @@ describe('Encounter', () => {
       expect(encounters).toHaveLength(0);
     });
 
+    it('should not create a new encounter for a patient who already has an open encounter', async () => {
+      await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const result = await app.post('/api/encounter').send({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      expect(result).toHaveRequestError();
+    });
+
     describe('journey', () => {
       // NB:
       // triage happens in Triage.test.js
