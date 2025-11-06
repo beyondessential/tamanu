@@ -87,7 +87,7 @@ export const usePatientRoutes = () => {
           component: EncounterView,
           navigateTo: () => navigateToEncounter(encounter.id),
           title: (
-            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
+            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter?.encounterType} />
           ),
           routes: [
             {
