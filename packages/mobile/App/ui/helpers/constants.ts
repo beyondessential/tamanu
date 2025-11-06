@@ -243,7 +243,3 @@ export const NOTE_TYPES = {
   CLINICAL_MOBILE: 'clinicalMobile',
   HANDOVER: 'handover',
 };
-
-export const FORM_STATUSES = {
-  SUBMIT_SCREEN_ATTEMPTED: 'SUBMIT_SCREEN_ATTEMPTED',
-};
