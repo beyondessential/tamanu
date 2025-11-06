@@ -12,7 +12,6 @@ import { buildToken } from '../dist/auth/utils';
 import { createApp } from '../dist/createApp';
 import { closeDatabase, initDatabase, initReporting } from '../dist/database';
 import { initIntegrations } from '../dist/integrations';
-import { setFhirRefreshTriggers } from '../dist/tasks/fhir/setFhirRefreshTriggers';
 
 class MockApplicationContext {
   closeHooks = [];
@@ -21,7 +20,6 @@ class MockApplicationContext {
     this.store = await initDatabase({ testMode: true });
     this.settings = new ReadSettings(this.store.models);
     await seedSettings(this.store.models);
-    await setFhirRefreshTriggers(this.store.sequelize);
 
     if (config.db.reportSchemas?.enabled) {
       await createMockReportingSchemaAndRoles({ sequelize: this.store.sequelize });
