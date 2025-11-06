@@ -58,11 +58,12 @@ insurancePlansRoute.put(
       const existingIds = new Set(existing.map(r => r.invoiceInsurancePlanId));
       const toCreate = invoiceInsurancePlanIds.filter(id => !existingIds.has(id));
 
-      if (toCreate.length)
+      if (toCreate.length) {
         await req.models.InvoicesInvoiceInsurancePlan.bulkCreate(
           toCreate.map(planId => ({ id: uuidv4(), invoiceId, invoiceInsurancePlanId: planId })),
           { transaction },
         );
+      }
 
       await transaction.commit();
 
