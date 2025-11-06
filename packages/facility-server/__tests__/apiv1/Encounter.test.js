@@ -391,6 +391,7 @@ describe('Encounter', () => {
     it('should not create a new encounter for a patient who already has an open encounter', async () => {
       await models.Encounter.create({
         ...(await createDummyEncounter(models)),
+        endDate: null,
         patientId: patient.id,
       });
       const result = await app.post('/api/encounter').send({
