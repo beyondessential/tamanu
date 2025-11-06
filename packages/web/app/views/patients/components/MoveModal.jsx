@@ -215,6 +215,34 @@ const EncounterChangeText = ({ newEncounterType }) => {
     />
   );
 };
+const getFormProps = ({ encounter, enablePatientMoveActions }) => {
+  const validationObject = {
+    examinerId: yup.string().required(),
+    departmentId: yup.string().required(),
+  };
+
+  const initialValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+  };
+
+  if (enablePatientMoveActions) {
+    validationObject.plannedLocationId = yup.string().nullable();
+    validationObject.action = yup
+      .string()
+      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+      .nullable();
+
+    initialValues.plannedLocationId = encounter.plannedLocationId;
+    initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  } else {
+    validationObject.locationId = yup.string().nullable();
+
+    initialValues.locationId = encounter.locationId;
+  }
+
+  return { initialValues, validationSchema: yup.object().shape(validationObject) };
+};
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
   const { getEnumTranslation } = useTranslation();
@@ -320,38 +348,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     });
   };
 
-  const validationObject = {
-    examinerId: yup.string().required(),
-    departmentId: yup.string().required(),
-  };
-
-  const initialValues = {
-    examinerId: encounter.examinerId,
-    departmentId: encounter.departmentId,
-  };
-
-  if (enablePatientMoveActions) {
-    validationObject.plannedLocationId = yup.string().nullable();
-    validationObject.action = yup
-      .string()
-      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
-      .nullable();
-
-    initialValues.plannedLocationId = encounter.plannedLocationId;
-    initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
-  } else {
-    validationObject.locationId = yup.string().nullable();
-
-    initialValues.locationId = encounter.locationId;
-  }
-
-  if (isAdmittingToHospital) {
-    validationObject.admissionTime = yup.date().required();
-    validationObject.patientBillingTypeId = yup.string().nullable();
-    validationObject.dietIds = yup.mixed().nullable();
-
-    initialValues.admissionTime = new Date();
-  }
+  const { initialValues, validationSchema } = getFormProps({ encounter, enablePatientMoveActions });
 
   return (
     <FormModal
@@ -375,7 +372,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
         initialValues={initialValues}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        validationSchema={yup.object().shape(validationObject)}
+        validationSchema={validationSchema}
         render={({ submitForm }) => (
           <>
             {newEncounterType && (
