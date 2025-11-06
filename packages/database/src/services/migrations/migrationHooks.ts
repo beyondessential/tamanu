@@ -18,7 +18,7 @@ export async function runPreMigration(log: Logger, sequelize: Sequelize) {
     [...GLOBAL_EXCLUDE_TABLES, ...NON_SYNCING_TABLES],
   )) {
     // we need to keep the updated_at_sync_tick trigger on the changes table
-    if (schema === 'logs' && table === 'changessync') {
+    if (schema === 'logs' && table === 'changes') {
       continue;
     }
 
