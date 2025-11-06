@@ -300,13 +300,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     baseQueryParameters: { filterByFacility: true },
   });
 
-  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
     const locationData =
-      enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
+      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
         ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
         : { locationId: plannedLocationId || locationId };
 
@@ -330,7 +330,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     departmentId: encounter.departmentId,
   };
 
-  if (enablePlannedPatientMove) {
+  if (enablePatientMoveActions) {
     validationObject.plannedLocationId = yup.string().nullable();
     validationObject.action = yup
       .string()
@@ -434,7 +434,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             {isAdmittingToHospital && <HospitalAdmissionFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
