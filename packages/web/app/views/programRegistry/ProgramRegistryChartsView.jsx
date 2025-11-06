@@ -9,11 +9,11 @@ import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getAnswersFromData } from '@tamanu/ui-components';
 
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
 import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 import { ProgramRegistryChartsTable, EmptyProgramRegistryChartsTable } from '../../components/ProgramRegistryChartsTable';
-import { getAnswersFromData } from '../../utils';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 import { useAuth } from '../../contexts/Auth';
