@@ -182,7 +182,7 @@ const PlannedMoveFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
-  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
+  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
 
   const { writeAndViewEncounter } = useEncounter();
 
@@ -190,6 +190,42 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const departmentSuggester = useSuggester('department', {
     baseQueryParameters: { filterByFacility: true },
   });
+
+  const onSubmit = async values => {
+    const { locationId, plannedLocationId, action, ...rest } = values;
+
+    const locationData =
+      enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
+        ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
+        : { locationId: plannedLocationId || locationId };
+
+    await writeAndViewEncounter(encounter.id, {
+      submittedTime: getCurrentDateTimeString(),
+      ...rest,
+      ...locationData,
+    });
+  };
+
+  const validationObject = {
+    examinerId: yup.string().required(),
+    departmentId: yup.string().required(),
+  };
+
+  const initialValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+  };
+
+  if (enablePlannedPatientMove) {
+    validationObject.plannedLocationId = yup.string().nullable();
+    validationObject.action = yup
+      .string()
+      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+      .nullable();
+
+    initialValues.plannedLocationId = encounter.plannedLocationId;
+    initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  }
 
   return (
     <FormModal
@@ -206,37 +242,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
       width="md"
     >
       <Form
-        initialValues={{
-          examinerId: encounter.examinerId,
-          departmentId: encounter.departmentId,
-          ...(enablePatientMoveActions && {
-            plannedLocationId: encounter.plannedLocationId,
-            action: PATIENT_MOVE_ACTIONS.PLAN,
-          }),
-        }}
+        initialValues={initialValues}
         formType={FORM_TYPES.EDIT_FORM}
-        onSubmit={async ({ departmentId, examinerId, locationId, plannedLocationId, action }) => {
-          const locationData =
-            action === PATIENT_MOVE_ACTIONS.PLAN
-              ? { plannedLocationId: plannedLocationId || null }
-              : { locationId: plannedLocationId || locationId || null };
-          await writeAndViewEncounter(encounter.id, {
-            submittedTime: getCurrentDateTimeString(),
-            departmentId,
-            examinerId,
-            ...locationData,
-          });
-        }}
-        validationSchema={yup.object().shape({
-          examinerId: yup.string().required(),
-          departmentId: yup.string().required(),
-          locationId: yup.string().nullable(),
-          plannedLocationId: yup.string().nullable(),
-          action: yup
-            .string()
-            .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
-            .nullable(),
-        })}
+        onSubmit={onSubmit}
+        validationSchema={yup.object().shape(validationObject)}
         render={({ submitForm }) => (
           <>
             <SectionHeading>
@@ -286,7 +295,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               onCancel={onClose}
