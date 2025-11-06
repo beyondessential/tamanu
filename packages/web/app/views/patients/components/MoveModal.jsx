@@ -182,7 +182,7 @@ const PlannedMoveFields = () => {
 
 export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const { getSetting } = useSettings();
-  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
 
   const { writeAndViewEncounter } = useEncounter();
 
@@ -195,7 +195,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
     const locationData =
-      enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
+      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
         ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
         : { locationId: plannedLocationId || locationId };
 
@@ -216,7 +216,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     departmentId: encounter.departmentId,
   };
 
-  if (enablePlannedPatientMove) {
+  if (enablePatientMoveActions) {
     validationObject.plannedLocationId = yup.string().nullable();
     validationObject.action = yup
       .string()
@@ -295,7 +295,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               onCancel={onClose}
