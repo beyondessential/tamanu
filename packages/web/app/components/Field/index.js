@@ -10,7 +10,6 @@ export * from './TimeWithUnitField';
 export * from './RadioField';
 export * from './SuggesterSelectField';
 export * from './SurveyResponseSelectField';
-export * from './PhotoField';
 export * from './SignatureField';
 export * from './ImagingPriorityField';
 export * from './SearchField';
