@@ -31,7 +31,7 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
-import { DateField, Field, Form } from '@tamanu/ui-components';
+import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 
 const CardLabel = styled.span`
@@ -60,6 +60,17 @@ const DietCardValue = styled.div`
   max-width: calc(100% - 28px);
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const AddButton = styled(TextButton)`
+  color: ${TAMANU_COLORS.darkestText};
+  text-decoration: underline;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const StyledModalFormActionRow = styled(ModalFormActionRow)`
+  margin-top: 20px;
 `;
 
 const getReferralSource = ({ referralSource }) =>
@@ -135,7 +146,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
               component={DateField}
               saveDateAsString
             />
-            <ModalFormActionRow onConfirm={submitForm} />
+            <StyledModalFormActionRow onConfirm={submitForm} />
           </>
         )}
       />
@@ -277,9 +288,9 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 <DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />
               ) : (
                 <>
-                  <TextButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
+                  <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
                     + Add
-                  </TextButton>
+                  </AddButton>
                   <SetDischargeDateModal
                     open={isEstimatedDischargeModalOpen}
                     onClose={() => setIsEstimatedDischargeModalOpen(false)}
