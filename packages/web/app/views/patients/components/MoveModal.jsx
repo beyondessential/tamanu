@@ -302,7 +302,6 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
   const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
-
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
@@ -340,6 +339,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
 
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  } else {
+    validationObject.locationId = yup.string().nullable();
+
+    initialValues.locationId = encounter.locationId;
   }
 
   if (isAdmittingToHospital) {
