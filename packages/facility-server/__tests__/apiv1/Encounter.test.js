@@ -39,6 +39,11 @@ describe('Encounter', () => {
   });
   afterAll(() => ctx.close());
 
+  afterEach(async () => {
+    await models.Encounter.truncate({ cascade: true });
+    await models.Discharge.truncate({ cascade: true });
+  });
+
   it('should reject reading an encounter with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
     const encounter = await models.Encounter.create({
