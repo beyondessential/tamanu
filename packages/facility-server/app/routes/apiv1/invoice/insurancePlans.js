@@ -56,6 +56,7 @@ insurancePlansRoute.put(
         transaction,
       });
       const existingIds = new Set(existing.map(r => r.invoiceInsurancePlanId));
+
       const toCreate = invoiceInsurancePlanIds.filter(id => !existingIds.has(id));
 
       if (toCreate.length) {

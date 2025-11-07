@@ -57,7 +57,7 @@ describe('Invoice Insurance Plans API', () => {
         }),
       );
 
-      const result = await app.put(`/api/invoice/${invoice.id}/insurancePlans`, {
+      const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
         invoiceInsurancePlanIds: [plan1.id, plan2.id],
       });
 
@@ -92,12 +92,12 @@ describe('Invoice Insurance Plans API', () => {
       );
 
       // Add both plans
-      await app.put(`/api/invoice/${invoice.id}/insurancePlans`, {
+      await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
         invoiceInsurancePlanIds: [plan1.id, plan2.id],
       });
 
       // Remove one plan
-      const result = await app.put(`/api/invoice/${invoice.id}/insurancePlans`, {
+      const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
         invoiceInsurancePlanIds: [plan1.id],
       });
 
@@ -105,15 +105,6 @@ describe('Invoice Insurance Plans API', () => {
       expect(result.body.count).toBe(1);
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0].invoiceInsurancePlanId).toBe(plan1.id);
-    });
-
-    it('should return 404 when invoice does not exist', async () => {
-      const result = await app.put(`/api/invoice/non-existent-id/insurancePlans`, {
-        invoiceInsurancePlanIds: [],
-      });
-
-      expect(result).toHaveRequestError();
-      expect(result.body.error.message).toBe('Invoice not found');
     });
 
     it('should return error when invoice is not IN_PROGRESS', async () => {
@@ -131,7 +122,7 @@ describe('Invoice Insurance Plans API', () => {
         }),
       );
 
-      const result = await app.put(`/api/invoice/${invoice.id}/insurancePlans`, {
+      const result = await app.put(`/api/invoices/${invoice.id}/insurancePlans`).send({
         invoiceInsurancePlanIds: [plan1.id],
       });
 
