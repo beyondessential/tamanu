@@ -54,6 +54,7 @@ async function createSimpleChartSurvey(models, index) {
 }
 
 async function createComplexCoreChartSurvey(models, patient) {
+  await models.Encounter.truncate({});
   const encounter = await models.Encounter.create({
     ...(await createDummyEncounter(models)),
     patientId: patient.id,
@@ -149,8 +150,8 @@ describe('EncounterCharting', () => {
         count: 2,
         data: expect.any(Array),
       });
-      const chartInstance1 = result.body.data.find((x) => x.chartInstanceId === response1.id);
-      const chartInstance2 = result.body.data.find((x) => x.chartInstanceId === response2.id);
+      const chartInstance1 = result.body.data.find(x => x.chartInstanceId === response1.id);
+      const chartInstance2 = result.body.data.find(x => x.chartInstanceId === response2.id);
 
       expect(chartInstance1).toMatchObject({
         chartSurveyId: survey.id,
