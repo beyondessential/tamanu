@@ -10,13 +10,13 @@ import {
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 
-import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
-import { DataFetchingTable } from '../Table';
-import { TranslatedEnum, TranslatedText } from '../Translation';
+import { Colors, INVOICE_MODAL_TYPES } from '../../constants/index.js';
+import { DataFetchingTable } from '../../components/Table/index.js';
+import { TranslatedEnum, TranslatedText } from '../../components/Translation/index.js';
 import { Typography } from '@material-ui/core';
-import { ThemedTooltip } from '../Tooltip';
-import { InvoiceStatus } from './InvoiceStatus';
-import { InvoiceModalGroup } from './InvoiceModalGroup';
+import { ThemedTooltip } from '../../components/Tooltip.jsx';
+import { InvoiceStatus } from './InvoiceStatus.jsx';
+import { InvoiceModalGroup } from './InvoiceModalGroup.jsx';
 import {
   formatDisplayPrice,
   getInvoiceSummary,
@@ -25,8 +25,8 @@ import {
 import {
   useEncounterInvoiceQuery,
   useInvoiceTotalOutstandingBalanceQuery,
-} from '../../api/queries/useInvoiceQuery';
-import { useAuth } from '../../contexts/Auth';
+} from '../../api/queries/useInvoiceQuery.js';
+import { useAuth } from '../../contexts/Auth.jsx';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;

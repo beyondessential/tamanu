@@ -105,9 +105,10 @@ export const getInvoiceSummary = invoice => {
     .add(nonDiscountableItemsSubtotal)
     .toNumber();
 
-  const insurersDiscountPercentage = invoice.insurers
-    .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
-    .toNumber();
+  const insurersDiscountPercentage =
+    invoice.insurers
+      ?.reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
+      .toNumber() || 0;
 
   const insurerDiscountTotal = new Decimal(itemsSubtotal)
     .times(insurersDiscountPercentage)

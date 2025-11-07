@@ -5,16 +5,18 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
+import {
+  InvoiceModalGroup,
+  InvoiceStatus,
+  InvoiceSummaryPanel,
+  InvoiceForm,
+} from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
-import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryPanel';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
-import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
 
@@ -129,7 +131,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceItemsTable invoice={invoice} data-testid="invoiceitemstable-86zi" />
+            <InvoiceForm invoice={invoice} isPatientView={false} />
           </InvoiceContainer>
           <InvoiceSummaryPanel invoice={invoice} data-testid="invoicesummarypanel-40qi" />
         </TabPane>

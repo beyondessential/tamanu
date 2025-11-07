@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
-import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
-import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector';
-import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
-import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
-import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { useApi } from '../../../api';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index.js';
+import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector.jsx';
+import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm.jsx';
+import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm.jsx';
+import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
+import { useApi } from '../../../api/index.js';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { useAuth } from '../../../contexts/Auth';
+import { useAuth } from '../../../contexts/Auth.jsx';
 
 const ACTIVE_VIEW = {
   DISCOUNT_TYPE_SELECTOR: 'discountTypeSelector',
@@ -57,11 +57,11 @@ export const UpsertInvoiceModal = ({
     setDiscountType(discountType);
   };
 
-  const handleActiveView = (view) => {
+  const handleActiveView = view => {
     setActiveView(view);
   };
 
-  const handleUpsertInvoice = (payload) => {
+  const handleUpsertInvoice = payload => {
     if (isSubmitting) {
       return;
     }
@@ -77,7 +77,7 @@ export const UpsertInvoiceModal = ({
     }
   };
 
-  const handleUpsertInvoiceWithDiscount = (data) => {
+  const handleUpsertInvoiceWithDiscount = data => {
     const discount = {
       percentage: data.percentage,
       reason: data.reason,

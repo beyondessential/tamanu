@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { TranslatedText } from '../../Translation';
-import { AutocompleteField, DateField, Field, NumberField } from '../../Field';
-import { useSuggester } from '../../../api';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
-import { ThemedTooltip } from '../../Tooltip';
-import { ThreeDotMenu } from '../../ThreeDotMenu';
-import { InvoiceItemActionModal } from './InvoiceItemActionModal';
+import { TranslatedText } from '../../../components/Translation/index.js';
+import {
+  AutocompleteField,
+  DateField,
+  Field,
+  NumberField,
+} from '../../../components/Field/index.js';
+import { useSuggester } from '../../../api/index.js';
+import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants/index.js';
+import { ThemedTooltip } from '../../../components/Tooltip.jsx';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu.jsx';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { getDateDisplay } from '../../DateDisplay';
-import { useTranslation } from '../../../contexts/Translation';
+import { getDateDisplay } from '../../../components/DateDisplay.jsx';
+import { useTranslation } from '../../../contexts/Translation.jsx';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { PriceField } from '../../Field/PriceField';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { PriceField } from '../../../components/Field/PriceField.jsx';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker.jsx';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -30,8 +35,6 @@ const StyledItemRow = styled(Box)`
   font-size: 14px;
   padding: 7.5px 20px;
   background: ${Colors.white};
-  border-left: 1px solid ${Colors.outline};
-  border-right: 1px solid ${Colors.outline};
   border-top: 1px solid ${Colors.outline};
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
@@ -41,12 +44,12 @@ const StyledItemRow = styled(Box)`
 const StyledItemHeader = styled(Box)`
   display: flex;
   gap: 10px;
-  padding: 14px;
+  padding-top: 14px;
+  padding-bottom: 14px;
   padding-left: 20px;
   padding-right: 20px;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
-  border: 1px solid ${Colors.outline};
   border-bottom: 0;
 `;
 
