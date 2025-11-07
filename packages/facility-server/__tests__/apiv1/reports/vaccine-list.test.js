@@ -31,11 +31,11 @@ describe('Vaccine list report', () => {
     app = await baseApp.asRole('practitioner');
 
     const encounter1 = await models.Encounter.create(
-      await createDummyEncounter(models, { patientId: expectedPatient.id, current: true }),
+      await createDummyEncounter(models, { patientId: expectedPatient.id }),
     );
 
     const encounter2 = await models.Encounter.create(
-      await createDummyEncounter(models, { patientId: expectedPatient.id, current: true }),
+      await createDummyEncounter(models, { patientId: expectedPatient.id }),
     );
 
     scheduledVaccine1 = await models.ScheduledVaccine.create(
