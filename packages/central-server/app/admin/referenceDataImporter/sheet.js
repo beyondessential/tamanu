@@ -130,7 +130,9 @@ export async function importSheet(
         header: sheetHeader,
         pushError: (message, errModel) => {
           errors.push(new ValidationError(sheetName, sheetRow, message));
-          updateStat(stats, statkey(errModel, sheetName), 'errored');
+          if (errModel) {
+            updateStat(stats, statkey(errModel, sheetName), 'errored');
+          }
         },
       })) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);

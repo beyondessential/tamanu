@@ -120,7 +120,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invalid price value 'abc' for priceList 'PL_A' and invoiceProductId 'prod-3' on invoicePriceListItem at row 2",
@@ -138,7 +147,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "InvoicePriceList with code 'NONEXISTENT_PL' does not exist on invoicePriceListItem at row 2",
@@ -156,7 +174,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       "Invoice product 'nonexistent-product' does not exist on invoicePriceListItem at row 2",
