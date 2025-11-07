@@ -587,9 +587,11 @@ describe('User', () => {
     });
 
     beforeEach(async () => {
-      await models.UserRecentlyViewedPatient.destroy({
-        where: {},
-        truncate: true,
+      await models.UserRecentlyViewedPatient.truncate({
+        cascade: true,
+      });
+      await models.Encounter.truncate({
+        cascade: true,
       });
     });
 
@@ -649,20 +651,15 @@ describe('User', () => {
       const patientsToView = patients.slice(0, 4);
 
       for (const p of patientsToView) {
-        // open a few encounters for each patient
+        // create a few closed encounters, then one open encounter for each patient
         for (let i = 0; i < 4; ++i) {
-          const enc = await models.Encounter.create(
+          await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
-              current: true,
+              current: i === 3, // last one (index 3) should be open
             }),
           );
-
-          // close some of them but not all
-          if (i >= 2) {
-            await enc.update({ endDate: new Date() });
-          }
         }
       }
 
@@ -683,22 +680,17 @@ describe('User', () => {
 
       for (const p of patientsToView) {
         const startDate = new Date();
-        const endDate = addHours(startDate, 1);
 
-        // open a few encounters for each patient
+        // create a few closed encounters, then one open encounter for each patient
         for (let i = 0; i < 4; ++i) {
-          const enc = await models.Encounter.create(
+          await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
               startDate,
+              current: i === 3, // last one (index 3) should be open
             }),
           );
-
-          // close some of them but not all
-          if (i >= 2) {
-            await enc.update({ endDate });
-          }
         }
       }
 
