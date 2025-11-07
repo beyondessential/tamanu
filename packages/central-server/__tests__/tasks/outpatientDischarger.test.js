@@ -20,7 +20,7 @@ describe('Outpatient discharger', () => {
     return discharger.run();
   };
 
-  const expectEndsOnSameDayBeforeMidnight = (encounter) => {
+  const expectEndsOnSameDayBeforeMidnight = encounter => {
     const { startDate, endDate } = encounter;
     expect(startDate).toBeTruthy();
     expect(endDate).toBeTruthy();
@@ -45,8 +45,9 @@ describe('Outpatient discharger', () => {
       facilityId: facility.id,
     });
 
-    createEncounter = (options = {}) =>
-      models.Encounter.create({
+    createEncounter = async (options = {}) => {
+      await models.Encounter.truncate({ cascade: true });
+      return await models.Encounter.create({
         patientId: patient.id,
         departmentId: department.id,
         encounterType: ENCOUNTER_TYPES.CLINIC,
@@ -54,6 +55,7 @@ describe('Outpatient discharger', () => {
         examinerId: examiner.id,
         ...options,
       });
+    };
   });
 
   afterAll(() => ctx.close());

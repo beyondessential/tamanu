@@ -1,4 +1,4 @@
-import { createDummyPatient } from '@tamanu/database/demoData/patients';
+import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoData/patients';
 import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { chance, fake, fakeUser } from '@tamanu/fake-data/fake';
 
@@ -31,7 +31,7 @@ describe('Lab test publisher', () => {
   let testCategory;
   let patient;
 
-  const makeLabRequest = async (testType) => {
+  const makeLabRequest = async testType => {
     const examiner = await models.User.create(fakeUser());
     const facility = await models.Facility.create(fake(models.Facility));
     const department = await models.Department.create({
@@ -43,8 +43,8 @@ describe('Lab test publisher', () => {
       facilityId: facility.id,
     });
     const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
       patientId: patient.id,
-      startDate: new Date(),
       encounterType: ENCOUNTER_TYPES.IMAGING,
       departmentId: department.id,
       locationId: location.id,
