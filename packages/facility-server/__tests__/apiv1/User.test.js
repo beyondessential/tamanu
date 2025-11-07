@@ -3,7 +3,6 @@ import { pick } from 'lodash';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake, chance } from '@tamanu/fake-data/fake';
 
-import { addHours } from 'date-fns';
 import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { centralServerLogin, buildToken, comparePassword } from '../../dist/middleware/auth';
@@ -647,17 +646,19 @@ describe('User', () => {
       expect(resultIds).toEqual(sourceIds);
     });
 
+    const NUMBER_OF_VIEWS = 4;
+
     it('should handle multiple encounters cleanly', async () => {
-      const patientsToView = patients.slice(0, 4);
+      const patientsToView = patients.slice(0, NUMBER_OF_VIEWS);
 
       for (const p of patientsToView) {
         // create a few closed encounters, then one open encounter for each patient
-        for (let i = 0; i < 4; ++i) {
+        for (let i = 0; i <= NUMBER_OF_VIEWS; ++i) {
           await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
-              current: i === 3, // last one (index 3) should be open
+              current: i === NUMBER_OF_VIEWS - 1,
             }),
           );
         }
@@ -682,13 +683,13 @@ describe('User', () => {
         const startDate = new Date();
 
         // create a few closed encounters, then one open encounter for each patient
-        for (let i = 0; i < 4; ++i) {
+        for (let i = 0; i <= NUMBER_OF_VIEWS; ++i) {
           await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
               startDate,
-              current: i === 3, // last one (index 3) should be open
+              current: i === NUMBER_OF_VIEWS - 1,
             }),
           );
         }
