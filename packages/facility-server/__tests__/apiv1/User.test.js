@@ -653,12 +653,12 @@ describe('User', () => {
 
       for (const p of patientsToView) {
         // create a few closed encounters, then one open encounter for each patient
-        for (let i = 0; i <= NUMBER_OF_VIEWS; ++i) {
+        for (let i = 1; i < NUMBER_OF_VIEWS; ++i) {
           await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
-              current: i === NUMBER_OF_VIEWS - 1,
+              current: i === NUMBER_OF_VIEWS,
             }),
           );
         }
@@ -683,13 +683,13 @@ describe('User', () => {
         const startDate = new Date();
 
         // create a few closed encounters, then one open encounter for each patient
-        for (let i = 0; i <= NUMBER_OF_VIEWS; ++i) {
+        for (let i = 1; i < NUMBER_OF_VIEWS; ++i) {
           await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
               startDate,
-              current: i === NUMBER_OF_VIEWS - 1,
+              current: i === NUMBER_OF_VIEWS,
             }),
           );
         }
