@@ -21,6 +21,7 @@ import { useApi } from '../../api';
 import { ChartGraphDataProvider } from '../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../components/VitalChartsModal';
 import { useProgramRegistryPatientComplexChartInstancesQuery } from '../../api/queries/useProgramRegistryPatientComplexChartInstancesQuery';
+import { useProgramRegistryPatientChartsQuery } from '../../api/queries/useProgramRegistryPatientChartsQuery';
 import { TabDisplay } from '../../components/TabDisplay';
 import { Colors } from '../../constants';
 import { ChartDropdown } from '../../components/Charting/ChartDropdown';
@@ -205,6 +206,15 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
     () => complexChartInstancesById[currentComplexChartTab],
     [complexChartInstancesById, currentComplexChartTab],
   );
+
+  // Determine if the current complex chart instance can be deleted (no answers across encounters)
+  const { data: prChartRecords = [], isLoading: isPrChartLoading } =
+    useProgramRegistryPatientChartsQuery(
+      patient?.id,
+      selectedChartTypeId,
+      currentComplexChartInstance?.chartInstanceId,
+    );
+  const canDeleteInstance = !isPrChartLoading && prChartRecords.length === 0;
 
   // Sets initial instance tab when selecting a complex chart
   useEffect(() => {
@@ -407,6 +417,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
               subtype={currentComplexChartInstance.chartSubtype}
               coreComplexDataElements={coreComplexDataElements}
               fieldVisibility={fieldVisibility}
+              canDeleteInstance={canDeleteInstance}
               data-testid="corecomplexchartdata-tepa"
             />
           ) : null}
