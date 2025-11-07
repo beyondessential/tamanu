@@ -12,7 +12,7 @@ async function processRow(item, state, { pushError, models }) {
   // Validate that the invoice product exists
   const productExists = await models.InvoiceProduct.findByPk(invoiceProductId);
   if (!productExists) {
-    pushError(`Invoice product '${invoiceProductId}' does not exist`);
+    pushError(`Invoice product '${invoiceProductId}' does not exist`, 'InvoicePriceListItem');
     return [];
   }
 
@@ -39,13 +39,14 @@ async function processRow(item, state, { pushError, models }) {
     if (Number.isNaN(price)) {
       pushError(
         `Invalid price value '${rawPrice}' for priceList '${code}' and invoiceProductId '${invoiceProductId}'`,
+        'InvoicePriceListItem',
       );
       return [];
     }
 
     const invoicePriceListId = state.priceListIdCache.get(code);
     if (!invoicePriceListId) {
-      pushError(`Could not find InvoicePriceList ID for code '${code}'`);
+      pushError(`Could not find InvoicePriceList ID for code '${code}'`, 'InvoicePriceListItem');
       return [];
     }
 
