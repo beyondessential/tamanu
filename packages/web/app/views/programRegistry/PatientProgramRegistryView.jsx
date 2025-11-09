@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
@@ -15,6 +16,8 @@ import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { PatientNavigation } from '../../components/PatientNavigation';
 import { usePatientRoutes } from '../../routes/PatientRoutes';
+import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';
+import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -66,10 +69,17 @@ const Grid = styled.div`
 
 export const PatientProgramRegistryView = () => {
   const { patientId, programRegistryId } = useParams();
+  const patient = useSelector(state => state.patient);
   const { data, isLoading, isError, isFetching } = usePatientProgramRegistrationQuery(
     patientId,
     programRegistryId,
   );
+
+  // Check if there are linked charts for this program registry
+  const { data: { chartSurveys = [] } = {} } = useProgramRegistryLinkedChartsQuery(
+    programRegistryId,
+  );
+  const hasLinkedCharts = chartSurveys.length > 0;
 
   const patientRoutes = usePatientRoutes();
 
@@ -121,6 +131,12 @@ export const PatientProgramRegistryView = () => {
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
+        {/* Charts section - only show if there are linked charts */}
+        {hasLinkedCharts && patient && (
+          <Row>
+            <ProgramRegistryChartsView programRegistryId={programRegistryId} patient={patient} />
+          </Row>
+        )}
       </Container>
     </>
   );

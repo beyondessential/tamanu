@@ -32,7 +32,13 @@ import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';
 import { SimpleChartModal } from '../../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../../components/Charting/constants';
-import { getComplexChartFormMode } from '../../../utils/chart/chartUtils';
+import {
+  getComplexChartFormMode,
+  findChartSurvey,
+  getNoDataMessage,
+  getTooltipMessage,
+  getNoSelectableChartsMessage,
+} from '../../../utils/chart/chartUtils';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 import { useTranslation } from '../../../contexts/Translation';
@@ -87,58 +93,6 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
     min-height: 0px;
   }
 `;
-
-const findChartSurvey = (chartSurveys, chartId) => chartSurveys.find(({ id }) => id === chartId);
-
-const getNoDataMessage = (isComplexChart, complexChartInstances, selectedSurveyId) => {
-  if (!selectedSurveyId) {
-    return (
-      <TranslatedText
-        stringId="chart.table.simple.noChart"
-        fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
-        data-testid="translatedtext-h93c"
-      />
-    );
-  }
-
-  if (isComplexChart && !complexChartInstances?.length) {
-    return (
-      <TranslatedText
-        stringId="chart.table.complex.noChart"
-        fallback="This patient has no chart information to display. Click '+ Add' to add information to this chart."
-        data-testid="translatedtext-1n1o"
-      />
-    );
-  }
-
-  return (
-    <TranslatedText
-      stringId="chart.table.noData"
-      fallback="This patient has no chart information to display. Click ‘Record’ to add information to this chart."
-      data-testid="translatedtext-jwyi"
-    />
-  );
-};
-
-const getTooltipMessage = selectedSurveyId => {
-  if (!selectedSurveyId) {
-    return (
-      <TranslatedText
-        stringId="chart.action.record.disabledTooltip.noChartType"
-        fallback="Please select a chart type to record an entry"
-        data-testid="translatedtext-arpn"
-      />
-    );
-  }
-
-  return (
-    <TranslatedText
-      stringId="chart.action.record.disabledTooltip"
-      fallback="'Add' an item first to record against"
-      data-testid="translatedtext-zbwx"
-    />
-  );
-};
 
 export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
@@ -346,13 +300,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
       <TabPane data-testid="tabpane-prxb">
         <EmptyChartsTable
           isLoading={isLoadingChartData || isLoadingChartSurveys || isWaitingForInstances}
-          noDataMessage={
-            <TranslatedText
-              stringId="chart.table.noSelectableCharts"
-              fallback="There are currently no charts available to record. Please speak to your System Administrator if you think this is incorrect."
-              data-testid="translatedtext-a37q"
-            />
-          }
+          noDataMessage={getNoSelectableChartsMessage()}
           data-testid="emptychartstable-o5hh"
         />
       </TabPane>
