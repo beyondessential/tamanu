@@ -4,19 +4,6 @@ import Decimal from 'decimal';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
-
-<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/PatientPaymentsTable.jsx
-import { TranslatedText } from '../../../components/Translation/index.js';
-import { Table } from '../../../components/Table/index.js';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants/index.js';
-import { Heading4 } from '../../../components/Typography.js';
-import { DateDisplay } from '../../../components/DateDisplay.jsx';
-import { useAuth } from '../../../contexts/Auth.jsx';
-import { PatientPaymentForm } from '../../../forms/PatientPaymentForm.jsx';
-import { PencilIcon } from '../../../assets/icons/PencilIcon.jsx';
-import useOverflow from '../../../hooks/useOverflow.js';
-import { ThemedTooltip } from '../../../components/Tooltip.jsx';
-========
 import { TranslatedText } from '../../../components/Translation';
 import { Table } from '../../../components/Table';
 import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
@@ -27,7 +14,6 @@ import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
 import { PencilIcon } from '../../../assets/icons/PencilIcon';
 import useOverflow from '../../../hooks/useOverflow';
 import { ThemedTooltip } from '../../../components/Tooltip';
->>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/PatientPaymentsTable.jsx
 
 const TableContainer = styled.div`
   padding-left: 16px;

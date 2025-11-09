@@ -5,15 +5,9 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/InvoiceItemCard.jsx
-import { Colors } from '../../../constants/index.js';
-import { TranslatedText } from '../../../components/Translation/TranslatedText.jsx';
-import { getDateDisplay } from '../../../components/DateDisplay.jsx';
-========
 import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { getDateDisplay } from '../../../components/DateDisplay';
->>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/InvoiceItemCard.jsx
 
 const Card = styled(Box)`
   background: white;

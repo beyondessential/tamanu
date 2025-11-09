@@ -1,14 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/ConfirmPaidModal.jsx
-import { Modal } from '../../../components/Modal.jsx';
-import { TranslatedText } from '../../../components/Translation/index.js';
-import { ModalActionRow } from '../../../components/ModalActionRow.jsx';
-========
 import { Modal } from '../../../components/Modal';
 import { TranslatedText } from '../../../components/Translation';
 import { ModalActionRow } from '../../../components/ModalActionRow';
->>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/ConfirmPaidModal.jsx
 
 const ContentText = styled.div`
   margin: 20px 18px 50px 18px;
