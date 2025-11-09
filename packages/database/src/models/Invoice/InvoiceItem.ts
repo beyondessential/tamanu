@@ -1,12 +1,12 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateType, type InitOptions, type Models } from '../types/model';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { dateType, type InitOptions, type Models } from '../../types/model';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
 
 export class InvoiceItem extends Model {
   declare id: string;
@@ -14,10 +14,11 @@ export class InvoiceItem extends Model {
   declare productId?: string;
   declare quantity: number;
   declare note?: string;
-  declare sourceId?: string;
-  declare productName: string;
-  declare productPrice: number;
-  declare productCode: string;
+  declare sourceRecordType?: string;
+  declare sourceRecordId?: string;
+  declare productName?: string;
+  declare productPrice?: number;
+  declare productCode?: string;
   declare productDiscountable: boolean;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
@@ -41,21 +42,25 @@ export class InvoiceItem extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        sourceId: {
-          type: DataTypes.UUID,
+        sourceRecordType: {
+          type: DataTypes.STRING,
+          allowNull: true,
+        },
+        sourceRecordId: {
+          type: DataTypes.STRING,
           allowNull: true,
         },
         productName: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         productPrice: {
           type: DataTypes.DECIMAL,
-          allowNull: false,
+          allowNull: true,
         },
         productCode: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         productDiscountable: {
           type: DataTypes.BOOLEAN,
@@ -105,23 +110,40 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models) {
+  static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
+    const productInclude: Record<string, any>[] = [
+      {
+        model: models.ReferenceData,
+        as: 'sourceRefDataRecord',
+        attributes: ['code', 'type'],
+      },
+      {
+        model: models.LabTestType,
+        as: 'sourceLabTestTypeRecord',
+        attributes: ['code'],
+      },
+      {
+        model: models.LabTestPanel,
+        as: 'sourceLabTestPanelRecord',
+        attributes: ['code'],
+      },
+    ];
+
+    if (invoicePriceListId) {
+      productInclude.push({
+        model: models.InvoicePriceListItem,
+        where: { invoicePriceListId },
+        as: 'invoicePriceListItem',
+        attributes: ['price', 'invoicePriceListId'],
+        required: false,
+      });
+    }
+
     return [
       {
         model: models.InvoiceProduct,
         as: 'product',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'referenceData',
-            attributes: ['code', 'type'],
-          },
-          {
-            model: models.LabTestType,
-            as: 'labTestType',
-            attributes: ['code'],
-          },
-        ],
+        include: productInclude,
       },
       {
         model: models.User,

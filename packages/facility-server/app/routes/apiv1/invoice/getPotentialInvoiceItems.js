@@ -36,7 +36,6 @@ export const getPotentialInvoiceItems = async (db, invoiceId, imagingTypes) => {
 	select
 		ip.id,
 		ip.name,
-		ip.price,
     ip.discountable
 	from invoice_products ip
 	where ip.deleted_at is null and ip.visibility_status = :visibilityStatus
@@ -100,7 +99,6 @@ select
 	coalesce(fpc."productCode",fi."productCode",fl."productCode") as "productCode",
 	coalesce(fpc."sourceType",fi."sourceType",fl."sourceType") as "productType",
 	fpd.name as "productName",
-	fpd.price as "productPrice",
 	fpd.discountable as "productDiscountable",
 	coalesce(fpc."date",fi."date",fl."date") as "orderDate",
 	coalesce(fpc."sourceId",fi."sourceId",fl."sourceId") as "sourceId",

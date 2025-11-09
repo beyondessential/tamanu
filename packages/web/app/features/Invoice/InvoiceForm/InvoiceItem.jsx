@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/InvoiceItem.jsx
 import { TranslatedText } from '../../../components/Translation/index.js';
 import {
   AutocompleteField,
@@ -13,15 +14,32 @@ import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants/inde
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu.jsx';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
+========
+import { TranslatedText } from '../../../components/Translation';
+import { AutocompleteField, DateField, Field, NumberField } from '../../../components/Field';
+import { useSuggester } from '../../../api';
+import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal';
+>>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/InvoiceItem.jsx
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
+<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/InvoiceItem.jsx
 import { getDateDisplay } from '../../../components/DateDisplay.jsx';
 import { useTranslation } from '../../../contexts/Translation.jsx';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { PriceField } from '../../../components/Field/PriceField.jsx';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker.jsx';
+========
+import { getDateDisplay } from '../../../components/DateDisplay';
+import { useTranslation } from '../../../contexts/Translation';
+import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
+import { PriceField } from '../../../components/Field/PriceField';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
+>>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/InvoiceItem.jsx
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -124,7 +142,8 @@ export const InvoiceItemRow = ({
       casing: 'lower',
     },
   );
-  const hidePriceInput = item?.product?.price || item?.product?.price === 0 || !editable;
+  // Todo: Determine input state based on productPriceManualEntry when it's implemented
+  const hidePriceInput = item.productPrice === undefined || !editable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id, ...others }) => ({
@@ -290,8 +309,6 @@ export const InvoiceItemRow = ({
       productName: value.productName,
       productCode: value.code,
       productDiscountable: value.discountable,
-      product: { ...item.product, price: value.price },
-      ...(value.price !== null && { productPrice: value.price }),
     });
   };
 

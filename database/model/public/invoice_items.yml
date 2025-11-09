@@ -60,13 +60,9 @@ sources:
           - name: product_name
             data_type: character varying(255)
             description: "{{ doc('invoice_items__product_name') }}"
-            data_tests:
-              - not_null
           - name: product_price
             data_type: numeric
             description: "{{ doc('invoice_items__product_price') }}"
-            data_tests:
-              - not_null
           - name: ordered_by_user_id
             data_type: character varying(255)
             description: "{{ doc('invoice_items__ordered_by_user_id') }}"
@@ -76,9 +72,6 @@ sources:
                   arguments:
                     to: source('tamanu', 'users')
                     field: id
-          - name: source_id
-            data_type: uuid
-            description: "{{ doc('invoice_items__source_id') }}"
           - name: created_at
             data_type: timestamp with time zone
             description: "{{ doc('generic__created_at') }} in invoice_items."
@@ -93,8 +86,6 @@ sources:
           - name: product_code
             data_type: character varying(255)
             description: "{{ doc('invoice_items__product_code') }}"
-            data_tests:
-              - not_null
           - name: note
             data_type: character varying(255)
             description: "{{ doc('invoice_items__note') }}"
@@ -106,6 +97,12 @@ sources:
             description: "{{ doc('invoice_items__product_discountable') }}"
             data_tests:
               - not_null
+          - name: source_record_type
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__source_record_type') }}"
+          - name: source_record_id
+            data_type: character varying(255)
+            description: "{{ doc('invoice_items__source_record_id') }}"
           - name: updated_at_sync_tick
             data_type: bigint
             description: "{{ doc('generic__updated_at_sync_tick') }} in invoice_items."

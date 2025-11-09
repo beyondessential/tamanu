@@ -4,11 +4,19 @@ import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 
+<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/InvoiceItemActionModal.jsx
 import { InvoiceItemCard } from './InvoiceItemCard.jsx';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants/index.js';
 import { Field, NumberField } from '../../../components/Field/index.js';
 import { useTranslation } from '../../../contexts/Translation.jsx';
 import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields.jsx';
+========
+import { InvoiceItemCard } from './InvoiceItemCard';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
+import { Field, NumberField } from '../../../components/Field';
+import { useTranslation } from '../../../contexts/Translation';
+import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields';
+>>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/InvoiceItemActionModal.jsx
 import {
   TextField,
   SelectField,

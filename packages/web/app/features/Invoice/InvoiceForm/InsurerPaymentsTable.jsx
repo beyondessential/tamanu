@@ -4,11 +4,19 @@ import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/InsurerPaymentsTable.jsx
 import { TranslatedText } from '../../../components/Translation/index.js';
 import { Table } from '../../../components/Table/index.js';
 import { Colors, denseTableStyle } from '../../../constants/index.js';
 import { Heading4 } from '../../../components/Typography.js';
 import { DateDisplay } from '../../../components/DateDisplay.jsx';
+========
+import { TranslatedText } from '../../../components/Translation';
+import { Table } from '../../../components/Table';
+import { Colors, denseTableStyle } from '../../../constants';
+import { Heading4 } from '../../../components/Typography';
+import { DateDisplay } from '../../../components/DateDisplay';
+>>>>>>>> feat/sav-1047-refactor-components:packages/web/app/features/Invoice/EditInvoiceModal/InsurerPaymentsTable.jsx
 
 const TableContainer = styled.div`
   margin-top: 10px;

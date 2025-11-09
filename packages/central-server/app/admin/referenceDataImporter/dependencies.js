@@ -16,6 +16,7 @@ import {
   invoiceProductLoader,
 } from './loaders';
 import { invoicePriceListItemLoaderFactory } from './invoicePriceListItemLoaderFactory';
+import { invoiceInsurancePlanItemLoaderFactory } from './invoiceInsurancePlanItemLoaderFactory';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -78,6 +79,16 @@ export default {
       return invoicePriceListItemLoaderFactory();
     },
     needs: ['invoicePriceList', 'invoiceProduct'],
+  },
+
+  // Insurance plans and items (mirror price lists & items)
+  invoiceInsurancePlan: {},
+  invoiceInsurancePlanItem: {
+    get loader() {
+      // Create a fresh loader instance on each access
+      return invoiceInsurancePlanItemLoaderFactory();
+    },
+    needs: ['invoiceInsurancePlan', 'invoiceProduct'],
   },
 
   role: {},

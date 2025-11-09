@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
 
 export class InvoiceProduct extends Model {
   declare id: string;
@@ -68,6 +68,10 @@ export class InvoiceProduct extends Model {
     this.hasOne(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
+    });
+    this.hasMany(models.InvoiceInsurancePlanItem, {
+      foreignKey: 'invoiceProductId',
+      as: 'invoiceInsurancePlanItems',
     });
   }
 
