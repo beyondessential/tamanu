@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
-import { INVOICE_MODAL_TYPES } from '../../constants/index.js';
-import { UpsertInvoiceModal } from './UpsertInvoiceModal/index.jsx';
-import { EditInvoiceModal } from './EditInvoiceModal/index.jsx';
-import { CancelInvoiceModal } from './CancelInvoiceModal.jsx';
-import { FinaliseInvoiceModal } from './FinaliseInvoiceModal.jsx';
-import { DeleteInvoiceModal } from './DeleteInvoiceModal.jsx';
-import { InvoiceInsuranceModal } from './InvoiceInsuranceModal.jsx';
+import { INVOICE_MODAL_TYPES } from '../../constants/index';
+import { UpsertInvoiceModal } from './UpsertInvoiceModal/index';
+import { EditInvoiceModal } from './EditInvoiceModal/index';
+import { CancelInvoiceModal } from './CancelInvoiceModal';
+import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
+import { DeleteInvoiceModal } from './DeleteInvoiceModal';
+import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 
 export const InvoiceModalGroup = ({
   initialModalType,

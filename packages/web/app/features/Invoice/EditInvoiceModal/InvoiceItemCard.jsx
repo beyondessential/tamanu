@@ -5,9 +5,9 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { Colors } from '../../../constants/index.js';
-import { TranslatedText } from '../../../components/Translation/TranslatedText.jsx';
-import { getDateDisplay } from '../../../components/DateDisplay.jsx';
+import { Colors } from '../../../constants/index';
+import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { getDateDisplay } from '../../../components/DateDisplay';
 
 const Card = styled(Box)`
   background: white;

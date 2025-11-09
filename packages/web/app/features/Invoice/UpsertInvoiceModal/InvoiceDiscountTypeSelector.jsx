@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { TranslatedText } from '../../../components/Translation/index.js';
-import { BodyText, Heading3, Heading5, SmallBodyText } from '../../../components/Typography.js';
-import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index.js';
+import { TranslatedText } from '../../../components/Translation/index';
+import { BodyText, Heading3, Heading5, SmallBodyText } from '../../../components/Typography';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index';
 import { ConfirmCancelBackRow } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles.js';
+import { Colors } from '../../../constants/styles';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;
@@ -15,7 +15,7 @@ const StyledFormControlLabel = styled(FormControlLabel)`
   max-width: 230px;
   padding: 16px 15px;
   margin: 0;
-  ${(p) => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
+  ${p => (p.checked ? `border: 1px solid ${Colors.primary};` : '')}
   .MuiButtonBase-root {
     top: -10px;
     position: relative;

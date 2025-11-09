@@ -1,27 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { TranslatedText } from '../../../components/Translation/index.js';
-import {
-  AutocompleteField,
-  DateField,
-  Field,
-  NumberField,
-} from '../../../components/Field/index.js';
-import { useSuggester } from '../../../api/index.js';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants/index.js';
-import { ThemedTooltip } from '../../../components/Tooltip.jsx';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu.jsx';
-import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
+import { TranslatedText } from '../../../components/Translation/index';
+import { AutocompleteField, DateField, Field, NumberField } from '../../../components/Field/index';
+import { useSuggester } from '../../../api/index';
+import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants/index';
+import { ThemedTooltip } from '../../../components/Tooltip';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { getDateDisplay } from '../../../components/DateDisplay.jsx';
-import { useTranslation } from '../../../contexts/Translation.jsx';
+import { getDateDisplay } from '../../../components/DateDisplay';
+import { useTranslation } from '../../../contexts/Translation';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { PriceField } from '../../../components/Field/PriceField.jsx';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker.jsx';
+import { PriceField } from '../../../components/Field/PriceField';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const PriceText = styled.span`
   margin-right: 16px;

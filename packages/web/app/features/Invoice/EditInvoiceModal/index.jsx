@@ -5,21 +5,21 @@ import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { Form, Button, FormSubmitCancelRow, Modal, TranslatedText } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles.js';
+import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 
-import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem.jsx';
-import { InvoiceStatus } from '../InvoiceStatus.jsx';
-import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel.jsx';
-import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu.jsx';
-import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable.jsx';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal.jsx';
-import { PaymentTablesGroup } from './PaymentTablesGroup.jsx';
-import { useAuth } from '../../../contexts/Auth.jsx';
-import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker.jsx';
+import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
+import { InvoiceStatus } from '../InvoiceStatus';
+import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
+import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
+import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
+import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
+import { PaymentTablesGroup } from './PaymentTablesGroup';
+import { useAuth } from '../../../contexts/Auth';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const LinkText = styled.div`
   font-weight: 500;
