@@ -58,6 +58,13 @@ export function generateTranslationsForData(model, sheetName, values) {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
         if (text) {
           translationData.push({ stringId, text, language: DEFAULT_LANGUAGE_CODE });
+        } else {
+          translationData.push({
+            stringId,
+            text: '',
+            language: DEFAULT_LANGUAGE_CODE,
+            deletedAt: new Date(),
+          });
         }
       });
     }
