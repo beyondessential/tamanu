@@ -67,7 +67,7 @@ function getRandomAnswer(dataElement) {
 
 function createDummySurveyResponse(survey) {
   const answers = {};
-  survey.dataElements.forEach((q) => {
+  survey.dataElements.forEach(q => {
     answers[q.id] = getRandomAnswer(q);
   });
   return {
@@ -77,16 +77,17 @@ function createDummySurveyResponse(survey) {
 }
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
-  return models.SurveyResponse.sequelize.transaction(() =>
-    Promise.all(
-      new Array(amount).fill(0).map(() =>
-        models.SurveyResponse.createWithAnswers({
-          ...createDummySurveyResponse(survey),
-          ...overrides,
-        }),
-      ),
-    ),
-  );
+  return models.SurveyResponse.sequelize.transaction(async () => {
+    const results = [];
+    for (let i = 0; i < amount; i++) {
+      const result = await models.SurveyResponse.createWithAnswers({
+        ...createDummySurveyResponse(survey),
+        ...overrides,
+      });
+      results.push(result);
+    }
+    return results;
+  });
 }
 
 describe('Programs', () => {
@@ -116,9 +117,9 @@ describe('Programs', () => {
     });
 
     testProgram = await createDummyProgram();
-    testSurvey = await createDummySurvey(testProgram, 6, {name: 'testSurvey-1'});
-    testSurvey2 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-2'});
-    testSurvey3 = await createDummySurvey(testProgram, 10, {name: 'testSurvey-3'});
+    testSurvey = await createDummySurvey(testProgram, 6, { name: 'testSurvey-1' });
+    testSurvey2 = await createDummySurvey(testProgram, 10, { name: 'testSurvey-2' });
+    testSurvey3 = await createDummySurvey(testProgram, 10, { name: 'testSurvey-3' });
     testReferralSurvey = await createDummySurvey(testProgram, 10, {
       surveyType: SURVEY_TYPES.REFERRAL,
       name: 'testSurvey-4',
@@ -134,7 +135,7 @@ describe('Programs', () => {
       const { body } = result;
       expect(body.count).toEqual(body.data.length);
 
-      expect(body.data.every((p) => p.name));
+      expect(body.data.every(p => p.name));
     });
 
     it('should list surveys within a program', async () => {
@@ -142,11 +143,11 @@ describe('Programs', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(4);
       expect(result.body.data).toEqual([
-          expect.objectContaining({ name: testSurvey.name }),
-          expect.objectContaining({ name: testSurvey2.name }),
-          expect.objectContaining({ name: testSurvey3.name }),
-          expect.objectContaining({ name: testReferralSurvey.name }),
-        ]);
+        expect.objectContaining({ name: testSurvey.name }),
+        expect.objectContaining({ name: testSurvey2.name }),
+        expect.objectContaining({ name: testSurvey3.name }),
+        expect.objectContaining({ name: testReferralSurvey.name }),
+      ]);
     });
 
     it('should only suggest relevant surveys', async () => {
@@ -158,7 +159,7 @@ describe('Programs', () => {
 
       const result = await app.get('/api/suggestions/survey');
       expect(result).toHaveSucceeded();
-      const resultIds = result.body.map((x) => x.id);
+      const resultIds = result.body.map(x => x.id);
       expect(resultIds.includes(obsolete.id)).toEqual(false);
       expect(resultIds.includes(vitals.id)).toEqual(false);
       expect(resultIds.includes(relevant.id)).toEqual(true);
@@ -174,8 +175,8 @@ describe('Programs', () => {
     const { components } = body;
     expect(components.length).toEqual(6);
     // look for every component to have a defined dataElement with text
-    expect(components.every((q) => q.dataElement)).toEqual(true);
-    expect(components.every((q) => q.dataElement.defaultText)).toEqual(true);
+    expect(components.every(q => q.dataElement)).toEqual(true);
+    expect(components.every(q => q.dataElement.defaultText)).toEqual(true);
   });
 
   describe('Survey responses', () => {
@@ -197,7 +198,7 @@ describe('Programs', () => {
 
       const answers = await models.SurveyResponseAnswer.findAll({ where: { responseId: id } });
       expect(answers).toHaveLength(Object.keys(responseData.answers).length);
-      answers.forEach((a) => {
+      answers.forEach(a => {
         // answers are always stored as strings so we have to convert the numbery ones here
         expect(responseData.answers[a.dataElementId].toString()).toEqual(a.body);
       });
@@ -231,7 +232,7 @@ describe('Programs', () => {
       expect(programResponses).toHaveSucceeded();
 
       expect(programResponses.body.count).toEqual(NUMBER_PROGRAM_RESPONSES);
-      programResponses.body.data.forEach((response) => {
+      programResponses.body.data.forEach(response => {
         expect(response.encounterId).toEqual(encounter.id);
         expect(response.surveyId).toEqual(testSurvey3.id);
       });
@@ -240,7 +241,7 @@ describe('Programs', () => {
 
   describe('Submitting surveys directly against a patient', () => {
     it('should list responses to all surveys of type program from a patient', async () => {
-      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+      const { examinerId, departmentId, locationId } = testEncounter;
       const patient = await models.Patient.create(await createDummyPatient(models));
 
       // populate responses
@@ -275,7 +276,7 @@ describe('Programs', () => {
       expect(result.body.count).toEqual(15);
       expect(result.body.data.length).toEqual(10);
 
-      const checkResult = (response) => {
+      const checkResult = response => {
         expect(response.surveyId).toEqual(testSurvey.id);
 
         // expect encounter details to be included
