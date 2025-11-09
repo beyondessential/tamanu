@@ -54,10 +54,10 @@ async function createSimpleChartSurvey(models, index) {
 }
 
 async function createComplexCoreChartSurvey(models, patient) {
-  await models.Encounter.truncate({});
   const encounter = await models.Encounter.create({
     ...(await createDummyEncounter(models)),
     patientId: patient.id,
+    endDate: new Date(),
   });
   const program = await models.Program.create({ ...fake(models.Program) });
   const survey = await models.Survey.create({
@@ -299,13 +299,14 @@ describe('EncounterCharting', () => {
     disableHardcodedPermissionsForSuite();
 
     beforeAll(async () => {
+      await models.Encounter.truncate({});
       chartsPatient = await models.Patient.create(await createDummyPatient(models));
 
       // Create a simple chart survey
       simpleChartSurvey = await createSimpleChartSurvey(models, 10);
 
       simpleChartEncounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models, { endDate: null })),
+        ...(await createDummyEncounter(models)),
         patientId: chartsPatient.id,
         reasonForEncounter: 'charting permissions test',
       });
