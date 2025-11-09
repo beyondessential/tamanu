@@ -11,7 +11,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_procedures_changed
               - record_procedures_changelog
               - set_procedures_updated_at

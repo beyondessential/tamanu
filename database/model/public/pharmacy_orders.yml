@@ -10,7 +10,6 @@ sources:
           tags: []
           meta:
             triggers:
-              - fhir_refresh
               - notify_pharmacy_orders_changed
               - record_pharmacy_orders_changelog
               - set_pharmacy_orders_updated_at

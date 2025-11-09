@@ -11,7 +11,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_imaging_request_areas_changed
               - record_imaging_request_areas_changelog
               - set_imaging_request_areas_updated_at
