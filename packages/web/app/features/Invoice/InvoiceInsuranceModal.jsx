@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useSuggester } from '@tamanu/ui-components';
 import { Modal } from '../../components/Modal';
-import { TranslatedText } from '../../components/Translation/index';
+import { TranslatedText } from '../../components/Translation';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
-import { MultiAutocompleteInput } from '../../components/Field/index';
+import { MultiAutocompleteInput } from '../../components/Field';
 
 const ModalBody = styled.div`
   margin: 20px 0 50px;

@@ -4,9 +4,9 @@ import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../../components/Translation/index';
-import { Table } from '../../../components/Table/index';
-import { Colors, denseTableStyle } from '../../../constants/index';
+import { TranslatedText } from '../../../components/Translation';
+import { Table } from '../../../components/Table';
+import { Colors, denseTableStyle } from '../../../constants';
 import { Heading4 } from '../../../components/Typography';
 import { DateDisplay } from '../../../components/DateDisplay';
 

@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
-import { INVOICE_MODAL_TYPES } from '../../constants/index';
-import { UpsertInvoiceModal } from './UpsertInvoiceModal/index';
-import { EditInvoiceModal } from './EditInvoiceModal/index';
+import { INVOICE_MODAL_TYPES } from '../../constants';
+import { UpsertInvoiceModal } from './UpsertInvoiceModal';
+import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';

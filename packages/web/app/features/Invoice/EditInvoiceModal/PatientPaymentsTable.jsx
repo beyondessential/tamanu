@@ -5,9 +5,9 @@ import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
 
-import { TranslatedText } from '../../../components/Translation/index';
-import { Table } from '../../../components/Table/index';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants/index';
+import { TranslatedText } from '../../../components/Translation';
+import { Table } from '../../../components/Table';
+import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
 import { Heading4 } from '../../../components/Typography';
 import { DateDisplay } from '../../../components/DateDisplay';
 import { useAuth } from '../../../contexts/Auth';

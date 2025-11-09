@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
-import { TranslatedText } from '../../../components/Translation/index';
+import { TranslatedText } from '../../../components/Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../../../components/Typography';
-import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
 import { ConfirmCancelBackRow } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 

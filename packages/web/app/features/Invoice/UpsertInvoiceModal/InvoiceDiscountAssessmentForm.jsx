@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { SelectField, Form, FormGrid, ConfirmCancelBackRow } from '@tamanu/ui-components';
-import { TranslatedText } from '../../../components/Translation/index';
+import { TranslatedText } from '../../../components/Translation';
 import { BodyText, Heading3 } from '../../../components/Typography';
-import { Field } from '../../../components/Field/index';
+import { Field } from '../../../components/Field';
 import { useSettings } from '../../../contexts/Settings';
 
 const StyledDivider = styled(Divider)`

@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { useFormikContext } from 'formik';
 
 import { InvoiceItemCard } from './InvoiceItemCard';
-import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants/index';
-import { Field, NumberField } from '../../../components/Field/index';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
+import { Field, NumberField } from '../../../components/Field';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields';
 import {

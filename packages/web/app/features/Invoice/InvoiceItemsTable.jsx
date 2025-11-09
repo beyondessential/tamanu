@@ -6,10 +6,10 @@ import {
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
 
-import { Colors, denseTableStyle } from '../../constants/index';
-import { DataFetchingTable } from '../../components/Table/index';
+import { Colors, denseTableStyle } from '../../constants';
+import { DataFetchingTable } from '../../components/Table';
 import { DateDisplay } from '../../components/DateDisplay';
-import { TranslatedText } from '../../components/Translation/index';
+import { TranslatedText } from '../../components/Translation';
 import { ThemedTooltip } from '../../components/Tooltip';
 
 const StyledTitleCell = ({ value }) => (

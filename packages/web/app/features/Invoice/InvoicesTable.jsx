@@ -10,9 +10,9 @@ import {
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 
-import { Colors, INVOICE_MODAL_TYPES } from '../../constants/index';
-import { DataFetchingTable } from '../../components/Table/index';
-import { TranslatedEnum, TranslatedText } from '../../components/Translation/index';
+import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
+import { DataFetchingTable } from '../../components/Table';
+import { TranslatedEnum, TranslatedText } from '../../components/Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';

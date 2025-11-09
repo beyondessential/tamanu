@@ -7,10 +7,10 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { DataFetchingTable } from '../../../components/Table/index';
-import { TranslatedEnum, TranslatedText } from '../../../components/Translation/index';
+import { DataFetchingTable } from '../../../components/Table';
+import { TranslatedEnum, TranslatedText } from '../../../components/Translation';
 import { DateDisplay } from '../../../components/DateDisplay';
-import { denseTableStyle } from '../../../constants/index';
+import { denseTableStyle } from '../../../constants';
 import { useTableSorting } from '../../../components/Table/useTableSorting';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`

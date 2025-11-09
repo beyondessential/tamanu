@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import { TranslatedText } from '../../../components/Translation/index';
-import { AutocompleteField, DateField, Field, NumberField } from '../../../components/Field/index';
-import { useSuggester } from '../../../api/index';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants/index';
+import { TranslatedText } from '../../../components/Translation';
+import { AutocompleteField, DateField, Field, NumberField } from '../../../components/Field';
+import { useSuggester } from '../../../api';
+import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
-import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
 import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
 import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
 import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { useApi } from '../../../api/index';
+import { useApi } from '../../../api';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { useAuth } from '../../../contexts/Auth';
 

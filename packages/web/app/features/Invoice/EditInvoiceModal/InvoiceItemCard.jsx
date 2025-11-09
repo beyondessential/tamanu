@@ -5,7 +5,7 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { Colors } from '../../../constants/index';
+import { Colors } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { getDateDisplay } from '../../../components/DateDisplay';
 
