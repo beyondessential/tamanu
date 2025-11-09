@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal } from '../Modal';
-import { TranslatedText } from '../Translation';
-import { ModalActionRow } from '../ModalActionRow';
-import { useDeleteInvoice } from '../../api/mutations/useInvoiceMutation';
+import { Modal } from '../../components/Modal.jsx';
+import { TranslatedText } from '../../components/Translation/index.js';
+import { ModalActionRow } from '../../components/ModalActionRow.jsx';
+import { useDeleteInvoice } from '../../api/mutations/useInvoiceMutation.js';
 
 const ContentText = styled.div`
   margin: 20px 18px 50px 18px;

@@ -2,11 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { useSuggester } from '@tamanu/ui-components';
-import { Modal } from '../Modal';
-import { TranslatedText } from '../Translation';
-import { ModalActionRow } from '../ModalActionRow';
-import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation';
-import { MultiAutocompleteInput } from '../Field';
+import { Modal } from '../../components/Modal.jsx';
+import { TranslatedText } from '../../components/Translation/index.js';
+import { ModalActionRow } from '../../components/ModalActionRow.jsx';
+import { useInvoiceInsurancePlansMutation } from '../../api/mutations/useInvoiceMutation.js';
+import { MultiAutocompleteInput } from '../../components/Field/index.js';
 
 const ModalBody = styled.div`
   margin: 20px 0 50px;

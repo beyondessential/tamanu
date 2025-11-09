@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
-import { PatientPaymentsTable } from './PatientPaymentsTable';
-import { InsurerPaymentsTable } from './InsurerPaymentsTable';
+import { PatientPaymentsTable } from './PatientPaymentsTable.jsx';
+import { InsurerPaymentsTable } from './InsurerPaymentsTable.jsx';
 
 export const PaymentTablesGroup = ({ invoice }) => {
   return (

@@ -5,21 +5,21 @@ import CloseIcon from '@material-ui/icons/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import { Colors } from '../../constants';
-import { TranslatedText } from '../Translation';
-import { PencilIcon } from '../../assets/icons/PencilIcon';
-import { ThemedTooltip } from '../Tooltip';
-import { BodyText, Heading3 } from '../Typography';
-import { Button, DefaultIconButton } from '../Button';
+import { Colors } from '../../constants/index.js';
+import { TranslatedText } from '../../components/Translation/index.js';
+import { PencilIcon } from '../../assets/icons/PencilIcon.jsx';
+import { ThemedTooltip } from '../../components/Tooltip.jsx';
+import { BodyText, Heading3 } from '../../components/Typography.js';
+import { Button, DefaultIconButton } from '../../components/Button.jsx';
 import {
   getInsurerDiscountAmountDisplayList,
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
-import { getDateDisplay } from '../DateDisplay';
-import { useSettings } from '../../contexts/Settings';
-import { AutocompleteField, Field, NumberField } from '../Field';
-import { useSuggester } from '../../api';
-import { NoteModalActionBlocker } from '../NoteModalActionBlocker';
+import { getDateDisplay } from '../../components/DateDisplay.jsx';
+import { useSettings } from '../../contexts/Settings.jsx';
+import { AutocompleteField, Field, NumberField } from '../../components/Field/index.js';
+import { useSuggester } from '../../api/index.js';
+import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker.jsx';
 
 const CardItem = styled(Box)`
   display: flex;
