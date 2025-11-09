@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Modal, TranslatedText } from '@tamanu/ui-components';
-import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index.js';
-import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector.jsx';
-import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm.jsx';
-import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm.jsx';
-import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
-import { useApi } from '../../../api/index.js';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants/index';
+import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector';
+import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
+import { InvoiceDiscountManualForm } from './InvoiceDiscountManualForm';
+import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { useApi } from '../../../api/index';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { useAuth } from '../../../contexts/Auth.jsx';
+import { useAuth } from '../../../contexts/Auth';
 
 const ACTIVE_VIEW = {
   DISCOUNT_TYPE_SELECTOR: 'discountTypeSelector',

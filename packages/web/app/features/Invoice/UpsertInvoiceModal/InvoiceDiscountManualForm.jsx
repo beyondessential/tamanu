@@ -6,9 +6,9 @@ import { Divider } from '@material-ui/core';
 import { TextField, Form, ConfirmCancelBackRow, FormGrid } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
-import { Field, NumberField } from '../../../components/Field/index.js';
-import { TranslatedText } from '../../../components/Translation/index.js';
-import { BodyText, Heading3 } from '../../../components/Typography.js';
+import { Field, NumberField } from '../../../components/Field/index';
+import { TranslatedText } from '../../../components/Translation/index';
+import { BodyText, Heading3 } from '../../../components/Typography';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;

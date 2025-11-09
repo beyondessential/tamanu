@@ -6,11 +6,11 @@ import {
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
 
-import { Colors, denseTableStyle } from '../../constants/index.js';
-import { DataFetchingTable } from '../../components/Table/index.js';
-import { DateDisplay } from '../../components/DateDisplay.jsx';
-import { TranslatedText } from '../../components/Translation/index.js';
-import { ThemedTooltip } from '../../components/Tooltip.jsx';
+import { Colors, denseTableStyle } from '../../constants/index';
+import { DataFetchingTable } from '../../components/Table/index';
+import { DateDisplay } from '../../components/DateDisplay';
+import { TranslatedText } from '../../components/Translation/index';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const StyledTitleCell = ({ value }) => (
   <Box sx={{ color: Colors.midText, fontWeight: 400 }} data-testid="box-f4ea">

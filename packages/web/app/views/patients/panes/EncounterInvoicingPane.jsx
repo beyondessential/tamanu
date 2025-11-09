@@ -81,7 +81,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     fallback="Invoice number"
                     data-testid="translatedtext-8m4h"
                   />
-                  {`: ${invoice.displayId}`}
+                  : ${invoice.displayId}
                 </InvoiceTitle>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>

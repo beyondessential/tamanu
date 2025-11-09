@@ -4,14 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import { Form, Button, FormSubmitCancelRow, TranslatedText } from '@tamanu/ui-components';
-import { Colors } from '../../../constants/styles.js';
+import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { INVOICE_STATUSES } from '@tamanu/constants';
-import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem.jsx';
-import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal.jsx';
-import { useAuth } from '../../../contexts/Auth.jsx';
+import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
+import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
+import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
+import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
 const LinkText = styled.div`
