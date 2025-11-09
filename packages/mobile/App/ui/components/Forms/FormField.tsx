@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
-import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
