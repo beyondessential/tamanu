@@ -11,6 +11,7 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
+  useTranslation,
 } from '@tamanu/ui-components';
 import {
   BodyText,
@@ -197,39 +198,65 @@ const PlannedMoveFields = () => {
   );
 };
 
-const EncounterTypeChange = ({ newEncounterType }) => {
-  switch (newEncounterType) {
-    case ENCOUNTER_TYPES.ADMISSION:
-      return (
-        <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
-      );
-    default:
-      return (
-        <>
-          <TranslatedText
-            stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
-            fallback="Transfer to"
-          />{' '}
-          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-        </>
-      );
+const EncounterChangeText = ({ newEncounterType }) => {
+  if (newEncounterType === ENCOUNTER_TYPES.ADMISSION) {
+    return (
+      <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
+    );
   }
+  return (
+    <TranslatedText
+      stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
+      fallback="Transfer to :newEncounterType"
+      replacements={{
+        newEncounterType: (
+          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+        ),
+      }}
+    />
+  );
+};
+const getFormProps = ({ encounter, enablePatientMoveActions }) => {
+  const validationObject = {
+    examinerId: yup.string().required(),
+    departmentId: yup.string().required(),
+  };
+
+  const initialValues = {
+    examinerId: encounter.examinerId,
+    departmentId: encounter.departmentId,
+  };
+
+  if (enablePatientMoveActions) {
+    validationObject.plannedLocationId = yup.string().nullable();
+    validationObject.action = yup
+      .string()
+      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
+      .nullable();
+
+    initialValues.plannedLocationId = encounter.plannedLocationId;
+    initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  } else {
+    validationObject.locationId = yup.string().nullable();
+
+    initialValues.locationId = encounter.locationId;
+  }
+
+  return { initialValues, validationSchema: yup.object().shape(validationObject) };
 };
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
+  const { getEnumTranslation } = useTranslation();
   return (
     <EncounterChangeDescription>
       <TranslatedText
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from"
-      />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-      </b>{' '}
-      <TranslatedText stringId="general.action.to" fallback="to" />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-      </b>
+        fallback="Changing encounter type from :encounterType to :newEncounterType"
+        replacements={{
+          encounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType)}</b>,
+          newEncounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType)}</b>,
+        }}
+      />
     </EncounterChangeDescription>
   );
 };
@@ -314,14 +341,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     baseQueryParameters: { filterByFacility: true },
   });
 
-  const enablePlannedPatientMove = getSetting('features.patientPlannedMove');
+  const enablePatientMoveActions = getSetting('features.patientPlannedMove');
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
-
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
     const locationData =
-      enablePlannedPatientMove && action === PATIENT_MOVE_ACTIONS.PLAN
+      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
         ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
         : { locationId: plannedLocationId || locationId };
 
@@ -335,39 +361,13 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     });
   };
 
-  const validationObject = {
-    examinerId: yup.string().required(),
-    departmentId: yup.string().required(),
-  };
-
-  const initialValues = {
-    examinerId: encounter.examinerId,
-    departmentId: encounter.departmentId,
-  };
-
-  if (enablePlannedPatientMove) {
-    validationObject.plannedLocationId = yup.string().nullable();
-    validationObject.action = yup
-      .string()
-      .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
-      .nullable();
-
-    initialValues.plannedLocationId = encounter.plannedLocationId;
-  }
-
-  if (isAdmittingToHospital) {
-    validationObject.admissionTime = yup.date().required();
-    validationObject.patientBillingTypeId = yup.string().nullable();
-    validationObject.dietIds = yup.mixed().nullable();
-
-    initialValues.admissionTime = new Date();
-  }
+  const { initialValues, validationSchema } = getFormProps({ encounter, enablePatientMoveActions });
 
   return (
     <FormModal
       title={
         newEncounterType ? (
-          <EncounterTypeChange newEncounterType={newEncounterType} />
+          <EncounterChangeText newEncounterType={newEncounterType} />
         ) : (
           <TranslatedText
             stringId="patient.encounter.action.movePatient"
@@ -385,7 +385,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
         initialValues={initialValues}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
-        validationSchema={yup.object().shape(validationObject)}
+        validationSchema={validationSchema}
         render={({ submitForm }) => (
           <>
             {newEncounterType && (
@@ -444,16 +444,12 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 fallback="Move location"
               />
             </SectionHeading>
-            {enablePlannedPatientMove ? <PlannedMoveFields /> : <BasicMoveFields />}
+            {enablePatientMoveActions ? <PlannedMoveFields /> : <BasicMoveFields />}
             {isAdmittingToHospital && <HospitalAdmissionFields />}
             <ModalFormActionRow
               onConfirm={submitForm}
               confirmText={
-                newEncounterType ? (
-                  <EncounterTypeChange newEncounterType={newEncounterType} />
-                ) : (
-                  <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
-                )
+                newEncounterType && <EncounterChangeText newEncounterType={newEncounterType} />
               }
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"

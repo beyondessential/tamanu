@@ -1,4 +1,5 @@
 import express from 'express';
+import config from 'config';
 import { getSurvey, createSurveyResponse, suggestionRoutes, getSettings } from './surveys';
 import {
   getAdministeredVaccines,
@@ -11,18 +12,17 @@ import {
   getUpcomingVaccinations,
   getProcedures,
 } from './patientData';
-import { DEFAULT_JWT_SECRET } from '../auth';
 import { register, login, requestLoginToken, patientPortalMiddleware } from './auth';
 
 export const patientPortalApi = express.Router();
 
 // Auth routes
-patientPortalApi.post('/login', login({ secret: DEFAULT_JWT_SECRET }));
+patientPortalApi.post('/login', login({ secret: config.auth.secret }));
 patientPortalApi.post('/request-login-token', requestLoginToken);
 patientPortalApi.post('/verify-registration', register);
 
 // Portal auth middleware
-patientPortalApi.use(patientPortalMiddleware({ secret: DEFAULT_JWT_SECRET }));
+patientPortalApi.use(patientPortalMiddleware({ secret: config.auth.secret }));
 
 // Patient data routes
 patientPortalApi.get('/me', getPatient);
