@@ -658,10 +658,18 @@ describe('User', () => {
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
-              current: i === NUMBER_OF_VIEWS,
+              // Don't set current: true here - these should be closed encounters
             }),
           );
         }
+        // Create one open encounter (the last one)
+        await models.Encounter.create(
+          await createDummyEncounter(models, {
+            patientId: p.id,
+            encounterType: 'admission',
+            current: true,
+          }),
+        );
       }
 
       for (const p of patientsToView) {
@@ -683,16 +691,25 @@ describe('User', () => {
         const startDate = new Date();
 
         // create a few closed encounters, then one open encounter for each patient
-        for (let i = 1; i < NUMBER_OF_VIEWS; ++i) {
+        for (let i = 0; i < NUMBER_OF_VIEWS - 1; ++i) {
           await models.Encounter.create(
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
               startDate,
-              current: i === NUMBER_OF_VIEWS,
+              // Don't set current - these should be closed encounters
             }),
           );
         }
+        // Create one open encounter (the last one)
+        await models.Encounter.create(
+          await createDummyEncounter(models, {
+            patientId: p.id,
+            encounterType: 'admission',
+            startDate,
+            current: true,
+          }),
+        );
       }
 
       for (const p of patientsToView) {
