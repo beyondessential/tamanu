@@ -9,7 +9,7 @@ import MuiLatestThemeProvider from '@mui/material/styles/ThemeProvider';
 import { LocalizationProvider as MuiLocalisationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Slide } from 'react-toastify';
-import { ApiContext } from './api';
+import { ApiContext, CustomToastContainer } from '@tamanu/ui-components';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
 import { GlobalStyles } from './constants';
@@ -24,7 +24,6 @@ import { ProgramRegistryProvider } from './contexts/ProgramRegistry';
 import { TranslationProvider } from './contexts/Translation';
 import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
-import { CustomToastContainer } from './customToastContainer';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
 

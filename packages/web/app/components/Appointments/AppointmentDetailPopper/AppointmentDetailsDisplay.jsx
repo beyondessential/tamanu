@@ -2,8 +2,7 @@ import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { Link, generatePath } from 'react-router-dom';
-
+import { Link, generatePath } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
 import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';

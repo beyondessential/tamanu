@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { red } from '@material-ui/core/colors';
 import {
   Button as MuiButton,
@@ -19,7 +19,7 @@ import { withPermissionTooltip } from '../withPermissionTooltip';
 import { TranslatedText } from '../Translation';
 import { useFormButtonSubmitting } from '../useFormButtonSubmitting';
 
-export const ButtonBase = (props) => {
+export const ButtonBase = props => {
   delete props.functionallyDisabled;
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} />;
@@ -40,7 +40,7 @@ const StyledButton = styled(({ ...props }) => {
 
   /* Button is already disabled functionally,
   this is only to visually make it more obvious that the button is disabled */
-  ${(props) => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
+  ${props => (props.functionallyDisabled ? 'pointer-events: none;' : '')}
 
   .MuiSvgIcon-root {
     width: 19.5px;
@@ -54,7 +54,7 @@ const StyledButton = styled(({ ...props }) => {
   }
 
   &.MuiButton-outlinedPrimary:not(.Mui-disabled) {
-    border-color: ${(props) => props.theme.palette.primary.main};
+    border-color: ${props => props.theme.palette.primary.main};
   }
 
   &.MuiButton-containedPrimary.Mui-disabled {
@@ -134,24 +134,23 @@ export const Button = ({ isSubmitting = false, ...props }) => (
   />
 );
 
-
 const StyledOutlinedButton = styled(StyledButton)`
-  border-color: ${(props) => props.theme.palette.primary.main};
+  border-color: ${props => props.theme.palette.primary.main};
   :disabled {
     border-color: ${TAMANU_COLORS.softText};
   }
 `;
 
-export const OutlinedButton = (props) => (
+export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
-export const GreyOutlinedButton = styled((props) => <StyledButton {...props} />)`
+export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
   border: 1px solid #dedede;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
-export const RedOutlinedButton = styled((props) => <StyledButton {...props} />)`
+export const RedOutlinedButton = styled(props => <StyledButton {...props} />)`
   border: 1px solid ${TAMANU_COLORS.alert};
   color: ${TAMANU_COLORS.alert};
 `;
@@ -160,14 +159,14 @@ const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${(props) => props.theme.palette.primary.main};
+  border: 1px solid ${props => props.theme.palette.primary.main};
 `;
 
-export const LargeButton = (props) => (
+export const LargeButton = props => (
   <StyledLargeButton variant="contained" color="primary" {...props} />
 );
 
-export const LargeOutlineButton = (props) => (
+export const LargeOutlineButton = props => (
   <StyledLargeButton variant="outlined" color="primary" {...props} />
 );
 
@@ -180,7 +179,7 @@ const StyledDeleteButton = styled(Button)`
   }
 `;
 
-export const DeleteButton = (props) => {
+export const DeleteButton = props => {
   const { children } = props;
   return (
     <StyledDeleteButton variant="contained" {...props}>
@@ -277,10 +276,10 @@ const StyledLargeSubmitButton = styled(FormSubmitButton)`
   font-size: 15px;
   line-height: 18px;
   padding: 12px 25px;
-  border: 1px solid ${(props) => props.theme.palette.primary.main};
+  border: 1px solid ${props => props.theme.palette.primary.main};
 `;
 
-export const LargeSubmitButton = (props) => (
+export const LargeSubmitButton = props => (
   <StyledLargeSubmitButton variant="contained" color="primary" {...props} />
 );
 
