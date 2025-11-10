@@ -1,13 +1,13 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
-import { Model } from './Model';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import type { InitOptions, Models } from '../../types/model';
 
-export class InvoicePriceList extends Model {
+export class InvoiceInsurancePlan extends Model {
   declare id: string;
   declare code: string;
   declare name?: string;
-  declare rules?: Record<string, any>;
+  declare defaultCoverage?: number;
   declare visibilityStatus: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -22,8 +22,8 @@ export class InvoicePriceList extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        rules: {
-          type: DataTypes.JSONB,
+        defaultCoverage: {
+          type: DataTypes.DECIMAL,
           allowNull: true,
         },
         visibilityStatus: {
@@ -41,9 +41,9 @@ export class InvoicePriceList extends Model {
   }
 
   static initRelations(models: Models) {
-    this.hasMany(models.InvoicePriceListItem, {
-      foreignKey: 'invoicePriceListId',
-      as: 'invoicePriceListItems',
+    this.hasMany(models.InvoiceInsurancePlanItem, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'invoiceInsurancePlanItems',
     });
   }
 
