@@ -316,7 +316,7 @@ export class SurveyResponse extends Model {
             [Op.and]: [
               Sequelize.where(
                 Sequelize.fn('DATE', Sequelize.col('start_date')),
-                Sequelize.fn('DATE', recordedDate),
+                Sequelize.fn('DATE', new Date(recordedDate).toISOString()),
               ),
             ],
           },
