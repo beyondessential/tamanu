@@ -4,13 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 import { Box, CircularProgress, Divider } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
-import {
-  Form,
-  Button,
-  FormSubmitCancelRow,
-  Modal,
-  TranslatedText,
-} from '@tamanu/ui-components';
+import { Form, Button, FormSubmitCancelRow, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
@@ -164,19 +158,7 @@ export const EditInvoiceModal = ({
                 data-testid="translatedtext-029d"
               />,
             ),
-          productPrice: yup.number().when(['productId'], {
-            is: productId => !!productId,
-            then: yup
-              .number()
-              .required(
-                <TranslatedText
-                  stringId="general.required"
-                  fallback="Required"
-                  data-testid="translatedtext-h29b"
-                />,
-              ),
-            otherwise: yup.number(),
-          }),
+          productPrice: yup.number(),
         },
         [
           ['orderDate', 'productId'],
