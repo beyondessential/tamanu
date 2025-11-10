@@ -14,6 +14,7 @@ import {
   arrivalDateIcon,
   departmentIcon,
   dietIcon,
+  dischargeDateIcon,
   encounterTypeIcon,
   locationIcon,
   patientTypeIcon,
@@ -27,17 +28,6 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-
-const CardLabel = styled.span`
-  margin-right: 5px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
-`;
-
-const CardValue = styled(CardLabel)`
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
-`;
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -253,7 +243,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             {isInpatient(encounter?.encounterType) && <LengthOfStayDisplay encounter={encounter} />}
           </>
         }
-        icon={arrivalDateIcon}
+        icon={dischargeDateIcon}
         data-testid="infocarditem-18xs"
       />
       {encounter.endDate && (
