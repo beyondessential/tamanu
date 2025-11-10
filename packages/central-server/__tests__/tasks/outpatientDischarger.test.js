@@ -46,7 +46,6 @@ describe('Outpatient discharger', () => {
     });
 
     createEncounter = async (options = {}) => {
-      await models.Encounter.truncate({ cascade: true });
       return await models.Encounter.create({
         patientId: patient.id,
         departmentId: department.id,
@@ -56,6 +55,10 @@ describe('Outpatient discharger', () => {
         ...options,
       });
     };
+  });
+
+  beforeEach(async () => {
+    await models.Encounter.truncate({ cascade: true });
   });
 
   afterAll(() => ctx.close());
