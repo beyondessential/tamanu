@@ -129,17 +129,16 @@ export class InvoiceItem extends Model {
       },
       {
         model: models.InvoiceInsurancePlanItem,
-        as: 'invoiceInsurancePlanItem',
+        as: 'invoiceInsurancePlanItems',
         required: false,
         where: {
           invoiceInsurancePlanId: {
-            [Op.eq]: literal(`(
-            SELECT iip."invoice_insurance_plan_id"
-            FROM "invoices_invoice_insurance_plans" iip
-            WHERE iip."invoice_id" = "Invoice"."id"
-              AND iip."deleted_at" IS NULL
-            LIMIT 1
-          )`),
+            [Op.in]: literal(`(
+              SELECT iip."invoice_insurance_plan_id"
+              FROM "invoices_invoice_insurance_plans" iip
+              WHERE iip."invoice_id" = "Invoice"."id"
+                AND iip."deleted_at" IS NULL
+            )`),
           },
         },
       },

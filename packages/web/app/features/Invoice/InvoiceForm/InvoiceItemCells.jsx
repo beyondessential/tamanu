@@ -12,34 +12,18 @@ import {
 } from '../../../components';
 import { Colors } from '../../../constants';
 
-const ItemHeadCell = styled(Box)`
-  padding-left: 15px;
-`;
-
-const StyledItemCell = styled(Box)`
+export const StyledItemCell = styled(Box)`
   align-self: flex-start;
   .MuiFormHelperText-root {
     font-size: 14px;
   }
 `;
 
-const ViewOnlyCell = styled(ItemHeadCell)`
+export const ViewOnlyCell = styled(Box)`
   font-size: 14px;
-  display: flex;
-  align-items: center;
-  min-height: 39px;
-`;
-
-const PriceText = styled.span`
-  margin-right: 16px;
   padding-left: 15px;
-  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
-`;
-
-const StyledPriceCell = styled(ViewOnlyCell)`
   display: flex;
   align-items: center;
-  padding: 0;
   min-height: 39px;
 `;
 

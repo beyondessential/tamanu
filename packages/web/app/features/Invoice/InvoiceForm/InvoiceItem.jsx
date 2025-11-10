@@ -22,6 +22,7 @@ const StyledItemRow = styled(Box)`
 export const InvoiceItemRow = ({
   index,
   item,
+  invoiceInsurancePlans,
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
@@ -91,6 +92,7 @@ export const InvoiceItemRow = ({
       <PriceCell
         index={index}
         item={item}
+        invoiceInsurancePlans={invoiceInsurancePlans}
         showActionMenu={showActionMenu}
         formArrayMethods={formArrayMethods}
         editable={editable}

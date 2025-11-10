@@ -1,34 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
+  formatDisplayPrice,
 } from '@tamanu/shared/utils/invoice';
 import { Field, NoteModalActionBlocker } from '../../../components';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { PriceField } from '../../../components/Field/PriceField';
-import { useInvoiceItemActions } from './useInvoiceItemActions.js';
-
-const ItemHeadCell = styled(Box)`
-  padding-left: 15px;
-`;
-
-const StyledItemCell = styled(Box)`
-  align-self: flex-start;
-  .MuiFormHelperText-root {
-    font-size: 14px;
-  }
-`;
-
-const ViewOnlyCell = styled(ItemHeadCell)`
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  min-height: 39px;
-`;
+import { useInvoiceItemActions } from './useInvoiceItemActions.jsx';
+import { StyledItemCell, ViewOnlyCell } from './InvoiceItemCells';
 
 const PriceText = styled.span`
   margin-right: 16px;
@@ -43,9 +26,26 @@ const StyledPriceCell = styled(ViewOnlyCell)`
   min-height: 39px;
 `;
 
+const CoverageCellsWrapper = styled.div``;
+
+const CoverageCell = styled.div`
+  position: relative;
+  color: ${props => props.theme.palette.text.tertiary};
+  text-align: center;
+  min-width: 60px;
+`;
+
+const CoverageCellName = styled(CoverageCell)`
+  position: absolute;
+  bottom: 0;
+  right: 100%;
+  white-space: nowrap;
+`;
+
 export const PriceCell = ({
   index,
   item,
+  invoiceInsurancePlans = [],
   showActionMenu,
   editable,
   isDeleteDisabled,
@@ -102,8 +102,28 @@ export const PriceCell = ({
           </NoteModalActionBlocker>
         )}
       </StyledPriceCell>
-      <div>-11</div>
-      <div>-20</div>
+      {!!invoiceInsurancePlans?.length && item?.productId && (
+        <CoverageCellsWrapper>
+          {invoiceInsurancePlans.map(planJoin => {
+            const plan = planJoin?.invoiceInsurancePlan || {};
+            const planId = planJoin?.invoiceInsurancePlanId || plan?.id;
+            const planCode = plan?.code;
+            const planDefaultCoverage = plan?.defaultCoverage;
+            const planItem = item?.product?.invoiceInsurancePlanItems?.find(
+              pi => pi?.invoiceInsurancePlanId === planId,
+            );
+            const rawCoverage = planItem?.coverageValue ?? planDefaultCoverage;
+            const coverageDisplay = formatDisplayPrice(rawCoverage);
+            if (!coverageDisplay && coverageDisplay !== '0.00') return null;
+            return (
+              <CoverageCell key={planId || planCode}>
+                {!!planCode && <CoverageCellName>{planCode}</CoverageCellName>}
+                <span>{`-${coverageDisplay}`}</span>
+              </CoverageCell>
+            );
+          })}
+        </CoverageCellsWrapper>
+      )}
       {actionModal && (
         <InvoiceItemActionModal
           open
