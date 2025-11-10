@@ -87,7 +87,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       locationId: sensitiveLocation.id,
       departmentId: sensitiveDepartment.id,
       examinerId: practitioner.id,
-      endDate: new Date(),
     });
     nonSensitiveFacility = await models.Facility.create(
       fake(models.Facility, { isSensitive: false }),
@@ -104,7 +103,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
       locationId: nonSensitiveLocation.id,
       departmentId: nonSensitiveDepartment.id,
       examinerId: practitioner.id,
-      endDate: new Date(),
     });
   });
 
@@ -1041,7 +1039,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         locationId: sensitiveLocationA.id,
         departmentId: sensitiveDepartmentA.id,
         examinerId: practitioner.id,
-        endDate: new Date(),
       });
       const sensitiveEncounterB = await models.Encounter.create({
         ...fake(models.Encounter),
@@ -1049,7 +1046,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         locationId: sensitiveLocationB.id,
         departmentId: sensitiveDepartmentB.id,
         examinerId: practitioner.id,
-        endDate: new Date(),
       });
 
       const centralSyncManager = initializeCentralSyncManager(lookupEnabledConfig);
@@ -1093,7 +1089,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         locationId: location.id,
         departmentId: department.id,
         examinerId: practitioner.id,
-        endDate: null,
       });
 
       // Initialize sync manager and update lookup table to capture the sensitive state
@@ -1142,7 +1137,6 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         locationId: location.id,
         departmentId: department.id,
         examinerId: practitioner.id,
-        endDate: null,
       });
 
       // Initialize sync manager and update lookup table to capture the non-sensitive state
