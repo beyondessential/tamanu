@@ -56,15 +56,7 @@ export const invoiceFormSchema = yup.object({
           ),
         productPrice: yup.number().when(['productId'], {
           is: productId => !!productId,
-          then: yup
-            .number()
-            .required(
-              <TranslatedText
-                stringId="general.required"
-                fallback="Required"
-                data-testid="translatedtext-h29b"
-              />,
-            ),
+          then: yup.number(),
           otherwise: yup.number(),
         }),
       },

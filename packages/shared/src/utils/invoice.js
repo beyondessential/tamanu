@@ -223,6 +223,8 @@ export const getInvoiceItemPriceDisplay = invoiceItem => {
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
+  const test = getInvoiceItemTotalDiscountedPrice(invoiceItem);
+  console.log('getInvoiceItemDiscountPriceDisplay', test);
   return formatDisplayPrice(
     isNaN(parseFloat(invoiceItem?.discount?.amount))
       ? undefined

@@ -59,6 +59,7 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
   const handleSubmit = async data => {
+    console.log('SUBMIT', data);
     const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
     updateInvoice({
       ...invoice,

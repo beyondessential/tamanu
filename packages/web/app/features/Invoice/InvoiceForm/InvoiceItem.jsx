@@ -28,7 +28,7 @@ const StyledItemRow = styled(Box)`
   display: flex;
   gap: 10px;
   font-size: 14px;
-  padding: 7.5px 20px;
+  padding: 8px 20px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
   &:last-child {
@@ -39,10 +39,7 @@ const StyledItemRow = styled(Box)`
 const StyledItemHeader = styled(Box)`
   display: flex;
   gap: 10px;
-  padding-top: 14px;
-  padding-bottom: 14px;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding: 14px 20px;
   font-weight: 500;
   border-radius: 4px 4px 0 0;
   border-bottom: 0;
@@ -110,7 +107,8 @@ export const InvoiceItemRow = ({
   formArrayMethods,
   editable,
 }) => {
-  const isItemEditable = !item.sourceId && editable;
+  console.log('item', item);
+  const isItemEditable = !item.sourceRecordId && editable;
   const { getTranslation } = useTranslation();
   const nonDiscountableTranslation = getTranslation(
     'invoice.table.details.nonDiscountable',
@@ -133,9 +131,8 @@ export const InvoiceItemRow = ({
   const practitionerSuggester = useSuggester('practitioner');
 
   const price = getInvoiceItemPriceDisplay(item);
-  const discountPrice = isNaN(item.productPrice)
-    ? undefined
-    : getInvoiceItemDiscountPriceDisplay(item);
+  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
+  console.log('discountPrice', item.productPrice, discountPrice);
   const [actionModal, setActionModal] = useState();
 
   const onCloseActionModal = () => {
@@ -323,7 +320,7 @@ export const InvoiceItemRow = ({
             </NoteModalActionBlocker>
           ) : (
             <ViewOnlyCell>
-              {item.productName}
+              {item.product?.name}
               {item.productId &&
                 (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
             </ViewOnlyCell>
@@ -345,7 +342,8 @@ export const InvoiceItemRow = ({
           )}
         </StyledItemCell>
         <StyledItemCell width="10%">
-          <ViewOnlyCell>{item.productCode}</ViewOnlyCell>
+          {/* Todo: handle getting the code for all types of data */}
+          <ViewOnlyCell>{item.product?.sourceRefDataRecord?.code}</ViewOnlyCell>
         </StyledItemCell>
         <StyledItemCell width="10%" paddingLeft="24px">
           {isItemEditable ? (

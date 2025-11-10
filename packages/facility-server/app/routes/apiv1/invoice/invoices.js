@@ -107,8 +107,11 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string(),
-        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
+        productName: z.string().optional(),
+        productPrice: z.coerce
+          .number()
+          .transform(amount => round(amount, 2))
+          .optional(),
         productCode: z.string().default(''),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
@@ -128,10 +131,10 @@ const updateInvoiceSchema = z
       .refine(item => {
         if (!item.discount) return true;
         if (item.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-          return item.discount.amount < 0
-            ? true
-            : item.discount.amount <= 1 && item.discount.amount > 0;
+          return item.discount.amount >= -1 && item.discount.amount <= 1;
         }
+        // If productPrice is not provided, we can't validate against total price
+        if (item.productPrice === undefined) return true;
         return item.discount.amount <= item.productPrice * item.quantity;
       }, 'Invalid discount amount')
       .array(),

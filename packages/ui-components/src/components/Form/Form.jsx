@@ -1,14 +1,14 @@
 import React, { isValidElement, useEffect } from 'react';
-import { Formik, useFormikContext } from 'formik'; 
-import { ValidationError } from 'yup'; 
+import { Formik, useFormikContext } from 'formik';
+import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
-import styled from 'styled-components'; 
+import styled from 'styled-components';
 
 import { flattenObject } from './flattenObject';
-import { Dialog } from '../Dialog'; 
+import { Dialog } from '../Dialog';
 import { FORM_TYPES, SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants/forms';
-import { useFormSubmission } from '../../contexts/FormSubmissionContext'; 
+import { useFormSubmission } from '../../contexts/FormSubmissionContext';
 import { IS_DEVELOPMENT } from '../../utils/env';
 import { TranslatedText } from '../Translation';
 
@@ -140,6 +140,7 @@ export class Form extends React.PureComponent {
       // well where it adds { isCanceled: true } to the errors so a work around is to manually remove it.
       // @see https://github.com/jaredpalmer/formik/issues/1209
       const formErrors = await validateForm(values);
+      console.log('FORM ERRORS', formErrors);
       delete formErrors.isCanceled;
 
       const validFormErrors = componentsToValidate

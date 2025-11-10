@@ -6,6 +6,7 @@ import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
+import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 
 export const InvoiceModalGroup = ({
   initialModalType,
@@ -46,22 +47,6 @@ export const InvoiceModalGroup = ({
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
   };
 
-  const handleEditDiscount = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
-  };
-
-  const handleCancelInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE, true);
-  };
-
-  const handleDeleteInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE, true);
-  };
-
-  const handleFinaliseInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE, true);
-  };
-
   return (
     <>
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
@@ -74,6 +59,22 @@ export const InvoiceModalGroup = ({
               return handleCloseInvoiceModal();
             }
             handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
+          }}
+          onCreateSuccess={handleCreateInvoiceSuccess}
+          onTemporaryUpdate={handleTemporaryUpdateInvoice}
+          data-testid="upsertinvoicemodal-wt5z"
+        />
+      )}
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.INSURANCE) && (
+        <InvoiceInsuranceModal
+          open
+          encounterId={encounterId}
+          invoice={invoice}
+          onClose={() => {
+            if (invoiceModal.length === 1) {
+              return handleCloseInvoiceModal();
+            }
+            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE);
           }}
           onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
