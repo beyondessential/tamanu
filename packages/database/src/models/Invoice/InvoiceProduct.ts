@@ -64,14 +64,20 @@ export class InvoiceProduct extends Model {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItems',
     });
+    this.hasMany(models.InvoiceInsurancePlanItem, {
+      foreignKey: 'invoiceProductId',
+      as: 'invoiceInsurancePlanItems',
+    });
+
     // Has one in the context of fetching data from the api
     this.hasOne(models.InvoicePriceListItem, {
       foreignKey: 'invoiceProductId',
       as: 'invoicePriceListItem',
     });
-    this.hasMany(models.InvoiceInsurancePlanItem, {
+
+    this.hasOne(models.InvoiceInsurancePlanItem, {
       foreignKey: 'invoiceProductId',
-      as: 'invoiceInsurancePlanItems',
+      as: 'invoiceInsurancePlanItem',
     });
   }
 
