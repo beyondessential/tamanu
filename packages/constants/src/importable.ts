@@ -71,6 +71,8 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
   INVOICE_PRICE_LIST: 'invoicePriceList',
   INVOICE_PRICE_LIST_ITEM: 'invoicePriceListItem',
+  INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
+  INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 
