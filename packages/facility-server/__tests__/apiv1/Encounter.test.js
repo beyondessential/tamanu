@@ -406,6 +406,9 @@ describe('Encounter', () => {
         patientId: patient.id,
       });
       expect(result).toHaveRequestError();
+      expect(result.body.error.message).toEqual(
+        'This patient already has an active encounter. The active encounter must be discharged before a new encounter can be created.',
+      );
     });
 
     describe('journey', () => {
