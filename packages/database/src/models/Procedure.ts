@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
@@ -51,7 +51,44 @@ export class Procedure extends Model {
         timeIn: dateTimeType('timeIn'),
         timeOut: dateTimeType('timeOut'),
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: async (instance: Procedure) => {
+            const invoiceProduct = await instance.sequelize.models.InvoiceProduct.findOne({
+              where: {
+                category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+                sourceRecordId: instance.procedureTypeId,
+              },
+            });
+            if (!invoiceProduct) {
+              return; // No invoice product configured for this procedure type
+            }
+
+            if (!instance.encounterId) {
+              return; // No encounter for procedure, so no invoice to add to
+            }
+
+            await instance.sequelize.models.Invoice.addItemToInvoice(
+              instance,
+              instance.encounterId,
+              invoiceProduct,
+              instance.physicianId,
+            );
+          },
+          afterDestroy: async (instance: Procedure) => {
+            if (!instance.encounterId) {
+              return; // No encounter for procedure, so no invoice to remove from
+            }
+
+            await instance.sequelize.models.Invoice.removeItemFromInvoice(
+              instance,
+              instance.encounterId,
+            );
+          },
+        },
+      },
     );
   }
 
