@@ -75,17 +75,19 @@ const LinkedEncounter = ({ encounter }) => {
     fallback: encounter?.location?.facility.name,
   })}`;
 
+  const handleClick = async (e) => {
+    e.preventDefault();
+    await Promise.all([
+      dispatch(reloadPatient(encounter.patientId)),
+      loadEncounter(encounter.id),
+    ]);
+    dispatch(push(encounterPath));
+  };
+
   return (
     <EncounterLink
       to={encounterPath}
-      onClick={async e => {
-        e.preventDefault();
-        await Promise.all([
-          dispatch(reloadPatient(encounter.patientId)),
-          loadEncounter(encounter.id),
-        ]);
-        dispatch(push(encounterPath));
-      }}
+      onClick={handleClick}
     >
       <LimitedLinesCell
         value={encounterLabel}
