@@ -5,6 +5,7 @@ import {
   getInvoiceItemPriceDisplay,
   formatDisplayPrice,
 } from '@tamanu/shared/utils/invoice';
+import { keyBy } from 'lodash';
 import { Field, NoteModalActionBlocker } from '../../../components';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
@@ -41,6 +42,35 @@ const CoverageCellName = styled(CoverageCell)`
   right: 100%;
   white-space: nowrap;
 `;
+
+const getCoverageDisplay = (invoiceItem, defaultCoverage) => {
+  const rawCoverage = invoiceItem?.coverageValue ?? defaultCoverage;
+  return formatDisplayPrice(rawCoverage);
+};
+
+const CoverageSection = ({ invoiceInsurancePlans, item }) => {
+  if (!invoiceInsurancePlans?.length > 0 || !item?.productId) {
+    return null;
+  }
+
+  const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'id');
+
+  return (
+    <CoverageCellsWrapper>
+      {invoiceInsurancePlans.map(({ id, code, name, defaultCoverage }) => {
+        const planItem = itemInsurancePlansById[id];
+        const coverageDisplay = getCoverageDisplay(planItem, defaultCoverage);
+        const nameDisplay = name || code;
+        return (
+          <CoverageCell key={id}>
+            <CoverageCellName>{nameDisplay}</CoverageCellName>
+            <span>{`-${coverageDisplay}`}</span>
+          </CoverageCell>
+        );
+      })}
+    </CoverageCellsWrapper>
+  );
+};
 
 export const PriceCell = ({
   index,
@@ -102,28 +132,7 @@ export const PriceCell = ({
           </NoteModalActionBlocker>
         )}
       </StyledPriceCell>
-      {!!invoiceInsurancePlans?.length && item?.productId && (
-        <CoverageCellsWrapper>
-          {invoiceInsurancePlans.map(planJoin => {
-            const plan = planJoin?.invoiceInsurancePlan || {};
-            const planId = planJoin?.invoiceInsurancePlanId || plan?.id;
-            const planCode = plan?.code;
-            const planDefaultCoverage = plan?.defaultCoverage;
-            const planItem = item?.product?.invoiceInsurancePlanItems?.find(
-              pi => pi?.invoiceInsurancePlanId === planId,
-            );
-            const rawCoverage = planItem?.coverageValue ?? planDefaultCoverage;
-            const coverageDisplay = formatDisplayPrice(rawCoverage);
-            if (!coverageDisplay && coverageDisplay !== '0.00') return null;
-            return (
-              <CoverageCell key={planId || planCode}>
-                {!!planCode && <CoverageCellName>{planCode}</CoverageCellName>}
-                <span>{`-${coverageDisplay}`}</span>
-              </CoverageCell>
-            );
-          })}
-        </CoverageCellsWrapper>
-      )}
+      <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
       {actionModal && (
         <InvoiceItemActionModal
           open
