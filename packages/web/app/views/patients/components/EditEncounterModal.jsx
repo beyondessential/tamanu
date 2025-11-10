@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
+  DateField,
   DateTimeField,
   Form,
   FormGrid,
@@ -45,7 +46,18 @@ const HospitalAdmissionFields = () => {
         required
         data-testid="field-admission-time"
       />
-      <div /> {/* TODO: Estimated discharge date goes here in next pr */}
+      <Field
+        name="estimatedEndDate"
+        component={DateField}
+        saveDateAsString
+        label={
+          <TranslatedText
+            stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+            fallback="Estimated discharge date"
+          />
+        }
+        data-testid="field-discharge-date"
+      />
       <LocalisedField
         name="patientBillingTypeId"
         label={
@@ -275,6 +287,7 @@ const getFormInitialValues = ({ encounter, triage }) => {
     patientBillingTypeId,
     reasonForEncounter,
     startDate,
+    estimatedEndDate,
   } = encounter;
 
   const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } = triage;
@@ -288,6 +301,7 @@ const getFormInitialValues = ({ encounter, triage }) => {
         referralSourceId,
         patientBillingTypeId,
         reasonForEncounter,
+        estimatedEndDate,
       };
     case ENCOUNTER_TYPES.CLINIC:
       return {
@@ -328,6 +342,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
+      estimatedEndDate,
     } = values;
 
     if (triage) {
@@ -348,6 +363,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       patientBillingTypeId,
       dietIds,
       reasonForEncounter,
+      estimatedEndDate,
     });
   };
 
