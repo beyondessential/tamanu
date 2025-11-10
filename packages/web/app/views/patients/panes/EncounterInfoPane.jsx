@@ -243,7 +243,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             {isInpatient(encounter?.encounterType) && <LengthOfStayDisplay encounter={encounter} />}
           </>
         }
-        icon={dischargeDateIcon}
+        icon={arrivalDateIcon}
         data-testid="infocarditem-18xs"
       />
       {encounter.endDate && (
@@ -256,7 +256,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             />
           }
           value={DateDisplay.stringFormat(encounter.endDate)}
-          icon={arrivalDateIcon}
+          icon={dischargeDateIcon}
           data-testid="infocarditem-fmd5"
         />
       )}
