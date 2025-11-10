@@ -116,9 +116,6 @@ const LengthOfStayDisplay = ({ encounter }) => {
   const duration = intervalToDuration({ start: startDate, end: endDate });
   const totalMinutes = differenceInMinutes(endDate, startDate);
 
-  console.log('duration', duration);
-  console.log('totalMinutes', totalMinutes);
-
   let formattedDuration;
   if (totalMinutes === 0) {
     formattedDuration = formatDuration(duration, { format: ['seconds'] });
@@ -129,8 +126,6 @@ const LengthOfStayDisplay = ({ encounter }) => {
   } else {
     formattedDuration = formatDuration(duration, { format: ['days'] });
   }
-
-  console.log('formattedDuration', formattedDuration);
 
   return (
     <LengthOfStayText>
