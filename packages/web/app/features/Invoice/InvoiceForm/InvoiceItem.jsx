@@ -132,7 +132,6 @@ export const InvoiceItemRow = ({
 
   const price = getInvoiceItemPriceDisplay(item);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
-  console.log('discountPrice', item.productPrice, discountPrice);
   const [actionModal, setActionModal] = useState();
 
   const onCloseActionModal = () => {
