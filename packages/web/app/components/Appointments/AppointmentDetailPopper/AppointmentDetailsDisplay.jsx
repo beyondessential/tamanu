@@ -77,10 +77,13 @@ const LinkedEncounter = ({ encounter }) => {
 
   return (
     <EncounterLink
+      to={encounterPath}
       onClick={async e => {
         e.preventDefault();
-        await dispatch(reloadPatient(encounter.patientId));
-        await loadEncounter(encounter.id);
+        await Promise.all([
+          dispatch(reloadPatient(encounter.patientId)),
+          loadEncounter(encounter.id),
+        ]);
         dispatch(push(encounterPath));
       }}
     >
