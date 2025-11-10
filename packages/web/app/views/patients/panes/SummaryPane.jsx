@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
 import { Box } from '@material-ui/core';
@@ -48,6 +49,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   const { loadEncounter } = useEncounter();
   const { ability, facilityId } = useAuth();
   const { getSetting } = useSettings();
+  const queryClient = useQueryClient();
   const api = useApi();
 
   const showLocationBookingsSetting = getSetting('layouts.patientView.showLocationBookings');
@@ -70,7 +72,10 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
   );
 
   const onCloseCheckInModal = useCallback(() => setIsCheckInModalOpen(false), []);
-  const onCloseWarningModal = useCallback(() => setIsWarningModalOpen(false), []);
+  const onCloseWarningModal = useCallback(async () => {
+    setIsWarningModalOpen(false);
+    await queryClient.invalidateQueries(['patientCurrentEncounter', patient.id]); // Refresh the current encounter data on close
+  }, [queryClient, patient.id]);
 
   const checkForExistingEncounter = useCallback(async () => {
     const encounter = await api.get(`patient/${encodeURIComponent(patient.id)}/currentEncounter`, {
@@ -119,6 +124,7 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         />
       </ContentPane>
       <EncounterModal
+        checkForExistingEncounter={checkForExistingEncounter}
         open={isCheckInModalOpen}
         onClose={onCloseCheckInModal}
         patient={patient}
