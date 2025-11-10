@@ -309,6 +309,11 @@ export class SurveyResponse extends Model {
       const recordedDate = dateRecordedValue || responseData.startTime || null;
 
       if (recordedDate) {
+        // Convert recordedDate to proper timestamp format if it's a bigint
+        const dateValue = typeof recordedDate === 'number' 
+          ? new Date(recordedDate).toISOString()
+          : recordedDate;
+          
         const existingFormResponseEncounter = await Encounter.findOne({
           where: {
             patientId,
@@ -316,7 +321,7 @@ export class SurveyResponse extends Model {
             [Op.and]: [
               Sequelize.where(
                 Sequelize.fn('DATE', Sequelize.col('start_date')),
-                Sequelize.fn('DATE', new Date(recordedDate).toISOString()),
+                Sequelize.fn('DATE', dateValue),
               ),
             ],
           },
