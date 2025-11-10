@@ -658,11 +658,9 @@ describe('User', () => {
             await createDummyEncounter(models, {
               patientId: p.id,
               encounterType: 'admission',
-              // Don't set current: true here - these should be closed encounters
             }),
           );
         }
-        // Create one open encounter (the last one)
         await models.Encounter.create(
           await createDummyEncounter(models, {
             patientId: p.id,
@@ -697,11 +695,9 @@ describe('User', () => {
               patientId: p.id,
               encounterType: 'admission',
               startDate,
-              // Don't set current - these should be closed encounters
             }),
           );
         }
-        // Create one open encounter (the last one)
         await models.Encounter.create(
           await createDummyEncounter(models, {
             patientId: p.id,
