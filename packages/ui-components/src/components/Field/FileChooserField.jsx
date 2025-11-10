@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
 import { toast } from 'react-toastify';
@@ -10,6 +10,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
+import { WebcamCaptureModal } from '../WebcamCaptureModal';
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -27,6 +28,10 @@ const FieldButtonRow = styled.div`
   margin-top: 0.5rem;
   grid-template-columns: max-content auto;
   grid-gap: 1rem;
+  
+  &.has-camera {
+    grid-template-columns: max-content max-content auto;
+  }
 `;
 
 const HintText = styled.div`
@@ -100,6 +105,7 @@ export const FileChooserInput = ({
   filters,
   onChange,
   smallDisplay = false,
+  enableWebcam = false,
   buttonText = (
     <TranslatedText
       stringId="chooseFile.button.label"
@@ -112,6 +118,7 @@ export const FileChooserInput = ({
   const { getSetting } = useSettings();
   const maxFileSizeInMB = getSetting(SETTING_KEYS.FILE_CHOOSER_MB_SIZE_LIMIT) || 10;
   const maxFileSizeInBytes = maxFileSizeInMB * 1000 * 1000;
+  const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
 
   // Convert the given filters into string format for the accept attribute of file input
   const acceptString = filters.map(filter => `.${filter.extensions.join(', .')}`).join(', ');
@@ -151,6 +158,32 @@ export const FileChooserInput = ({
     }
   };
 
+  const openWebcamModal = () => {
+    setIsWebcamModalOpen(true);
+  };
+
+  const closeWebcamModal = () => {
+    setIsWebcamModalOpen(false);
+  };
+
+  const handleWebcamCapture = (file) => {
+    const fileSize = file.size;
+    if (fileSize > maxFileSizeInBytes) {
+      toast.error(
+        <TranslatedText
+          stringId="chooseFile.alert.exceedsMaxSize"
+          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB MB"
+          replacements={{ maxFileSizeInMB }}
+          data-testid="translatedtext-b4t3"
+        />,
+      );
+      return;
+    }
+
+    onChange({ target: { name, value: file } });
+    closeWebcamModal();
+  };
+
   return (
     <>
       <input
@@ -162,7 +195,10 @@ export const FileChooserInput = ({
         data-testid="input-q5no"
       />
       <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
-        <FieldButtonRow className={value ? 'has-value' : ''} data-testid="fieldbuttonrow-snj9">
+        <FieldButtonRow 
+          className={`${value ? 'has-value' : ''} ${enableWebcam ? 'has-camera' : ''}`} 
+          data-testid="fieldbuttonrow-snj9"
+        >
           {value ? (
             <ValueSection
               value={value}
@@ -180,6 +216,20 @@ export const FileChooserInput = ({
               >
                 {buttonText}
               </Button>
+              {enableWebcam && (
+                <Button
+                  onClick={openWebcamModal}
+                  variant="outlined"
+                  color="primary"
+                  data-testid="button-webcam"
+                >
+                  <TranslatedText
+                    stringId="general.questionComponent.photoField.takePhotoButtonText"
+                    fallback="Take photo with camera"
+                    data-testid="translatedtext-webcam"
+                  />
+                </Button>
+              )}
               <HintText data-testid="hinttext-oxv8">
                 <TranslatedText
                   stringId="chooseFile.hint.maxSize.label"
@@ -199,6 +249,13 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
+      {enableWebcam && (
+        <WebcamCaptureModal
+          open={isWebcamModalOpen}
+          onClose={closeWebcamModal}
+          onCapture={handleWebcamCapture}
+        />
+      )}
     </>
   );
 };
