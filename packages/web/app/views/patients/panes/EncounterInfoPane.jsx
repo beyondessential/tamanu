@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { differenceInMinutes, formatDuration, intervalToDuration, parseISO } from 'date-fns';
 import { DateDisplay, TranslatedEnum } from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import {
@@ -102,6 +103,43 @@ export const getEncounterType = ({ encounterType }) => (
 );
 
 const referralSourcePath = 'referralSourceId';
+
+const LengthOfStayText = styled.span`
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.darkestText};
+`;
+
+const LengthOfStayDisplay = ({ encounter }) => {
+  const endDate = encounter.endDate ? parseISO(encounter.endDate) : new Date();
+  const startDate = parseISO(encounter.startDate);
+
+  const duration = intervalToDuration({ start: startDate, end: endDate });
+  const totalMinutes = differenceInMinutes(endDate, startDate);
+
+  console.log('duration', duration);
+  console.log('totalMinutes', totalMinutes);
+
+  let formattedDuration;
+  if (totalMinutes === 0) {
+    formattedDuration = formatDuration(duration, { format: ['seconds'] });
+  } else if (totalMinutes < 60) {
+    formattedDuration = formatDuration(duration, { format: ['minutes'] });
+  } else if (totalMinutes < 1440) {
+    formattedDuration = formatDuration(duration, { format: ['hours'] });
+  } else {
+    formattedDuration = formatDuration(duration, { format: ['days'] });
+  }
+
+  console.log('formattedDuration', formattedDuration);
+
+  return (
+    <LengthOfStayText>
+      (<TranslatedText stringId="encounter.summary.lengthOfStay.label" fallback="LOS" />
+      {' - '}
+      {formattedDuration})
+    </LengthOfStayText>
+  );
+};
 
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => (
   <InfoCard
@@ -216,28 +254,27 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
         }
         value={
           <>
-            <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
-            {encounter.endDate && (
-              <>
-                <CardLabel data-testid="cardlabel-veb6">
-                  {' – '}
-                  <TranslatedText
-                    stringId="encounter.summary.dischargeDate.label"
-                    fallback="Discharge date"
-                    data-testid="translatedtext-btml"
-                  />
-                  {':'}
-                </CardLabel>
-                <CardValue data-testid="cardvalue-v72z">
-                  {DateDisplay.stringFormat(encounter.endDate)}
-                </CardValue>
-              </>
-            )}
+            <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
+            {isInpatient(encounter?.encounterType) && <LengthOfStayDisplay encounter={encounter} />}
           </>
         }
         icon={arrivalDateIcon}
         data-testid="infocarditem-18xs"
       />
+      {encounter.endDate && (
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.supervisingClinician.label"
+              fallback="Discharge date"
+              data-testid="translatedtext-ok8u"
+            />
+          }
+          value={DateDisplay.stringFormat(encounter.endDate)}
+          icon={arrivalDateIcon}
+          data-testid="infocarditem-fmd5"
+        />
+      )}
       <InfoCardItem
         label={
           <TranslatedText
