@@ -9,6 +9,7 @@ import {
   LargeBodyText,
   Modal,
   ModalActionRow,
+  TranslatedText,
 } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
@@ -27,15 +28,22 @@ const StyledLargeBodyText = styled(LargeBodyText)`
 export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
   return (
     <Modal
-      title="Cannot create new encounter"
+      title={
+        <TranslatedText
+          stringId="patient.encounterSummary.activeEncounterWarning.title"
+          fallback="Cannot create new encounter"
+        />
+      }
       width="md"
       open={open}
       onClose={onClose}
       data-testid="formmodal-4oua"
     >
       <StyledLargeBodyText>
-        This patient has an active encounter. The active encounter must be discharged before a new
-        encounter can be created.
+        <TranslatedText
+          stringId="patient.encounterSummary.activeEncounterWarning"
+          fallback="This patient has an active encounter. The active encounter must be discharged before a new encounter can be created."
+        />
       </StyledLargeBodyText>
       <ModalActionRow onConfirm={onClose} confirmText="Close" />
     </Modal>
