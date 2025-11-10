@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/build-tooling",
-  "version": "2.35.15",
+  "version": "2.35.16",
   "description": "Build tooling for Tamanu packages",
   "main": "index.mjs",
   "type": "module",
