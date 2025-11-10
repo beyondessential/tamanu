@@ -26,6 +26,7 @@ import { LocalisationProvider } from './contexts/Localisation';
 import { SettingsProvider } from './contexts/Settings';
 import { ClearIcon } from './components/Icons/ClearIcon';
 import { NoteModalProvider } from './contexts/NoteModal';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -96,11 +97,24 @@ function RootContent({ store }) {
 }
 
 function Root({ api, store }) {
+  // We need to use the createBrowserRouter function to create the router in data mode
+  // for the notes blocking feature @see https://reactrouter.com/start/modes
+  const router = React.useMemo(
+    () =>
+      createBrowserRouter([
+        {
+          path: '*',
+          element: <RootContent store={store} />,
+        },
+      ]),
+    [store],
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
         <ApiContext.Provider value={api}>
-          <RootContent store={store} />
+          <RouterProvider router={router} />
         </ApiContext.Provider>
       </Provider>
     </QueryClientProvider>
