@@ -280,6 +280,50 @@ const FormFields = ({ encounterType }) => {
   }
 };
 
+const getFormInitialValues = ({ encounter, triage }) => {
+  const {
+    diets,
+    referralSourceId,
+    patientBillingTypeId,
+    reasonForEncounter,
+    startDate,
+    estimatedEndDate,
+  } = encounter;
+
+  const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } = triage;
+
+  const baseInitialValues = { startDate };
+  switch (encounter.encounterType) {
+    case ENCOUNTER_TYPES.ADMISSION:
+      return {
+        ...baseInitialValues,
+        dietIds: JSON.stringify(diets?.map(diet => diet.id)),
+        referralSourceId,
+        patientBillingTypeId,
+        reasonForEncounter,
+        estimatedEndDate,
+      };
+    case ENCOUNTER_TYPES.CLINIC:
+      return {
+        ...baseInitialValues,
+        referralSourceId,
+        patientBillingTypeId,
+        reasonForEncounter,
+      };
+    case ENCOUNTER_TYPES.TRIAGE:
+    case ENCOUNTER_TYPES.EMERGENCY:
+    case ENCOUNTER_TYPES.OBSERVATION:
+      return {
+        ...baseInitialValues,
+        chiefComplaintId,
+        secondaryComplaintId,
+        arrivalTime,
+        arrivalModeId,
+        score,
+      };
+  }
+};
+
 export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
   const api = useApi();
   const { writeAndViewEncounter } = useEncounter();
@@ -332,30 +376,7 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
       width="md"
     >
       <Form
-        initialValues={{
-          startDate: encounter.startDate,
-          ...(encounter.encounterType !== ENCOUNTER_TYPES.CLINIC && {
-            dietIds: JSON.stringify(encounter.diets?.map(diet => diet.id)),
-          }),
-
-          ...(encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE && {
-            referralSourceId: encounter.referralSourceId,
-            patientBillingTypeId: encounter.patientBillingTypeId,
-            reasonForEncounter: encounter.reasonForEncounter,
-          }),
-
-          ...(encounter.encounterType === ENCOUNTER_TYPES.ADMISSION && {
-            estimatedEndDate: encounter.estimatedEndDate,
-          }),
-
-          ...(triage && {
-            chiefComplaintId: triage.chiefComplaintId,
-            secondaryComplaintId: triage.secondaryComplaintId,
-            arrivalTime: triage.arrivalTime,
-            arrivalModeId: triage.arrivalModeId,
-            score: triage.score,
-          }),
-        }}
+        initialValues={getFormInitialValues({ encounter, triage })}
         formType={FORM_TYPES.EDIT_FORM}
         onSubmit={onSubmit}
         render={({ submitForm }) => (
