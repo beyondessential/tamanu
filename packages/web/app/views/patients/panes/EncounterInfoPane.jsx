@@ -117,6 +117,8 @@ const LengthOfStayDisplay = ({ encounter }) => {
     formattedDuration = formatDuration(duration, { format: ['days'] });
   }
 
+  if (!formattedDuration) return null;
+
   return (
     <LengthOfStayText>
       (<TranslatedText stringId="encounter.summary.lengthOfStay.label" fallback="LOS" />
@@ -252,12 +254,12 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             <TranslatedText
               stringId="encounter.summary.dischargeDate.label"
               fallback="Discharge date"
-              data-testid="translatedtext-ok8u"
+              data-testid="translatedtext-btml"
             />
           }
           value={DateDisplay.stringFormat(encounter.endDate)}
           icon={dischargeDateIcon}
-          data-testid="infocarditem-fmd5"
+          data-testid="infocarditem-w2sg"
         />
       )}
       <InfoCardItem
