@@ -1,12 +1,12 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import type { InitOptions, Models } from '../../types/model';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
 
 export class InvoiceInsurer extends Model {
   declare id: string;

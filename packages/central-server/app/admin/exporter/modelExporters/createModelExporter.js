@@ -1,4 +1,4 @@
-import { REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
+import { OTHER_REFERENCE_TYPES, REFERENCE_TYPE_VALUES, REFERENCE_TYPES } from '@tamanu/constants';
 import { AdministeredVaccineExporter } from './AdministeredVaccineExporter';
 import { DefaultDataExporter } from './DefaultDataExporter';
 import { PatientExporter } from './PatientExporter';
@@ -14,6 +14,9 @@ import { DrugExporter } from './DrugExporter';
 import { MedicationTemplateExporter } from './MedicationTemplateExporter';
 import { MedicationSetExporter } from './MedicationSetExporter';
 import { ProcedureTypeExporter } from './ProcedureTypeExporter';
+import { InvoicePriceListItemExporter } from './InvoicePriceListItemExporter';
+import { InvoiceInsurancePlanItemExporter } from './InvoiceInsurancePlanItemExporter';
+import { InvoiceProductExporter } from './InvoiceProductExporter';
 
 const CustomExportersByDataType = {
   permission: PermissionExporter,
@@ -29,6 +32,9 @@ const CustomExportersByDataType = {
   [REFERENCE_TYPES.MEDICATION_TEMPLATE]: MedicationTemplateExporter,
   [REFERENCE_TYPES.MEDICATION_SET]: MedicationSetExporter,
   [REFERENCE_TYPES.PROCEDURE_TYPE]: ProcedureTypeExporter,
+  invoicePriceListItem: InvoicePriceListItemExporter,
+  invoiceInsurancePlanItem: InvoiceInsurancePlanItemExporter,
+  [OTHER_REFERENCE_TYPES.INVOICE_PRODUCT]: InvoiceProductExporter,
 };
 
 export const createModelExporter = (context, dataType) => {
