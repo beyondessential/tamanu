@@ -290,7 +290,8 @@ const getFormInitialValues = ({ encounter, triage }) => {
     estimatedEndDate,
   } = encounter;
 
-  const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } = triage;
+  const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } =
+    triage || {};
 
   const baseInitialValues = { startDate };
   switch (encounter.encounterType) {
