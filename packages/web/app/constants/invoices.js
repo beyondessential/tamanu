@@ -21,7 +21,6 @@ export const INVOICE_MODAL_TYPES = {
   CANCEL_INVOICE: 'cancelInvoice',
   FINALISE_INVOICE: 'finaliseInvoice',
   DELETE_INVOICE: 'deleteInvoice',
-  INSURANCE: 'insurance',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {

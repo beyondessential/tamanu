@@ -114,12 +114,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                       data-testid="threedotmenu-5t9u"
                     />
                     <Button
-                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
-                      data-testid="button-insurance-2zyp"
-                    >
-                      <TranslatedText stringId="invoice.action.insurance" fallback="Insurance" />
-                    </Button>
-                    <Button
                       onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
                       data-testid="button-2zyp"
                     >
