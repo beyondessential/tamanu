@@ -92,7 +92,7 @@ export const InvoiceModalGroup = ({
             if (invoiceModal.length === 1) {
               return handleCloseInvoiceModal();
             }
-            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
+            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE);
           }}
           onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
