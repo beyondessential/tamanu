@@ -6,9 +6,9 @@ import { Divider } from '@material-ui/core';
 import { TextField, Form, ConfirmCancelBackRow, FormGrid } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants';
 
-import { Field, NumberField } from '../../Field';
-import { TranslatedText } from '../../Translation';
-import { BodyText, Heading3 } from '../../Typography';
+import { Field, NumberField } from '../../../components/Field';
+import { TranslatedText } from '../../../components/Translation';
+import { BodyText, Heading3 } from '../../../components/Typography';
 
 const StyledDivider = styled(Divider)`
   margin: 36px -32px 20px -32px;
@@ -16,13 +16,13 @@ const StyledDivider = styled(Divider)`
 
 export const InvoiceDiscountManualForm = React.memo(
   ({ handleSubmit, onClose, handleBack, initialValues, isSubmitting }) => {
-    const preventInvalid = (event) => {
+    const preventInvalid = event => {
       if (!event.target.validity.valid) {
         event.target.value = '';
       }
     };
 
-    const onSubmit = (data) => {
+    const onSubmit = data => {
       const percentage = data.percentage / 100;
       handleSubmit({ ...data, percentage });
     };

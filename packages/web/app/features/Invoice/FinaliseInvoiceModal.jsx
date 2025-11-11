@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Modal } from '../Modal';
-import { TranslatedText } from '../Translation';
-import { ModalActionRow } from '../ModalActionRow';
+import { Modal } from '../../components/Modal';
+import { TranslatedText } from '../../components/Translation';
+import { ModalActionRow } from '../../components/ModalActionRow';
 import { useFinaliseInvoice } from '../../api/mutations/useInvoiceMutation';
 
 const ContentText = styled.div`

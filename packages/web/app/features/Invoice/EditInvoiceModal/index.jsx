@@ -14,12 +14,12 @@ import { InvoiceItemHeader, InvoiceItemRow } from './InvoiceItem';
 import { InvoiceStatus } from '../InvoiceStatus';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { ThreeDotMenu } from '../../ThreeDotMenu';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { PotentialInvoiceItemsTable } from './PotentialInvoiceItemsTable';
-import { InvoiceRecordModal } from '../../PatientPrinting/modals/InvoiceRecordModal';
+import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { PaymentTablesGroup } from './PaymentTablesGroup';
 import { useAuth } from '../../../contexts/Auth';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
 const LinkText = styled.div`
   font-weight: 500;

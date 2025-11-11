@@ -7,10 +7,10 @@ import {
 } from '@tamanu/shared/utils/invoice';
 
 import { Colors, denseTableStyle } from '../../constants';
-import { DataFetchingTable } from '../Table';
-import { DateDisplay } from '../DateDisplay';
-import { TranslatedText } from '../Translation';
-import { ThemedTooltip } from '../Tooltip';
+import { DataFetchingTable } from '../../components/Table';
+import { DateDisplay } from '../../components/DateDisplay';
+import { TranslatedText } from '../../components/Translation';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const StyledTitleCell = ({ value }) => (
   <Box sx={{ color: Colors.midText, fontWeight: 400 }} data-testid="box-f4ea">
@@ -24,10 +24,10 @@ const PriceCell = styled.div`
 `;
 
 const PriceText = styled.span`
-  text-decoration: ${(props) => (props.isCrossedOut ? 'line-through' : 'none')};
+  text-decoration: ${props => (props.isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const getPrice = (row) => {
+const getPrice = row => {
   const price = getInvoiceItemPriceDisplay(row);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(row);
 
@@ -49,7 +49,7 @@ const getPrice = (row) => {
   );
 };
 
-const getInvoiceItemDetails = (row) => {
+const getInvoiceItemDetails = row => {
   if (row.productDiscountable) {
     return row.productName;
   }

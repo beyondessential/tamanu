@@ -4,11 +4,11 @@ import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../Translation';
-import { Table } from '../../Table';
+import { TranslatedText } from '../../../components/Translation';
+import { Table } from '../../../components/Table';
 import { Colors, denseTableStyle } from '../../../constants';
-import { Heading4 } from '../../Typography';
-import { DateDisplay } from '../../DateDisplay';
+import { Heading4 } from '../../../components/Typography';
+import { DateDisplay } from '../../../components/DateDisplay';
 
 const TableContainer = styled.div`
   margin-top: 10px;
@@ -26,7 +26,7 @@ const Title = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-const getInsurerPaymentStatus = (insurerPayment) => {
+const getInsurerPaymentStatus = insurerPayment => {
   if (insurerPayment?.status === INVOICE_INSURER_PAYMENT_STATUSES.REJECTED) {
     return (
       <Box color={Colors.alert} data-testid="box-lbl5">
@@ -108,7 +108,7 @@ const COLUMNS = [
 
 export const InsurerPaymentsTable = ({ invoice }) => {
   const { insurerPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  const insurerPayments = invoice.payments.filter((payment) => !!payment?.insurerPayment?.id);
+  const insurerPayments = invoice.payments.filter(payment => !!payment?.insurerPayment?.id);
 
   return (
     <TableContainer data-testid="tablecontainer-x4t9">
