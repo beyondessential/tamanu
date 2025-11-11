@@ -203,7 +203,7 @@ export class Invoice extends Model {
       attributes: ['insurerId'],
     }).then(patientData => patientData?.insurerId);
     const insurerPercentage = await facilitySettings.get(
-      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION as SettingPath,
+      SETTING_KEYS.INSURER_DEFAULT_CONTRIBUTION as SettingPath,
     );
     const defaultInsurer =
       insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
