@@ -80,8 +80,8 @@ triage.post(
       where: { id: triageRecord.encounterId },
     });
 
-    const department = await this.sequelize.models.Department.findOne({
-      where: { id: this.departmentId },
+    const department = await models.Department.findOne({
+      where: { id: encounter.departmentId },
     });
 
     if (!department) {
