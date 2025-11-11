@@ -582,7 +582,7 @@ export class Encounter extends Model {
       };
 
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data);
+        await this.onDischarge({ ...data, addSystemNoteRow });
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -593,13 +593,13 @@ export class Encounter extends Model {
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
         changeTypes.push(EncounterChangeType.EncounterType);
-        await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime, addSystemNoteRow);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
         changeTypes.push(EncounterChangeType.Location);
-        await this.addLocationChangeNote('Changed location', data.locationId, data.submittedTime);
+        await this.addLocationChangeNote('Changed location', data.locationId, addSystemNoteRow);
 
         // When we move to a new location, clear the planned location move
         additionalChanges.plannedLocationId = null;

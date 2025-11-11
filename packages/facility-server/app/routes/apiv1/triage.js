@@ -2,12 +2,13 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { InvalidParameterError } from '@tamanu/errors';
+import { InvalidOperationError, InvalidParameterError } from '@tamanu/errors';
 import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const triage = express.Router();
 
@@ -51,7 +52,7 @@ triage.post(
     const triageRecord = await models.Triage.create({ ...body, departmentId, actorId: user.id });
 
     if (vitals) {
-      const getDefaultId = async (type) =>
+      const getDefaultId = async type =>
         models.SurveyResponseAnswer.getDefaultId(type, settings[facilityId]);
       const updatedBody = {
         locationId: vitals.locationId || (await getDefaultId('location')),
@@ -78,7 +79,22 @@ triage.post(
     const encounter = await models.Encounter.findOne({
       where: { id: triageRecord.encounterId },
     });
-    await encounter.addTriageScoreNote(triageRecord, user);
+
+    const department = await this.sequelize.models.Department.findOne({
+      where: { id: this.departmentId },
+    });
+
+    if (!department) {
+      throw new InvalidOperationError(
+        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+      );
+    }
+
+    encounter.addSystemNote(
+      `${department.name} triage score: ${triageRecord.score}`,
+      getCurrentDateTimeString(),
+      user,
+    );
 
     res.send(triageRecord);
   }),
@@ -175,7 +191,7 @@ triage.get(
         },
       },
     );
-    const forResponse = result.map((x) => renameObjectKeys(x.forResponse()));
+    const forResponse = result.map(x => renameObjectKeys(x.forResponse()));
 
     res.send({
       data: forResponse,
