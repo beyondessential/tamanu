@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Modal } from '../../components/Modal';
-import { TranslatedText } from '../../components/Translation/index';
+import { TranslatedText } from '../../components/Translation';
 import { ModalActionRow } from '../../components/ModalActionRow';
 import { useDeleteInvoice } from '../../api/mutations/useInvoiceMutation';
 

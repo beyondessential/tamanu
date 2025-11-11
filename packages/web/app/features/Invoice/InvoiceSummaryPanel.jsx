@@ -5,8 +5,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { FieldArray, useFormikContext } from 'formik';
 import { v4 as uuidv4 } from 'uuid';
-import { Colors } from '../../constants/index';
-import { TranslatedText } from '../../components/Translation/index';
+import { Colors } from '../../constants';
+import { TranslatedText } from '../../components/Translation';
 import { PencilIcon } from '../../assets/icons/PencilIcon';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { BodyText, Heading3 } from '../../components/Typography';
@@ -17,8 +17,8 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { getDateDisplay } from '../../components/DateDisplay';
 import { useSettings } from '../../contexts/Settings';
-import { AutocompleteField, Field, NumberField } from '../../components/Field/index';
-import { useSuggester } from '../../api/index';
+import { AutocompleteField, Field, NumberField } from '../../components/Field';
+import { useSuggester } from '../../api';
 import { NoteModalActionBlocker } from '../../components/NoteModalActionBlocker';
 
 const CardItem = styled(Box)`
