@@ -90,7 +90,7 @@ triage.post(
       );
     }
 
-    encounter.addSystemNote(
+    await encounter.addSystemNote(
       `${department.name} triage score: ${triageRecord.score}`,
       getCurrentDateTimeString(),
       user,
