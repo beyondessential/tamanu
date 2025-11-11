@@ -45,11 +45,6 @@ export class InvoiceInsurancePlan extends Model {
       foreignKey: 'invoiceInsurancePlanId',
       as: 'invoiceInsurancePlanItems',
     });
-
-    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
-      foreignKey: 'invoiceInsurancePlanId',
-      as: 'invoices',
-    });
   }
 
   static buildSyncFilter() {

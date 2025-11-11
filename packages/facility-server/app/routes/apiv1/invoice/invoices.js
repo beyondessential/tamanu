@@ -58,12 +58,29 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
+    const insurerId = await req.models.PatientAdditionalData.findOne({
+      where: { patientId: encounter.patientId },
+      attributes: ['insurerId'],
+    }).then(patientData => patientData?.insurerId);
+    const insurerPercentage = await req.settings[facilityId].get(
+      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION,
+    );
+    const defaultInsurer =
+      insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
+
     // create invoice transaction
     const transaction = await req.db.transaction();
 
     try {
       //create invoice
       const invoice = await req.models.Invoice.create(data, { transaction });
+
+      // insert default insurer
+      if (defaultInsurer)
+        await req.models.InvoiceInsurer.create(
+          { invoiceId: data.id, ...defaultInsurer },
+          { transaction },
+        );
 
       // create invoice discount
       if (data.discount)
@@ -91,10 +108,7 @@ const updateInvoiceSchema = z
   .object({
     discount: z
       .object({
-        id: z
-          .string()
-          .uuid()
-          .default(uuidv4),
+        id: z.string().uuid().default(uuidv4),
         percentage: z.coerce
           .number()
           .min(0)
@@ -105,31 +119,41 @@ const updateInvoiceSchema = z
       })
       .strip()
       .optional(),
+    insurers: z
+      .object({
+        id: z.string().uuid().default(uuidv4),
+        percentage: z.coerce
+          .number()
+          .min(0)
+          .max(1)
+          .transform(amount => round(amount, 2)),
+        insurerId: z.string(),
+      })
+      .strip()
+      .array()
+      .refine(
+        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) <= 1,
+        'Total insurer percentage should not exceed 100%',
+      ),
     items: z
       .object({
-        id: z
-          .string()
-          .uuid()
-          .default(uuidv4),
+        id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
         productName: z.string(),
-        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
+        productPrice: z.coerce
+          .number()
+          .transform(amount => round(amount, 2))
+          .optional(),
         productCode: z.string().default(''),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().optional(),
-        sourceId: z
-          .string()
-          .uuid()
-          .optional(),
+        sourceId: z.string().uuid().optional(),
         discount: z
           .object({
-            id: z
-              .string()
-              .uuid()
-              .default(uuidv4),
+            id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
             reason: z.string().optional(),
@@ -198,6 +222,16 @@ invoiceRoute.put(
         );
       }
 
+      //remove any existing insurer if insurer ids are not matching
+      await req.models.InvoiceInsurer.destroy(
+        { where: { invoiceId, id: { [Op.notIn]: data.insurers.map(insurer => insurer.id) } } },
+        { transaction },
+      );
+      //update or create insurers
+      for (const insurer of data.insurers) {
+        await req.models.InvoiceInsurer.upsert({ ...insurer, invoiceId }, { transaction });
+      }
+
       //remove any existing item if item ids are not matching
       await req.models.InvoiceItem.destroy(
         { where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } } },
@@ -206,6 +240,7 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
+
         //update or create item
         await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 

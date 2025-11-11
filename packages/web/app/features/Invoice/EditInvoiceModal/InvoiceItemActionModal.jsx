@@ -6,10 +6,17 @@ import { useFormikContext } from 'formik';
 
 import { InvoiceItemCard } from './InvoiceItemCard';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
-import { Field, NumberField } from '../../Field';
+import { Field, NumberField } from '../../../components/Field';
 import { useTranslation } from '../../../contexts/Translation';
-import { ConfirmCancelRowField } from '../../VaccineCommonFields';
-import { TextField, SelectField, Form, FormGrid, Modal, TranslatedText } from '@tamanu/ui-components';
+import { ConfirmCancelRowField } from '../../../components/VaccineCommonFields';
+import {
+  TextField,
+  SelectField,
+  Form,
+  FormGrid,
+  Modal,
+  TranslatedText,
+} from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
 
@@ -22,13 +29,13 @@ const discountTypeOptions = [
   { value: INVOICE_ITEMS_DISCOUNT_TYPES.AMOUNT, label: '$' },
 ];
 
-const preventInvalid = (event) => {
+const preventInvalid = event => {
   if (!event.target.validity.valid) {
     event.target.value = '';
   }
 };
 
-const validateDecimalPlaces = (e) => {
+const validateDecimalPlaces = e => {
   const value = e.target.value;
   if (/^[−-]/.test(value)) {
     e.target.value = '';
@@ -229,12 +236,12 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
       .moreThan(0)
       .when('type', {
         is: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
-        then: (schema) => schema.max(100),
-        otherwise: (schema) =>
+        then: schema => schema.max(100),
+        otherwise: schema =>
           schema.test(
             'is-valid-amount',
             'Discount amount must be less than invoice item price',
-            (value) => value <= invoicePrice,
+            value => value <= invoicePrice,
           ),
       })
       .translatedLabel(
@@ -324,7 +331,7 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
     },
   };
 
-  const handleSubmit = async (submitData) => {
+  const handleSubmit = async submitData => {
     onAction(submitData);
   };
 

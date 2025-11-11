@@ -11,10 +11,10 @@ import {
 import { formatShortest } from '@tamanu/utils/dateTime';
 
 import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
-import { DataFetchingTable } from '../Table';
-import { TranslatedEnum, TranslatedText } from '../Translation';
+import { DataFetchingTable } from '../../components/Table';
+import { TranslatedEnum, TranslatedText } from '../../components/Translation';
 import { Typography } from '@material-ui/core';
-import { ThemedTooltip } from '../Tooltip';
+import { ThemedTooltip } from '../../components/Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
 import { InvoiceModalGroup } from './InvoiceModalGroup';
 import {
