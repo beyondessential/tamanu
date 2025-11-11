@@ -309,17 +309,21 @@ export class SurveyResponse extends Model {
       const recordedDate = dateRecordedValue || responseData.startTime || null;
 
       if (recordedDate) {
+        const whereConditions = {
+          patientId,
+          encounterType: 'surveyResponse',
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('DATE', Sequelize.col('start_date')),
+              Sequelize.fn('DATE', new Date(recordedDate).toISOString()),
+            ),
+          ],
+          ...(responseData.departmentId && { departmentId: responseData.departmentId }),
+          ...(responseData.locationId && { locationId: responseData.locationId }),
+        };
+
         const existingFormResponseEncounter = await Encounter.findOne({
-          where: {
-            patientId,
-            encounterType: 'surveyResponse',
-            [Op.and]: [
-              Sequelize.where(
-                Sequelize.fn('DATE', Sequelize.col('start_date')),
-                Sequelize.fn('DATE', new Date(recordedDate).toISOString()),
-              ),
-            ],
-          },
+          where: whereConditions,
         });
 
         if (existingFormResponseEncounter) {
