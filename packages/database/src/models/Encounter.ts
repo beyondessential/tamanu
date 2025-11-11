@@ -510,18 +510,19 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge({
-    endDate,
-    systemNote,
-    discharge,
-    addSystemNoteRow,
-  }: {
-    endDate: string;
-    submittedTime: string;
-    systemNote?: string;
-    discharge: ModelProperties<Discharge>;
-    addSystemNoteRow: (content: string) => void;
-  }) {
+  async onDischarge(
+    {
+      endDate,
+      systemNote,
+      discharge,
+    }: {
+      endDate: string;
+      submittedTime: string;
+      systemNote?: string;
+      discharge: ModelProperties<Discharge>;
+    },
+    addSystemNoteRow: (content: string) => void,
+  ) {
     const { Discharge } = this.sequelize.models;
     await Discharge.create({
       ...discharge,
@@ -578,11 +579,11 @@ export class Encounter extends Model {
 
       const systemNoteRows: string[] = [];
       const addSystemNoteRow = (content: string) => {
-        systemNoteRows.push(`- ${content}`);
+        systemNoteRows.push(`• ${content}`);
       };
 
       if (data.endDate && !this.endDate) {
-        await this.onDischarge({ ...data, addSystemNoteRow });
+        await this.onDischarge(data, addSystemNoteRow);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
