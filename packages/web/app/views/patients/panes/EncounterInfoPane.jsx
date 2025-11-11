@@ -99,12 +99,12 @@ const LengthOfStayText = styled.span`
   color: ${props => props.theme.palette.text.darkestText};
 `;
 
-const LengthOfStayDisplay = ({ encounter }) => {
-  const endDate = encounter.endDate ? parseISO(encounter.endDate) : new Date();
-  const startDate = parseISO(encounter.startDate);
+const LengthOfStayDisplay = ({ startDate, endDate }) => {
+  const parsedEndDate = endDate ? parseISO(endDate) : new Date();
+  const parsedStartDate = parseISO(startDate);
 
-  const duration = intervalToDuration({ start: startDate, end: endDate });
-  const totalMinutes = differenceInMinutes(endDate, startDate);
+  const duration = intervalToDuration({ start: parsedStartDate, end: parsedEndDate });
+  const totalMinutes = differenceInMinutes(parsedEndDate, parsedStartDate);
 
   let formattedDuration;
   if (totalMinutes === 0) {
@@ -242,7 +242,9 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
         value={
           <>
             <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
-            {isInpatient(encounter?.encounterType) && <LengthOfStayDisplay encounter={encounter} />}
+            {isInpatient(encounter?.encounterType) && (
+              <LengthOfStayDisplay startDate={encounter.startDate} endDate={encounter.endDate} />
+            )}
           </>
         }
         icon={arrivalDateIcon}
