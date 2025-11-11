@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { subject } from '@casl/ability';
 import styled from 'styled-components';
 import * as yup from 'yup';
@@ -11,8 +11,8 @@ import {
   SelectField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
-import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
-import { Form, FormGrid } from '@tamanu/ui-components';
+import { TranslatedText, FormModal, Button, OutlinedButton, BodyText } from '../../../components';
+import { BaseModal, ConfirmCancelRow, Form, FormGrid } from '@tamanu/ui-components';
 import { Colors } from '../../../constants';
 import { Box, Divider } from '@mui/material';
 import { foreignKey } from '../../../utils/validation';
@@ -26,6 +26,15 @@ import { isBcryptHash } from '@tamanu/utils/password';
 const StyledFormModal = styled(FormModal)`
   .MuiPaper-root {
     max-width: 800px;
+  }
+`;
+
+const StyledWarningModal = styled(BaseModal)`
+  .MuiPaper-root {
+    max-width: 700px;
+  }
+  .MuiDialogActions-root {
+    border-top: 1px solid ${Colors.outline};
   }
 `;
 
@@ -54,6 +63,18 @@ const SectionSubtitle = styled(Box)`
   font-size: 14px;
   line-height: 18px;
   color: ${Colors.midText};
+`;
+
+const WarningContainer = styled(Box)`
+  padding: 78px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const StyledConfirmCancelRow = styled(ConfirmCancelRow)`
+  margin-top: 0;
+  padding: 12px 20px;
 `;
 
 const validationSchema = yup.object().shape({
@@ -100,7 +121,7 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const { mutate: updateUser, isPending: isUpdateUserPending } = useUpdateUserMutation(user.id);
   const { mutateAsync: validateUser, isPending: isValidateUserPending } = useValidateUserMutation();
   const { getTranslation } = useTranslation();
-  const { ability } = useAuth();
+  const { ability, currentUser } = useAuth();
 
   const isPending = isUpdateUserPending || isValidateUserPending;
   // only allow updating the user if the user has the write permission for the all users
@@ -109,6 +130,11 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   const roleSuggester = useSuggester('role');
   const designationSuggester = useSuggester('designation');
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+
+  const [showRoleChangeConfirmation, setShowRoleChangeConfirmation] = useState({
+    open: false,
+    onConfirm: () => {},
+  });
 
   const statusOptions = [
     {
@@ -125,9 +151,36 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
     // Only validate if email or displayName changed
     const emailChanged = values.email !== user.email;
     const displayNameChanged = values.displayName !== user.displayName;
+    const roleChanged = values.role !== user.role;
 
-    if (emailChanged || displayNameChanged) {
-      const { isEmailUnique, isDisplayNameUnique } = await validateUser(values);
+    const updateUserCallback = () => {
+      updateUser(values, {
+        onSuccess: () => {
+          handleRefresh();
+          if (values.newPassword && values.confirmPassword) {
+            toast.success(
+              getTranslation(
+                'admin.users.profile.successWithPassword',
+                'User updated successfully! Password changed.',
+              ),
+            );
+          } else {
+            toast.success(
+              getTranslation('admin.users.profile.success', 'User updated successfully!'),
+            );
+          }
+          onClose();
+        },
+        onError: error => {
+          toast.error(error.message);
+        },
+      });
+    };
+
+    if (emailChanged || displayNameChanged || roleChanged) {
+      const { isEmailUnique, isDisplayNameUnique, hasWriteUserPermission } = await validateUser(
+        values,
+      );
 
       if (emailChanged && !isEmailUnique) {
         setFieldError(
@@ -149,29 +202,21 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       if ((emailChanged && !isEmailUnique) || (displayNameChanged && !isDisplayNameUnique)) {
         return;
       }
+
+      if (currentUser.id === user.id && !hasWriteUserPermission) {
+        setShowRoleChangeConfirmation({
+          open: true,
+          onConfirm: updateUserCallback,
+        });
+        return;
+      }
     }
 
-    updateUser(values, {
-      onSuccess: () => {
-        handleRefresh();
-        if (values.newPassword && values.confirmPassword) {
-          toast.success(
-            getTranslation(
-              'admin.users.profile.successWithPassword',
-              'User updated successfully! Password changed.',
-            ),
-          );
-        } else {
-          toast.success(
-            getTranslation('admin.users.profile.success', 'User updated successfully!'),
-          );
-        }
-        onClose();
-      },
-      onError: error => {
-        toast.error(error.message);
-      },
-    });
+    updateUserCallback();
+  };
+
+  const handleCloseChangeRoleConfirmation = () => {
+    setShowRoleChangeConfirmation({ open: false, onConfirm: () => {} });
   };
 
   const initialValues = useMemo(() => {
@@ -190,198 +235,241 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   }, [user]);
 
   return (
-    <StyledFormModal
-      title={<TranslatedText stringId="admin.users.profile.title" fallback="User profile" />}
-      open={open}
-      onClose={onClose}
-    >
-      <Form
-        suppressErrorDialog
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-        formType={FORM_TYPES.EDIT_FORM}
-        enableReinitialize
-        render={({ submitForm, dirty }) => {
-          const allowSave = dirty && canUpdateUser;
-          return (
-            <>
-              <Container>
-                <FormGrid columns={2} nested>
-                  <SectionContainer>
-                    <SectionTitle>
-                      <TranslatedText
-                        stringId="admin.users.details.title"
-                        fallback="User details"
-                      />
-                    </SectionTitle>
-                    <SectionSubtitle>
-                      <TranslatedText
-                        stringId="admin.users.details.subtitle"
-                        fallback="Edit user details below."
-                      />
-                    </SectionSubtitle>
-                  </SectionContainer>
+    <>
+      <StyledFormModal
+        title={<TranslatedText stringId="admin.users.profile.title" fallback="User profile" />}
+        open={open}
+        onClose={onClose}
+      >
+        <Form
+          suppressErrorDialog
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+          formType={FORM_TYPES.EDIT_FORM}
+          enableReinitialize
+          render={({ submitForm, dirty }) => {
+            const allowSave = dirty && canUpdateUser;
+            return (
+              <>
+                <Container>
+                  <FormGrid columns={2} nested>
+                    <SectionContainer>
+                      <SectionTitle>
+                        <TranslatedText
+                          stringId="admin.users.details.title"
+                          fallback="User details"
+                        />
+                      </SectionTitle>
+                      <SectionSubtitle>
+                        <TranslatedText
+                          stringId="admin.users.details.subtitle"
+                          fallback="Edit user details below."
+                        />
+                      </SectionSubtitle>
+                    </SectionContainer>
 
-                  <Field
-                    name="visibilityStatus"
-                    label={<TranslatedText stringId="admin.users.status.label" fallback="Status" />}
-                    component={SelectField}
-                    options={statusOptions}
-                    isClearable={false}
-                    required
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="displayName"
-                    label={
-                      <TranslatedText
-                        stringId="admin.users.displayName.label"
-                        fallback="Display name"
-                      />
-                    }
-                    component={TextField}
-                    required
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="displayId"
-                    label={<TranslatedText stringId="admin.users.displayId.label" fallback="ID" />}
-                    component={TextField}
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="role"
-                    label={<TranslatedText stringId="admin.users.role.label" fallback="Role" />}
-                    component={AutocompleteField}
-                    suggester={roleSuggester}
-                    required
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="designations"
-                    label={
-                      <TranslatedText
-                        stringId="admin.users.designation.label"
-                        fallback="Designation"
-                      />
-                    }
-                    component={MultiAutocompleteField}
-                    suggester={designationSuggester}
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="email"
-                    label={<TranslatedText stringId="admin.users.email.label" fallback="Email" />}
-                    component={TextField}
-                    required
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="phoneNumber"
-                    label={
-                      <TranslatedText stringId="admin.users.phoneNumber.label" fallback="Phone" />
-                    }
-                    component={TextField}
-                    disabled={!canUpdateUser}
-                  />
-                  <Field
-                    name="allowedFacilityIds"
-                    label={
-                      <TranslatedText
-                        stringId="admin.users.allowedFacilities.label"
-                        fallback="Allowed facilities"
-                      />
-                    }
-                    component={MultiAutocompleteField}
-                    allowSelectAll
-                    suggester={facilitySuggester}
-                    style={{ gridColumn: 'span 2' }}
-                    disabled={!canUpdateUser}
-                  />
-                </FormGrid>
-                {canUpdateUser && (
-                  <>
-                    <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
-                    <FormGrid columns={2} nested>
-                      <SectionContainer gridColumn="span 2">
-                        <SectionTitle>
-                          <TranslatedText
-                            stringId="admin.users.changePassword.title"
-                            fallback="Change password"
-                          />
-                        </SectionTitle>
-                        <SectionSubtitle>
-                          <TranslatedText
-                            stringId="admin.users.changePassword.subtitle"
-                            fallback="Use the fields below to reset the users password."
-                          />
-                        </SectionSubtitle>
-                      </SectionContainer>
-                      <Field
-                        name="newPassword"
-                        label={
-                          <TranslatedText
-                            stringId="admin.users.newPassword.label"
-                            fallback="New password"
-                          />
-                        }
-                        placeholder={getTranslation(
-                          'admin.users.newPassword.placeholder',
-                          'Enter new password',
-                        )}
-                        component={TextField}
-                        type="password"
-                        required
-                        autoComplete="new-password"
-                      />
-                      <Field
-                        name="confirmPassword"
-                        label={
-                          <TranslatedText
-                            stringId="admin.users.confirmNewPassword.label"
-                            fallback="Confirm new password"
-                          />
-                        }
-                        placeholder={getTranslation(
-                          'admin.users.confirmNewPassword.placeholder',
-                          'Confirm new password',
-                        )}
-                        component={TextField}
-                        type="password"
-                        required
-                        validateOnBlur
-                      />
-                    </FormGrid>
-                  </>
-                )}
-              </Container>
+                    <Field
+                      name="visibilityStatus"
+                      label={
+                        <TranslatedText stringId="admin.users.status.label" fallback="Status" />
+                      }
+                      component={SelectField}
+                      options={statusOptions}
+                      isClearable={false}
+                      required
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="displayName"
+                      label={
+                        <TranslatedText
+                          stringId="admin.users.displayName.label"
+                          fallback="Display name"
+                        />
+                      }
+                      component={TextField}
+                      required
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="displayId"
+                      label={
+                        <TranslatedText stringId="admin.users.displayId.label" fallback="ID" />
+                      }
+                      component={TextField}
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="role"
+                      label={<TranslatedText stringId="admin.users.role.label" fallback="Role" />}
+                      component={AutocompleteField}
+                      suggester={roleSuggester}
+                      required
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="designations"
+                      label={
+                        <TranslatedText
+                          stringId="admin.users.designation.label"
+                          fallback="Designation"
+                        />
+                      }
+                      component={MultiAutocompleteField}
+                      suggester={designationSuggester}
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="email"
+                      label={<TranslatedText stringId="admin.users.email.label" fallback="Email" />}
+                      component={TextField}
+                      required
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="phoneNumber"
+                      label={
+                        <TranslatedText stringId="admin.users.phoneNumber.label" fallback="Phone" />
+                      }
+                      component={TextField}
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="allowedFacilityIds"
+                      label={
+                        <TranslatedText
+                          stringId="admin.users.allowedFacilities.label"
+                          fallback="Allowed facilities"
+                        />
+                      }
+                      component={MultiAutocompleteField}
+                      allowSelectAll
+                      suggester={facilitySuggester}
+                      style={{ gridColumn: 'span 2' }}
+                      disabled={!canUpdateUser}
+                    />
+                  </FormGrid>
+                  {canUpdateUser && (
+                    <>
+                      <Divider sx={{ borderColor: Colors.outline, margin: '20px 0' }} />
+                      <FormGrid columns={2} nested>
+                        <SectionContainer gridColumn="span 2">
+                          <SectionTitle>
+                            <TranslatedText
+                              stringId="admin.users.changePassword.title"
+                              fallback="Change password"
+                            />
+                          </SectionTitle>
+                          <SectionSubtitle>
+                            <TranslatedText
+                              stringId="admin.users.changePassword.subtitle"
+                              fallback="Use the fields below to reset the users password."
+                            />
+                          </SectionSubtitle>
+                        </SectionContainer>
+                        <Field
+                          name="newPassword"
+                          label={
+                            <TranslatedText
+                              stringId="admin.users.newPassword.label"
+                              fallback="New password"
+                            />
+                          }
+                          placeholder={getTranslation(
+                            'admin.users.newPassword.placeholder',
+                            'Enter new password',
+                          )}
+                          component={TextField}
+                          type="password"
+                          required
+                          autoComplete="new-password"
+                        />
+                        <Field
+                          name="confirmPassword"
+                          label={
+                            <TranslatedText
+                              stringId="admin.users.confirmNewPassword.label"
+                              fallback="Confirm new password"
+                            />
+                          }
+                          placeholder={getTranslation(
+                            'admin.users.confirmNewPassword.placeholder',
+                            'Confirm new password',
+                          )}
+                          component={TextField}
+                          type="password"
+                          required
+                          validateOnBlur
+                        />
+                      </FormGrid>
+                    </>
+                  )}
+                </Container>
 
-              <Divider sx={{ borderColor: Colors.outline }} />
-              <UserLeaveSection user={user} />
-              <Box mt="34px">
                 <Divider sx={{ borderColor: Colors.outline }} />
-              </Box>
-              <Box mt={2.5} mb={-1.5} display="flex" justifyContent="flex-end" gap="16px">
-                {allowSave ? (
-                  <>
-                    <OutlinedButton onClick={onClose} disabled={isPending}>
-                      <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-                    </OutlinedButton>
-                    <Button onClick={submitForm} isSubmitting={isPending}>
-                      <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                <UserLeaveSection user={user} />
+                <Box mt="34px">
+                  <Divider sx={{ borderColor: Colors.outline }} />
+                </Box>
+                <Box mt={2.5} mb={-1.5} display="flex" justifyContent="flex-end" gap="16px">
+                  {allowSave ? (
+                    <>
+                      <OutlinedButton onClick={onClose} disabled={isPending}>
+                        <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+                      </OutlinedButton>
+                      <Button onClick={submitForm} isSubmitting={isPending}>
+                        <TranslatedText stringId="general.action.confirm" fallback="Confirm" />
+                      </Button>
+                    </>
+                  ) : (
+                    <Button onClick={onClose} style={{ height: '41px' }}>
+                      <TranslatedText stringId="general.action.close" fallback="Close" />
                     </Button>
-                  </>
-                ) : (
-                  <Button onClick={onClose} style={{ height: '41px' }}>
-                    <TranslatedText stringId="general.action.close" fallback="Close" />
-                  </Button>
-                )}
-              </Box>
-            </>
-          );
-        }}
-      />
-    </StyledFormModal>
+                  )}
+                </Box>
+              </>
+            );
+          }}
+        />
+      </StyledFormModal>
+      <StyledWarningModal
+        title={
+          <TranslatedText stringId="admin.users.roleChangeConfirmation.title" fallback="Warning" />
+        }
+        open={showRoleChangeConfirmation.open}
+        onClose={handleCloseChangeRoleConfirmation}
+        actions={
+          <StyledConfirmCancelRow
+            confirmText={
+              <TranslatedText stringId="general.action.changeRole" fallback="Change role" />
+            }
+            onConfirm={() => {
+              showRoleChangeConfirmation.onConfirm();
+            }}
+            onCancel={handleCloseChangeRoleConfirmation}
+            data-testid="confirmcancelrow-3i0t"
+          />
+        }
+      >
+        <WarningContainer>
+          <BodyText fontWeight={500} color={Colors.darkestText} mb={1}>
+            <TranslatedText stringId="general.warning" fallback="Warning" />
+          </BodyText>
+          <BodyText color={Colors.darkestText}>
+            <TranslatedText
+              stringId="admin.users.roleChangeConfirmation.text"
+              fallback="Changing your role will remove your permission to edit user profiles. If you proceed, you will need another authorised user to modify your role in the future."
+            />
+            <Box mt={2}>
+              <TranslatedText
+                stringId="admin.users.roleChangeConfirmation.confirm"
+                fallback="Do you want to continue?"
+              />
+            </Box>
+          </BodyText>
+        </WarningContainer>
+      </StyledWarningModal>
+    </>
   );
 };
