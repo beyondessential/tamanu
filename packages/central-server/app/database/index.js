@@ -4,6 +4,7 @@ import { addHooks } from './hooks';
 import { closeAllDatabases, openDatabase } from '@tamanu/database/services/database';
 import { log } from '@tamanu/shared/services/logging';
 import { REPORT_DB_SCHEMAS } from '@tamanu/constants';
+import { setFhirRefreshTriggers } from './setFhirRefreshTriggers';
 
 const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'main') => {
   const store = await openDatabase(key, {
@@ -20,6 +21,8 @@ const getOrCreateConnection = async ({ testMode, ...configOverrides }, key = 'ma
   if (key === 'main') {
     await addHooks(store);
   }
+
+  await setFhirRefreshTriggers(store.sequelize);
 
   return store;
 };
