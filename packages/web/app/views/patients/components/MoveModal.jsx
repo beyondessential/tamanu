@@ -260,7 +260,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             <SectionDescription>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.description"
-                fallback="Please select the clinician and department for the patient."
+                fallback="Update patient clinician and department details below."
               />
             </SectionDescription>
             <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
