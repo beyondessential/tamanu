@@ -66,13 +66,6 @@ const BasicMoveFields = () => {
         <Field
           name="locationId"
           component={LocalisedLocationField}
-          label={
-            <TranslatedText
-              stringId="patient.encounter.movePatient.location.label"
-              fallback="New location"
-              data-testid="translatedtext-35a6"
-            />
-          }
           required
           data-testid="field-tykg"
         />
