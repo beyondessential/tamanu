@@ -659,7 +659,11 @@ export class Encounter extends Model {
       }
 
       if (systemNoteRows.length > 0) {
-        await this.addSystemNote(systemNoteRows.join('\n'), submittedTime, user);
+        await this.addSystemNote(
+          systemNoteRows.join('\n'),
+          submittedTime || getCurrentDateTimeString(),
+          user,
+        );
       }
 
       return updatedEncounter;
