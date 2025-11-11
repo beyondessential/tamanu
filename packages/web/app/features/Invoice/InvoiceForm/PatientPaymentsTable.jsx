@@ -4,6 +4,10 @@ import Decimal from 'decimal';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
+<<<<<<<< HEAD:packages/web/app/features/Invoice/InvoiceForm/PatientPaymentsTable.jsx
+========
+
+>>>>>>>> feat/sav-1038-invoice-insurers:packages/web/app/features/Invoice/EditInvoiceModal/PatientPaymentsTable.jsx
 import { TranslatedText } from '../../../components/Translation';
 import { Table } from '../../../components/Table';
 import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
