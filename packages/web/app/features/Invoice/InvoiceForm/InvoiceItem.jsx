@@ -11,7 +11,7 @@ const StyledItemRow = styled(Box)`
   display: flex;
   gap: 10px;
   font-size: 14px;
-  padding: 8px 20px;
+  padding: 12px 20px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
   &:last-child {

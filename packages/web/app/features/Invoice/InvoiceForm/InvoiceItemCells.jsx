@@ -19,11 +19,10 @@ export const StyledItemCell = styled(Box)`
   }
 `;
 
-export const ViewOnlyCell = styled(Box)`
+export const ViewOnlyCell = styled.div`
+  display: flex;
   font-size: 14px;
   padding-left: 15px;
-  display: flex;
-  align-items: center;
   min-height: 39px;
 `;
 

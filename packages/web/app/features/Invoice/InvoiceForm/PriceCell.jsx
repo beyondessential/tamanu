@@ -6,6 +6,7 @@ import {
   formatDisplayPrice,
 } from '@tamanu/shared/utils/invoice';
 import { keyBy } from 'lodash';
+import Decimal from 'decimal.js';
 import { Field, NoteModalActionBlocker } from '../../../components';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
@@ -13,34 +14,30 @@ import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { PriceField } from '../../../components/Field/PriceField';
 import { useInvoiceItemActions } from './useInvoiceItemActions.jsx';
 import { StyledItemCell, ViewOnlyCell } from './InvoiceItemCells';
+import { Box } from '@mui/material';
 
-const PriceText = styled.span`
-  margin-right: 16px;
-  padding-left: 15px;
+const Container = styled(ViewOnlyCell)`
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+`;
+
+const PriceText = styled.div`
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
-const StyledPriceCell = styled(ViewOnlyCell)`
+const Row = styled.div`
   display: flex;
-  align-items: center;
-  padding: 0;
-  min-height: 39px;
+  text-align: right;
 `;
 
-const CoverageCellsWrapper = styled.div``;
-
-const CoverageCell = styled.div`
-  position: relative;
+const RowName = styled.div`
   color: ${props => props.theme.palette.text.tertiary};
-  text-align: center;
-  min-width: 60px;
+  white-space: nowrap;
 `;
 
-const CoverageCellName = styled(CoverageCell)`
-  position: absolute;
-  bottom: 0;
-  right: 100%;
-  white-space: nowrap;
+const RowValue = styled.div`
+  min-width: 4em;
 `;
 
 const getCoverageDisplay = (invoiceItem, defaultCoverage) => {
@@ -56,19 +53,46 @@ const CoverageSection = ({ invoiceInsurancePlans, item }) => {
   const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'id');
 
   return (
-    <CoverageCellsWrapper>
+    <Box mt={1}>
       {invoiceInsurancePlans.map(({ id, code, name, defaultCoverage }) => {
         const planItem = itemInsurancePlansById[id];
         const coverageDisplay = getCoverageDisplay(planItem, defaultCoverage);
         const nameDisplay = name || code;
         return (
-          <CoverageCell key={id}>
-            <CoverageCellName>{nameDisplay}</CoverageCellName>
-            <span>{`-${coverageDisplay}`}</span>
-          </CoverageCell>
+          <Row key={id}>
+            <RowName>{nameDisplay}</RowName>
+            <RowValue>{`-${coverageDisplay}`}</RowValue>
+          </Row>
         );
       })}
-    </CoverageCellsWrapper>
+    </Box>
+  );
+};
+const getPriceDifferenceDisplay = (price, discountPrice) => {
+  const priceDifference = new Decimal(discountPrice).minus(price).toNumber();
+  return formatDisplayPrice(priceDifference);
+};
+
+const DiscountSection = ({ price, discountReason, discountPrice }) => {
+  const priceDifference = getPriceDifferenceDisplay(price, discountPrice);
+
+  return (
+    <ThemedTooltip
+      key={discountReason}
+      title={discountReason}
+      open={discountReason ? undefined : false}
+    >
+      <>
+        <Row>
+          <RowName>Item discount</RowName>
+          <RowValue>{priceDifference}</RowValue>
+        </Row>
+        <Row>
+          <RowName>Price after discount</RowName>
+          <RowValue>{discountPrice}</RowValue>
+        </Row>
+      </>
+    </ThemedTooltip>
   );
 };
 
@@ -93,46 +117,44 @@ export const PriceCell = ({
 
   const price = getInvoiceItemPriceDisplay(item);
   const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
-
   return (
-    <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
-      <StyledPriceCell>
-        {hidePriceInput ? (
-          <>
-            <PriceText $isCrossedOut={!!discountPrice} data-testid="pricetext-is33">
-              {price}
-            </PriceText>
-            {!!discountPrice && (
-              <ThemedTooltip
-                key={item.discount?.reason}
-                title={item.discount?.reason}
-                open={item.discount?.reason ? undefined : false}
-                data-testid="themedtooltip-jrhk"
-              >
-                <span>{discountPrice}</span>
-              </ThemedTooltip>
-            )}
-          </>
-        ) : (
-          item.productId && (
-            <NoteModalActionBlocker>
-              <Field
-                name={`invoiceItems.${index}.productPrice`}
-                component={PriceField}
-                required
-                style={{ width: '100%' }}
-                data-testid="field-05x9"
-              />
-            </NoteModalActionBlocker>
-          )
-        )}
-        {showActionMenu && editable && (
-          <NoteModalActionBlocker>
-            <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
-          </NoteModalActionBlocker>
-        )}
-      </StyledPriceCell>
-      <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+    <>
+      <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
+        <Container>
+          {hidePriceInput ? (
+            <>
+              <PriceText $isCrossedOut={Boolean(discountPrice)} data-testid="pricetext-is33">
+                {price}
+              </PriceText>
+              {Boolean(discountPrice) && (
+                <DiscountSection
+                  discountReason={item.discount?.reason}
+                  discountPrice={discountPrice}
+                  price={price}
+                />
+              )}
+            </>
+          ) : (
+            item.productId && (
+              <NoteModalActionBlocker>
+                <Field
+                  name={`invoiceItems.${index}.productPrice`}
+                  component={PriceField}
+                  required
+                  style={{ width: '100%' }}
+                  data-testid="field-05x9"
+                />
+              </NoteModalActionBlocker>
+            )
+          )}
+          <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+        </Container>
+      </StyledItemCell>
+      {showActionMenu && editable && (
+        <NoteModalActionBlocker>
+          <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+        </NoteModalActionBlocker>
+      )}
       {actionModal && (
         <InvoiceItemActionModal
           open
@@ -143,6 +165,6 @@ export const PriceCell = ({
           data-testid="invoiceitemactionmodal-lar4"
         />
       )}
-    </StyledItemCell>
+    </>
   );
 };
