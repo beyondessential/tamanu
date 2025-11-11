@@ -29,9 +29,9 @@ export const InvoiceModalGroup = ({
     setInvoice(cloneDeep(initialInvoice));
   }, [initialInvoice]);
 
-  const handleCloseInvoiceModal = (type) => {
+  const handleCloseInvoiceModal = type => {
     const isCloseAll = !type;
-    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter((modal) => modal !== type));
+    setInvoiceModal(isCloseAll ? [] : invoiceModal.filter(modal => modal !== type));
     if (isCloseAll) {
       onClose();
     }
@@ -40,7 +40,7 @@ export const InvoiceModalGroup = ({
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const handleTemporaryUpdateInvoice = (data) => {
+  const handleTemporaryUpdateInvoice = data => {
     setInvoice({ ...invoice, ...data });
   };
 

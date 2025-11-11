@@ -7,12 +7,12 @@ import { toDateString } from '@tamanu/utils/dateTime';
 import { formatDisplayPrice } from '@tamanu/shared/utils/invoice';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { DataFetchingTable } from '../../Table';
-import { TranslatedEnum, TranslatedText } from '../../Translation';
-import { DateDisplay } from '../../DateDisplay';
+import { DataFetchingTable } from '../../../components/Table';
+import { TranslatedEnum, TranslatedText } from '../../../components/Translation';
+import { DateDisplay } from '../../../components/DateDisplay';
 import { denseTableStyle } from '../../../constants';
-import { useTableSorting } from '../../Table/useTableSorting';
-import { NoteModalActionBlocker } from '../../NoteModalActionBlocker';
+import { useTableSorting } from '../../../components/Table/useTableSorting';
+import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 const StyledDataFetchingTable = styled(DataFetchingTable)`
   max-height: 400px;
 `;
@@ -78,8 +78,8 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     initialSortDirection: 'asc',
   });
 
-  const customSortWrapper = (customSort) => (data) => {
-    const potentialInvoiceItems = data.map((item) => ({
+  const customSortWrapper = customSort => data => {
+    const potentialInvoiceItems = data.map(item => ({
       ...item,
       productPrice: Number(item.productPrice),
     }));
@@ -94,20 +94,20 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
     !invoiceItems[0].productId &&
     !invoiceItems[0].orderedByUserId;
 
-  const onPotentialInvoiceItemsFetched = useCallback((data) => {
+  const onPotentialInvoiceItemsFetched = useCallback(data => {
     setPotentialInvoiceItems(data?.data || []);
   }, []);
 
   const potentialInvoiceItemRowStyle = ({ sourceId }) => {
-    const idList = invoiceItems.map((row) => row?.sourceId).filter(Boolean);
+    const idList = invoiceItems.map(row => row?.sourceId).filter(Boolean);
     if (idList.includes(sourceId)) return 'display: none;';
     return '';
   };
 
-  const handleAddPotentialInvoiceItems = (items) => {
+  const handleAddPotentialInvoiceItems = items => {
     if (isInvoiceItemsEmpty) formArrayMethods.remove(0);
     items.forEach(
-      (item) =>
+      item =>
         !potentialInvoiceItemRowStyle(item) &&
         formArrayMethods.push({
           ...item,
@@ -121,7 +121,7 @@ export const PotentialInvoiceItemsTable = ({ invoice, invoiceItems, formArrayMet
   const isEmptyPotentialInvoiceItems = !differenceBy(
     potentialInvoiceItems,
     invoiceItems,
-    (it) => it.sourceId || it.id,
+    it => it.sourceId || it.id,
   ).length;
 
   const POTENTIAL_INVOICE_ITEMS_TABLE_COLUMNS = [
