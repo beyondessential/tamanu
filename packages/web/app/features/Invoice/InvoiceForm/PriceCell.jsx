@@ -13,8 +13,13 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { PriceField } from '../../../components/Field/PriceField';
 import { useInvoiceItemActions } from './useInvoiceItemActions.jsx';
-import { StyledItemCell, ViewOnlyCell } from './InvoiceItemCells';
+import { ViewOnlyCell } from './InvoiceItemCells';
 import { Box } from '@mui/material';
+
+export const StyledItemCell = styled(Box)`
+  display: flex;
+  justify-content: flex-end;
+`;
 
 const Container = styled(ViewOnlyCell)`
   flex-direction: column;
@@ -75,6 +80,9 @@ const getPriceDifferenceDisplay = (price, discountPrice) => {
 
 const DiscountSection = ({ price, discountReason, discountPrice }) => {
   const priceDifference = getPriceDifferenceDisplay(price, discountPrice);
+  const isMarkup = priceDifference > 0;
+  const text = isMarkup ? 'markup' : 'discount';
+  const symbol = isMarkup ? '+' : '-';
 
   return (
     <ThemedTooltip
@@ -84,11 +92,14 @@ const DiscountSection = ({ price, discountReason, discountPrice }) => {
     >
       <>
         <Row>
-          <RowName>Item discount</RowName>
-          <RowValue>{priceDifference}</RowValue>
+          <RowName>Item {text}</RowName>
+          <RowValue>
+            {symbol}
+            {priceDifference}
+          </RowValue>
         </Row>
         <Row>
-          <RowName>Price after discount</RowName>
+          <RowName>Price after {text}</RowName>
           <RowValue>{discountPrice}</RowValue>
         </Row>
       </>
@@ -149,12 +160,12 @@ export const PriceCell = ({
           )}
           <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
         </Container>
+        {showActionMenu && editable && (
+          <NoteModalActionBlocker>
+            <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+          </NoteModalActionBlocker>
+        )}
       </StyledItemCell>
-      {showActionMenu && editable && (
-        <NoteModalActionBlocker>
-          <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
-        </NoteModalActionBlocker>
-      )}
       {actionModal && (
         <InvoiceItemActionModal
           open

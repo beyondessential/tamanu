@@ -13,7 +13,6 @@ import {
 import { Colors } from '../../../constants';
 
 export const StyledItemCell = styled(Box)`
-  align-self: flex-start;
   .MuiFormHelperText-root {
     font-size: 14px;
   }

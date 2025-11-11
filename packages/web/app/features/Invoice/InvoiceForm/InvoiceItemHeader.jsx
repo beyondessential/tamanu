@@ -3,17 +3,17 @@ import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { TranslatedText } from '@tamanu/ui-components';
 
-const StyledItemHeader = styled(Box)`
+const StyledItemHeader = styled.div`
   display: flex;
   gap: 10px;
   padding: 14px 20px;
-  font-weight: 500;
   border-radius: 4px 4px 0 0;
   border-bottom: 0;
 `;
 
 const ItemHeadCell = styled(Box)`
   padding-left: 15px;
+  color: ${props => props.theme.palette.text.tertiary};
 `;
 
 export const InvoiceItemHeader = () => {
@@ -38,7 +38,7 @@ export const InvoiceItemHeader = () => {
           data-testid="translatedtext-b5me"
         />
       </ItemHeadCell>
-      <ItemHeadCell width="11%" sx={{ flexGrow: 1 }}>
+      <ItemHeadCell width="11%" sx={{ flexGrow: 1, textAlign: 'right', paddingRight: 45 }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </ItemHeadCell>
     </StyledItemHeader>

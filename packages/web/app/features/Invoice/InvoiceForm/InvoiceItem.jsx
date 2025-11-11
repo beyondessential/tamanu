@@ -1,19 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box } from '@material-ui/core';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
 import { DateCell, DetailsCell, CodeCell, QuantityCell, OrderedByCell } from './InvoiceItemCells';
 import { PriceCell } from './PriceCell';
 
-const StyledItemRow = styled(Box)`
+const StyledItemRow = styled.div`
   display: flex;
   gap: 10px;
   font-size: 14px;
   padding: 12px 20px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
+  flex-wrap: nowrap;
+  align-items: flex-start;
+
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
   }
@@ -28,7 +30,6 @@ export const InvoiceItemRow = ({
   formArrayMethods,
   editable,
 }) => {
-  console.log('item', item);
   const isItemEditable = !item.sourceRecordId && editable;
   const { getTranslation } = useTranslation();
   const nonDiscountableTranslation = getTranslation(
@@ -69,7 +70,7 @@ export const InvoiceItemRow = ({
   };
 
   return (
-    <StyledItemRow alignItems="center" spacing={1} wrap="nowrap">
+    <StyledItemRow>
       <DateCell index={index} item={item} isItemEditable={isItemEditable} />
       <DetailsCell
         index={index}

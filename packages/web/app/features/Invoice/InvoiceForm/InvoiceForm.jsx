@@ -142,7 +142,7 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
             {formArrayMethods => {
               return (
                 <FormContainer>
-                  <InvoiceItemHeader data-testid="invoiceitemheader-dhmx" />
+                  <InvoiceItemHeader />
                   <Box paddingBottom="10px">
                     {values.invoiceItems?.map((item, index) => (
                       <InvoiceItemRow
@@ -166,23 +166,11 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                       {'+ '}
                       <TranslatedText
                         stringId="invoice.modal.editInvoice.action.newRow"
-                        fallback="Add new row"
+                        fallback="Add item"
                         data-testid="translatedtext-9vs0"
                       />
                     </LinkText>
                   )}
-                  {/*<ModalSection>*/}
-                  {/*<Box sx={{ flex: 2 }}>*/}
-                  {/*  <PatientPaymentsTable invoice={invoice} />*/}
-                  {/*  <InsurerPaymentsTable invoice={invoice} />*/}
-                  {/*</Box>*/}
-                  {/*<InvoiceSummaryPanel*/}
-                  {/*  invoice={{ ...invoice, items: values.invoiceItems }}*/}
-                  {/*  editable={editable && canWriteInvoice}*/}
-                  {/*  handleEditDiscount={handleEditDiscount}*/}
-                  {/*  data-testid="invoicesummarypanel-kin9"*/}
-                  {/*/>*/}
-                  {/*</ModalSection>*/}
                   <FormSubmitCancelRow
                     confirmText={
                       !isUpdatingInvoice ? (
