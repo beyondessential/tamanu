@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
+import { IconButton } from '@material-ui/core';
+import { ChevronRight } from '@material-ui/icons';
 import { useTranslation } from '../../../contexts/Translation';
 import { DateCell, DetailsCell, CodeCell, QuantityCell, OrderedByCell } from './InvoiceItemCells';
 import { PriceCell } from './PriceCell';
 
 const StyledItemRow = styled.div`
+  position: relative;
   display: flex;
   gap: 10px;
   font-size: 14px;
@@ -21,6 +24,20 @@ const StyledItemRow = styled.div`
   }
 `;
 
+const Button = styled(IconButton)`
+  position: absolute;
+  padding: 6px;
+  top: 0;
+  left: -10px;
+  transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
+  transition: transform 0.2s ease-in-out;
+
+  .MuiSvgIcon-root {
+    font-size: 36px;
+    color: #b8b8b8;
+  }
+`;
+
 export const InvoiceItemRow = ({
   index,
   item,
@@ -30,6 +47,7 @@ export const InvoiceItemRow = ({
   formArrayMethods,
   editable,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.sourceRecordId && editable;
   const { getTranslation } = useTranslation();
   const nonDiscountableTranslation = getTranslation(
@@ -69,8 +87,15 @@ export const InvoiceItemRow = ({
     });
   };
 
+  const onClick = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   return (
     <StyledItemRow>
+      <Button onClick={onClick} $isExpanded={isExpanded}>
+        <ChevronRight />
+      </Button>
       <DateCell index={index} item={item} isItemEditable={isItemEditable} />
       <DetailsCell
         index={index}
@@ -98,6 +123,7 @@ export const InvoiceItemRow = ({
         formArrayMethods={formArrayMethods}
         editable={editable}
         isDeleteDisabled={isDeleteDisabled}
+        isExpanded={isExpanded}
       />
     </StyledItemRow>
   );

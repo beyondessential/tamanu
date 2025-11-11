@@ -7,6 +7,7 @@ import {
 } from '@tamanu/shared/utils/invoice';
 import { keyBy } from 'lodash';
 import Decimal from 'decimal.js';
+import Collapse from '@material-ui/core/Collapse';
 import { Field, NoteModalActionBlocker } from '../../../components';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
@@ -19,12 +20,18 @@ import { Box } from '@mui/material';
 export const StyledItemCell = styled(Box)`
   display: flex;
   justify-content: flex-end;
+  align-items: flex-start;
 `;
 
 const Container = styled(ViewOnlyCell)`
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
+`;
+
+const Menu = styled(ThreeDotMenu)`
+  position: relative;
+  right: -10px;
 `;
 
 const PriceText = styled.div`
@@ -115,6 +122,7 @@ export const PriceCell = ({
   editable,
   isDeleteDisabled,
   formArrayMethods,
+  isExpanded,
 }) => {
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const hidePriceInput = item.productPrice === undefined || !editable;
@@ -158,11 +166,13 @@ export const PriceCell = ({
               </NoteModalActionBlocker>
             )
           )}
-          <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+          <Collapse in={isExpanded}>
+            <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+          </Collapse>
         </Container>
         {showActionMenu && editable && (
           <NoteModalActionBlocker>
-            <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
+            <Menu items={menuItems} data-testid="threedotmenu-zw6l" />
           </NoteModalActionBlocker>
         )}
       </StyledItemCell>
