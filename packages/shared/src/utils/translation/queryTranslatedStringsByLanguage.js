@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import { REFERENCE_DATA_TRANSLATION_PREFIX } from '@tamanu/constants';
 
-const EXCLUDE_REFERENCE_DATA_CLAUSE = `WHERE string_id NOT LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.%'`;
+const EXCLUDE_REFERENCE_DATA_CLAUSE = `AND string_id NOT LIKE '${REFERENCE_DATA_TRANSLATION_PREFIX}.%'`;
 
 /**
  * Queries translated_string table and returns all translated strings grouped by stringId with a column
@@ -30,6 +30,7 @@ export const queryTranslatedStringsByLanguage = async ({
             .join(',')}
       FROM
           translated_strings
+      WHERE deleted_at IS NULL
       ${includeReferenceData ? '' : EXCLUDE_REFERENCE_DATA_CLAUSE}
       GROUP BY
           string_id
