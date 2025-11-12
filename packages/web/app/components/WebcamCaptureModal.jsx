@@ -2,10 +2,10 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import Webcam from 'react-webcam';
 import { Box, Typography } from '@material-ui/core';
-import { Button } from './Button';
-import { Modal } from './Modal';
-import { TranslatedText } from './Translation';
-import { TAMANU_COLORS } from '../constants';
+import { Button } from '@tamanu/ui-components';
+import { Modal } from '@tamanu/ui-components';
+import { TranslatedText } from '@tamanu/ui-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 const StyledWebcam = styled(Webcam)`
   width: 100%;
@@ -329,3 +329,4 @@ export const WebcamCaptureModal = ({
     </Modal>
   );
 };
+

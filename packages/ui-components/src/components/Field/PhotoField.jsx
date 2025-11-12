@@ -2,13 +2,13 @@ import React from 'react';
 import { FileChooserField, FILTER_PHOTOS } from './FileChooserField';
 import { TranslatedText } from '../Translation';
 
-export const PhotoField = ({ enableWebcam = true, ...props }) => (
+export const PhotoField = ({ WebcamCaptureModalComponent, ...props }) => (
   <FileChooserField
     {...props}
     filters={[FILTER_PHOTOS]}
     data-testid="field-ph0t"
     smallDisplay
-    enableWebcam={enableWebcam}
+    WebcamCaptureModalComponent={WebcamCaptureModalComponent}
     buttonText={
       <TranslatedText
         stringId="general.questionComponent.photoField.buttonText"

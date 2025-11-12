@@ -10,7 +10,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
-import { WebcamCaptureModal } from '../WebcamCaptureModal';
+// WebcamCaptureModal is now provided as a prop to avoid cross-package dependencies
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -105,7 +105,7 @@ export const FileChooserInput = ({
   filters,
   onChange,
   smallDisplay = false,
-  enableWebcam = false,
+  WebcamCaptureModalComponent,
   buttonText = (
     <TranslatedText
       stringId="chooseFile.button.label"
@@ -196,7 +196,7 @@ export const FileChooserInput = ({
       />
       <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
         <FieldButtonRow 
-          className={`${value ? 'has-value' : ''} ${enableWebcam ? 'has-camera' : ''}`} 
+          className={`${value ? 'has-value' : ''} ${WebcamCaptureModalComponent ? 'has-camera' : ''}`} 
           data-testid="fieldbuttonrow-snj9"
         >
           {value ? (
@@ -216,7 +216,7 @@ export const FileChooserInput = ({
               >
                 {buttonText}
               </Button>
-              {enableWebcam && (
+              {WebcamCaptureModalComponent && (
                 <Button
                   onClick={openWebcamModal}
                   variant="outlined"
@@ -249,8 +249,8 @@ export const FileChooserInput = ({
           )}
         </FieldButtonRow>
       </OuterLabelFieldWrapper>
-      {enableWebcam && (
-        <WebcamCaptureModal
+      {WebcamCaptureModalComponent && (
+        <WebcamCaptureModalComponent
           open={isWebcamModalOpen}
           onClose={closeWebcamModal}
           onCapture={handleWebcamCapture}
