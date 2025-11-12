@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Box, IconButton } from '@material-ui/core';
+import { CameraAlt } from '@material-ui/icons';
 import { toast } from 'react-toastify';
 import { SETTING_KEYS } from '@tamanu/constants';
 import { TAMANU_COLORS } from '../../constants';
@@ -10,7 +11,7 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { ClearIcon } from '../Icons/ClearIcon';
 import { ConditionalTooltip } from '../Tooltip';
 import { useSettings } from '../../contexts';
-// WebcamCaptureModal is now provided as a prop to avoid cross-package dependencies
+import { FileUploadIcon as FileUpload } from '../Icons/FileUploadIcon';
 
 const StyledIconButton = styled(IconButton)`
   margin-left: 5px;
@@ -28,14 +29,15 @@ const FieldButtonRow = styled.div`
   margin-top: 0.5rem;
   grid-template-columns: max-content auto;
   grid-gap: 1rem;
-  
+
   &.has-camera {
     grid-template-columns: max-content max-content auto;
   }
 `;
 
 const HintText = styled.div`
-  font-size: 0.9em;
+  font-size: 11px;
+  color: ${TAMANU_COLORS.darkText};
 `;
 
 const ChangeSelectionButton = styled.a`
@@ -166,7 +168,7 @@ export const FileChooserInput = ({
     setIsWebcamModalOpen(false);
   };
 
-  const handleWebcamCapture = (file) => {
+  const handleWebcamCapture = file => {
     const fileSize = file.size;
     if (fileSize > maxFileSizeInBytes) {
       toast.error(
@@ -195,8 +197,8 @@ export const FileChooserInput = ({
         data-testid="input-q5no"
       />
       <OuterLabelFieldWrapper label={label} {...props} data-testid="outerlabelfieldwrapper-uc1o">
-        <FieldButtonRow 
-          className={`${value ? 'has-value' : ''} ${WebcamCaptureModalComponent ? 'has-camera' : ''}`} 
+        <FieldButtonRow
+          className={`${value ? 'has-value' : ''} ${WebcamCaptureModalComponent ? 'has-camera' : ''}`}
           data-testid="fieldbuttonrow-snj9"
         >
           {value ? (
@@ -208,14 +210,6 @@ export const FileChooserInput = ({
             />
           ) : (
             <>
-              <Button
-                onClick={showFileDialog}
-                variant="outlined"
-                color="primary"
-                data-testid="button-1mo9"
-              >
-                {buttonText}
-              </Button>
               {WebcamCaptureModalComponent && (
                 <Button
                   onClick={openWebcamModal}
@@ -223,6 +217,7 @@ export const FileChooserInput = ({
                   color="primary"
                   data-testid="button-webcam"
                 >
+                  <CameraAlt />
                   <TranslatedText
                     stringId="general.questionComponent.photoField.takePhotoButtonText"
                     fallback="Take photo with camera"
@@ -230,13 +225,26 @@ export const FileChooserInput = ({
                   />
                 </Button>
               )}
+              <Button
+                onClick={showFileDialog}
+                variant="outlined"
+                color="primary"
+                data-testid="button-1mo9"
+              >
+                <FileUpload />
+                <Box width="10px" />
+                {buttonText}
+              </Button>
+
               <HintText data-testid="hinttext-oxv8">
-                <TranslatedText
-                  stringId="chooseFile.hint.maxSize.label"
-                  fallback="Max :maxFileSizeInMB MB"
-                  replacements={{ maxFileSizeInMB }}
-                  data-testid="translatedtext-u0s3"
-                />
+                <Box component="span" fontWeight="500">
+                  <TranslatedText
+                    stringId="chooseFile.hint.maxSize.label"
+                    fallback="Max :maxFileSizeInMB MB"
+                    replacements={{ maxFileSizeInMB }}
+                    data-testid="translatedtext-u0s3"
+                  />
+                </Box>
                 <br />
                 <TranslatedText
                   stringId="chooseFile.hint.supportedFileTypes.label"
