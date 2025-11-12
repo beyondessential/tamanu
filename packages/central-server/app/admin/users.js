@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { dateCustomValidation, getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
 import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
@@ -15,6 +15,7 @@ import {
 import { isBefore, startOfDay } from 'date-fns';
 import { isBcryptHash } from '@tamanu/utils/password';
 import { subject } from '@casl/ability';
+import z from 'zod';
 
 export const usersRouter = express.Router();
 
@@ -299,6 +300,7 @@ const VALIDATION = yup
   .shape({
     displayName: yup.string().trim().required(),
     email: yup.string().trim().email().required(),
+    role: yup.string().required(),
   })
   .noUnknown();
 
@@ -307,11 +309,12 @@ usersRouter.post(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User },
+        models: { User, Permission },
       },
     } = req;
 
-    req.checkPermission('create', 'User');
+    // skip permission check as we will use it for both create and update api, and this is safe to do as it's only used for validation
+    req.flagPermissionChecked();
 
     const fields = await VALIDATION.validate(req.body);
 
@@ -327,9 +330,18 @@ usersRouter.post(
       },
     });
 
+    const writeUserPermission = await Permission.findOne({
+      where: {
+        roleId: fields.role,
+        noun: 'User',
+        verb: 'write',
+      },
+    });
+
     res.send({
       isEmailUnique: !existingUserWithSameEmail,
       isDisplayNameUnique: !existingUserWithSameDisplayName,
+      hasWriteUserPermission: !!writeUserPermission,
     });
   }),
 );
@@ -585,6 +597,46 @@ usersRouter.delete(
     await leave.destroy();
 
     res.send(leave);
+  }),
+);
+
+const getConflictingLocationAssignmentsSchema = z.object({
+  after: dateCustomValidation,
+  before: dateCustomValidation,
+});
+usersRouter.get(
+  '/:id/conflicting-location-assignments',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id: userId } = params;
+
+    const query = await getConflictingLocationAssignmentsSchema.parseAsync(req.query);
+    const { after, before } = query;
+
+    req.checkPermission('write', subject('User', { id: String(Date.now()) }));
+
+    const { LocationAssignment, User } = models;
+
+    // Find location assignments that overlap with the leave period
+    const conflictingAssignments = await LocationAssignment.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id'],
+        },
+      ],
+      where: {
+        userId,
+        date: {
+          [Op.gte]: after,
+          [Op.lte]: before,
+        },
+      },
+      attributes: ['id'],
+    });
+
+    res.send({ data: conflictingAssignments });
   }),
 );
 
