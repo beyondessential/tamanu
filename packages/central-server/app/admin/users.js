@@ -4,7 +4,12 @@ import { Op } from 'sequelize';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
 import { pick } from 'lodash';
 import * as yup from 'yup';
-import { REFERENCE_TYPES, VISIBILITY_STATUSES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import {
+  REFERENCE_TYPES,
+  VISIBILITY_STATUSES,
+  SYSTEM_USER_UUID,
+  ADMIN_USER_EMAIL,
+} from '@tamanu/constants';
 import {
   DatabaseDuplicateError,
   NotFoundError,
@@ -56,7 +61,7 @@ const createUserFilters = (filterParams, models) => {
     },
     // Exclude admin user
     {
-      email: { [Op.ne]: 'admin@tamanu.io' },
+      email: { [Op.ne]: ADMIN_USER_EMAIL },
     },
   ];
 
