@@ -54,6 +54,10 @@ const createUserFilters = (filterParams, models) => {
     {
       id: { [Op.ne]: SYSTEM_USER_UUID },
     },
+    // Exclude admin user
+    {
+      email: { [Op.ne]: 'admin@tamanu.io' },
+    },
   ];
 
   return filters.filter(f => !!f);
