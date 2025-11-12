@@ -485,6 +485,16 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
+      orderBuilder: () => {
+        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+          return [
+            // Prioritize treatment plan at the top
+            Sequelize.literal(`
+              CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
+            `),
+          ];
+        }
+      },
       shouldSkipDefaultOrder: req =>
         req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },

@@ -16,8 +16,9 @@ import {
   TranslatedEnum,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES } from '@tamanu/constants';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
+import { TranslatedReferenceData } from '../../../components/Translation';
 import { Colors } from '../../../constants';
 
 const ConfirmButton = styled(Button)`
@@ -74,7 +75,13 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
       noteTypes.forEach(noteType => {
         options.push({
           value: noteType.id,
-          label: noteType.name,
+          label: (
+            <TranslatedReferenceData
+              fallback={noteType.name}
+              value={noteType.id}
+              category={REFERENCE_TYPES.NOTE_TYPE}
+            />
+          ),
         });
       });
     }

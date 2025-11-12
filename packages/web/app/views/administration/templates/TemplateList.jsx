@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 
 import { DataFetchingTable, DateDisplay, TranslatedEnum } from '../../../components';
 import { TEMPLATE_ENDPOINT } from '../constants';
-import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
+import { TranslatedReferenceData } from '../../../components/Translation';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 
 const getDisplayName = ({ createdBy }) => (createdBy || {}).displayName || 'Unknown';
@@ -31,7 +32,13 @@ export const TemplateList = React.memo((props) => {
       );
     }
 
-    return noteTypeNameMap.get(type);
+    return (
+      <TranslatedReferenceData
+        fallback={noteTypeNameMap.get(type) || type}
+        value={type}
+        category={REFERENCE_TYPES.NOTE_TYPE}
+      />
+    );
   };
 
   return (
