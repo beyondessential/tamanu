@@ -214,7 +214,7 @@ export class Invoice extends Model {
 
       if (defaultInsurer)
         await this.sequelize.models.InvoiceInsurer.create(
-          { invoiceId: data.id, ...defaultInsurer },
+          { invoiceId: invoice.id, ...defaultInsurer },
           { transaction },
         );
 
@@ -222,7 +222,7 @@ export class Invoice extends Model {
         await this.sequelize.models.InvoiceDiscount.create(
           {
             ...data.discount,
-            invoiceId: data.id,
+            invoiceId: invoice.id,
             appliedByUserId: userId,
             appliedTime: getCurrentCountryTimeZoneDateTimeString(),
           },
