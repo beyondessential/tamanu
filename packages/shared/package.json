@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.44.1",
+  "version": "2.45.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -166,6 +166,7 @@
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",
+    "winston": "^3.14.2",
     "zod": "^4.0.17"
   }
 }

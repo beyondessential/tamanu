@@ -322,7 +322,8 @@ usersRouter.post(
       },
     } = req;
 
-    req.checkPermission('create', 'User');
+    // skip permission check as we will use it for both create and update api, and this is safe to do as it's only used for validation
+    req.flagPermissionChecked();
 
     const fields = await VALIDATION.validate(req.body);
 
