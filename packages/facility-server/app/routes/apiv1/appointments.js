@@ -655,8 +655,26 @@ appointments.get(
 
     const { models, params, query } = req;
     const { patientId } = params;
-    const { type, facilityId } = query;
+    const { type, facilityId, orderBy = 'startTime', order = 'ASC' } = query;
     const { Appointment } = models;
+
+    const sortKeys = {
+      startTime: 'startTime',
+      outpatientAppointmentArea: ['locationGroup', 'name'],
+      bookingArea: ['location', 'locationGroup', 'name'],
+      clinician: ['clinician', 'displayName'],
+      appointmentType: ['appointmentType', 'name'],
+      bookingType: ['bookingType', 'name'],
+      location: ['location', 'name'],
+    };
+
+    const sortKey = sortKeys[orderBy] || 'startTime';
+    const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    
+    // Build order clause - handle nested associations
+    const orderClause = Array.isArray(sortKey)
+      ? [sortKey.concat([sortOrder])]
+      : [[sortKey, sortOrder]];
 
     const upcomingAppointments = await Appointment.findAll({
       where: {
@@ -676,7 +694,7 @@ appointments.get(
         'bookingType',
         'patient',
       ],
-      order: [['startTime', 'ASC']],
+      order: orderClause,
     });
 
     res.send(upcomingAppointments);

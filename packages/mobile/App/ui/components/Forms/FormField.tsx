@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Field as FormikField, useField, useFormikContext } from 'formik';
-import { FORM_STATUSES } from '/helpers/constants';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { TranslatedTextElement } from '../Translations/TranslatedText';
 
 export interface FieldProps {
@@ -29,10 +29,10 @@ export const Field = ({
   // Show errors if
   // 1. validateOnChange is false OR
   // 2. if the user has already tried to submit the form (submitCount > 0) OR
-  // 3. if the user has already tried to move to the next page of the form (ie: Survey and status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED)
+  // 3. if the user has already tried to move to the next page of the form (ie: Survey and status === SUBMIT_ATTEMPTED_STATUS)
   // We don't want errors displayed by on change events before user submits.
   const showError =
-    !validateOnChange || status === FORM_STATUSES.SUBMIT_SCREEN_ATTEMPTED || submitCount;
+    !validateOnChange || status === SUBMIT_ATTEMPTED_STATUS || submitCount;
   const error = showError ? meta.error : null;
 
   const combinedOnChange = (newValue: any, selectedItem: any): any => {

@@ -14,8 +14,10 @@ import {
   useCreateUserLeaveMutation,
   useDeleteUserLeaveMutation,
 } from '../../../api/mutations/useUserLeaveMutation';
-import { useUserLeavesQuery } from '../../../api/queries/useUserLeaveQuery';
-import { useLocationAssignmentsQuery } from '../../../api/queries';
+import {
+  useUserLeavesQuery,
+  useConflictingLocationAssignmentsQuery,
+} from '../../../api/queries/useUserLeaveQuery';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmModal } from '../../../components/ConfirmModal';
 import { LocationAssignmentConflictModal } from '../../../components/LocationAssignmentConflictModal';
@@ -173,10 +175,10 @@ export const UserLeaveSection = ({ user }) => {
   const leaves = leavesData || [];
 
   // Query for location assignments to check for conflicts
-  const { isFetching: isCheckingConflicts } = useLocationAssignmentsQuery(
+  const { isFetching: isCheckingConflicts } = useConflictingLocationAssignmentsQuery(
+    user.id,
     conflictCheckValues
       ? {
-          userId: user.id,
           after: conflictCheckValues.startDate,
           before: conflictCheckValues.endDate,
         }
