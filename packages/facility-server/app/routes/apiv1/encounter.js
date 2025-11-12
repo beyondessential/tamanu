@@ -58,7 +58,8 @@ encounter.post(
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
     const isInvoicingEnabled = await req.settings[facilityId]?.get('features.enableInvoicing');
-    const shouldCreateInvoice = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION].includes(data.encounterType);
+    const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
+    const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
     if (isInvoicingEnabled && shouldCreateInvoice) {
       await models.Invoice.initializeInvoice(
         encounterObject,
