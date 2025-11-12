@@ -7,12 +7,6 @@ import { Modal } from './Modal';
 import { TranslatedText } from './Translation';
 import { TAMANU_COLORS } from '../constants';
 
-const WebcamContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-`;
-
 const StyledWebcam = styled(Webcam)`
   width: 100%;
   max-width: 640px;
@@ -51,10 +45,27 @@ const ErrorMessage = styled.div`
   border: 1px solid ${TAMANU_COLORS.softOutline};
 `;
 
-const LoadingMessage = styled.div`
-  text-align: center;
+const WebcamWithOverlay = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
   margin: 20px 0;
-  padding: 16px;
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  z-index: 10;
+  padding: 24px;
 `;
 
 export const WebcamCaptureModal = ({
@@ -117,22 +128,46 @@ export const WebcamCaptureModal = ({
     onClose();
   }, [onClose]);
 
-  // Reset state when modal opens and add timeout fallback
+  // Monitor video element events to detect when stream becomes active
+  // This provides a fallback if onUserMedia callback doesn't fire
+  useEffect(() => {
+    if (!open || !isLoading) return;
+
+    const video = webcamRef.current?.video;
+    if (!video) return;
+
+    const handleStreamActive = () => {
+      // Stream is active, permission was granted
+      // Only update if we're still in loading state (callbacks might not have fired)
+      if (hasPermission === null) {
+        setHasPermission(true);
+        setIsLoading(false);
+      }
+    };
+
+    // Listen to video events that indicate stream is active
+    video.addEventListener('loadedmetadata', handleStreamActive);
+    video.addEventListener('playing', handleStreamActive);
+    
+    // Also check if stream is already active (in case events already fired)
+    const stream = video.srcObject;
+    if (stream && stream.active) {
+      handleStreamActive();
+    }
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleStreamActive);
+      video.removeEventListener('playing', handleStreamActive);
+    };
+  }, [open, isLoading, hasPermission]);
+
+  // Reset state when modal opens
   useEffect(() => {
     if (open) {
       setCapturedImage(null);
       setError(null);
       setHasPermission(null);
       setIsLoading(true);
-
-      // Fallback timeout in case webcam callbacks never fire (common Chromium issue)
-      const timeout = setTimeout(() => {
-        setIsLoading(false);
-        // Try showing the webcam anyway as onUserMedia might not fire on Chromium browsers
-        setHasPermission(true);
-      }, 500); // Shorter timeout
-
-      return () => clearTimeout(timeout);
     }
   }, [open]);
 
@@ -159,22 +194,7 @@ export const WebcamCaptureModal = ({
   }, [capturedImage, onCapture, handleCancel]);
 
   const renderWebcamView = () => {
-    if (isLoading) {
-      return (
-        <LoadingMessage>
-          <TranslatedText
-            stringId="general.webcamCapture.loading"
-            fallback="Requesting camera access..."
-          />
-          <br />
-          <small style={{ color: TAMANU_COLORS.softText, marginTop: '8px', fontSize: '0.8rem' }}>
-            Please allow camera access when prompted by your browser
-          </small>
-        </LoadingMessage>
-      );
-    }
-
-    if (error || !hasPermission) {
+    if (error || (hasPermission === false && !isLoading)) {
       return (
         <ErrorMessage>
           <Typography variant="h6" component="div">
@@ -198,8 +218,10 @@ export const WebcamCaptureModal = ({
       );
     }
 
+    // Always render the Webcam component so it can trigger the permission pop-up
+    // Show loading overlay while permission is being requested
     return (
-      <WebcamContainer>
+      <WebcamWithOverlay>
         <StyledWebcam
           ref={webcamRef}
           audio={false}
@@ -210,7 +232,20 @@ export const WebcamCaptureModal = ({
           onUserMediaError={handleUserMediaError}
           mirrored={true}
         />
-      </WebcamContainer>
+        {isLoading && (
+          <LoadingOverlay>
+            <Typography variant="h6" component="div" style={{ marginBottom: '12px' }}>
+              <TranslatedText
+                stringId="general.webcamCapture.loading"
+                fallback="Requesting camera access..."
+              />
+            </Typography>
+            <Typography variant="body2" style={{ color: TAMANU_COLORS.softText, marginTop: '8px' }}>
+              Please allow camera access when prompted by your browser
+            </Typography>
+          </LoadingOverlay>
+        )}
+      </WebcamWithOverlay>
     );
   };
 
