@@ -139,7 +139,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             </InvoiceTopBar>
             <InvoiceForm invoice={invoice} isPatientView={false} />
           </InvoiceContainer>
-          <InvoiceSummaryPanel invoice={invoice} data-testid="invoicesummarypanel-40qi" />
+          <InvoiceSummaryPanel invoice={invoice} />
         </TabPane>
       ) : (
         <EmptyPane data-testid="emptypane-cjxo">

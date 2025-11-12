@@ -57,7 +57,7 @@ const getCoverageDisplay = (invoiceItem, defaultCoverage) => {
   return formatDisplayPrice(rawCoverage);
 };
 
-const CoverageSection = ({ invoiceInsurancePlans, item }) => {
+const InsuranceSection = ({ invoiceInsurancePlans, item }) => {
   if (!invoiceInsurancePlans?.length > 0 || !item?.productId) {
     return null;
   }
@@ -167,7 +167,7 @@ export const PriceCell = ({
             )
           )}
           <Collapse in={isExpanded}>
-            <CoverageSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+            <InsuranceSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
           </Collapse>
         </Container>
         {showActionMenu && editable && (

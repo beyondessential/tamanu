@@ -167,6 +167,21 @@ export const getInvoiceSummary = invoice => {
   };
 };
 
+export const getInvoiceSummaryV2 = invoiceItems => {
+  const invoiceItemsTotal = invoiceItems
+    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
+    .toNumber();
+
+  return { invoiceItemsTotal };
+};
+
+export const getInvoiceSummaryDisplayV2 = invoiceItems => {
+  const summary = getInvoiceSummaryV2(invoiceItems);
+  return mapValues(summary, value => {
+    return formatDisplayPrice(value);
+  });
+};
+
 /**
  * get invoice summary for display
  * @param {Invoice} invoice
