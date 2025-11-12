@@ -60,14 +60,16 @@ encounter.post(
     const isInvoicingEnabled = await req.settings.get('features.enableInvoicing');
     const shouldCreateInvoice = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION].includes(data.encounterType);
     if (isInvoicingEnabled && shouldCreateInvoice) {
-      await this.sequelize.models.Invoice.initializeInvoice(
+      await models.Invoice.initializeInvoice(
         encounterObject,
         req.settings[facilityId],
         req.user.id,
         {
           displayId: generateInvoiceDisplayId(),
           status: INVOICE_STATUSES.IN_PROGRESS,
-        }
+          date: encounterObject.startDate,
+          encounterId: encounterObject.id,
+        },
       );
     }
 
