@@ -40,6 +40,7 @@ const getTranslationSubquery = (endpoint, modelName) => `(
   SELECT "text"
   FROM "translated_strings"
   WHERE "language" = $language
+  AND "deleted_at" IS NULL
   AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
   LIMIT 1
 )`;
