@@ -157,26 +157,16 @@ export const WebcamCaptureModal = ({
     }
   }, [open]);
 
-  const confirmPhoto = useCallback(() => {
+  const confirmPhoto = useCallback(async () => {
     if (capturedImage && onCapture) {
       // Convert base64 to File object with a proper filename
-      const byteString = atob(capturedImage.split(',')[1]);
-      const mimeString = capturedImage
-        .split(',')[0]
-        .split(':')[1]
-        .split(';')[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      const blob = new Blob([ab], { type: mimeString });
+      const blob = await fetch(capturedImage).then(res => res.blob());
 
       // Create a filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `webcam-photo-${timestamp}.jpg`;
 
-      const file = new File([blob], filename, { type: mimeString });
+      const file = new File([blob], filename, { type: blob.type });
       onCapture(file);
       handleCancel();
     }
