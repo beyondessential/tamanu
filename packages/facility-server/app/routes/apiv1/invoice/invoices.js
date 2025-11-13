@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
@@ -10,8 +9,7 @@ import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { round } from 'lodash';
-
-const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -38,7 +36,7 @@ const createInvoiceSchema = z
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId: invoiceNumberGenerator(),
+    displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
 invoiceRoute.post(
@@ -58,48 +56,14 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
-    const insurerId = await req.models.PatientAdditionalData.findOne({
-      where: { patientId: encounter.patientId },
-      attributes: ['insurerId'],
-    }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.settings[facilityId].get(
-      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION,
+    // Handles invoice creation with default insurer and discount
+    const invoice = await req.models.Invoice.initializeInvoice(
+      encounter,
+      req.settings[facilityId],
+      req.user.id,
+      data,
     );
-    const defaultInsurer =
-      insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
-
-    // create invoice transaction
-    const transaction = await req.db.transaction();
-
-    try {
-      //create invoice
-      const invoice = await req.models.Invoice.create(data, { transaction });
-
-      // insert default insurer
-      if (defaultInsurer)
-        await req.models.InvoiceInsurer.create(
-          { invoiceId: data.id, ...defaultInsurer },
-          { transaction },
-        );
-
-      // create invoice discount
-      if (data.discount)
-        await req.models.InvoiceDiscount.create(
-          {
-            ...data.discount,
-            invoiceId: data.id,
-            appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
-          },
-          { transaction },
-        );
-
-      await transaction.commit();
-      res.json(invoice);
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    res.json(invoice);
   }),
 );
 
