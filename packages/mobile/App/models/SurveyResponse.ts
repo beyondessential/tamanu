@@ -274,7 +274,9 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       .createQueryBuilder('survey_response')
       .leftJoinAndSelect('survey_response.encounter', 'encounter')
       .leftJoinAndSelect('survey_response.survey', 'survey')
+      .leftJoin('procedure_survey_responses', 'psr', 'psr.surveyResponseId = survey_response.id')
       .where('encounter.patientId = :patientId', { patientId })
+      .andWhere('psr.id IS NULL') // Exclude survey responses linked through procedure_survey_response
       .orderBy('survey_response.endTime', 'DESC')
       .take(80);
 
