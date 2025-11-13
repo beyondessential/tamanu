@@ -415,6 +415,22 @@ export class Encounter extends Model {
   static async create(...args: any): Promise<any> {
     const [data, options] = args;
     const { actorId, ...encounterData } = data;
+
+    const existingOpenEncounter = await this.findOne({
+      where: {
+        patientId: encounterData.patientId,
+        endDate: null,
+        deletedAt: null,
+      },
+      transaction: options?.transaction,
+    });
+
+    if (existingOpenEncounter) {
+      throw new InvalidOperationError(
+        'This patient already has an active encounter. The active encounter must be discharged before a new encounter can be created.',
+      );
+    }
+
     const encounter = (await super.create(encounterData, options)) as Encounter;
 
     const { EncounterHistory } = this.sequelize.models;

@@ -211,17 +211,12 @@ describe('Suggestions', () => {
       await unrestrictedLocation.update({ maxOccupancy: null });
 
       // An encounter requires a patient
-      const patient = await models.Patient.create(
-        await createDummyPatient(models, {
-          firstName: 'Lauren',
-          lastName: 'Ipsum',
-          displayId: 'lorem',
-        }),
-      );
+      const patient1 = await models.Patient.create(await createDummyPatient(models));
+      const patient2 = await models.Patient.create(await createDummyPatient(models));
       // mark one location as occupied, and one as reserved
       await models.Encounter.create(
         await createDummyEncounter(models, {
-          patientId: patient.id,
+          patientId: patient1.id,
           locationId: occupiedLocation.id,
           plannedLocationId: reservedLocation.id,
           endDate: null,
@@ -230,7 +225,7 @@ describe('Suggestions', () => {
       // mark unrestricted location as occupied
       await models.Encounter.create(
         await createDummyEncounter(models, {
-          patientId: patient.id,
+          patientId: patient2.id,
           locationId: unrestrictedLocation.id,
           plannedLocationId: null,
           endDate: null,

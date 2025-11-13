@@ -11,7 +11,12 @@ import {
 import { PATIENT_FIELD_DEFINITION_TYPES } from '@tamanu/constants/patientFields';
 import { fake } from '@tamanu/fake-data/fake';
 import { randomLabRequest } from '@tamanu/database/demoData/labRequests';
-import { ENCOUNTER_TYPES, LAB_REQUEST_STATUSES, REFERENCE_TYPES, SETTINGS_SCOPES } from '@tamanu/constants';
+import {
+  ENCOUNTER_TYPES,
+  LAB_REQUEST_STATUSES,
+  REFERENCE_TYPES,
+  SETTINGS_SCOPES,
+} from '@tamanu/constants';
 import { getCurrentDateString, toDateTimeString } from '@tamanu/utils/dateTime';
 import { CertificateTypes } from '@tamanu/shared/utils/patientCertificates';
 import { selectFacilityIds } from '@tamanu/utils/selectFacilityIds';
@@ -36,6 +41,9 @@ describe('Patient', () => {
       code: facilityId,
     });
     patient = await models.Patient.create(await createDummyPatient(models));
+  });
+  afterEach(async () => {
+    await models.Encounter.truncate({ cascade: true });
   });
   afterAll(() => ctx.close());
 
@@ -81,16 +89,21 @@ describe('Patient', () => {
 
   it('should get the last discharged encounter and include discharged medications', async () => {
     // Create three encounters: First two will be discharged, the last one won't
-    const encounterOne = await models.Encounter.create({
-      ...(await createDummyEncounter(models, { current: true })),
+    const endDate = new Date();
+    await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      endDate,
     });
+    console.log('about to create encounterTwo');
     const encounterTwo = await models.Encounter.create({
-      ...(await createDummyEncounter(models, { current: true })),
+      ...(await createDummyEncounter(models)),
       patientId: patient.id,
-      encounterType: ENCOUNTER_TYPES.ADMISSION
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      endDate: new Date(endDate.getTime() + 1000),
     });
+    console.log('successfully created encounterTwo', encounterTwo);
     await models.Encounter.create({
       ...(await createDummyEncounter(models, { current: true })),
       patientId: patient.id,
@@ -114,13 +127,9 @@ describe('Patient', () => {
       isSelectedForDischarge: false,
     });
 
-    // Edit the first two encounters to simulate a discharge
-    // (the second one needs to have a 'greater' date to be the last)
-    const endDate = new Date();
-    await Promise.all([
-      encounterOne.update({ endDate }),
-      encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
-    ]);
+    // Edit encounterTwo to simulate a discharge
+    // (encounterTwo needs to have a 'greater' date to be the last)
+    // await encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) });
 
     // Expect encounter to be the second encounter discharged
     // and include discharged medication with reference associations
