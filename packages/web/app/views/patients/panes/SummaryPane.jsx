@@ -132,7 +132,6 @@ export const SummaryPane = React.memo(({ patient, additionalData, disabled }) =>
         />
       </ContentPane>
       <EncounterModal
-        checkForExistingEncounter={checkForExistingEncounter}
         open={isCheckInModalOpen}
         onClose={onCloseCheckInModal}
         patient={patient}
