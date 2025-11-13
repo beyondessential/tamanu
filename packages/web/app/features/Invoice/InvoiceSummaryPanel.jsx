@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { getInvoiceSummaryV2 } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Heading3 } from '../../components/Typography';
@@ -28,9 +28,7 @@ const Container = styled.div`
 `;
 
 export const InvoiceSummaryPanel = ({ invoice }) => {
-  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummaryV2(
-    invoice.items,
-  );
+  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary(invoice);
 
   return (
     <Container>

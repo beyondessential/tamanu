@@ -17,7 +17,7 @@ export * from './getCovidClearanceCertificateFilter';
 export * from './getLabTestsFromLabRequests';
 export * from './numeralTranslation';
 export * from './enumRegistry';
-export * from './invoice';
+export * from './invoice/invoice';
 export * from './medication';
 export * from './initDeviceId';
 export * from './errorHandlerProblem';
