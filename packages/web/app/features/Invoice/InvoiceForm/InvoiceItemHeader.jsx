@@ -6,13 +6,14 @@ import { TranslatedText } from '@tamanu/ui-components';
 const StyledItemHeader = styled.div`
   display: flex;
   gap: 10px;
-  padding: 14px 20px;
+  padding: 12px 8px 12px 10px;
   border-radius: 4px 4px 0 0;
   border-bottom: 0;
 `;
 
 const ItemHeadCell = styled(Box)`
   padding-left: 15px;
+  font-size: 14px;
   color: ${props => props.theme.palette.text.tertiary};
 `;
 

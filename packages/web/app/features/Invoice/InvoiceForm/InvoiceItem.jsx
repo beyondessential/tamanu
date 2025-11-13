@@ -13,7 +13,8 @@ const StyledItemRow = styled.div`
   display: flex;
   gap: 10px;
   font-size: 14px;
-  padding: 12px 20px;
+  padding: 12px 8px 12px 10px;
+
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
   flex-wrap: nowrap;
@@ -28,12 +29,12 @@ const Button = styled(IconButton)`
   position: absolute;
   padding: 6px;
   top: 0;
-  left: -10px;
+  left: -15px;
   transform: rotate(${props => (props.$isExpanded ? '90deg' : '0')});
   transition: transform 0.2s ease-in-out;
 
   .MuiSvgIcon-root {
-    font-size: 36px;
+    font-size: 32px;
     color: #b8b8b8;
   }
 `;

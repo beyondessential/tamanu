@@ -82,7 +82,10 @@ export default async () => {
     },
     resolve: {
       alias: {
-        '@tamanu/shared/utils/invoice': path.resolve(__dirname, '../shared/src/utils/invoice.js'),
+        '@tamanu/shared/utils/invoice': path.resolve(
+          __dirname,
+          '../shared/src/utils/invoice/index.js',
+        ),
       },
     },
   });

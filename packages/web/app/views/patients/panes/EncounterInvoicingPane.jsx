@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
@@ -31,14 +31,21 @@ const ActionsPane = styled.div`
 `;
 
 const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
+  margin-left: 10px;
   display: flex;
   gap: 20px;
+  align-items: center;
 `;
 
 const InvoiceTitle = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${props => props.theme.palette.text.primary};
   font-weight: 500;
   font-size: 18px;
+`;
+
+const InvoiceSubTitle = styled(Typography)`
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 14px;
 `;
 
 const InvoiceTopBar = styled.div`
@@ -50,7 +57,7 @@ const InvoiceTopBar = styled.div`
 `;
 
 const InvoiceContainer = styled.div`
-  padding: 8px 16px;
+  padding: 8px;
   margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
 `;
@@ -71,18 +78,17 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   return (
     <>
       {invoice ? (
-        <TabPane data-testid="tabpane-3i52">
-          <InvoiceContainer data-testid="invoicecontainer-8sm4">
-            <InvoiceTopBar data-testid="invoicetopbar-96rq">
-              <InvoiceHeading data-testid="invoiceheading-f1vs">
-                <InvoiceTitle data-testid="invoicetitle-6asf">
-                  <TranslatedText
-                    stringId="invoice.invoiceNumber"
-                    fallback="Invoice number"
-                    data-testid="translatedtext-8m4h"
-                  />
-                  : ${invoice.displayId}
-                </InvoiceTitle>
+        <TabPane>
+          <InvoiceContainer>
+            <InvoiceTopBar>
+              <InvoiceHeading>
+                <Box>
+                  <InvoiceTitle>
+                    <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
+                    {invoice.displayId}
+                  </InvoiceTitle>
+                  <InvoiceSubTitle>Chuuk non-resident</InvoiceSubTitle>
+                </Box>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
               {(cancelable || deletable) && (
@@ -121,16 +127,9 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                       onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
                       data-testid="button-insurance-2zyp"
                     >
-                      <TranslatedText stringId="invoice.action.insurance" fallback="Insurance" />
-                    </Button>
-                    <Button
-                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
-                      data-testid="button-2zyp"
-                    >
                       <TranslatedText
-                        stringId="invoice.action.edit"
-                        fallback="Edit invoice"
-                        data-testid="translatedtext-6nrc"
+                        stringId="invoice.action.insurance"
+                        fallback="Insurance plans"
                       />
                     </Button>
                   </NoteModalActionBlocker>

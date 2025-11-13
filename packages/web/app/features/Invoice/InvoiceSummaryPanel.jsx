@@ -47,7 +47,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
           fallback="Insurance coverage"
           data-testid="translatedtext-qedx"
         />
-        <Price price={insuranceCoverageTotal} />
+        <Price price={`-${insuranceCoverageTotal}`} />
       </CardItem>
       <Divider />
       <CardItem>

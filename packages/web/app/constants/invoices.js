@@ -16,7 +16,6 @@ export const INVOICE_ITEM_ACTION_MODAL_TYPES = {
 };
 
 export const INVOICE_MODAL_TYPES = {
-  EDIT_INVOICE: 'editInvoice',
   CREATE_INVOICE: 'createInvoice',
   CANCEL_INVOICE: 'cancelInvoice',
   FINALISE_INVOICE: 'finaliseInvoice',

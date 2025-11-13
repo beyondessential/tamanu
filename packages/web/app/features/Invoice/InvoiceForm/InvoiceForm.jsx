@@ -36,7 +36,6 @@ const PrintButton = styled(Button)`
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1 });
 
 export const InvoiceForm = ({ invoice, isPatientView }) => {
-  console.log('invoice', invoice);
   const { ability } = useAuth();
   const [printModalOpen, setPrintModalOpen] = useState(false);
 
@@ -56,7 +55,6 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
   const handleSubmit = async data => {
-    console.log('SUBMIT', data);
     const invoiceItems = data.invoiceItems.filter(item => !!item.productId);
     updateInvoice({
       ...invoice,
@@ -160,7 +158,7 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                     >
                       {'+ '}
                       <TranslatedText
-                        stringId="invoice.modal.editInvoice.action.newRow"
+                        stringId="invoice.form.action.addItem"
                         fallback="Add item"
                         data-testid="translatedtext-9vs0"
                       />
@@ -171,8 +169,8 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                       !isUpdatingInvoice ? (
                         editable && canWriteInvoice ? (
                           <TranslatedText
-                            stringId="general.action.save"
-                            fallback="Save"
+                            stringId="invoice.form.action.save"
+                            fallback="Save item/s"
                             data-testid="translatedtext-26ji"
                           />
                         ) : (

@@ -43,10 +43,6 @@ export const InvoiceModalGroup = ({
     setInvoice({ ...invoice, ...data });
   };
 
-  const handleCreateInvoiceSuccess = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
-  };
-
   return (
     <>
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
@@ -60,7 +56,6 @@ export const InvoiceModalGroup = ({
             }
             handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
           }}
-          onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
           data-testid="upsertinvoicemodal-wt5z"
         />
@@ -76,7 +71,6 @@ export const InvoiceModalGroup = ({
             }
             handleCloseInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE);
           }}
-          onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
           data-testid="upsertinvoicemodal-wt5z"
         />
