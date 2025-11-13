@@ -132,10 +132,7 @@ export const FileChooserInput = ({
     inputRef.current.click();
   };
 
-  const selectFile = event => {
-    const file = event.target.files[0];
-    if (!file) return;
-
+  const validateFileSize = file => {
     const fileSize = file.size;
     if (fileSize > maxFileSizeInBytes) {
       toast.error(
@@ -146,6 +143,16 @@ export const FileChooserInput = ({
           data-testid="translatedtext-b4t3"
         />,
       );
+      return false;
+    }
+    return true;
+  };
+
+  const selectFile = event => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!validateFileSize(file)) {
       return;
     }
 
@@ -169,16 +176,7 @@ export const FileChooserInput = ({
   };
 
   const handleWebcamCapture = file => {
-    const fileSize = file.size;
-    if (fileSize > maxFileSizeInBytes) {
-      toast.error(
-        <TranslatedText
-          stringId="chooseFile.alert.exceedsMaxSize"
-          fallback="Selected file size exceeds the maximum allowed size of :maxFileSizeInMB MB"
-          replacements={{ maxFileSizeInMB }}
-          data-testid="translatedtext-b4t3"
-        />,
-      );
+    if (!validateFileSize(file)) {
       return;
     }
 
