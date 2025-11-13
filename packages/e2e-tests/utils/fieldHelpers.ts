@@ -133,7 +133,7 @@ export const selectAutocompleteFieldOption = async (
   await expect(field).toBeEnabled();
   await field.click();
 
-  const input = field.locator('input');
+  //const input = field.locator('input');
   const testId = await getBaseTestId(field, stripTag ? '-input' : '');
   const suggestionsContainer = page.getByTestId(`${testId}-suggestionslist`);
   const selectedOptionText = await selectOptionFromPopper(testId, suggestionsContainer, {

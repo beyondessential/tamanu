@@ -9,7 +9,6 @@ import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatien
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
 import { getUser } from '@utils/apiHelpers';
 import { format } from 'date-fns';
-import { EncounterMedicationPane } from '@pages/patients/MedicationsPage/panes/EncounterMedicationPane';
 
 test.setTimeout(100000);
 
@@ -232,7 +231,5 @@ test.setTimeout(100000);
        const status = await getTableItems(imagingRequestPane.page, 1, 'status');
        expect(status).toContain('Pending');
     })
-
-   
 
     });
