@@ -93,9 +93,11 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      <Button onClick={onClick} $isExpanded={isExpanded}>
-        <ChevronRight />
-      </Button>
+      {item.insurancePlanItems?.length > 0 && (
+        <Button onClick={onClick} $isExpanded={isExpanded}>
+          <ChevronRight />
+        </Button>
+      )}
       <DateCell index={index} item={item} isItemEditable={isItemEditable} />
       <DetailsCell
         index={index}

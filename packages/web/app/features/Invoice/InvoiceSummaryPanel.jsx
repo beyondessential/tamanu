@@ -1,30 +1,32 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Box, Divider } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
-import { Heading3 } from '../../components/Typography';
 import { Price } from './Price';
-
-const CardItem = styled(Box)`
-  display: flex;
-  gap: 8px;
-  font-size: 14px;
-  justify-content: space-between;
-  align-items: flex-start;
-`;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 450px;
+  width: 320px;
   border: 1px solid ${Colors.outline};
-  border-radius: 5px;
-  padding: 16px 20px;
+  border-radius: 3px;
+  padding: 10px 12px;
   margin-left: auto;
-  background: ${Colors.white};
+`;
+
+const CardItem = styled.div`
+  display: flex;
+  font-size: 14px;
+  justify-content: space-between;
+  align-items: flex-start;
+`;
+
+const TotalCardItem = styled(CardItem)`
+  font-size: 16px;
+  font-weight: 500;
 `;
 
 export const InvoiceSummaryPanel = ({ invoice }) => {
@@ -33,35 +35,18 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
   return (
     <Container>
       <CardItem>
-        <TranslatedText
-          stringId="invoice.summary.invoiceTotal"
-          fallback="Invoice total"
-          data-testid="translatedtext-828s"
-        />
-        <Price price={invoiceItemsTotal} />
+        <TranslatedText stringId="invoice.summary.invoiceTotal" fallback="Invoice total" />
+        <Price price={invoiceItemsTotal} data-testid="translatedtext-828s" />
+      </CardItem>
+      <CardItem>
+        <TranslatedText stringId="invoice.summary.insuranceTotal" fallback="Insurance coverage" />
+        <Price price={`-${insuranceCoverageTotal}`} data-testid="translatedtext-qedx" />
       </CardItem>
       <Divider />
-      <CardItem>
-        <TranslatedText
-          stringId="invoice.summary.insuranceTotal"
-          fallback="Insurance coverage"
-          data-testid="translatedtext-qedx"
-        />
-        <Price price={`-${insuranceCoverageTotal}`} />
-      </CardItem>
-      <Divider />
-      <CardItem>
-        <Heading3 sx={{ margin: 0 }}>
-          <TranslatedText
-            stringId="invoice.summary.patientTotal"
-            fallback="Patient total due"
-            data-testid="translatedtext-nst0"
-          />
-        </Heading3>
-        <Heading3 sx={{ margin: 0 }} data-testid="heading3-vj7u">
-          <Price price={patientTotal} />
-        </Heading3>
-      </CardItem>
+      <TotalCardItem>
+        <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
+        <Price price={patientTotal} data-testid="translatedtext-nst0" />
+      </TotalCardItem>
     </Container>
   );
 };

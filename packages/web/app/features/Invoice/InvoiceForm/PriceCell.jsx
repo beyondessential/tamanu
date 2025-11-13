@@ -23,6 +23,7 @@ export const StyledItemCell = styled(Box)`
 `;
 
 const Container = styled(ViewOnlyCell)`
+  flex: 1;
   flex-direction: column;
   align-items: flex-end;
   text-align: right;

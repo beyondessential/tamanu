@@ -60,6 +60,7 @@ const InvoiceContainer = styled.div`
   padding: 8px;
   margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
+  border-radius: 3px;
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {
@@ -137,8 +138,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               )}
             </InvoiceTopBar>
             <InvoiceForm invoice={invoice} isPatientView={false} />
+            <InvoiceSummaryPanel invoice={invoice} />
           </InvoiceContainer>
-          <InvoiceSummaryPanel invoice={invoice} />
         </TabPane>
       ) : (
         <EmptyPane data-testid="emptypane-cjxo">

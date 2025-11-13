@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
-import { Box, CircularProgress, Divider } from '@material-ui/core';
+import { Plus } from 'lucide-react';
+import { Box, CircularProgress, Divider, Button as MuiButton } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
-import { Form, Button, FormSubmitCancelRow, TranslatedText } from '@tamanu/ui-components';
+import {
+  Form,
+  Button,
+  TranslatedText,
+  FormSubmitButton,
+  FormCancelButton,
+} from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
@@ -15,17 +22,35 @@ import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/I
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
-const LinkText = styled.div`
-  font-weight: 500;
+const AddButton = styled(MuiButton)`
   font-size: 14px;
-  line-height: 18px;
+  text-transform: none;
   color: ${Colors.primary};
-  cursor: pointer;
-  width: fit-content;
+  position: relative;
+  top: -2px;
+
+  .MuiButton-startIcon {
+    width: 20px;
+    position: relative;
+    top: -2px;
+    margin-right: 2px;
+  }
 `;
 
-const FormContainer = styled.div`
-  //padding: 34px 40px;
+const SubmitButton = styled(FormSubmitButton)`
+  &.Mui-disabled {
+    color: ${Colors.white};
+    background-color: ${Colors.primary};
+    opacity: 0.3;
+  }
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 10px 0;
 `;
 
 const PrintButton = styled(Button)`
@@ -135,38 +160,49 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
               return (
-                <FormContainer>
+                <>
                   <InvoiceItemHeader />
-                  <Box paddingBottom="10px">
-                    {values.invoiceItems?.map((item, index) => (
-                      <InvoiceItemRow
-                        key={item.id}
-                        index={index}
-                        item={item}
-                        isDeleteDisabled={values.invoiceItems?.length === 1}
-                        showActionMenu={item.productId || values.invoiceItems.length > 1}
-                        formArrayMethods={formArrayMethods}
-                        editable={editable && canWriteInvoice}
-                        data-testid={`invoiceitemrow-ri5o-${index}`}
-                      />
-                    ))}
+                  <Box>
+                    {values.invoiceItems?.map((item, index) => {
+                      console.log('values.invoiceItems', values.invoiceItems);
+                      return (
+                        <InvoiceItemRow
+                          key={item.id}
+                          index={index}
+                          item={item}
+                          isDeleteDisabled={values.invoiceItems?.length === 1}
+                          showActionMenu={item.productId || values.invoiceItems.length > 1}
+                          formArrayMethods={formArrayMethods}
+                          editable={editable && canWriteInvoice}
+                          data-testid={`invoiceitemrow-ri5o-${index}`}
+                        />
+                      );
+                    })}
                   </Box>
-                  {editable && canWriteInvoice && (
-                    <LinkText
-                      onClick={() => formArrayMethods.push(getDefaultRow())}
-                      data-testid="linktext-v8q2"
+                  <ButtonRow>
+                    {editable && canWriteInvoice && (
+                      <AddButton
+                        variant="text"
+                        onClick={() => formArrayMethods.push(getDefaultRow())}
+                        startIcon={<Plus />}
+                      >
+                        <TranslatedText
+                          stringId="invoice.form.action.addItem"
+                          fallback="Add item"
+                          data-testid="translatedtext-9vs0"
+                        />
+                      </AddButton>
+                    )}
+                    <FormCancelButton
+                      style={{ marginLeft: 'auto' }}
+                      onClick={() => {
+                        console.log('close');
+                      }}
                     >
-                      {'+ '}
-                      <TranslatedText
-                        stringId="invoice.form.action.addItem"
-                        fallback="Add item"
-                        data-testid="translatedtext-9vs0"
-                      />
-                    </LinkText>
-                  )}
-                  <FormSubmitCancelRow
-                    confirmText={
-                      !isUpdatingInvoice ? (
+                      Cancel
+                    </FormCancelButton>
+                    <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                      {!isUpdatingInvoice ? (
                         editable && canWriteInvoice ? (
                           <TranslatedText
                             stringId="invoice.form.action.save"
@@ -186,28 +222,14 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                           color={Colors.white}
                           data-testid="circularprogress-b1j8"
                         />
-                      )
-                    }
-                    onConfirm={submitForm}
-                    onCancel={() => {
-                      console.log('close');
-                    }}
-                    confirmDisabled={isUpdatingInvoice}
-                    confirmStyle={css`
-                      &.Mui-disabled {
-                        color: ${Colors.white};
-                        background-color: ${Colors.primary};
-                        opacity: 0.3;
-                      }
-                    `}
-                    data-testid="formsubmitcancelrow-9g6q"
-                  />
-                </FormContainer>
+                      )}
+                    </SubmitButton>
+                  </ButtonRow>
+                </>
               );
             }}
           </FieldArray>
         )}
-        data-testid="form-6f50"
       />
     </>
   );
