@@ -45,7 +45,13 @@ export async function SelectingFromSearchBox(
     throw new Error(`Failed to handle search box suggestion: ${error.message}`);
   }
 }
-
+/**
+ * 
+ * @param page 
+ * @param tableRowCount 
+ * @param columnName 
+ * @returns 
+ */
 export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
   const items: string[] = [];
   for (let i = 0; i < tableRowCount; i++) {
