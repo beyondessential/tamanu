@@ -63,12 +63,7 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="locationId"
-          component={LocalisedLocationField}
-          required
-          data-testid="field-tykg"
-        />
+        <Field name="locationId" component={LocalisedLocationField} data-testid="field-tykg" />
       </StyledFormGrid>
     </>
   );
@@ -111,7 +106,6 @@ const PlannedMoveFields = () => {
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
-          required
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
@@ -191,12 +185,12 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
       .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
       .nullable();
 
-    initialValues.plannedLocationId = encounter.plannedLocationId;
+    // initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
     validationObject.locationId = yup.string().nullable();
 
-    initialValues.locationId = encounter.locationId;
+    // initialValues.locationId = encounter.locationId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -216,10 +210,22 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
-    const locationData =
-      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
-        : { locationId: plannedLocationId || locationId };
+    const locationData = {};
+
+    // const locationData =
+    //   enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
+    //     ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
+    //     : { locationId: plannedLocationId || locationId };
+
+    if (enablePatientMoveActions) {
+      if (action === PATIENT_MOVE_ACTIONS.PLAN) {
+        locationData.plannedLocationId = plannedLocationId || null;
+      }
+    } else {
+      if (locationId) {
+        locationData.locationId = locationId;
+      }
+    }
 
     await writeAndViewEncounter(encounter.id, {
       submittedTime: getCurrentDateTimeString(),
