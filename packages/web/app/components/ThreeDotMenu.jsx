@@ -5,7 +5,6 @@ import { MoreVert } from '@material-ui/icons';
 import { Colors } from '../constants';
 
 const ThreeDotMenuItem = styled(MenuItem)`
-  width: 124px; // Todo: needs to be dynamic
   font-size: 11px;
   line-height: 15px;
   border-radius: 4px;
