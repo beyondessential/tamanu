@@ -18,7 +18,7 @@ export class InvoicesInvoiceInsurancePlan extends Model {
       {
         id: primaryKey,
         invoiceId: {
-          type: DataTypes.TEXT,
+          type: DataTypes.UUID,
           allowNull: false,
         },
         invoiceInsurancePlanId: {
