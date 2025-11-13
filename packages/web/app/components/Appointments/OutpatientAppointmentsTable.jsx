@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import {
-  toDateString,
-  formatShortest,
-  formatTime,
-} from '@tamanu/utils/dateTime';
+import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
@@ -18,7 +14,10 @@ import { MenuButton } from '../MenuButton';
 import { useTableSorting } from '../Table/useTableSorting';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
-import { useHasPastOutpatientAppointmentsQuery, useUpcomingOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import {
+  useHasPastOutpatientAppointmentsQuery,
+  useUpcomingOutpatientAppointmentsQuery,
+} from '../../api/queries/useAppointmentsQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
@@ -318,7 +317,14 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   // Query to check if there are past appointments
   const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id);
 
-  const { data: upcomingAppointments = [], isLoading: isLoadingUpcomingAppointments } = useUpcomingOutpatientAppointmentsQuery(patient?.id);
+  const {
+    data: upcomingAppointments = [],
+    isLoading: isLoadingUpcomingAppointments,
+  } = useUpcomingOutpatientAppointmentsQuery(
+    patient?.id,
+    { orderBy, order },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});

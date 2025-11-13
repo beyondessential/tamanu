@@ -2,7 +2,8 @@ import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { Link, generatePath } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
 import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
@@ -11,6 +12,8 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { DetailsDisplay } from './SharedComponents';
 import { LimitedLinesCell } from '../../FormattedTableCell';
 import { useTranslation } from '../../../contexts/Translation';
+import { reloadPatient } from '../../../store';
+import { useEncounter } from '../../../contexts/Encounter';
 
 const AppointmentDetailsContainer = styled('div')`
   border-block: max(0.0625rem, 1px) solid ${Colors.outline};
@@ -50,6 +53,9 @@ const ClinicianContainer = styled('div')`
 
 const LinkedEncounter = ({ encounter }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loadEncounter } = useEncounter();
 
   const encounterPath = generatePath(PATIENT_PATHS.ENCOUNTER, {
     category: PATIENT_CATEGORIES.ALL,
@@ -68,8 +74,20 @@ const LinkedEncounter = ({ encounter }) => {
     fallback: encounter?.location?.facility.name,
   })}`;
 
+  const handleClick = async (e) => {
+    e.preventDefault();
+    await Promise.all([
+      dispatch(reloadPatient(encounter.patientId)),
+      loadEncounter(encounter.id),
+    ]);
+    navigate((encounterPath));
+  };
+
   return (
-    <EncounterLink to={encounterPath}>
+    <EncounterLink
+      to={encounterPath}
+      onClick={handleClick}
+    >
       <LimitedLinesCell
         value={encounterLabel}
         maxLines={1}

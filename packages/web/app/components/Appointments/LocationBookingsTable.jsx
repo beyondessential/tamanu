@@ -303,7 +303,11 @@ export const LocationBookingsTable = ({ patient }) => {
   const {
     data: upcomingBookings = [],
     isLoading: isLoadingUpcomingBookings,
-  } = useUpcomingLocationBookingsQuery(patient?.id);
+  } = useUpcomingLocationBookingsQuery(
+    patient?.id,
+    { orderBy, order },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
