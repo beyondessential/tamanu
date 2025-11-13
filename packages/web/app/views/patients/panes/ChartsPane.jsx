@@ -9,12 +9,13 @@ import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { getAnswersFromData, ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { TabPane } from '../components';
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
+import { TableButtonRow } from '../../../components';
 import { useChartSurveysQuery } from '../../../api/queries';
 import { ChartsTable, EmptyChartsTable } from '../../../components/ChartsTable';
-import { getAnswersFromData } from '../../../utils';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 import { useAuth } from '../../../contexts/Auth';
@@ -25,7 +26,6 @@ import { ChartGraphDataProvider } from '../../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../../components/VitalChartsModal';
 import { useEncounterComplexChartInstancesQuery } from '../../../api/queries/useEncounteComplexChartInstancesQuery';
 import { TabDisplay } from '../../../components/TabDisplay';
-import { Colors } from '../../../constants';
 import { ChartDropdown } from '../../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../../components/Charting/CoreComplexChartData';
 import { useSurveyQuery } from '../../../api/queries/useSurveyQuery';

@@ -11,5 +11,5 @@ export {
   isSetting,
   applyDefaults,
 } from './schema';
-export { ReadSettings, buildSettings } from './reader';
+export { ReadSettings, buildSettings, KEYS_EXPOSED_TO_PATIENT_PORTAL } from './reader';
 export { facilityTestSettings, centralTestSettings, globalTestSettings } from './test';

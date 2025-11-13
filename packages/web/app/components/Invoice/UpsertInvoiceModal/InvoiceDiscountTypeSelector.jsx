@@ -3,8 +3,9 @@ import styled from 'styled-components';
 import { Divider, FormControlLabel, Radio, RadioGroup } from '@material-ui/core';
 import { TranslatedText } from '../../Translation';
 import { BodyText, Heading3, Heading5, SmallBodyText } from '../../Typography';
-import { Colors, INVOICE_DISCOUNT_TYPES } from '../../../constants';
-import { ConfirmCancelBackRow } from '../../ButtonRow';
+import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
+import { ConfirmCancelBackRow } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 const StyledFormControlLabel = styled(FormControlLabel)`
   align-items: flex-start;

@@ -5,8 +5,9 @@ import { Box } from '@material-ui/core';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 
-import { NumberInput, OuterLabelFieldWrapper, TextInput, CheckInput } from '../Field';
-import { Colors } from '../../constants';
+import { TextInput } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
+import { NumberInput, OuterLabelFieldWrapper, CheckInput } from '../Field';
 import { Table } from '../Table';
 import { useTranslation } from '../../contexts/Translation';
 import { TranslatedText, TranslatedReferenceData } from '../Translation';

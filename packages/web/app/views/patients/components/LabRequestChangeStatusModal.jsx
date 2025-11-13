@@ -1,18 +1,14 @@
 import React from 'react';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants/labs';
 import * as yup from 'yup';
-
+import { TranslatedSelectField, Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
+import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   DateTimeField,
   Field,
-  Form,
-  FormGrid,
   FormModal,
-  FormSubmitCancelRow,
   SuggesterSelectField,
-  TranslatedSelectField,
 } from '../../../components';
-import { FORM_TYPES } from '../../../constants';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const validationSchema = yup.object().shape({

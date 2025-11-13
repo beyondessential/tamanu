@@ -1,13 +1,22 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryTypes } from 'sequelize';
 import { STEPS } from '../../src/steps/1752105049000-importDefaultTranslations.js';
-import { DEFAULT_LANGUAGE_CODE } from '@tamanu/constants';
+import {
+  DEFAULT_LANGUAGE_CODE,
+  ENGLISH_LANGUAGE_CODE,
+  COUNTRY_CODE_STRING_ID,
+  ENGLISH_COUNTRY_CODE,
+  ENGLISH_LANGUAGE_NAME,
+  LANGUAGE_NAME_STRING_ID,
+} from '@tamanu/constants';
 
 // Mock dependencies
 vi.mock('config', () => ({
   default: {
     metaServer: {
-      host: 'https://meta.example.com',
+      hosts: [
+        'https://meta.example.com',
+      ],
     },
   },
 }));
@@ -31,6 +40,8 @@ describe('1752105049000-importDefaultTranslations', () => {
         sequelize: {
           query: vi.fn(),
         },
+        findOne: vi.fn(),
+        create: vi.fn(),
       },
     } as any,
     log: {
@@ -89,6 +100,27 @@ describe('1752105049000-importDefaultTranslations', () => {
       });
 
       expect(mockStepArgs.models.TranslatedString.sequelize.query).toHaveBeenCalledTimes(2);
+
+      // Checks for and creates missing English language name and country code
+      expect(mockStepArgs.models.TranslatedString.findOne).toHaveBeenCalledWith({
+        where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+        paranoid: false,
+      });
+      expect(mockStepArgs.models.TranslatedString.findOne).toHaveBeenCalledWith({
+        where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+        paranoid: false,
+      });
+      expect(mockStepArgs.models.TranslatedString.create).toHaveBeenCalledWith({
+        stringId: LANGUAGE_NAME_STRING_ID,
+        language: ENGLISH_LANGUAGE_CODE,
+        text: ENGLISH_LANGUAGE_NAME,
+      });
+      expect(mockStepArgs.models.TranslatedString.create).toHaveBeenCalledWith({
+        stringId: COUNTRY_CODE_STRING_ID,
+        language: ENGLISH_LANGUAGE_CODE,
+        text: ENGLISH_COUNTRY_CODE,
+      });
+
       expect(mockStepArgs.log.info).toHaveBeenCalledWith(
         'Successfully imported default translations',
       );
@@ -401,7 +433,7 @@ describe('1752105049000-importDefaultTranslations', () => {
         'Failed to import default report translations, you will need to manually import them',
         expect.objectContaining({
           error: expect.objectContaining({
-            message: expect.stringContaining('No report-translations artifact found'),
+            message: expect.stringContaining('No meta server succeeded downloading the artifacts'),
           }),
         }),
       );

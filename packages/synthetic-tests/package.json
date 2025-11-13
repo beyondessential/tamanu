@@ -1,12 +1,12 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.43.0",
+  "version": "2.46.0",
   "private": true,
   "dependencies": {
     "@tamanu/constants": "*",
     "@tamanu/fake-data": "*",
     "js-yaml": "^4.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jose": "^5.9.6"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.8.0"

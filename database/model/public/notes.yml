@@ -11,7 +11,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_notes_changed
               - record_notes_changelog
               - set_notes_updated_at

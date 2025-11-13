@@ -320,6 +320,11 @@ export class Encounter extends Model {
       as: 'appointments',
     });
 
+    this.hasMany(models.Appointment, {
+      foreignKey: 'linkEncounterId',
+      as: 'linkedAppointments',
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }

@@ -5,6 +5,7 @@ import {
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
+import { safeJsonParse } from '@tamanu/utils/safeJsonParse';
 import { runCalculations } from '@tamanu/shared/utils/calculations';
 import {
   getActiveActionComponents,
@@ -24,7 +25,7 @@ async function createPatientIssues(models: Models, questions: any[], patientId: 
   );
   for (const question of issueQuestions) {
     const { config: configString } = question;
-    const config = JSON.parse(configString) || {};
+    const config = safeJsonParse(configString) ?? {};
     if (!config.issueNote || !config.issueType) {
       throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
     }

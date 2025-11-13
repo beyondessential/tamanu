@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { useHistory, matchPath } from 'react-router-dom';
+import { matchPath, useBlocker } from 'react-router';
 import styled from 'styled-components';
 import MuiDialog from '@material-ui/core/Dialog';
 
@@ -15,23 +15,17 @@ import { TranslatedText } from '../Translation/TranslatedText';
 import { withModalFloating } from '../withModalFloating';
 import { useNoteModal } from '../../contexts/NoteModal';
 import { NoteModalDialogTitle } from './NoteModalCommonComponents';
-import { useMediaQuery } from '@material-ui/core';
 
 const NOTE_MODAL_DIMENSIONS = {
-  BREAKPOINTS: {
-    HEIGHT: 850, // px
-  },
   WIDTH: {
-    BASE: 500,
-    MIN: 400,
-    MAX: 500,
+    MIN: 480,
+    BASE_RATIO: 0.37,
+    MAX_RATIO: 0.9,
   },
   HEIGHT: {
-    BASE: 500,
-    MIN_DEFAULT: 450,
-    MIN_TREATMENT_PLAN: 500,
-    MAX_DEFAULT: 500,
-    MAX_TALL: 775,
+    MIN_DEFAULT: 415,
+    BASE_RATIO: 0.9,
+    MAX_RATIO: 0.9,
   },
 };
 
@@ -85,30 +79,48 @@ const MemoizedNoteModalContents = React.memo(
     cancelText,
     handleCreateOrEditNewNote,
   }) => {
-    const { BREAKPOINTS, WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
+    const { WIDTH, HEIGHT } = NOTE_MODAL_DIMENSIONS;
 
-    const isHeightBreakpoint = useMediaQuery(`(min-height: ${BREAKPOINTS.HEIGHT}px)`);
-    const isTreatmentPlanEdit =
-      noteFormMode === NOTE_FORM_MODES.EDIT_NOTE && note.noteType === NOTE_TYPES.TREATMENT_PLAN;
+    const [viewport, setViewport] = useState({
+      vw: window.innerWidth,
+      vh: window.innerHeight,
+    });
 
-    const minConstraints = useMemo(() => {
-      if (isTreatmentPlanEdit) {
-        return [WIDTH.MIN, HEIGHT.MIN_TREATMENT_PLAN];
-      }
-      return [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
-    }, [isTreatmentPlanEdit, WIDTH, HEIGHT]);
+    useEffect(() => {
+      const handleResize = () => {
+        setViewport({ vw: window.innerWidth, vh: window.innerHeight });
+      };
+
+      window.addEventListener('resize', handleResize);
+
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+
+    const minConstraints = [WIDTH.MIN, HEIGHT.MIN_DEFAULT];
 
     const maxConstraints = useMemo(() => {
-      const height = isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.MAX_DEFAULT;
-      return [WIDTH.MAX, height];
-    }, [isHeightBreakpoint, WIDTH, HEIGHT]);
+      const maxW = Math.max(WIDTH.MIN, Math.round(viewport.vw * WIDTH.MAX_RATIO));
+      const maxH = Math.max(HEIGHT.MIN_DEFAULT, Math.round(viewport.vh * HEIGHT.MAX_RATIO));
+      return [maxW, maxH];
+    }, [viewport, WIDTH, HEIGHT]);
+
+    const baseWidth = useMemo(
+      () => Math.max(WIDTH.MIN, Math.round(viewport.vw * WIDTH.BASE_RATIO)),
+      [viewport, WIDTH.MIN, WIDTH.BASE_RATIO],
+    );
+    const baseHeight = useMemo(
+      () => Math.max(HEIGHT.MIN_DEFAULT, Math.round(viewport.vh * HEIGHT.BASE_RATIO)),
+      [viewport, HEIGHT.MIN_DEFAULT, HEIGHT.BASE_RATIO],
+    );
 
     return (
       <FloatingMuiDialog
         open={open}
         onClose={onClose}
-        baseWidth={WIDTH.BASE}
-        baseHeight={isHeightBreakpoint ? HEIGHT.MAX_TALL : HEIGHT.BASE}
+        baseWidth={baseWidth}
+        baseHeight={baseHeight}
         minConstraints={minConstraints}
         maxConstraints={maxConstraints}
       >
@@ -215,12 +227,19 @@ export const MuiNoteModalComponent = ({
   );
 };
 
-export const NoteModal = React.memo(() => {
+export const NoteModal = () => {
   const { isNoteModalOpen, noteModalProps, closeNoteModal } = useNoteModal();
   const handleBeforeUnloadRef = React.useRef(null);
-  const unblockRef = React.useRef(null);
-  const history = useHistory();
   const { getTranslation } = useTranslation();
+
+  const blocker = useBlocker(({ nextLocation }) => {
+    // Only block when the note modal is open and navigating outside the patient area
+    if (!isNoteModalOpen) {
+      return false;
+    }
+    const nextPath = nextLocation?.pathname || '';
+    return !matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath);
+  }, isNoteModalOpen);
 
   useEffect(() => {
     handleBeforeUnloadRef.current = e => {
@@ -230,43 +249,47 @@ export const NoteModal = React.memo(() => {
 
     if (isNoteModalOpen) {
       window.addEventListener('beforeunload', handleBeforeUnloadRef.current);
-      unblockRef.current = history.block(location => {
-        if (matchPath(location.pathname, PATIENT_PATHS.PATIENT)) {
-          return true;
-        }
-
-        const confirmed = window.confirm(
-          getTranslation(
-            'note.modal.backBlock.confirm',
-            'You have a patient note in progress. If you leave this page, you will lose your changes.',
-          ),
-        );
-        if (confirmed) {
-          closeNoteModal();
-
-          setTimeout(() => {
-            unblockRef.current();
-            history.push(location.pathname);
-          }, 0);
-        }
-
-        return false;
-      });
     }
 
     return () => {
       if (handleBeforeUnloadRef.current) {
         window.removeEventListener('beforeunload', handleBeforeUnloadRef.current);
       }
-      if (unblockRef.current) {
-        unblockRef.current();
-      }
     };
-  }, [isNoteModalOpen, history, closeNoteModal]);
+  }, [isNoteModalOpen]);
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const nextPath = blocker.location?.pathname || '';
+
+      // Allow navigation within the patient area without confirmation
+      if (matchPath({ path: PATIENT_PATHS.PATIENT, end: false }, nextPath)) {
+        blocker.proceed();
+        return;
+      }
+
+      const confirmed = window.confirm(
+        getTranslation(
+          'note.modal.backBlock.confirm',
+          'You have a patient note in progress. If you leave this page, you will lose your changes.',
+        ),
+      );
+
+      if (confirmed) {
+        closeNoteModal();
+        // Proceed after closing modal to ensure state cleanup occurs first
+        setTimeout(() => {
+          blocker.proceed();
+        }, 0);
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker, closeNoteModal, getTranslation]);
 
   return (
     <>
       <MuiNoteModalComponent {...noteModalProps} open={isNoteModalOpen} onClose={closeNoteModal} />
     </>
   );
-});
+};

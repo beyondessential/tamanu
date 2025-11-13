@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { addDays, parseISO } from 'date-fns';
 import styled from 'styled-components';
+import { Form, ButtonRow, FormCancelButton, FormSubmitButton } from '@tamanu/ui-components';
 import Typography from '@material-ui/core/Typography';
 import MuiDivider from '@material-ui/core/Divider';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
@@ -11,10 +12,8 @@ import { FormModal } from './FormModal';
 import { useApi } from '../api';
 import { TranslatedText } from './Translation/TranslatedText';
 import { toDateTimeString, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Form } from '../components/Field';
-import { ButtonRow } from '../components/ButtonRow';
 import { foreignKey, optionalForeignKey } from '../utils/validation';
-import { FORM_TYPES } from '../constants/index.js';
+import { FORM_TYPES } from '@tamanu/constants';
 import { useAuth } from '../contexts/Auth';
 import { ProcedureAdditionalData } from '../forms/ProcedureForm/ProcedureAdditionalData';
 import { DataFetchingProgramsTable } from '../components/ProgramResponsesTable';
@@ -25,7 +24,6 @@ import {
   UnSavedProcedureProgramModal,
 } from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
-import { FormCancelButton, FormSubmitButton } from './Button';
 
 const Heading = styled(Typography)`
   margin-bottom: 10px;

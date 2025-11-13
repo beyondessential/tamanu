@@ -1,4 +1,8 @@
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import {
+  SYNC_DIRECTIONS,
+  COUNTRY_CODE_STRING_ID,
+  LANGUAGE_NAME_STRING_ID,
+} from '@tamanu/constants';
 import { DataTypes, Op } from 'sequelize';
 import { Model } from './Model';
 import { keyBy, mapValues } from 'lodash';
@@ -97,11 +101,11 @@ export class TranslatedString extends Model {
     });
 
     const languageNames = await TranslatedString.findAll({
-      where: { stringId: 'languageName' },
+      where: { stringId: LANGUAGE_NAME_STRING_ID },
     });
 
     const countryCodes = await TranslatedString.findAll({
-      where: { stringId: 'countryCode' },
+      where: { stringId: COUNTRY_CODE_STRING_ID },
     });
 
     return { languagesInDb, languageNames, countryCodes };

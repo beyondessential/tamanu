@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/shared",
-  "version": "2.43.0",
+  "version": "2.46.0",
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -83,6 +83,11 @@
       "import": "./dist/esm/schemas/*.js",
       "types": "./dist/esm/schemas/*.d.ts"
     },
+    "./schemas/patientPortal": {
+      "require": "./dist/cjs/schemas/patientPortal/index.js",
+      "import": "./dist/esm/schemas/patientPortal/index.js",
+      "types": "./dist/esm/schemas/patientPortal/index.d.ts"
+    },
     "./schemas/patientPortal/*": {
       "require": "./dist/cjs/schemas/patientPortal/*.js",
       "import": "./dist/esm/schemas/patientPortal/*.js",
@@ -161,6 +166,7 @@
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
     "shortid": "^2.2.14",
+    "winston": "^3.14.2",
     "zod": "^4.0.17"
   }
 }

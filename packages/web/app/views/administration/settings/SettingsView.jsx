@@ -1,20 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { ValidationError } from 'yup';
 
 import { SETTINGS_SCOPES } from '@tamanu/constants';
 import { applyDefaults, validateSettings } from '@tamanu/settings';
+import { Form } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 import { TabDisplay } from '../../../components/TabDisplay';
 import { AdminViewContainer } from '../components/AdminViewContainer';
-import { Form, TranslatedText } from '../../../components';
+import { TranslatedText } from '../../../components';
 import { JSONEditorView } from './JSONEditorView';
 import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
+import { useAdminSettingsQuery } from '../../../api/queries';
 import { ErrorMessage } from '../../../components/ErrorMessage';
 import { notifyError, notifySuccess } from '../../../utils';
-import { Colors } from '../../../constants';
 import { EditorView } from './EditorView';
 import { ScopeSelectorFields } from './components/ScopeSelectorFields';
 import { WarningModal } from './components/WarningModal';
@@ -88,14 +90,11 @@ export const SettingsView = () => {
   const [scope, setScope] = useState(SETTINGS_SCOPES.GLOBAL);
   const [facilityId, setFacilityId] = useState(null);
 
-  const { data: settingsSnapshot = {}, error: settingsFetchError } = useQuery(
-    ['scopedSettings', scope, facilityId],
-    async () => {
-      const data = await api.get('admin/settings', { scope, facilityId });
-      return applyDefaults(data, scope);
-    },
+  const { data: settingsSnapshot = {}, error: settingsFetchError } = useAdminSettingsQuery(
+    scope,
+    facilityId,
     {
-      enabled: scope !== SETTINGS_SCOPES.FACILITY || !!facilityId,
+      select: (data) => applyDefaults(data, scope),
     },
   );
 

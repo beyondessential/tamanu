@@ -4,20 +4,25 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import { FieldArray } from 'formik';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Colors, FORM_TYPES } from '../../../constants';
-import { Button, OutlinedButton } from '../../Button';
 import { MarInfoPane } from './MarInfoPane';
 import { TranslatedEnum, TranslatedReferenceData, TranslatedText } from '../../Translation';
 import { FormModal } from '../../FormModal';
-import { AutocompleteField, CheckField, Field, Form, NumberField, TextField } from '../../Field';
+import {
+  TextField,
+  Form,
+  Button,
+  OutlinedButton,
+  FormGrid,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { AutocompleteField, CheckField, Field, NumberField } from '../../Field';
 import PriorityHighIcon from '@material-ui/icons/PriorityHigh';
 import { Box, IconButton } from '@mui/material';
 import { Edit, Add, Remove } from '@material-ui/icons';
-import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS } from '@tamanu/constants';
+import { ADMINISTRATION_STATUS, ADMINISTRATION_STATUS_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { formatTimeSlot, isWithinTimeSlot } from '../../../utils/medications';
 import { useTranslation } from '../../../contexts/Translation';
 import { ChangeStatusModal } from './ChangeStatusModal';
-import { FormGrid } from '../../FormGrid';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useUpdateMarMutation } from '../../../api/mutations/useMarMutation';

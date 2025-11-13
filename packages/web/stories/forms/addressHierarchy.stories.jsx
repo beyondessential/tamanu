@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REFERENCE_DATA_RELATION_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
-import { Form, HierarchyFields } from '../../app/components/Field';
+import { Form } from '@tamanu/ui-components';
+import { HierarchyFields } from '../../app/components/Field';
 import { MockedApi } from '../utils/mockedApi';
 
 const Container = styled.div`

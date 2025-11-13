@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Card, CardContent } from '@mui/material';
 
-import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal/responses/administeredVaccine.schema';
+import type { AdministeredVaccine } from '@tamanu/shared/schemas/patientPortal';
 import { formatDate, formatVaccineGivenBy, formatVaccineFacilityOrCountry } from '@utils/format';
 
 interface RecordedVaccineCardProps {

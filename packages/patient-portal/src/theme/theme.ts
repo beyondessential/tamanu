@@ -1,14 +1,11 @@
-import { createTheme, Theme } from '@mui/material/styles';
+import { createTheme } from '@material-ui/core/styles';
 import { TAMANU_COLORS } from '@tamanu/ui-components';
 
-declare module '@mui/material/Paper' {
-  interface PaperPropsVariantOverrides {
-    secondary: true;
-  }
-}
+const MUI_SPACING_UNIT = 8;
 
 // Patient portal theme configuration with clean Roboto fonts and proper sizes
-const patientPortalThemeConfig = {
+const themeConfig = {
+  themeName: 'Tamanu',
   palette: {
     primary: {
       main: TAMANU_COLORS.primary,
@@ -24,7 +21,7 @@ const patientPortalThemeConfig = {
     },
     success: {
       main: TAMANU_COLORS.safe,
-      light: '#EDFAF3'
+      light: '#EDFAF3',
     },
     text: {
       primary: TAMANU_COLORS.darkestText,
@@ -39,10 +36,9 @@ const patientPortalThemeConfig = {
       main: '#eff2f5', // taken from colors.scss::$main-bg-color
     },
     spacing: {
-      unit: 8,
+      unit: MUI_SPACING_UNIT,
     },
   },
-  themeName: 'Tamanu',
   typography: {
     useNextVariants: true,
     fontSize: 15,
@@ -94,32 +90,24 @@ const patientPortalThemeConfig = {
       lineHeight: 1.4,
     },
   },
-  shape: {
-    borderRadius: 5,
-  },
-  components: {
-    MuiFormHelperText: {
-      styleOverrides: {
-        root: {
-          marginLeft: 0
-        }
-      }
+  shape: { borderRadius: 3 },
+  overrides: {
+    MuiCard: {
+      root: {
+        borderColor: TAMANU_COLORS.outline,
+      },
     },
     MuiOutlinedInput: {
-      styleOverrides: {
-        notchedOutline: {
-          borderColor: TAMANU_COLORS.outline,
-        },
+      notchedOutline: {
+        borderColor: TAMANU_COLORS.outline,
       },
     },
+  },
+  // Required as we are now using the latest version of MUI, which has a different structure for component override
+  components: {
     MuiCard: {
-      defaultProps: {
-        elevation: 0,
-      },
-      styleOverrides: {
-        root: {
-          backgroundColor: 'background.paper',
-        },
+      root: {
+        borderColor: TAMANU_COLORS.outline,
       },
       variants: [
         {
@@ -136,14 +124,12 @@ const patientPortalThemeConfig = {
         },
       ],
     },
-    MuiCardHeader: {
-      styleOverrides: {
-        avatar: ({ theme }: { theme: Theme }) => ({
-          marginRight: theme.spacing(1),
-        }),
+    MuiOutlinedInput: {
+      notchedOutline: {
+        borderColor: TAMANU_COLORS.outline,
       },
     },
   },
 };
 
-export const theme = createTheme(patientPortalThemeConfig);
+export const theme = createTheme(themeConfig);

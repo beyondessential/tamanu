@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   BodyText,
@@ -21,11 +21,28 @@ const RegisterAndSendFormModal = ({ onSubmit, open, onClose }) => (
     onClose={onClose}
     title={
       <TranslatedText
-        stringId="program.action.sendToPatientPortal"
-        fallback="Send to patient portal"
+        stringId="patientDetails.resources.patientPortalRegistration.modal.title"
+        fallback="Patient Portal registration"
       />
     }
   >
+    <ModalBody>
+      <BodyText>
+        <TranslatedText
+          stringId="program.modal.registerSend.description"
+          fallback="This patient has not yet registered for the patient portal. Patient portal registration must be completed in order for the patient to access this form. "
+        />
+      </BodyText>
+      <br />
+      <strong>
+        <BodyText>
+          <TranslatedText
+            stringId="program.modal.registerSend.description2"
+            fallback="The Patient Portal uses email for account authentication during the login process. Please ensure the patient has access to this email address in order to access the portal."
+          />
+        </BodyText>
+      </strong>
+    </ModalBody>
     <EmailAddressConfirmationForm
       onCancel={onClose}
       onSubmit={onSubmit}
@@ -97,18 +114,16 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
   >
     <ModalBody>
       <BodyText>
-        <strong>
-          <TranslatedText
-            stringId="program.modal.existingFormRequestPending.warning"
-            fallback="This form has already been sent to the patient portal and a response is pending. Are you sure you would like to send it again?"
-          />
-        </strong>
+        <TranslatedText
+          stringId="program.modal.existingFormRequestPending.warning"
+          fallback="The selected form has already been sent to this patient and is pending completion. A new request to complete this form can't be sent until the pending form is completed."
+        />
       </BodyText>
       <br />
       <BodyText>
         <TranslatedText
           stringId="program.modal.sendToPatientPortal.alreadyAssigned.description"
-          fallback="If so, please ensure the patient has portal access so they can complete the form once received."
+          fallback="Would you like to send a reminder to complete the outstanding form? "
         />
       </BodyText>
     </ModalBody>
@@ -116,10 +131,7 @@ const AlreadyAssignedModal = ({ open, onClose, onSubmit }) => (
       onCancel={onClose}
       onConfirm={onSubmit}
       confirmText={
-        <TranslatedText
-          stringId="program.action.sendToPatientPortal"
-          fallback="Send to patient portal"
-        />
+        <TranslatedText stringId="program.action.sendReminder" fallback="Send reminder" />
       }
     />
   </Modal>

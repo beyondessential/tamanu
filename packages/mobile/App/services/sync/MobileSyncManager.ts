@@ -202,6 +202,7 @@ export class MobileSyncManager {
 
     try {
       await this.runSync({ urgent });
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_SUCCESS);
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {

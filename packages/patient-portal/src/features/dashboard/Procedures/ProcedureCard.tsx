@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, styled, Typography, Chip, Card, CardContent } from '@mui/material';
+import { Box, styled, Typography, Card, CardContent } from '@mui/material';
 import type { Procedure } from '@tamanu/shared/schemas/patientPortal/responses/procedure.schema';
+import { Chip } from '@components/Chip';
 
 interface ProcedureCardProps {
   procedure: Procedure;
@@ -30,9 +31,9 @@ export const ProcedureCard: React.FC<ProcedureCardProps> = ({ procedure }) => {
           </Typography>
         </Box>
         {procedure.completed ? (
-          <Chip label="Completed" color="success" size="small" />
+          <Chip label="Completed" color="blue" size="small" />
         ) : (
-          <Chip label="Planned" color="info" size="small" />
+          <Chip label="Planned" color="green" size="small" />
         )}
       </Content>
     </Card>

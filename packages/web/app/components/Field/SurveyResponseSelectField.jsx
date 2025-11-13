@@ -3,7 +3,7 @@ import { compareDesc } from 'date-fns';
 import { formatTime } from '@tamanu/utils/dateTime';
 
 import { DateDisplay } from '../DateDisplay';
-import { SelectInput } from './SelectField';
+import { SelectInput } from '@tamanu/ui-components';
 import { useApi } from '../../api';
 
 const getDataLabel = (endTime, surveyName) => {
