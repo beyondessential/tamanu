@@ -20,7 +20,7 @@ import { SectionHeader } from '../../SectionHeader';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
 import { theme } from '../../../styled/theme';
-import { SUBMIT_ATTEMPTED_STATUS } from '/helpers/constants';
+import { SUBMIT_ATTEMPTED_STATUS } from '@tamanu/constants';
 import { BackHandler } from 'react-native';
 import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '../../LoadingScreen';
@@ -28,7 +28,7 @@ import { ErrorScreen } from '../../ErrorScreen';
 import { TranslatedText } from '../../Translations/TranslatedText';
 
 interface UseScrollToFirstError {
-  setQuestionPosition: (yPosition: string) => void;
+  setQuestionPosition: (questionCode: string) => (yPosition: number)  => void;
   scrollToQuestion: (scrollViewRef: any, questionCode: string) => void;
 }
 
