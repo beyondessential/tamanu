@@ -246,16 +246,30 @@ export const WebcamCaptureModal = ({
     }
 
     if (isCameraAccessGranted) {
+      if (capturedImage) {
+        // Show Cancel, Retake, and Confirm when there's a captured image
+        return (
+          <>
+            <Button onClick={handleCancel} variant="outlined" color="primary">
+              <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
+            </Button>
+            <Button onClick={retakePhoto} variant="outlined" color="primary">
+              <TranslatedText stringId="modal.webcamCapture.action.retake" fallback="Retake" />
+            </Button>
+            <Button onClick={confirmPhoto} variant="contained" color="primary">
+              <TranslatedText stringId="modal.webcamCapture.action.confirm" fallback="Confirm" />
+            </Button>
+          </>
+        );
+      }
+      // Show Cancel and Take Photo when camera is granted but no photo taken yet
       return (
         <>
           <Button onClick={handleCancel} variant="outlined" color="primary">
             <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
           </Button>
-          <Button onClick={retakePhoto} variant="outlined" color="primary">
-            <TranslatedText stringId="modal.webcamCapture.action.retake" fallback="Retake" />
-          </Button>
-          <Button onClick={confirmPhoto} variant="contained" color="primary">
-            <TranslatedText stringId="modal.webcamCapture.action.confirm" fallback="Confirm" />
+          <Button onClick={capturePhoto} variant="contained" color="primary">
+            <TranslatedText stringId="modal.webcamCapture.action.takePhoto" fallback="Take Photo" />
           </Button>
         </>
       );
@@ -266,7 +280,7 @@ export const WebcamCaptureModal = ({
         <Button onClick={handleCancel} variant="outlined" color="primary">
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </Button>
-        <Button onClick={capturePhoto} variant="contained" color="primary" disabled>
+        <Button variant="contained" color="primary" disabled>
           <TranslatedText stringId="modal.webcamCapture.action.takePhoto" fallback="Take Photo" />
         </Button>
       </>
