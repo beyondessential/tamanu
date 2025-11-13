@@ -1,17 +1,13 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import Webcam from 'react-webcam';
-import { Box, Typography } from '@material-ui/core';
-import { Button } from '@tamanu/ui-components';
-import { Modal } from '@tamanu/ui-components';
-import { TranslatedText } from '@tamanu/ui-components';
-import { TAMANU_COLORS } from '@tamanu/ui-components';
+import { Box, Divider } from '@material-ui/core';
+import { Button, Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
+import { BodyText } from './Typography';
 
 const StyledWebcam = styled(Webcam)`
   width: 100%;
   max-width: 640px;
-  border-radius: 8px;
-  border: 2px solid ${TAMANU_COLORS.softOutline};
 `;
 
 const CapturedImageContainer = styled.div`
@@ -23,26 +19,21 @@ const CapturedImageContainer = styled.div`
 const CapturedImage = styled.img`
   width: 100%;
   max-width: 640px;
-  border-radius: 8px;
-  border: 2px solid ${TAMANU_COLORS.softOutline};
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin: 20px 0;
+  margin: 0px 28px 20px 0;
   flex-wrap: wrap;
 `;
 
-const ErrorMessage = styled.div`
-  color: ${TAMANU_COLORS.alert};
-  text-align: center;
-  margin: 20px 0;
-  padding: 16px;
-  background-color: ${TAMANU_COLORS.veryLightBlue};
-  border-radius: 4px;
-  border: 1px solid ${TAMANU_COLORS.softOutline};
+const ErrorOverlay = styled.div`
+  height: 190px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const WebcamWithOverlay = styled.div`
@@ -62,10 +53,6 @@ const LoadingOverlay = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  z-index: 10;
-  padding: 24px;
 `;
 
 export const WebcamCaptureModal = ({
@@ -97,8 +84,7 @@ export const WebcamCaptureModal = ({
     setError(null);
   }, []);
 
-  const handleUserMediaError = useCallback((error) => {
-    console.error('Webcam access error:', error);
+  const handleUserMediaError = useCallback(error => {
     setHasPermission(false);
     setIsLoading(false);
     setError(error.message || 'Failed to access camera');
@@ -148,7 +134,7 @@ export const WebcamCaptureModal = ({
     // Listen to video events that indicate stream is active
     video.addEventListener('loadedmetadata', handleStreamActive);
     video.addEventListener('playing', handleStreamActive);
-    
+
     // Also check if stream is already active (in case events already fired)
     const stream = video.srcObject;
     if (stream && stream.active) {
@@ -175,46 +161,43 @@ export const WebcamCaptureModal = ({
     if (capturedImage && onCapture) {
       // Convert base64 to File object with a proper filename
       const byteString = atob(capturedImage.split(',')[1]);
-      const mimeString = capturedImage.split(',')[0].split(':')[1].split(';')[0];
+      const mimeString = capturedImage
+        .split(',')[0]
+        .split(':')[1]
+        .split(';')[0];
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
       }
       const blob = new Blob([ab], { type: mimeString });
-      
+
       // Create a filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = `webcam-photo-${timestamp}.jpg`;
-      
+
       const file = new File([blob], filename, { type: mimeString });
       onCapture(file);
       handleCancel();
     }
   }, [capturedImage, onCapture, handleCancel]);
 
+  const isRequestingPermission = hasPermission === null && isLoading;
+  const isCameraAccessDenied = hasPermission === false && !isLoading;
+  const isCameraAccessGranted = hasPermission === true && !isLoading;
+  const isCameraAccessError = error && !isLoading;
+
   const renderWebcamView = () => {
-    if (error || (hasPermission === false && !isLoading)) {
+    if (isCameraAccessError) {
       return (
-        <ErrorMessage>
-          <Typography variant="h6" component="div">
+        <ErrorOverlay>
+          <BodyText>
             <TranslatedText
-              stringId="general.webcamCapture.error.title"
-              fallback="Camera Access Required"
+              stringId="modal.webcamCapture.error.message"
+              fallback="Camera access is required to proceed. Please check your browser settings and allow camera access for Tamanu."
             />
-          </Typography>
-          <Typography variant="body2" style={{ marginTop: '8px' }}>
-            <TranslatedText
-              stringId="general.webcamCapture.error.message"
-              fallback="Please allow camera access to take photos. Check your browser settings if the camera permission was denied."
-            />
-          </Typography>
-          {error && (
-            <Typography variant="body2" style={{ marginTop: '8px', fontSize: '0.875rem' }}>
-              Error: {error}
-            </Typography>
-          )}
-        </ErrorMessage>
+          </BodyText>
+        </ErrorOverlay>
       );
     }
 
@@ -232,17 +215,14 @@ export const WebcamCaptureModal = ({
           onUserMediaError={handleUserMediaError}
           mirrored={true}
         />
-        {isLoading && (
+        {isRequestingPermission && (
           <LoadingOverlay>
-            <Typography variant="h6" component="div" style={{ marginBottom: '12px' }}>
+            <BodyText>
               <TranslatedText
-                stringId="general.webcamCapture.loading"
-                fallback="Requesting camera access..."
+                stringId="modal.webcamCapture.loading.message"
+                fallback="When prompted by your system, please allow permission for Tamanu to access the device camera."
               />
-            </Typography>
-            <Typography variant="body2" style={{ color: TAMANU_COLORS.softText, marginTop: '8px' }}>
-              Please allow camera access when prompted by your browser
-            </Typography>
+            </BodyText>
           </LoadingOverlay>
         )}
       </WebcamWithOverlay>
@@ -256,61 +236,41 @@ export const WebcamCaptureModal = ({
   );
 
   const renderActions = () => {
-    if (error || !hasPermission) {
+    if (isCameraAccessDenied) {
       return (
-        <ActionButtons>
-          <Button onClick={handleCancel} variant="outlined" color="primary">
-            <TranslatedText
-              stringId="general.action.cancel"
-              fallback="Cancel"
-            />
+        <>
+          <Button onClick={handleCancel} variant="contained" color="primary">
+            <TranslatedText stringId="general.action.close" fallback="Close" />
           </Button>
-        </ActionButtons>
+        </>
       );
     }
 
-    if (capturedImage) {
+    if (isCameraAccessGranted) {
       return (
-        <ActionButtons>
+        <>
           <Button onClick={handleCancel} variant="outlined" color="primary">
-            <TranslatedText
-              stringId="general.action.cancel"
-              fallback="Cancel"
-            />
+            <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
           </Button>
           <Button onClick={retakePhoto} variant="outlined" color="primary">
-            <TranslatedText
-              stringId="general.webcamCapture.action.retake"
-              fallback="Retake"
-            />
+            <TranslatedText stringId="modal.webcamCapture.action.retake" fallback="Retake" />
           </Button>
           <Button onClick={confirmPhoto} variant="contained" color="primary">
-            <TranslatedText
-              stringId="general.webcamCapture.action.confirm"
-              fallback="Confirm"
-            />
+            <TranslatedText stringId="modal.webcamCapture.action.confirm" fallback="Confirm" />
           </Button>
-        </ActionButtons>
+        </>
       );
     }
 
     return (
-      <ActionButtons>
+      <>
         <Button onClick={handleCancel} variant="outlined" color="primary">
-          <TranslatedText
-            stringId="general.action.cancel"
-            fallback="Cancel"
-          />
+          <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </Button>
-        {hasPermission && !isLoading && (
-          <Button onClick={capturePhoto} variant="contained" color="primary">
-            <TranslatedText
-              stringId="general.webcamCapture.action.takePhoto"
-              fallback="Take Photo"
-            />
-          </Button>
-        )}
-      </ActionButtons>
+        <Button onClick={capturePhoto} variant="contained" color="primary" disabled>
+          <TranslatedText stringId="modal.webcamCapture.action.takePhoto" fallback="Take Photo" />
+        </Button>
+      </>
     );
   };
 
@@ -320,13 +280,18 @@ export const WebcamCaptureModal = ({
       onClose={handleCancel}
       title={title}
       width="md"
-      actions={renderActions()}
+      actions={<ActionButtons>{renderActions()}</ActionButtons>}
       isClosable={true}
     >
-      <Box>
-        {capturedImage ? renderCapturedView() : renderWebcamView()}
-      </Box>
+      <Box>{capturedImage ? renderCapturedView() : renderWebcamView()}</Box>
+      <Divider
+        style={{
+          position: 'relative',
+          top: '4px',
+          color: TAMANU_COLORS.outline,
+          margin: '0 -32px',
+        }}
+      />
     </Modal>
   );
 };
-
