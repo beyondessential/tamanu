@@ -84,7 +84,8 @@ const getCustomComponentForQuestion = (component, required, FieldComponent) => {
 
   if (
     component.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded ||
-    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PHOTO ||
+    component.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE
   ) {
     return <FullWidthCol data-testid="fullwidthcol-6f9p">{FieldComponent}</FullWidthCol>;
   }
