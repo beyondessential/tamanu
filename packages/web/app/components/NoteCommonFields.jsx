@@ -259,6 +259,7 @@ export const NoteTypeField = ({
 }) => {
   const noteTypeSuggester = useSuggester('noteType', {
     filterer: ({ id }) =>
+      id !== NOTE_TYPES.SYSTEM &&
       !(noteTypeCountByType && id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType[id]),
   });
 
