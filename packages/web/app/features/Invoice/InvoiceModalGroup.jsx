@@ -65,13 +65,7 @@ export const InvoiceModalGroup = ({
           open
           encounterId={encounterId}
           invoice={invoice}
-          onClose={() => {
-            if (invoiceModal.length === 1) {
-              return handleCloseInvoiceModal();
-            }
-            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE);
-          }}
-          onTemporaryUpdate={handleTemporaryUpdateInvoice}
+          onClose={handleCloseInvoiceModal}
           data-testid="upsertinvoicemodal-wt5z"
         />
       )}

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { format } from 'date-fns';
 import { Box } from '@material-ui/core';
 import { DRUG_ROUTE_LABELS, MEDICATION_DURATION_DISPLAY_UNITS_LABELS } from '@tamanu/constants';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '@tamanu/shared/utils/medication';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
@@ -326,7 +326,7 @@ export const EncounterMedicationTable = ({
   onImportOngoingPrescriptions,
   isPharmacyOrdersEnabled = false,
 }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
   const api = useApi();
   const { ability } = useAuth();
@@ -345,7 +345,7 @@ export const EncounterMedicationTable = ({
     const openMedicationId = searchParams.get('openMedicationId');
     if (openMedicationId) {
       handleInitialMedication(openMedicationId);
-      history.replace(location.pathname);
+      navigate(location.pathname, { replace: true });
     }
   }, []);
 

@@ -1,16 +1,14 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 import {
   CompletedImagingRequestListingView,
   ImagingRequestListingView,
 } from '../views/ImagingRequestListingView';
 
-export const ImagingRoutes = React.memo(({ match }) => (
-  <div>
-    <Switch>
-      <Route path={`${match.path}/active`} component={ImagingRequestListingView} />
-      <Route path={`${match.path}/completed`} component={CompletedImagingRequestListingView} />
-      <Redirect to={`${match.path}/active`} />
-    </Switch>
-  </div>
+export const ImagingRoutes = React.memo(() => (
+  <Routes>
+    <Route path="active" element={<ImagingRequestListingView />} />
+    <Route path="completed" element={<CompletedImagingRequestListingView />} />
+    <Route path="*" element={<Navigate to="active" replace />} />
+  </Routes>
 ));

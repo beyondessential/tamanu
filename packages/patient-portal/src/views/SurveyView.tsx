@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { styled, Typography, Box } from '@mui/material';
 import { Alert } from '@material-ui/lab';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
@@ -40,12 +40,12 @@ const ErrorAlert = styled(Alert)(() => ({
 type SurveyData = Record<string, any>;
 
 export const SurveyView = () => {
-  const { surveyId } = useParams<{ surveyId: string }>();
+  const { surveyId } = useParams() as { surveyId: string };
   const [startTime] = useState<string>(getCurrentDateTimeString());
   const { isPending, data: survey } = useSurveyQuery(surveyId);
   const { mutate: submitSurveyResponse } = useSubmitSurveyResponse();
   const { additionalData, ...patient } = useCurrentUser();
-  const history = useHistory();
+  const navigate = useNavigate();
   const encounterType = ENCOUNTER_TYPES.CLINIC;
 
   const onSubmit = async (data: SurveyData) => {
@@ -58,7 +58,7 @@ export const SurveyView = () => {
     });
   };
   const onCancel = async () => {
-    history.push('/');
+    navigate('/');
   };
 
   if (isPending) {

@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
-import {
-  toDateString,
-  formatShortest,
-  formatTime,
-} from '@tamanu/utils/dateTime';
+import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
@@ -18,7 +14,10 @@ import { MenuButton } from '../MenuButton';
 import { useTableSorting } from '../Table/useTableSorting';
 import { CancelAppointmentModal } from './CancelModal/CancelAppointmentModal';
 import { PastAppointmentModal } from './PastAppointmentModal/PastAppointmentModal';
-import { useHasPastOutpatientAppointmentsQuery, useUpcomingOutpatientAppointmentsQuery } from '../../api/queries/useAppointmentsQuery';
+import {
+  useHasPastOutpatientAppointmentsQuery,
+  useUpcomingOutpatientAppointmentsQuery,
+} from '../../api/queries/useAppointmentsQuery';
 import { useAuth } from '../../contexts/Auth';
 
 const TableTitleContainer = styled(Box)`
@@ -163,9 +162,9 @@ const StyledTable = styled(Table)`
     }
   }
   .MuiTableBody-root .MuiTableRow-root:not(.statusRow) {
-    cursor: ${(props) => (props.onClickRow ? 'pointer' : '')};
+    cursor: ${props => (props.onClickRow ? 'pointer' : '')};
     &:hover:not(:has(.menu-container:hover)) {
-      background-color: ${(props) => (props.onClickRow ? Colors.veryLightBlue : '')};
+      background-color: ${props => (props.onClickRow ? Colors.veryLightBlue : '')};
     }
   }
   .MuiTableBody-root {
@@ -257,7 +256,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 
 const TableHeader = ({ title, patient, hasPastAppointments }) => {
   const { ability } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
 
   const canCreateAppointment = ability.can('create', 'Appointment');
@@ -285,7 +284,7 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
+            onClick={() => navigate(`/appointments/outpatients?patientId=${patient?.id}`)}
             data-testid="button-q06c"
           >
             <TranslatedText
@@ -318,11 +317,18 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
   // Query to check if there are past appointments
   const { data: hasPastAppointments } = useHasPastOutpatientAppointmentsQuery(patient?.id);
 
-  const { data: upcomingAppointments = [], isLoading: isLoadingUpcomingAppointments } = useUpcomingOutpatientAppointmentsQuery(patient?.id);
+  const {
+    data: upcomingAppointments = [],
+    isLoading: isLoadingUpcomingAppointments,
+  } = useUpcomingOutpatientAppointmentsQuery(
+    patient?.id,
+    { orderBy, order },
+    { keepPreviousData: true, refetchOnMount: true },
+  );
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const actions = [
     {
@@ -339,7 +345,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

@@ -204,10 +204,15 @@ appointments.put(
 
 const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
-const searchableFields = [
+const CONTAINS_SEARCHABLE_FIELDS = [
+  'patient.first_name',
+  'patient.last_name',
+  'patient.display_id',
+];
+
+const EXACT_MATCH_SEARCHABLE_FIELDS = [
   'startTime',
   'endTime',
-  'type',
   'appointmentTypeId',
   'bookingTypeId',
   'status',
@@ -215,10 +220,9 @@ const searchableFields = [
   'locationId',
   'locationGroupId',
   'patientId',
-  'patient.first_name',
-  'patient.last_name',
-  'patient.display_id',
 ];
+
+const ALL_SEARCHABLE_FIELDS = [...CONTAINS_SEARCHABLE_FIELDS, ...EXACT_MATCH_SEARCHABLE_FIELDS];
 
 const sortKeys = {
   patientName: Sequelize.fn(
@@ -320,7 +324,7 @@ appointments.get(
       : null;
 
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
+      if (!ALL_SEARCHABLE_FIELDS.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
 
@@ -332,7 +336,9 @@ appointments.get(
       if (queryValue === '' || queryValue.length === 0) {
         comparison = { [Op.not]: null };
       } else if (typeof queryValue === 'string') {
-        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+        comparison = EXACT_MATCH_SEARCHABLE_FIELDS.includes(queryField)
+          ? { [Op.eq]: queryValue }
+          : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
       } else {
         comparison = { [Op.in]: queryValue };
       }
@@ -655,8 +661,26 @@ appointments.get(
 
     const { models, params, query } = req;
     const { patientId } = params;
-    const { type, facilityId } = query;
+    const { type, facilityId, orderBy = 'startTime', order = 'ASC' } = query;
     const { Appointment } = models;
+
+    const sortKeys = {
+      startTime: 'startTime',
+      outpatientAppointmentArea: ['locationGroup', 'name'],
+      bookingArea: ['location', 'locationGroup', 'name'],
+      clinician: ['clinician', 'displayName'],
+      appointmentType: ['appointmentType', 'name'],
+      bookingType: ['bookingType', 'name'],
+      location: ['location', 'name'],
+    };
+
+    const sortKey = sortKeys[orderBy] || 'startTime';
+    const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    
+    // Build order clause - handle nested associations
+    const orderClause = Array.isArray(sortKey)
+      ? [sortKey.concat([sortOrder])]
+      : [[sortKey, sortOrder]];
 
     const upcomingAppointments = await Appointment.findAll({
       where: {
@@ -676,7 +700,7 @@ appointments.get(
         'bookingType',
         'patient',
       ],
-      order: [['startTime', 'ASC']],
+      order: orderClause,
     });
 
     res.send(upcomingAppointments);

@@ -5,7 +5,7 @@ const tableName = 'invoices_invoice_insurance_plans';
 const baseFields = {
   id: {
     type: DataTypes.TEXT,
-    defaultValue: Sequelize.fn('uuid_generate_v4'),
+    defaultValue: Sequelize.fn('gen_random_uuid'),
     allowNull: false,
     primaryKey: true,
   },
@@ -57,5 +57,27 @@ export async function up(query: QueryInterface): Promise<void> {
 export async function down(query: QueryInterface): Promise<void> {
   await query.dropTable(tableName);
 
-  // Not practical way to add invoice_insurers table back and not in use at time of removal
+  await query.createTable('invoice_insurers', {
+    ...baseFields,
+    invoice_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'invoices',
+        key: 'id',
+      },
+    },
+    insurer_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: 'reference_data',
+        key: 'id',
+      },
+    },
+    percentage: {
+      type: DataTypes.DECIMAL,
+      allowNull: false,
+    },
+  });
 }

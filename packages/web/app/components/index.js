@@ -15,6 +15,7 @@ export * from './Notification';
 export * from './NoteModalActionBlocker';
 export * from './PageContainer';
 export * from './Paper';
+export * from './PatientNameDisplay';
 export * from './Preloader';
 export * from './LocationSearchBar';
 export * from './SearchBar';

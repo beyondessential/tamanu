@@ -12,6 +12,8 @@ export const JWT_KEY_ID = 'eacd2b78-b1ee-4d68-87eb-b2c039d7d18a';
 
 export const SYSTEM_USER_UUID = '00000000-0000-0000-0000-000000000000';
 
+export const ADMIN_USER_EMAIL = 'admin@tamanu.io';
+
 export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 
 // When adding more scopes here, you need to consider:

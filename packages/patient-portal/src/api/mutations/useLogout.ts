@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useApi } from '../useApi';
 
 export const useLogout = () => {
   const api = useApi();
   const queryClient = useQueryClient();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: () => api.logout(),
@@ -13,7 +13,7 @@ export const useLogout = () => {
       // completely clear the react-query cache
       queryClient.clear();
       // Redirect to login page
-      history.push('/login');
+      navigate('/login');
     },
   });
 };

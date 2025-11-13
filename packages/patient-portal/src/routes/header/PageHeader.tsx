@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useCurrentUser } from '@routes/PrivateRoute';
 import { MainMenu } from './MainMenu';
 import tamanuLogoBlue from '../../assets/images/tamanu_logo_blue.svg';

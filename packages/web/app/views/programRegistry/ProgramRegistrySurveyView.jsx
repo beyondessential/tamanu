@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SurveyView } from '../programs/SurveyView';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { getAnswersFromData } from '@tamanu/ui-components';

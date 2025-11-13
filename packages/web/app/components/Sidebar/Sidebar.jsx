@@ -3,13 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { Box, Button, Divider, IconButton, List, Typography } from '@material-ui/core';
 import { NavigateBefore, NavigateNext } from '@material-ui/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { getCurrentRoute } from '../../store/router';
+import { useNavigate, useLocation } from 'react-router';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-
 import { LogoLight, LogoLightNoText } from '../Logo';
+import { Colors } from '../../constants';
 import { HiddenSyncAvatar } from '../HiddenSyncAvatar';
 import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
@@ -169,11 +166,12 @@ export const Sidebar = React.memo(({ items }) => {
   const [isRetracted, setIsRetracted] = useState(false);
   const api = useApi();
   const { facilityId, currentUser, onLogout, currentRole } = useAuth();
-  const currentPath = useSelector(getCurrentRoute);
-  const dispatch = useDispatch();
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const navigate = useNavigate();
   const extendSidebar = () => setIsRetracted(false);
 
-  const onPathChanged = newPath => dispatch(push(newPath));
+  const onPathChanged = newPath => navigate(newPath);
 
   const clickedParentItem = ({ key }) => {
     if (isRetracted) {

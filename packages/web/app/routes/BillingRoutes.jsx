@@ -1,23 +1,21 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 
 import { NotActiveView } from '../views';
 
-export const BillingRoutes = React.memo(({ match }) => (
-  <div>
-    <Switch>
-      <Route exact path={match.path} component={NotActiveView} />
-      <Route exact path={`${match.path}/draft`} component={NotActiveView} />
-      <Route exact path={`${match.path}/all`} component={NotActiveView} />
-      <Route exact path={`${match.path}/paid`} component={NotActiveView} />
-      <Route exact path={`${match.path}/edit/new`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing/imaging`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing/lab`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing/procedure`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing/ward`} component={NotActiveView} />
-      <Route exact path={`${match.path}/pricing/profiles`} component={NotActiveView} />
-      <Redirect to={match.path} />
-    </Switch>
-  </div>
-));
+export const BillingRoutes = () => (
+  <Routes>
+    <Route index element={<NotActiveView />} />
+    <Route path="draft" element={<NotActiveView />} />
+    <Route path="all" element={<NotActiveView />} />
+    <Route path="paid" element={<NotActiveView />} />
+    <Route path="edit/new" element={<NotActiveView />} />
+    <Route path="pricing" element={<NotActiveView />} />
+    <Route path="pricing/imaging" element={<NotActiveView />} />
+    <Route path="pricing/lab" element={<NotActiveView />} />
+    <Route path="pricing/procedure" element={<NotActiveView />} />
+    <Route path="pricing/ward" element={<NotActiveView />} />
+    <Route path="pricing/profiles" element={<NotActiveView />} />
+    <Route path="*" element={<Navigate to=".." replace />} />
+  </Routes>
+);

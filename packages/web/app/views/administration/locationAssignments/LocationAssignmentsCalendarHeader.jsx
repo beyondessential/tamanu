@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { formatISO, isSameDay, isSameMonth, parseISO, startOfToday } from 'date-fns';
 import queryString from 'query-string';
 
@@ -13,7 +13,7 @@ import { FIRST_DISPLAYED_DAY_ID, THIS_WEEK_ID } from '../../../constants/locatio
 
 const StyledHeaderRow = styled(CarouselGrid.HeaderRow)`
   block-size: 30px;
-  
+
   & > * {
     border-bottom: max(0.0625rem, 1px) solid ${Colors.outline};
   }
@@ -68,7 +68,7 @@ export const DayHeaderCell = ({ date, dim, ...props }) => {
 
 const StyledMonthPicker = styled(MonthPicker)`
   width: 100%;
-  
+
   .MuiInputBase-root,
   .MuiInputBase-input {
     font-size: 11px;
@@ -80,7 +80,7 @@ const StyledMonthPicker = styled(MonthPicker)`
 `;
 
 export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, displayedDates }) => {
-  const isFirstDisplayedDate = (date) => isSameDay(date, displayedDates[0]);
+  const isFirstDisplayedDate = date => isSameDay(date, displayedDates[0]);
 
   const location = useLocation();
   useEffect(() => {
@@ -100,12 +100,12 @@ export const LocationAssignmentsCalendarHeader = ({ monthOf, setMonthOf, display
           data-testid="styledmonthpicker-4uml"
         />
       </StyledFirstHeaderCell>
-      {displayedDates.map((d) => {
+      {displayedDates.map(d => {
         const id = isStartOfThisWeek(d)
           ? THIS_WEEK_ID
           : isFirstDisplayedDate(d)
-            ? FIRST_DISPLAYED_DAY_ID
-            : null;
+          ? FIRST_DISPLAYED_DAY_ID
+          : null;
         return (
           <DayHeaderCell
             date={d}
