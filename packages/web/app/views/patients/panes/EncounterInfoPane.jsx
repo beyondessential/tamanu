@@ -30,12 +30,12 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 const CardLabel = styled.span`
   margin-right: 5px;
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.primary};
+  color: ${props => props.theme.palette.text.primary};
 `;
 
 const InfoCardFirstColumn = styled.div`
@@ -97,10 +97,9 @@ const getDiet = ({ diets }) => {
   );
 };
 
-export const getEncounterType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+export const getEncounterType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 
 const referralSourcePath = 'referralSourceId';
 
@@ -209,11 +208,19 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
     <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
       <InfoCardItem
         label={
-          <TranslatedText
-            stringId="encounter.arrivalDate.label"
-            fallback="Arrival date"
-            data-testid="translatedtext-i6p7"
-          />
+          isInpatient(encounter.encounterType) ? (
+            <TranslatedText
+              stringId="encounter.arrivalDate.label"
+              fallback="Arrival date"
+              data-testid="translatedtext-i6p7"
+            />
+          ) : (
+            <TranslatedText
+              stringId="general.date.label"
+              fallback="Date"
+              data-testid="translatedtext-dn4a"
+            />
+          )
         }
         value={
           <>

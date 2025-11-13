@@ -2,7 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { TextField, TranslatedSelectField, Form, FormGrid, FormSubmitButton } from '@tamanu/ui-components';
+import {
+  TextField,
+  TranslatedSelectField,
+  Form,
+  FormGrid,
+  FormSubmitButton,
+} from '@tamanu/ui-components';
 import { foreignKey } from '../utils/validation';
 import {
   AutocompleteField,
@@ -63,11 +69,19 @@ export const EncounterForm = React.memo(
           <Field
             name="startDate"
             label={
-              <TranslatedText
-                stringId="patient.modal.checkIn.checkInDate.label"
-                fallback="Check-in date"
-                data-testid="translatedtext-laie"
-              />
+              isInpatient(encounterType) ? (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.admissionDateTime.label"
+                  fallback="Admission date & time"
+                  data-testid="translatedtext-q4a8"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.checkInDateTime.label"
+                  fallback="Check-in date & time"
+                  data-testid="translatedtext-laie"
+                />
+              )
             }
             required
             min="1970-01-01T00:00"
