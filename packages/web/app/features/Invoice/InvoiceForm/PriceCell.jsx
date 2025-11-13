@@ -1,21 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 import {
-  getInvoiceItemDiscountPriceDisplay,
-  getInvoiceItemPriceDisplay,
-  formatDisplayPrice,
+  getInvoiceItemTotalDiscountedPrice,
+  getInvoiceItemTotalPrice,
 } from '@tamanu/shared/utils/invoice';
-import { keyBy } from 'lodash';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
+import { Box } from '@mui/material';
 import { Field, NoteModalActionBlocker } from '../../../components';
 import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { PriceField } from '../../../components/Field/PriceField';
-import { useInvoiceItemActions } from './useInvoiceItemActions.jsx';
+import { useInvoiceItemActions } from './useInvoiceItemActions';
 import { ViewOnlyCell } from './InvoiceItemCells';
-import { Box } from '@mui/material';
+import { Price } from '../Price';
 
 export const StyledItemCell = styled(Box)`
   display: flex;
@@ -34,10 +33,6 @@ const Menu = styled(ThreeDotMenu)`
   right: -10px;
 `;
 
-const PriceText = styled.div`
-  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
-`;
-
 const Row = styled.div`
   display: flex;
   text-align: right;
@@ -52,44 +47,35 @@ const RowValue = styled.div`
   min-width: 4em;
 `;
 
-const getCoverageDisplay = (invoiceItem, defaultCoverage) => {
-  const rawCoverage = invoiceItem?.coverageValue ?? defaultCoverage;
-  return formatDisplayPrice(rawCoverage);
-};
-
-const InsuranceSection = ({ invoiceInsurancePlans, item }) => {
-  if (!invoiceInsurancePlans?.length > 0 || !item?.productId) {
+const InsuranceSection = ({ item, discountedPrice }) => {
+  if (!item.insurancePlanItems?.length > 0 || !item?.productId) {
     return null;
   }
 
-  const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'id');
-
   return (
     <Box mt={1}>
-      {invoiceInsurancePlans.map(({ id, code, name, defaultCoverage }) => {
-        const planItem = itemInsurancePlansById[id];
-        const coverageDisplay = getCoverageDisplay(planItem, defaultCoverage);
-        const nameDisplay = name || code;
+      {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
+        const coverage = new Decimal(discountedPrice).times(coverageValue / 100);
         return (
           <Row key={id}>
-            <RowName>{nameDisplay}</RowName>
-            <RowValue>{`-${coverageDisplay}`}</RowValue>
+            <RowName>{label}</RowName>
+            <RowValue>
+              <Price price={`-${coverage}`} />
+            </RowValue>
           </Row>
         );
       })}
     </Box>
   );
 };
-const getPriceDifferenceDisplay = (price, discountPrice) => {
-  const priceDifference = new Decimal(discountPrice).minus(price).toNumber();
-  return formatDisplayPrice(priceDifference);
+const getPriceDifference = (price, discountPrice) => {
+  return new Decimal(discountPrice).minus(price).toNumber();
 };
 
-const DiscountSection = ({ price, discountReason, discountPrice }) => {
-  const priceDifference = getPriceDifferenceDisplay(price, discountPrice);
+const DiscountSection = ({ price, discountReason, discountedPrice }) => {
+  const priceDifference = getPriceDifference(price, discountedPrice);
   const isMarkup = priceDifference > 0;
   const text = isMarkup ? 'markup' : 'discount';
-  const symbol = isMarkup ? '+' : '-';
 
   return (
     <ThemedTooltip
@@ -101,13 +87,14 @@ const DiscountSection = ({ price, discountReason, discountPrice }) => {
         <Row>
           <RowName>Item {text}</RowName>
           <RowValue>
-            {symbol}
-            {priceDifference}
+            <Price price={priceDifference} />
           </RowValue>
         </Row>
         <Row>
           <RowName>Price after {text}</RowName>
-          <RowValue>{discountPrice}</RowValue>
+          <RowValue>
+            <Price price={discountedPrice} />
+          </RowValue>
         </Row>
       </>
     </ThemedTooltip>
@@ -117,7 +104,6 @@ const DiscountSection = ({ price, discountReason, discountPrice }) => {
 export const PriceCell = ({
   index,
   item,
-  invoiceInsurancePlans = [],
   showActionMenu,
   editable,
   isDeleteDisabled,
@@ -125,7 +111,7 @@ export const PriceCell = ({
   isExpanded,
 }) => {
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
-  const hidePriceInput = item.productPrice === undefined || !editable;
+  const hidePriceInput = item.productPrice === null || !editable;
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActions({
     item,
     index,
@@ -134,21 +120,23 @@ export const PriceCell = ({
     hidePriceInput,
   });
 
-  const price = getInvoiceItemPriceDisplay(item);
-  const discountPrice = getInvoiceItemDiscountPriceDisplay(item);
+  const price = getInvoiceItemTotalPrice(item);
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   return (
     <>
       <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
         <Container>
           {hidePriceInput ? (
             <>
-              <PriceText $isCrossedOut={Boolean(discountPrice)} data-testid="pricetext-is33">
-                {price}
-              </PriceText>
-              {Boolean(discountPrice) && (
+              <Price
+                $isCrossedOut={Boolean(discountedPrice)}
+                price={price}
+                data-testid="pricetext-is33"
+              />
+              {Boolean(discountedPrice) && (
                 <DiscountSection
                   discountReason={item.discount?.reason}
-                  discountPrice={discountPrice}
+                  discountedPrice={discountedPrice}
                   price={price}
                 />
               )}
@@ -167,7 +155,7 @@ export const PriceCell = ({
             )
           )}
           <Collapse in={isExpanded}>
-            <InsuranceSection item={item} invoiceInsurancePlans={invoiceInsurancePlans} />
+            <InsuranceSection item={item} discountedPrice={discountedPrice} />
           </Collapse>
         </Container>
         {showActionMenu && editable && (

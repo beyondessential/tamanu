@@ -535,7 +535,26 @@ encounterRelations.get(
       model: Invoice,
     });
 
-    res.send(invoiceRecord);
+    // Convert to plain object to avoid circular references
+    const invoice = invoiceRecord.get({ plain: true });
+
+    const invoiceItemsResponse = invoice.items.map(item => {
+      const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'id');
+
+      const insurancePlanItems =
+        invoice?.insurancePlans?.map(({ id, code, name, defaultCoverage }) => {
+          const invoiceItem = itemInsurancePlansById[id];
+          const coverageValue = invoiceItem?.coverageValue ?? defaultCoverage;
+          const label = name || code;
+          return { id, code, name, label, coverageValue };
+        }) || [];
+
+      return { ...item, insurancePlanItems };
+    });
+
+    const responseRecord = { ...invoice, items: invoiceItemsResponse };
+
+    res.send(responseRecord);
   }),
 );
 

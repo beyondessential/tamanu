@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Box, Divider } from '@material-ui/core';
-import { getInvoiceSummaryDisplayV2 } from '@tamanu/shared/utils/invoice';
+import { getInvoiceSummaryV2 } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Heading3 } from '../../components/Typography';
+import { Price } from './Price';
 
 const CardItem = styled(Box)`
   display: flex;
@@ -27,8 +28,7 @@ const Container = styled.div`
 `;
 
 export const InvoiceSummaryPanel = ({ invoice }) => {
-  console.log(invoice);
-  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummaryDisplayV2(
+  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummaryV2(
     invoice.items,
   );
 
@@ -40,7 +40,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
           fallback="Invoice total"
           data-testid="translatedtext-828s"
         />
-        <span>{invoiceItemsTotal ?? '-'}</span>
+        <Price price={invoiceItemsTotal} />
       </CardItem>
       <Divider />
       <CardItem>
@@ -49,7 +49,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
           fallback="Insurance coverage"
           data-testid="translatedtext-qedx"
         />
-        <span>{insuranceCoverageTotal ?? '-'}</span>
+        <Price price={insuranceCoverageTotal} />
       </CardItem>
       <Divider />
       <CardItem>
@@ -61,7 +61,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
           />
         </Heading3>
         <Heading3 sx={{ margin: 0 }} data-testid="heading3-vj7u">
-          {patientTotal ?? '-'}
+          <Price price={patientTotal} />
         </Heading3>
       </CardItem>
     </Container>

@@ -48,7 +48,7 @@ const discountAmount = (price, discount) => {
  * Get the price of an invoice item
  * @param {InvoiceItem} invoiceItem
  */
-const getInvoiceItemTotalPrice = invoiceItem => {
+export const getInvoiceItemTotalPrice = invoiceItem => {
   const rawPriceValue =
     invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
   return new Decimal(rawPriceValue || 0).times(invoiceItem?.quantity || 1).toNumber();
@@ -58,7 +58,7 @@ const getInvoiceItemTotalPrice = invoiceItem => {
  * Get the price of an invoice item after applying the discount
  * @param {InvoiceItem} invoiceItem
  */
-const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
+export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
   const invoiceItemTotalPrice = getInvoiceItemTotalPrice(invoiceItem);
   if (!invoiceItem.discount) return invoiceItemTotalPrice;
   if (invoiceItem.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
@@ -168,18 +168,33 @@ export const getInvoiceSummary = invoice => {
 };
 
 export const getInvoiceSummaryV2 = invoiceItems => {
-  const invoiceItemsTotal = invoiceItems
-    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
-    .toNumber();
+  const invoiceItemsTotal = invoiceItems.reduce(
+    (sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0),
+    new Decimal(0),
+  );
 
-  return { invoiceItemsTotal };
-};
+  const insuranceCoverageTotal = invoiceItems.reduce((sum, item) => {
+    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
-export const getInvoiceSummaryDisplayV2 = invoiceItems => {
-  const summary = getInvoiceSummaryV2(invoiceItems);
-  return mapValues(summary, value => {
-    return formatDisplayPrice(value);
-  });
+    const itemTotal = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
+      if (!itemPlan.coverageValue) {
+        return sum;
+      }
+      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100);
+      const newValue = coverage > discountedPrice ? discountedPrice : coverage;
+      return sum.plus(newValue);
+    }, new Decimal(0));
+
+    return sum.plus(itemTotal);
+  }, new Decimal(0));
+
+  const patientTotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
+
+  return {
+    invoiceItemsTotal: invoiceItemsTotal.toNumber(),
+    insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
+    patientTotal: patientTotal.toNumber(),
+  };
 };
 
 /**

@@ -28,10 +28,6 @@ const FormContainer = styled.div`
   //padding: 34px 40px;
 `;
 
-const StyledDivider = styled(Divider)`
-  margin: 26px -40px 32px -40px;
-`;
-
 const PrintButton = styled(Button)`
   position: absolute;
   right: 70px;
@@ -149,7 +145,6 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                         key={item.id}
                         index={index}
                         item={item}
-                        invoiceInsurancePlans={invoice.insurancePlans}
                         isDeleteDisabled={values.invoiceItems?.length === 1}
                         showActionMenu={item.productId || values.invoiceItems.length > 1}
                         formArrayMethods={formArrayMethods}
