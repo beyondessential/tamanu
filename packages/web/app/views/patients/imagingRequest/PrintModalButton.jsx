@@ -1,12 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useEncounterDataQuery } from '../../../api/queries';
-import { Button } from '../../../components/Button';
+import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
-import { Modal } from '../../../components/Modal';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { MultipleImagingRequestsWrapper } from '../../../components/PatientPrinting/modals/MultipleImagingRequestsPrintoutModal';
-import { Colors } from '../../../constants';
 import { printPDF } from '../../../components/PatientPrinting/PDFLoader';
 
 const PrintModalInternals = ({ imagingRequest }) => {
@@ -32,7 +30,7 @@ const PrintModalInternals = ({ imagingRequest }) => {
   );
 };
 
-export const PrintModalButton = (props) => {
+export const PrintModalButton = props => {
   const { modal } = useParams();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);

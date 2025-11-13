@@ -28,7 +28,9 @@ export const ReferralFormListScreen = (): ReactElement => {
     }),
   );
 
-  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
+  const filteredSurveys = surveys
+    ?.filter(survey => survey.shouldShowInList(ability))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
 
   const onNavigateToSurvey = (survey): any => {
     navigation.navigate(Routes.HomeStack.ReferralStack.ReferralList.AddReferralDetails, {

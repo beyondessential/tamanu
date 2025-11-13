@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 
-import { UnstyledHtmlButton } from '../../../components';
-import { Colors } from '../../../constants';
+import { UnstyledHtmlButton } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 
 const Grid = styled.div`
   --header-col-width: 11.5rem;

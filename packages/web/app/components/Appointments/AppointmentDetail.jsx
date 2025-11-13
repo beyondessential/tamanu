@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { push } from 'connected-react-router';
+import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { format } from 'date-fns';
@@ -8,18 +8,23 @@ import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import { APPOINTMENT_STATUSES } from '@tamanu/constants';
+import {
+  Button,
+  DeleteButton,
+  Modal,
+  TranslatedText,
+  TranslatedReferenceData,
+  TranslatedSex,
+} from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { TextDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';
-import { Colors } from '../../constants';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { AppointmentModal } from './AppointmentModal';
-import { Button, DeleteButton } from '../Button';
 import { EncounterModal } from '../EncounterModal';
 import { usePatientAdditionalDataQuery, usePatientCurrentEncounterQuery } from '../../api/queries';
-import { Modal } from '../Modal';
-import { TranslatedReferenceData, TranslatedSex, TranslatedText } from '../Translation';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -63,13 +68,14 @@ const APPOINTMENT_STATUS_OPTIONS = Object.values(APPOINTMENT_STATUSES).map(statu
 
 const PatientInfo = ({ patient }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id, displayId, sex, dateOfBirth, village } = patient;
   const { data: additionalData } = usePatientAdditionalDataQuery(patient.id);
 
   const handlePatientInfoContainerClick = useCallback(async () => {
     await dispatch(reloadPatient(id));
-    dispatch(push(`/patients/all/${id}`));
-  }, [dispatch, id]);
+    navigate(`/patients/all/${id}`);
+  }, [dispatch, id, navigate]);
 
   return (
     <PatientInfoContainer

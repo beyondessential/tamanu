@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck } from '@tamanu/ui-components';
+import { TableButtonRow } from '../../../components';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
 import { useEncounter } from '../../../contexts/Encounter';

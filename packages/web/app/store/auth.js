@@ -1,3 +1,4 @@
+import { getLoginErrorMessage, getResetPasswordErrorMessage } from '@tamanu/errors';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions
@@ -37,14 +38,14 @@ export const login =
       const loginInfo = await api.login(email, password);
       await handleLoginSuccess(dispatch, loginInfo);
     } catch (error) {
-      dispatch({ type: LOGIN_FAILURE, error: error.message });
+      const message = getLoginErrorMessage(error);
+      dispatch({ type: LOGIN_FAILURE, error: message });
     }
   };
 
 const handleLoginSuccess = async (dispatch, loginInfo) => {
-  const { user, token, localisation, server, availableFacilities, facilityId, ability, role } =
+  const { user, token, localisation, server, availableFacilities, facilityId, ability, role, settings } =
     loginInfo;
-
   if (facilityId) {
     await dispatch(setFacilityId(facilityId));
   } else {
@@ -54,6 +55,14 @@ const handleLoginSuccess = async (dispatch, loginInfo) => {
     if (onlyFacilityId) {
       await dispatch(setFacilityId(onlyFacilityId));
     }
+  }
+
+  // If settings are provided from central server login, dispatch them
+  if (settings) {
+    dispatch({
+      type: SET_SETTINGS,
+      settings,
+    });
   }
 
   dispatch({
@@ -116,7 +125,8 @@ export const requestPasswordReset =
       await api.requestPasswordReset(email);
       dispatch({ type: REQUEST_PASSWORD_RESET_SUCCESS, email });
     } catch (error) {
-      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: error.message });
+      const message = getResetPasswordErrorMessage(error);
+      dispatch({ type: REQUEST_PASSWORD_RESET_FAILURE, error: message });
     }
   };
 

@@ -260,7 +260,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientProcedurePane;
   }
 
- 
+
 
     async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter

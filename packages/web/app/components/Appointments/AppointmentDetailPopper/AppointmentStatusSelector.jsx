@@ -3,13 +3,11 @@ import { styled } from '@mui/material/styles';
 import { debounce } from 'lodash';
 import React from 'react';
 import { toast } from 'react-toastify';
-
+import { useTranslation, TranslatedText } from '@tamanu/ui-components';
 import { APPOINTMENT_STATUSES, APPOINTMENT_STATUS_VALUES } from '@tamanu/constants';
 
 import { useAppointmentMutation } from '../../../api/mutations';
-import { TranslatedText } from '../../Translation';
 import { AppointmentStatusChip } from '../AppointmentStatusChip';
-import { useTranslation } from '../../../contexts/Translation';
 import { getEnumStringId } from '../../Translation/TranslatedEnum';
 
 const NONCANCELLED_APPOINTMENT_STATUSES = APPOINTMENT_STATUS_VALUES.filter(
@@ -82,10 +80,10 @@ export const AppointmentStatusSelector = ({ appointment, disabled = false, ...pr
     >
       {NONCANCELLED_APPOINTMENT_STATUSES.map(status => {
         const isSelected = status === appointment.status;
-        const statusStringId = getEnumStringId(status, APPOINTMENT_STATUSES);
+        const stringId = getEnumStringId(status, APPOINTMENT_STATUSES);
         return (
           <AppointmentStatusChip
-            appointmentStatus={getTranslation(statusStringId, status)}
+            appointmentStatus={getTranslation(stringId, status)}
             disabled={disabled || isSelected}
             key={status}
             selected={isSelected}

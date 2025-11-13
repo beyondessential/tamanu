@@ -19,7 +19,6 @@ import {
 } from '@tamanu/constants';
 import {
   simpleGet,
-  simpleGetHasOne,
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
@@ -394,8 +393,8 @@ encounterRelations.get(
       const prescriptionIds = responseData.map(p => p.id);
       const [pharmacyOrderPrescriptions] = await db.query(
         `
-        SELECT prescription_id, max(created_at) as last_ordered_at 
-        FROM pharmacy_order_prescriptions 
+        SELECT prescription_id, max(created_at) as last_ordered_at
+        FROM pharmacy_order_prescriptions
         WHERE prescription_id IN (:prescriptionIds) and deleted_at is null GROUP BY prescription_id
       `,
         { replacements: { prescriptionIds } },
@@ -515,7 +514,29 @@ encounterRelations.get(
 
 encounterRelations.get(
   '/:id/invoice',
-  simpleGetHasOne('Invoice', 'encounterId', { auditAccess: true }),
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { Invoice, InvoicePriceList } = models;
+    req.checkPermission('read', 'Invoice');
+    const encounterId = params.id;
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    const invoiceRecord = await Invoice.findOne({
+      where: { encounterId },
+      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+    });
+    if (!invoiceRecord) {
+      throw new NotFoundError('Invoice not found');
+    }
+
+    await req.audit.access({
+      recordId: invoiceRecord.id,
+      frontEndContext: params,
+      model: Invoice,
+    });
+
+    res.send(invoiceRecord);
+  }),
 );
 
 const PROGRAM_RESPONSE_SORT_KEYS = {
@@ -691,6 +712,7 @@ async function getAnswersWithHistory(req) {
     WHERE sr.encounter_id = :encounterId
       AND sr.deleted_at IS NULL
       AND lc.table_name = 'survey_response_answers'
+      AND lc.migration_context IS NULL
     GROUP BY lc.record_id
   `;
 

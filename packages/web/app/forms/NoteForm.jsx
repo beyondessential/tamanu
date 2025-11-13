@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, FORM_TYPES } from '@tamanu/constants';
+import { Form } from '@tamanu/ui-components';
 import { useAuth } from '../contexts/Auth';
 import { foreignKey } from '../utils/validation';
-import { Form } from '../components/Field';
+
 import { EditTreatmentPlanNoteForm } from './EditTreatmentPlanNoteForm';
 import { CreateEditNoteForm } from './CreateEditNoteForm';
-import { FORM_TYPES, NOTE_FORM_MODES } from '../constants';
+import { NOTE_FORM_MODES } from '../constants';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 
 export const NoteForm = ({

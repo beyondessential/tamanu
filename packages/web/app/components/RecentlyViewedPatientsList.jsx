@@ -7,7 +7,7 @@ import { ExpandLess, ExpandMore, NavigateBefore, NavigateNext } from '@material-
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { reloadPatient } from '../store/patient';
 import { useApi } from '../api';
-import { Colors } from '../constants';
+import { Colors } from '../constants/styles';
 import { DateDisplay } from './DateDisplay';
 import { ThemedTooltip } from './Tooltip';
 import { TranslatedSex, TranslatedText } from './Translation';

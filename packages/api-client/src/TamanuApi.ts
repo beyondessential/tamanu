@@ -1,4 +1,5 @@
 import qs from 'qs';
+import { decodeJwt } from 'jose/jwt/decode';
 
 import { SERVER_TYPES, SYNC_STREAM_MESSAGE_KIND, DeviceScope } from '@tamanu/constants';
 import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
@@ -8,6 +9,7 @@ import {
   Problem,
   extractErrorFromFetchResponse,
   RemoteIncompatibleError,
+  RemoteCallError,
 } from '@tamanu/errors';
 import { BaseFetchOptions, fetchOrThrowIfUnavailable } from './fetch';
 import { fetchWithRetryBackoff, RetryBackoffOptions } from './fetchWithRetryBackoff';
@@ -72,6 +74,7 @@ interface FetchOptions extends BaseFetchOptions {
   waitForAuth?: boolean;
   backoff?: boolean | RetryBackoffOptions;
   scopes?: DeviceScope[];
+  body?: any;
 }
 
 interface PasswordChangeArgs {
@@ -176,12 +179,12 @@ export class TamanuApi {
   }
 
   async login(email: string, password: string, config: FetchOptions = {}): Promise<LoginResponse> {
-    const { scopes = [], ...restOfConfig } = config;
+    const { scopes = [], body = {}, ...restOfConfig } = config;
     if (this.#ongoingAuth) {
-      await this.#ongoingAuth;
+      return await this.#ongoingAuth;
     }
 
-    return (this.#ongoingAuth = (async (): Promise<LoginResponse> => {
+    return await (this.#ongoingAuth = (async (): Promise<LoginResponse> => {
       const response = (await this.post(
         'login',
         {
@@ -189,17 +192,16 @@ export class TamanuApi {
           password,
           deviceId: this.deviceId,
           scopes,
+          ...body,
         },
         { ...restOfConfig, returnResponse: true, useAuthToken: false, waitForAuth: false },
       )) as Response;
 
       const serverType = response.headers.get('x-tamanu-server');
       if (!(SERVER_TYPES.FACILITY === serverType || SERVER_TYPES.CENTRAL === serverType)) {
-        const problem = Problem.fromError(
+        throw Problem.fromError(
           new RemoteIncompatibleError(`Tamanu server type '${serverType}' is not supported`),
-        );
-        problem.response = response;
-        throw problem;
+        ).withResponse(response);
       }
 
       const responseData = (await response.json()) as LoginResponseData;
@@ -209,6 +211,18 @@ export class TamanuApi {
         serverType: responseServerType,
         ...loginData
       } = responseData;
+
+      const claims = decodeJwt(loginData.token);
+      if (claims.deviceId !== this.deviceId) {
+        // If this happens, either something is seriously wrong or the server has a bug.
+        throw Problem.fromError(
+          new RemoteCallError('Device ID mismatch').withExtraData({
+            deviceIdSent: this.deviceId,
+            deviceIdRecv: claims.deviceId,
+          }),
+        ).withResponse(response);
+      }
+
       const server = serverFromResponse ?? { type: '', centralHost: undefined };
       server.type = responseServerType ?? serverType;
       server.centralHost = centralHost;
@@ -234,7 +248,7 @@ export class TamanuApi {
   }
 
   async requestPasswordReset(email: string): Promise<any> {
-    return this.post('resetPassword', { email });
+    return this.post('resetPassword', { email, deviceId: this.deviceId });
   }
 
   async changePassword(args: PasswordChangeArgs): Promise<any> {

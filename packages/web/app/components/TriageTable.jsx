@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
+import { useParams, useNavigate } from 'react-router';
 import { useEncounter } from '../contexts/Encounter';
 import { useAuth } from '../contexts/Auth';
 import { DateDisplay } from './DateDisplay';
@@ -33,7 +32,7 @@ const useColumns = () => {
       cellColor: ({ score, encounterType }) => {
         switch (encounterType) {
           case 'triage':
-            return triageCategories.find((c) => c.level === parseInt(score))?.color;
+            return triageCategories.find(c => c.level === parseInt(score))?.color;
           default:
             return ADMITTED_PRIORITY_COLOR;
         }
@@ -50,7 +49,7 @@ const useColumns = () => {
           data-testid="translatedtext-ziou"
         />
       ),
-      accessor: (row) => (
+      accessor: row => (
         <TranslatedReferenceData
           value={row.chiefComplaintId}
           fallback={row.chiefComplaint}
@@ -78,7 +77,7 @@ const useColumns = () => {
           data-testid="translatedtext-h868"
         />
       ),
-      accessor: (row) => `${row.firstName} ${row.lastName}`,
+      accessor: row => `${row.firstName} ${row.lastName}`,
     },
     {
       key: 'dateOfBirth',
@@ -89,7 +88,7 @@ const useColumns = () => {
           data-testid="translatedtext-daoi"
         />
       ),
-      accessor: (row) => <DateDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
+      accessor: row => <DateDisplay date={row.dateOfBirth} data-testid="datedisplay-gy0v" />,
     },
     {
       key: 'sex',
@@ -100,7 +99,7 @@ const useColumns = () => {
           data-testid="translatedtext-qa0c"
         />
       ),
-      accessor: (row) => <TranslatedSex sex={row.sex} data-testid="translatedsex-wqbc" />,
+      accessor: row => <TranslatedSex sex={row.sex} data-testid="translatedsex-wqbc" />,
     },
     {
       key: 'locationGroupName',
@@ -133,11 +132,12 @@ export const TriageTable = React.memo(() => {
   const { category } = useParams();
   const dispatch = useDispatch();
   const columns = useColumns();
+  const navigate = useNavigate();
 
-  const viewEncounter = async (triage) => {
+  const viewEncounter = async triage => {
     await dispatch(reloadPatient(triage.patientId));
     await loadEncounter(triage.encounterId);
-    dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
+    navigate(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`);
   };
 
   return (

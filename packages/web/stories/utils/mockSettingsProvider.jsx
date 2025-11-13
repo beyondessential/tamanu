@@ -1,5 +1,5 @@
 import React from 'react';
-import { SettingsContext } from '../../app/contexts/Settings';
+import { SettingsContext } from '@tamanu/ui-components';
 import { get } from 'lodash';
 
 export const MockSettingsProvider = ({ children, mockSettings }) => {

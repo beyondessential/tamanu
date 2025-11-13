@@ -5,7 +5,14 @@ export const JWT_TOKEN_TYPES = {
   PATIENT_PORTAL_REFRESH: 'patient_portal_refresh',
 };
 
+// we hardcode this as we don't support multiple keys yet, but still want
+// to produce the `kid` clain in JWTs so we can smoothly rotate in future
+export const JWT_KEY_ALG = 'HS256';
+export const JWT_KEY_ID = 'eacd2b78-b1ee-4d68-87eb-b2c039d7d18a';
+
 export const SYSTEM_USER_UUID = '00000000-0000-0000-0000-000000000000';
+
+export const ADMIN_USER_EMAIL = 'admin@tamanu.io';
 
 export const CAN_ACCESS_ALL_FACILITIES = 'ALL';
 
@@ -24,3 +31,11 @@ export const DEVICE_SCOPES = {
 export type DeviceScope = (typeof DEVICE_SCOPES)[keyof typeof DEVICE_SCOPES];
 
 export const DEVICE_SCOPES_SUBJECT_TO_QUOTA: DeviceScope[] = [DEVICE_SCOPES.SYNC_CLIENT] as const;
+
+export const LOGIN_ATTEMPT_OUTCOMES = {
+  SUCCEEDED: 'succeeded',
+  FAILED: 'failed',
+  LOCKED: 'locked',
+};
+
+export const LOCKED_OUT_ERROR_MESSAGE = 'User is locked out';

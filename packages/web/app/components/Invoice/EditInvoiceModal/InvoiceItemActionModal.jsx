@@ -2,16 +2,15 @@ import React from 'react';
 import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
+import { useFormikContext } from 'formik';
+
 import { InvoiceItemCard } from './InvoiceItemCard';
-import { Colors, INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
-import { Field, Form, NumberField, SelectField, TextField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
+import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
+import { Field, NumberField } from '../../Field';
 import { useTranslation } from '../../../contexts/Translation';
 import { ConfirmCancelRowField } from '../../VaccineCommonFields';
+import { TextField, SelectField, Form, FormGrid, Modal, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
-import { useFormikContext } from 'formik';
 import { getInvoiceItemPriceDisplay } from '@tamanu/shared/utils/invoice';
 
 const StyledDivider = styled(Divider)`

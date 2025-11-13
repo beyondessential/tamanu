@@ -1,14 +1,15 @@
 import type { ExpressRequest } from 'types/express';
 import type { NextFunction } from 'express';
+import { AsyncLocalStorage } from 'async_hooks';
 
-import { setSessionConfigInNamespace } from '../../services/database';
+const auditUserIdAsyncLocalStorage = new AsyncLocalStorage();
 
-import { AUDIT_USERID_KEY } from '@tamanu/constants/database';
+export const getAuditUserId = () => auditUserIdAsyncLocalStorage.getStore();
 
 export const attachAuditUserToDbSession = async (
   req: ExpressRequest,
   _res: Response,
   next: NextFunction,
 ) => {
-  setSessionConfigInNamespace(AUDIT_USERID_KEY, req.user?.id, next);
+  auditUserIdAsyncLocalStorage.run(req.user?.id, next);
 };

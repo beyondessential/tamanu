@@ -1,9 +1,12 @@
-import { TAMANU_COLORS as Colors } from '@tamanu/ui-components';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 import { createGlobalStyle } from 'styled-components';
 
 const MUI_SPACING_UNIT = 8;
 
-export { Colors, MUI_SPACING_UNIT };
+export { MUI_SPACING_UNIT };
+
+// For existing imports of Colors
+export const Colors = TAMANU_COLORS;
 
 export const denseTableStyle = {
   container: 'border: 0px solid white; overflow: visible;',

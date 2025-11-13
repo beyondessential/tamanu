@@ -1,11 +1,18 @@
-import config from 'config';
 import { QueryTypes } from 'sequelize';
 import { uniqBy } from 'lodash';
 import * as xlsx from 'xlsx';
 import path from 'path';
 import fs from 'fs';
 import { END, type Steps, type StepArgs } from '../step.js';
-import { DEFAULT_LANGUAGE_CODE, ENGLISH_LANGUAGE_CODE } from '@tamanu/constants';
+import {
+  DEFAULT_LANGUAGE_CODE,
+  ENGLISH_LANGUAGE_CODE,
+  COUNTRY_CODE_STRING_ID,
+  LANGUAGE_NAME_STRING_ID,
+  ENGLISH_COUNTRY_CODE,
+  ENGLISH_LANGUAGE_NAME,
+} from '@tamanu/constants';
+import { getMetaServerHosts } from '@tamanu/shared/utils';
 
 interface Artifact {
   artifact_type: string;
@@ -20,11 +27,12 @@ interface Translation {
 }
 
 async function download(
+  metaServerHost: string,
   artifactType: string,
   extractor: (resp: Response) => Promise<Translation[]>,
   { toVersion, log }: StepArgs,
 ): Promise<Translation[]> {
-  const url = `${(config as any).metaServer!.host!}/versions/${toVersion}/artifacts`;
+  const url = `${metaServerHost}/versions/${toVersion}/artifacts`;
   log.info('Downloading translation artifacts', { version: toVersion, url });
 
   const artifactsResponse = await fetch(url, {
@@ -55,6 +63,27 @@ async function download(
   }
 
   return await extractor(translationsResponse);
+}
+
+// Tries each meta server in the array until one succeeds
+// Returns the translations or throws an error if all fail
+async function downloadFromMetaServerHosts(
+  artifactType: string,
+  extractor: (resp: Response) => Promise<Translation[]>,
+  stepArgs: StepArgs,
+): Promise<Translation[]> {
+  const metaServerHosts = getMetaServerHosts();
+
+  const { log } = stepArgs;
+  for (const metaServerHost of metaServerHosts) {
+    try {
+      const rows = await download(metaServerHost, artifactType, extractor, stepArgs);
+      return rows;
+    } catch (error) {
+      log.error(`Failed to download from meta server host: ${metaServerHost}`, { error });
+    }
+  }
+  throw new Error('No meta server succeeded downloading the artifacts');
 }
 
 async function apply(artifactType: string, rows: Translation[], { models, log }: StepArgs) {
@@ -120,18 +149,43 @@ export const STEPS: Steps = [
 
         // Add default language name and country code
         translationRows.unshift({
-          stringId: 'languageName',
-          [DEFAULT_LANGUAGE_CODE]: 'English',
+          stringId: LANGUAGE_NAME_STRING_ID,
+          [DEFAULT_LANGUAGE_CODE]: ENGLISH_LANGUAGE_NAME,
         });
         translationRows.unshift({
-          stringId: 'countryCode',
-          [DEFAULT_LANGUAGE_CODE]: 'gb',
+          stringId: COUNTRY_CODE_STRING_ID,
+          [DEFAULT_LANGUAGE_CODE]: ENGLISH_COUNTRY_CODE,
         });
 
         args.log.info('Importing new default translations', { count: translationRows.length });
 
         if (translationRows.length > 0) {
           await apply('translations', translationRows, args);
+
+          // Set english language name and country code to default if not present
+          const englishLanguageName = await args.models.TranslatedString.findOne({
+            where: { stringId: LANGUAGE_NAME_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
+          });
+          if (!englishLanguageName) {
+            await args.models.TranslatedString.create({
+              stringId: LANGUAGE_NAME_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_LANGUAGE_NAME,
+            });
+          }
+          const englishCountryCode = await args.models.TranslatedString.findOne({
+            where: { stringId: COUNTRY_CODE_STRING_ID, language: ENGLISH_LANGUAGE_CODE },
+            paranoid: false, // Don't insert if the user has already soft deleted it
+          });
+          if (!englishCountryCode) {
+            await args.models.TranslatedString.create({
+              stringId: COUNTRY_CODE_STRING_ID,
+              language: ENGLISH_LANGUAGE_CODE,
+              text: ENGLISH_COUNTRY_CODE,
+            });
+          }
+
           args.log.info('Successfully imported default translations');
         }
       } catch (error) {
@@ -142,7 +196,7 @@ export const STEPS: Steps = [
       }
 
       try {
-        const rows = await download('report-translations', xlsxExtractor, {
+        const rows = await downloadFromMetaServerHosts('report-translations', xlsxExtractor, {
           ...args,
           toVersion: zeroPatch,
         });

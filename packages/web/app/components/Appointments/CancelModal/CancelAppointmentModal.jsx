@@ -12,9 +12,8 @@ import {
 
 import { useAppointmentMutation } from '../../../api/mutations';
 import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
-import { BaseModal } from '../../BaseModal';
 import { PatientNameDisplay } from '../../PatientNameDisplay';
-import { TranslatedReferenceData, TranslatedText } from '../../Translation';
+import { TranslatedReferenceData, TranslatedText, BaseModal } from '@tamanu/ui-components';
 import {
   AppointmentDetailsColumn,
   AppointmentDetailsColumnLeft,

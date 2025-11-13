@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { ApiContext } from '@tamanu/ui-components';
 import { LanguageSelector } from '../../app/components/LanguageSelector';
-import { ApiContext } from '../../app/api/index.js';
 import { TranslationProvider } from '../../app/contexts/Translation';
 
 const exampleOptions = [

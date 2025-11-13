@@ -1,12 +1,12 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 import { EditReportView } from '../views/administration/reports/EditReportView';
 import { ReportsAdminView } from '../views';
 
-export const ReportAdminRoutes = React.memo(({ match }) => (
-  <Switch>
-    <Route path={`${match.path}/:reportId/versions/:versionId/edit`} component={EditReportView} />
-    <Route path={match.path} component={ReportsAdminView} />
-    <Redirect to={match.path} component={ReportsAdminView} />
-  </Switch>
-));
+export const ReportAdminRoutes = () => (
+  <Routes>
+    <Route path=":reportId/versions/:versionId/edit" element={<EditReportView />} />
+    <Route path="/" element={<ReportsAdminView />} />
+    <Route path="*" element={<Navigate to=".." replace />} />
+  </Routes>
+);

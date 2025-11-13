@@ -7,6 +7,7 @@ import {
   nationalityIdSchema,
   passportSchema,
   questionCodeIdsDescription,
+  datelessTimeStringSchema,
 } from './definitions';
 import { extractDefaults } from './utils';
 
@@ -187,6 +188,34 @@ export const centralSettings = {
             },
           },
         },
+      },
+    },
+    locationAssignments: {
+      description: 'Location assignment settings',
+      properties: {
+        assignmentSlots: {
+          description: 'Configure the available time slots for assigning locations to users',
+          properties: {
+            startTime: {
+              description:
+                'The earliest start time for an assignment. Uses 24-hour time, e.g. 13:30.',
+              type: datelessTimeStringSchema,
+              defaultValue: '09:00',
+            },
+            endTime: {
+              description:
+                'The latest time an assignment can end. Uses 24-hour time, e.g. 13:30.',
+              type: datelessTimeStringSchema,
+              defaultValue: '17:00',
+            },
+            slotDuration: {
+              description:
+                "The length of each assignment slot. A single assignment may span multiple consecutive slots. Supported units: 'min', 'h'.",
+              type: durationStringSchema('slotDuration'),
+              defaultValue: '30min',
+            },
+          },
+        },        
       },
     },
     integrations: {

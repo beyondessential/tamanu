@@ -32,3 +32,42 @@ export const useOutpatientAppointmentsQuery = (
 
 export const useLocationBookingsQuery = (fetchOptions, useQueryOptions = {}) =>
   useAppointmentsQuery({ locationId: '', ...fetchOptions }, useQueryOptions);
+
+
+const useHasPastAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+  const api = useApi();
+  return useQuery(
+    ['hasPastAppointments', patientId],
+    () => api.get(`appointments/hasPastAppointments/${patientId}`, fetchOptions),
+    useQueryOptions,
+  );
+}
+
+export const useHasPastOutpatientAppointmentsQuery = (patientId, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useHasPastAppointmentsQuery(patientId, { facilityId, type: 'outpatient' }, useQueryOptions);
+}
+
+export const useHasPastLocationBookingsQuery = (patientId, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useHasPastAppointmentsQuery(patientId, { facilityId, type: 'locationBooking' }, useQueryOptions);
+}
+
+const useUpcomingAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+  const api = useApi();
+  return useQuery(
+    ['upcomingAppointments', patientId, fetchOptions],
+    () => api.get(`appointments/upcomingAppointments/${patientId}`, fetchOptions),
+    useQueryOptions,
+  );
+}
+
+export const useUpcomingOutpatientAppointmentsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'outpatient', ...fetchOptions }, useQueryOptions);
+}
+
+export const useUpcomingLocationBookingsQuery = (patientId, fetchOptions = {}, useQueryOptions = {}) => {
+  const { facilityId } = useAuth();
+  return useUpcomingAppointmentsQuery(patientId, { facilityId, type: 'locationBooking', ...fetchOptions }, useQueryOptions);
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES, PROGRAM_REGISTRATION_STATUS_LABELS } from '@tamanu/constants';
-import { Colors } from '../../constants';
+import { Colors } from '../../constants/styles';
 import { TranslatedEnum } from '../../components';
 import { ThemedTooltip } from '../../components/Tooltip';
 

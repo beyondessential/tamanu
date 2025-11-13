@@ -11,7 +11,7 @@ export const OngoingConditionsSection = () => {
   const { data: conditions, isLoading } = useOngoingConditionsQuery();
 
   return (
-    <AccordionSection header="Ongoing Conditions" icon={<Stethoscope />}>
+    <AccordionSection header="Ongoing conditions" icon={<Stethoscope />}>
       {isLoading ? (
         <StyledCircularProgress size={24} />
       ) : conditions && conditions.length > 0 ? (

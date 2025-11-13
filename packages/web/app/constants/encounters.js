@@ -1,52 +1,47 @@
 import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
-import {
-  administrationIcon,
-  medicationIcon,
-  patientIcon,
-  radiologyIcon,
-  scheduleIcon,
-  vaccineIcon,
-} from './images';
+import { Cross, Hospital, HousePlus } from 'lucide-react';
+import { TAMANU_COLORS } from '@tamanu/ui-components';
 
 export const ENCOUNTER_OPTIONS = [
   {
     value: ENCOUNTER_TYPES.ADMISSION,
-    image: medicationIcon,
-  },
-  {
-    value: ENCOUNTER_TYPES.TRIAGE,
-    image: patientIcon,
-    triageFlowOnly: true,
+    icon: Hospital,
+    color: TAMANU_COLORS.safe,
+    backgroundColor: '#EDFAF3',
   },
   {
     value: ENCOUNTER_TYPES.CLINIC,
-    image: administrationIcon,
+    icon: HousePlus,
+    color: TAMANU_COLORS.secondary,
+    backgroundColor: '#FFFAEA',
+  },
+  {
+    value: ENCOUNTER_TYPES.TRIAGE,
+    icon: Cross,
+    triageFlowOnly: true,
+    color: TAMANU_COLORS.orange,
+    backgroundColor: '#FEF3E8',
   },
   {
     value: ENCOUNTER_TYPES.IMAGING,
-    image: radiologyIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.EMERGENCY,
-    image: scheduleIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.OBSERVATION,
-    image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.SURVEY_RESPONSE,
-    image: patientIcon,
     hideFromMenu: true,
   },
   {
     value: ENCOUNTER_TYPES.VACCINATION,
-    image: vaccineIcon,
     hideFromMenu: true,
   },
 ];

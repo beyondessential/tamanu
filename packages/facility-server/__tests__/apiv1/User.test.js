@@ -52,6 +52,12 @@ describe('User', () => {
     centralServer = ctx.centralServer;
     CentralServerConnection.mockImplementation(() => centralServer);
 
+    // Mock UserLoginAttempt.checkIsUserLockedOut to focus tests here; lockout tests are elsewhere
+    jest.spyOn(models.UserLoginAttempt, 'checkIsUserLockedOut').mockResolvedValue({
+      isUserLockedOut: false,
+      remainingLockout: 0,
+    });
+
     await models.Facility.create(
       fake(models.Facility, { ...sensitiveFacility1, isSensitive: true }),
     );
@@ -87,6 +93,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body.role).toMatchObject({
@@ -99,6 +106,7 @@ describe('User', () => {
       const result = await baseApp.post('/api/login').send({
         email: authUser.email,
         password: rawPassword,
+        deviceId: 'test-device-id',
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('availableFacilities');
@@ -145,6 +153,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('token');
@@ -154,6 +163,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email.toUpperCase(),
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
       });
@@ -162,6 +172,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: 'PASSWARD',
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -170,6 +181,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: 'test@toast.com',
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveRequestError();
       });
@@ -178,6 +190,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('localisation');
@@ -185,11 +198,20 @@ describe('User', () => {
       });
 
       it('should pass feature flags through from a central server login request', async () => {
-        centralServer.fetch.mockResolvedValueOnce({
+        centralServer.login.mockResolvedValueOnce({
           user: pick(authUser, ['id', 'role', 'email', 'displayName']),
           localisation,
+          allowedFacilities: [],
+          token: 'mock-token',
+          refreshToken: 'mock-refresh-token',
+          permissions: [],
+          server: { type: 'central' },
         });
-        const result = await centralServerLogin(models, authUser.email, rawPassword);
+        const result = await centralServerLogin({
+          models,
+          email: authUser.email,
+          password: rawPassword,
+        });
         expect(result).toHaveProperty('localisation', localisation);
         const cache = await models.UserLocalisationCache.findOne({
           where: {
@@ -206,6 +228,7 @@ describe('User', () => {
         const result = await baseApp.post('/api/login').send({
           email: authUser.email,
           password: rawPassword,
+          deviceId: 'test-device-id',
         });
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('permissions');
@@ -216,6 +239,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: authUser.email,
             password: 'PASSWARD',
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -224,6 +248,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: 'test@toast.com',
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -232,6 +257,7 @@ describe('User', () => {
           const result = await baseApp.post('/api/login').send({
             email: deactivatedUser.email,
             password: rawPassword,
+            deviceId: 'test-device-id',
           });
           expect(result).toHaveRequestError();
         });
@@ -251,11 +277,11 @@ describe('User', () => {
 
       it('should fail to get the user with a null token', async () => {
         const result = await baseApp.get('/api/user/me');
-        expect(result).toBeForbidden();
+        expect(result).toHaveRequestError();
       });
 
       it('should fail to get the user with an expired token', async () => {
-        const expiredToken = await buildToken(authUser, null, '-1s');
+        const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
         const result = await baseApp
           .get('/api/user/me')
           .set('authorization', `Bearer ${expiredToken}`);
@@ -278,7 +304,7 @@ describe('User', () => {
         });
 
         it('should fail to get the user with an expired token', async () => {
-          const expiredToken = await buildToken(authUser, null, '-1s');
+          const expiredToken = await buildToken({ user: authUser, expiresIn: '-1s' });
           const result = await baseApp
             .get('/api/user/me')
             .set('authorization', `Bearer ${expiredToken}`);
@@ -313,7 +339,7 @@ describe('User', () => {
       });
       const doesPwMatch = async pw => {
         const user = await models.User.scope('withPassword').findByPk(chPwUser.id);
-        return comparePassword(user, pw);
+        return await comparePassword(user, pw);
       };
 
       it('succeeds if the central succeeds', async () => {

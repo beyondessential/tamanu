@@ -1,16 +1,13 @@
 import React from 'react';
 import PrintIcon from '@material-ui/icons/Print';
 import styled from 'styled-components';
+import { Button, Modal, TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
 import { PROGRAM_DATA_ELEMENT_TYPES } from '@tamanu/constants';
 
-import { Modal } from './Modal';
 import { Table } from './Table';
-import { Button } from './Button';
-import { TranslatedText } from './Translation/TranslatedText';
 import { useSurveyResponseQuery } from '../api/queries/useSurveyResponseQuery';
 import { ModalCancelRow } from './ModalActionRow';
 import { SurveyAnswerResult } from './SurveyAnswerResult';
-import { TranslatedReferenceData } from './Translation';
 
 const SectionSpacing = styled.div`
   height: 14px;

@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { useHierarchyTypesQuery } from '../../api/queries';
 import { HierarchyFieldItem } from './HierarchyFieldItem';
-import { Colors } from '../../constants';
 import { useFormikContext } from 'formik';
 import { get } from 'lodash';
-import { FormGrid } from '../FormGrid';
+import { FormGrid } from '@tamanu/ui-components';
+import { Colors } from '../../constants/styles';
 
 const Container = styled(FormGrid)`
   grid-column: 1 / 3;

@@ -5,11 +5,17 @@ import { Box, Divider } from '@material-ui/core';
 import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { toDateTimeString } from '@tamanu/utils/dateTime';
-import { Field, Form, TextField, NumberField, AutocompleteField } from '../../Field';
-import { FormGrid } from '../../FormGrid';
-import { ConfirmCancelRow, FormModal, TranslatedText } from '../..';
+import {
+  TextField,
+  Form,
+  FormGrid,
+  ConfirmCancelRow,
+  TranslatedText,
+} from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
+import { Field, NumberField, AutocompleteField } from '../../Field';
+import { FormModal } from '../..';
 import { useSuggester } from '../../../api';
-import { Colors } from '../../../constants';
 import { TimePickerField } from '../../Field/TimePickerField';
 import { useEncounter } from '../../../contexts/Encounter';
 import {

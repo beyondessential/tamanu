@@ -15,3 +15,16 @@ export const useUserPreferencesMutation = (facilityId) => {
     onSuccess: () => queryClient.invalidateQueries(['userPreferences', currentUser?.id]),
   });
 };
+
+// Admin variant hits central-server admin endpoint
+export const useAdminUserPreferencesMutation = (facilityId) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const { currentUser } = useAuth();
+
+  return useMutation({
+    mutationKey: ['adminUserPreferences'],
+    mutationFn: ({ key, value }) => api.post('admin/user/userPreferences', { facilityId, key, value }),
+    onSuccess: () => queryClient.invalidateQueries(['adminUserPreferences', currentUser?.id]),
+  });
+};

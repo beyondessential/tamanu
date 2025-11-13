@@ -1,6 +1,6 @@
 import React from 'react';
 import { parse, tokensToRegExp } from 'path-to-regexp';
-import { ApiContext } from '../../app/api';
+import { ApiContext } from '@tamanu/ui-components';
 
 const wait = duration =>
   new Promise(resolve => {

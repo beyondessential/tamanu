@@ -38,10 +38,12 @@ const HeadCellWrapper = styled.div`
 `;
 
 function round(float, { rounding } = {}) {
-  if (isNaN(float) || !isNumber(rounding)) {
+  const floatNumber = parseFloat(float);
+  if (isNaN(floatNumber) || !isNumber(rounding)) {
     return float;
   }
-  return float.toFixed(rounding);
+
+  return floatNumber.toFixed(rounding);
 }
 
 function getTooltip(float, config = {}, visibilityCriteria = {}) {
@@ -97,11 +99,11 @@ export const DateHeadCell = React.memo(({ value }) => (
 export const DateBodyCell = React.memo(({ value, onClick }) => {
   const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
   return (
-    <TableTooltip title={DateDisplay.stringFormat(value, formatLong)} data-testid="tabletooltip-3knb">
-      <CellContainer
-        onClick={onClick}
-        data-testid="cellcontainer-slh4"
-      >
+    <TableTooltip
+      title={DateDisplay.stringFormat(value, formatLong)}
+      data-testid="tabletooltip-3knb"
+    >
+      <CellContainer onClick={onClick} data-testid="cellcontainer-slh4">
         <div>{DateDisplay.stringFormat(value, formatShortest)}</div>
         <div>{DateDisplay.stringFormat(value, formatTime)}</div>
       </CellContainer>
@@ -135,6 +137,7 @@ export const LimitedLinesCell = ({
   isOneLine = false,
   disableTooltip = false,
   isEdited = false,
+  ...tooltipProps
 }) => {
   const contentRef = useRef(null);
   const [isClamped, setClamped] = useState(false);
@@ -179,6 +182,7 @@ export const LimitedLinesCell = ({
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         data-testid="tabletooltip-fs9r"
+        {...tooltipProps}
       >
         {renderLimitedLinesCellWrapper()}
       </TableTooltip>
@@ -214,7 +218,7 @@ export const RangeValidatedCell = React.memo(
     ...props
   }) => {
     const CellContainer = onClick ? ClickableCellWrapper : CellWrapper;
-    const float = round(parseFloat(value), config);
+    const float = round(value, config);
     const isEditedSuffix = isEdited ? '*' : '';
     const formattedValue = `${formatValue(value, config)}${isEditedSuffix}`;
     const { tooltip, severity } = useMemo(() => getTooltip(float, config, validationCriteria), [

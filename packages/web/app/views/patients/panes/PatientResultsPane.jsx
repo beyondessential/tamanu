@@ -1,15 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { TranslatedText } from '@tamanu/ui-components';
+import { Colors } from '../../../constants/styles';
 import { ContentPane } from '../../../components';
 import { PatientLabTestsTable } from '../PatientLabTestsTable';
 import { ResultsSearchBar } from '../../../components/ResultsSearchBar';
 import { usePatientLabTestResultsQuery } from '../../../api/queries/usePatientLabTestResultsQuery';
-import { Colors } from '../../../constants';
 import { LoadingIndicator } from '../../../components/LoadingIndicator';
 import { usePatientSearchParameters } from '../../../contexts/PatientViewSearchParameters';
 import { useAuth } from '../../../contexts/Auth';
-import { TranslatedText } from '../../../components/Translation/TranslatedText';
 
 const MessageContainer = styled.div`
   padding: 30px;

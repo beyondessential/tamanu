@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
+import { OutlinedButton, ButtonWithPermissionCheck } from '@tamanu/ui-components';
 import { DocumentPreviewModal } from '../../../components/DocumentPreview';
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { DocumentModal } from '../../../components/DocumentModal';
@@ -7,9 +8,7 @@ import { PatientLetterModal } from '../../../components/PatientLetterModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { TabPane } from '../components';
 import {
-  ButtonWithPermissionCheck,
   ContentPane,
-  OutlinedButton,
   TableButtonRow,
   NoteModalActionBlocker,
 } from '../../../components';

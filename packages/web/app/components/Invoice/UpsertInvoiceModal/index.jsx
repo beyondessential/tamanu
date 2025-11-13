@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Modal } from '../../Modal';
-import { TranslatedText } from '../../Translation';
+import { Modal, TranslatedText } from '@tamanu/ui-components';
 import { INVOICE_DISCOUNT_TYPES } from '../../../constants';
 import { InvoiceDiscountTypeSelector } from './InvoiceDiscountTypeSelector';
 import { InvoiceDiscountAssessmentForm } from './InvoiceDiscountAssessmentForm';
