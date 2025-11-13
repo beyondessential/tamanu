@@ -1,8 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import Tooltip from '@material-ui/core/Tooltip';
-import { NOTE_TYPES, NOTE_TYPE_LABELS } from '@tamanu/constants';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -11,9 +10,9 @@ import {
   DateTimeField,
   Field,
   DateTimeInput,
-} from './Field';
-import { TranslatedSelectField, TextField, FormGrid } from '@tamanu/ui-components';
-import { Colors } from '../constants/styles';
+  TextField,
+  FormGrid,
+} from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
@@ -33,42 +32,10 @@ const StyledInfoCard = styled(InfoCard)`
   }
 `;
 
-const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props} data-testid="tooltip-gupn">
-    {props.children}
-  </Tooltip>
-))`
-  z-index: 1500;
-
-  & .MuiTooltip-tooltip {
-    background-color: ${Colors.primaryDark};
-    color: ${Colors.white};
-    font-weight: 400;
-    font-size: 11px;
-    line-height: 15px;
-  }
-`;
-
 export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
-
-const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
-    <StyledTooltip
-      arrow
-      placement="top"
-      followCursor
-      title="This note type already exists for this encounter"
-      data-testid="styledtooltip-tj9s"
-    >
-      <div>{label}</div>
-    </StyledTooltip>
-  ) : (
-    <div>{label}</div>
-  );
-};
 
 export const PreviouslyWrittenByField = ({
   label = (
@@ -289,44 +256,40 @@ export const NoteTypeField = ({
   size,
   disabled,
   $fontSize,
-}) => (
-  <Field
-    name="noteType"
-    label={
-      <TranslatedText
-        stringId="note.type.label"
-        fallback="Type"
-        data-testid="translatedtext-43jz"
-      />
-    }
-    required={required}
-    component={TranslatedSelectField}
-    enumValues={NOTE_TYPE_LABELS}
-    $fontSize={$fontSize}
-    transformOptions={types =>
-      types
-        .filter(option => !option.hideFromDropdown)
-        .map(option => ({
-          ...option,
-          isDisabled:
-            noteTypeCountByType &&
-            option.value === NOTE_TYPES.TREATMENT_PLAN &&
-            !!noteTypeCountByType[option.value],
-        }))
-    }
-    formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
-    onChange={onChange}
-    menuPosition="absolute"
-    menuPlacement="auto"
-    size={size}
-    disabled={disabled}
-    data-testid="field-a0mv"
-  />
-);
+}) => {
+  const noteTypeSuggester = useSuggester('noteType', {
+    filterer: ({ id }) =>
+      id !== NOTE_TYPES.SYSTEM &&
+      !(noteTypeCountByType && id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType[id]),
+  });
 
-export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }) => {
+  return (
+    <Field
+      name="noteTypeId"
+      label={
+        <TranslatedText
+          stringId="note.type.label"
+          fallback="Type"
+          data-testid="translatedtext-43jz"
+        />
+      }
+      required={required}
+      component={AutocompleteField}
+      suggester={noteTypeSuggester}
+      $fontSize={$fontSize}
+      onChange={onChange}
+      menuPosition="absolute"
+      menuPlacement="auto"
+      size={size}
+      disabled={disabled}
+      data-testid="field-a0mv"
+    />
+  );
+};
+
+export const NoteTemplateField = ({ noteTypeId, onChangeTemplate, size, disabled }) => {
   const templateSuggester = useSuggester('template', {
-    baseQueryParameters: { type: noteType },
+    baseQueryParameters: { type: noteTypeId },
   });
 
   return (
@@ -342,7 +305,7 @@ export const NoteTemplateField = ({ noteType, onChangeTemplate, size, disabled }
       suggester={templateSuggester}
       component={AutocompleteField}
       onChange={e => onChangeTemplate(e.target.value)}
-      disabled={!noteType || disabled}
+      disabled={!noteTypeId || disabled}
       size={size}
       data-testid="field-ej08"
     />

@@ -9,39 +9,14 @@ export const NOTE_RECORD_TYPES = {
 };
 
 export const NOTE_TYPES = {
-  TREATMENT_PLAN: 'treatmentPlan',
-  ADMISSION: 'admission',
-  MEDICAL: 'medical',
-  SURGICAL: 'surgical',
-  NURSING: 'nursing',
-  DIETARY: 'dietary',
-  PHARMACY: 'pharmacy',
-  PHYSIOTHERAPY: 'physiotherapy',
-  SOCIAL: 'social',
-  DISCHARGE: 'discharge',
-  AREA_TO_BE_IMAGED: 'areaToBeImaged',
-  RESULT_DESCRIPTION: 'resultDescription',
-  SYSTEM: 'system',
-  OTHER: 'other',
-  CLINICAL_MOBILE: 'clinicalMobile',
-  HANDOVER: 'handover',
-};
-
-export const NOTE_TYPE_LABELS = {
-  [NOTE_TYPES.TREATMENT_PLAN]: 'Treatment plan',
-  [NOTE_TYPES.ADMISSION]: 'Admission',
-  [NOTE_TYPES.CLINICAL_MOBILE]: 'Clinical note (mobile)',
-  [NOTE_TYPES.DIETARY]: 'Dietary',
-  [NOTE_TYPES.DISCHARGE]: 'Discharge planning',
-  [NOTE_TYPES.HANDOVER]: 'Handover note',
-  [NOTE_TYPES.MEDICAL]: 'Medical',
-  [NOTE_TYPES.NURSING]: 'Nursing',
-  [NOTE_TYPES.OTHER]: 'Other',
-  [NOTE_TYPES.PHARMACY]: 'Pharmacy',
-  [NOTE_TYPES.PHYSIOTHERAPY]: 'Physiotherapy',
-  [NOTE_TYPES.SOCIAL]: 'Social welfare',
-  [NOTE_TYPES.SURGICAL]: 'Surgical',
-  [NOTE_TYPES.SYSTEM]: 'System',
+  TREATMENT_PLAN: 'notetype-treatmentPlan',
+  DISCHARGE: 'notetype-discharge',
+  AREA_TO_BE_IMAGED: 'notetype-areaToBeImaged',
+  RESULT_DESCRIPTION: 'notetype-resultDescription',
+  SYSTEM: 'notetype-system',
+  OTHER: 'notetype-other',
+  CLINICAL_MOBILE: 'notetype-clinicalMobile',
+  HANDOVER: 'notetype-handover',
 };
 
 export const NOTE_PERMISSION_TYPES = {

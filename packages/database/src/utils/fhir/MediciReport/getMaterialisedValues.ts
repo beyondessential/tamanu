@@ -1,5 +1,6 @@
 import { QueryTypes, Sequelize } from 'sequelize';
 import config from 'config';
+import { NOTE_TYPES } from '@tamanu/constants';
 
 const REPORT_QUERY = `
 with
@@ -10,13 +11,13 @@ notes_info as (
     json_agg(
       json_build_object(
         'revisedById', id,
-        'noteType', note_type,
+        'noteTypeId', note_type_id,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
       )
     ) aggregated_notes
   from notes
-  where note_type <> 'system'
+  where note_type_id <> '${NOTE_TYPES.SYSTEM}'
     and record_type in ('LabRequest','ImagingRequest')
     and deleted_at isnull
   group by record_id
@@ -178,7 +179,7 @@ latest_encounter_notes_info as (
     json_agg(
       json_build_object(
         'revisedById', edit_chain,
-        'noteType', note_type,
+        'noteTypeId', note_type_id,
         'content', "content",
         'noteDate', "date"::timestamp at time zone $timezone_string
       ) order by n.date desc
@@ -189,7 +190,7 @@ latest_encounter_notes_info as (
     FROM encounter_notes n
     ORDER BY edit_chain, date DESC
   ) n
-  where note_type != 'system'
+  where note_type_id <> '${NOTE_TYPES.SYSTEM}'
   and record_id = $encounter_id
   and n.deleted_at isnull
   group by n.record_id

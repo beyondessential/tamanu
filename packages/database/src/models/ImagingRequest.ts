@@ -2,6 +2,7 @@ import { DataTypes, Sequelize } from 'sequelize';
 import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
+  NOTE_RECORD_TYPES,
   NOTE_TYPES,
   NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
@@ -142,10 +143,29 @@ export class ImagingRequest extends Model {
     );
   }
 
+  async getNotes(options: any = {}) {
+    const { models } = this.sequelize;
+
+    return models.Note.findAll({
+      where: {
+        recordId: this.id,
+        recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        ...options.where,
+      },
+      include: [
+        {
+          model: models.ReferenceData,
+          as: 'noteTypeReference',
+        },
+        ...(options.include || []),
+      ],
+    });
+  }
+
   async extractNotes() {
     const notes =
       this.notes ||
-      (await (this as any).getNotes({
+      (await this.getNotes({
         where: { visibilityStatus: VISIBILITY_STATUSES.CURRENT },
       }));
     const extractWithType = async (type: string) => {

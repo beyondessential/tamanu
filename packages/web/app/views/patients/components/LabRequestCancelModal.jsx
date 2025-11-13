@@ -31,7 +31,7 @@ export const LabRequestCancelModal = React.memo(({ open, onClose, updateLabReq, 
     await api.post(`labRequest/${labRequest.id}/notes`, {
       content: note,
       authorId: auth.currentUser.id,
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       date: getCurrentDateTimeString(),
     });
 
