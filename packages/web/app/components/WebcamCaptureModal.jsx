@@ -55,6 +55,13 @@ const LoadingOverlay = styled.div`
   align-items: center;
 `;
 
+const StyledDivider = styled(Divider)`
+  position: relative;
+  top: 4px;
+  color: ${TAMANU_COLORS.outline};
+  margin: 0 -32px;
+`;
+
 export const WebcamCaptureModal = ({
   open,
   onClose,
@@ -69,25 +76,20 @@ export const WebcamCaptureModal = ({
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
-  const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const videoConstraints = {
-    width: 1280,
-    height: 720,
-    facingMode: 'user',
-  };
+  const isRequestingPermission = hasPermission === null && isLoading;
+  const isCameraAccessDenied = hasPermission === false && !isLoading;
+  const isCameraAccessGranted = hasPermission === true && !isLoading;
 
   const handleUserMedia = useCallback(() => {
     setHasPermission(true);
     setIsLoading(false);
-    setError(null);
   }, []);
 
-  const handleUserMediaError = useCallback(error => {
+  const handleUserMediaError = useCallback(() => {
     setHasPermission(false);
     setIsLoading(false);
-    setError(error.message || 'Failed to access camera');
   }, []);
 
   const capturePhoto = useCallback(() => {
@@ -108,7 +110,6 @@ export const WebcamCaptureModal = ({
 
   const handleCancel = useCallback(() => {
     setCapturedImage(null);
-    setError(null);
     setHasPermission(null);
     setIsLoading(true);
     onClose();
@@ -151,7 +152,6 @@ export const WebcamCaptureModal = ({
   useEffect(() => {
     if (open) {
       setCapturedImage(null);
-      setError(null);
       setHasPermission(null);
       setIsLoading(true);
     }
@@ -182,13 +182,8 @@ export const WebcamCaptureModal = ({
     }
   }, [capturedImage, onCapture, handleCancel]);
 
-  const isRequestingPermission = hasPermission === null && isLoading;
-  const isCameraAccessDenied = hasPermission === false && !isLoading;
-  const isCameraAccessGranted = hasPermission === true && !isLoading;
-  const isCameraAccessError = error && !isLoading;
-
   const renderWebcamView = () => {
-    if (isCameraAccessError) {
+    if (isCameraAccessDenied) {
       return (
         <ErrorOverlay>
           <BodyText>
@@ -210,7 +205,11 @@ export const WebcamCaptureModal = ({
           audio={false}
           screenshotFormat="image/jpeg"
           screenshotQuality={0.8}
-          videoConstraints={videoConstraints}
+          videoConstraints={{
+            width: 1280,
+            height: 720,
+            facingMode: 'user',
+          }}
           onUserMedia={handleUserMedia}
           onUserMediaError={handleUserMediaError}
           mirrored={true}
@@ -284,14 +283,7 @@ export const WebcamCaptureModal = ({
       isClosable={true}
     >
       <Box>{capturedImage ? renderCapturedView() : renderWebcamView()}</Box>
-      <Divider
-        style={{
-          position: 'relative',
-          top: '4px',
-          color: TAMANU_COLORS.outline,
-          margin: '0 -32px',
-        }}
-      />
+      <StyledDivider/>
     </Modal>
   );
 };
