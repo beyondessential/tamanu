@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/constants';
 
@@ -77,9 +76,8 @@ export const LocationInput = React.memo(
     }, [initialValues, name]);
 
     useEffect(() => {
-      if (value) {
-        setLocationId(value);
-      }
+      setLocationId(value ?? '');
+      if (!value) setGroupId('');
     }, [value]);
 
     // when the location is selected, set the group value automatically if it's not set yet
@@ -218,10 +216,6 @@ export const LocalisedLocationField = React.memo(props => {
   );
 });
 
-const Text = styled(BodyText)`
-  margin-top: -5px;
-`;
-
 export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => {
   const { data, isSuccess } = useLocationSuggestion(locationId);
 
@@ -233,25 +227,25 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <Text {...props} data-testid="text-voq8">
+      <BodyText {...props} data-testid="text-voq8">
         <TranslatedText
           stringId="location.availability.reserved.message"
           fallback="This location is reserved by another patient. Please ensure the bed is available before confirming."
           data-testid="translatedtext-location-reserved"
         />
-      </Text>
+      </BodyText>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <Text {...props} data-testid="text-heyi">
+      <BodyText {...props} data-testid="text-heyi">
         <TranslatedText
           stringId="location.availability.occupied.message"
           fallback="This location is occupied by another patient. Please ensure the bed is available before confirming."
           data-testid="translatedtext-location-occupied"
         />
-      </Text>
+      </BodyText>
     );
   }
 

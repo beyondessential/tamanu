@@ -4,7 +4,6 @@ import { DateDisplay, TranslatedEnum } from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
-  EncounterInfoCardHeader as InfoCardHeader,
   EncounterInfoCardItem as InfoCardItem,
 } from '../../../components/EncounterInfoCard';
 import { getDepartmentName } from '../../../utils/department';
@@ -30,12 +29,12 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 const CardLabel = styled.span`
   margin-right: 5px;
   font-weight: 400;
-  color: ${(props) => props.theme.palette.text.secondary};
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const CardValue = styled(CardLabel)`
   font-weight: 500;
-  color: ${(props) => props.theme.palette.text.primary};
+  color: ${props => props.theme.palette.text.primary};
 `;
 
 const InfoCardFirstColumn = styled.div`
@@ -97,35 +96,14 @@ const getDiet = ({ diets }) => {
   );
 };
 
-export const getEncounterType = ({ encounterType }) => <TranslatedEnum
-  enumValues={ENCOUNTER_TYPE_LABELS}
-  value={encounterType}
-/>
+export const getEncounterType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
 
 const referralSourcePath = 'referralSourceId';
 
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => (
-  <InfoCard
-    inlineValues
-    contentPadding={25}
-    paddingTop={0}
-    headerContent={
-      encounter.plannedLocation && (
-        <InfoCardHeader
-          label={
-            <TranslatedText
-              stringId="patient.encounter.details.card.plannedMove.label"
-              fallback="Planned move"
-              data-testid="translatedtext-g6p7"
-            />
-          }
-          value={getFullLocationName(encounter.plannedLocation)}
-          data-testid="infocardheader-xwcz"
-        />
-      )
-    }
-    data-testid="infocard-o4i8"
-  >
+  <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
     <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
       <InfoCardItem
         label={
