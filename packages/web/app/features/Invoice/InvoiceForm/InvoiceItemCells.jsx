@@ -22,7 +22,6 @@ export const ViewOnlyCell = styled.div`
   display: flex;
   font-size: 14px;
   padding-left: 15px;
-  min-height: 39px;
 `;
 
 export const DateCell = ({ index, item, isItemEditable }) => (

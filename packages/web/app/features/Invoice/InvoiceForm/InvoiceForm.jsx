@@ -156,15 +156,15 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
             : [],
         }}
         validationSchema={invoiceFormSchema}
-        render={({ submitForm, values }) => (
+        render={({ submitForm, values, resetForm }) => (
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
+              console.log('values', values);
               return (
                 <>
                   <InvoiceItemHeader />
                   <Box>
                     {values.invoiceItems?.map((item, index) => {
-                      console.log('values.invoiceItems', values.invoiceItems);
                       return (
                         <InvoiceItemRow
                           key={item.id}
@@ -196,7 +196,7 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
                     <FormCancelButton
                       style={{ marginLeft: 'auto' }}
                       onClick={() => {
-                        console.log('close');
+                        resetForm();
                       }}
                     >
                       Cancel

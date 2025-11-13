@@ -23,6 +23,7 @@ export const StyledItemCell = styled(Box)`
 `;
 
 const Container = styled(ViewOnlyCell)`
+  position: relative;
   flex: 1;
   flex-direction: column;
   align-items: flex-end;
@@ -30,8 +31,9 @@ const Container = styled(ViewOnlyCell)`
 `;
 
 const Menu = styled(ThreeDotMenu)`
-  position: relative;
-  right: -10px;
+  position: absolute;
+  top: 0;
+  right: 0;
 `;
 
 const Row = styled.div`
@@ -124,18 +126,16 @@ export const PriceCell = ({
 
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
+  const hasDiscount = price !== discountedPrice;
+
   return (
     <>
       <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
         <Container>
           {hidePriceInput ? (
             <>
-              <Price
-                $isCrossedOut={Boolean(discountedPrice)}
-                price={price}
-                data-testid="pricetext-is33"
-              />
-              {Boolean(discountedPrice) && (
+              <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
+              {hasDiscount && (
                 <DiscountSection
                   discountReason={item.discount?.reason}
                   discountedPrice={discountedPrice}

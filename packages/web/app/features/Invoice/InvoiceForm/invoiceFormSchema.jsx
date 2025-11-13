@@ -54,11 +54,7 @@ export const invoiceFormSchema = yup.object({
               data-testid="translatedtext-029d"
             />,
           ),
-        productPrice: yup.number().when(['productId'], {
-          is: productId => !!productId,
-          then: yup.number(),
-          otherwise: yup.number(),
-        }),
+        productPrice: yup.number().nullable(),
       },
       [
         ['orderDate', 'productId'],
@@ -67,40 +63,4 @@ export const invoiceFormSchema = yup.object({
       ],
     ),
   ),
-  insurers: yup.array(
-    yup.object({
-      insurerId: yup
-        .string()
-        .required()
-        .translatedLabel(
-          <TranslatedText
-            stringId="invoice.modal.editInvoice.insurer.label"
-            fallback="Insurer"
-            data-testid="translatedtext-ufad"
-          />,
-        ),
-      percentage: yup
-        .number()
-        .required(
-          <TranslatedText
-            stringId="general.required"
-            fallback="Required"
-            data-testid="translatedtext-vh20"
-          />,
-        ),
-    }),
-  ),
-  totalInsurerPercentage: yup
-    .mixed()
-    .test(
-      'totalInsurerPercentage',
-      <TranslatedText
-        stringId="invoice.modal.editInvoice.insurer.totalPercentageError"
-        fallback="Total insurer percentage must be less than or equal to 100%"
-        data-testid="translatedtext-ddnm"
-      />,
-      function(_, context) {
-        return context.parent.insurers.reduce((acc, curr) => acc + curr.percentage || 0, 0) <= 100;
-      },
-    ),
 });

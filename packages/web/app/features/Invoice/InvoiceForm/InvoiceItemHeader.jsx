@@ -6,7 +6,7 @@ import { TranslatedText } from '@tamanu/ui-components';
 const StyledItemHeader = styled.div`
   display: flex;
   gap: 10px;
-  padding: 12px 8px 12px 10px;
+  padding: 12px 50px 12px 10px;
   border-radius: 4px 4px 0 0;
   border-bottom: 0;
 `;
@@ -39,7 +39,7 @@ export const InvoiceItemHeader = () => {
           data-testid="translatedtext-b5me"
         />
       </ItemHeadCell>
-      <ItemHeadCell width="11%" sx={{ flexGrow: 1, textAlign: 'right', paddingRight: 45 }}>
+      <ItemHeadCell width="11%" sx={{ flexGrow: 1, textAlign: 'right' }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </ItemHeadCell>
     </StyledItemHeader>

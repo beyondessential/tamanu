@@ -23,7 +23,9 @@ export const useUpdateInvoice = invoice => {
   return useMutation({
     mutationFn: async body => {
       await api.put(`invoices/${invoice?.id}`, body);
-      await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['encounter']);
     },
     onError: error => notifyError(error.message),
   });

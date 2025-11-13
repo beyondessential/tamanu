@@ -13,8 +13,7 @@ const StyledItemRow = styled.div`
   display: flex;
   gap: 10px;
   font-size: 14px;
-  padding: 12px 8px 12px 10px;
-
+  padding: 12px 50px 12px 10px;
   background: ${Colors.white};
   border-top: 1px solid ${Colors.outline};
   flex-wrap: nowrap;
@@ -48,7 +47,7 @@ export const InvoiceItemRow = ({
   editable,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isItemEditable = !item.sourceRecordId && editable;
+  const isItemEditable = !item.product?.sourceRecordId && editable;
   const { getTranslation } = useTranslation();
   const nonDiscountableTranslation = getTranslation(
     'invoice.table.details.nonDiscountable',

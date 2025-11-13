@@ -28,11 +28,11 @@ const createInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
+      .nullish(),
     date: z.string(),
   })
   .strip()
@@ -96,36 +96,36 @@ const updateInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
+      .nullish(),
     items: z
       .object({
         id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string().optional(),
+        productName: z.string().nullish(),
         productPrice: z.coerce
           .number()
           .transform(amount => round(amount, 2))
-          .optional(),
-        productCode: z.string().default(''),
+          .nullish(),
+        productCode: z.string().default('').nullish(),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
-        note: z.string().optional(),
-        sourceId: z.string().uuid().optional(),
+        note: z.string().nullish(),
+        sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
             id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
-            reason: z.string().optional(),
+            reason: z.string().nullish(),
           })
           .strip()
-          .optional(),
+          .nullish(),
       })
       .strip()
       .refine(item => {
