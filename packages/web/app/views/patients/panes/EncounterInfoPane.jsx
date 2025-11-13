@@ -210,8 +210,8 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
         label={
           isInpatient(encounter.encounterType) ? (
             <TranslatedText
-              stringId="encounter.arrivalDate.label"
-              fallback="Arrival date"
+              stringId="encounter.admissionDate.label"
+              fallback="Admission date"
               data-testid="translatedtext-i6p7"
             />
           ) : (
