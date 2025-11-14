@@ -539,7 +539,7 @@ encounterRelations.get(
     const invoice = invoiceRecord.get({ plain: true });
 
     const invoiceItemsResponse = invoice.items.map(item => {
-      const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'id');
+      const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'invoiceInsurancePlanId');
 
       const insurancePlanItems =
         invoice?.insurancePlans?.map(({ id, code, name, defaultCoverage }) => {
