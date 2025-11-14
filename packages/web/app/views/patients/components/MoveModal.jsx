@@ -212,7 +212,9 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     if (action === PATIENT_MOVE_ACTIONS.PLAN) {
       locationData.plannedLocationId = plannedLocationId || null;
     } else {
-      if (locationId) locationData.locationId = locationId;
+      if (locationId || plannedLocationId) {
+        locationData.locationId = plannedLocationId || locationId;
+      }
     }
 
     await writeAndViewEncounter(encounter.id, {
