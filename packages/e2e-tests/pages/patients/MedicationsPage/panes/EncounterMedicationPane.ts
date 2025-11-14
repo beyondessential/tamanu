@@ -2,8 +2,6 @@ import { Locator, Page } from '@playwright/test';
 import { BasePatientPane } from '../../PatientDetailsPage/panes/BasePatientPane';
 
 export class EncounterMedicationPane extends BasePatientPane {
-  declare readonly page: Page;
-
   readonly contentPane!: Locator;
   readonly tableButtonRow!: Locator;
   readonly dispenseMedicationButton!: Locator;
