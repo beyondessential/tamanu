@@ -141,10 +141,10 @@ export const transformSingleResponse = async (models, result, dataElementIdToCom
         const surveyComponent = dataElementIdToComponent[dataElementId];
         const type = surveyComponent?.dataElement?.dataValues?.type;
         const componentConfig = surveyComponent?.config;
-        const { body } = await getAnswerBody(models, componentConfig, type, body, {
+        const { body: answerBody } = await getAnswerBody(models, componentConfig, type, body, {
           dateFormat: 'yyyy-MM-dd',
         });
-        newAnswers[key] = body;
+        newAnswers[key] = answerBody;
       }
     }),
   );
