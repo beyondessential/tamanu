@@ -26,24 +26,20 @@ sources:
                 masking: text
           - name: created_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__created_at') }} in
-              invoices_invoice_insurance_plans."
+            description: "{{ doc('generic__created_at') }} in invoices_invoice_insurance_plans."
             data_tests:
               - not_null
           - name: updated_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__updated_at') }} in
-              invoices_invoice_insurance_plans."
+            description: "{{ doc('generic__updated_at') }} in invoices_invoice_insurance_plans."
             data_tests:
               - not_null
           - name: deleted_at
             data_type: timestamp with time zone
-            description: "{{ doc('generic__deleted_at') }} in
-              invoices_invoice_insurance_plans."
+            description: "{{ doc('generic__deleted_at') }} in invoices_invoice_insurance_plans."
           - name: updated_at_sync_tick
             data_type: bigint
-            description: "{{ doc('generic__updated_at_sync_tick') }} in
-              invoices_invoice_insurance_plans."
+            description: "{{ doc('generic__updated_at_sync_tick') }} in invoices_invoice_insurance_plans."
             data_tests:
               - not_null
           - name: invoice_id
@@ -53,8 +49,6 @@ sources:
               - not_null
           - name: invoice_insurance_plan_id
             data_type: character varying(255)
-            description: "{{
-              doc('invoices_invoice_insurance_plans__invoice_insurance_plan_id')
-              }}"
+            description: "{{ doc('invoices_invoice_insurance_plans__invoice_insurance_plan_id') }}"
             data_tests:
               - not_null
