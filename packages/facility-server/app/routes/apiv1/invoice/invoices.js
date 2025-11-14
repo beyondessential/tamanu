@@ -28,11 +28,11 @@ const createInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
+      .nullish(),
     date: z.string(),
   })
   .strip()
@@ -96,42 +96,45 @@ const updateInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
+      .nullish(),
     items: z
       .object({
         id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string(),
-        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
-        productCode: z.string().default(''),
+        productName: z.string().nullish(),
+        productPrice: z.coerce
+          .number()
+          .transform(amount => round(amount, 2))
+          .nullish(),
+        productCode: z.string().default('').nullish(),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
-        note: z.string().optional(),
-        sourceId: z.string().uuid().optional(),
+        note: z.string().nullish(),
+        sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
             id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
-            reason: z.string().optional(),
+            reason: z.string().nullish(),
           })
           .strip()
-          .optional(),
+          .nullish(),
       })
       .strip()
       .refine(item => {
         if (!item.discount) return true;
         if (item.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-          return item.discount.amount < 0
-            ? true
-            : item.discount.amount <= 1 && item.discount.amount > 0;
+          return item.discount.amount >= -1 && item.discount.amount <= 1;
         }
+        // If productPrice is not provided, we can't validate against total price
+        if (item.productPrice === undefined) return true;
         return item.discount.amount <= item.productPrice * item.quantity;
       }, 'Invalid discount amount')
       .array(),

@@ -68,6 +68,13 @@ export class Invoice extends Model {
       as: 'invoiceInsurancePlans',
     });
 
+    this.belongsToMany(models.InvoiceInsurancePlan, {
+      through: models.InvoicesInvoiceInsurancePlan,
+      foreignKey: 'invoiceId',
+      otherKey: 'invoiceInsurancePlanId',
+      as: 'insurancePlans',
+    });
+
     this.hasMany(models.InvoiceItem, {
       foreignKey: 'invoiceId',
       as: 'items',
@@ -114,14 +121,8 @@ export class Invoice extends Model {
         include: models.InvoicePayment.getListReferenceAssociations(models),
       },
       {
-        model: models.InvoicesInvoiceInsurancePlan,
-        as: 'invoiceInsurancePlans',
-        include: [
-          {
-            model: models.InvoiceInsurancePlan,
-            as: 'invoiceInsurancePlan',
-          },
-        ],
+        model: models.InvoiceInsurancePlan,
+        as: 'insurancePlans',
       },
     ];
   }
@@ -185,5 +186,11 @@ export class Invoice extends Model {
         sourceRecordId: removedItem.id,
       },
     });
+  }
+
+  forResponse(): { [p: string]: unknown } {
+    console.log('INVOICE FOR RESPONSE');
+    const response = super.forResponse();
+    return response;
   }
 }
