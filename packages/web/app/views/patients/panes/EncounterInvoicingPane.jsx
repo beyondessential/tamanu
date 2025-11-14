@@ -5,18 +5,20 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
-import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryPanel';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
-import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
+import {
+  InvoiceStatus,
+  InvoiceItemsTable,
+  InvoiceSummaryPanel,
+  InvoiceModalGroup,
+} from '../../../features/Invoice';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
