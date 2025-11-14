@@ -185,7 +185,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
       .oneOf([PATIENT_MOVE_ACTIONS.PLAN, PATIENT_MOVE_ACTIONS.FINALISE])
       .nullable();
 
-    // initialValues.plannedLocationId = encounter.plannedLocationId;
+    initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
     validationObject.locationId = yup.string().nullable();
@@ -211,20 +211,10 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
     const locationData = {};
-
-    // const locationData =
-    //   enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
-    //     ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
-    //     : { locationId: plannedLocationId || locationId };
-
-    if (enablePatientMoveActions) {
-      if (action === PATIENT_MOVE_ACTIONS.PLAN) {
-        locationData.plannedLocationId = plannedLocationId || null;
-      }
+    if (action === PATIENT_MOVE_ACTIONS.PLAN) {
+      locationData.plannedLocationId = plannedLocationId || null;
     } else {
-      if (locationId) {
-        locationData.locationId = locationId;
-      }
+      if (locationId) locationData.locationId = locationId;
     }
 
     await writeAndViewEncounter(encounter.id, {
