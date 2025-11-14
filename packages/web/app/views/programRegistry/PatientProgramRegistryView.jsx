@@ -78,6 +78,7 @@ export const PatientProgramRegistryView = () => {
   // Check if there are linked charts for this program registry
   const { data: { chartSurveys = [] } = {} } = useProgramRegistryLinkedChartsQuery(
     programRegistryId,
+    patientId,
   );
   const hasLinkedCharts = chartSurveys.length > 0;
 

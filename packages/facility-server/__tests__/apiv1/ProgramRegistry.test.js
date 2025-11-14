@@ -1,10 +1,12 @@
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
+  SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { createTestContext } from '../utilities';
 
@@ -638,6 +640,368 @@ describe('ProgramRegistry', () => {
         expect(body.count).toEqual(1);
         expect(body.data.length).toEqual(1);
       });
+    });
+  });
+
+  describe.only('Getting linked charts (GET /api/programRegistry/:id/linkedCharts/:patientId)', () => {
+    afterEach(async () => {
+      await models.SurveyResponseAnswer.truncate();
+      await models.SurveyResponse.truncate();
+      await models.Encounter.truncate();
+      await models.Survey.truncate();
+      await models.ProgramRegistry.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
+    it('should return current simple and complex charts', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      // Create current simple chart
+      const currentSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Simple Chart',
+        }),
+      );
+
+      // Create current complex chart
+      const currentComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Complex Chart',
+        }),
+      );
+
+      // Create historical chart (should not be included without answers)
+      await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts/${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      expect(body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: currentSimpleChart.id, name: 'Current Simple Chart' }),
+          expect.objectContaining({ id: currentComplexChart.id, name: 'Current Complex Chart' }),
+        ]),
+      );
+    });
+
+    it('should return historical simple and complex charts with answers', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      // Create historical simple chart with answers
+      const historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Chart With Answers',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      const historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Chart With Answers',
+        }),
+      );
+
+      // Create encounters for the patient
+      const encounter1 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const encounter2 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create survey responses with answers
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter1.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter2.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      const historicalChartWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts/${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      const chartIds = body.data.map((c) => c.id);
+      expect(chartIds).toContain(historicalSimpleChart.id);
+      expect(chartIds).toContain(historicalComplexChart.id);
+      expect(chartIds).not.toContain(historicalChartWithoutAnswers.id);
+    });
+
+    it('should return complex core charts regardless of visibility status', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      // Create current complex core chart
+      const currentComplexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Complex Core Chart',
+        }),
+      );
+
+      // Create historical complex core chart
+      const historicalComplexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Core Chart',
+        }),
+      );
+
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts/${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      expect(body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: currentComplexCoreChart.id }),
+          expect.objectContaining({ id: historicalComplexCoreChart.id }),
+        ]),
+      );
+    });
+
+    it('should return all chart types together', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      // Create current simple chart
+      const currentSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'A Current Simple Chart',
+        }),
+      );
+
+      // Create current complex chart
+      const currentComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'B Current Complex Chart',
+        }),
+      );
+
+      // Create historical simple chart with answers
+      const historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'C Historical Simple Chart',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      const historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'D Historical Complex Chart',
+        }),
+      );
+
+      // Create complex core chart
+      const complexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'E Complex Core Chart',
+        }),
+      );
+
+      // Create encounters and responses for historical charts
+      const encounter1 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+      const encounter2 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter1.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter2.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'F Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts/${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      // Should return 5 charts: current simple, current complex, historical simple with answers,
+      // historical complex with answers, and complex core
+      expect(body.count).toEqual(5);
+      expect(body.data.length).toEqual(5);
+      const chartNames = body.data.map((c) => c.name).sort();
+      expect(chartNames).toEqual([
+        'A Current Simple Chart',
+        'B Current Complex Chart',
+        'C Historical Simple Chart',
+        'D Historical Complex Chart',
+        'E Complex Core Chart',
+      ]);
+      const chartIds = body.data.map((c) => c.id);
+      expect(chartIds).toContain(currentSimpleChart.id);
+      expect(chartIds).toContain(currentComplexChart.id);
+      expect(chartIds).toContain(historicalSimpleChart.id);
+      expect(chartIds).toContain(historicalComplexChart.id);
+      expect(chartIds).toContain(complexCoreChart.id);
+    });
+
+    it('should not return historical charts without answers', async () => {
+      const { id: programRegistryId } = await createProgramRegistry();
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      const patient = await models.Patient.create(fake(models.Patient));
+
+      // Create historical simple chart without answers
+      const historicalSimpleWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Without Answers',
+        }),
+      );
+
+      // Create historical complex chart without answers
+      const historicalComplexWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Without Answers',
+        }),
+      );
+
+      // Create a current chart to ensure the endpoint works
+      const currentChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Chart',
+        }),
+      );
+
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts/${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(1);
+      expect(body.data.length).toEqual(1);
+      expect(body.data[0].id).toBe(currentChart.id);
+      const chartIds = body.data.map((c) => c.id);
+      expect(chartIds).not.toContain(historicalSimpleWithoutAnswers.id);
+      expect(chartIds).not.toContain(historicalComplexWithoutAnswers.id);
     });
   });
 });

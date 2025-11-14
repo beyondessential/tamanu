@@ -85,6 +85,69 @@ survey.get(
 );
 
 survey.get(
+  '/charts/:encounterId',
+  asyncHandler(async (req, res) => {
+    const { encounterId } = req.params;
+    const encounter = await req.models.Encounter.findByPk(encounterId);
+    if (!encounter) {
+      throw new NotFoundError('Encounter not found');
+    }
+
+    req.flagPermissionChecked();
+    const {
+      models: { Survey },
+    } = req;
+
+    const chartSurveys = await Survey.findAll({
+      where: {
+        [Op.or]: [
+          // Get all current simple and complex charts
+          {
+            surveyType: {
+              [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            },
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
+          // Get all historical simple and complex charts with answers
+          {
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal(
+                `
+                  EXISTS (
+                  SELECT 1 FROM survey_responses sr
+                  JOIN survey_response_answers sra ON sra.response_id = sr.id
+                  WHERE sr.survey_id = "Survey".id 
+                    AND sr.encounter_id = :encounterId
+                    AND sr.deleted_at IS NULL
+                  )
+                `,
+              ),
+            ],
+          },
+          // Get all complex core charts regardless of visibility status
+          {
+            surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          },
+        ],
+      },
+      order: [['name', 'ASC']],
+      replacements: { encounterId },
+    });
+    const permittedChartSurveys = chartSurveys.filter((survey) =>
+      req.ability.can('list', subject('Charting', { id: survey.id })),
+    );
+
+    res.send(permittedChartSurveys);
+  }),
+);
+
+survey.get(
   '/procedureType/:procedureTypeId',
   asyncHandler(async (req, res) => {
     const { models, ability, params } = req;

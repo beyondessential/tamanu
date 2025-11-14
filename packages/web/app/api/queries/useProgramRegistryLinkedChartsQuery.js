@@ -2,14 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { SURVEY_TYPES } from '@tamanu/constants';
 import { useApi } from '../index';
 
-export const useProgramRegistryLinkedChartsQuery = (programRegistryId) => {
+export const useProgramRegistryLinkedChartsQuery = (programRegistryId, patientId) => {
   const api = useApi();
 
   return useQuery(
-    ['programRegistryLinkedCharts', programRegistryId],
-    () => api.get(`programRegistry/${programRegistryId}/linkedCharts`),
+    ['programRegistryLinkedCharts', programRegistryId, patientId],
+    () => api.get(`programRegistry/${programRegistryId}/linkedCharts/${patientId}`),
     {
-      enabled: Boolean(programRegistryId),
+      enabled: Boolean(programRegistryId) && Boolean(patientId),
       select: (data) => {
         const complexToCoreSurveysMap = {};
         const complexChartSurveys = data.data.filter((s) => s.surveyType === SURVEY_TYPES.COMPLEX_CHART);

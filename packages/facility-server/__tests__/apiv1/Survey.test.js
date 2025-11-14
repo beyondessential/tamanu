@@ -1,6 +1,8 @@
 import { setupSurveyFromObject } from '@tamanu/database/demoData/surveys';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { fake } from '@tamanu/fake-data/fake';
 
 import { createTestContext } from '../utilities';
 
@@ -164,6 +166,305 @@ describe('Survey', () => {
       expect(surveyIds).not.toContain(chartSurvey2.id);
       expect(surveyIds).toHaveLength(1);
     });
+  });
+
+  describe('chart surveys by encounter', () => {
+    afterEach(async () => {
+      await models.SurveyResponseAnswer.truncate();
+      await models.SurveyResponse.truncate();
+      await models.Encounter.truncate();
+      await models.Survey.truncate();
+      await models.Program.truncate();
+      await models.Patient.truncate({ cascade: true });
+    });
+
+    it('should return current simple and complex charts', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounterData = {
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      };
+      const encounter = await models.Encounter.create(encounterData);
+
+      // Create current simple chart
+      const currentSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Simple Chart',
+        }),
+      );
+
+      // Create current complex chart
+      const currentComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Complex Chart',
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(`/api/survey/charts/${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(currentSimpleChart.id);
+      expect(surveyIds).toContain(currentComplexChart.id);
+      expect(surveyIds.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should return historical simple and complex charts with answers', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create historical simple chart with answers
+      const historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Chart With Answers',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      const historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Chart With Answers',
+        }),
+      );
+
+      // Create survey responses with answers for the encounter
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      const historicalChartWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(`/api/survey/charts/${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(historicalSimpleChart.id);
+      expect(surveyIds).toContain(historicalComplexChart.id);
+      expect(surveyIds).not.toContain(historicalChartWithoutAnswers.id);
+    });
+
+    it('should not return historical charts without answers', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create historical simple chart without answers
+      const historicalSimpleWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Without Answers',
+        }),
+      );
+
+      // Create historical complex chart without answers
+      const historicalComplexWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Without Answers',
+        }),
+      );
+
+      // Create a current chart to ensure the endpoint works
+      const currentChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Chart',
+        }),
+      );
+
+      const result = await app.get(`/api/survey/charts/${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(currentChart.id);
+      expect(surveyIds).not.toContain(historicalSimpleWithoutAnswers.id);
+      expect(surveyIds).not.toContain(historicalComplexWithoutAnswers.id);
+    });
+
+    it('should return complex core charts regardless of visibility status', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create current complex core chart
+      const currentComplexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'Current Complex Core Chart',
+        }),
+      );
+
+      // Create historical complex core chart
+      const historicalComplexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Core Chart',
+        }),
+      );
+
+      const result = await app.get(`/api/survey/charts/${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(currentComplexCoreChart.id);
+      expect(surveyIds).toContain(historicalComplexCoreChart.id);
+    });
+
+    it('should return all chart types together', async () => {
+      const patient = await models.Patient.create(fake(models.Patient));
+      const encounter = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create current simple chart
+      const currentSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'A Current Simple Chart',
+        }),
+      );
+
+      // Create current complex chart
+      const currentComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          name: 'B Current Complex Chart',
+        }),
+      );
+
+      // Create historical simple chart with answers
+      const historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'C Historical Simple Chart',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      const historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'D Historical Complex Chart',
+        }),
+      );
+
+      // Create complex core chart
+      const complexCoreChart = await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'E Complex Core Chart',
+        }),
+      );
+
+      // Create survey responses with answers for historical charts
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      await models.Survey.create(
+        fake(models.Survey, {
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'F Historical Chart Without Answers',
+        }),
+      );
+
+      const result = await app.get(`/api/survey/charts/${encounter.id}`);
+      expect(result).toHaveSucceeded();
+
+      const surveyIds = result.body.map(survey => survey.id);
+      expect(surveyIds).toContain(currentSimpleChart.id);
+      expect(surveyIds).toContain(currentComplexChart.id);
+      expect(surveyIds).toContain(historicalSimpleChart.id);
+      expect(surveyIds).toContain(historicalComplexChart.id);
+      expect(surveyIds).toContain(complexCoreChart.id);
+      // Should have at least 5 charts
+      expect(surveyIds.length).toBeGreaterThanOrEqual(5);
+    });
+
   });
 
   describe('vitals', () => {
@@ -333,7 +634,7 @@ describe('Survey', () => {
     beforeAll(async () => {
       await setupSurveyFromObject(models, {
         program: {
-          id: 'survey-program',
+          id: 'survey-program-permissions',
         },
         survey: {
           id: 'program-survey',
