@@ -212,8 +212,9 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
     if (action === PATIENT_MOVE_ACTIONS.PLAN) {
       locationData.plannedLocationId = plannedLocationId || null; // null clears the planned move
     } else {
-      if (locationId || plannedLocationId) {
-        locationData.locationId = plannedLocationId || locationId;
+      const finalisedLocation = plannedLocationId || locationId;
+      if (finalisedLocation) {
+        locationData.locationId = finalisedLocation;
       }
     }
 
