@@ -189,8 +189,6 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
     validationObject.locationId = yup.string().nullable();
-
-    // initialValues.locationId = encounter.locationId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
