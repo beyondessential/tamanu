@@ -83,7 +83,6 @@ export const PatientPaymentsTable = ({ invoice }) => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   const [refreshCount, setRefreshCount] = useState(0);
-  console.log('PatientPaymentsTable', invoice);
   const { patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
   const [editingPayment, setEditingPayment] = useState({});
 
