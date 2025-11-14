@@ -25,7 +25,7 @@ export const useUpdateInvoice = invoice => {
       await api.put(`invoices/${invoice?.id}`, body);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['encounter']);
+      queryClient.invalidateQueries(['encounter', invoice?.encounterId]);
     },
     onError: error => notifyError(error.message),
   });

@@ -146,6 +146,7 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
       <Form
         suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
         onSubmit={handleSubmit}
+        enableReinitialize
         initialValues={{
           invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
           insurers: invoice.insurers?.length

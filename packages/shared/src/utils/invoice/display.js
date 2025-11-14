@@ -14,8 +14,16 @@ export const round = (value, decimals = 2) => {
  * @param {number} value
  * @returns
  */
-export const formatDisplayPrice = value =>
-  isNaN(parseFloat(value)) ? undefined : round(value, 2).toFixed(2);
+export const formatDisplayPrice = value => {
+  if (isNaN(parseFloat(value))) {
+    return undefined;
+  }
+
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 /**
  * get invoice summary for display

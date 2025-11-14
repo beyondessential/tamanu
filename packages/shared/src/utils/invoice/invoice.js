@@ -54,16 +54,17 @@ export const getInsuranceCoverageTotal = invoiceItems => {
   return invoiceItems.reduce((sum, item) => {
     const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
-    const itemTotal = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
+    const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
       if (!itemPlan.coverageValue) {
         return sum;
       }
-      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100);
-      const newValue = coverage > discountedPrice ? discountedPrice : coverage;
-      return sum.plus(newValue);
+      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100).toNumber();
+      return sum.plus(coverage);
     }, new Decimal(0));
 
-    return sum.plus(itemTotal);
+    const cappedItemInsurance =
+      totalItemInsurance > discountedPrice ? discountedPrice : totalItemInsurance;
+    return sum.plus(cappedItemInsurance);
   }, new Decimal(0));
 };
 
