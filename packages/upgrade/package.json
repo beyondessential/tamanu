@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/upgrade",
-  "version": "2.42.8",
+  "version": "2.42.9",
   "private": true,
   "description": "Tamanu upgrade files",
   "main": "dist/cjs/index.js",
