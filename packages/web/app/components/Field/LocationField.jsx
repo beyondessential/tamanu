@@ -30,9 +30,7 @@ export const LocationInput = React.memo(
     required,
     className,
     value,
-    groupValue,
     onChange,
-    onGroupChange = () => {},
     size = 'medium',
     form = {},
     enableLocationStatus = true,
@@ -47,7 +45,7 @@ export const LocationInput = React.memo(
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
 
-    const [groupId, setGroupId] = useState(groupValue);
+    const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
@@ -78,16 +76,9 @@ export const LocationInput = React.memo(
     }, [initialValues, name]);
 
     useEffect(() => {
-      if (value) {
-        setLocationId(value);
-      }
+      setLocationId(value ?? '');
+      if (!value) setGroupId('');
     }, [value]);
-
-    useEffect(() => {
-      if (groupValue) {
-        setGroupId(groupValue);
-      }
-    }, [groupValue]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -96,29 +87,25 @@ export const LocationInput = React.memo(
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
-        onChange({ target: { value: '', name, groupValue: location.locationGroup.id } });
+        onChange({ target: { value: '', name } });
       }
 
       // Initialise the location group state
       // if the form is being opened in edit mode (i.e. there are existing values)
       if (value && !groupId && location?.locationGroup?.id) {
-        onGroupChange(location.locationGroup.id);
         setGroupId(location.locationGroup.id);
       }
-    }, [onChange, value, name, groupId, location?.id, location?.locationGroup, onGroupChange]);
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
-      onGroupChange(event.target.value);
-      if (locationId) {
-        setLocationId('');
-        onChange({ target: { value: '', name, groupValue: event.target.value } });
-      }
+      setLocationId('');
+      onChange({ target: { value: '', name } });
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
-      onChange({ target: { value: event.target.value, name, groupValue: groupId } });
+      onChange({ target: { value: event.target.value, name } });
     };
 
     // Disable the location and location group fields if:
