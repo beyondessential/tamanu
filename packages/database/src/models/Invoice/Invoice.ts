@@ -63,9 +63,9 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
-    this.hasMany(models.InvoiceInsurer, {
+    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
-      as: 'insurers',
+      as: 'invoiceInsurancePlans',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -104,16 +104,6 @@ export class Invoice extends Model {
         include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
       },
       {
-        model: models.InvoiceInsurer,
-        as: 'insurers',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'insurer',
-          },
-        ],
-      },
-      {
         model: models.InvoiceItem,
         as: 'items',
         include: models.InvoiceItem.getListReferenceAssociations(models, invoicePriceListId),
@@ -122,6 +112,16 @@ export class Invoice extends Model {
         model: models.InvoicePayment,
         as: 'payments',
         include: models.InvoicePayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoicesInvoiceInsurancePlan,
+        as: 'invoiceInsurancePlans',
+        include: [
+          {
+            model: models.InvoiceInsurancePlan,
+            as: 'invoiceInsurancePlan',
+          },
+        ],
       },
     ];
   }

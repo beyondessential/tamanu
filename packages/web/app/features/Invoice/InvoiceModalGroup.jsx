@@ -7,6 +7,7 @@ import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
+import { InvoiceInsuranceModal } from './InvoiceInsuranceModal';
 
 export const InvoiceModalGroup = ({
   initialModalType,
@@ -79,6 +80,15 @@ export const InvoiceModalGroup = ({
           }}
           onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
+          data-testid="upsertinvoicemodal-wt5z"
+        />
+      )}
+      {invoiceModal.includes(INVOICE_MODAL_TYPES.INSURANCE) && (
+        <InvoiceInsuranceModal
+          open
+          encounterId={encounterId}
+          invoice={invoice}
+          onClose={handleCloseInvoiceModal}
           data-testid="upsertinvoicemodal-wt5z"
         />
       )}
