@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
-
 import { InvoiceItemCard } from './InvoiceItemCard';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
 import { Field, NumberField } from '../../../components/Field';

@@ -50,22 +50,22 @@ export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
   return invoiceItemTotalPrice - (invoiceItem?.discount?.amount || 0);
 };
 
-/**
- * Get the discount amount of an invoice insurer
- * @param {InvoiceInsurer} insurer
- * @param {number} total
- */
-export const getInvoiceInsurerDiscountAmount = (insurer, total) => {
-  return discountAmount(total || 0, insurer?.percentage || 0);
-};
+export const getInsuranceCoverageTotal = invoiceItems => {
+  return invoiceItems.reduce((sum, item) => {
+    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
-/**
- * Get the discount amount of an invoice discount
- * @param {InvoiceDiscount} discount
- * @param {number} total
- */
-const getInvoiceDiscountDiscountAmount = (discount, total) => {
-  return discountAmount(total || 0, discount?.percentage || 0);
+    const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
+      if (!itemPlan.coverageValue) {
+        return sum;
+      }
+      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100).toNumber();
+      return sum.plus(coverage);
+    }, new Decimal(0));
+
+    const cappedItemInsurance =
+      totalItemInsurance > discountedPrice ? discountedPrice : totalItemInsurance;
+    return sum.plus(cappedItemInsurance);
+  }, new Decimal(0));
 };
 
 /**
@@ -76,41 +76,13 @@ const getInvoiceDiscountDiscountAmount = (discount, total) => {
 export const getInvoiceSummary = invoice => {
   invoice = JSON.parse(JSON.stringify(invoice)); // deep clone to convert sequelize entity to plain objects
 
-  const discountableItemsSubtotal = invoice.items
-    .filter(item => item?.productDiscountable)
-    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
-    .toNumber();
-
-  const nonDiscountableItemsSubtotal = invoice.items
-    .filter(item => !item?.productDiscountable)
-    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
-    .toNumber();
-
-  const itemsSubtotal = new Decimal(discountableItemsSubtotal)
-    .add(nonDiscountableItemsSubtotal)
-    .toNumber();
-
-  const insurersDiscountPercentage = invoice.insurers
-    .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
-    .toNumber();
-
-  const insurerDiscountTotal = new Decimal(itemsSubtotal)
-    .times(insurersDiscountPercentage)
-    .toNumber();
-
-  const patientSubtotal = new Decimal(itemsSubtotal).minus(insurerDiscountTotal).toNumber();
-
-  const patientDiscountableSubtotal = discountedPrice(
-    discountableItemsSubtotal,
-    insurersDiscountPercentage,
+  const invoiceItemsTotal = invoice.items.reduce(
+    (sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0),
+    new Decimal(0),
   );
 
-  const discountTotal = getInvoiceDiscountDiscountAmount(
-    invoice.discount,
-    patientDiscountableSubtotal,
-  );
-
-  const patientTotal = new Decimal(patientSubtotal).minus(discountTotal).toNumber();
+  const insuranceCoverageTotal = getInsuranceCoverageTotal(invoice.items);
+  const patientTotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
 
   //Calculate payments as well
   const patientPaymentsTotal = invoice.payments
@@ -128,19 +100,15 @@ export const getInvoiceSummary = invoice => {
   const patientPaymentRemainingBalance = new Decimal(patientTotal)
     .minus(patientPaymentsTotal)
     .toNumber();
-  const insurerPaymentRemainingBalance = new Decimal(insurerDiscountTotal)
+  const insurerPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
     .minus(insurerPaymentsTotal)
     .toNumber();
 
   return {
-    discountableItemsSubtotal,
-    nonDiscountableItemsSubtotal,
-    itemsSubtotal,
-    insurerDiscountTotal,
-    patientSubtotal,
-    patientDiscountableSubtotal,
-    discountTotal,
-    patientTotal,
+    invoiceItemsTotal: invoiceItemsTotal.toNumber(),
+    patientSubtotal: invoiceItemsTotal.toNumber(),
+    insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
+    patientTotal: patientTotal.toNumber(),
     patientPaymentsTotal,
     insurerPaymentsTotal,
     paymentsTotal,

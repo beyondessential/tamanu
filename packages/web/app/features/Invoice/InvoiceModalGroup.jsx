@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { INVOICE_MODAL_TYPES } from '../../constants';
 import { UpsertInvoiceModal } from './UpsertInvoiceModal';
-import { EditInvoiceModal } from './EditInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
@@ -14,7 +13,6 @@ export const InvoiceModalGroup = ({
   initialInvoice,
   encounterId,
   onClose,
-  isPatientView,
   afterDeleteInvoice,
 }) => {
   const [invoice, setInvoice] = useState();
@@ -45,26 +43,6 @@ export const InvoiceModalGroup = ({
     setInvoice({ ...invoice, ...data });
   };
 
-  const handleCreateInvoiceSuccess = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
-  };
-
-  const handleEditDiscount = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE, true);
-  };
-
-  const handleCancelInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CANCEL_INVOICE, true);
-  };
-
-  const handleDeleteInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.DELETE_INVOICE, true);
-  };
-
-  const handleFinaliseInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE, true);
-  };
-
   return (
     <>
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
@@ -78,7 +56,6 @@ export const InvoiceModalGroup = ({
             }
             handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
           }}
-          onCreateSuccess={handleCreateInvoiceSuccess}
           onTemporaryUpdate={handleTemporaryUpdateInvoice}
           data-testid="upsertinvoicemodal-wt5z"
         />
@@ -90,19 +67,6 @@ export const InvoiceModalGroup = ({
           invoice={invoice}
           onClose={handleCloseInvoiceModal}
           data-testid="upsertinvoicemodal-wt5z"
-        />
-      )}
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.EDIT_INVOICE) && invoice && (
-        <EditInvoiceModal
-          open
-          onClose={() => handleCloseInvoiceModal()}
-          invoice={invoice}
-          handleEditDiscount={handleEditDiscount}
-          handleCancelInvoice={handleCancelInvoice}
-          handleDeleteInvoice={handleDeleteInvoice}
-          handleFinaliseInvoice={handleFinaliseInvoice}
-          isPatientView={isPatientView}
-          data-testid="editinvoicemodal-7xne"
         />
       )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.CANCEL_INVOICE) && invoice && (

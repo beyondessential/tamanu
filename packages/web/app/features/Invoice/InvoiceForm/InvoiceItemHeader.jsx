@@ -1,21 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TranslatedText } from '@tamanu/ui-components';
 import { Box } from '@material-ui/core';
-import { Colors } from '../../../constants';
+import { TranslatedText } from '@tamanu/ui-components';
 
-const StyledItemHeader = styled(Box)`
+const StyledItemHeader = styled.div`
   display: flex;
   gap: 10px;
-  padding: 14px 20px;
-  font-weight: 500;
+  padding: 12px 50px 12px 10px;
   border-radius: 4px 4px 0 0;
-  border: 1px solid ${Colors.outline};
   border-bottom: 0;
 `;
 
 const ItemHeadCell = styled(Box)`
   padding-left: 15px;
+  font-size: 14px;
+  color: ${props => props.theme.palette.text.tertiary};
 `;
 
 export const InvoiceItemHeader = () => {
@@ -40,7 +39,7 @@ export const InvoiceItemHeader = () => {
           data-testid="translatedtext-b5me"
         />
       </ItemHeadCell>
-      <ItemHeadCell width="11%" sx={{ flexGrow: 1 }}>
+      <ItemHeadCell width="11%" sx={{ flexGrow: 1, textAlign: 'right' }}>
         <TranslatedText stringId="invoice.modal.editInvoice.price.label" fallback="Price" />
       </ItemHeadCell>
     </StyledItemHeader>
