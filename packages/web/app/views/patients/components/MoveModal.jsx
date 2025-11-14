@@ -210,7 +210,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
 
     const locationData = {};
     if (action === PATIENT_MOVE_ACTIONS.PLAN) {
-      locationData.plannedLocationId = plannedLocationId || null;
+      locationData.plannedLocationId = plannedLocationId || null; // null clears the planned move
     } else {
       if (locationId || plannedLocationId) {
         locationData.locationId = plannedLocationId || locationId;
