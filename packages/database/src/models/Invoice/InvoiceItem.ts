@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, literal, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -126,6 +126,21 @@ export class InvoiceItem extends Model {
         model: models.LabTestPanel,
         as: 'sourceLabTestPanelRecord',
         attributes: ['code'],
+      },
+      {
+        model: models.InvoiceInsurancePlanItem,
+        as: 'invoiceInsurancePlanItems',
+        required: false,
+        where: {
+          invoiceInsurancePlanId: {
+            [Op.in]: literal(`(
+              SELECT iip."invoice_insurance_plan_id"
+              FROM "invoices_invoice_insurance_plans" iip
+              WHERE iip."invoice_id" = "Invoice"."id"
+                AND iip."deleted_at" IS NULL
+            )`),
+          },
+        },
       },
     ];
 
