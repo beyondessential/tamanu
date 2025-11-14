@@ -9,7 +9,7 @@ import { NoteModalActionBlocker } from '../../../components';
 import { PriceField } from '../../../components/Field/PriceField';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { StyledItemCell } from './InvoiceItemCells';
-import { InvoiceItemActionModal } from './InvoiceItemActionModal';
+import { InvoiceItemActionModal } from '../EditInvoiceModal/InvoiceItemActionModal';
 import { useInvoiceItemActions } from './useInvoiceItemActions';
 
 const PriceText = styled.span`

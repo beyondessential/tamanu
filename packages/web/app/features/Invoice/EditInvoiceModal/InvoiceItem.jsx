@@ -4,7 +4,13 @@ import { Box } from '@material-ui/core';
 import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { useTranslation } from '../../../contexts/Translation';
-import { DateCell, DetailsCell, CodeCell, QuantityCell, OrderedByCell } from './InvoiceItemCells';
+import {
+  DateCell,
+  DetailsCell,
+  CodeCell,
+  QuantityCell,
+  OrderedByCell,
+} from '../InvoiceForm/InvoiceItemCells';
 
 const StyledItemRow = styled(Box)`
   display: flex;
