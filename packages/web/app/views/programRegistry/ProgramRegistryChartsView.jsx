@@ -115,7 +115,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
-  } = useProgramRegistryLinkedChartsQuery(programRegistryId);
+  } = useProgramRegistryLinkedChartsQuery(programRegistryId, patient?.id);
   const { getTranslation } = useTranslation();
 
   const [modalOpen, setModalOpen] = useState(false);

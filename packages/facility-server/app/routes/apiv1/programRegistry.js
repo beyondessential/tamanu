@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
@@ -383,6 +383,77 @@ programRegistry.get(
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       order: [['name', 'ASC']],
+    });
+
+    res.send({
+      data: charts.map(c => c.forResponse()),
+      count: charts.length,
+    });
+  }),
+);
+
+// Get list of charts available for a specific program registry and patient
+programRegistry.get(
+  '/:id/linkedCharts/:patientId',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const { id: programRegistryId, patientId } = params;
+
+    req.checkPermission('list', subject('ProgramRegistry', { id: programRegistryId }));
+    req.checkPermission('list', 'Survey');
+
+    const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+    if (!registry) {
+      throw new NotFoundError('Program registry not found');
+    }
+
+    const patient = await models.Patient.findByPk(patientId);
+    if (!patient) {
+      throw new NotFoundError('Patient not found');
+    }
+
+    const charts = await models.Survey.findAll({
+      where: {
+        programId: registry.programId,
+        [Op.or]: [
+          // Get all current simple and complex charts
+          {
+            surveyType: {
+              [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            },
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
+          // Get all historical simple and complex charts with answers
+          {
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal(
+                `EXISTS (
+                  SELECT 1 FROM survey_responses sr
+                  JOIN survey_response_answers sra ON sra.response_id = sr.id
+                  JOIN encounters e ON e.id = sr.encounter_id
+                  WHERE e.patient_id = :patientId
+                    AND sr.survey_id = "Survey".id 
+                    AND sr.deleted_at IS NULL
+                )`,
+              ),
+            ],
+          },
+          // Get all complex core charts regardless of visibility status
+          {
+            surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          },
+        ],
+      },
+      order: [['name', 'ASC']],
+      replacements: {
+        patientId,
+      },
     });
 
     res.send({
