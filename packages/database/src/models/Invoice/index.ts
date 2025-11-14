@@ -2,7 +2,7 @@ export * from './Invoice';
 export * from './InvoiceDiscount';
 export * from './InvoiceInsurancePlan';
 export * from './InvoiceInsurancePlanItem';
-export * from './InvoiceInsurer';
+export * from './InvoicesInvoiceInsurancePlan';
 export * from './InvoiceInsurerPayment';
 export * from './InvoiceItem';
 export * from './InvoiceItemDiscount';
