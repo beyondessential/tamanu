@@ -18,6 +18,11 @@ const PriceText = styled.span`
   text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
 `;
 
+const PriceCellContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
 export const PriceCell = ({
   index,
   item,
@@ -43,7 +48,7 @@ export const PriceCell = ({
   return (
     <>
       <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
-        <PriceCell>
+        <PriceCellContainer>
           {hidePriceInput ? (
             <>
               <PriceText $isCrossedOut={!!discountPrice} data-testid="pricetext-is33">
@@ -78,7 +83,7 @@ export const PriceCell = ({
               <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
             </NoteModalActionBlocker>
           )}
-        </PriceCell>
+        </PriceCellContainer>
       </StyledItemCell>
       {actionModal && (
         <InvoiceItemActionModal
