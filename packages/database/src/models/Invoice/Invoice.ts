@@ -187,10 +187,4 @@ export class Invoice extends Model {
       },
     });
   }
-
-  forResponse(): { [p: string]: unknown } {
-    console.log('INVOICE FOR RESPONSE');
-    const response = super.forResponse();
-    return response;
-  }
 }
