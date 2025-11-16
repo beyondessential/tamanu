@@ -1,27 +1,109 @@
 import React from 'react';
-import { Field, ThemedTooltip } from '@tamanu/ui-components';
 import styled from 'styled-components';
 import {
-  getInvoiceItemDiscountPriceDisplay,
-  getInvoiceItemPriceDisplay,
+  getInvoiceItemTotalDiscountedPrice,
+  getInvoiceItemTotalPrice,
 } from '@tamanu/shared/utils/invoice';
-import { NoteModalActionBlocker } from '../../../components';
-import { PriceField } from '../../../components/Field/PriceField';
+import Decimal from 'decimal.js';
+import Collapse from '@material-ui/core/Collapse';
+import { Box } from '@mui/material';
+import { Field, NoteModalActionBlocker } from '../../../components';
+import { ThemedTooltip } from '../../../components/Tooltip';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { StyledItemCell } from './InvoiceItemCells';
-import { InvoiceItemActionModal } from '../EditInvoiceModal/InvoiceItemActionModal';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal';
+import { PriceField } from '../../../components/Field/PriceField';
 import { useInvoiceItemActions } from './useInvoiceItemActions';
+import { ViewOnlyCell } from './InvoiceItemCells';
+import { Price } from '../Price';
 
-const PriceText = styled.span`
-  margin-right: 16px;
-  padding-left: 15px;
-  text-decoration: ${props => (props.$isCrossedOut ? 'line-through' : 'none')};
-`;
-
-const PriceCellContainer = styled.div`
+export const StyledItemCell = styled(Box)`
   display: flex;
-  gap: 10px;
+  justify-content: flex-end;
+  align-items: flex-start;
 `;
+
+const Container = styled(ViewOnlyCell)`
+  position: relative;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+`;
+
+const Menu = styled(ThreeDotMenu)`
+  position: absolute;
+  top: 2px;
+  right: 0;
+`;
+
+const Row = styled.div`
+  display: flex;
+  text-align: right;
+  margin-top: 2px;
+`;
+
+const RowName = styled.div`
+  color: ${props => props.theme.palette.text.tertiary};
+  white-space: nowrap;
+`;
+
+const RowValue = styled.div`
+  min-width: 4em;
+`;
+
+const InsuranceSection = ({ item, discountedPrice }) => {
+  if (!item.insurancePlanItems?.length > 0 || !item?.productId) {
+    return null;
+  }
+
+  return (
+    <Box mt={1}>
+      {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
+        const coverage = new Decimal(discountedPrice).times(coverageValue / 100);
+        return (
+          <Row key={id}>
+            <RowName>{label}</RowName>
+            <RowValue>
+              <Price price={`-${coverage}`} />
+            </RowValue>
+          </Row>
+        );
+      })}
+    </Box>
+  );
+};
+const getPriceDifference = (price, discountPrice) => {
+  return new Decimal(discountPrice).minus(price).toNumber();
+};
+
+const DiscountSection = ({ price, discountReason, discountedPrice }) => {
+  const priceDifference = getPriceDifference(price, discountedPrice);
+  const isMarkup = priceDifference > 0;
+  const text = isMarkup ? 'markup' : 'discount';
+
+  return (
+    <ThemedTooltip
+      key={discountReason}
+      title={discountReason}
+      open={discountReason ? undefined : false}
+    >
+      <>
+        <Row>
+          <RowName>Item {text}</RowName>
+          <RowValue>
+            <Price price={priceDifference} />
+          </RowValue>
+        </Row>
+        <Row>
+          <RowName>Price after {text}</RowName>
+          <RowValue>
+            <Price price={discountedPrice} />
+          </RowValue>
+        </Row>
+      </>
+    </ThemedTooltip>
+  );
+};
 
 export const PriceCell = ({
   index,
@@ -30,6 +112,7 @@ export const PriceCell = ({
   editable,
   isDeleteDisabled,
   formArrayMethods,
+  isExpanded,
 }) => {
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const hidePriceInput = item.productPrice === null || !editable;
@@ -40,29 +123,24 @@ export const PriceCell = ({
     isDeleteDisabled,
     hidePriceInput,
   });
-  const discountPrice = isNaN(item.productPrice)
-    ? undefined
-    : getInvoiceItemDiscountPriceDisplay(item);
-  const price = getInvoiceItemPriceDisplay(item);
+
+  const price = getInvoiceItemTotalPrice(item);
+  const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
+  const hasDiscount = price !== discountedPrice;
 
   return (
     <>
       <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
-        <PriceCellContainer>
+        <Container>
           {hidePriceInput ? (
             <>
-              <PriceText $isCrossedOut={!!discountPrice} data-testid="pricetext-is33">
-                {price}
-              </PriceText>
-              {!!discountPrice && (
-                <ThemedTooltip
-                  key={item.discount?.reason}
-                  title={item.discount?.reason}
-                  open={item.discount?.reason ? undefined : false}
-                  data-testid="themedtooltip-jrhk"
-                >
-                  <span>{discountPrice}</span>
-                </ThemedTooltip>
+              <Price $isCrossedOut={hasDiscount} price={price} data-testid="pricetext-is33" />
+              {hasDiscount && (
+                <DiscountSection
+                  discountReason={item.discount?.reason}
+                  discountedPrice={discountedPrice}
+                  price={price}
+                />
               )}
             </>
           ) : (
@@ -78,12 +156,15 @@ export const PriceCell = ({
               </NoteModalActionBlocker>
             )
           )}
-          {showActionMenu && editable && (
-            <NoteModalActionBlocker>
-              <ThreeDotMenu items={menuItems} data-testid="threedotmenu-zw6l" />
-            </NoteModalActionBlocker>
-          )}
-        </PriceCellContainer>
+          <Collapse in={isExpanded}>
+            <InsuranceSection item={item} discountedPrice={discountedPrice} />
+          </Collapse>
+        </Container>
+        {showActionMenu && editable && (
+          <NoteModalActionBlocker>
+            <Menu items={menuItems} data-testid="threedotmenu-zw6l" />
+          </NoteModalActionBlocker>
+        )}
       </StyledItemCell>
       {actionModal && (
         <InvoiceItemActionModal

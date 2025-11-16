@@ -7,7 +7,7 @@ import { INVOICE_STATUS_COLORS } from '../../constants';
 const StatusLabel = styled.div`
   color: ${p => p.$color};
   border-radius: 25px;
-  font-size: 11px;
+  font-size: 14px;
   line-height: 15px;
   padding: 6px 11px;
   background: ${p => `${p.$color}1A`};

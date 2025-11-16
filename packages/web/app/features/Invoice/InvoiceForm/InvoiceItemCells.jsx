@@ -67,7 +67,7 @@ export const DetailsCell = ({
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>
-        {item.productName}
+        {item.product?.name}
         {item.productId && (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
       </ViewOnlyCell>
     )}
@@ -91,7 +91,8 @@ export const DetailsCell = ({
 
 export const CodeCell = ({ item }) => (
   <StyledItemCell width="10%">
-    <ViewOnlyCell>{item.productCode}</ViewOnlyCell>
+    {/* Todo: handle getting the code for all types of data */}
+    <ViewOnlyCell>{item.product?.sourceRefDataRecord?.code}</ViewOnlyCell>
   </StyledItemCell>
 );
 
