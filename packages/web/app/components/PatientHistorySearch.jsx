@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box } from '@material-ui/core';
+import { styled } from '@mui/material';
+import Box from '@mui/material/Box';
 import {
   AutocompleteField,
   Field,
@@ -9,7 +10,6 @@ import {
   useSuggester,
 } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { styled } from '@mui/material';
 
 const StyledField = styled(Field)`
   width: 150px;
@@ -24,6 +24,7 @@ const Container = styled(Box)`
 
 export const PatientHistorySearch = () => {
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
+  const dischargingClinicianSuggester = useSuggester('practitioner');
   return (
     <Form
       onSubmit={async () => {}}
@@ -40,6 +41,12 @@ export const PatientHistorySearch = () => {
             name="facility"
             label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
             suggester={facilitySuggester}
+          />
+          <StyledField
+            component={AutocompleteField}
+            name="dischargingClinician"
+            label={<TranslatedText stringId="general.dischargingClinician.label" fallback="Discharging clinician" />}
+            suggester={dischargingClinicianSuggester}
           />
         </Container>
       )}
