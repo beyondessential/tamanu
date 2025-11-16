@@ -393,7 +393,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
         TableHeader={
-          <Box display="flex" gap={2}>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
             <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
               <TranslatedText
                 stringId="patient.history.table.encounterHistory"
