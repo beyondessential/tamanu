@@ -301,7 +301,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
-      key: 'examinerDisplayName',
+      key: 'clinicianName',
       title: (
         <TranslatedText
           stringId="general.localisedField.clinician.label.short"
