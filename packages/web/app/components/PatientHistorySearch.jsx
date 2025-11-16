@@ -17,7 +17,7 @@ const StyledField = styled(Field)`
 
 const Container = styled(Box)`
   display: flex;
-  padding-top: 5px;
+  padding-top: 2px;
   padding-bottom: 5px;
   gap: 5px;
 `;
@@ -45,7 +45,21 @@ export const PatientHistorySearch = () => {
           <StyledField
             component={AutocompleteField}
             name="dischargingClinician"
-            label={<TranslatedText stringId="general.dischargingClinician.label" fallback="Discharging clinician" />}
+            label={
+              <TranslatedText
+                stringId="general.dischargingClinician.label"
+                fallback="Discharging :clinician"
+                replacements={{
+                  clinician: (
+                    <TranslatedText
+                      casing="lower"
+                      stringId="general.localisedField.clinician.label.short"
+                      fallback="Clinician"
+                    />
+                  ),
+                }}
+              />
+            }
             suggester={dischargingClinicianSuggester}
           />
         </Container>
