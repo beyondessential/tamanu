@@ -70,6 +70,7 @@ export const InvoiceItemRow = ({
   const handleChangeOrderedBy = e => {
     formArrayMethods.replace(index, {
       ...item,
+      orderedByUserId: e.target.value,
       orderedByUser: {
         displayName: e.target.label,
       },
@@ -80,6 +81,7 @@ export const InvoiceItemRow = ({
     const value = e.target;
     formArrayMethods.replace(index, {
       ...item,
+      productId: value.value,
       productName: value.productName,
       productCode: value.code,
       productDiscountable: value.discountable,

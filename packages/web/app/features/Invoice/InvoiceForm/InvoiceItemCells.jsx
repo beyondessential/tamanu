@@ -91,7 +91,6 @@ export const DetailsCell = ({
 
 export const CodeCell = ({ item }) => (
   <StyledItemCell width="10%">
-    {/* Todo: handle getting the code for all types of data */}
     <ViewOnlyCell>{item.product?.sourceRefDataRecord?.code}</ViewOnlyCell>
   </StyledItemCell>
 );

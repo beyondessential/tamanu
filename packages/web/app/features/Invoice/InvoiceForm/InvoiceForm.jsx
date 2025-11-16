@@ -160,7 +160,6 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
         render={({ submitForm, values, resetForm }) => (
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
-              console.log('values', values);
               return (
                 <>
                   <InvoiceItemHeader />

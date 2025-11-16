@@ -293,7 +293,6 @@ export const InvoicesTable = ({ patient }) => {
             ? (_, data) => {
                 setSelectedInvoice(data);
                 // Todo: Link to invoice view
-                console.log('Go to invoice deep link');
               }
             : undefined
         }
