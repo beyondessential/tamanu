@@ -24,6 +24,7 @@ import { Heading4 } from './Typography.js';
 import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
+import { PatientHistorySearch } from './PatientHistorySearch.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -205,9 +206,7 @@ const getFacility = ({ facilityName, facilityId }) => (
   </FacilityWrapper>
 );
 const getClinician = ({ clinicianName }) => (
-  <FacilityWrapper data-testid="clinicianwrapper-8m5n">
-    {clinicianName || '-'}
-  </FacilityWrapper>
+  <FacilityWrapper data-testid="clinicianwrapper-8m5n">{clinicianName || '-'}</FacilityWrapper>
 );
 
 const SyncWarning = styled.p`
@@ -394,13 +393,16 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         initialSort={{ orderBy: 'startDate', order: 'desc' }}
         refreshCount={refreshCount}
         TableHeader={
-          <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
-            <TranslatedText
-              stringId="patient.history.table.encounterHistory"
-              fallback="Encounter history"
-              data-testid="translatedtext-nmkf"
-            />
-          </Heading4>
+          <Box display="flex" gap={2}>
+            <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
+              <TranslatedText
+                stringId="patient.history.table.encounterHistory"
+                fallback="Encounter history"
+                data-testid="translatedtext-nmkf"
+              />
+            </Heading4>
+            <PatientHistorySearch />
+          </Box>
         }
         ExportButton={props => (
           <ThemedTooltip
