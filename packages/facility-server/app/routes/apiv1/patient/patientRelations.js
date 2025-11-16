@@ -43,6 +43,7 @@ patientRelations.get(
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
+      clinicianName: 'clinician_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
