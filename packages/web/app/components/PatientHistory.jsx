@@ -204,6 +204,11 @@ const getFacility = ({ facilityName, facilityId }) => (
     )}
   </FacilityWrapper>
 );
+const getClinician = ({ clinicianName }) => (
+  <FacilityWrapper data-testid="clinicianwrapper-8m5n">
+    {clinicianName || '-'}
+  </FacilityWrapper>
+);
 
 const SyncWarning = styled.p`
   margin: 1rem;
@@ -293,6 +298,18 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         />
       ),
       accessor: getFacility,
+      CellComponent: LimitedLinesCell,
+    },
+    {
+      key: 'examinerDisplayName',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician"
+        />
+      ),
+      accessor: getClinician,
       CellComponent: LimitedLinesCell,
     },
     {

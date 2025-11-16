@@ -66,7 +66,8 @@ patientRelations.get(
           locations.facility_id AS facility_id,
           facilities.name AS facility_name,
           location_groups.name AS location_group_name,
-          location_groups.id AS location_group_id
+          location_groups.id AS location_group_id,
+          users.display_name AS clinician_name
         FROM
           encounters
           INNER JOIN locations
@@ -75,6 +76,8 @@ patientRelations.get(
             ON locations.facility_id = facilities.id
           LEFT JOIN location_groups
             ON location_groups.id = locations.location_group_id
+          LEFT JOIN users
+            ON users.id = encounters.examiner_id
         WHERE
           patient_id = :patientId
         AND encounters.deleted_at is null
