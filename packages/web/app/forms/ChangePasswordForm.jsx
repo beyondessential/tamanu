@@ -18,6 +18,7 @@ import {
 import { Colors } from '../constants/styles';
 import ApprovedIcon from '../assets/images/approved_circle.svg';
 import { useTranslation } from '../contexts/Translation';
+import { isBcryptHash } from '@tamanu/utils/password';
 
 const FormTitleSection = styled.div`
   margin-bottom: 10px;
@@ -327,7 +328,17 @@ export const ChangePasswordForm = React.memo(
               [yup.ref('confirmNewPassword'), null],
               getTranslation('validation.rule.passwordMatch', 'Passwords don’t match'),
             )
-            .required(getTranslation('validation.required.inline', '*Required')),
+            .required(getTranslation('validation.required.inline', '*Required'))
+            .test(
+              'password-is-not-hashed',
+              <TranslatedText
+                stringId="validation.password.isHashed"
+                fallback="Password must not be start with hashed (.e.g. $2a$1$, $2a$12$, $2b$1$, $2b$12$, $2y$1$, $2y$12$)"
+              />,
+              function(value) {
+                return !isBcryptHash(value);
+              },
+            ),
           confirmNewPassword: yup
             .string()
             .min(

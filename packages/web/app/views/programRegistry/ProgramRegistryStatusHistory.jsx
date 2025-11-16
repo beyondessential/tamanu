@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
-import { TranslatedText } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
+import { TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
 import { Table, DateDisplay, Heading5 } from '../../components';
 import { useProgramRegistryClinicalStatusQuery } from '../../api/queries/useProgramRegistryClinicalStatusQuery';
 import { ClinicalStatusDisplay } from './ClinicalStatusDisplay';
@@ -18,7 +17,7 @@ const StyledTable = styled(Table)`
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-color: ${Colors.outline};
+  border-color: ${TAMANU_COLORS.outline};
 
   table tr:last-child td {
     border: none; // remove border from last row of table to prevent double border
@@ -27,8 +26,8 @@ const StyledTable = styled(Table)`
   .MuiTableCell-head {
     height: 45px;
     padding: 5px;
-    color: ${Colors.darkText};
-    border-color: ${Colors.outline};
+    color: ${TAMANU_COLORS.darkText};
+    border-color: ${TAMANU_COLORS.outline};
 
     &:first-child {
       padding-left: 15px;

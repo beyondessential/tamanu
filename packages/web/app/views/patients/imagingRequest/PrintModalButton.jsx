@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useEncounterDataQuery } from '../../../api/queries';
 import { Button, Modal, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
@@ -30,7 +30,7 @@ const PrintModalInternals = ({ imagingRequest }) => {
   );
 };
 
-export const PrintModalButton = (props) => {
+export const PrintModalButton = props => {
   const { modal } = useParams();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);

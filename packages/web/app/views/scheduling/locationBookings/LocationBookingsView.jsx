@@ -3,6 +3,9 @@ import { AddRounded } from '@material-ui/icons';
 import { parseISO } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { VIEW_TYPES } from '@tamanu/constants';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { useLocationsQuery } from '../../../api/queries';
 import { PageContainer, TopBar } from '../../../components';
@@ -13,9 +16,12 @@ import { Colors } from '../../../constants/styles';
 import { useAuth } from '../../../contexts/Auth';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { LocationBookingsCalendar } from './LocationBookingsCalendar';
+import { LocationBookingsDailyCalendar } from './LocationBookingsDailyCalendar';
 import { LocationBookingsFilter } from './LocationBookingsFilter';
+import { ViewTypeToggle } from './ViewTypeToggle';
 import { appointmentToFormValues } from './utils';
 import { NoPermissionScreen } from '../../NoPermissionScreen';
+import { DateSelector } from '../outpatientBookings/DateSelector';
 
 export const LOCATION_BOOKINGS_CALENDAR_ID = 'location-bookings-calendar';
 
@@ -29,11 +35,19 @@ const LocationBookingsTopBar = styled(TopBar).attrs({
   title: (
     <TranslatedText
       stringId="scheduling.locationBookings.title"
-      fallback="Location bookings"
+      fallback="Bookings"
       data-testid="translatedtext-y7nl"
     />
   ),
 })`
+  h3 {
+    min-width: auto;
+    flex: 0;
+  }
+  .MuiToolbar-root {
+    justify-content: flex-start;
+    gap: 1rem;
+  }
   border-block-end: max(0.0625rem, 1px) ${Colors.outline} solid;
 `;
 
@@ -43,8 +57,23 @@ const Wrapper = styled(PageContainer)`
   max-block-size: 100%;
 `;
 
-const NewBookingButton = styled(Button)`
-  margin-inline-start: 1rem;
+const CalendarWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  margin: 1rem;
+  border-radius: 0.25rem;
+  border: max(0.0625rem, 1px) solid ${Colors.outline};
+  background: ${Colors.white};
+`;
+
+const CalendarInnerWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+  border-block-start: max(0.0625rem, 1px) solid ${Colors.outline};
 `;
 
 const EmptyStateLabel = styled(Typography).attrs({
@@ -68,14 +97,19 @@ export const LocationBookingsView = () => {
   const [selectedAppointment, setSelectedAppointment] = useState({});
   const { ability, facilityId } = useAuth();
 
-  const { filters, updateSelectedCell } = useLocationBookingsContext();
-
+  const {
+    filters,
+    updateSelectedCell,
+    viewType,
+    selectedDate,
+    setSelectedDate,
+  } = useLocationBookingsContext();
   const closeBookingForm = () => {
     updateSelectedCell({ locationId: null, date: null });
     setIsDrawerOpen(false);
   };
 
-  const openBookingForm = async (appointment) => {
+  const openBookingForm = async appointment => {
     // “Useless” await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(appointment);
@@ -87,22 +121,26 @@ export const LocationBookingsView = () => {
     setIsDrawerOpen(true);
   };
 
-  const openCancelModal = (appointment) => {
+  const openCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
   const handleNewBooking = async () => {
-    // “Useless” await seems to ensure locationGroupId and locationId fields are
+    // "Useless" await seems to ensure locationGroupId and locationId fields are
     // correctly cleared upon resetForm()
     await setSelectedAppointment(null);
     openBookingForm({});
   };
 
+  const handleDateChange = event => {
+    setSelectedDate(event.target.value);
+  };
+
   const locationsQuery = useLocationsQuery(
     {
       facilityId,
-      bookableOnly: true,
+      isBookable: viewType,
       locationGroupIds: filters.locationGroupIds,
     },
     { keepPreviousData: true },
@@ -121,16 +159,17 @@ export const LocationBookingsView = () => {
   return (
     <Wrapper data-testid="wrapper-r1vl">
       <LocationBookingsTopBar data-testid="locationbookingstopbar-0w60">
+        <ViewTypeToggle data-testid="viewtypetoggle-main" disabled={isDrawerOpen} />
         <LocationBookingsFilter data-testid="locationbookingsfilter-xdku" />
         {canCreateAppointment && (
-          <NewBookingButton onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
+          <Button onClick={handleNewBooking} data-testid="newbookingbutton-sl1p">
             <PlusIcon data-testid="plusicon-ufmc" />
             <TranslatedText
               stringId="locationBooking.calendar.bookLocation"
               fallback="Book location"
               data-testid="translatedtext-feur"
             />
-          </NewBookingButton>
+          </Button>
         )}
       </LocationBookingsTopBar>
       {hasNoLocations ? (
@@ -141,6 +180,25 @@ export const LocationBookingsView = () => {
             data-testid="translatedtext-e6bf"
           />
         </EmptyStateLabel>
+      ) : viewType === VIEW_TYPES.DAILY ? (
+        <CalendarWrapper data-testid="calendarwrapper-daily">
+          <DateSelector
+            value={selectedDate}
+            onChange={handleDateChange}
+            data-testid="dateselector-daily"
+          />
+          <DndProvider backend={HTML5Backend}>
+            <CalendarInnerWrapper data-testid="calendarinnerwrapper-daily">
+              <LocationBookingsDailyCalendar
+                locationsQuery={locationsQuery}
+                selectedDate={selectedDate}
+                openBookingForm={openBookingForm}
+                openCancelModal={openCancelModal}
+                data-testid="locationbookingsdailycalendar-main"
+              />
+            </CalendarInnerWrapper>
+          </DndProvider>
+        </CalendarWrapper>
       ) : (
         <LocationBookingsCalendar
           id={LOCATION_BOOKINGS_CALENDAR_ID}

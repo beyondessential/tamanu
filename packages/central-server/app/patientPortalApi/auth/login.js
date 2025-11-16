@@ -7,7 +7,7 @@ import { log } from '@tamanu/shared/services/logging';
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { BadAuthenticationError } from '@tamanu/errors';
 
-import { buildToken, getRandomU32 } from '../../auth/utils';
+import { buildToken } from '../../auth/utils';
 import { PortalOneTimeTokenService } from './PortalOneTimeTokenService';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 
@@ -120,13 +120,11 @@ export const login = ({ secret }) =>
     });
 
     const patientPortalTokenDuration = config.patientPortal.tokenDuration;
-    const accessTokenJwtId = getRandomU32();
 
     const token = await buildToken({ portalUserId: portalUser.id }, secret, {
       expiresIn: patientPortalTokenDuration,
       audience: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
       issuer: canonicalHostName,
-      jwtid: accessTokenJwtId.toString(),
     });
 
     return res.status(200).json({ token });

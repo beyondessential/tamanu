@@ -16,9 +16,12 @@ import {
   OTHER_REFERENCE_TYPES,
   REFERENCE_DATA_RELATION_TYPES,
   DEFAULT_LANGUAGE_CODE,
+  LOCATION_BOOKABLE_VIEW,
+  ENCOUNTER_TYPE_LABELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
+import { getEnumPrefix } from '@tamanu/shared/utils/enumRegistry';
 
 const DEFAULT_LIMIT = 25;
 const ENDPOINT_TO_DATA_TYPE = {
@@ -27,7 +30,6 @@ const ENDPOINT_TO_DATA_TYPE = {
   ['bookableLocationGroup']: OTHER_REFERENCE_TYPES.LOCATION_GROUP,
   ['patientLabTestCategories']: REFERENCE_TYPES.LAB_TEST_CATEGORY,
   ['patientLabTestPanelTypes']: OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
-  ['invoiceProduct']: OTHER_REFERENCE_TYPES.INVOICE_PRODUCT,
 };
 const getDataType = endpoint => ENDPOINT_TO_DATA_TYPE[endpoint] || endpoint;
 // The string_id for the translated_strings table is a concatenation of this prefix
@@ -36,17 +38,34 @@ const getTranslationPrefix = endpoint =>
   `${REFERENCE_DATA_TRANSLATION_PREFIX}.${getDataType(endpoint)}.`;
 
 // Helper function to generate the translation subquery
-const getTranslationSubquery = (endpoint, modelName) => `(
-  SELECT "text"
-  FROM "translated_strings"
-  WHERE "language" = $language
-  AND "string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"
-  LIMIT 1
-)`;
+const getTranslationSubquery = (endpoint, modelName) => {
+  let stringIdFilter = `"string_id" = '${getTranslationPrefix(endpoint)}' || "${modelName}"."id"`;
+
+  if (endpoint === 'encounter') {
+    stringIdFilter = `"string_id" = '${getEnumPrefix(ENCOUNTER_TYPE_LABELS)}.' || "${modelName}"."encounter_type"`;
+  }
+
+  return `(
+    SELECT "text"
+    FROM "translated_strings"
+    WHERE "language" = $language
+    AND ${stringIdFilter}
+    AND "deleted_at" IS NULL
+    LIMIT 1
+  )`;
+};
 
 // Get the translation label for the record, otherwise the get the untranslated searchColumn
-const translationCoalesce = (endpoint, modelName, searchColumn) =>
-  `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`;
+const translationCoalesce = (endpoint, modelName, searchColumn) => {
+  if (endpoint === 'encounter') {
+    // For encounter endpoint, fall back to ENCOUNTER_TYPE_LABELS mapping using JSON
+    const encounterLabelsJson = JSON.stringify(ENCOUNTER_TYPE_LABELS);
+
+    return `COALESCE(${getTranslationSubquery(endpoint, modelName)}, ('${encounterLabelsJson}'::jsonb ->> "${modelName}"."${searchColumn}"))`;
+  }
+
+  return `COALESCE(${getTranslationSubquery(endpoint, modelName)}, "${modelName}"."${searchColumn}")`;
+};
 const translationCoalesceLiteral = (endpoint, modelName, searchColumn) =>
   Sequelize.literal(translationCoalesce(endpoint, modelName, searchColumn));
 
@@ -79,6 +98,7 @@ function createSuggesterRoute(
       const { language = DEFAULT_LANGUAGE_CODE } = query;
       delete query.language;
       const model = models[modelName];
+      const noLimit = query.noLimit === 'true';
 
       const searchQuery = (query.q || '').trim().toLowerCase();
       const positionQuery = literal(
@@ -124,7 +144,7 @@ function createSuggesterRoute(
           searchQuery: `%${searchQuery}%`,
           ...extraReplacementsBuilder(query),
         },
-        limit: DEFAULT_LIMIT,
+        limit: noLimit ? undefined : DEFAULT_LIMIT,
         ...queryOptions,
       });
       // Allow for async mapping functions (currently only used by location suggester)
@@ -136,7 +156,7 @@ function createSuggesterRoute(
 // this exists so a control can look up the associated information of a given suggester endpoint
 // when it's already been given an id so that it's guaranteed to have the same structure as the
 // options endpoint
-function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn }) {
+function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn, includeBuilder }) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -147,8 +167,11 @@ function createSuggesterLookupRoute(endpoint, modelName, { mapper, searchColumn 
       } = req;
       req.checkPermission('list', modelName);
 
+      const include = includeBuilder?.(req);
+
       const record = await models[modelName].findOne({
         where: { id: params.id },
+        include,
         bind: {
           language,
         },
@@ -462,6 +485,17 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
   );
 });
 
+createSuggester(
+  'role',
+  'Role',
+  ({ search }) => ({
+    name: { [Op.iLike]: search },
+  }),
+  {
+    mapper: ({ name, id }) => ({ name, id }),
+  },
+);
+
 createSuggester('labTestType', 'LabTestType', () => VISIBILITY_CRITERIA, {
   mapper: ({ name, code, id, labTestCategoryId }) => ({
     name,
@@ -530,7 +564,12 @@ createSuggester(
       const { name, code, id, maxOccupancy, facilityId } = location;
 
       const lg = await location.getLocationGroup();
-      const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
+      const locationGroup = lg && {
+        name: lg.name,
+        code: lg.code,
+        id: lg.id,
+        isBookable: lg.isBookable,
+      };
       return {
         name: name,
         code,
@@ -542,6 +581,14 @@ createSuggester(
       };
     },
   },
+);
+
+createSuggester('invoiceProduct', 'InvoiceProduct', ({ endpoint, modelName }) =>
+  DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
+);
+
+createSuggester('invoiceInsurancePlan', 'InvoiceInsurancePlan', ({ endpoint, modelName }) =>
+  DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
 );
 
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
@@ -562,7 +609,17 @@ createNameSuggester('bookableLocationGroup', 'LocationGroup', ({ endpoint, model
     modelName,
     query: { ...query, filterByFacility: true },
   }),
-  isBookable: true,
+  ...([LOCATION_BOOKABLE_VIEW.DAILY, LOCATION_BOOKABLE_VIEW.WEEKLY].includes(query.isBookable)
+    ? {
+        isBookable: {
+          [Op.in]: [query.isBookable, LOCATION_BOOKABLE_VIEW.ALL],
+        },
+      }
+    : {
+        isBookable: {
+          [Op.ne]: LOCATION_BOOKABLE_VIEW.NO,
+        },
+      }),
 }));
 
 createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
@@ -572,30 +629,6 @@ createNameSuggester('survey', 'Survey', ({ search, query: { programId } }) => ({
     [Op.notIn]: [SURVEY_TYPES.OBSOLETE, SURVEY_TYPES.VITALS],
   },
 }));
-
-createSuggester(
-  'invoiceProduct',
-  'InvoiceProduct',
-  ({ endpoint, modelName }) => ({
-    ...DEFAULT_WHERE_BUILDER({ endpoint, modelName }),
-    '$referenceData.type$': REFERENCE_TYPES.ADDITIONAL_INVOICE_PRODUCT,
-  }),
-  {
-    mapper: product => {
-      product.addVirtualFields();
-      return product;
-    },
-    includeBuilder: req => {
-      return [
-        {
-          model: req.models.ReferenceData,
-          as: 'referenceData',
-          attributes: ['code', 'type'],
-        },
-      ];
-    },
-  },
-);
 
 createSuggester(
   'practitioner',
@@ -902,6 +935,139 @@ createNameSuggester('template', 'Template', ({ endpoint, modelName, query }) => 
     type,
   };
 });
+
+// Build date search conditions for encounter suggester from a free-form query
+function buildDateSearchConditions(searchQuery) {
+  const conditions = [];
+  const sq = (searchQuery || '').trim();
+  if (!sq) return conditions;
+
+  // 1) Direct string search (matches full timestamp/date substrings)
+  conditions.push({ startDate: { [Op.iLike]: `%${sq.replaceAll('/', '-')}%` } });
+
+  // Normalize delimiter detection
+  const hasDash = sq.includes('-');
+  const hasSlash = sq.includes('/');
+  const delim = hasDash ? '-' : hasSlash ? '/' : null;
+  if (!delim) {
+    return conditions;
+  }
+
+  const parts = sq.split(delim);
+
+  // Helper to zero-pad
+  const zp = v => (v.length ? v.padStart(2, '0') : '');
+
+  if (parts.length === 2) {
+    const [a, b] = parts;
+    // Interpret as DD-MM and MM-DD (ambiguous)
+    const ddmm = `%-${zp(b)}-${zp(a)} %`;
+    const mmdd = `%-${zp(a)}-${zp(b)} %`;
+    conditions.push({ startDate: { [Op.iLike]: ddmm } });
+    conditions.push({ startDate: { [Op.iLike]: mmdd } });
+
+    // Interpret as YYYY-MM where applicable (only when first segment is 4 digits)
+    if (/^\d{4}$/.test(a)) {
+      conditions.push({ startDate: { [Op.iLike]: `${a}-${zp(b)}-%` } });
+    }
+    return conditions;
+  }
+
+  if (parts.length === 3) {
+    const [p1, p2, p3] = parts;
+
+    if (/^\d{4}$/.test(p1)) {
+      // YYYY-MM-DD (or YYYY/MM/DD)
+      conditions.push({ startDate: { [Op.iLike]: `${p1}-${zp(p2)}-${zp(p3)}%` } });
+    } else {
+      // DD-MM-YYYY and MM-DD-YYYY (ambiguous when last is year)
+      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p2)}-${zp(p1)}%` } });
+      // Interpret as DD-MM-YYYY
+      // Interpret as MM-DD-YYYY
+      conditions.push({ startDate: { [Op.iLike]: `${p3}%-${zp(p1)}-${zp(p2)}%` } });
+    }
+    return conditions;
+  }
+
+  return conditions;
+}
+
+createSuggester(
+  'encounter',
+  'Encounter',
+  ({ endpoint, modelName, query, searchColumn }) => {
+    const { patientId, after, before, encounterTypes } = query;
+    const searchQuery = (query.q || '').trim();
+
+    const whereConditions = {
+      [Op.or]: [
+        getTranslationWhereLiteral(endpoint, modelName, searchColumn),
+        getTranslationWhereLiteral('facility', 'location->facility', 'name'),
+      ],
+    };
+
+    // Add date search if there's a search query
+    if (searchQuery) {
+      const dateSearchConditions = buildDateSearchConditions(searchQuery);
+      whereConditions[Op.or].push(...dateSearchConditions);
+    }
+
+    if (patientId) {
+      whereConditions.patientId = patientId;
+    }
+
+    if (after || before) {
+      whereConditions.startDate = {};
+      if (after) whereConditions.startDate[Op.gte] = after;
+      if (before) whereConditions.startDate[Op.lte] = before;
+    }
+
+    if (encounterTypes) {
+      const includeTypes = Array.isArray(encounterTypes)
+        ? encounterTypes
+        : encounterTypes.split(',');
+
+      whereConditions.encounterType = {
+        [Op.in]: includeTypes,
+      };
+    }
+
+    return whereConditions;
+  },
+  {
+    mapper: encounter => ({
+      id: encounter.id,
+      patientId: encounter.patientId,
+      encounterType: encounter.encounterType,
+      startDate: encounter.startDate,
+      endDate: encounter.endDate,
+      location: encounter.location,
+    }),
+    searchColumn: 'encounter_type',
+    includeBuilder: req => {
+      return [
+        {
+          model: req.models.Location,
+          as: 'location',
+          attributes: ['id', 'name'],
+          include: [
+            {
+              model: req.models.Facility,
+              as: 'facility',
+              attributes: [
+                'id',
+                [translationCoalesceLiteral('facility', 'location->facility', 'name'), 'name'],
+              ],
+            },
+          ],
+        },
+      ];
+    },
+    orderBuilder: () => {
+      return [['startDate', 'DESC']];
+    },
+  },
+);
 
 createSuggester('reportDefinition', 'ReportDefinition', ({ search }) => ({
   name: { [Op.iLike]: search },

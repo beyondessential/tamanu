@@ -1,8 +1,16 @@
-import { format } from 'date-fns';
+import {
+  format,
+  addMilliseconds,
+  differenceInMilliseconds,
+  parse,
+  isWithinInterval,
+  isSameDay,
+} from 'date-fns';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { omit } from 'lodash';
+import { z } from 'zod';
 
 import {
   APPOINTMENT_STATUSES,
@@ -10,9 +18,11 @@ import {
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
   MODIFY_REPEATING_APPOINTMENT_MODE,
+  LOCATION_BOOKABLE_VIEW,
 } from '@tamanu/constants';
-import { NotFoundError, EditConflictError } from '@tamanu/errors';
+import { NotFoundError, EditConflictError, InvalidOperationError } from '@tamanu/errors';
 import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
+import { datetimeCustomValidation, toDateTimeString } from '@tamanu/utils/dateTime';
 
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -194,10 +204,15 @@ appointments.put(
 
 const isStringOrArray = obj => typeof obj === 'string' || Array.isArray(obj);
 
-const searchableFields = [
+const CONTAINS_SEARCHABLE_FIELDS = [
+  'patient.first_name',
+  'patient.last_name',
+  'patient.display_id',
+];
+
+const EXACT_MATCH_SEARCHABLE_FIELDS = [
   'startTime',
   'endTime',
-  'type',
   'appointmentTypeId',
   'bookingTypeId',
   'status',
@@ -205,10 +220,9 @@ const searchableFields = [
   'locationId',
   'locationGroupId',
   'patientId',
-  'patient.first_name',
-  'patient.last_name',
-  'patient.display_id',
 ];
+
+const ALL_SEARCHABLE_FIELDS = [...CONTAINS_SEARCHABLE_FIELDS, ...EXACT_MATCH_SEARCHABLE_FIELDS];
 
 const sortKeys = {
   patientName: Sequelize.fn(
@@ -273,6 +287,7 @@ appointments.get(
         orderBy = 'startTime',
         patientNameOrId,
         includeCancelled = false,
+        view,
         ...queries
       },
     } = req;
@@ -297,8 +312,19 @@ appointments.get(
       ],
     };
 
+    const bookableWhereClause = [
+      LOCATION_BOOKABLE_VIEW.DAILY,
+      LOCATION_BOOKABLE_VIEW.WEEKLY,
+    ].includes(view)
+      ? {
+          '$location.locationGroup.is_bookable$': {
+            [Op.in]: [LOCATION_BOOKABLE_VIEW.ALL, view],
+          },
+        }
+      : null;
+
     const filters = Object.entries(queries).reduce((_filters, [queryField, queryValue]) => {
-      if (!searchableFields.includes(queryField) || !isStringOrArray(queryValue)) {
+      if (!ALL_SEARCHABLE_FIELDS.includes(queryField) || !isStringOrArray(queryValue)) {
         return _filters;
       }
 
@@ -310,7 +336,9 @@ appointments.get(
       if (queryValue === '' || queryValue.length === 0) {
         comparison = { [Op.not]: null };
       } else if (typeof queryValue === 'string') {
-        comparison = { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
+        comparison = EXACT_MATCH_SEARCHABLE_FIELDS.includes(queryField)
+          ? { [Op.eq]: queryValue }
+          : { [Op.iLike]: `%${escapePatternWildcard(queryValue)}%` };
       } else {
         comparison = { [Op.in]: queryValue };
       }
@@ -330,6 +358,7 @@ appointments.get(
           cancelledStatusWhereClause,
           isBeforeScheduleUntilDateWhereClause,
           buildPatientNameOrIdQuery(patientNameOrId),
+          bookableWhereClause,
           ...filters,
         ],
       },
@@ -350,7 +379,7 @@ appointments.post(
     req.checkPermission('create', 'Appointment');
 
     const { models, body } = req;
-    const { startTime, endTime, locationId, patientId } = body;
+    const { startTime, endTime, locationId, patientId, procedureTypeIds } = body;
     const { Appointment, PatientFacility, Location } = models;
 
     try {
@@ -380,7 +409,13 @@ appointments.post(
           transaction,
         });
 
-        return await Appointment.create(body, { transaction });
+        const appointment = await Appointment.create(body, { transaction });
+
+        if (procedureTypeIds) {
+          await appointment.setProcedureTypes(procedureTypeIds);
+        }
+
+        return appointment;
       });
 
       res.status(201).send(result);
@@ -398,7 +433,7 @@ appointments.put(
     const { models, body, params, query } = req;
     const { id } = params;
     const { skipConflictCheck = false } = query;
-    const { startTime, endTime, locationId } = body;
+    const { startTime, endTime, locationId, procedureTypeIds } = body;
     const { Appointment } = models;
 
     try {
@@ -431,6 +466,9 @@ appointments.put(
         }
 
         const updatedRecord = await existingBooking.update(body, { transaction });
+
+        await updatedRecord.setProcedureTypes(procedureTypeIds);
+
         return updatedRecord;
       });
 
@@ -440,6 +478,132 @@ appointments.put(
     }
   }),
 );
+
+const moveAppointmentSchema = z.object({
+  startTime: datetimeCustomValidation,
+});
+
+appointments.put(
+  '/locationBooking/:id/move',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Appointment');
+
+    const { models, params, settings } = req;
+    const { id } = params;
+    const { Appointment } = models;
+
+    const appointmentToMove = await Appointment.findByPk(id, {
+      include: ['locationGroup', 'location'],
+    });
+    if (!appointmentToMove) {
+      throw new NotFoundError();
+    }
+    const facilityId =
+      appointmentToMove.location?.facilityId || appointmentToMove.locationGroup?.facilityId;
+
+    const body = await moveAppointmentSchema.parseAsync(req.body);
+
+    const bookingSlotStartTime = await settings[facilityId].get(
+      'appointments.bookingSlots.startTime',
+    );
+    const bookingSlotEndTime = await settings[facilityId].get('appointments.bookingSlots.endTime');
+
+    await Appointment.sequelize.transaction(async () => {
+      const oldStartTime = new Date(appointmentToMove.startTime);
+      const oldEndTime = new Date(appointmentToMove.endTime);
+      const duration = differenceInMilliseconds(oldEndTime, oldStartTime);
+      const newStartTime = new Date(body.startTime);
+      const newEndTime = addMilliseconds(newStartTime, duration);
+
+      const isOvernightBooking = !isSameDay(new Date(oldStartTime), new Date(oldEndTime));
+      if (isOvernightBooking) {
+        throw new InvalidOperationError('Moving overnight bookings is not supported');
+      }
+
+      if (!isValidBookingTime(newStartTime, newEndTime, bookingSlotStartTime, bookingSlotEndTime)) {
+        throw new InvalidOperationError(
+          `Appointment time must be within booking slot hours (${bookingSlotStartTime} - ${bookingSlotEndTime})`,
+        );
+      }
+
+      const appointmentsToShift = await Appointment.findAll({
+        where: {
+          [Op.and]: [
+            { locationId: appointmentToMove.locationId },
+            { status: { [Op.not]: APPOINTMENT_STATUSES.CANCELLED } },
+            {
+              [Op.or]: [
+                { startTime: { [Op.gte]: toDateTimeString(newStartTime) } },
+                {
+                  startTime: { [Op.lt]: toDateTimeString(newStartTime) },
+                  endTime: { [Op.gt]: toDateTimeString(newStartTime) },
+                },
+              ],
+            },
+            { id: { [Op.ne]: id } },
+          ],
+        },
+        order: [['startTime', 'ASC']],
+      });
+
+      let minNextStartTime = newEndTime;
+      for (const appointment of appointmentsToShift) {
+        const currentStartTime = new Date(appointment.startTime);
+        const currentEndTime = new Date(appointment.endTime);
+        const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
+
+        if (currentStartTime >= minNextStartTime) {
+          // no need to shift any further if the next appointment doesn't conflict with the previous appointment
+          break;
+        }
+
+        const newStartTime = minNextStartTime;
+        const newEndTime = addMilliseconds(newStartTime, appointmentDuration);
+
+        minNextStartTime = newEndTime;
+        if (
+          !isValidBookingTime(newStartTime, newEndTime, bookingSlotStartTime, bookingSlotEndTime) ||
+          !isSameDay(new Date(newStartTime), new Date(newEndTime))
+        ) {
+          throw new InvalidOperationError(
+            `Shifted appointment time is not within booking slot hours or conflicts with another appointment`,
+          );
+        }
+
+        await appointment.update({
+          startTime: toDateTimeString(newStartTime),
+          endTime: toDateTimeString(newEndTime),
+        });
+      }
+
+      await appointmentToMove.update({
+        startTime: toDateTimeString(newStartTime),
+        endTime: toDateTimeString(newEndTime),
+      });
+    });
+
+    res.status(200).send({
+      success: true,
+    });
+  }),
+);
+
+const isValidBookingTime = (startTime, endTime, bookingSlotStartTime, bookingSlotEndTime) => {
+  const bookingDate = startTime;
+  const slotStartDateTime = parse(bookingSlotStartTime, 'HH:mm', bookingDate);
+  const slotEndDateTime = parse(bookingSlotEndTime, 'HH:mm', bookingDate);
+
+  const isStartTimeValid = isWithinInterval(startTime, {
+    start: slotStartDateTime,
+    end: slotEndDateTime,
+  });
+  const isEndTimeValid = isWithinInterval(endTime, {
+    start: slotStartDateTime,
+    end: slotEndDateTime,
+  });
+
+  return isStartTimeValid && isEndTimeValid;
+};
 
 const getAppointmentTypeWhereQuery = (type, facilityId) => {
   const facilityIdField =
@@ -459,17 +623,17 @@ appointments.get(
     const { patientId } = params;
     const { type, facilityId } = query;
 
-    const [{hasPastAppointment}] = await models.Appointment.sequelize.query(
+    const [{ hasPastAppointment }] = await models.Appointment.sequelize.query(
       `
       SELECT EXISTS(
-        SELECT 1 FROM appointments 
+        SELECT 1 FROM appointments
         ${
           type === 'outpatient'
             ? 'LEFT JOIN location_groups ON appointments.location_group_id = location_groups.id'
             : 'LEFT JOIN locations ON appointments.location_id = locations.id'
         }
-        WHERE patient_id = :patientId 
-          AND status != :cancelledStatus 
+        WHERE patient_id = :patientId
+          AND status != :cancelledStatus
           AND start_time < NOW()::date_time_string
           AND ${type === 'outpatient' ? 'location_groups.facility_id = :facilityId' : 'locations.facility_id = :facilityId'}
         LIMIT 1
@@ -497,8 +661,26 @@ appointments.get(
 
     const { models, params, query } = req;
     const { patientId } = params;
-    const { type, facilityId } = query;
+    const { type, facilityId, orderBy = 'startTime', order = 'ASC' } = query;
     const { Appointment } = models;
+
+    const sortKeys = {
+      startTime: 'startTime',
+      outpatientAppointmentArea: ['locationGroup', 'name'],
+      bookingArea: ['location', 'locationGroup', 'name'],
+      clinician: ['clinician', 'displayName'],
+      appointmentType: ['appointmentType', 'name'],
+      bookingType: ['bookingType', 'name'],
+      location: ['location', 'name'],
+    };
+
+    const sortKey = sortKeys[orderBy] || 'startTime';
+    const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    
+    // Build order clause - handle nested associations
+    const orderClause = Array.isArray(sortKey)
+      ? [sortKey.concat([sortOrder])]
+      : [[sortKey, sortOrder]];
 
     const upcomingAppointments = await Appointment.findAll({
       where: {
@@ -516,9 +698,9 @@ appointments.get(
         'clinician',
         'appointmentType',
         'bookingType',
-        'patient'
+        'patient',
       ],
-      order: [['startTime', 'ASC']],
+      order: orderClause,
     });
 
     res.send(upcomingAppointments);

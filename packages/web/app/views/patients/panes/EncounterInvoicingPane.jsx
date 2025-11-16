@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Typography, Box } from '@material-ui/core';
 import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { InvoiceItemsTable } from '../../../components/Invoice/InvoiceItemsTable';
+import {
+  InvoiceModalGroup,
+  InvoiceStatus,
+  InvoiceSummaryPanel,
+  InvoiceForm,
+} from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { InvoiceStatus } from '../../../components/Invoice/InvoiceStatus';
-import { InvoiceSummaryPanel } from '../../../components/Invoice/InvoiceSummaryPanel';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
-import { InvoiceModalGroup } from '../../../components/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
+import { usePatientDataQuery } from '../../../api/queries/index.js';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -29,14 +32,21 @@ const ActionsPane = styled.div`
 `;
 
 const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
+  margin-left: 10px;
   display: flex;
   gap: 20px;
+  align-items: center;
 `;
 
 const InvoiceTitle = styled(Typography)`
-  color: ${Colors.darkestText};
+  color: ${props => props.theme.palette.text.primary};
   font-weight: 500;
   font-size: 18px;
+`;
+
+const InvoiceSubTitle = styled(Typography)`
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 14px;
 `;
 
 const InvoiceTopBar = styled.div`
@@ -48,9 +58,10 @@ const InvoiceTopBar = styled.div`
 `;
 
 const InvoiceContainer = styled.div`
-  padding: 8px 16px;
+  padding: 8px;
   margin-bottom: 5px;
   border: 1px solid ${Colors.outline};
+  border-radius: 3px;
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {
@@ -58,6 +69,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const [openInvoiceModal, setOpenInvoiceModal] = useState();
 
   const { data: invoice } = useEncounterInvoiceQuery(encounter.id);
+  const { data: patient } = usePatientDataQuery(encounter.patientId);
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
@@ -69,18 +81,17 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   return (
     <>
       {invoice ? (
-        <TabPane data-testid="tabpane-3i52">
-          <InvoiceContainer data-testid="invoicecontainer-8sm4">
-            <InvoiceTopBar data-testid="invoicetopbar-96rq">
-              <InvoiceHeading data-testid="invoiceheading-f1vs">
-                <InvoiceTitle data-testid="invoicetitle-6asf">
-                  <TranslatedText
-                    stringId="invoice.invoiceNumber"
-                    fallback="Invoice number"
-                    data-testid="translatedtext-8m4h"
-                  />
-                  {`: ${invoice.displayId}`}
-                </InvoiceTitle>
+        <TabPane>
+          <InvoiceContainer>
+            <InvoiceTopBar>
+              <InvoiceHeading>
+                <Box>
+                  <InvoiceTitle>
+                    <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
+                    {invoice.displayId}
+                  </InvoiceTitle>
+                  <InvoiceSubTitle>{patient?.village.name}</InvoiceSubTitle>
+                </Box>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
               {(cancelable || deletable) && (
@@ -116,22 +127,21 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   </NoteModalActionBlocker>
                   <NoteModalActionBlocker>
                     <Button
-                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
-                      data-testid="button-2zyp"
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
+                      data-testid="button-insurance-2zyp"
                     >
                       <TranslatedText
-                        stringId="invoice.action.edit"
-                        fallback="Edit invoice"
-                        data-testid="translatedtext-6nrc"
+                        stringId="invoice.action.insurance"
+                        fallback="Insurance plans"
                       />
                     </Button>
                   </NoteModalActionBlocker>
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceItemsTable invoice={invoice} data-testid="invoiceitemstable-86zi" />
+            <InvoiceForm invoice={invoice} isPatientView={false} />
+            <InvoiceSummaryPanel invoice={invoice} />
           </InvoiceContainer>
-          <InvoiceSummaryPanel invoice={invoice} data-testid="invoicesummarypanel-40qi" />
         </TabPane>
       ) : (
         <EmptyPane data-testid="emptypane-cjxo">

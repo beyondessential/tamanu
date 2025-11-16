@@ -1,5 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
-import { Op } from 'sequelize';
+import { AggregateError, Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 import config from 'config';
 
@@ -7,7 +7,7 @@ import { ForeignkeyResolutionError, UpsertionError, ValidationError } from '../e
 import { statkey, updateStat } from '../stats';
 import * as schemas from '../importSchemas';
 import { validateTableRows } from './validateTableRows';
-import { generateTranslationsForData, bulkUpsertTranslationDefaults } from './translationHandler';
+import { generateTranslationsForData } from './translationHandler';
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
@@ -241,7 +241,6 @@ export async function importRows(
   await validateTableRows(models, validRows, pushErrorFn);
 
   log.debug('Upserting database rows', { rows: validRows.length });
-  const translationData = [];
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
     const existing = await loadExisting(Model, values);
@@ -293,6 +292,10 @@ export async function importRows(
           existing.set(normalizedValues);
           const hasValueChanges = checkForChanges(existing, normalizedValues, model);
 
+          if (model === 'ReferenceData' && existing.systemRequired && hasValueChanges) {
+            throw new Error('Cannot modify system-required reference data');
+          }
+
           if (!hasUpdatedStats) {
             if (hasValueChanges) {
               updateStat(stats, statkey(model, sheetName), 'updated');
@@ -306,16 +309,27 @@ export async function importRows(
         await Model.create(normalizedValues);
         updateStat(stats, statkey(model, sheetName), 'created');
       }
+
       const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
-      translationData.push(...recordTranslationData);
+      try {
+        await models.TranslatedString.bulkCreate(recordTranslationData, {
+          validate: true,
+          updateOnDuplicate: ['text'],
+        });
+      } catch (err) {
+        if (!(err instanceof AggregateError)) {
+          throw err; // Not a sequelize bulk create error, so let it bubble up
+        }
+
+        updateStat(stats, statkey(model, sheetName), 'errored');
+        for (const error of err.errors) {
+          errors.push(new ValidationError(sheetName, sheetRow, error.message));
+        }
+      }
     } catch (err) {
       updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
-  }
-
-  if (errors.length === 0) {
-    await bulkUpsertTranslationDefaults(models, translationData);
   }
 
   log.debug('Done with these rows');

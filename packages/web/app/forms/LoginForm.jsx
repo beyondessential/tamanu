@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import * as yup from 'yup';
 import styled from 'styled-components';
 
 import { Typography } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import {
   BodyText,
   CheckField,
@@ -20,9 +21,15 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { TranslatedText } from '../components/Translation/TranslatedText';
 import { useTranslation } from '../contexts/Translation';
 
-const FormSubtext = styled(BodyText)`
-  color: ${Colors.midText};
-  padding: 10px 0;
+export const LoginAlert = styled(({ children, ...props }) => (
+  <Alert severity="error" icon={false} data-testid="loginerror-ppw6" {...props}>
+    {children}
+  </Alert>
+))`
+  border: oklch(from currentColor calc(l * 1.9) calc(c * 2) h) solid 1px;
+  border-radius: 0.5em;
+  margin-top: 1em;
+  white-space: pre-line;
 `;
 
 const LoginHeading = styled(Typography)`
@@ -45,9 +52,10 @@ const LoginButton = styled(FormSubmitButton)`
 `;
 
 const ForgotPasswordButton = styled(TextButton)`
-  font-size: 11px;
   color: black;
+  font-size: 11px;
   font-weight: 400;
+  text-transform: none;
 
   :hover {
       color: ${Colors.primary};
@@ -87,9 +95,6 @@ const StyledCheckboxField = styled(Field)`
   }
 `;
 
-const INCORRECT_CREDENTIALS_ERROR_MESSAGE =
-  'Server error response: Incorrect username or password, please try again';
-
 const LoginFormComponent = ({
   errorMessage,
   onNavToResetPassword,
@@ -97,20 +102,6 @@ const LoginFormComponent = ({
   rememberEmail,
 }) => {
   const { getTranslation } = useTranslation();
-
-  const [genericMessage, setGenericMessage] = useState(null);
-
-  useEffect(() => {
-    if (errorMessage === INCORRECT_CREDENTIALS_ERROR_MESSAGE) {
-      setFieldError('email', 'Incorrect credentials');
-      setFieldError('password', 'Incorrect credentials');
-    } else {
-      setGenericMessage(errorMessage);
-    }
-
-    // only run this logic when error message is updated
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [errorMessage]);
 
   const removeValidation = () => {
     setFieldError('email', '');
@@ -142,9 +133,7 @@ const LoginFormComponent = ({
             data-testid="translatedtext-hwc1"
           />
         </LoginSubtext>
-        {!!genericMessage && (
-          <FormSubtext data-testid="formsubtext-ppw6">{genericMessage}</FormSubtext>
-        )}
+        {!!errorMessage && <LoginAlert>{errorMessage}</LoginAlert>}
       </div>
       <StyledField
         name="email"
@@ -216,7 +205,7 @@ const LoginFormComponent = ({
       >
         <TranslatedText
           stringId="login.forgotPassword.label"
-          fallback="Forgot your password?"
+          fallback="Forgot password?"
           data-testid="translatedtext-427q"
         />
       </ForgotPasswordButton>

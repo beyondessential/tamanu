@@ -9,6 +9,8 @@ import {
   REFERENCE_TYPES,
   NOUNS_WITH_OBJECT_ID,
   DEFAULT_LANGUAGE_CODE,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { pluralize } from 'inflection';
@@ -713,6 +715,74 @@ export async function procedureTypeLoader(item, { models, pushError }) {
         surveyId: surveyId,
       },
     });
+  });
+
+  return rows;
+}
+
+export async function invoiceProductLoader(item, { models, pushError }) {
+  const { category, sourceRecordId } = item;
+  const rows = [];
+
+  if (!category && sourceRecordId) {
+    pushError(`Must provide a category if providing a sourceRecordId.`);
+    return [];
+  }
+
+  if (category && !sourceRecordId) {
+    pushError(`Must provide a sourceRecordId if providing a category.`);
+    return [];
+  }
+
+  if (!category && !sourceRecordId) {
+    return [
+      {
+        model: 'InvoiceProduct',
+        values: {
+          id: uuidv4(),
+          ...item,
+        },
+      },
+    ];
+  }
+
+  const validCategories = Object.values(INVOICE_ITEMS_CATEGORIES);
+  if (!validCategories.includes(category)) {
+    pushError(`Invalid category: "${category}". Must be one of: ${validCategories.join(', ')}.`);
+    return [];
+  }
+
+  const modelName = INVOICE_ITEMS_CATEGORIES_MODELS[category];
+  if (!modelName) {
+    pushError(`No model mapped to category: "${category}".`);
+    return [];
+  }
+
+  const model = models[modelName];
+  if (!model) {
+    pushError(`Model not found: "${modelName}".`);
+    return [];
+  }
+
+  const existingRecord = await model.findOne({
+    where: { id: sourceRecordId },
+  });
+  if (!existingRecord) {
+    pushError(
+      `Source record with ID "${sourceRecordId}" and category "${category}" does not exist.`,
+    );
+    return [];
+  }
+
+  const newInvoiceProduct = {
+    id: uuidv4(),
+    ...item,
+    category,
+    sourceRecordId,
+  };
+  rows.push({
+    model: 'InvoiceProduct',
+    values: newInvoiceProduct,
   });
 
   return rows;

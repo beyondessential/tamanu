@@ -5,6 +5,7 @@ export const SUGGESTER_ENDPOINTS_SUPPORTING_ALL = [
   OTHER_REFERENCE_TYPES.LAB_TEST_PANEL,
   OTHER_REFERENCE_TYPES.LAB_TEST_TYPE,
   OTHER_REFERENCE_TYPES.LOCATION_GROUP,
+  OTHER_REFERENCE_TYPES.INVOICE_INSURANCE_PLAN,
 ];
 
 export const SUGGESTER_ENDPOINTS = [
@@ -27,5 +28,7 @@ export const SUGGESTER_ENDPOINTS = [
   'survey',
   'sensitiveLabTestCategory',
   'nonSensitiveLabTestCategory',
+  'role',
+  'encounter',
   'reportDefinition',
 ];

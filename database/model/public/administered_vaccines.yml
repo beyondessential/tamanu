@@ -10,7 +10,6 @@ sources:
             - clinical
           meta:
             triggers:
-              - fhir_refresh
               - notify_administered_vaccines_changed
               - record_administered_vaccines_changelog
               - set_administered_vaccines_updated_at

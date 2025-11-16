@@ -17,7 +17,7 @@ export class FhirEncounter extends FhirResource {
   declare class?: Record<string, any>;
   declare subject?: Record<string, any>;
   declare actualPeriod?: Record<string, any>;
-  declare ocation?: Record<string, any>;
+  declare location?: Record<string, any>;
   declare serviceProvider?: Record<string, any>;
 
   static initModel(options: InitOptions, models: Models) {

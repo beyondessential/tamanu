@@ -1,13 +1,11 @@
 import React from 'react';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router';
 
 import { MedicationListingView } from '../views/MedicationListingView';
 
-export const MedicationRoutes = React.memo(({ match }) => (
-  <div>
-    <Switch>
-      <Route path={`${match.path}/all`} component={MedicationListingView} />
-      <Redirect to={`${match.path}/all`} />
-    </Switch>
-  </div>
+export const MedicationRoutes = React.memo(() => (
+  <Routes>
+    <Route path="all" element={<MedicationListingView />} />
+    <Route path="*" element={<Navigate to="all" replace />} />
+  </Routes>
 ));

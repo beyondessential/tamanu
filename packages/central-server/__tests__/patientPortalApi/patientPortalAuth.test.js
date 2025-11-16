@@ -1,5 +1,5 @@
 import config from 'config';
-import jwt from 'jsonwebtoken';
+import * as jose from 'jose';
 
 import { JWT_TOKEN_TYPES } from '@tamanu/constants/auth';
 import { VISIBILITY_STATUSES } from '@tamanu/constants/importable';
@@ -95,7 +95,7 @@ describe('Patient Portal Auth', () => {
       expect(response).toHaveSucceeded();
       expect(response.body).toHaveProperty('token');
 
-      const contents = jwt.decode(response.body.token);
+      const contents = jose.decodeJwt(response.body.token);
 
       expect(contents).toEqual({
         aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
@@ -202,7 +202,7 @@ describe('Patient Portal Auth', () => {
 
     it('Should reject request with expired token', async () => {
       // Create an expired token
-      const expiredToken = jwt.sign(
+      const expiredToken = await new jose.SignJWT(
         {
           aud: JWT_TOKEN_TYPES.PATIENT_PORTAL_ACCESS,
           iss: config.canonicalHostName,

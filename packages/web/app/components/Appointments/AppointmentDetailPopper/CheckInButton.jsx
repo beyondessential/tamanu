@@ -96,6 +96,7 @@ export const CheckInButton = ({ appointment }) => {
       <EncounterModal
         initialValues={{
           locationId: appointment?.location?.id,
+          locationGroup: appointment?.locationGroup?.id,
           examinerId: appointment?.clinician?.id,
           practitionerId: appointment?.clinician?.id,
         }}

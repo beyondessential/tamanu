@@ -5,18 +5,30 @@ import {
   createAllergy,
   createDataForEncounter,
   createDiagnosis,
+  createDrug,
+  createInvoiceProduct,
   createLabTestCategory,
   createLabTestPanel,
   createPatientFieldDefCategory,
   createPatientFieldDefinitions,
   createPermission,
+  createProcedure,
   createRole,
   createTestType,
+  createImagingType,
+  createImagingArea,
   createVaccine,
   destroyPermission,
 } from './referenceDataUtils';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
-import { REFERENCE_DATA_TRANSLATION_PREFIX, REFERENCE_TYPES } from '@tamanu/constants';
+import {
+  IMAGING_AREA_TYPES,
+  IMAGING_TYPES,
+  INVOICE_ITEMS_CATEGORIES,
+  INVOICE_ITEMS_CATEGORIES_MODELS,
+  REFERENCE_DATA_TRANSLATION_PREFIX,
+  REFERENCE_TYPES,
+} from '@tamanu/constants';
 import { createTestContext } from '../utilities';
 import { exporter } from '../../dist/admin/exporter';
 import { parseDate } from '@tamanu/utils/dateTime';
@@ -66,6 +78,10 @@ describe('Reference data exporter', () => {
       'Location',
       'Department',
       'TranslatedString',
+      // Invoice price list related models
+      'InvoicePriceListItem',
+      'InvoicePriceList',
+      'InvoiceProduct',
     ];
     for (const model of modelsToDestroy) {
       // FK constraints on patient facility table that prevent deleting patient table
@@ -666,6 +682,210 @@ describe('Reference data exporter', () => {
       ],
       '',
     );
+  });
+
+  it('Should export Invoice Price Lists with headers for each price list code and rows per product with prices', async () => {
+    // Create products
+    const p1 = await models.InvoiceProduct.create({
+      id: 'prod-a',
+      code: 'PROD-A',
+      name: 'Product A',
+      discountable: false,
+    });
+    const p2 = await models.InvoiceProduct.create({
+      id: 'prod-b',
+      code: 'PROD-B',
+      name: 'Product B',
+      discountable: false,
+    });
+
+    // Create price lists (codes will be sorted alphabetically by exporter)
+    const pl1 = await models.InvoicePriceList.create({ id: 'pl-1', code: 'B' });
+    const pl2 = await models.InvoicePriceList.create({ id: 'pl-2', code: 'A' });
+
+    // Create price list items
+    await models.InvoicePriceListItem.create({
+      id: 'item-1',
+      invoiceProductId: p1.id,
+      invoicePriceListId: pl2.id, // code 'A'
+      price: 100,
+    });
+    await models.InvoicePriceListItem.create({
+      id: 'item-2',
+      invoiceProductId: p2.id,
+      invoicePriceListId: pl1.id, // code 'B'
+      price: 50,
+    });
+
+    await exporter(store, { 1: 'invoicePriceList' });
+
+    expect(writeExcelFile).toBeCalledWith(
+      [
+        {
+          data: [
+            ['id', 'code', 'name', 'rules', 'visibilityStatus'],
+            ['pl-1', 'B', null, null, 'current'],
+            ['pl-2', 'A', null, null, 'current'],
+          ],
+          name: 'Invoice Price List',
+        },
+      ],
+      '',
+    );
+  });
+
+  describe('Invoice Product', () => {
+    it('Should export invoice products with correct source record type', async () => {
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-0',
+        name: 'Invoice Product Ad hoc',
+        discountable: false,
+      });
+
+      const drug = await createDrug(models, {
+        id: 'drug-1',
+        name: 'Drug 1',
+        code: 'drug-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-1',
+        name: 'Invoice Product 1',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.DRUG,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.DRUG],
+        sourceRecordId: drug.id,
+      });
+
+      const procedure = await createProcedure(models, {
+        id: 'procedure-1',
+        name: 'Procedure 1',
+        code: 'procedure-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-2',
+        name: 'Invoice Product 2',
+        discountable: false,
+        category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+        sourceRecordId: procedure.id,
+      });
+
+      const labTestCategory = await createLabTestCategory(models, {
+        id: 'labTestCategory-1',
+        name: 'Lab Test Category 1',
+        code: 'labTestCategory-1',
+      });
+      const labTestType = await createTestType(models, {
+        id: 'labTestType-1',
+        name: 'Lab Test Type 1',
+        code: 'labTestType-1',
+        labTestCategoryId: labTestCategory.id,
+      });
+      const labTestPanel = await createLabTestPanel(models, {
+        id: 'labTestPanel-1',
+        name: 'Lab Test Panel 1',
+        code: 'labTestPanel-1',
+        labTestTypesIds: [labTestType.id],
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-3',
+        name: 'Invoice Product 3',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL],
+        sourceRecordId: labTestPanel.id,
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-4',
+        name: 'Invoice Product 4',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE],
+        sourceRecordId: labTestType.id,
+      });
+
+      // These aren't currently being used in the Imaging module (see TAMP-126)
+      const imagingType = await createImagingType(models, {
+        id: 'imagingType-1',
+        name: 'Imaging Type 1',
+        code: IMAGING_TYPES.X_RAY,
+      });
+      const imagingArea = await createImagingArea(models, IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA, {
+        id: 'imagingArea-1',
+        name: 'Imaging Area 1',
+        code: 'imagingArea-1',
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-5',
+        name: 'Invoice Product 5',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE],
+        sourceRecordId: imagingType.id,
+      });
+      await createInvoiceProduct(models, {
+        id: 'invoiceProduct-6',
+        name: 'Invoice Product 6',
+        discountable: true,
+        category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_AREA],
+        sourceRecordId: imagingArea.id,
+      });
+      await exporter(store, { 1: 'invoiceProduct' });
+      expect(writeExcelFile).toBeCalledWith(
+        [
+          {
+            data: [
+              ['id', 'name', 'discountable', 'category', 'sourceRecordId', 'visibilityStatus'],
+              ['invoiceProduct-0', 'Invoice Product Ad hoc', false, null, null, 'current'],
+              ['invoiceProduct-1', 'Invoice Product 1', true, 'Drug', 'drug-1', 'current'],
+              [
+                'invoiceProduct-2',
+                'Invoice Product 2',
+                false,
+                'ProcedureType',
+                'procedure-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-3',
+                'Invoice Product 3',
+                true,
+                'LabTestPanel',
+                'labTestPanel-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-4',
+                'Invoice Product 4',
+                true,
+                'LabTestType',
+                'labTestType-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-5',
+                'Invoice Product 5',
+                true,
+                'ImagingType',
+                'imagingType-1',
+                'current',
+              ],
+              [
+                'invoiceProduct-6',
+                'Invoice Product 6',
+                true,
+                'ImagingArea',
+                'imagingArea-1',
+                'current',
+              ],
+            ],
+            name: 'Invoice Product',
+          },
+        ],
+        '',
+      );
+    });
   });
 });
 
