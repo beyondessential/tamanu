@@ -206,7 +206,6 @@ const getFacility = ({ facilityName, facilityId }) => (
   </FacilityWrapper>
 );
 
-// Should be Discharging clinician or examining clinician
 const getClinician = ({ clinicianName }) => (
   <FacilityWrapper data-testid="clinicianwrapper-8m5n">{clinicianName || '-'}</FacilityWrapper>
 );
