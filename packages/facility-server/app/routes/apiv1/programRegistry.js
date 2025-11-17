@@ -385,9 +385,14 @@ programRegistry.get(
       order: [['name', 'ASC']],
     });
 
+    // check permissions for each chart
+    const permittedCharts = charts.filter(chart =>
+      req.ability.can('list', subject('Charting', { id: chart.id })),
+    );
+
     res.send({
-      data: charts.map(c => c.forResponse()),
-      count: charts.length,
+      data: permittedCharts.map(c => c.forResponse()),
+      count: permittedCharts.length,
     });
   }),
 );

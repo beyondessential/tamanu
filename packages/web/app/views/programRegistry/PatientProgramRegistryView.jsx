@@ -17,7 +17,6 @@ import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
 import { PatientNavigation } from '../../components/PatientNavigation';
 import { usePatientRoutes } from '../../routes/PatientRoutes';
 import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';
-import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -75,12 +74,6 @@ export const PatientProgramRegistryView = () => {
     programRegistryId,
   );
 
-  // Check if there are linked charts for this program registry
-  const { data: { chartSurveys = [] } = {} } = useProgramRegistryLinkedChartsQuery(
-    programRegistryId,
-  );
-  const hasLinkedCharts = chartSurveys.length > 0;
-
   const patientRoutes = usePatientRoutes();
 
   if (isLoading || isFetching) {
@@ -131,8 +124,7 @@ export const PatientProgramRegistryView = () => {
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
-        {/* Charts section - only show if there are linked charts */}
-        {hasLinkedCharts && patient && (
+        {patient && (
           <Row>
             <ProgramRegistryChartsView programRegistryId={programRegistryId} patient={patient} />
           </Row>
