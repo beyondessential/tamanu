@@ -93,9 +93,7 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
 `;
 
 const ChartsContainer = styled.div`
-  margin-top: 30px;
-  border-top: 2px solid ${Colors.outline};
-  padding-top: 20px;
+  margin-top: 20px;
 `;
 
 const ChartsPanel = styled.div`
