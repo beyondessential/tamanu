@@ -115,7 +115,7 @@ const ClinicFields = () => {
           />
         }
         required
-        data-testid="field-admission-time"
+        data-testid="field-check-in-time"
       />
       <LocalisedField
         name="patientBillingTypeId"
