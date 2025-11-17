@@ -30,7 +30,7 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, open = false, encounterType, facility, dischargingClinician } = query;
+    const { order = 'ASC', orderBy, open = false, encounterType, facilityId, dischargingClinicianId } = query;
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
@@ -52,13 +52,13 @@ patientRelations.get(
 
     const searchFilters = [
       makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
-      makeFilter(facility, 'locations.facility_id = :facilityId'),
-      makeFilter(dischargingClinician, 'discharger.id = :dischargingClinicianId'),
+      makeFilter(facilityId, 'locations.facility_id = :facilityId'),
+      makeFilter(dischargingClinicianId, 'discharger.id = :dischargingClinicianId'),
     ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       searchFilters,
-      { encounterType, facilityId: facility, dischargingClinicianId: dischargingClinician },
+      { encounterType, facilityId, dischargingClinicianId },
     );
 
     const baseParams = { patientId: params.id, ...filterReplacements };
@@ -245,7 +245,7 @@ patientRelations.get(
             ],
           },
           include: [
-            {
+            {c
               association: 'answers',
             },
             {

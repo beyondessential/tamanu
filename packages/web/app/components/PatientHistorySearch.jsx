@@ -52,13 +52,13 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
       />
       <StyledField
         component={AutocompleteField}
-        name="facility"
+        name="facilityId"
         label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
         suggester={facilitySuggester}
       />
       <StyledField
         component={AutocompleteField}
-        name="dischargingClinician"
+        name="dischargingClinicianId"
         label={
           <TranslatedText
             stringId="general.dischargingClinician.label"
