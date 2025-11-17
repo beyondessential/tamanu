@@ -32,9 +32,16 @@ const discountAmount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  */
 export const getInvoiceItemTotalPrice = invoiceItem => {
-  const price = invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price ?? 0;
-  const quantity = invoiceItem.quantity ?? 1;
+<<<<<<< Updated upstream
+  const rawPriceValue =
+    invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
+  return new Decimal(rawPriceValue || 0).times(invoiceItem?.quantity || 1).toNumber();
+=======
+  const price = invoiceItem.productPrice || invoiceItem?.product?.invoicePriceListItem?.price || 0;
+  const quantity = invoiceItem.quantity || 1;
+
   return new Decimal(price).times(quantity).toNumber();
+>>>>>>> Stashed changes
 };
 
 /**
@@ -51,33 +58,21 @@ export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
 };
 
 /**
- * Calculates the total insurance coverage for a list of invoice items.
- *
- * The function iterates through the provided `invoiceItems`, calculates
- * the discounted price for each item, and determines the total insurance
- * coverage based on each item's associated insurance plans. Each coverage
- * value is capped at the item's discounted price to ensure it does not exceed
- * the discounted amount.
- *
- * @param {Array<Object>} invoiceItems - Array of invoice item objects
- * @returns {Decimal} - The total insurance coverage for all invoice items
+ * Get the discount amount of an invoice insurer
+ * @param {InvoiceInsurer} insurer
+ * @param {number} total
  */
-export const getInsuranceCoverageTotal = invoiceItems => {
-  return invoiceItems.reduce((sum, item) => {
-    const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
+export const getInvoiceInsurerDiscountAmount = (insurer, total) => {
+  return discountAmount(total || 0, insurer?.percentage || 0);
+};
 
-    const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
-      if (!itemPlan.coverageValue) {
-        return itemSum;
-      }
-      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100).toNumber();
-      return itemSum.plus(coverage);
-    }, new Decimal(0));
-
-    const cappedItemInsurance =
-      totalItemInsurance > discountedPrice ? discountedPrice : totalItemInsurance;
-    return sum.plus(cappedItemInsurance);
-  }, new Decimal(0));
+/**
+ * Get the discount amount of an invoice discount
+ * @param {InvoiceDiscount} discount
+ * @param {number} total
+ */
+const getInvoiceDiscountDiscountAmount = (discount, total) => {
+  return discountAmount(total || 0, discount?.percentage || 0);
 };
 
 /**
@@ -88,13 +83,41 @@ export const getInsuranceCoverageTotal = invoiceItems => {
 export const getInvoiceSummary = invoice => {
   invoice = JSON.parse(JSON.stringify(invoice)); // deep clone to convert sequelize entity to plain objects
 
-  const invoiceItemsTotal = invoice.items.reduce(
-    (sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0),
-    new Decimal(0),
+  const discountableItemsSubtotal = invoice.items
+    .filter(item => item?.productDiscountable)
+    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
+    .toNumber();
+
+  const nonDiscountableItemsSubtotal = invoice.items
+    .filter(item => !item?.productDiscountable)
+    .reduce((sum, item) => sum.plus(getInvoiceItemTotalDiscountedPrice(item) || 0), new Decimal(0))
+    .toNumber();
+
+  const itemsSubtotal = new Decimal(discountableItemsSubtotal)
+    .add(nonDiscountableItemsSubtotal)
+    .toNumber();
+
+  const insurersDiscountPercentage = invoice.insurers
+    .reduce((sum, insurer) => sum.plus(insurer?.percentage || 0), new Decimal(0))
+    .toNumber();
+
+  const insurerDiscountTotal = new Decimal(itemsSubtotal)
+    .times(insurersDiscountPercentage)
+    .toNumber();
+
+  const patientSubtotal = new Decimal(itemsSubtotal).minus(insurerDiscountTotal).toNumber();
+
+  const patientDiscountableSubtotal = discountedPrice(
+    discountableItemsSubtotal,
+    insurersDiscountPercentage,
   );
 
-  const insuranceCoverageTotal = getInsuranceCoverageTotal(invoice.items);
-  const patientTotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
+  const discountTotal = getInvoiceDiscountDiscountAmount(
+    invoice.discount,
+    patientDiscountableSubtotal,
+  );
+
+  const patientTotal = new Decimal(patientSubtotal).minus(discountTotal).toNumber();
 
   //Calculate payments as well
   const patientPaymentsTotal = invoice.payments
@@ -112,15 +135,19 @@ export const getInvoiceSummary = invoice => {
   const patientPaymentRemainingBalance = new Decimal(patientTotal)
     .minus(patientPaymentsTotal)
     .toNumber();
-  const insurerPaymentRemainingBalance = new Decimal(insuranceCoverageTotal)
+  const insurerPaymentRemainingBalance = new Decimal(insurerDiscountTotal)
     .minus(insurerPaymentsTotal)
     .toNumber();
 
   return {
-    invoiceItemsTotal: invoiceItemsTotal.toNumber(),
-    patientSubtotal: invoiceItemsTotal.toNumber(),
-    insuranceCoverageTotal: insuranceCoverageTotal.toNumber(),
-    patientTotal: patientTotal.toNumber(),
+    discountableItemsSubtotal,
+    nonDiscountableItemsSubtotal,
+    itemsSubtotal,
+    insurerDiscountTotal,
+    patientSubtotal,
+    patientDiscountableSubtotal,
+    discountTotal,
+    patientTotal,
     patientPaymentsTotal,
     insurerPaymentsTotal,
     paymentsTotal,

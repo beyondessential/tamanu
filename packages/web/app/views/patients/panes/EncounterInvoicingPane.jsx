@@ -132,7 +132,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     >
                       <TranslatedText
                         stringId="invoice.action.insurance"
-                        fallback="Insurance plans"
+                        fallback="Insurance plan"
                       />
                     </Button>
                   </NoteModalActionBlocker>
