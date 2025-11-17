@@ -243,6 +243,8 @@ export const PatientHistory = ({ patient, onItemClick }) => {
   const { ability } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
+  // Todo persist
+  const [searchParameters, setSearchParameters] = useState({});
   const translationContext = useTranslation();
 
   const actions = [
@@ -378,6 +380,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
+        queryParameters={searchParameters}
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
@@ -401,7 +404,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
                 data-testid="translatedtext-nmkf"
               />
             </Heading4>
-            <PatientHistorySearch />
+            <PatientHistorySearch onSearch={setSearchParameters} />
           </Box>
         }
         ExportButton={props => (

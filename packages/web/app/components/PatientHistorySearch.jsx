@@ -91,11 +91,7 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
   );
 };
 
-export const PatientHistorySearch = ({
-  onSearch = values => {
-    console.log('values', values);
-  },
-}) => {
+export const PatientHistorySearch = ({ onSearch }) => {
   return (
     <Form
       initialValues={{
