@@ -4,24 +4,17 @@ import { Button, TranslatedText } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPES } from '@tamanu/constants';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { MoveModal } from './MoveModal';
+import { EditEncounterModal } from './EditEncounterModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { NoteModalActionBlocker } from '../../../components';
 import { EncounterRecordModal } from '../../../components/PatientPrinting/modals/EncounterRecordModal';
-import { ChangeReasonModal } from '../../../components/ChangeReasonModal';
-import { ChangeDietModal } from '../../../components/ChangeDietModal';
-import { isInpatient } from '../../../utils/isInpatient';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const ENCOUNTER_MODALS = {
   NONE: 'none',
-
-  CHANGE_REASON: 'changeReason',
-  CHANGE_DIET: 'changeDiet',
-
   DISCHARGE: 'discharge',
-
+  EDIT: 'edit',
   ENCOUNTER_PROGRESS_RECORD: 'encounterProgressRecord',
-
   MOVE: 'move',
 };
 
@@ -95,6 +88,10 @@ export const EncounterActions = React.memo(({ encounter }) => {
 
   const actions = [
     {
+      label: <TranslatedText stringId="encounter.action.editEncounter" fallback="Edit encounter" />,
+      onClick: () => setOpenModal(ENCOUNTER_MODALS.EDIT),
+    },
+    {
       label: (
         <TranslatedText
           stringId="encounter.action.moveToActiveEDCare"
@@ -132,17 +129,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
       ),
       onClick: () => setOpenModal(ENCOUNTER_MODALS.DISCHARGE),
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: <TranslatedText stringId="encounter.action.changeReason" fallback="Change reason" />,
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_REASON),
-      condition: () =>
-        [ENCOUNTER_TYPES.CLINIC, ENCOUNTER_TYPES.ADMISSION].includes(encounter.encounterType),
-    },
-    {
-      label: <TranslatedText stringId="encounter.action.changeDiet" fallback="Change diet" />,
-      onClick: () => setOpenModal(ENCOUNTER_MODALS.CHANGE_DIET),
-      condition: () => isInpatient(encounter.encounterType),
     },
     {
       label: (
@@ -214,6 +200,12 @@ export const EncounterActions = React.memo(({ encounter }) => {
         data-testid="MoveModal-00xl"
       />
 
+      <EditEncounterModal
+        encounter={encounter}
+        open={openModal === ENCOUNTER_MODALS.EDIT}
+        onClose={onClose}
+      />
+
       <DischargeModal
         encounter={encounter}
         open={openModal === ENCOUNTER_MODALS.DISCHARGE}
@@ -225,19 +217,6 @@ export const EncounterActions = React.memo(({ encounter }) => {
         open={openModal === ENCOUNTER_MODALS.ENCOUNTER_PROGRESS_RECORD}
         onClose={onClose}
         data-testid="encounterrecordmodal-00xl"
-      />
-
-      <ChangeReasonModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_REASON}
-        onClose={onClose}
-        data-testid="changereasonmodal-a2yv"
-      />
-      <ChangeDietModal
-        encounter={encounter}
-        open={openModal === ENCOUNTER_MODALS.CHANGE_DIET}
-        onClose={onClose}
-        data-testid="changedietmodal-imzd"
       />
     </NoteModalActionBlocker>
   );
