@@ -10,8 +10,8 @@ import {
   CodeCell,
   QuantityCell,
   OrderedByCell,
+  PriceCell,
 } from '../InvoiceForm/InvoiceItemCells';
-import { PriceCell } from '../InvoiceForm/PriceCell';
 
 const StyledItemRow = styled(Box)`
   display: flex;
