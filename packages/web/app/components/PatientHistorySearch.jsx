@@ -47,17 +47,20 @@ const SearchForm = ({ values, clearForm  }) => {
 
   return (
     <Container>
-      <TranslatedSelectField
+      <StyledField
+        component={TranslatedSelectField}
         name="encounterType"
         label={<TranslatedText stringId="general.type.label" fallback="Type" />}
         enumValues={ENCOUNTER_TYPE_LABELS}
       />
-      <AutocompleteField
+      <StyledField
+        component={AutocompleteField}
         name="facility"
         label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
         suggester={facilitySuggester}
       />
       <StyledField
+        component={TranslatedSelectField}
         name="dischargingClinician"
         label={
           <TranslatedText
@@ -78,9 +81,7 @@ const SearchForm = ({ values, clearForm  }) => {
       />
       <Box display="flex" flexDirection="column" justifyContent="flex-end">
         <ClearButton
-          onClick={() => {
-            clearForm();
-          }}
+          onClick={clearForm}
           size="small"
           data-testid="clearbutton-esac"
         >
