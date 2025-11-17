@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import { reloadPatient } from '../../store';
@@ -36,6 +35,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
   const params = useParams();
   const [openModal, setOpenModal] = useState();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
+  const navigate = useNavigate();
   const columns = useMemo(() => {
     return [
       {
@@ -165,9 +165,7 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
 
           let actions = [
             {
-              label: (
-                <TranslatedText stringId="programRegistry.action.update" fallback="Update" />
-              ),
+              label: <TranslatedText stringId="programRegistry.action.update" fallback="Update" />,
               action: () => setOpenModal({ action: 'ChangeStatus', data: row }),
               wrapper: children => <NoteModalActionBlocker>{children}</NoteModalActionBlocker>,
             },
@@ -222,10 +220,8 @@ export const ProgramRegistryTable = ({ searchParameters }) => {
     if (patient.id) {
       await dispatch(reloadPatient(patient.id));
     }
-    dispatch(
-      push(
-        `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
-      ),
+    navigate(
+      `/patients/all/${patient.id}/program-registry/${params.programRegistryId}?title=${programRegistry.name}`,
     );
   };
 

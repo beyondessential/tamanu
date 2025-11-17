@@ -189,7 +189,8 @@ describe('Suggestions', () => {
     });
 
     it('should not get patients without permission', async () => {
-      const result = await baseApp.get('/api/suggestions/patient').query({ q: 'anything' });
+      const noPermsApp = await baseApp.asRole('base');
+      const result = await noPermsApp.get('/api/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
     });
   });
@@ -553,7 +554,7 @@ describe('Suggestions', () => {
   describe('Order of results (via diagnoses)', () => {
     // Applies only to tests in this describe block
     beforeEach(() => {
-      return models.ReferenceData.truncate({ cascade: true, force: true });
+      return models.ReferenceData.destroy({ where: { type: 'diagnosis' }, force: true });
     });
 
     it('should return results that start with the query first', async () => {
@@ -608,7 +609,7 @@ describe('Suggestions', () => {
   describe('Translations', () => {
     beforeEach(async () => {
       const { TranslatedString, ReferenceData } = models;
-      await ReferenceData.truncate({ cascade: true, force: true });
+      await ReferenceData.destroy({ where: { type: 'drug' }, force: true });
       await TranslatedString.truncate({ cascade: true, force: true });
     });
 
@@ -903,7 +904,7 @@ describe('Suggestions', () => {
   });
 
   it('Should get all suggestions on the /all endpoint', async () => {
-    await models.ReferenceData.truncate({ cascade: true, force: true });
+    await models.ReferenceData.destroy({ where: { type: 'diagnosis' }, force: true });
     const dummyRecords = new Array(30).fill(0).map((_, i) => ({
       id: `diag-${i}`,
       type: 'diagnosis',

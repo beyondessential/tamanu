@@ -3,6 +3,9 @@ import {
   VERSION_COMPATIBILITY_ERRORS,
   VERSION_MAXIMUM_PROBLEM_KEY,
   VERSION_MINIMUM_PROBLEM_KEY,
+  JWT_KEY_ALG,
+  JWT_KEY_ID,
+  JWT_TOKEN_TYPES,
 } from '@tamanu/constants';
 import {
   ClientIncompatibleError,
@@ -11,6 +14,7 @@ import {
   Problem,
   ValidationError,
 } from '@tamanu/errors';
+import * as jose from 'jose';
 
 const { CentralServerConnection } = jest.requireActual('../../dist/sync/CentralServerConnection');
 
@@ -39,24 +43,47 @@ const fakeProblem = error => {
 };
 
 describe('CentralServerConnection', () => {
-  const authSuccess = fakeSuccess({
-    token: 'this-is-not-real',
-    user: {
-      id: 'not-real',
-      displayName: 'Not Real',
-      email: 'notreal@example.com',
-    },
-    settings: {
-      sync: {
-        streaming: false,
+  // Create a valid JWT token for testing
+  let validTestToken;
+
+  beforeAll(async () => {
+    // Create a valid JWT token that includes the deviceId
+    const secret = 'test-secret';
+    validTestToken = await new jose.SignJWT({
+      userId: 'not-real',
+      deviceId: 'test',
+    })
+      .setProtectedHeader({ alg: JWT_KEY_ALG, kid: JWT_KEY_ID })
+      .setIssuedAt()
+      .setIssuer('test-issuer')
+      .setAudience(JWT_TOKEN_TYPES.ACCESS)
+      .setExpirationTime('1d')
+      .sign(new TextEncoder().encode(secret));
+  });
+
+  let authSuccess;
+
+  beforeEach(() => {
+    authSuccess = fakeSuccess({
+      token: validTestToken,
+      user: {
+        id: 'not-real',
+        displayName: 'Not Real',
+        email: 'notreal@example.com',
       },
-    },
+      settings: {
+        sync: {
+          streaming: false,
+        },
+      },
+    });    
   });
   const meSuccess = fakeSuccess({
     id: 'not-real',
     displayName: 'Not Real',
     email: 'notreal@example.com',
   });
+
   const authEmpty = fakeFailure(500);
   const authInvalid = fakeProblem(new InvalidCredentialError());
   const clientVersionLowLegacy = fakeFailure(
@@ -114,7 +141,7 @@ describe('CentralServerConnection', () => {
     it('authenticates against a central server', async () => {
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(meSuccess);
       const { token, user } = await centralServer.connect();
-      expect(token).toEqual('this-is-not-real');
+      expect(token).toEqual(validTestToken);
       expect(user).toMatchObject({ id: 'not-real' });
     });
 
