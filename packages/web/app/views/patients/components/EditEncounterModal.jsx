@@ -93,7 +93,7 @@ const HospitalAdmissionFields = () => {
               fallback="Reason for encounter"
             />
           }
-          data-testid="field-diet"
+          data-testid="field-resonForEncounter"
         />
       </div>
     </>
@@ -115,7 +115,7 @@ const ClinicFields = () => {
           />
         }
         required
-        data-testid="field-admission-time"
+        data-testid="field-check-in-time"
       />
       <LocalisedField
         name="patientBillingTypeId"
