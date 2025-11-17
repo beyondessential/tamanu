@@ -240,7 +240,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
-  const { setPatientHistoryParameters, patientHistoryParameters } = usePatientSearchParameters();
+  const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -405,7 +405,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
                 data-testid="translatedtext-nmkf"
               />
             </Heading4>
-            <PatientHistorySearch onSearch={setPatientHistoryParameters} initialValues={patientHistoryParameters} />
+            <PatientHistorySearch />
           </Box>
         }
         ExportButton={props => (

@@ -71,12 +71,12 @@ patientRelations.get(
         SELECT COUNT(1) as count
         FROM
           encounters
-          ${facility ? 'INNER JOIN locations ON encounters.location_id = locations.id' : ''}
-          ${dischargingClinician ? 'LEFT JOIN discharges ON discharges.encounter_id = encounters.id LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id' : ''}
+          ${facilityId ? 'INNER JOIN locations ON encounters.location_id = locations.id' : ''}
+          ${dischargingClinicianId ? 'LEFT JOIN discharges ON discharges.encounter_id = encounters.id LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id' : ''}
         WHERE
           patient_id = :patientId
           AND encounters.deleted_at IS NULL
-          ${facility ? 'AND locations.deleted_at IS NULL' : ''}
+          ${facilityId ? 'AND locations.deleted_at IS NULL' : ''}
           ${open ? 'AND encounters.end_date IS NULL' : ''}
           ${searchWhereClause}
       `,
@@ -245,7 +245,7 @@ patientRelations.get(
             ],
           },
           include: [
-            {c
+            {
               association: 'answers',
             },
             {
