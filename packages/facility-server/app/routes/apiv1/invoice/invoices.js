@@ -1,6 +1,5 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
 import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,8 +10,7 @@ import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/co
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
-
-const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -39,7 +37,7 @@ const createInvoiceSchema = z
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId: invoiceNumberGenerator(),
+    displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
 invoiceRoute.post(
@@ -57,31 +55,12 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
-    // create invoice transaction
-    const transaction = await req.db.transaction();
-
-    try {
-      //create invoice
-      const invoice = await req.models.Invoice.create(data, { transaction });
-
-      // create invoice discount
-      if (data.discount)
-        await req.models.InvoiceDiscount.create(
-          {
-            ...data.discount,
-            invoiceId: data.id,
-            appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
-          },
-          { transaction },
-        );
-
-      await transaction.commit();
-      res.json(invoice);
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    // Handles invoice creation with default insurer and discount
+    const invoice = await req.models.Invoice.initializeInvoice(
+      req.user.id,
+      data,
+    );
+    res.json(invoice);
   }),
 );
 

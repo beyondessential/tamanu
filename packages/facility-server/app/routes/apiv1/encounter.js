@@ -16,6 +16,8 @@ import {
   TASK_STATUSES,
   SURVEY_TYPES,
   DASHBOARD_ONLY_TASK_TYPES,
+  INVOICE_STATUSES,
+  ENCOUNTER_TYPES,
 } from '@tamanu/constants';
 import {
   simpleGet,
@@ -42,6 +44,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -49,13 +52,28 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body, user } = req;
+    const { models, body: { facilityId, ...data }, user } = req;
     req.checkPermission('create', 'Encounter');
-    const validatedBody = validate(createEncounterSchema, body);
+    const validatedBody = validate(createEncounterSchema, data);
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
 
-    if (body.dietIds) {
-      const dietIds = JSON.parse(body.dietIds);
+    const isInvoicingEnabled = await req.settings[facilityId]?.get('features.enableInvoicing');
+    const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
+    const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
+    if (isInvoicingEnabled && shouldCreateInvoice) {
+      await models.Invoice.initializeInvoice(
+        req.user.id,
+        {
+          displayId: generateInvoiceDisplayId(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          date: encounterObject.startDate,
+          encounterId: encounterObject.id,
+        },
+      );
+    }
+
+    if (data.dietIds) {
+      const dietIds = JSON.parse(data.dietIds);
       await encounterObject.addDiets(dietIds);
     }
     res.send(encounterObject);
