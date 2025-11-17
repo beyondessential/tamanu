@@ -209,7 +209,9 @@ const getFacility = ({ facilityName, facilityId }) => (
 
 const getClinician = ({ dischargerName }) => (
   <FacilityWrapper data-testid="clinicianwrapper-8m5n">
-    {dischargerName || <TranslatedText fallback="N/A" stringId="general.fallback.notApplicable" />}
+    {dischargerName || (
+      <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
+    )}
   </FacilityWrapper>
 );
 
