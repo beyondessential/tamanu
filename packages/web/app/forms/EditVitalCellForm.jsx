@@ -147,7 +147,7 @@ export const EditVitalCellForm = ({
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, isReasonMandatory);
   const validationSchema = getValidationSchema(editVitalData, getTranslation, {
-    encounterType: encounter.encounterType,
+    encounterType: encounter?.encounterType,
   });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
@@ -177,13 +177,13 @@ export const EditVitalCellForm = ({
       const newVitalData = {
         ...newShapeData,
         dataElementId: valueName,
-        encounterId: encounter.id,
+        encounterId: encounter?.id,
         recordedDate: dataPoint.recordedDate,
       };
       await api.post(`surveyResponseAnswer/${directory}`, { facilityId, ...newVitalData });
     }
     const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
-    queryClient.invalidateQueries([primaryQueryKey, encounter.id]);
+    queryClient.invalidateQueries([primaryQueryKey, encounter?.id]);
     
     // Also invalidate program registry queries if in program registry context
     if (!isVital && programRegistryPatientId && programRegistrySurveyId) {
