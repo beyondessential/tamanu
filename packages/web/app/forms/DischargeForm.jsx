@@ -166,7 +166,7 @@ const dischargingClinicianLabel = (
   />
 );
 
-const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialValues) => {
+const getDischargeInitialValues = (user, encounter, dischargeNotes, medicationInitialValues) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
@@ -192,7 +192,7 @@ const getDischargeInitialValues = (encounter, dischargeNotes, medicationInitialV
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId,
+      dischargerId: dischargeDraft?.dischargerId || user.id,
       dispositionId: dischargeDraft?.dispositionId,
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
@@ -680,7 +680,7 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const { getSetting } = useSettings();
   const queryClient = useQueryClient();
-  const { ability } = useAuth();
+  const { ability, currentUser } = useAuth();
   const canUpdateMedication = ability.can('write', 'Medication');
   const canWriteSensitiveMedication = ability.can('write', 'SensitiveMedication');
 
@@ -778,6 +778,7 @@ export const DischargeForm = ({
         onSubmit={handleSubmit}
         onCancel={onCancel}
         initialValues={getDischargeInitialValues(
+          currentUser,
           encounter,
           dischargeNotes,
           medicationInitialValues,
