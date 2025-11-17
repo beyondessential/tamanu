@@ -44,7 +44,7 @@ patientRelations.get(
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
-      clinicianName: 'clinician_name',
+      dischargerName: 'discharger_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -94,8 +94,6 @@ patientRelations.get(
             ON locations.facility_id = facilities.id
           LEFT JOIN location_groups
             ON location_groups.id = locations.location_group_id
-          LEFT JOIN users AS examiner 
-            ON examiner.id = encounters.examiner_id
           LEFT JOIN discharges 
             ON discharges.encounter_id = encounters.id
           LEFT JOIN users AS discharger 
