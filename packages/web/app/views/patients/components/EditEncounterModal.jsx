@@ -93,7 +93,7 @@ const HospitalAdmissionFields = () => {
               fallback="Reason for encounter"
             />
           }
-          data-testid="field-diet"
+          data-testid="field-resonForEncounter"
         />
       </div>
     </>
