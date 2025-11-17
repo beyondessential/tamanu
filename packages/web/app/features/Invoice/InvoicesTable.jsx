@@ -8,6 +8,7 @@ import {
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
+import { useLocation } from 'react-router';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants';
 import { DataFetchingTable } from '../../components/Table';
@@ -24,6 +25,7 @@ import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInv
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { PATIENT_PATHS, PATIENT_TABS } from '../../constants/patientPaths';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -236,7 +238,7 @@ const COLUMNS = [
 
 export const InvoicesTable = ({ patient }) => {
   const { ability } = useAuth();
-  const { navigateToEncounter } = usePatientNavigation();
+  const { navigateToEncounter, setNavigateBackTab } = usePatientNavigation();
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
 
   return (
@@ -276,6 +278,8 @@ export const InvoicesTable = ({ patient }) => {
         onClickRow={
           ability.can('read', 'Invoice')
             ? (_, data) => {
+                console.log('test');
+                setNavigateBackTab(PATIENT_TABS.INVOICES);
                 navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
               }
             : undefined
