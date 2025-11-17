@@ -60,8 +60,6 @@ patientRelations.get(
       searchFilters,
       { encounterType, facilityId, dischargingClinicianId },
     );
-
-    const baseParams = { patientId: params.id, ...filterReplacements };
     const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
 
     const { count, data } = await runPaginatedQuery(
@@ -112,7 +110,7 @@ patientRelations.get(
           ${searchWhereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
-      baseParams,
+      { patientId: params.id, ...filterReplacements },
       query,
     );
 
