@@ -11,7 +11,6 @@ import {
   useSuggester,
 } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters';
 
 const StyledField = styled(Field)`
   width: 150px;
@@ -86,14 +85,13 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
   );
 };
 
-export const PatientHistorySearch = () => {
-  const { setPatientHistoryParameters, patientHistoryParameters } = usePatientSearchParameters();
+export const PatientHistorySearch = ({ onSearch, initialValues }) => {
   return (
     <Form
       // Form is not submitted but is responded to on change
       onSubmit={async () => {}}
-      initialValues={patientHistoryParameters}
-      render={props => <SearchForm {...props} onSearch={setPatientHistoryParameters} />}
+      initialValues={initialValues}
+      render={props => <SearchForm {...props} onSearch={onSearch} />}
     />
   );
 };

@@ -25,6 +25,7 @@ import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 import { PatientHistorySearch } from './PatientHistorySearch.jsx';
+import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -239,13 +240,12 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
+  const { setPatientHistoryParameters, patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEncounterData, setSelectedEncounterData] = useState(null);
-  // Todo persist
-  const [searchParameters, setSearchParameters] = useState({});
   const translationContext = useTranslation();
 
   const actions = [
@@ -381,7 +381,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
-        queryParameters={searchParameters}
+        queryParameters={patientHistoryParameters}
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
@@ -405,7 +405,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
                 data-testid="translatedtext-nmkf"
               />
             </Heading4>
-            <PatientHistorySearch onSearch={setSearchParameters} />
+            <PatientHistorySearch onSearch={setPatientHistoryParameters} initialValues={patientHistoryParameters} />
           </Box>
         }
         ExportButton={props => (
