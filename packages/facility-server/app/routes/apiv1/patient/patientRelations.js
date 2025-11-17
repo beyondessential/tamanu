@@ -73,7 +73,15 @@ patientRelations.get(
             ON encounters.location_id = locations.id
           INNER JOIN facilities
             ON locations.facility_id = facilities.id
-          ${dischargingClinicianId ? 'LEFT JOIN discharges ON discharges.encounter_id = encounters.id LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id' : ''}
+          ${
+            dischargingClinicianId
+              ? `LEFT JOIN discharges
+            ON discharges.encounter_id = encounters.id
+            AND discharges.deleted_at IS NULL
+          LEFT JOIN users AS discharger
+            ON discharger.id = discharges.discharger_id`
+              : ''
+          }
         WHERE
           patient_id = :patientId
           AND encounters.deleted_at IS NULL
@@ -100,15 +108,16 @@ patientRelations.get(
             ON location_groups.id = locations.location_group_id
           LEFT JOIN discharges 
             ON discharges.encounter_id = encounters.id
+            AND discharges.deleted_at IS NULL
           LEFT JOIN users AS discharger 
             ON discharger.id = discharges.discharger_id
         WHERE
           patient_id = :patientId
-        AND encounters.deleted_at is null
-        AND locations.deleted_at is null
-        AND facilities.deleted_at is null
-        AND location_groups.deleted_at is null
-          ${open ? 'AND end_date IS NULL' : ''}
+          AND encounters.deleted_at IS NULL
+          AND locations.deleted_at IS NULL
+          AND facilities.deleted_at IS NULL
+          AND location_groups.deleted_at IS NULL
+          ${open ? 'AND encounters.end_date IS NULL' : ''}
           ${searchWhereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
