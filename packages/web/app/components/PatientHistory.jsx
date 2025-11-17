@@ -381,7 +381,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
-        queryParameters={patientHistoryParameters}
+        fetchOptions={patientHistoryParameters}
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
