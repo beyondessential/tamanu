@@ -25,6 +25,8 @@ const Container = styled(Box)`
 
 const ClearButton = styled(TextButton)`
   text-decoration: underline;
+  align-self: center;
+  margin-bottom: 15px;
 `;
 
 export const PatientHistorySearch = () => {
@@ -67,15 +69,18 @@ export const PatientHistorySearch = () => {
             }
             suggester={dischargingClinicianSuggester}
           />
+          <Box display="flex" flexDirection="column" justifyContent="flex-end">
+
           <ClearButton
             onClick={() => {
-              clearForm();
+                clearForm();
             }}
             size="small"
             data-testid="clearbutton-esac"
-          >
+            >
             <TranslatedText stringId="general.action.clear" fallback="Clear" />
           </ClearButton>
+              </Box>
         </Container>
       )}
     />
