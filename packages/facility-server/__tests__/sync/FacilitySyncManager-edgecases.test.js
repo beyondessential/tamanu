@@ -126,6 +126,8 @@ describe('FacilitySyncManager edge cases', () => {
     const CURRENT_SYNC_TICK = '6';
     const NEW_SYNC_TICK = '8';
 
+    const errorsSentToCentral = new Map();
+
     beforeAll(async () => {
       const facility = await models.Facility.create({
         ...fake(models.Facility),
@@ -177,7 +179,12 @@ describe('FacilitySyncManager edge cases', () => {
               },
             },
           ]),
-          markSessionErrored: jest.fn(),
+          markSessionErrored: jest.fn().mockImplementation((sessionId, error) => {
+            errorsSentToCentral.set(sessionId, [
+              ...(errorsSentToCentral.get(sessionId) || []),
+              error,
+            ]);
+          }),
           completePush: jest.fn(),
           endSyncSession: jest.fn(),
           initiatePull: jest.fn().mockImplementation(async () => ({
@@ -192,6 +199,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     beforeEach(async () => {
       jest.resetModules();
+      errorsSentToCentral.clear(); // Clear previous error messages
 
       await models.Encounter.truncate({ force: true, cascade: true });
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
@@ -256,11 +264,14 @@ describe('FacilitySyncManager edge cases', () => {
 
       await resolvePushOutgoingChangesPromise();
 
+      const expectedError =
+        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central";
       await expect(async () => {
         await syncPromise;
-      }).rejects.toThrow(
-        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
-      );
+      }).rejects.toThrow(expectedError);
+
+      // check that the error was sent to central
+      expect(errorsSentToCentral.get(TEST_SESSION_ID)).toEqual([expectedError]);
     });
 
     it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
