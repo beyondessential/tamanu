@@ -11,6 +11,7 @@ import {
   useSuggester,
 } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters';
 
 const StyledField = styled(Field)`
   width: 150px;
@@ -34,30 +35,29 @@ const ClearButton = styled(TextButton)`
   font-size: 12px;
 `;
 
-const SearchForm = ({ values, clearForm, onSearch }) => {
+const SearchForm = ({ values, clearForm  }) => {
+    const { setPatientHistoryParameters } = usePatientSearchParameters();
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
+
   useEffect(() => {
-    onSearch(values);
-  }, [onSearch, values]);
+     setPatientHistoryParameters(values);
+  }, [setPatientHistoryParameters, values]);
 
   return (
     <Container>
-      <StyledField
-        component={TranslatedSelectField}
+      <TranslatedSelectField
         name="encounterType"
         label={<TranslatedText stringId="general.type.label" fallback="Type" />}
         enumValues={ENCOUNTER_TYPE_LABELS}
       />
-      <StyledField
-        component={AutocompleteField}
+      <AutocompleteField
         name="facility"
         label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
         suggester={facilitySuggester}
       />
       <StyledField
-        component={AutocompleteField}
         name="dischargingClinician"
         label={
           <TranslatedText
@@ -91,7 +91,7 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
   );
 };
 
-export const PatientHistorySearch = ({ onSearch }) => {
+export const PatientHistorySearch = () => {
   return (
     // TODO ditch formik likely?
     <Form
@@ -101,7 +101,7 @@ export const PatientHistorySearch = ({ onSearch }) => {
         dischargingClinician: null,
       }}
       onSubmit={async () => {}}
-      render={props => <SearchForm {...props} onSearch={onSearch} />}
+      render={props => <SearchForm {...props} />}
     />
   );
 };
