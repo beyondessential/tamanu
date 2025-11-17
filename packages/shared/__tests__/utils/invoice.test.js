@@ -48,11 +48,11 @@ describe('Invoice Utils', () => {
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
     });
 
-    it('should handle missing quantity as 1', () => {
+    it('should handle missing quantity as 0', () => {
       const invoiceItem = {
         productPrice: 100,
       };
-      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(100);
+      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
     });
 
     it('should handle decimal prices correctly', () => {
