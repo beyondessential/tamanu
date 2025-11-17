@@ -8,7 +8,12 @@ import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CHARTING_DATA_ELEMENT_IDS,
+  SURVEY_TYPES,
+  USER_PREFERENCES_KEYS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { getAnswersFromData } from '@tamanu/ui-components';
 
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
@@ -30,6 +35,7 @@ import { Colors } from '../../constants';
 import { ChartDropdown } from '../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../components/Charting/CoreComplexChartData';
 import { useSurveyQuery } from '../../api/queries/useSurveyQuery';
+import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { SimpleChartModal } from '../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../components/Charting/constants';
@@ -117,7 +123,13 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
   } = useProgramRegistryLinkedChartsQuery(programRegistryId);
+  const { data: userPreferences } = useUserPreferencesQuery();
   const { getTranslation } = useTranslation();
+
+  const programRegistryChartPreferenceKey = useMemo(
+    () => `${USER_PREFERENCES_KEYS.SELECTED_CHART_TYPE_ID}:${programRegistryId}`,
+    [programRegistryId],
+  );
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentComplexChartTab, setCurrentComplexChartTab] = useState('');
@@ -136,6 +148,29 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
         })),
     [chartSurveys],
   );
+
+  // Initialise the selected chart using the user's last preference where possible
+  useEffect(() => {
+    if (!chartSurveys.length || selectedChartTypeId) return;
+
+    const preferredChartTypeId = userPreferences?.[programRegistryChartPreferenceKey];
+    const preferredChartIsSelectable = chartSurveys.some(
+      survey => survey.id === preferredChartTypeId,
+    );
+
+    if (preferredChartTypeId && preferredChartIsSelectable) {
+      setSelectedChartTypeId(preferredChartTypeId);
+      return;
+    }
+
+    const firstSelectableChart = chartSurveys.find(s =>
+      [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(s.surveyType),
+    );
+
+    if (firstSelectableChart) {
+      setSelectedChartTypeId(firstSelectableChart.id);
+    }
+  }, [chartSurveys, selectedChartTypeId, userPreferences, programRegistryChartPreferenceKey]);
 
   // Full data of the selected chart from the dropdown
   const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
@@ -382,6 +417,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                   selectedChartTypeId={selectedChartTypeId}
                   setSelectedChartTypeId={setSelectedChartTypeId}
                   chartTypes={chartTypes}
+                  preferenceKey={programRegistryChartPreferenceKey}
                   data-testid="chartdropdown-eox5"
                 />
                 {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
