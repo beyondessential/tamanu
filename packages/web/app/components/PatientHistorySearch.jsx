@@ -93,6 +93,7 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
 
 export const PatientHistorySearch = ({ onSearch }) => {
   return (
+    // TODO ditch formik likely
     <Form
       initialValues={{
         encounterType: null,
