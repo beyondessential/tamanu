@@ -207,8 +207,10 @@ const getFacility = ({ facilityName, facilityId }) => (
   </FacilityWrapper>
 );
 
-const getClinician = ({ clinicianName }) => (
-  <FacilityWrapper data-testid="clinicianwrapper-8m5n">{clinicianName || '-'}</FacilityWrapper>
+const getClinician = ({ dischargerName }) => (
+  <FacilityWrapper data-testid="clinicianwrapper-8m5n">
+    {dischargerName || <TranslatedText fallback="N/A" stringId="general.fallback.notApplicable" />}
+  </FacilityWrapper>
 );
 
 const SyncWarning = styled.p`
@@ -303,7 +305,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
-      key: 'clinicianName',
+      key: 'dischargerName',
       title: (
         <TranslatedText
           stringId="general.localisedField.clinician.label.short"
