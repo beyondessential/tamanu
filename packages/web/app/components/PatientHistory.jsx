@@ -39,7 +39,7 @@ const FacilityWrapper = styled.div`
 `;
 
 const ReasonForEncounterWrapper = styled.div`
-  min-width: 325px;
+  min-width: 200px;
 `;
 
 const StyledTable = styled(DataFetchingTable)`
