@@ -35,15 +35,13 @@ const ClearButton = styled(TextButton)`
   font-size: 12px;
 `;
 
-const SearchForm = ({ values, clearForm  }) => {
-  const { setPatientHistoryParameters } = usePatientSearchParameters();
+const SearchForm = ({ values, clearForm, onSearch }) => {
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
-
   useEffect(() => {
-     setPatientHistoryParameters(values);
-  }, [setPatientHistoryParameters, values]);
+    onSearch(values);
+  }, [onSearch, values]);
 
   return (
     <Container>
@@ -80,11 +78,7 @@ const SearchForm = ({ values, clearForm  }) => {
         suggester={dischargingClinicianSuggester}
       />
       <Box display="flex" flexDirection="column" justifyContent="flex-end">
-        <ClearButton
-          onClick={clearForm}
-          size="small"
-          data-testid="clearbutton-esac"
-        >
+        <ClearButton onClick={clearForm} size="small" data-testid="clearbutton-esac">
           <TranslatedText stringId="general.action.clear" fallback="Clear" />
         </ClearButton>
       </Box>
@@ -93,16 +87,13 @@ const SearchForm = ({ values, clearForm  }) => {
 };
 
 export const PatientHistorySearch = () => {
+  const { setPatientHistoryParameters, patientHistoryParameters } = usePatientSearchParameters();
   return (
-    // TODO ditch formik likely?
     <Form
-      initialValues={{
-        encounterType: null,
-        facility: null,
-        dischargingClinician: null,
-      }}
+      // Form is not submitted but is responded to on change
       onSubmit={async () => {}}
-      render={props => <SearchForm {...props} />}
+      initialValues={patientHistoryParameters}
+      render={props => <SearchForm {...props} onSearch={setPatientHistoryParameters} />}
     />
   );
 };
