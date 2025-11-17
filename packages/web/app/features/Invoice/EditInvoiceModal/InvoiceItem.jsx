@@ -11,6 +11,7 @@ import {
   QuantityCell,
   OrderedByCell,
 } from '../InvoiceForm/InvoiceItemCells';
+import { PriceCell } from '../InvoiceForm/PriceCell';
 
 const StyledItemRow = styled(Box)`
   display: flex;
@@ -24,13 +25,6 @@ const StyledItemRow = styled(Box)`
   &:last-child {
     border-bottom: 1px solid ${Colors.outline};
   }
-`;
-
-const PriceCell = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0;
-  min-height: 39px;
 `;
 
 export const InvoiceItemRow = ({
