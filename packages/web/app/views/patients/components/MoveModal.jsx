@@ -261,8 +261,8 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
         fallback="Changing encounter type from :encounterType to :newEncounterType"
         replacements={{
-          encounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType)}</b>,
-          newEncounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType)}</b>,
+          encounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType),
+          newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
         }}
       />
     </EncounterChangeDescription>
