@@ -242,7 +242,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   }
 
   if (isAdmittingToHospital) {
-    validationObject.admissionTime = yup.date().required();
+    validationObject.startTime = yup.string().required();
     validationObject.patientBillingTypeId = yup.string().nullable();
     validationObject.dietIds = yup
       .array()
@@ -287,7 +287,7 @@ const HospitalAdmissionFields = () => {
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
-          name="admissionTime"
+          name="startTime"
           component={DateTimeField}
           label={
             <TranslatedText
