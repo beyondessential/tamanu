@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
@@ -9,24 +9,21 @@ import {
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
-
 import { Colors } from '../../constants';
 import { DataFetchingTable } from '../../components/Table';
 import { TranslatedEnum, TranslatedText } from '../../components/Translation';
 import { Typography } from '@material-ui/core';
 import { ThemedTooltip } from '../../components/Tooltip';
 import { InvoiceStatus } from './InvoiceStatus';
-import { InvoiceModalGroup } from './InvoiceModalGroup';
 import {
   formatDisplayPrice,
   getInvoiceSummary,
   getInvoiceSummaryDisplay,
 } from '@tamanu/shared/utils/invoice';
-import {
-  useEncounterInvoiceQuery,
-  useInvoiceTotalOutstandingBalanceQuery,
-} from '../../api/queries/useInvoiceQuery';
+import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInvoiceQuery';
 import { useAuth } from '../../contexts/Auth';
+import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -239,20 +236,8 @@ const COLUMNS = [
 
 export const InvoicesTable = ({ patient }) => {
   const { ability } = useAuth();
-  const [openInvoiceModal, setOpenInvoiceModal] = useState();
-  const [selectedInvoice, setSelectedInvoice] = useState();
-  const [refreshTable, setRefreshTable] = useState(0);
-
-  const { data: invoice } = useEncounterInvoiceQuery(selectedInvoice?.encounterId);
+  const { navigateToEncounter } = usePatientNavigation();
   const { data: totalOutstandingBalance } = useInvoiceTotalOutstandingBalanceQuery(patient?.id);
-
-  const afterDeleteInvoice = useCallback(() => setRefreshTable(prev => prev + 1), []);
-
-  useEffect(() => {
-    if (invoice) {
-      setRefreshTable(prev => prev + 1);
-    }
-  }, [invoice]);
 
   return (
     <>
@@ -291,24 +276,12 @@ export const InvoicesTable = ({ patient }) => {
         onClickRow={
           ability.can('read', 'Invoice')
             ? (_, data) => {
-                setSelectedInvoice(data);
-                // Todo: Link to invoice view
+                navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
               }
             : undefined
         }
-        refreshCount={refreshTable}
         data-testid="table-ea81"
       />
-      {openInvoiceModal && (
-        <InvoiceModalGroup
-          initialModalType={openInvoiceModal}
-          initialInvoice={invoice}
-          onClose={() => setOpenInvoiceModal()}
-          isPatientView
-          afterDeleteInvoice={afterDeleteInvoice}
-          data-testid="invoicemodalgroup-6dca"
-        />
-      )}
     </>
   );
 };

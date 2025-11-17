@@ -77,6 +77,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+  const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   return (
     <>
@@ -90,7 +91,9 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
                     {invoice.displayId}
                   </InvoiceTitle>
-                  <InvoiceSubTitle>{patient?.village.name}</InvoiceSubTitle>
+                  <InvoiceSubTitle>
+                    {patient?.village.name} {insurancePlans}
+                  </InvoiceSubTitle>
                 </Box>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
@@ -139,7 +142,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceForm invoice={invoice} isPatientView={false} />
+            <InvoiceForm invoice={invoice} />
             <InvoiceSummaryPanel invoice={invoice} />
           </InvoiceContainer>
         </TabPane>
