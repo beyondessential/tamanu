@@ -339,6 +339,18 @@ export const buildSyncRoutes = ctx => {
     }),
   );
 
+  // mark session as errored, so server will record the error and cancel the sync
+  syncRoutes.post(
+    '/:sessionId/error',
+    asyncHandler(async (req, res) => {
+      const { params, body } = req;
+      const { sessionId } = params;
+      const { error } = body;
+      await syncManager.endSession(sessionId, error);
+      res.json({});
+    }),
+  );
+
   // end session
   syncRoutes.delete(
     '/:sessionId',
