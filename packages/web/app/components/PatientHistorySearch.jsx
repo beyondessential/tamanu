@@ -75,7 +75,6 @@ export const PatientHistorySearch = () => {
             suggester={dischargingClinicianSuggester}
           />
           <Box display="flex" flexDirection="column" justifyContent="flex-end">
-
           <ClearButton
             onClick={() => {
                 clearForm();
