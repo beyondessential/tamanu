@@ -215,7 +215,7 @@ const EncounterChangeText = ({ newEncounterType }) => {
     />
   );
 };
-const getFormProps = ({ encounter, enablePatientMoveActions }) => {
+const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospital }) => {
   const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
@@ -239,6 +239,15 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
     validationObject.locationId = yup.string().nullable();
 
     initialValues.locationId = encounter.locationId;
+  }
+
+  if (isAdmittingToHospital) {
+    validationObject.admissionTime = yup.date().required();
+    validationObject.patientBillingTypeId = yup.string().nullable();
+    validationObject.dietIds = yup
+      .array()
+      .of(yup.string())
+      .nullable();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -348,7 +357,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     });
   };
 
-  const { initialValues, validationSchema } = getFormProps({ encounter, enablePatientMoveActions });
+  const { initialValues, validationSchema } = getFormProps({
+    encounter,
+    enablePatientMoveActions,
+    isAdmittingToHospital,
+  });
 
   return (
     <FormModal
