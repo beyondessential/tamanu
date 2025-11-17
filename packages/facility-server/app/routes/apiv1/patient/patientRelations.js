@@ -68,7 +68,7 @@ patientRelations.get(
           facilities.name AS facility_name,
           location_groups.name AS location_group_name,
           location_groups.id AS location_group_id,
-          users.display_name AS clinician_name
+          COALESCE(examiner.display_name, discharger.display_name) AS clinician_name
         FROM
           encounters
           INNER JOIN locations
@@ -77,8 +77,10 @@ patientRelations.get(
             ON locations.facility_id = facilities.id
           LEFT JOIN location_groups
             ON location_groups.id = locations.location_group_id
-          LEFT JOIN users
+          LEFT JOIN users as examiner ON examiner.id = encounters.examiner_id
             ON users.id = encounters.examiner_id
+          LEFT JOIN discharges ON discharges.encounter_id = encounters.id
+          LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id
         WHERE
           patient_id = :patientId
         AND encounters.deleted_at is null
