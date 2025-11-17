@@ -43,9 +43,7 @@ invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const {
-      body: { facilityId, ...body },
-    } = req;
+    const { body } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -58,8 +56,6 @@ invoiceRoute.post(
 
     // Handles invoice creation with default insurer and discount
     const invoice = await req.models.Invoice.initializeInvoice(
-      encounter,
-      req.settings[facilityId],
       req.user.id,
       data,
     );

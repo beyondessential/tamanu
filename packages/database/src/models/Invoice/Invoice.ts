@@ -5,7 +5,6 @@ import {
   INVOICE_STATUSES,
   SYNC_DIRECTIONS,
   SYSTEM_USER_UUID,
-  SETTING_KEYS,
 } from '@tamanu/constants';
 import { Model } from '../Model';
 import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
@@ -13,9 +12,6 @@ import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinke
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { Procedure } from '../Procedure';
 import type { InvoiceProduct } from './InvoiceProduct';
-import type { Encounter } from '../Encounter';
-import type { ReadSettings } from '@tamanu/settings/reader';
-import type { SettingPath } from '@tamanu/settings/types';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 
 export class Invoice extends Model {
@@ -193,30 +189,12 @@ export class Invoice extends Model {
   }
 
   static async initializeInvoice(
-    encounter: Encounter,
-    facilitySettings: ReadSettings,
     userId: string,
     data: any,
   ) {
-    const insurerId = await this.sequelize.models.PatientAdditionalData.findOne({
-      where: { patientId: encounter.patientId },
-      attributes: ['insurerId'],
-    }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await facilitySettings.get(
-      SETTING_KEYS.INSURER_DEFAULT_CONTRIBUTION as SettingPath,
-    );
-    const defaultInsurer =
-      insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
-
     const transaction = await this.sequelize.transaction();
     try {
       const invoice = await this.create(data, { transaction });
-
-      if (defaultInsurer)
-        await this.sequelize.models.InvoiceInsurer.create(
-          { invoiceId: invoice.id, ...defaultInsurer },
-          { transaction },
-        );
 
       if (data.discount)
         await this.sequelize.models.InvoiceDiscount.create(

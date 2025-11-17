@@ -62,8 +62,6 @@ encounter.post(
     const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
     if (isInvoicingEnabled && shouldCreateInvoice) {
       await models.Invoice.initializeInvoice(
-        encounterObject,
-        req.settings[facilityId],
         req.user.id,
         {
           displayId: generateInvoiceDisplayId(),
