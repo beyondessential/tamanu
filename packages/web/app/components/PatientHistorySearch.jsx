@@ -14,6 +14,10 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 
 const StyledField = styled(Field)`
   width: 150px;
+  & .label-field {
+    font-size: 12px;
+    font-weight: 500;
+  }
 `;
 
 const Container = styled(Box)`
@@ -24,9 +28,10 @@ const Container = styled(Box)`
 `;
 
 const ClearButton = styled(TextButton)`
-  text-decoration: underline;
+  text-decoration: none;
   align-self: center;
   margin-bottom: 15px;
+  font-size: 12px;
 `;
 
 export const PatientHistorySearch = () => {
