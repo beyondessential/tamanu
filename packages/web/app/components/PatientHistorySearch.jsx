@@ -22,7 +22,7 @@ const StyledFieldWrapper = styled(Box)`
 
 const Container = styled(Box)`
   display: flex;
-  padding-top: 2px;
+  padding-top: 5px;
   padding-bottom: 5px;
   gap: 5px;
 `;
