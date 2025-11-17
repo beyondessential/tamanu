@@ -63,19 +63,7 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="locationId"
-          component={LocalisedLocationField}
-          label={
-            <TranslatedText
-              stringId="patient.encounter.movePatient.location.label"
-              fallback="New location"
-              data-testid="translatedtext-35a6"
-            />
-          }
-          required
-          data-testid="field-tykg"
-        />
+        <Field name="locationId" component={LocalisedLocationField} data-testid="field-tykg" />
       </StyledFormGrid>
     </>
   );
@@ -118,7 +106,6 @@ const PlannedMoveFields = () => {
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
-          required
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
@@ -202,8 +189,6 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
     validationObject.locationId = yup.string().nullable();
-
-    initialValues.locationId = encounter.locationId;
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -223,10 +208,15 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
-    const locationData =
-      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
-        : { locationId: plannedLocationId || locationId };
+    const locationData = {};
+    if (action === PATIENT_MOVE_ACTIONS.PLAN) {
+      locationData.plannedLocationId = plannedLocationId || null; // null clears the planned move
+    } else {
+      const finalisedLocation = plannedLocationId || locationId;
+      if (finalisedLocation) {
+        locationData.locationId = finalisedLocation;
+      }
+    }
 
     await writeAndViewEncounter(encounter.id, {
       submittedTime: getCurrentDateTimeString(),
@@ -267,7 +257,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter }) => {
             <SectionDescription>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.description"
-                fallback="Please select the clinician and department for the patient."
+                fallback="Update patient clinician and department details below."
               />
             </SectionDescription>
             <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
