@@ -242,11 +242,19 @@ export const EncounterForm = React.memo(
             .date()
             .required()
             .translatedLabel(
-              <TranslatedText
-                stringId="patient.modal.checkIn.checkInDate.label"
-                fallback="Check-in date"
-                data-testid="translatedtext-s4yn"
-              />,
+              isInpatient(encounterType) ? (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.admissionDateTime.label"
+                  fallback="Admission date & time"
+                  data-testid="translatedtext-s4yn"
+                />
+              ) : (
+                <TranslatedText
+                  stringId="patient.modal.checkIn.checkInDateTime.label"
+                  fallback="Check-in date & time"
+                  data-testid="translatedtext-s4yn"
+                />
+              ),
             ),
           encounterType: yup
             .string()
