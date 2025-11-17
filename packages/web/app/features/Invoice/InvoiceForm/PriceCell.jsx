@@ -13,10 +13,10 @@ import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { PriceField } from '../../../components/Field/PriceField';
 import { useInvoiceItemActions } from './useInvoiceItemActions';
-import { ViewOnlyCell } from './InvoiceItemCells';
+import { StyledItemCell, ViewOnlyCell } from './InvoiceItemCells';
 import { Price } from '../Price';
 
-export const StyledItemCell = styled(Box)`
+const ItemCell = styled(StyledItemCell)`
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
@@ -28,6 +28,10 @@ const Container = styled(ViewOnlyCell)`
   flex-direction: column;
   align-items: flex-end;
   text-align: right;
+
+  .MuiTextField-root {
+    max-width: 80px;
+  }
 `;
 
 const Menu = styled(ThreeDotMenu)`
@@ -130,7 +134,7 @@ export const PriceCell = ({
 
   return (
     <>
-      <StyledItemCell width="11%" sx={{ flexGrow: 1 }}>
+      <ItemCell width="11%" sx={{ flexGrow: 1 }}>
         <Container>
           {hidePriceInput ? (
             <>
@@ -165,7 +169,7 @@ export const PriceCell = ({
             <Menu items={menuItems} data-testid="threedotmenu-zw6l" />
           </NoteModalActionBlocker>
         )}
-      </StyledItemCell>
+      </ItemCell>
       {actionModal && (
         <InvoiceItemActionModal
           open

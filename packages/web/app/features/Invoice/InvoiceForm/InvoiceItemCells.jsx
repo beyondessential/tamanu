@@ -16,6 +16,11 @@ export const StyledItemCell = styled(Box)`
   .MuiFormHelperText-root {
     font-size: 14px;
   }
+
+  .MuiTextField-root {
+    margin-top: -4px;
+    margin-bottom: -5px;
+  }
 `;
 
 export const ViewOnlyCell = styled.div`
@@ -109,7 +114,6 @@ export const QuantityCell = ({ index, item, isItemEditable }) => (
               event.target.value = '';
             }
           }}
-          size="small"
           required
           data-testid="field-6aku"
         />
@@ -135,7 +139,6 @@ export const OrderedByCell = ({
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
-          size="small"
           onChange={handleChangeOrderedBy}
           data-testid="field-xin4"
         />
