@@ -251,7 +251,17 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
     }
 
     await api.post('surveyResponse', responseData);
-    queryClient.invalidateQueries(['programRegistryPatientCharts', patient.id, survey.id]);
+    
+    // Invalidate queries for the currently displayed chart to refresh the table
+    if (selectedChartTypeId) {
+      queryClient.invalidateQueries([
+        'programRegistryPatientCharts',
+        patient.id,
+        selectedChartTypeId,
+        currentComplexChartInstance?.chartInstanceId,
+      ]);
+    }
+    
     if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
       reloadChartInstances();
     }
@@ -264,6 +274,16 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
         `programRegistry/patient/${patient.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
       );
 
+      // Invalidate queries for the currently displayed chart to refresh the table
+      if (selectedChartTypeId) {
+        queryClient.invalidateQueries([
+          'programRegistryPatientCharts',
+          patient.id,
+          selectedChartTypeId,
+          currentComplexChartInstance?.chartInstanceId,
+        ]);
+      }
+
       handleCloseModal();
       setCurrentComplexChartTab(null);
 
@@ -274,8 +294,10 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   }, [
     api,
     patient.id,
+    selectedChartTypeId,
     currentComplexChartInstance?.chartInstanceId,
     reloadChartInstances,
+    queryClient,
   ]);
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;

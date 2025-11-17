@@ -114,7 +114,16 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital }) => {
+export const EditVitalCellForm = ({ 
+  vitalLabel, 
+  dataPoint, 
+  handleClose, 
+  isVital,
+  // Program registry context props (optional)
+  programRegistryPatientId,
+  programRegistrySurveyId,
+  programRegistryInstanceId,
+}) => {
   const { getTranslation } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
@@ -175,6 +184,17 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
     }
     const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
     queryClient.invalidateQueries([primaryQueryKey, encounter.id]);
+    
+    // Also invalidate program registry queries if in program registry context
+    if (!isVital && programRegistryPatientId && programRegistrySurveyId) {
+      queryClient.invalidateQueries([
+        'programRegistryPatientCharts',
+        programRegistryPatientId,
+        programRegistrySurveyId,
+        programRegistryInstanceId,
+      ]);
+    }
+    
     handleClose();
   };
   const validateFn = values => {
