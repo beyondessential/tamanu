@@ -8,6 +8,7 @@ import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
+import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
 import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
@@ -79,22 +80,6 @@ const updateInvoiceSchema = z
       })
       .strip()
       .optional(),
-    insurers: z
-      .object({
-        id: z.string().uuid().default(uuidv4),
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        insurerId: z.string(),
-      })
-      .strip()
-      .array()
-      .refine(
-        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) <= 1,
-        'Total insurer percentage should not exceed 100%',
-      ),
     items: z
       .object({
         id: z.string().uuid().default(uuidv4),
@@ -102,10 +87,7 @@ const updateInvoiceSchema = z
         orderedByUserId: z.string(),
         productId: z.string(),
         productName: z.string(),
-        productPrice: z.coerce
-          .number()
-          .transform(amount => round(amount, 2))
-          .optional(),
+        productPrice: z.coerce.number().transform(amount => round(amount, 2)),
         productCode: z.string().default(''),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
@@ -182,16 +164,6 @@ invoiceRoute.put(
         );
       }
 
-      //remove any existing insurer if insurer ids are not matching
-      await req.models.InvoiceInsurer.destroy(
-        { where: { invoiceId, id: { [Op.notIn]: data.insurers.map(insurer => insurer.id) } } },
-        { transaction },
-      );
-      //update or create insurers
-      for (const insurer of data.insurers) {
-        await req.models.InvoiceInsurer.upsert({ ...insurer, invoiceId }, { transaction });
-      }
-
       //remove any existing item if item ids are not matching
       await req.models.InvoiceItem.destroy(
         { where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } } },
@@ -200,7 +172,6 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
-
         //update or create item
         await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 
@@ -331,3 +302,4 @@ invoiceRoute.delete(
 
 invoiceRoute.use(invoiceItemsRoute);
 invoiceRoute.use(patientPaymentRoute);
+invoiceRoute.use(insurancePlansRoute);

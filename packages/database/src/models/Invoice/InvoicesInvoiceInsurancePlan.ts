@@ -1,29 +1,40 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
 import { Model } from '../Model';
-import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
 import type { InitOptions, Models } from '../../types/model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
 } from '../../sync/buildEncounterLinkedLookupFilter';
 
-export class InvoiceInsurer extends Model {
+export class InvoicesInvoiceInsurancePlan extends Model {
   declare id: string;
-  declare percentage: number;
-  declare invoiceId?: string;
-  declare insurerId?: string;
+  declare invoiceId: string;
+  declare invoiceInsurancePlanId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
-        percentage: {
-          type: DataTypes.DECIMAL,
+        invoiceId: {
+          type: DataTypes.UUID,
+          allowNull: false,
+        },
+        invoiceInsurancePlanId: {
+          type: DataTypes.TEXT,
           allowNull: false,
         },
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        indexes: [
+          { fields: ['invoiceId'] },
+          { fields: ['invoiceInsurancePlanId'] },
+          { unique: true, fields: ['invoiceId', 'invoiceInsurancePlanId'] },
+        ],
+      },
     );
   }
 
@@ -33,10 +44,14 @@ export class InvoiceInsurer extends Model {
       as: 'invoice',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'insurerId',
-      as: 'insurer',
+    this.belongsTo(models.InvoiceInsurancePlan, {
+      foreignKey: 'invoiceInsurancePlanId',
+      as: 'invoiceInsurancePlan',
     });
+  }
+
+  static buildSyncFilter() {
+    return null; // syncs everywhere
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {

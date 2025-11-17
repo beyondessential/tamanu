@@ -5,18 +5,20 @@ import { Button } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { InvoiceItemsTable } from '../../../features/Invoice/InvoiceItemsTable';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { InvoiceStatus } from '../../../features/Invoice/InvoiceStatus';
-import { InvoiceSummaryPanel } from '../../../features/Invoice/InvoiceSummaryPanel';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 import { useEncounterInvoiceQuery } from '../../../api/queries/useInvoiceQuery';
-import { InvoiceModalGroup } from '../../../features/Invoice/InvoiceModalGroup';
 import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
+import {
+  InvoiceStatus,
+  InvoiceItemsTable,
+  InvoiceSummaryPanel,
+  InvoiceModalGroup,
+} from '../../../features/Invoice';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -113,6 +115,12 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                       ]}
                       data-testid="threedotmenu-5t9u"
                     />
+                    <Button
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
+                      data-testid="button-insurance-2zyp"
+                    >
+                      <TranslatedText stringId="invoice.action.insurance" fallback="Insurance" />
+                    </Button>
                     <Button
                       onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE)}
                       data-testid="button-2zyp"
