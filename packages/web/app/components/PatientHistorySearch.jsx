@@ -5,6 +5,7 @@ import {
   AutocompleteField,
   Field,
   Form,
+  TextButton,
   TranslatedSelectField,
   TranslatedText,
   useSuggester,
@@ -22,13 +23,17 @@ const Container = styled(Box)`
   gap: 5px;
 `;
 
+const ClearButton = styled(TextButton)`
+  text-decoration: underline;
+`;
+
 export const PatientHistorySearch = () => {
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
   return (
     <Form
       onSubmit={async () => {}}
-      render={() => (
+      render={({ clearForm }) => (
         <Container>
           <StyledField
             component={TranslatedSelectField}
@@ -62,6 +67,15 @@ export const PatientHistorySearch = () => {
             }
             suggester={dischargingClinicianSuggester}
           />
+          <ClearButton
+            onClick={() => {
+              clearForm();
+            }}
+            size="small"
+            data-testid="clearbutton-esac"
+          >
+            <TranslatedText stringId="general.action.clear" fallback="Clear" />
+          </ClearButton>
         </Container>
       )}
     />
