@@ -9,6 +9,7 @@ import {
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
 import { ENCOUNTER_TYPE_VALUES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
@@ -29,7 +30,7 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, open = false } = query;
+    const { order = 'ASC', orderBy, open = false, encounterType, facility, dischargingClinician } = query;
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
@@ -49,6 +50,20 @@ patientRelations.get(
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
+    const searchFilters = [
+      makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
+      makeFilter(facility, 'locations.facility_id = :facilityId'),
+      makeFilter(dischargingClinician, 'discharger.id = :dischargingClinicianId'),
+    ];
+
+    const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
+      searchFilters,
+      { encounterType, facilityId: facility, dischargingClinicianId: dischargingClinician },
+    );
+
+    const baseParams = { patientId: params.id, ...filterReplacements };
+    const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
+
     const { count, data } = await runPaginatedQuery(
       db,
       Encounter,
@@ -56,10 +71,14 @@ patientRelations.get(
         SELECT COUNT(1) as count
         FROM
           encounters
+          ${facility ? 'INNER JOIN locations ON encounters.location_id = locations.id' : ''}
+          ${dischargingClinician ? 'LEFT JOIN discharges ON discharges.encounter_id = encounters.id LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id' : ''}
         WHERE
           patient_id = :patientId
-          AND deleted_at IS NULL
-          ${open ? 'AND end_date IS NULL' : ''}
+          AND encounters.deleted_at IS NULL
+          ${facility ? 'AND locations.deleted_at IS NULL' : ''}
+          ${open ? 'AND encounters.end_date IS NULL' : ''}
+          ${searchWhereClause}
       `,
       `
         SELECT
@@ -90,9 +109,10 @@ patientRelations.get(
         AND facilities.deleted_at is null
         AND location_groups.deleted_at is null
           ${open ? 'AND end_date IS NULL' : ''}
+          ${searchWhereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
-      { patientId: params.id },
+      baseParams,
       query,
     );
 
