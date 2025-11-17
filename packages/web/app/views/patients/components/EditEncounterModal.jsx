@@ -307,6 +307,8 @@ const getFormInitialValues = ({ encounter, triage }) => {
         arrivalModeId,
         score,
       };
+    default:
+      return {};
   }
 };
 
