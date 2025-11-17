@@ -166,7 +166,12 @@ const dischargingClinicianLabel = (
   />
 );
 
-const getDischargeInitialValues = (user, encounter, dischargeNotes, medicationInitialValues) => {
+const getDischargeInitialValues = ({
+  encounter,
+  currentUser,
+  dischargeNotes,
+  medicationInitialValues,
+}) => {
   const dischargeDraft = encounter?.dischargeDraft?.discharge;
   const today = new Date();
   const encounterStartDate = parseISO(encounter.startDate);
@@ -192,7 +197,7 @@ const getDischargeInitialValues = (user, encounter, dischargeNotes, medicationIn
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId || user.id,
+      dischargerId: dischargeDraft?.dischargerId || currentUser.id,
       dispositionId: dischargeDraft?.dispositionId,
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
@@ -777,12 +782,12 @@ export const DischargeForm = ({
       <PaginatedForm
         onSubmit={handleSubmit}
         onCancel={onCancel}
-        initialValues={getDischargeInitialValues(
-          currentUser,
+        initialValues={getDischargeInitialValues({
           encounter,
+          currentUser,
           dischargeNotes,
           medicationInitialValues,
-        )}
+        })}
         FormScreen={props => (
           <DischargeFormScreen
             {...props}
