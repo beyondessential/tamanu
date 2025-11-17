@@ -36,7 +36,7 @@ const ClearButton = styled(TextButton)`
 `;
 
 const SearchForm = ({ values, clearForm  }) => {
-    const { setPatientHistoryParameters } = usePatientSearchParameters();
+  const { setPatientHistoryParameters } = usePatientSearchParameters();
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
