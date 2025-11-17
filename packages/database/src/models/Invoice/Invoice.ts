@@ -196,7 +196,7 @@ export class Invoice extends Model {
     try {
       const invoice = await this.create(data, { transaction });
 
-      if (data.discount)
+      if (data.discount) {
         await this.sequelize.models.InvoiceDiscount.create(
           {
             ...data.discount,
@@ -206,6 +206,7 @@ export class Invoice extends Model {
           },
           { transaction },
         );
+      }
 
       await transaction.commit();
       return invoice;
