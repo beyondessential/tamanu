@@ -77,10 +77,12 @@ patientRelations.get(
             ON locations.facility_id = facilities.id
           LEFT JOIN location_groups
             ON location_groups.id = locations.location_group_id
-          LEFT JOIN users as examiner ON examiner.id = encounters.examiner_id
-            ON users.id = encounters.examiner_id
-          LEFT JOIN discharges ON discharges.encounter_id = encounters.id
-          LEFT JOIN users AS discharger ON discharger.id = discharges.discharger_id
+          LEFT JOIN users AS examiner 
+            ON examiner.id = encounters.examiner_id
+          LEFT JOIN discharges 
+            ON discharges.encounter_id = encounters.id
+          LEFT JOIN users AS discharger 
+            ON discharger.id = discharges.discharger_id
         WHERE
           patient_id = :patientId
         AND encounters.deleted_at is null
