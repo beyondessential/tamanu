@@ -197,7 +197,7 @@ const getDischargeInitialValues = ({
   return {
     endDate: getInitialEndDate(),
     discharge: {
-      dischargerId: dischargeDraft?.dischargerId || currentUser.id,
+      dischargerId: dischargeDraft?.dischargerId || currentUser?.id,
       dispositionId: dischargeDraft?.dispositionId,
       note: dischargeNotes?.map(n => n.content).join('\n\n') || '',
     },
