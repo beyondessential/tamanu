@@ -58,7 +58,7 @@ const SearchForm = ({ values, clearForm, onSearch }) => {
         suggester={facilitySuggester}
       />
       <StyledField
-        component={TranslatedSelectField}
+        component={AutocompleteField}
         name="dischargingClinician"
         label={
           <TranslatedText
