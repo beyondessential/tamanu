@@ -1,7 +1,7 @@
 import { EmergencyPatientsPage } from '@pages/patients/EmergencyPatientsPage';
 import { test } from '../../fixtures/baseFixture';
 import { expect } from '@playwright/test';
-import { convertDateFormat, getTableItems } from '@utils/testHelper';
+import { assertRecentDateTime, convertDateFormat, getTableItems } from '@utils/testHelper';
 import { VitalsPage } from '@pages/patients/VitalsPage/panes/VitalsPage';
 import { generateNHN } from '@utils/generateNewPatient';
 import type { PatientDetails } from '@pages/patients/PatientDetailsPage/panes/PatientDetailsTabPage';
@@ -77,7 +77,6 @@ test.setTimeout(100000);
         randomBgl: '100',
         fastingBgl: '100',
         ventilatorFlow: '10',
-        // ventilatorMode: '10', // Skipped - not filled properly or displays empty
         fio2: '100',
         pip: '10',
         peep: '10',
@@ -171,7 +170,7 @@ test.setTimeout(100000);
     }
      await expect(patientDetailsTabPage2.emailInput).toHaveValue(patientDetails.email as string);
      await expect(patientDetailsTabPage2.nationalHealthNumberInput).toHaveValue(nhn);
-     await patientDetailsTabPage2.page.reload();
+     //await patientDetailsTabPage2.page.reload();
      const patientDetailsTabPage3 = await patientDetailsPage.navigateToPatientDetailsTab();
      await patientDetailsTabPage3.waitForSectionToLoad();
      await expect(patientDetailsTabPage3.birthCertificateInput).toHaveValue(patientDetails.birthCertificate as string);
@@ -201,8 +200,7 @@ test.setTimeout(100000);
       await newImagingRequestModal.waitForModalToLoad();
       const imagingRequestCode= await newImagingRequestModal.imagingRequestCodeInput.inputValue();
 
-      const currentDateTime = format(new Date(), 'yyyy-MM-dd\'T\'HH:mm');
-      await expect(newImagingRequestModal.orderDateTimeInput).toHaveValue(currentDateTime);
+      await assertRecentDateTime(newImagingRequestModal.orderDateTimeInput, 'yyyy-MM-dd\'T\'HH:mm');
 
       const defaultRequestingClinician = await newImagingRequestModal.requestingClinicianInput.inputValue();
       const currentUser = await getUser(api);

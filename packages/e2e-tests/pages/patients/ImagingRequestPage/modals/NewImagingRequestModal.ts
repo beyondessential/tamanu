@@ -8,7 +8,6 @@ export interface ImagingRequestFormValues {
   imagingRequestType?: string;
   areasToBeImaged?: string;
   notes?: string;
-  selectFirstOption?: boolean;
 }
 
 export class NewImagingRequestModal {

@@ -27,7 +27,6 @@ export class RecordVitalsModal {
   readonly randomBglInput!: Locator;
   readonly fastingBglInput!: Locator;
   readonly ventilatorFlowInput!: Locator;
-  readonly ventilatorModeInput!: Locator;
   readonly fio2Input!: Locator;
   readonly pipInput!: Locator;
   readonly peepInput!: Locator;
@@ -70,7 +69,6 @@ export class RecordVitalsModal {
     this.randomBglInput = page.locator('input[name="pde-PatientVitalsRandomBGL"]');
     this.fastingBglInput = page.locator('input[name="pde-PatientVitalsFastingBGL"]');
     this.ventilatorFlowInput = page.locator('input[name="pde-PatientVitalsVent"]');
-    this.ventilatorModeInput = page.locator('#react-select-12-input');
     this.fio2Input = page.locator('input[name="pde-PatientVitalsFiO2"]');
     this.pipInput = page.locator('input[name="pde-PatientVitalsPIP"]');
     this.peepInput = page.locator('input[name="pde-PatientVitalsPEEP"]');

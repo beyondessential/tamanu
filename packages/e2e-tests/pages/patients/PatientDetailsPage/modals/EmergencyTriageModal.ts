@@ -1,6 +1,6 @@
 import { Page, Locator } from '@playwright/test';
 import { selectFieldOption, selectAutocompleteFieldOption } from '@utils/fieldHelpers';
-import { RecordVitalsModal } from './RecordVitalsModal';
+import { RecordVitalsModal } from '../../VitalsPage/modals/RecordVitalsModal';
 
 export class EmergencyTriageModal {
   readonly page: Page;

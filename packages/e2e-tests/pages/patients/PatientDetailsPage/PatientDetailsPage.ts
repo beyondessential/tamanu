@@ -237,7 +237,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
-    this.admitOrCheckinButton=this.page.getByTestId('component-enxe');
+    this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
 
   }
@@ -319,7 +319,7 @@ export class PatientDetailsPage extends BasePatientPage {
 
 
   async goToPatient(patient: Patient) {
-    await this.page.goto(constructFacilityUrl(`/#/patients/all/${patient.id}`));
+    await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
   }
 
   async addNewOngoingConditionWithJustRequiredFields(conditionName: string) {

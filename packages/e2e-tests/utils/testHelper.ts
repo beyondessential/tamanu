@@ -1,5 +1,5 @@
-import { Locator, Page } from '@playwright/test';
-import { subYears, addYears, format } from 'date-fns';
+import { Locator, Page, expect } from '@playwright/test';
+import { subYears, addYears, format, parse } from 'date-fns';
 
 export const STYLED_TABLE_CELL_PREFIX = 'styledtablecell-2gyy-';
 
@@ -42,15 +42,15 @@ export async function SelectingFromSearchBox(
     await suggestionOption.waitFor({ state: 'visible', timeout });
     await suggestionOption.click();
   } catch (error) {
-    throw new Error(`Failed to handle search box suggestion: ${error.message}`);
+    throw new Error(`Failed to handle search box suggestion: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 /**
- * 
+ * Utility method to get table items
  * @param page 
  * @param tableRowCount 
  * @param columnName 
- * @returns 
+ * @returns An array of table items
  */
 export async function getTableItems(page: Page, tableRowCount: number, columnName: string) {
   const items: string[] = [];
@@ -117,3 +117,21 @@ export const selectFirstFromDropdown = async (page: Page, input: Locator): Promi
   await firstOption.click();
   return await firstOption.textContent() || '';
 };
+
+/**
+ * Asserts that a datetime input field contains a recent datetime value
+ * @param inputLocator - The locator for the datetime input field
+ * @param dateFormat - The format string for parsing the date (e.g., 'yyyy-MM-dd\'T\'HH:mm')
+ * @param thresholdMinutes - Optional threshold in minutes for what is considered "recent" (default: 2)
+ */
+export async function assertRecentDateTime(
+  inputLocator: Locator,
+  dateFormat: string,
+  thresholdMinutes: number = 2,
+): Promise<void> {
+  const inputDateTimeValue = await inputLocator.inputValue();
+  const parsedInputDate = parse(inputDateTimeValue, dateFormat, new Date());
+  const now = new Date();
+  const timeDifferenceMinutes = Math.abs((now.getTime() - parsedInputDate.getTime()) / (1000 * 60));
+  expect(timeDifferenceMinutes).toBeLessThan(thresholdMinutes);
+}
