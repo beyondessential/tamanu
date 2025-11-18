@@ -266,7 +266,7 @@ const FormFields = ({ encounterType }) => {
   }
 };
 
-const getFormInitialValues = ({ encounter, triage }) => {
+const getFormInitialValues = ({ encounter, triage = {} }) => {
   const {
     diets,
     referralSourceId,
@@ -276,8 +276,7 @@ const getFormInitialValues = ({ encounter, triage }) => {
     estimatedEndDate,
   } = encounter;
 
-  const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } =
-    triage || {};
+  const { chiefComplaintId, secondaryComplaintId, arrivalTime, arrivalModeId, score } = triage;
 
   const baseInitialValues = { startDate };
   switch (encounter.encounterType) {
