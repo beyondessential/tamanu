@@ -5,21 +5,13 @@ import {
   getInvoiceItemDiscountPriceDisplay,
   getInvoiceItemPriceDisplay,
 } from '@tamanu/shared/utils/invoice';
-import {
-  Field,
-  NoteModalActionBlocker,
-} from '../../../../components';
+import { Field, NoteModalActionBlocker } from '../../../../components';
 import { useInvoiceItemActions } from '../useInvoiceItemActions';
 import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
 import { InvoiceItemActionModal } from '../../EditInvoiceModal/InvoiceItemActionModal';
-
-const StyledItemCell = styled(Box)`
-  .MuiFormHelperText-root {
-    font-size: 14px;
-  }
-`;
+import { ItemCell as StyledItemCell } from './ItemCell';
 
 const PriceText = styled.span`
   margin-right: 16px;
