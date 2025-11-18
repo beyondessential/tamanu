@@ -10,7 +10,7 @@ import {
   SelectInput,
 } from '@tamanu/ui-components';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { PatientSearchKeys, usePatientSearch } from '../contexts/PatientSearch.jsx';
+import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters.jsx';
 
 const StyledFieldWrapper = styled(Box)`
   width: 150px;
@@ -35,25 +35,23 @@ const ClearButton = styled(TextButton)`
 `;
 
 export const PatientHistorySearch = () => {
-  const { searchParameters = {}, setSearchParameters } = usePatientSearch(
-    PatientSearchKeys.PatientHistory,
-  );
+  const { patientHistoryParameters, setPatientHistoryParameters } = usePatientSearchParameters();
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
   const handleChange = useCallback(
     fieldName => event => {
-      setSearchParameters({
-        ...searchParameters,
+      setPatientHistoryParameters({
+        ...patientHistoryParameters,
         [fieldName]: event.target.value || undefined,
       });
     },
-    [setSearchParameters, searchParameters],
+    [setPatientHistoryParameters, patientHistoryParameters],
   );
 
   const handleClear = useCallback(() => {
-    setSearchParameters({});
-  }, [setSearchParameters]);
+    setPatientHistoryParameters({});
+  }, [setPatientHistoryParameters]);
 
   return (
     <Container>
@@ -61,7 +59,7 @@ export const PatientHistorySearch = () => {
         <TranslatedEnumField
           component={SelectInput}
           name="encounterType"
-          value={searchParameters.encounterType || ''}
+          value={patientHistoryParameters.encounterType || ''}
           onChange={handleChange('encounterType')}
           label={<TranslatedText stringId="general.type.label" fallback="Type" />}
           enumValues={ENCOUNTER_TYPE_LABELS}
@@ -70,7 +68,7 @@ export const PatientHistorySearch = () => {
       <StyledFieldWrapper>
         <AutocompleteInput
           name="facilityId"
-          value={searchParameters.facilityId || ''}
+          value={patientHistoryParameters.facilityId || ''}
           onChange={handleChange('facilityId')}
           label={<TranslatedText stringId="general.facility.label" fallback="Facility" />}
           suggester={facilitySuggester}
@@ -79,7 +77,7 @@ export const PatientHistorySearch = () => {
       <StyledFieldWrapper>
         <AutocompleteInput
           name="dischargingClinicianId"
-          value={searchParameters.dischargingClinicianId || ''}
+          value={patientHistoryParameters.dischargingClinicianId || ''}
           onChange={handleChange('dischargingClinicianId')}
           label={
             <TranslatedText

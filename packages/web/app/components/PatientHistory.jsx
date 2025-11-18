@@ -25,7 +25,7 @@ import { getPatientStatus } from '../utils/getPatientStatus.js';
 import { ThemedTooltip } from './Tooltip.jsx';
 import { NoteModalActionBlocker } from './NoteModalActionBlocker.jsx';
 import { PatientHistorySearch } from './PatientHistorySearch.jsx';
-import { PatientSearchKeys, usePatientSearch } from '../contexts/PatientSearch.jsx';
+import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters.jsx';
 
 const DateWrapper = styled.div`
   position: relative;
@@ -244,7 +244,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
-  const { searchParameters } = usePatientSearch(PatientSearchKeys.PatientHistory);
+  const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -385,7 +385,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
-        fetchOptions={searchParameters}
+        fetchOptions={patientHistoryParameters}
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
         noDataMessage={
