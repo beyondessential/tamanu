@@ -32,16 +32,9 @@ const discountAmount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  */
 export const getInvoiceItemTotalPrice = invoiceItem => {
-<<<<<<< Updated upstream
-  const rawPriceValue =
-    invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
-  return new Decimal(rawPriceValue || 0).times(invoiceItem?.quantity || 1).toNumber();
-=======
   const price = invoiceItem.productPrice || invoiceItem?.product?.invoicePriceListItem?.price || 0;
   const quantity = invoiceItem.quantity || 1;
-
   return new Decimal(price).times(quantity).toNumber();
->>>>>>> Stashed changes
 };
 
 /**
