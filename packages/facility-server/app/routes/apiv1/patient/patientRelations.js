@@ -30,7 +30,7 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, open = false, encounterType, facilityId, dischargingClinicianId } = query;
+    const { order = 'ASC', orderBy, open = false, ...filters} = query;
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
@@ -51,14 +51,14 @@ patientRelations.get(
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const searchFilters = [
-      makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
-      makeFilter(facilityId, 'locations.facility_id = :facilityId'),
-      makeFilter(dischargingClinicianId, 'discharger.id = :dischargingClinicianId'),
+      makeFilter(filters.encounterType, 'encounters.encounter_type = :encounterType'),
+      makeFilter(filters.facilityId, 'locations.facility_id = :facilityId'),
+      makeFilter(filters.dischargingClinicianId, 'discharger.id = :dischargingClinicianId'),
     ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       searchFilters,
-      { encounterType, facilityId, dischargingClinicianId },
+      filters,
     );
     const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
 
