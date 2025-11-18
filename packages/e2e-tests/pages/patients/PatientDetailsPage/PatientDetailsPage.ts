@@ -16,7 +16,6 @@ import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
 
-
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
   readonly vaccineTab: Locator;
@@ -85,16 +84,15 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly notesTab: Locator;
   readonly vitalsTab: Locator;
   readonly imagingTab: Locator;
-  readonly encountersList: Locator; 
+  readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
   readonly patientDetailsTab: Locator;
 
-
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
     super(page);
-    this.prepareDischargeButton= this.page.getByTestId('mainbuttoncomponent-06gp');
+    this.prepareDischargeButton = this.page.getByTestId('mainbuttoncomponent-06gp');
     this.vaccineTab = this.page.getByTestId('tab-vaccines');
     this.procedureTab = this.page.getByTestId('styledtab-ccs8-procedures');
     this.healthIdText = this.page.getByTestId('healthidtext-fqvn');
@@ -126,7 +124,9 @@ export class PatientDetailsPage extends BasePatientPage {
     this.savedOnGoingConditionNote = this.page
       .getByTestId('collapse-0a33')
       .getByTestId('field-e52k-input');
-    this.ongoingConditionNameWrapper = this.page.getByTestId('field-j30y-input-outerlabelfieldwrapper');
+    this.ongoingConditionNameWrapper = this.page.getByTestId(
+      'field-j30y-input-outerlabelfieldwrapper',
+    );
     this.submitNewOngoingConditionAddButton = this.page
       .getByTestId('formsubmitcancelrow-2r80-confirmButton')
       .first();
@@ -260,9 +260,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientProcedurePane;
   }
 
-
-
-    async navigateToLabsTab(): Promise<LabRequestPane> {
+  async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter
     await this.encountersList.first().waitFor({ state: 'visible' });
     await this.encountersList.first().filter({ hasText: 'Hospital admission' }).click();
@@ -316,7 +314,6 @@ export class PatientDetailsPage extends BasePatientPage {
     await this.encounterMedicationPane.waitForPaneToLoad();
     return this.encounterMedicationPane;
   }
-
 
   async goToPatient(patient: Patient) {
     await this.page.goto(constructFacilityUrl(`/patients/all/${patient.id}`));
