@@ -1,0 +1,63 @@
+version: 2
+sources:
+  - name: tamanu
+    schema: public
+    description: "{{ doc('generic__schema') }}"
+    tables:
+      - name: invoice_item_finalised_insurances
+        description: "{{ doc('table__invoice_item_finalised_insurances') }}"
+        config:
+          tags: []
+          meta:
+            triggers:
+              - notify_invoice_item_finalised_insurances_changed
+              - record_invoice_item_finalised_insurances_changelog
+              - set_invoice_item_finalised_insurances_updated_at
+              - set_invoice_item_finalised_insurances_updated_at_sync_tick
+        columns:
+          - name: id
+            data_type: character varying(255)
+            description: "{{ doc('generic__id') }} in invoice_item_finalised_insurances."
+            data_tests:
+              - unique
+              - not_null
+          - name: created_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__created_at') }} in
+              invoice_item_finalised_insurances."
+            data_tests:
+              - not_null
+          - name: updated_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__updated_at') }} in
+              invoice_item_finalised_insurances."
+            data_tests:
+              - not_null
+          - name: deleted_at
+            data_type: timestamp with time zone
+            description: "{{ doc('generic__deleted_at') }} in
+              invoice_item_finalised_insurances."
+          - name: updated_at_sync_tick
+            data_type: bigint
+            description: "{{ doc('generic__updated_at_sync_tick') }} in
+              invoice_item_finalised_insurances."
+            data_tests:
+              - not_null
+          - name: invoice_item_id
+            data_type: uuid
+            description: "{{ doc('invoice_item_finalised_insurances__invoice_item_id') }}"
+            data_tests:
+              - not_null
+          - name: coverage_value_final
+            data_type: numeric
+            description: "{{ doc('invoice_item_finalised_insurances__coverage_value_final')
+              }}"
+            data_tests:
+              - not_null
+          - name: invoice_insurance_plan_id
+            data_type: character varying(255)
+            description: "{{
+              doc('invoice_item_finalised_insurances__invoice_insurance_plan_id\
+              ') }}"
+            data_tests:
+              - not_null
