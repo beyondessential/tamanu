@@ -16,7 +16,7 @@ import {
   TranslatedEnum,
 } from '@tamanu/ui-components';
 import { FORM_TYPES } from '@tamanu/constants/forms';
-import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES } from '@tamanu/constants';
+import { TEMPLATE_TYPES, TEMPLATE_TYPE_LABELS, REFERENCE_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { useSuggestionsQuery } from '../../../api/queries/useSuggestionsQuery';
 import { TranslatedReferenceData } from '../../../components/Translation';
 import { Colors } from '../../../constants';
@@ -72,18 +72,23 @@ export const NewTemplateForm = memo(({ onSubmit, allowInputTitleType }) => {
     });
 
     if (noteTypes.length > 0) {
-      noteTypes.forEach(noteType => {
-        options.push({
-          value: noteType.id,
-          label: (
-            <TranslatedReferenceData
-              fallback={noteType.name}
-              value={noteType.id}
-              category={REFERENCE_TYPES.NOTE_TYPE}
-            />
-          ),
+      noteTypes
+        .filter(
+          noteType =>
+            noteType.id !== NOTE_TYPES.CLINICAL_MOBILE && noteType.id !== NOTE_TYPES.SYSTEM,
+        )
+        .forEach(noteType => {
+          options.push({
+            value: noteType.id,
+            label: (
+              <TranslatedReferenceData
+                fallback={noteType.name}
+                value={noteType.id}
+                category={REFERENCE_TYPES.NOTE_TYPE}
+              />
+            ),
+          });
         });
-      });
     }
 
     return options;

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ButtonWithPermissionCheck, AutocompleteInput } from '@tamanu/ui-components';
+import { NOTE_TYPES } from '@tamanu/constants';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteTableWithPermission } from '../../../components/NoteTable';
 import { TableButtonRow } from '../../../components';
@@ -9,7 +10,6 @@ import { TabPane } from '../components';
 import { NOTE_FORM_MODES } from '../../../constants';
 import { useEncounterNotesQuery } from '../../../contexts/EncounterNotes';
 import { TranslatedText } from '../../../components/Translation/TranslatedText';
-import { NOTE_TYPES } from '@tamanu/constants';
 import { useNoteModal } from '../../../contexts/NoteModal';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
 
@@ -22,7 +22,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
   const noteTypeSuggester = useSuggester('noteType', {
-    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE,
+    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE && id !== NOTE_TYPES.SYSTEM,
   });
 
   const noteModalOnSaved = async createdNote => {

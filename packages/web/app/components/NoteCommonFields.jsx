@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import Divider from '@material-ui/core/Divider';
-import { NOTE_TYPES } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES } from '@tamanu/constants';
 import { Box } from '@material-ui/core';
 import { InfoCard, InfoCardItem } from './InfoCard';
 import {
@@ -12,12 +12,16 @@ import {
   DateTimeInput,
   TextField,
   FormGrid,
+  SelectField,
+  ConditionalTooltip,
+  TranslatedReferenceData,
 } from '@tamanu/ui-components';
 
 import { useSuggester } from '../api';
 import { DateDisplay } from './DateDisplay';
 import { TranslatedText } from './Translation/TranslatedText';
 import { useSettings } from '../contexts/Settings';
+import { useSuggestionsQuery } from '../api/queries/useSuggestionsQuery';
 
 export const StyledDivider = styled(Divider)`
   margin-top: 30px;
@@ -36,6 +40,25 @@ export const StyledFormGrid = styled(FormGrid)`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
+
+const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
+  return (
+    <ConditionalTooltip
+      visible={
+        value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType?.[NOTE_TYPES.TREATMENT_PLAN]
+      }
+      title={
+        <TranslatedText
+          stringId="note.type.disabledTooltip"
+          fallback="This note type already exists for this encounter"
+        />
+      }
+      data-testid="styledtooltip-tj9s"
+    >
+      <div>{label}</div>
+    </ConditionalTooltip>
+  );
+};
 
 export const PreviouslyWrittenByField = ({
   label = (
@@ -257,11 +280,21 @@ export const NoteTypeField = ({
   disabled,
   $fontSize,
 }) => {
-  const noteTypeSuggester = useSuggester('noteType', {
-    filterer: ({ id }) =>
-      id !== NOTE_TYPES.SYSTEM &&
-      !(noteTypeCountByType && id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType[id]),
-  });
+  const { data: noteTypes = [] } = useSuggestionsQuery('noteType');
+
+  const noteTypeOptions = useMemo(() => {
+    return noteTypes.map(noteType => ({
+      value: noteType.id,
+      label: (
+        <TranslatedReferenceData
+          fallback={noteType.name}
+          value={noteType.id}
+          category={REFERENCE_TYPES.NOTE_TYPE}
+        />
+      ),
+      isDisabled: noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
+    }));
+  }, [noteTypes]);
 
   return (
     <Field
@@ -274,9 +307,10 @@ export const NoteTypeField = ({
         />
       }
       required={required}
-      component={AutocompleteField}
-      suggester={noteTypeSuggester}
+      component={SelectField}
+      options={noteTypeOptions}
       $fontSize={$fontSize}
+      formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
       onChange={onChange}
       menuPosition="absolute"
       menuPlacement="auto"
