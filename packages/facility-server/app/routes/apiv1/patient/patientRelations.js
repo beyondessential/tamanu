@@ -44,7 +44,7 @@ patientRelations.get(
       endDate: 'end_date',
       facilityName: 'facility_name',
       locationGroupName: 'location_group_name',
-      dischargerName: 'discharger_name',
+      dischargingClinicianName: 'discharging_clinician_name',
     };
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
@@ -102,7 +102,7 @@ patientRelations.get(
           facilities.name AS facility_name,
           location_groups.name AS location_group_name,
           location_groups.id AS location_group_id,
-          discharger.display_name AS discharger_name
+          discharger.display_name AS discharging_clinician_name
         ${fromClause}
         ${whereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}

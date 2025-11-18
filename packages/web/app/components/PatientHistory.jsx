@@ -207,9 +207,9 @@ const getFacility = ({ facilityName, facilityId }) => (
   </FacilityWrapper>
 );
 
-const getClinician = ({ dischargerName }) => (
+const getClinician = ({ dischargingClinicianName }) => (
   <FacilityWrapper data-testid="clinicianwrapper-8m5n">
-    {dischargerName || (
+    {dischargingClinicianName || (
       <TranslatedText stringId="general.fallback.notApplicable" fallback="N/A" casing="lower" />
     )}
   </FacilityWrapper>
@@ -244,7 +244,7 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
 };
 
 export const PatientHistory = ({ patient, onItemClick }) => {
-  const { searchParameters } = usePatientSearch(PatientSearchKeys.EncounterHistory);
+  const { searchParameters } = usePatientSearch(PatientSearchKeys.PatientHistory);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const queryClient = useQueryClient();
   const { ability } = useAuth();
@@ -307,7 +307,7 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
-      key: 'dischargerName',
+      key: 'dischargingClinicianName',
       title: (
         <TranslatedText
           stringId="general.localisedField.clinician.label.short"

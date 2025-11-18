@@ -35,7 +35,7 @@ const ClearButton = styled(TextButton)`
 `;
 
 export const PatientHistorySearch = () => {
-  const { searchParameters = {}, setSearchParameters } = usePatientSearch(PatientSearchKeys.EncounterHistory);
+  const { searchParameters = {}, setSearchParameters } = usePatientSearch(PatientSearchKeys.PatientHistory);
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
