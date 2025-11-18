@@ -81,19 +81,7 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field
-          name="locationId"
-          component={LocalisedLocationField}
-          label={
-            <TranslatedText
-              stringId="patient.encounter.movePatient.location.label"
-              fallback="New location"
-              data-testid="translatedtext-35a6"
-            />
-          }
-          required
-          data-testid="field-tykg"
-        />
+        <Field name="locationId" component={LocalisedLocationField} data-testid="field-tykg" />
       </StyledFormGrid>
     </>
   );
@@ -136,7 +124,6 @@ const PlannedMoveFields = () => {
         <Field
           name="plannedLocationId"
           component={LocalisedLocationField}
-          required
           data-testid="field-n625"
         />
         <LocationAvailabilityWarningMessage
@@ -216,7 +203,7 @@ const EncounterChangeText = ({ newEncounterType }) => {
     />
   );
 };
-const getFormProps = ({ encounter, enablePatientMoveActions }) => {
+const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospital }) => {
   const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
@@ -238,8 +225,15 @@ const getFormProps = ({ encounter, enablePatientMoveActions }) => {
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
     validationObject.locationId = yup.string().nullable();
+  }
 
-    initialValues.locationId = encounter.locationId;
+  if (isAdmittingToHospital) {
+    validationObject.startTime = yup.string().required();
+    validationObject.patientBillingTypeId = yup.string().nullable();
+    validationObject.dietIds = yup
+      .array()
+      .of(yup.string())
+      .nullable();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -253,8 +247,8 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
         fallback="Changing encounter type from :encounterType to :newEncounterType"
         replacements={{
-          encounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType)}</b>,
-          newEncounterType: <b>{getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType)}</b>,
+          encounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType),
+          newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
         }}
       />
     </EncounterChangeDescription>
@@ -279,7 +273,7 @@ const HospitalAdmissionFields = () => {
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
         <Field
-          name="admissionTime"
+          name="startTime"
           component={DateTimeField}
           label={
             <TranslatedText
@@ -346,10 +340,15 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
 
-    const locationData =
-      enablePatientMoveActions && action === PATIENT_MOVE_ACTIONS.PLAN
-        ? { plannedLocationId: plannedLocationId || null } // Null clears the planned move
-        : { locationId: plannedLocationId || locationId };
+    const locationData = {};
+    if (action === PATIENT_MOVE_ACTIONS.PLAN) {
+      locationData.plannedLocationId = plannedLocationId || null; // null clears the planned move
+    } else {
+      const finalisedLocation = plannedLocationId || locationId;
+      if (finalisedLocation) {
+        locationData.locationId = finalisedLocation;
+      }
+    }
 
     const encounterTypeData = newEncounterType ? { encounterType: newEncounterType } : {};
 
@@ -361,7 +360,11 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
     });
   };
 
-  const { initialValues, validationSchema } = getFormProps({ encounter, enablePatientMoveActions });
+  const { initialValues, validationSchema } = getFormProps({
+    encounter,
+    enablePatientMoveActions,
+    isAdmittingToHospital,
+  });
 
   return (
     <FormModal
@@ -406,7 +409,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
             <SectionDescription>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.move.description"
-                fallback="Please select the clinician and department for the patient."
+                fallback="Update patient clinician and department details below."
               />
             </SectionDescription>
             <StyledFormGrid columns={2} data-testid="formgrid-wyqp">

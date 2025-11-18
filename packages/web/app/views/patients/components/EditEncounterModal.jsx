@@ -39,7 +39,7 @@ const HospitalAdmissionFields = () => {
         component={DateTimeField}
         label={
           <TranslatedText
-            stringId="patient.encounter.movePatient.admissionTime.label"
+            stringId="encounter.admissionDateTime.label"
             fallback="Admission date & time"
           />
         }
@@ -76,10 +76,7 @@ const HospitalAdmissionFields = () => {
         component={DynamicSelectField}
         suggester={referralSourceSuggester}
         label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.referralSource.label"
-            fallback="Referral source"
-          />
+          <TranslatedText stringId="encounter.referralSource.label" fallback="Referral source" />
         }
         data-testid="field-referral-source"
       />
@@ -89,9 +86,7 @@ const HospitalAdmissionFields = () => {
           component={SuggesterSelectField}
           endpoint="diet"
           isMulti
-          label={
-            <TranslatedText stringId="patient.encounter.movePatient.diet.label" fallback="Diet" />
-          }
+          label={<TranslatedText stringId="encounter.diet.label" fallback="Diet" />}
           data-testid="field-diet"
         />
       </div>
@@ -101,11 +96,11 @@ const HospitalAdmissionFields = () => {
           component={TextField}
           label={
             <TranslatedText
-              stringId="patient.encounter.movePatient.reasonForEncounter.label"
+              stringId="encounter.reasonForEncounter.label"
               fallback="Reason for encounter"
             />
           }
-          data-testid="field-diet"
+          data-testid="field-reasonForEncounter"
         />
       </div>
     </>
@@ -122,12 +117,12 @@ const ClinicFields = () => {
         component={DateTimeField}
         label={
           <TranslatedText
-            stringId="patient.encounter.movePatient.checkInDate.label"
+            stringId="encounter.checkInDateTime.label"
             fallback="Check-in date & time"
           />
         }
         required
-        data-testid="field-admission-time"
+        data-testid="field-check-in-time"
       />
       <LocalisedField
         name="patientBillingTypeId"
@@ -147,10 +142,7 @@ const ClinicFields = () => {
         component={DynamicSelectField}
         suggester={referralSourceSuggester}
         label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.referralSource.label"
-            fallback="Referral source"
-          />
+          <TranslatedText stringId="encounter.referralSource.label" fallback="Referral source" />
         }
         data-testid="field-referral-source"
       />
@@ -160,7 +152,7 @@ const ClinicFields = () => {
           component={TextField}
           label={
             <TranslatedText
-              stringId="patient.encounter.movePatient.reasonForEncounter.label"
+              stringId="encounter.reasonForEncounter.label"
               fallback="Reason for encounter"
             />
           }
@@ -183,10 +175,7 @@ const TriageFields = () => {
         name="arrivalTime"
         component={DateTimeField}
         label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.arrivalTime.label"
-            fallback="Arrival date & time"
-          />
+          <TranslatedText stringId="triage.arrivalDateTime.label" fallback="Arrival date & time" />
         }
         data-testid="field-admission-time"
       />
@@ -194,10 +183,7 @@ const TriageFields = () => {
         name="startDate"
         component={DateTimeField}
         label={
-          <TranslatedText
-            stringId="patient.encounter.movePatient.triageTime.label"
-            fallback="Triage date & time"
-          />
+          <TranslatedText stringId="triage.triageDateTime.label" fallback="Triage date & time" />
         }
         required
         data-testid="field-admission-time"
@@ -219,7 +205,7 @@ const TriageFields = () => {
         name="score"
         label={
           <TranslatedText
-            stringId="patient.modal.triage.triageScore.label"
+            stringId="triage.triageScore.label"
             fallback="Triage score"
             data-testid="translatedtext-0xff"
           />
@@ -235,7 +221,7 @@ const TriageFields = () => {
           name="chiefComplaintId"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.chiefComplaint.label"
+              stringId="triage.chiefComplaint.label"
               fallback="Chief complaint"
               data-testid="translatedtext-tdrb"
             />
@@ -251,7 +237,7 @@ const TriageFields = () => {
           name="secondaryComplaintId"
           label={
             <TranslatedText
-              stringId="patient.modal.triage.secondaryComplaint.label"
+              stringId="triage.secondaryComplaint.label"
               fallback="Secondary complaint"
               data-testid="translatedtext-1xyf"
             />
@@ -322,6 +308,8 @@ const getFormInitialValues = ({ encounter, triage }) => {
         arrivalModeId,
         score,
       };
+    default:
+      return {};
   }
 };
 
@@ -387,7 +375,13 @@ export const EditEncounterModal = React.memo(({ open, onClose, encounter }) => {
             </StyledFormGrid>
             <ModalFormActionRow
               onConfirm={submitForm}
-              confirmText={'Save changes'}
+              confirmText={
+                <TranslatedText
+                  stringId="general.action.saveChanges"
+                  fallback="Save changes"
+                  data-testid="translatedtext-lvb6"
+                />
+              }
               onCancel={onClose}
               data-testid="modalformactionrow-35ou"
             />
