@@ -25,11 +25,12 @@ import {
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api';
+import { useApi, combineQueries } from '../../api';
 import { ProgramRegistryChartGraphDataProvider } from '../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../components/VitalChartsModal';
 import { useProgramRegistryPatientComplexChartInstancesQuery } from '../../api/queries/useProgramRegistryPatientComplexChartInstancesQuery';
 import { useProgramRegistryPatientChartsQuery } from '../../api/queries/useProgramRegistryPatientChartsQuery';
+import { useProgramRegistryPatientInitialChartQuery } from '../../api/queries/useProgramRegistryPatientInitialChartQuery';
 import { TabDisplay } from '../../components/TabDisplay';
 import { Colors } from '../../constants';
 import { ChartDropdown } from '../../components/Charting/ChartDropdown';
@@ -118,13 +119,26 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
+  const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
+  const chartSurveysQuery = useProgramRegistryLinkedChartsQuery(programRegistryId);
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
-  } = useProgramRegistryLinkedChartsQuery(programRegistryId);
-  const { data: userPreferences } = useUserPreferencesQuery();
+  } = chartSurveysQuery;
+  const userPreferencesQuery = useUserPreferencesQuery();
+  const { data: userPreferences } = userPreferencesQuery;
+  const chartWithResponseQuery = useProgramRegistryPatientInitialChartQuery(
+    patient?.id,
+    programRegistryId,
+  );
+  const {
+    data: [, chartWithResponse],
+    isLoading: isCombinedLoading,
+    isFetching: isCombinedFetching,
+  } = combineQueries([chartSurveysQuery, chartWithResponseQuery]);
   const { getTranslation } = useTranslation();
+  const shouldInit = !isCombinedLoading && !isInitiated && !isCombinedFetching;
 
   const programRegistryChartPreferenceKey = useMemo(
     () => `${USER_PREFERENCES_KEYS.SELECTED_CHART_TYPE_ID}:${programRegistryId}`,
@@ -151,26 +165,35 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
 
   // Initialise the selected chart using the user's last preference where possible
   useEffect(() => {
-    if (!chartSurveys.length || selectedChartTypeId) return;
+    if (!shouldInit) return;
 
-    const preferredChartTypeId = userPreferences?.[programRegistryChartPreferenceKey];
-    const preferredChartIsSelectable = chartSurveys.some(
-      survey => survey.id === preferredChartTypeId,
-    );
+    // Verify that chartWithResponse data is valid and belongs to available charts
+    const chartWithResponseSurveyId = chartWithResponse?.data?.survey?.id;
+    const chartWithResponseIsValid =
+      chartWithResponseSurveyId &&
+      chartSurveys.some(survey => survey.id === chartWithResponseSurveyId);
 
-    if (preferredChartTypeId && preferredChartIsSelectable) {
-      setSelectedChartTypeId(preferredChartTypeId);
-      return;
+    if (chartWithResponseIsValid) {
+      // Prioritize user preference, chart with response is a fallback
+      const preferredChartTypeId = userPreferences?.[programRegistryChartPreferenceKey];
+      const preferredChartIsSelectable = chartSurveys.some(
+        survey => survey.id === preferredChartTypeId,
+      );
+
+      if (preferredChartTypeId && preferredChartIsSelectable) {
+        setSelectedChartTypeId(preferredChartTypeId);
+      } else {
+        setSelectedChartTypeId(chartWithResponseSurveyId);
+      }
     }
-
-    const firstSelectableChart = chartSurveys.find(s =>
-      [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART].includes(s.surveyType),
-    );
-
-    if (firstSelectableChart) {
-      setSelectedChartTypeId(firstSelectableChart.id);
-    }
-  }, [chartSurveys, selectedChartTypeId, userPreferences, programRegistryChartPreferenceKey]);
+    setIsInitiated(true);
+  }, [
+    userPreferences,
+    chartWithResponse,
+    chartSurveys,
+    shouldInit,
+    programRegistryChartPreferenceKey,
+  ]);
 
   // Full data of the selected chart from the dropdown
   const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
