@@ -6,6 +6,7 @@ export const PatientSearchKeys = {
   AdmittedPatientsView: 'AdmittedPatientsView',
   OutpatientsView: 'OutpatientsView',
   BedManagementView: 'BedManagementView',
+  EncounterHistory: 'EncounterHistory',
 };
 
 /**

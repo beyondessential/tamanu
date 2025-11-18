@@ -6,14 +6,11 @@ export const usePatientSearchParameters = () => useContext(PatientSearchParamete
 
 export const PatientSearchParametersProvider = ({ children }) => {
   const [labResultParameters, setLabResultParameters] = useState({});
-  const [patientHistoryParameters, setPatientHistoryParameters] = useState({});
   return (
     <PatientSearchParametersContext.Provider
       value={{
         labResultParameters,
         setLabResultParameters,
-        patientHistoryParameters,
-        setPatientHistoryParameters,
       }}
     >
       {children}
