@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import {
   AutocompleteField,
@@ -8,18 +7,8 @@ import {
   NoteModalActionBlocker,
 } from '../../../../components';
 import { Colors } from '../../../../constants';
-
-const StyledItemCell = styled(Box)`
-  .MuiFormHelperText-root {
-    font-size: 14px;
-  }
-`;
-
-const ViewOnlyCell = styled.div`
-  display: flex;
-  font-size: 14px;
-  padding-left: 15px;
-`;
+import { ViewOnlyCell } from './ViewOnlyCell';
+import { ItemCell } from './ItemCell';
 
 export const DetailsCell = ({
   index,
@@ -30,7 +19,7 @@ export const DetailsCell = ({
   nonDiscountableTranslation,
   editable,
 }) => (
-  <StyledItemCell width="28%">
+  <ItemCell width="28%">
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field
@@ -63,5 +52,5 @@ export const DetailsCell = ({
         {`: ${item.note}`}
       </Box>
     )}
-  </StyledItemCell>
+  </ItemCell>
 );

@@ -1,27 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Box } from '@material-ui/core';
-import {
-  Field,
-  DateField,
-  getDateDisplay,
-  NoteModalActionBlocker,
-} from '../../../../components';
-
-const StyledItemCell = styled(Box)`
-  .MuiFormHelperText-root {
-    font-size: 14px;
-  }
-`;
-
-const ViewOnlyCell = styled.div`
-  display: flex;
-  font-size: 14px;
-  padding-left: 15px;
-`;
+import { Field, DateField, getDateDisplay, NoteModalActionBlocker } from '../../../../components';
+import { ViewOnlyCell } from './ViewOnlyCell';
+import { ItemCell } from './ItemCell';
 
 export const DateCell = ({ index, item, isItemEditable }) => (
-  <StyledItemCell width="14%">
+  <ItemCell width="14%">
     {isItemEditable ? (
       <NoteModalActionBlocker>
         <Field
@@ -37,5 +20,5 @@ export const DateCell = ({ index, item, isItemEditable }) => (
         {item?.orderDate ? getDateDisplay(item?.orderDate, 'dd/MM/yyyy') : ''}
       </ViewOnlyCell>
     )}
-  </StyledItemCell>
+  </ItemCell>
 );
