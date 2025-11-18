@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import { toDateString, formatShortest, formatTime } from '@tamanu/utils/dateTime';
@@ -256,7 +256,7 @@ const CustomCellComponent = ({ value, $maxWidth }) => {
 
 const TableHeader = ({ title, patient, hasPastAppointments }) => {
   const { ability } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [isViewPastBookingsModalOpen, setIsViewPastBookingsModalOpen] = useState(false);
 
   const canCreateAppointment = ability.can('create', 'Appointment');
@@ -284,7 +284,7 @@ const TableHeader = ({ title, patient, hasPastAppointments }) => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => history.push(`/appointments/outpatients?patientId=${patient?.id}`)}
+            onClick={() => navigate(`/appointments/outpatients?patientId=${patient?.id}`)}
             data-testid="button-q06c"
           >
             <TranslatedText
@@ -328,7 +328,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const actions = [
     {
@@ -345,7 +345,7 @@ export const OutpatientAppointmentsTable = ({ patient }) => {
 
   const handleRowClick = (_, data) => {
     const { id, startTime } = data;
-    history.push(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
+    navigate(`/appointments/outpatients?appointmentId=${id}&date=${toDateString(startTime)}`);
   };
 
   const canWriteAppointment = ability.can('write', 'Appointment');

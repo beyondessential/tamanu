@@ -72,7 +72,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly submitEditsButton: Locator;
   readonly labsTab: Locator;
   readonly notesTab: Locator;
-  readonly encountersList: Locator; 
+  readonly encountersList: Locator;
   readonly departmentLabel: Locator;
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
@@ -237,7 +237,7 @@ export class PatientDetailsPage extends BasePatientPage {
     return this.patientProcedurePane;
   }
 
- 
+
 
     async navigateToLabsTab(): Promise<LabRequestPane> {
     // Navigate to the top encounter

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Card, CardActionArea, CardContent, Stack, Typography } from '@mui/material';
 import { ChevronRight } from 'lucide-react';
 import { PORTAL_SURVEY_ASSIGNMENTS_STATUSES } from '@tamanu/constants';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router';
 import type { PortalSurveyAssignment } from '@tamanu/shared/schemas/patientPortal';
 import { Chip } from '@components/Chip';
 

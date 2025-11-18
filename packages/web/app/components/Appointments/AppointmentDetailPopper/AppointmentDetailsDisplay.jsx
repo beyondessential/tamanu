@@ -2,10 +2,8 @@ import { PriorityHigh as HighPriorityIcon } from '@material-ui/icons';
 import Overnight from '@mui/icons-material/Brightness2';
 import { styled } from '@mui/material/styles';
 import React from 'react';
-import { Link, generatePath } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-
+import { Link, generatePath, useNavigate } from 'react-router';
 import { Colors } from '../../../constants';
 import { PATIENT_PATHS, PATIENT_CATEGORIES } from '../../../constants/patientPaths';
 import { formatDateTimeRange, formatShort } from '../../../utils/dateTime';
@@ -55,6 +53,7 @@ const ClinicianContainer = styled('div')`
 
 const LinkedEncounter = ({ encounter }) => {
   const { getTranslation, getEnumTranslation, getReferenceDataTranslation } = useTranslation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
 
@@ -81,7 +80,7 @@ const LinkedEncounter = ({ encounter }) => {
       dispatch(reloadPatient(encounter.patientId)),
       loadEncounter(encounter.id),
     ]);
-    dispatch(push(encounterPath));
+    navigate((encounterPath));
   };
 
   return (
