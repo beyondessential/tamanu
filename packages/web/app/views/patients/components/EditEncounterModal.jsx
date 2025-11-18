@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
+  DateField,
   DateTimeField,
   Form,
   FormGrid,

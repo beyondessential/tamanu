@@ -6,6 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
+  DateField,
   DateTimeField,
   Form,
   FormGrid,
