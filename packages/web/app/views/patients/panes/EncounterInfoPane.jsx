@@ -140,7 +140,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
               name="estimatedEndDate"
               label={
                 <TranslatedText
-                  stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+                  stringId="encounter.estimatedDischargeDate.label"
                   fallback="Estimated discharge date"
                 />
               }
