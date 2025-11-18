@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import {
@@ -35,20 +35,25 @@ const ClearButton = styled(TextButton)`
 `;
 
 export const PatientHistorySearch = () => {
-  const { searchParameters = {}, setSearchParameters } = usePatientSearch(PatientSearchKeys.PatientHistory);
+  const { searchParameters = {}, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.PatientHistory,
+  );
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
   const dischargingClinicianSuggester = useSuggester('practitioner');
 
-  const handleChange = fieldName => event => {
-    setSearchParameters({
-      ...searchParameters,
-      [fieldName]: event.target.value || undefined,
-    })
-  };
+  const handleChange = useCallback(
+    fieldName => event => {
+      setSearchParameters({
+        ...searchParameters,
+        [fieldName]: event.target.value || undefined,
+      });
+    },
+    [setSearchParameters, searchParameters],
+  );
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setSearchParameters({});
-  };
+  }, [setSearchParameters]);
 
   return (
     <Container>
