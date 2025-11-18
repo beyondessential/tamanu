@@ -9,13 +9,13 @@ import {
   simpleGetList,
 } from '@tamanu/shared/utils/crudHelpers';
 import { ENCOUNTER_TYPE_VALUES, ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
 import { patientDeath } from './patientDeath';
 import { patientProfilePicture } from './patientProfilePicture';
 import { deleteReferral, deleteSurveyResponse } from '../../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../../utils/getPermittedSurveyIds';
+import { makeFilter, getWhereClausesAndReplacementsFromFilters } from '../../../utils/query';
 
 export const patientRelations = permissionCheckingRouter('read', 'Patient');
 
@@ -30,7 +30,14 @@ patientRelations.get(
       query,
     } = req;
 
-    const { order = 'ASC', orderBy, open = false, ...filters} = query;
+    const {
+      order = 'ASC',
+      orderBy,
+      open = false,
+      encounterType,
+      facilityId,
+      dischargingClinicianId,
+    } = query;
 
     const ENCOUNTER_SORT_KEYS = {
       startDate: 'start_date',
@@ -51,14 +58,14 @@ patientRelations.get(
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const searchFilters = [
-      makeFilter(filters.encounterType, 'encounters.encounter_type = :encounterType'),
-      makeFilter(filters.facilityId, 'locations.facility_id = :facilityId'),
-      makeFilter(filters.dischargingClinicianId, 'dischargingClinician.id = :dischargingClinicianId'),
-    ];  
+      makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
+      makeFilter(facilityId, 'locations.facility_id = :facilityId'),
+      makeFilter(dischargingClinicianId, 'dischargingClinician.id = :dischargingClinicianId'),
+    ];
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       searchFilters,
-      filters,
+      { encounterType, facilityId, dischargingClinicianId },
     );
     const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
 
