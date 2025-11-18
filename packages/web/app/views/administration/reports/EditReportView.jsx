@@ -1,13 +1,11 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { push } from 'connected-react-router';
 import React from 'react';
 import { toast } from 'react-toastify';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
+import { useParams, useNavigate } from 'react-router';
 import { OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
 import { useApi } from '../../../api';
 import { VersionInfo } from './components/VersionInfo';
 import { ReportEditor } from './ReportEditor';
@@ -44,7 +42,7 @@ export const EditReportView = () => {
   const api = useApi();
   const queryClient = useQueryClient();
   const params = useParams();
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { data: version, isLoading } = useQuery(
     ['version', params.versionId],
@@ -55,7 +53,7 @@ export const EditReportView = () => {
   );
 
   const handleBack = () => {
-    dispatch(push('admin/reports'));
+    navigate('/admin/reports');
   };
 
   const handleSave = async ({ query, status, dbSchema, notes, ...queryOptions }) => {
@@ -83,7 +81,7 @@ export const EditReportView = () => {
       );
       queryClient.invalidateQueries(['reportVersions', reportDefinition.id]);
       queryClient.invalidateQueries(['reportList']);
-      dispatch(push(`/admin/reports/${reportDefinition.id}/versions/${result.id}/edit`));
+      navigate(`/admin/reports/${reportDefinition.id}/versions/${result.id}/edit`);
     } catch (err) {
       toast.error(
         <TranslatedText
