@@ -290,7 +290,7 @@ const HospitalAdmissionFields = () => {
           saveDateAsString
           label={
             <TranslatedText
-              stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+              stringId="encounter.estimatedDischargeDate.label"
               fallback="Estimated discharge date"
             />
           }
