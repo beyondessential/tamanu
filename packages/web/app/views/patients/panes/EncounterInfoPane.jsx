@@ -18,6 +18,7 @@ import {
   arrivalDateIcon,
   departmentIcon,
   dietIcon,
+  dischargeDateIcon,
   encounterTypeIcon,
   locationIcon,
   patientTypeIcon,
@@ -289,7 +290,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    + Add
+                    + <TranslatedText stringId="general.action.add" fallback="Add" />
                   </AddButton>
                   <SetDischargeDateModal
                     open={isEstimatedDischargeModalOpen}
@@ -299,7 +300,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
                 </>
               )
             }
-            icon={arrivalDateIcon} // TODO: should be a slight variation of the arrival date icon
+            icon={dischargeDateIcon}
           />
         )}
         <InfoCardItem

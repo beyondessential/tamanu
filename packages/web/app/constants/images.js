@@ -32,7 +32,7 @@ export { default as reportTable } from '../assets/images/report_table.png';
 export { default as reportRaw } from '../assets/images/report_raw.png';
 
 export { default as arrivalDateIcon } from '../assets/images/encounter/arrival_date.svg';
-export { default as estimatedDischargeDateIcon } from '../assets/images/encounter/estimated_discharge_date.svg';
+export { default as dischargeDateIcon } from '../assets/images/encounter/discharge_date.svg';
 export { default as departmentIcon } from '../assets/images/encounter/department.svg';
 export { default as dietIcon } from '../assets/images/encounter/diet.svg';
 export { default as encounterTypeIcon } from '../assets/images/encounter/encounter_type.svg';
