@@ -53,8 +53,8 @@ patientRelations.get(
     const searchFilters = [
       makeFilter(filters.encounterType, 'encounters.encounter_type = :encounterType'),
       makeFilter(filters.facilityId, 'locations.facility_id = :facilityId'),
-      makeFilter(filters.dischargingClinicianId, 'discharger.id = :dischargingClinicianId'),
-    ];
+      makeFilter(filters.dischargingClinicianId, 'dischargingClinician.id = :dischargingClinicianId'),
+    ];  
 
     const { whereClauses, filterReplacements } = getWhereClausesAndReplacementsFromFilters(
       searchFilters,
@@ -74,8 +74,8 @@ patientRelations.get(
         LEFT JOIN discharges 
           ON discharges.encounter_id = encounters.id
           AND discharges.deleted_at IS NULL
-        LEFT JOIN users AS discharger 
-          ON discharger.id = discharges.discharger_id`;
+        LEFT JOIN users AS dischargingClinician 
+          ON dischargingClinician.id = discharges.discharger_id`;
 
     const whereClause = `
       WHERE
@@ -102,7 +102,7 @@ patientRelations.get(
           facilities.name AS facility_name,
           location_groups.name AS location_group_name,
           location_groups.id AS location_group_id,
-          discharger.display_name AS discharging_clinician_name
+          dischargingClinician.display_name AS discharging_clinician_name
         ${fromClause}
         ${whereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
