@@ -92,6 +92,12 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
   }
 `;
 
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    left: 5px;
+  }
+`;
+
 const ChartsContainer = styled.div`
   margin-top: 30px;
   border-top: 2px solid ${Colors.outline};
@@ -377,9 +383,14 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                 />
               ) : null}
 
-              <ConditionalTooltip
+              <StyledConditionalTooltip
                 visible={!recordButtonEnabled}
                 maxWidth="8rem"
+                PopperProps={{
+                  popperOptions: {
+                    positionFixed: true,
+                  },
+                }}
                 title={getTooltipMessage(selectedChartTypeId)}
                 data-testid="conditionaltooltip-uafz"
               >
@@ -402,7 +413,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                     />
                   </StyledButtonWithPermissionCheck>
                 </NoteModalActionBlocker>
-              </ConditionalTooltip>
+              </StyledConditionalTooltip>
             </TableButtonRow>
           </TableButtonRowWrapper>
 
