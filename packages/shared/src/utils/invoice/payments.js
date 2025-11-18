@@ -59,13 +59,13 @@ export const getPatientPaymentsWithRemainingBalanceDisplay = invoice => {
 
 export const getInsurerPaymentsWithRemainingBalanceDisplay = invoice => {
   const insurerPayments = invoice.payments.filter(payment => payment?.insurerPayment?.id);
-  let { insurerDiscountTotal } = getInvoiceSummary(invoice);
+  let { insuranceCoverageTotal } = getInvoiceSummary(invoice);
   const insurerPaymentsWithRemainingBalance = insurerPayments?.map(payment => {
-    insurerDiscountTotal = new Decimal(insurerDiscountTotal).minus(payment.amount).toNumber();
+    insuranceCoverageTotal = new Decimal(insuranceCoverageTotal).minus(payment.amount).toNumber();
     return {
       ...payment,
       amount: formatDisplayPrice(payment.amount),
-      remainingBalance: formatDisplayPrice(insurerDiscountTotal),
+      remainingBalance: formatDisplayPrice(insuranceCoverageTotal),
     };
   });
   return insurerPaymentsWithRemainingBalance;
