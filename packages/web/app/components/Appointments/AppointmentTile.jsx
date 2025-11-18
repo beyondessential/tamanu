@@ -11,7 +11,7 @@ import { UnstyledHtmlButton } from '@tamanu/ui-components';
 import { Colors } from '../../constants/styles';
 
 import { getPatientNameAsString } from '../PatientNameDisplay';
-import { ThemedTooltip } from '../Tooltip';
+import { ConditionalTooltip } from '../Tooltip';
 import { AppointmentDetailPopper } from './AppointmentDetailPopper/AppointmentDetailPopper';
 import {
   APPOINTMENT_STATUS_COLORS,
@@ -32,12 +32,14 @@ const Tile = styled(UnstyledHtmlButton)`
   grid-template-columns: 1fr auto;
   padding-block: 0.5rem;
   padding-inline: 0.625rem;
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease;
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  ${({ $isDragging = false }) => $isDragging && css`
+    opacity: 0.5;
+  `}
 
   &:hover {
-    background-color: var(--bg-darker);
+    background-color: ${props => props.$isDragging ? 'var(--bg-lighter)' : 'var(--bg-darker)'};
   }
 
   ${({ $color = Colors.blue, $selected = false }) => css`
@@ -50,10 +52,10 @@ const Tile = styled(UnstyledHtmlButton)`
     }
 
     ${$selected &&
-    css`
-      background-color: var(--bg-darker);
-      border-color: ${$color};
-    `}
+      css`
+        background-color: var(--bg-darker);
+        border-color: ${$color};
+      `}
   `}
 `;
 
@@ -72,7 +74,7 @@ const Label = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  ${(props) =>
+  ${props =>
     props.$strikethrough &&
     css`
       text-decoration-line: line-through;
@@ -93,6 +95,8 @@ export const AppointmentTile = ({
   actions,
   testIdPrefix,
   allowViewDetail = true,
+  isDragging = false,
+  isInDragDropProcess = false,
   ...props
 }) => {
   const {
@@ -131,12 +135,17 @@ export const AppointmentTile = ({
 
   return (
     <>
-      <ThemedTooltip title={tileText} data-testid={`themedtooltip-xoyb-${testIdPrefix}`}>
+      <ConditionalTooltip
+        visible={!isDragging && !isInDragDropProcess}
+        title={tileText}
+        data-testid={`themedtooltip-xoyb-${testIdPrefix}`}
+      >
         <Tile
           $color={APPOINTMENT_STATUS_COLORS[status]}
           $selected={open}
           ref={ref}
           onClick={() => allowViewDetail && setOpen(true)}
+          $isDragging={isDragging}
           {...props}
           data-testid={`tile-owfj-${testIdPrefix}`}
         >
@@ -173,7 +182,7 @@ export const AppointmentTile = ({
             />
           </IconGroup>
         </Tile>
-      </ThemedTooltip>
+      </ConditionalTooltip>
       <AppointmentDetailPopper
         open={open}
         onClose={() => setOpen(false)}
