@@ -7,14 +7,14 @@ import {
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
 import { Box } from '@mui/material';
-import { Field, NoteModalActionBlocker } from '../../../components';
-import { ThemedTooltip } from '../../../components/Tooltip';
-import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
-import { InvoiceItemActionModal } from './InvoiceItemActionModal';
-import { PriceField } from '../../../components/Field/PriceField';
-import { useInvoiceItemActions } from './useInvoiceItemActions';
-import { StyledItemCell, ViewOnlyCell } from './InvoiceItemCells';
-import { Price } from '../Price';
+import { Field, NoteModalActionBlocker } from '../../../../components';
+import { ThemedTooltip } from '@tamanu/ui-components';
+import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
+import { InvoiceItemActionModal } from '../InvoiceItemActionModal';
+import { PriceField } from '../../../../components/Field/PriceField';
+import { useInvoiceItemActions } from '../useInvoiceItemActions';
+import { ItemCell as StyledItemCell } from './ItemCell';
+import { Price } from '../../Price';
 
 const ItemCell = styled(StyledItemCell)`
   display: flex;
@@ -22,7 +22,7 @@ const ItemCell = styled(StyledItemCell)`
   align-items: flex-start;
 `;
 
-const Container = styled(ViewOnlyCell)`
+const Container = styled.div`
   position: relative;
   flex: 1;
   flex-direction: column;
