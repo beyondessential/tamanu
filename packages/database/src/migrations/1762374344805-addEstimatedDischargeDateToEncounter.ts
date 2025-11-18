@@ -8,6 +8,5 @@ export async function up(query: QueryInterface): Promise<void> {
 }
 
 export async function down(query: QueryInterface): Promise<void> {
-  // write your down migration here
   await query.removeColumn('encounters', 'estimated_end_date');
 }
