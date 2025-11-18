@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from '@tamanu/constants';
 
@@ -30,7 +31,9 @@ export const LocationInput = React.memo(
     required,
     className,
     value,
+    groupValue,
     onChange,
+    onGroupChange = () => {},
     size = 'medium',
     form = {},
     enableLocationStatus = true,
@@ -45,7 +48,7 @@ export const LocationInput = React.memo(
     const { facilityId: currentFacilityId } = useAuth();
     const facilityId = (facilityIdOverride ?? currentFacilityId) || '';
 
-    const [groupId, setGroupId] = useState('');
+    const [groupId, setGroupId] = useState(groupValue);
     const [locationId, setLocationId] = useState(value);
     const suggester = useSuggester('location', {
       formatter: ({ name, id, locationGroup, availability }) => {
@@ -71,14 +74,21 @@ export const LocationInput = React.memo(
     useEffect(() => {
       if (!initialValues) return;
       // Form is reinitialised, reset the state handled group and location values
-      setGroupId(initialValues?.locationGroup ?? '');
+      setGroupId('');
       setLocationId(initialValues[name] ?? '');
     }, [initialValues, name]);
 
     useEffect(() => {
-      setLocationId(value ?? '');
-      if (!value) setGroupId('');
+      if (value) {
+        setLocationId(value);
+      }
     }, [value]);
+
+    useEffect(() => {
+      if (groupValue) {
+        setGroupId(groupValue);
+      }
+    }, [groupValue]);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
@@ -87,25 +97,29 @@ export const LocationInput = React.memo(
       if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
-        onChange({ target: { value: '', name } });
+        onChange({ target: { value: '', name, groupValue: location.locationGroup.id } });
       }
 
       // Initialise the location group state
       // if the form is being opened in edit mode (i.e. there are existing values)
       if (value && !groupId && location?.locationGroup?.id) {
+        onGroupChange(location.locationGroup.id);
         setGroupId(location.locationGroup.id);
       }
-    }, [onChange, value, name, groupId, location?.id, location?.locationGroup]);
+    }, [onChange, value, name, groupId, location?.id, location?.locationGroup, onGroupChange]);
 
     const handleChangeCategory = event => {
       setGroupId(event.target.value);
-      setLocationId('');
-      onChange({ target: { value: '', name } });
+      onGroupChange(event.target.value);
+      if (locationId) {
+        setLocationId('');
+        onChange({ target: { value: '', name, groupValue: event.target.value } });
+      }
     };
 
     const handleChange = async event => {
       setLocationId(event.target.value);
-      onChange({ target: { value: event.target.value, name } });
+      onChange({ target: { value: event.target.value, name, groupValue: groupId } });
     };
 
     // Disable the location and location group fields if:
@@ -216,6 +230,10 @@ export const LocalisedLocationField = React.memo(props => {
   );
 });
 
+const Text = styled(BodyText)`
+  margin-top: -5px;
+`;
+
 export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => {
   const { data, isSuccess } = useLocationSuggestion(locationId);
 
@@ -227,25 +245,25 @@ export const LocationAvailabilityWarningMessage = ({ locationId, ...props }) => 
 
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
-      <BodyText {...props} data-testid="text-voq8">
+      <Text {...props} data-testid="text-voq8">
         <TranslatedText
           stringId="location.availability.reserved.message"
           fallback="This location is reserved by another patient. Please ensure the bed is available before confirming."
           data-testid="translatedtext-location-reserved"
         />
-      </BodyText>
+      </Text>
     );
   }
 
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
-      <BodyText {...props} data-testid="text-heyi">
+      <Text {...props} data-testid="text-heyi">
         <TranslatedText
           stringId="location.availability.occupied.message"
           fallback="This location is occupied by another patient. Please ensure the bed is available before confirming."
           data-testid="translatedtext-location-occupied"
         />
-      </BodyText>
+      </Text>
     );
   }
 

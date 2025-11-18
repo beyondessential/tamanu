@@ -122,7 +122,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
     <FormModal
       title={
         <TranslatedText
-          stringId="patient.encounter.addEstimatedDischargeDate.label"
+          stringId="encounter.modal.addEstimatedDischargeDate.title"
           fallback="Add estimated discharge date"
         />
       }
@@ -140,7 +140,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
               name="estimatedEndDate"
               label={
                 <TranslatedText
-                  stringId="patient.encounter.movePatient.estimatedDischargeDate.label"
+                  stringId="encounter.estimatedDischargeDate.label"
                   fallback="Estimated discharge date"
                 />
               }
@@ -290,7 +290,10 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
-                    + <TranslatedText stringId="general.action.add" fallback="Add" />
+                    <TranslatedText
+                      stringId="encounter.summary.addEstimatedDischargeDate"
+                      fallback="+ Add"
+                    />
                   </AddButton>
                   <SetDischargeDateModal
                     open={isEstimatedDischargeModalOpen}
