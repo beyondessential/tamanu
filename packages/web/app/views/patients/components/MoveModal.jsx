@@ -6,6 +6,7 @@ import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import {
   Button,
+  DateField,
   DateTimeField,
   Form,
   FormGrid,
@@ -282,6 +283,18 @@ const HospitalAdmissionFields = () => {
           }
           required
           data-testid="field-admission-time"
+        />
+        <Field
+          name="estimatedEndDate"
+          component={DateField}
+          saveDateAsString
+          label={
+            <TranslatedText
+              stringId="encounter.estimatedDischargeDate.label"
+              fallback="Estimated discharge date"
+            />
+          }
+          data-testid="field-discharge-date"
         />
         <LocalisedField
           name="patientBillingTypeId"

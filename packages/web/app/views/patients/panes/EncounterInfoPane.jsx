@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { DateDisplay, TranslatedEnum } from '../../../components';
+import {
+  DateDisplay,
+  FormModal,
+  ModalFormActionRow,
+  TextButton,
+  TranslatedEnum,
+} from '../../../components';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -12,6 +18,7 @@ import {
   arrivalDateIcon,
   departmentIcon,
   dietIcon,
+  dischargeDateIcon,
   encounterTypeIcon,
   locationIcon,
   patientTypeIcon,
@@ -24,7 +31,9 @@ import { isInpatient } from '../../../utils/isInpatient';
 import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
-import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
+import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
+import { useEncounter } from '../../../contexts/Encounter.jsx';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -52,6 +61,17 @@ const DietCardValue = styled.div`
   max-width: calc(100% - 28px);
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+const AddButton = styled(TextButton)`
+  color: ${TAMANU_COLORS.darkestText};
+  text-decoration: underline;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const StyledModalFormActionRow = styled(ModalFormActionRow)`
+  margin-top: 20px;
 `;
 
 const getReferralSource = ({ referralSource }) =>
@@ -96,151 +116,219 @@ const getDiet = ({ diets }) => {
   );
 };
 
-export const getEncounterType = ({ encounterType }) => (
-  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-);
-
-const referralSourcePath = 'referralSourceId';
-
-export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => (
-  <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
-    <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.summary.encounterType.label"
-            fallback="Encounter type"
-            data-testid="translatedtext-zxo7"
-          />
-        }
-        value={getEncounterType(encounter)}
-        icon={encounterTypeIcon}
-        data-testid="infocarditem-us9s"
-      />
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="general.department.label"
-            fallback="Department"
-            data-testid="translatedtext-0lrt"
-          />
-        }
-        value={getDepartmentName(encounter)}
-        icon={departmentIcon}
-        data-testid="infocarditem-in64"
-      />
-      {isEmergencyPatient(encounter.encounterType) && (
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.summary.triageScore.label"
-              fallback="Triage score"
-              data-testid="translatedtext-l4wd"
-            />
-          }
-          value={encounter.triages?.[0]?.score || '—'}
-          icon={triageScoreIcon}
-          data-testid="infocarditem-p5t5"
+const SetDischargeDateModal = ({ encounter, open, onClose }) => {
+  const { writeAndViewEncounter } = useEncounter();
+  return (
+    <FormModal
+      title={
+        <TranslatedText
+          stringId="encounter.modal.addEstimatedDischargeDate.title"
+          fallback="Add estimated discharge date"
         />
-      )}
-      {!isEmergencyPatient(encounter.encounterType) && (
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.summary.patientType.label"
-              fallback="Patient type"
-              data-testid="translatedtext-vk46"
-            />
-          }
-          value={patientBillingType}
-          icon={patientTypeIcon}
-          data-testid="infocarditem-3svu"
-        />
-      )}
-      {isInpatient(encounter?.encounterType) && (
-        <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.summary.diet.label"
-              fallback="Diet"
-              data-testid="translatedtext-49f7"
-            />
-          }
-          value={getDiet(encounter)}
-          icon={dietIcon}
-          data-testid="infocarditem-m5lp"
-        />
-      )}
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="general.location.label"
-            fallback="Location"
-            data-testid="translatedtext-iwqn"
-          />
+      }
+      open={open}
+      onClose={onClose}
+    >
+      <Form
+        formType={FORM_TYPES.EDIT_FORM}
+        onSubmit={async ({ estimatedEndDate }) =>
+          writeAndViewEncounter(encounter.id, { estimatedEndDate })
         }
-        value={getFullLocationName(encounter?.location)}
-        icon={locationIcon}
-        data-testid="infocarditem-82xq"
-      />
-    </InfoCardFirstColumn>
-    <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.arrivalDate.label"
-            fallback="Arrival date"
-            data-testid="translatedtext-i6p7"
-          />
-        }
-        value={
+        render={({ submitForm }) => (
           <>
-            <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
-            {encounter.endDate && (
-              <>
-                <CardLabel data-testid="cardlabel-veb6">
-                  {' – '}
-                  <TranslatedText
-                    stringId="encounter.summary.dischargeDate.label"
-                    fallback="Discharge date"
-                    data-testid="translatedtext-btml"
-                  />
-                  {':'}
-                </CardLabel>
-                <CardValue data-testid="cardvalue-v72z">
-                  {DateDisplay.stringFormat(encounter.endDate)}
-                </CardValue>
-              </>
-            )}
-          </>
-        }
-        icon={arrivalDateIcon}
-        data-testid="infocarditem-18xs"
-      />
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="general.supervisingClinician.label"
-            fallback="Supervising :clinician"
-            replacements={{
-              clinician: (
+            <Field
+              name="estimatedEndDate"
+              label={
                 <TranslatedText
-                  stringId="general.localisedField.clinician.label.short"
-                  fallback="Clinician"
-                  casing="lower"
-                  data-testid="translatedtext-fktj"
+                  stringId="encounter.estimatedDischargeDate.label"
+                  fallback="Estimated discharge date"
                 />
-              ),
-            }}
-            data-testid="translatedtext-ok8u"
-          />
-        }
-        value={encounter.examiner?.displayName || 'Unknown'}
-        icon={supervisingClinicianIcon}
-        data-testid="infocarditem-fmd5"
+              }
+              component={DateField}
+              saveDateAsString
+            />
+            <StyledModalFormActionRow onConfirm={submitForm} />
+          </>
+        )}
       />
-      {!getSetting(`${referralSourcePath}.hidden`) &&
-        !isEmergencyPatient(encounter.encounterType) && (
+    </FormModal>
+  );
+};
+
+export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => {
+  const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
+
+  return (
+    <InfoCard inlineValues contentPadding={25} paddingTop={0} data-testid="infocard-o4i8">
+      <InfoCardFirstColumn data-testid="infocardfirstcolumn-u3u3">
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.summary.encounterType.label"
+              fallback="Encounter type"
+              data-testid="translatedtext-zxo7"
+            />
+          }
+          value={
+            <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounter.encounterType} />
+          }
+          icon={encounterTypeIcon}
+          data-testid="infocarditem-us9s"
+        />
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.department.label"
+              fallback="Department"
+              data-testid="translatedtext-0lrt"
+            />
+          }
+          value={getDepartmentName(encounter)}
+          icon={departmentIcon}
+          data-testid="infocarditem-in64"
+        />
+        {isEmergencyPatient(encounter.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.summary.triageScore.label"
+                fallback="Triage score"
+                data-testid="translatedtext-l4wd"
+              />
+            }
+            value={encounter.triages?.[0]?.score || '—'}
+            icon={triageScoreIcon}
+            data-testid="infocarditem-p5t5"
+          />
+        )}
+        {!isEmergencyPatient(encounter.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.summary.patientType.label"
+                fallback="Patient type"
+                data-testid="translatedtext-vk46"
+              />
+            }
+            value={patientBillingType}
+            icon={patientTypeIcon}
+            data-testid="infocarditem-3svu"
+          />
+        )}
+        {isInpatient(encounter?.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.summary.diet.label"
+                fallback="Diet"
+                data-testid="translatedtext-49f7"
+              />
+            }
+            value={getDiet(encounter)}
+            icon={dietIcon}
+            data-testid="infocarditem-m5lp"
+          />
+        )}
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.location.label"
+              fallback="Location"
+              data-testid="translatedtext-iwqn"
+            />
+          }
+          value={getFullLocationName(encounter?.location)}
+          icon={locationIcon}
+          data-testid="infocarditem-82xq"
+        />
+      </InfoCardFirstColumn>
+      <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.arrivalDate.label"
+              fallback="Arrival date"
+              data-testid="translatedtext-i6p7"
+            />
+          }
+          value={
+            <>
+              <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
+              {encounter.endDate && (
+                <>
+                  <CardLabel data-testid="cardlabel-veb6">
+                    {' – '}
+                    <TranslatedText
+                      stringId="encounter.summary.dischargeDate.label"
+                      fallback="Discharge date"
+                      data-testid="translatedtext-btml"
+                    />
+                    {':'}
+                  </CardLabel>
+                  <CardValue data-testid="cardvalue-v72z">
+                    {DateDisplay.stringFormat(encounter.endDate)}
+                  </CardValue>
+                </>
+              )}
+            </>
+          }
+          icon={arrivalDateIcon}
+          data-testid="infocarditem-18xs"
+        />
+        {isInpatient(encounter.encounterType) && (
+          <InfoCardItem
+            label={
+              <TranslatedText
+                stringId="encounter.summary.estimatedDischargeDate.label"
+                fallback="Estimated discharge date"
+                data-testid="translatedtext-49f7"
+              />
+            }
+            value={
+              encounter.estimatedEndDate ? (
+                <DateDisplay date={encounter.estimatedEndDate} data-testid="datedisplay-fa08" />
+              ) : (
+                <>
+                  <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
+                    <TranslatedText
+                      stringId="encounter.summary.addEstimatedDischargeDate"
+                      fallback="+ Add"
+                    />
+                  </AddButton>
+                  <SetDischargeDateModal
+                    open={isEstimatedDischargeModalOpen}
+                    onClose={() => setIsEstimatedDischargeModalOpen(false)}
+                    encounter={encounter}
+                  />
+                </>
+              )
+            }
+            icon={dischargeDateIcon}
+          />
+        )}
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="general.supervisingClinician.label"
+              fallback="Supervising :clinician"
+              replacements={{
+                clinician: (
+                  <TranslatedText
+                    stringId="general.localisedField.clinician.label.short"
+                    fallback="Clinician"
+                    casing="lower"
+                    data-testid="translatedtext-fktj"
+                  />
+                ),
+              }}
+              data-testid="translatedtext-ok8u"
+            />
+          }
+          value={encounter.examiner?.displayName || 'Unknown'}
+          icon={supervisingClinicianIcon}
+          data-testid="infocarditem-fmd5"
+        />
+        {!getSetting(`referralSourceId.hidden`) && !isEmergencyPatient(encounter.encounterType) && (
           <InfoCardItem
             label={
               <TranslatedText
@@ -254,19 +342,20 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
             data-testid="infocarditem-n7q6"
           />
         )}
-      <InfoCardItem
-        label={
-          <TranslatedText
-            stringId="encounter.reasonForEncounter.label"
-            fallback="Reason for encounter"
-            data-testid="translatedtext-3602"
-          />
-        }
-        value={encounter.reasonForEncounter}
-        icon={reasonForEncounterIcon}
-        $whiteSpace="normal"
-        data-testid="infocarditem-axjq"
-      />
-    </InfoCardSecondColumn>
-  </InfoCard>
-));
+        <InfoCardItem
+          label={
+            <TranslatedText
+              stringId="encounter.reasonForEncounter.label"
+              fallback="Reason for encounter"
+              data-testid="translatedtext-3602"
+            />
+          }
+          value={encounter.reasonForEncounter}
+          icon={reasonForEncounterIcon}
+          $whiteSpace="normal"
+          data-testid="infocarditem-axjq"
+        />
+      </InfoCardSecondColumn>
+    </InfoCard>
+  );
+});
