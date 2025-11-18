@@ -62,33 +62,38 @@ patientRelations.get(
     );
     const searchWhereClause = whereClauses ? `AND ${whereClauses}` : '';
 
+    const fromClause = `
+      FROM
+        encounters
+        INNER JOIN locations
+          ON encounters.location_id = locations.id
+        INNER JOIN facilities
+          ON locations.facility_id = facilities.id
+        LEFT JOIN location_groups
+          ON location_groups.id = locations.location_group_id
+        LEFT JOIN discharges 
+          ON discharges.encounter_id = encounters.id
+          AND discharges.deleted_at IS NULL
+        LEFT JOIN users AS discharger 
+          ON discharger.id = discharges.discharger_id`;
+
+    const whereClause = `
+      WHERE
+        patient_id = :patientId
+        AND encounters.deleted_at IS NULL
+        AND locations.deleted_at IS NULL
+        AND facilities.deleted_at IS NULL
+        AND location_groups.deleted_at IS NULL
+        ${open ? 'AND encounters.end_date IS NULL' : ''}
+        ${searchWhereClause}`;
+
     const { count, data } = await runPaginatedQuery(
       db,
       Encounter,
       `
         SELECT COUNT(1) as count
-        FROM
-          encounters
-          INNER JOIN locations
-            ON encounters.location_id = locations.id
-          INNER JOIN facilities
-            ON locations.facility_id = facilities.id
-          ${
-            dischargingClinicianId
-              ? `LEFT JOIN discharges
-            ON discharges.encounter_id = encounters.id
-            AND discharges.deleted_at IS NULL
-          LEFT JOIN users AS discharger
-            ON discharger.id = discharges.discharger_id`
-              : ''
-          }
-        WHERE
-          patient_id = :patientId
-          AND encounters.deleted_at IS NULL
-          AND locations.deleted_at IS NULL
-          AND facilities.deleted_at IS NULL
-          ${open ? 'AND encounters.end_date IS NULL' : ''}
-          ${searchWhereClause}
+        ${fromClause}
+        ${whereClause}
       `,
       `
         SELECT
@@ -98,27 +103,8 @@ patientRelations.get(
           location_groups.name AS location_group_name,
           location_groups.id AS location_group_id,
           discharger.display_name AS discharger_name
-        FROM
-          encounters
-          INNER JOIN locations
-            ON encounters.location_id = locations.id
-          INNER JOIN facilities
-            ON locations.facility_id = facilities.id
-          LEFT JOIN location_groups
-            ON location_groups.id = locations.location_group_id
-          LEFT JOIN discharges 
-            ON discharges.encounter_id = encounters.id
-            AND discharges.deleted_at IS NULL
-          LEFT JOIN users AS discharger 
-            ON discharger.id = discharges.discharger_id
-        WHERE
-          patient_id = :patientId
-          AND encounters.deleted_at IS NULL
-          AND locations.deleted_at IS NULL
-          AND facilities.deleted_at IS NULL
-          AND location_groups.deleted_at IS NULL
-          ${open ? 'AND encounters.end_date IS NULL' : ''}
-          ${searchWhereClause}
+        ${fromClause}
+        ${whereClause}
         ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
       `,
       { patientId: params.id, ...filterReplacements },
