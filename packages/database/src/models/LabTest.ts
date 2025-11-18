@@ -15,6 +15,7 @@ export class LabTest extends Model {
   declare id: string;
   declare date: string;
   declare result: string;
+  declare resultInterpretation?: string;
   declare laboratoryOfficer?: string;
   declare verification?: string;
   declare completedDate?: string;
@@ -33,6 +34,10 @@ export class LabTest extends Model {
           type: DataTypes.STRING,
           allowNull: false,
           defaultValue: '',
+        },
+        resultInterpretation: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
         laboratoryOfficer: {
           type: DataTypes.STRING,
