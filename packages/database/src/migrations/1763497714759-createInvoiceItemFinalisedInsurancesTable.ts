@@ -54,7 +54,7 @@ export async function up(query: QueryInterface): Promise<void> {
   await query.addIndex(TABLE, ['invoice_insurance_plan_id']);
   await query.addIndex(TABLE, ['invoice_item_id', 'invoice_insurance_plan_id'], {
     unique: true,
-    name: `idx_${TABLE}_invoice_item_id_invoice_insurance_plan_id_unique`,
+    name: `idx_${TABLE}_id_plan_id_unique`,
   });
 }
 
