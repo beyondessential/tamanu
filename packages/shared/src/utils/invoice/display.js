@@ -1,23 +1,29 @@
-import Decimal from 'decimal.js';
 import { mapValues } from 'lodash';
+import Decimal from 'decimal.js';
 import {
-  getInvoiceSummary,
-  getInvoiceItemTotalPrice,
-  getInvoiceInsurerDiscountAmount,
   getInvoiceItemTotalDiscountedPrice,
+  getInvoiceItemTotalPrice,
+  getInvoiceSummary,
 } from './invoice';
 
 export const round = (value, decimals = 2) => {
   return new Decimal(value).toNearest(new Decimal(10).pow(-decimals)).toNumber();
 };
-
 /**
  *
  * @param {number} value
  * @returns
  */
-export const formatDisplayPrice = value =>
-  isNaN(parseFloat(value)) ? undefined : round(value, 2).toFixed(2);
+export const formatDisplayPrice = value => {
+  if (isNaN(parseFloat(value))) {
+    return undefined;
+  }
+
+  return value.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
 
 /**
  * get invoice summary for display
@@ -56,12 +62,4 @@ export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {
       ? undefined
       : getInvoiceItemTotalDiscountedPrice(invoiceItem),
   );
-};
-
-export const getInsurerDiscountAmountDisplayList = (insurers, total) => {
-  return insurers
-    .map(insurer => getInvoiceInsurerDiscountAmount(insurer, total || 0))
-    .map((value, index) =>
-      formatDisplayPrice(isNaN(insurers[index]?.percentage) ? undefined : value),
-    );
 };
