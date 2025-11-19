@@ -30,12 +30,10 @@ export class RecentlyViewedPatientsList {
     this.firstRecentlyViewedBirthDate = page.getByTestId('cardtext-i2bu-0').getByTestId('tooltip-b4e8');
   }
 
-  formatDateForRecentlyViewed(dateOfBirth: string): string {
-    if (!dateOfBirth.includes('/')) {
-      dateOfBirth = convertDateFormat(dateOfBirth);
-    }
-   
-    const [month, day, year] = dateOfBirth.split('/');
+  static formatDateForRecentlyViewed(dateOfBirth: string): string {
+    const formatted = dateOfBirth.includes('/') ? dateOfBirth : convertDateFormat(dateOfBirth);
+
+    const [month, day, year] = formatted.split('/');
     const shortYear = year.slice(-2);
     return `${month}/${day}/${shortYear}`;
   }
@@ -62,27 +60,5 @@ export class RecentlyViewedPatientsList {
       gender: await patient.gender.textContent() || '',
       birthDate: await patient.birthDate.textContent() || ''
     };
-  }
-
-  async waitForFirstRecentlyViewedPatientToHaveNHN(expectedNHN: string, timeout: number = 15000): Promise<void> {
-    const { expect } = await import('@playwright/test');
-    await expect.poll(
-      async () => {
-        const text = await this.firstRecentlyViewedNHN.textContent();
-        return text === expectedNHN;
-      },
-      { timeout }
-    ).toBeTruthy();
-  }
-
-  async waitForFirstRecentlyViewedPatientToHaveColor(expectedColor: string, timeout: number = 15000): Promise<void> {
-    const { expect } = await import('@playwright/test');
-    await expect.poll(
-      async () => {
-        const color = await this.getRecentlyViewedPatientNameColor();
-        return color === expectedColor;
-      },
-      { timeout }
-    ).toBeTruthy();
   }
 } 

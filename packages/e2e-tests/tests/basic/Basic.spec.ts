@@ -137,7 +137,6 @@ test.setTimeout(100000);
     await patientDetailsTabPage.saveButton.click();
      const allPatientsPage=await patientDetailsPage.navigateToAllPatientsPage();
      await allPatientsPage.waitForPageToLoad();
-     await allPatientsPage.recentlyViewedPatientsList.waitForFirstRecentlyViewedPatientToHaveNHN(nhn);
      await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedNHN).toHaveText(nhn);
      await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName).toHaveText(`${patientDetails.firstName} ${patientDetails.lastName}`);
     if (newPatient.sex === 'male') {
@@ -145,9 +144,8 @@ test.setTimeout(100000);
     } else {
       await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedGender).toHaveText('Male');
     }
-     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate).toHaveText(
-       RecentlyViewedPatientsList.formatDateForRecentlyViewed(patientDetails.dateOfBirth as string),
-     );
+    const formattedDate = RecentlyViewedPatientsList.formatDateForRecentlyViewed(patientDetails.dateOfBirth as string);
+     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate).toHaveText(formattedDate);
      await allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName.click();
      await expect(patientDetailsPage.healthIdText).toHaveText(nhn);
      const patientDetailsTabPage2 = await patientDetailsPage.navigateToPatientDetailsTab();
@@ -170,7 +168,6 @@ test.setTimeout(100000);
     }
      await expect(patientDetailsTabPage2.emailInput).toHaveValue(patientDetails.email as string);
      await expect(patientDetailsTabPage2.nationalHealthNumberInput).toHaveValue(nhn);
-     //await patientDetailsTabPage2.page.reload();
      const patientDetailsTabPage3 = await patientDetailsPage.navigateToPatientDetailsTab();
      await patientDetailsTabPage3.waitForSectionToLoad();
      await expect(patientDetailsTabPage3.birthCertificateInput).toHaveValue(patientDetails.birthCertificate as string);

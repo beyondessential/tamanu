@@ -47,7 +47,6 @@ export class NewImagingRequestModal {
       areasToBeImagedTextarea: 'field-r8tf-input',
       notesTextarea: 'field-hhqc-input',
       cancelButton: 'outlinedbutton-8rnr',
-      finaliseButton: 'mainbuttoncomponent-06gp',
       moreActionsButton: 'menubutton-dc8o',
     } as const;
 
@@ -57,6 +56,7 @@ export class NewImagingRequestModal {
 
     this.orderDateTimeInput = this.orderDateTimeField.locator('input');
     this.requestingClinicianInput = this.requestingClinicianField.locator('input');
+    this.finaliseButton = this.page.getByTestId('formgrid-4uzw').getByTestId('mainbuttoncomponent-06gp');
   }
 
   async waitForModalToLoad(): Promise<void> {
