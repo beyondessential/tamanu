@@ -31,7 +31,7 @@ const TotalCardItem = styled(CardItem)`
 
 export const InvoiceSummaryPanel = ({ invoice }) => {
   const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary(invoice);
-
+  const coverageDisplay = insuranceCoverageTotal * -1;
   return (
     <Container>
       <CardItem>
@@ -40,7 +40,7 @@ export const InvoiceSummaryPanel = ({ invoice }) => {
       </CardItem>
       <CardItem>
         <TranslatedText stringId="invoice.summary.insuranceTotal" fallback="Insurance coverage" />
-        <Price price={`-${insuranceCoverageTotal}`} data-testid="translatedtext-qedx" />
+        <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
       </CardItem>
       <Divider />
       <TotalCardItem>

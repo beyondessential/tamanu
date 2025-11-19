@@ -56,6 +56,10 @@ const RowValue = styled.div`
   min-width: 4em;
 `;
 
+const calculateCoverageValue = (discountedPrice, coverageValue) => {
+  return new Decimal(discountedPrice).times(coverageValue / 100).toNumber() * -1;
+};
+
 const InsuranceSection = ({ item, discountedPrice }) => {
   if (!item.insurancePlanItems?.length > 0 || !item?.productId) {
     return null;
@@ -64,12 +68,12 @@ const InsuranceSection = ({ item, discountedPrice }) => {
   return (
     <Box mt={1}>
       {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
-        const coverage = new Decimal(discountedPrice).times(coverageValue / 100);
+        const coverage = calculateCoverageValue(discountedPrice, coverageValue);
         return (
           <Row key={id}>
             <RowName>{label}</RowName>
             <RowValue>
-              <Price price={`-${coverage}`} />
+              <Price price={coverage} />
             </RowValue>
           </Row>
         );
