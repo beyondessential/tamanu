@@ -70,11 +70,7 @@ const StyledDivider = styled(Divider)`
   margin: 0 -32px;
 `;
 
-export const WebcamCaptureModal = ({
-  open,
-  onClose,
-  onCapture,
-}) => {
+export const WebcamCaptureModal = ({ open, onClose, onCapture }) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
@@ -124,7 +120,9 @@ export const WebcamCaptureModal = ({
         if (permissionStatus.state === CAMERA_STATUS.DENIED) {
           setCameraStatus(CAMERA_STATUS.DENIED);
         } else if (permissionStatus.state === CAMERA_STATUS.GRANTED) {
-          setCameraStatus(CAMERA_STATUS.GRANTED);
+          setCameraStatus(prevStatus =>
+            prevStatus === CAMERA_STATUS.REQUESTING ? CAMERA_STATUS.GRANTED : prevStatus,
+          );
         }
       }
     };
@@ -282,10 +280,7 @@ export const WebcamCaptureModal = ({
       );
     }
     return (
-      <TranslatedText
-        stringId="modal.webcamCapture.title.capturePhoto"
-        fallback="Capture photo"
-      />
+      <TranslatedText stringId="modal.webcamCapture.title.capturePhoto" fallback="Capture photo" />
     );
   };
 
