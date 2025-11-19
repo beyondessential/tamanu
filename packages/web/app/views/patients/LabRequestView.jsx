@@ -19,7 +19,6 @@ import {
 import { useAuth } from '../../contexts/Auth';
 import BeakerIcon from '../../assets/images/beaker.svg';
 import TestCategoryIcon from '../../assets/images/testCategory.svg';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import {
   DateDisplay,
@@ -167,7 +166,6 @@ export const LabRequestView = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [labTestTableRefreshCount, setLabTestTableRefreshCount] = useState(0);
   const { isLoading, labRequest, updateLabRequest } = useLabRequest();
-  const { navigateToLabRequest } = usePatientNavigation();
 
   const closeModal = () => {
     setModalOpen(false);
@@ -190,7 +188,6 @@ export const LabRequestView = () => {
 
   const updateLabReq = async data => {
     await updateLabRequest(labRequest.id, data);
-    navigateToLabRequest(labRequest.id);
   };
 
   const handleChangeModalId = id => {

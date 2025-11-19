@@ -26,6 +26,7 @@ export {
 export { useProgramRegistryQuery, useListOfProgramRegistryQuery } from './useProgramRegistryQuery';
 export { useProgramRegistryLinkedChartsQuery } from './useProgramRegistryLinkedChartsQuery';
 export { useProgramRegistryPatientChartsQuery } from './useProgramRegistryPatientChartsQuery';
+export { useProgramRegistryPatientInitialChartQuery } from './useProgramRegistryPatientInitialChartQuery';
 export { useProgramRegistryPatientComplexChartInstancesQuery } from './useProgramRegistryPatientComplexChartInstancesQuery';
 export { useLocationAssignmentsQuery } from './useLocationAssignmentsQuery';
 export { useFacilityLocationAssignmentsQuery } from './useFacilityLocationAssignmentsQuery';

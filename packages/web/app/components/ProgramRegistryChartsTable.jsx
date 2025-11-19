@@ -95,6 +95,9 @@ export const ProgramRegistryChartsTable = React.memo(({
         onClose={() => {
           setOpenEditModal(false);
         }}
+        programRegistryPatientId={patientId}
+        programRegistrySurveyId={selectedSurveyId}
+        programRegistryInstanceId={currentInstanceId}
         data-testid="editvitalcellmodal-2jqx"
       />
       <StyledDynamicColumnTable

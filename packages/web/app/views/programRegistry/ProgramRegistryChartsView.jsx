@@ -8,25 +8,35 @@ import { toast } from 'react-toastify';
 import { subject } from '@casl/ability';
 
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { CHARTING_DATA_ELEMENT_IDS, SURVEY_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  CHARTING_DATA_ELEMENT_IDS,
+  SURVEY_TYPES,
+  USER_PREFERENCES_KEYS,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { getAnswersFromData } from '@tamanu/ui-components';
 
 import { TableButtonRow, ButtonWithPermissionCheck } from '../../components';
 import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
-import { ProgramRegistryChartsTable, EmptyProgramRegistryChartsTable } from '../../components/ProgramRegistryChartsTable';
+import {
+  ProgramRegistryChartsTable,
+  EmptyProgramRegistryChartsTable,
+} from '../../components/ProgramRegistryChartsTable';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
 import { useAuth } from '../../contexts/Auth';
-import { useApi } from '../../api';
-import { ChartGraphDataProvider } from '../../contexts/VitalChartData';
+import { useApi, combineQueries } from '../../api';
+import { ProgramRegistryChartGraphDataProvider } from '../../contexts/VitalChartData';
 import { VitalChartsModal } from '../../components/VitalChartsModal';
 import { useProgramRegistryPatientComplexChartInstancesQuery } from '../../api/queries/useProgramRegistryPatientComplexChartInstancesQuery';
 import { useProgramRegistryPatientChartsQuery } from '../../api/queries/useProgramRegistryPatientChartsQuery';
+import { useProgramRegistryPatientInitialChartQuery } from '../../api/queries/useProgramRegistryPatientInitialChartQuery';
 import { TabDisplay } from '../../components/TabDisplay';
 import { Colors } from '../../constants';
 import { ChartDropdown } from '../../components/Charting/ChartDropdown';
 import { CoreComplexChartData } from '../../components/Charting/CoreComplexChartData';
 import { useSurveyQuery } from '../../api/queries/useSurveyQuery';
+import { useUserPreferencesQuery } from '../../api/queries/useUserPreferencesQuery';
 import { SimpleChartModal } from '../../components/SimpleChartModal';
 import { ComplexChartModal } from '../../components/ComplexChartModal';
 import { COMPLEX_CHART_FORM_MODES } from '../../components/Charting/constants';
@@ -93,9 +103,7 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
 `;
 
 const ChartsContainer = styled.div`
-  margin-top: 30px;
-  border-top: 2px solid ${Colors.outline};
-  padding-top: 20px;
+  margin-top: 20px;
 `;
 
 const ChartsPanel = styled.div`
@@ -111,12 +119,31 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
+  const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
+  const chartSurveysQuery = useProgramRegistryLinkedChartsQuery(programRegistryId);
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
-  } = useProgramRegistryLinkedChartsQuery(programRegistryId);
+  } = chartSurveysQuery;
+  const userPreferencesQuery = useUserPreferencesQuery();
+  const { data: userPreferences } = userPreferencesQuery;
+  const chartWithResponseQuery = useProgramRegistryPatientInitialChartQuery(
+    patient?.id,
+    programRegistryId,
+  );
+  const {
+    data: [, chartWithResponse],
+    isLoading: isCombinedLoading,
+    isFetching: isCombinedFetching,
+  } = combineQueries([chartSurveysQuery, chartWithResponseQuery]);
   const { getTranslation } = useTranslation();
+  const shouldInit = !isCombinedLoading && !isInitiated && !isCombinedFetching;
+
+  const programRegistryChartPreferenceKey = useMemo(
+    () => `${USER_PREFERENCES_KEYS.SELECTED_CHART_TYPE_ID}:${programRegistryId}`,
+    [programRegistryId],
+  );
 
   const [modalOpen, setModalOpen] = useState(false);
   const [currentComplexChartTab, setCurrentComplexChartTab] = useState('');
@@ -135,6 +162,38 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
         })),
     [chartSurveys],
   );
+
+  // Initialise the selected chart using the user's last preference where possible
+  useEffect(() => {
+    if (!shouldInit) return;
+
+    // Verify that chartWithResponse data is valid and belongs to available charts
+    const chartWithResponseSurveyId = chartWithResponse?.data?.survey?.id;
+    const chartWithResponseIsValid =
+      chartWithResponseSurveyId &&
+      chartSurveys.some(survey => survey.id === chartWithResponseSurveyId);
+
+    if (chartWithResponseIsValid) {
+      // Prioritize user preference, chart with response is a fallback
+      const preferredChartTypeId = userPreferences?.[programRegistryChartPreferenceKey];
+      const preferredChartIsSelectable = chartSurveys.some(
+        survey => survey.id === preferredChartTypeId,
+      );
+
+      if (preferredChartTypeId && preferredChartIsSelectable) {
+        setSelectedChartTypeId(preferredChartTypeId);
+      } else {
+        setSelectedChartTypeId(chartWithResponseSurveyId);
+      }
+    }
+    setIsInitiated(true);
+  }, [
+    userPreferences,
+    chartWithResponse,
+    chartSurveys,
+    shouldInit,
+    programRegistryChartPreferenceKey,
+  ]);
 
   // Full data of the selected chart from the dropdown
   const selectedChartSurvey = useMemo(() => findChartSurvey(chartSurveys, selectedChartTypeId), [
@@ -208,12 +267,14 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   );
 
   // Determine if the current complex chart instance can be deleted (no answers across encounters)
-  const { data: prChartRecords = [], isLoading: isPrChartLoading } =
-    useProgramRegistryPatientChartsQuery(
-      patient?.id,
-      selectedChartTypeId,
-      currentComplexChartInstance?.chartInstanceId,
-    );
+  const {
+    data: prChartRecords = [],
+    isLoading: isPrChartLoading,
+  } = useProgramRegistryPatientChartsQuery(
+    patient?.id,
+    selectedChartTypeId,
+    currentComplexChartInstance?.chartInstanceId,
+  );
   const canDeleteInstance = !isPrChartLoading && prChartRecords.length === 0;
 
   // Sets initial instance tab when selecting a complex chart
@@ -253,7 +314,17 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
     }
 
     await api.post('surveyResponse', responseData);
-    queryClient.invalidateQueries(['programRegistryPatientCharts', patient.id, survey.id]);
+
+    // Invalidate queries for the currently displayed chart to refresh the table
+    if (selectedChartTypeId) {
+      queryClient.invalidateQueries([
+        'programRegistryPatientCharts',
+        patient.id,
+        selectedChartTypeId,
+        currentComplexChartInstance?.chartInstanceId,
+      ]);
+    }
+
     if (chartSurveyToSubmit.surveyType === SURVEY_TYPES.COMPLEX_CHART_CORE) {
       reloadChartInstances();
     }
@@ -266,6 +337,16 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
         `programRegistry/patient/${patient.id}/chartInstances/${currentComplexChartInstance?.chartInstanceId}`,
       );
 
+      // Invalidate queries for the currently displayed chart to refresh the table
+      if (selectedChartTypeId) {
+        queryClient.invalidateQueries([
+          'programRegistryPatientCharts',
+          patient.id,
+          selectedChartTypeId,
+          currentComplexChartInstance?.chartInstanceId,
+        ]);
+      }
+
       handleCloseModal();
       setCurrentComplexChartTab(null);
 
@@ -276,8 +357,10 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   }, [
     api,
     patient.id,
+    selectedChartTypeId,
     currentComplexChartInstance?.chartInstanceId,
     reloadChartInstances,
+    queryClient,
   ]);
 
   const isComplexChart = selectedChartSurvey?.surveyType === SURVEY_TYPES.COMPLEX_CHART;
@@ -326,7 +409,11 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   return (
     <ChartsContainer data-testid="charts-container">
       <ChartsPanel>
-        <ChartGraphDataProvider data-testid="chartgraphdataprovider-hz37">
+        <ProgramRegistryChartGraphDataProvider
+          patientId={patient?.id}
+          selectedChartTypeId={selectedChartTypeId}
+          data-testid="chartgraphdataprovider-hz37"
+        >
           {isComplexChart ? (
             <ComplexChartModal
               {...baseChartModalProps}
@@ -353,6 +440,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                   selectedChartTypeId={selectedChartTypeId}
                   setSelectedChartTypeId={setSelectedChartTypeId}
                   chartTypes={chartTypes}
+                  preferenceKey={programRegistryChartPreferenceKey}
                   data-testid="chartdropdown-eox5"
                 />
                 {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
@@ -434,7 +522,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
             )}
             data-testid="chartstable-vxv2"
           />
-        </ChartGraphDataProvider>
+        </ProgramRegistryChartGraphDataProvider>
       </ChartsPanel>
     </ChartsContainer>
   );
