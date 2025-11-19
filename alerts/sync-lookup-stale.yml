@@ -36,7 +36,4 @@ send:
       **Immediate action required:**
       1. Check if the central sync manager service is running
       2. Review system logs for sync lookup table update errors
-      3. Verify database connectivity and transaction logs
-      4. Check if sync sessions are completing successfully
-      5. Review the sync lookup table update process status
-
+      3. Check if sync sessions are completing successfully
