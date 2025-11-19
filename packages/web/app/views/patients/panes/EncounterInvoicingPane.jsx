@@ -92,7 +92,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     {invoice.displayId}
                   </InvoiceTitle>
                   <InvoiceSubTitle>
-                    {patient?.village.name} {insurancePlans}
+                    {patient?.village?.name} {insurancePlans}
                   </InvoiceSubTitle>
                 </Box>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
@@ -142,7 +142,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                 </ActionsPane>
               )}
             </InvoiceTopBar>
-            <InvoiceForm invoice={invoice} />
+            <InvoiceForm invoice={invoice} isPatientView={false} />
             <InvoiceSummaryPanel invoice={invoice} />
           </InvoiceContainer>
         </TabPane>

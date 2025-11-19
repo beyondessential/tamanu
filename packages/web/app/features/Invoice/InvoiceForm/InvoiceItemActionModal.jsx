@@ -239,7 +239,10 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         otherwise: schema =>
           schema.test(
             'is-valid-amount',
-            'Discount amount must be less than invoice item price',
+            <TranslatedText
+              stringId="invoice.validation.discountAmountTooHigh"
+              fallback="Discount amount must be less than invoice item price"
+            />,
             value => value <= invoicePrice,
           ),
       })

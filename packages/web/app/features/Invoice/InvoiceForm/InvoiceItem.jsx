@@ -5,8 +5,14 @@ import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { useTranslation } from '../../../contexts/Translation';
-import { DateCell, DetailsCell, CodeCell, QuantityCell, OrderedByCell } from './InvoiceItemCells';
-import { PriceCell } from './PriceCell';
+import {
+  PriceCell,
+  DateCell,
+  DetailsCell,
+  CodeCell,
+  QuantityCell,
+  OrderedByCell,
+} from './InvoiceItemCells';
 
 const StyledItemRow = styled.div`
   position: relative;

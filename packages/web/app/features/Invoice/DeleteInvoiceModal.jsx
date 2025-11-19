@@ -6,7 +6,9 @@ import { ModalActionRow } from '../../components/ModalActionRow';
 import { useDeleteInvoice } from '../../api/mutations/useInvoiceMutation';
 
 const ContentText = styled.div`
-  margin: 20px 18px 50px 18px;
+  margin: 30px auto 60px auto;
+  max-width: 440px;
+  white-space: pre-wrap;
 `;
 
 export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) => {
@@ -28,27 +30,27 @@ export const DeleteInvoiceModal = ({ open, onClose, invoice, onDeleteSuccess }) 
     <Modal
       width="sm"
       title={
-        <TranslatedText
-          stringId="invoice.modal.deleteInvoice.title"
-          fallback="Delete invoice"
-          data-testid="translatedtext-kiqe"
-        />
+        <TranslatedText stringId="invoice.modal.deleteInvoice.title" fallback="Delete invoice" />
       }
       open={open}
       onClose={onClose}
-      data-testid="modal-x36w"
     >
-      <ContentText data-testid="contenttext-sweo">
+      <ContentText>
         <TranslatedText
           stringId="invoice.modal.deleteInvoice.warningText"
-          fallback="Are you sure you would like to delete this invoice? This cannot be undone."
-          data-testid="translatedtext-t12l"
+          fallback="Are you sure you would like to delete this invoice?\n\nThis cannot be undone however a new invoice can be created for this encounter if required."
         />
       </ContentText>
       <ModalActionRow
         onConfirm={deleteInvoice}
-        onDelete={onClose}
-        data-testid="modalactionrow-7iph"
+        onCancel={onClose}
+        confirmText={
+          <TranslatedText
+            stringId="invoice.modal.deleteInvoice.confirmText"
+            fallback="Delete invoice"
+          />
+        }
+        cancelText={<TranslatedText stringId="general.action.goBack" fallback="Go back" />}
       />
     </Modal>
   );

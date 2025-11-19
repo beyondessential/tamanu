@@ -8,7 +8,6 @@ import {
   ENCOUNTER_TYPE_LABELS,
   ENCOUNTER_TYPE_ABBREVIATION_LABELS,
 } from '@tamanu/constants';
-import { useLocation } from 'react-router';
 import { formatShortest } from '@tamanu/utils/dateTime';
 import { Colors } from '../../constants';
 import { DataFetchingTable } from '../../components/Table';

@@ -12,6 +12,7 @@ import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinke
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { Procedure } from '../Procedure';
 import type { InvoiceProduct } from './InvoiceProduct';
+import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 
 export class Invoice extends Model {
   declare id: string;
@@ -186,5 +187,33 @@ export class Invoice extends Model {
         sourceRecordId: removedItem.id,
       },
     });
+  }
+
+  static async initializeInvoice(
+    userId: string,
+    data: any,
+  ) {
+    const transaction = await this.sequelize.transaction();
+    try {
+      const invoice = await this.create(data, { transaction });
+
+      if (data.discount) {
+        await this.sequelize.models.InvoiceDiscount.create(
+          {
+            ...data.discount,
+            invoiceId: invoice.id,
+            appliedByUserId: userId,
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+          },
+          { transaction },
+        );
+      }
+
+      await transaction.commit();
+      return invoice;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 }
