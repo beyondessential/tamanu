@@ -33,7 +33,7 @@ export const DetailsCell = ({
       </NoteModalActionBlocker>
     ) : (
       <ViewOnlyCell>
-        {item.productName}
+        {item.product?.name}
         {item.productId && (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
       </ViewOnlyCell>
     )}

@@ -43,6 +43,7 @@ const Menu = styled(ThreeDotMenu)`
 const Row = styled.div`
   display: flex;
   text-align: right;
+  justify-content: flex-end;
   margin-top: 2px;
 `;
 

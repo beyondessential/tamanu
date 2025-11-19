@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
-import { Box, CircularProgress, Divider, Button as MuiButton } from '@material-ui/core';
+import { Box, CircularProgress, Button as MuiButton } from '@material-ui/core';
 import PrintIcon from '@material-ui/icons/Print';
 import {
   Form,
@@ -14,7 +14,6 @@ import {
 import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { INVOICE_STATUSES } from '@tamanu/constants';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
@@ -63,19 +62,8 @@ const getDefaultRow = () => ({ id: uuidv4(), quantity: 1 });
 export const InvoiceForm = ({ invoice, isPatientView }) => {
   const { ability } = useAuth();
   const [printModalOpen, setPrintModalOpen] = useState(false);
-
   const canWriteInvoice = ability.can('write', 'Invoice');
-  const canDeleteInvoice = ability.can('delete', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
-  const cancelable =
-    invoice.status === INVOICE_STATUSES.IN_PROGRESS && isPatientView && canWriteInvoice;
-  const finalisable =
-    invoice.status === INVOICE_STATUSES.IN_PROGRESS &&
-    !!invoice.encounter?.endDate &&
-    isPatientView &&
-    canWriteInvoice;
-  const deletable =
-    invoice.status !== INVOICE_STATUSES.FINALISED && isPatientView && canDeleteInvoice;
 
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
 
@@ -123,26 +111,6 @@ export const InvoiceForm = ({ invoice, isPatientView }) => {
           />
         )}
       </Box>
-      {(finalisable || cancelable || deletable) && (
-        <>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            paddingX="36px"
-            marginBottom="-16px"
-            data-testid="box-bf9z"
-          ></Box>
-          {finalisable && (
-            <Divider
-              style={{
-                margin: '30px 36px -15px 36px',
-              }}
-              data-testid="divider-x5gi"
-            />
-          )}
-        </>
-      )}
       <Form
         suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
         onSubmit={handleSubmit}
