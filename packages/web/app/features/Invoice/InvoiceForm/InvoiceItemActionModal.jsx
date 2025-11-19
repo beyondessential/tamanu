@@ -3,7 +3,6 @@ import * as yup from 'yup';
 import { Box, Divider } from '@material-ui/core';
 import styled from 'styled-components';
 import { useFormikContext } from 'formik';
-
 import { InvoiceItemCard } from './InvoiceItemCard';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES, Colors } from '../../../constants';
 import { Field, NumberField } from '../../../components/Field';
@@ -240,7 +239,10 @@ export const InvoiceItemActionModal = ({ open, onClose, onAction, item, action }
         otherwise: schema =>
           schema.test(
             'is-valid-amount',
-            'Discount amount must be less than invoice item price',
+            <TranslatedText
+              stringId="invoice.validation.discountAmountTooHigh"
+              fallback="Discount amount must be less than invoice item price"
+            />,
             value => value <= invoicePrice,
           ),
       })
