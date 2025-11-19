@@ -1,5 +1,6 @@
 export * from './CancelInvoiceModal';
 export * from './DeleteInvoiceModal';
+export * from './InvoiceForm';
 export * from './FinaliseInvoiceModal';
 export * from './InvoiceItemsTable';
 export * from './InvoiceModalGroup';
@@ -7,4 +8,3 @@ export * from './InvoicesTable';
 export * from './InvoiceStatus';
 export * from './InvoiceSummaryPanel';
 export * from './UpsertInvoiceModal';
-export * from './EditInvoiceModal';

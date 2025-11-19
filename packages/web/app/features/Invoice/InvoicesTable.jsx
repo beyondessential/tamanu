@@ -10,7 +10,7 @@ import {
 } from '@tamanu/constants';
 import { formatShortest } from '@tamanu/utils/dateTime';
 
-import { Colors, INVOICE_MODAL_TYPES } from '../../constants';
+import { Colors } from '../../constants';
 import { DataFetchingTable } from '../../components/Table';
 import { TranslatedEnum, TranslatedText } from '../../components/Translation';
 import { Typography } from '@material-ui/core';
@@ -292,7 +292,7 @@ export const InvoicesTable = ({ patient }) => {
           ability.can('read', 'Invoice')
             ? (_, data) => {
                 setSelectedInvoice(data);
-                setOpenInvoiceModal(INVOICE_MODAL_TYPES.EDIT_INVOICE);
+                // Todo: Link to invoice view
               }
             : undefined
         }
