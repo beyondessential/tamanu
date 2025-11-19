@@ -36,17 +36,6 @@ import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
 
-const CardLabel = styled.span`
-  margin-right: 5px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
-`;
-
-const CardValue = styled(CardLabel)`
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
-`;
-
 const InfoCardFirstColumn = styled.div`
   display: flex;
   flex-direction: column;
@@ -159,8 +148,6 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
 export const getEncounterType = ({ encounterType }) => (
   <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
 );
-
-const referralSourcePath = 'referralSourceId';
 
 const LengthOfStayText = styled.span`
   font-weight: 400;
