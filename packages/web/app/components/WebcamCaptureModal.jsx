@@ -4,6 +4,14 @@ import Webcam from 'react-webcam';
 import { Box, Divider } from '@material-ui/core';
 import { Button, Modal, TranslatedText, TAMANU_COLORS } from '@tamanu/ui-components';
 import { BodyText } from './Typography';
+import { Loader } from 'lucide-react';
+
+const CAMERA_STATUS = {
+  REQUESTING: 'requesting',
+  GRANTED: 'granted',
+  READY: 'ready',
+  DENIED: 'denied',
+};
 
 const StyledWebcam = styled(Webcam)`
   width: 100%;
@@ -75,21 +83,14 @@ export const WebcamCaptureModal = ({
 }) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const isRequestingPermission = hasPermission === null && isLoading;
-  const isCameraAccessDenied = hasPermission === false && !isLoading;
-  const isCameraAccessGranted = hasPermission === true && !isLoading;
+  const [cameraStatus, setCameraStatus] = useState(CAMERA_STATUS.REQUESTING);
 
   const handleUserMedia = useCallback(() => {
-    setHasPermission(true);
-    setIsLoading(false);
+    setCameraStatus(CAMERA_STATUS.READY);
   }, []);
 
   const handleUserMediaError = useCallback(() => {
-    setHasPermission(false);
-    setIsLoading(false);
+    setCameraStatus(CAMERA_STATUS.DENIED);
   }, []);
 
   const capturePhoto = useCallback(() => {
@@ -110,51 +111,50 @@ export const WebcamCaptureModal = ({
 
   const handleCancel = useCallback(() => {
     setCapturedImage(null);
-    setHasPermission(null);
-    setIsLoading(true);
     onClose();
   }, [onClose]);
 
-  // Monitor video element events to detect when stream becomes active
-  // This provides a fallback if onUserMedia callback doesn't fire
+  // Check camera permissions and monitor video stream status
   useEffect(() => {
-    if (!open || !isLoading) return;
+    if (!open) return;
 
-    const video = webcamRef.current?.video;
-    if (!video) return;
+    // Reset state when modal opens
+    setCapturedImage(null);
+    setCameraStatus(CAMERA_STATUS.REQUESTING);
 
-    const handleStreamActive = () => {
-      // Stream is active, permission was granted
-      // Only update if we're still in loading state (callbacks might not have fired)
-      if (hasPermission === null) {
-        setHasPermission(true);
-        setIsLoading(false);
+    // Check permission status using Permissions API
+    const checkPermission = async () => {
+      if (navigator.permissions?.query) {
+        const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+
+        if (permissionStatus.state === CAMERA_STATUS.DENIED) {
+          setCameraStatus(CAMERA_STATUS.DENIED);
+        } else if (permissionStatus.state === CAMERA_STATUS.GRANTED) {
+          setCameraStatus(CAMERA_STATUS.GRANTED);
+        }
       }
     };
 
-    // Listen to video events that indicate stream is active
-    video.addEventListener('loadedmetadata', handleStreamActive);
-    video.addEventListener('playing', handleStreamActive);
+    checkPermission();
 
-    // Also check if stream is already active (in case events already fired)
-    const stream = video.srcObject;
-    if (stream && stream.active) {
-      handleStreamActive();
-    }
+    // Monitor video element to detect when stream becomes active
+    const video = webcamRef.current?.video;
+    if (!video) return;
+
+    const handleStreamReady = () => {
+      if (video.readyState >= 2) {
+        // HAVE_CURRENT_DATA or better
+        setCameraStatus(CAMERA_STATUS.READY);
+      }
+    };
+
+    video.addEventListener('loadedmetadata', handleStreamReady);
+    video.addEventListener('canplay', handleStreamReady);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleStreamActive);
-      video.removeEventListener('playing', handleStreamActive);
+      video.removeEventListener('loadedmetadata', handleStreamReady);
+      video.removeEventListener('canplay', handleStreamReady);
     };
-  }, [open, isLoading, hasPermission]);
-
-  // Reset state when modal opens
-  useEffect(() => {
-    if (open) {
-      setCapturedImage(null);
-      setHasPermission(null);
-      setIsLoading(true);
-    }
   }, [open]);
 
   const confirmPhoto = useCallback(async () => {
@@ -173,7 +173,7 @@ export const WebcamCaptureModal = ({
   }, [capturedImage, onCapture, handleCancel]);
 
   const renderWebcamView = () => {
-    if (isCameraAccessDenied) {
+    if (cameraStatus === CAMERA_STATUS.DENIED) {
       return (
         <ErrorOverlay>
           <BodyText>
@@ -186,8 +186,6 @@ export const WebcamCaptureModal = ({
       );
     }
 
-    // Always render the Webcam component so it can trigger the permission pop-up
-    // Show loading overlay while permission is being requested
     return (
       <WebcamWithOverlay>
         <StyledWebcam
@@ -204,7 +202,7 @@ export const WebcamCaptureModal = ({
           onUserMediaError={handleUserMediaError}
           mirrored={true}
         />
-        {isRequestingPermission && (
+        {cameraStatus === CAMERA_STATUS.REQUESTING && (
           <LoadingOverlay>
             <BodyText>
               <TranslatedText
@@ -212,6 +210,11 @@ export const WebcamCaptureModal = ({
                 fallback="When prompted by your system, please allow permission for Tamanu to access the device camera."
               />
             </BodyText>
+          </LoadingOverlay>
+        )}
+        {cameraStatus === CAMERA_STATUS.GRANTED && (
+          <LoadingOverlay>
+            <Loader />
           </LoadingOverlay>
         )}
       </WebcamWithOverlay>
@@ -225,52 +228,42 @@ export const WebcamCaptureModal = ({
   );
 
   const renderActions = () => {
-    if (isCameraAccessDenied) {
+    if (cameraStatus === CAMERA_STATUS.DENIED) {
       return (
-        <>
-          <Button onClick={handleCancel} variant="contained" color="primary">
-            <TranslatedText stringId="general.action.close" fallback="Close" />
-          </Button>
-        </>
+        <Button onClick={handleCancel} variant="contained" color="primary">
+          <TranslatedText stringId="general.action.close" fallback="Close" />
+        </Button>
       );
     }
 
-    if (isCameraAccessGranted) {
-      if (capturedImage) {
-        // Show Cancel, Retake, and Confirm when there's a captured image
-        return (
-          <>
-            <Button onClick={handleCancel} variant="outlined" color="primary">
-              <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
-            </Button>
-            <Button onClick={retakePhoto} variant="outlined" color="primary">
-              <TranslatedText stringId="modal.webcamCapture.action.retake" fallback="Retake" />
-            </Button>
-            <Button onClick={confirmPhoto} variant="contained" color="primary">
-              <TranslatedText stringId="modal.webcamCapture.action.confirm" fallback="Confirm" />
-            </Button>
-          </>
-        );
-      }
-      // Show Cancel and Take Photo when camera is granted but no photo taken yet
+    if (capturedImage) {
       return (
         <>
           <Button onClick={handleCancel} variant="outlined" color="primary">
             <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
           </Button>
-          <Button onClick={capturePhoto} variant="contained" color="primary">
-            <TranslatedText stringId="modal.webcamCapture.action.takePhoto" fallback="Take Photo" />
+          <Button onClick={retakePhoto} variant="outlined" color="primary">
+            <TranslatedText stringId="modal.webcamCapture.action.retake" fallback="Retake" />
+          </Button>
+          <Button onClick={confirmPhoto} variant="contained" color="primary">
+            <TranslatedText stringId="modal.webcamCapture.action.confirm" fallback="Confirm" />
           </Button>
         </>
       );
     }
 
+    const isCameraReady = cameraStatus === CAMERA_STATUS.READY;
     return (
       <>
         <Button onClick={handleCancel} variant="outlined" color="primary">
           <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
         </Button>
-        <Button variant="contained" color="primary" disabled>
+        <Button
+          onClick={capturePhoto}
+          variant="contained"
+          color="primary"
+          disabled={!isCameraReady}
+        >
           <TranslatedText stringId="modal.webcamCapture.action.takePhoto" fallback="Take Photo" />
         </Button>
       </>
@@ -287,7 +280,7 @@ export const WebcamCaptureModal = ({
       isClosable={true}
     >
       <Box>{capturedImage ? renderCapturedView() : renderWebcamView()}</Box>
-      <StyledDivider/>
+      <StyledDivider />
     </Modal>
   );
 };
