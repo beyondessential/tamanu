@@ -19,7 +19,6 @@ export class RecordVitalsModal {
   readonly mapInput!: Locator;
   readonly spo2Input!: Locator;
   readonly spo2OnOxygenInput!: Locator;
-  readonly avpuInput!: Locator;
   readonly tewScoreInput!: Locator;
   readonly gcsInput!: Locator;
   readonly painScaleInput!: Locator;
@@ -61,7 +60,6 @@ export class RecordVitalsModal {
     this.mapInput = page.locator('input[name="pde-PatientVitalsMAP"]');
     this.spo2Input = page.locator('input[name="pde-PatientVitalsSPO2"]');
     this.spo2OnOxygenInput = page.locator('input[name="pde-PatientVitalsSPO2onOxygen"]');
-    this.avpuInput = page.locator('#react-select-11-input');
     this.tewScoreInput = page.locator('input[name="pde-PatientVitalsTEWScore"]');
     this.gcsInput = page.locator('input[name="pde-PatientVitalsGCS"]');
     this.painScaleInput = page.locator('input[name="pde-PatientVitalsPainScale"]');

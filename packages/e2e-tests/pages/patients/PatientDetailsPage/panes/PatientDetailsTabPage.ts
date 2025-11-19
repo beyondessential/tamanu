@@ -150,10 +150,10 @@ export class PatientDetailsTabPage extends BasePatientPane {
     for (const [key, testId] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(testId);
     }
-    this.divisionInput = page.getByTestId('autocompleteinput-input').first();
+    this.divisionInput = page.getByTestId('autocompleteinput-input').locator('input[name="divisionId"]');
   }
 
-  async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>,patient: any): Promise<{
+  async updatePatientDetailsFields(patientDetails: Partial<PatientDetails>): Promise<{
     religion: string;
     educationalAttainment: string;
     occupation: string;
@@ -180,11 +180,11 @@ export class PatientDetailsTabPage extends BasePatientPane {
     if (patientDetails.dateOfBirth) {
       await this.dateOfBirthInput.locator('input').fill(patientDetails.dateOfBirth);
     }
-    if (patient.sex) {
-      if (patient.sex === 'female') {
-        await this.sexMaleRadio.click();
-      } else {
+    if (patientDetails.sex) {
+      if (patientDetails.sex === 'female') {
         await this.sexFemaleRadio.click();
+      } else {
+        await this.sexMaleRadio.click();
       }
     }
     if (patientDetails.email) {

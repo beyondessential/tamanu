@@ -236,7 +236,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.imagingTab = this.page.getByTestId('styledtab-ccs8-imaging');
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
-    this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.departmentLabel=this.page.getByTestId('cardentry-bzr3').getByTestId('cardvalue-1v8z');
     this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
 
