@@ -74,12 +74,6 @@ export const WebcamCaptureModal = ({
   open,
   onClose,
   onCapture,
-  title = (
-    <TranslatedText
-      stringId="general.webcamCapture.modal.title"
-      fallback="Take Photo with Camera"
-    />
-  ),
 }) => {
   const webcamRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -270,11 +264,36 @@ export const WebcamCaptureModal = ({
     );
   };
 
+  const getModalTitle = () => {
+    if (cameraStatus === CAMERA_STATUS.REQUESTING) {
+      return (
+        <TranslatedText
+          stringId="modal.webcamCapture.title.allowAccess"
+          fallback="Allow camera access"
+        />
+      );
+    }
+    if (cameraStatus === CAMERA_STATUS.DENIED) {
+      return (
+        <TranslatedText
+          stringId="modal.webcamCapture.title.accessRequired"
+          fallback="Camera access required"
+        />
+      );
+    }
+    return (
+      <TranslatedText
+        stringId="modal.webcamCapture.title.capturePhoto"
+        fallback="Capture photo"
+      />
+    );
+  };
+
   return (
     <Modal
       open={open}
       onClose={handleCancel}
-      title={title}
+      title={getModalTitle()}
       width="md"
       actions={<ActionButtons>{renderActions()}</ActionButtons>}
       isClosable={true}
