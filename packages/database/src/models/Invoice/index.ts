@@ -5,6 +5,7 @@ export * from './InvoiceInsurancePlanItem';
 export * from './InvoicesInvoiceInsurancePlan';
 export * from './InvoiceInsurerPayment';
 export * from './InvoiceItem';
+export * from './InvoiceItemFinalisedInsurance';
 export * from './InvoiceItemDiscount';
 export * from './InvoicePatientPayment';
 export * from './InvoicePayment';

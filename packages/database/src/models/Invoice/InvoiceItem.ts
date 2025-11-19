@@ -91,6 +91,11 @@ export class InvoiceItem extends Model {
       foreignKey: 'productId',
       as: 'product',
     });
+
+    this.hasMany(models.InvoiceItemFinalisedInsurance, {
+      foreignKey: 'invoiceItemId',
+      as: 'finalisedInsurances',
+    });
   }
 
   static buildPatientSyncFilter(patientCount: number, markedForSyncPatientsTable: string) {
