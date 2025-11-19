@@ -35,6 +35,7 @@ export { default as arrivalDateIcon } from '../assets/images/encounter/arrival_d
 export { default as dischargeDateIcon } from '../assets/images/encounter/discharge_date.svg';
 export { default as departmentIcon } from '../assets/images/encounter/department.svg';
 export { default as dietIcon } from '../assets/images/encounter/diet.svg';
+export { default as dischargeDateIcon } from '../assets/images/encounter/discharge_date.svg';
 export { default as encounterTypeIcon } from '../assets/images/encounter/encounter_type.svg';
 export { default as locationIcon } from '../assets/images/encounter/location.svg';
 export { default as patientTypeIcon } from '../assets/images/encounter/patient_type.svg';
