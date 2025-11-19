@@ -6,7 +6,7 @@ import type { InitOptions, Models } from '../../types/model';
 export class InvoiceItemFinalisedInsurance extends Model {
   declare id: string;
   declare invoiceItemId: string;
-  declare coverageValueFinal: string;
+  declare coverageValueFinal: number;
   declare invoiceInsurancePlanId: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
@@ -30,7 +30,6 @@ export class InvoiceItemFinalisedInsurance extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         indexes: [
-          { fields: ['invoiceItemId'] },
           { fields: ['invoiceInsurancePlanId'] },
           { unique: true, fields: ['invoiceItemId', 'invoiceInsurancePlanId'] },
         ],
