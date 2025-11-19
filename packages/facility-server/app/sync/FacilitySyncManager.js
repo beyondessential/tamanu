@@ -15,6 +15,7 @@ import {
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
+import { Problem } from '@tamanu/errors';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
@@ -162,7 +163,10 @@ export class FacilitySyncManager {
       await this.pullChanges(sessionId);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
-      await this.centralServer.markSessionErrored(sessionId, error.message);
+      if (!(error instanceof Problem)) {
+        // if the error is not a Problem, it occurred locally on the facility-server and we should notify the central server
+        await this.centralServer.markSessionErrored(sessionId, error.message);
+      }
       throw error;
     } finally {
       // clear temp data stored for persist

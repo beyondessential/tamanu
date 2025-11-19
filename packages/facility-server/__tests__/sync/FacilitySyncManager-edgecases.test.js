@@ -126,8 +126,6 @@ describe('FacilitySyncManager edge cases', () => {
     const CURRENT_SYNC_TICK = '6';
     const NEW_SYNC_TICK = '8';
 
-    const errorsSentToCentral = new Map();
-
     beforeAll(async () => {
       const facility = await models.Facility.create({
         ...fake(models.Facility),
@@ -179,12 +177,7 @@ describe('FacilitySyncManager edge cases', () => {
               },
             },
           ]),
-          markSessionErrored: jest.fn().mockImplementation((sessionId, error) => {
-            errorsSentToCentral.set(sessionId, [
-              ...(errorsSentToCentral.get(sessionId) || []),
-              error,
-            ]);
-          }),
+          markSessionErrored: jest.fn(),
           completePush: jest.fn(),
           endSyncSession: jest.fn(),
           initiatePull: jest.fn().mockImplementation(async () => ({
@@ -199,7 +192,6 @@ describe('FacilitySyncManager edge cases', () => {
 
     beforeEach(async () => {
       jest.resetModules();
-      errorsSentToCentral.clear(); // Clear previous error messages
 
       await models.Encounter.truncate({ force: true, cascade: true });
       await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, CURRENT_SYNC_TICK);
@@ -264,14 +256,11 @@ describe('FacilitySyncManager edge cases', () => {
 
       await resolvePushOutgoingChangesPromise();
 
-      const expectedError =
-        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central";
       await expect(async () => {
         await syncPromise;
-      }).rejects.toThrow(expectedError);
-
-      // check that the error was sent to central
-      expect(errorsSentToCentral.get(TEST_SESSION_ID)).toEqual([expectedError]);
+      }).rejects.toThrow(
+        "Facility: There are 1 encounters record(s) updated between 'snapshot-for-pushing' and now. Error thrown to restart the sync cycle and push the updated records to central",
+      );
     });
 
     it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
@@ -304,6 +293,90 @@ describe('FacilitySyncManager edge cases', () => {
 
       // No expects as if there is an error, it should fail the test
       await syncPromise;
+    });
+  });
+
+  describe('Posts local errors back to central server', () => {
+    beforeAll(async () => {
+      jest.resetModules();
+    });
+
+    it('Will notify central-server if the error occurred locally on the facility-server', async () => {
+      const errorMessage = 'Local error';
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../dist/sync/FacilitySyncManager');
+
+      const markSessionErrored = jest.fn();
+
+      // start the sync
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: '1',
+          })),
+          push: jest.fn(),
+          pull: jest.fn().mockImplementation(async () => {
+            throw new Error(errorMessage);
+          }),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 1,
+            pullUntil: 1,
+          })),
+          markSessionErrored,
+        },
+      });
+      const syncPromise = syncManager.runSync();
+
+      await expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow(errorMessage);
+      expect(markSessionErrored).toHaveBeenCalledWith(TEST_SESSION_ID, errorMessage);
+    });
+
+    it('Will not notify central-server if the error occurred remotely on the central-server', async () => {
+      const errorMessage = 'Remote error';
+
+      jest.doMock('@tamanu/api-client/fetch', () => ({
+        ...jest.requireActual('@tamanu/api-client/fetch'),
+        fetchOrThrowIfUnavailable: jest.fn().mockImplementation(() => {
+          throw new Error(errorMessage);
+        }),
+      }));
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../dist/sync/FacilitySyncManager');
+
+      const { CentralServerConnection: TestCentralServerConnection } = jest.requireActual(
+        '../../dist/sync/CentralServerConnection',
+      );
+
+      const markSessionErrored = jest.fn();
+
+      const centralServerConnection = new TestCentralServerConnection({
+        deviceId: 'test',
+      });
+
+      // start the sync
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: centralServerConnection,
+      });
+      const syncPromise = syncManager.runSync();
+
+      await expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow(errorMessage);
+      expect(markSessionErrored).not.toHaveBeenCalled();
     });
   });
 });
