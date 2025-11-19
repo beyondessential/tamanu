@@ -90,7 +90,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     <TranslatedText stringId="invoice.invoiceNumber" fallback="Invoice number" />:{' '}
                     {invoice.displayId}
                   </InvoiceTitle>
-                  <InvoiceSubTitle>{patient?.village.name}</InvoiceSubTitle>
+                  <InvoiceSubTitle>{patient?.village?.name}</InvoiceSubTitle>
                 </Box>
                 <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
               </InvoiceHeading>
