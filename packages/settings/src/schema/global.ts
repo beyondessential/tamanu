@@ -1352,14 +1352,33 @@ export const globalSettings = {
         appointmentConfirmation: {
           description: 'The email sent to confirm an appointment',
           properties: {
-            subject: {
-              type: yup.string().trim().min(1),
-              defaultValue: 'Appointment confirmation',
+            locationBooking: {
+              description: 'The email template sent to confirm a location booking',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Booking confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\n This is a confirmation that your booking has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
             },
-            body: {
-              type: yup.string().trim().min(1),
-              defaultValue:
-                'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+            outpatientAppointment: {
+              description: 'The email template sent to confirm an outpatient appointment',
+              properties: {
+                subject: {
+                  type: yup.string().trim().min(1),
+                  defaultValue: 'Appointment confirmation',
+                },
+                body: {
+                  type: yup.string().trim().min(1),
+                  defaultValue:
+                    'Hi $firstName$ $lastName$,\n\n This is a confirmation that your appointment has been scheduled at $facilityName$.\nDate: $startDate$\nTime: $startTime$\nLocation: $locationName$, $facilityName$$clinicianName$\n\nDo not respond to this email.',
+                },
+              },
             },
           },
         },
