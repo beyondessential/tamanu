@@ -2,7 +2,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getInsurancePlanItems } from '../encounter';
+import { getInsurancePlanItems } from '../invoice/getInsurancePlanItems';
 
 export const patientInvoiceRoutes = express.Router();
 

@@ -30,12 +30,11 @@ import {
 import { add } from 'date-fns';
 import { z } from 'zod';
 import { keyBy } from 'lodash';
-
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { createEncounterSchema } from '@tamanu/shared/schemas/facility/requests/createEncounter.schema';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { noteChangelogsHandler, noteListHandler } from '../../routeHandlers';
 import { createPatientLetter } from '../../routeHandlers/createPatientLetter';
-
 import { getLabRequestList } from '../../routeHandlers/labs';
 import {
   deleteDocumentMetadata,
@@ -44,7 +43,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
-import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
+import { getInsurancePlanItems } from './invoice/getInsurancePlanItems';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -530,25 +529,6 @@ encounterRelations.get(
   '/:id/notes/:noteId/changelogs',
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
-
-export const getInsurancePlanItems = invoiceInsurancePlans => {
-  return item => {
-    const itemInsurancePlansById = keyBy(
-      item.product?.invoiceInsurancePlanItems,
-      'invoiceInsurancePlanId',
-    );
-
-    const insurancePlanItems =
-      invoiceInsurancePlans?.map(({ id, code, name, defaultCoverage }) => {
-        const invoiceItem = itemInsurancePlansById[id];
-        const coverageValue = invoiceItem?.coverageValue ?? defaultCoverage;
-        const label = name || code;
-        return { id, code, name, label, coverageValue };
-      }) || [];
-
-    return { ...item, insurancePlanItems };
-  };
-};
 
 encounterRelations.get(
   '/:id/invoice',
