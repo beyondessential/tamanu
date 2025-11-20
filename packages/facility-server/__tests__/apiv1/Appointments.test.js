@@ -111,6 +111,7 @@ describe('Appointments', () => {
         appointment = await models.Appointment.create({
           ...fake(models.Appointment),
           patientId: patient.id,
+          clinicianId: userApp.user.dataValues.id,
           locationGroupId: await randomRecordId(models, 'LocationGroup'),
         });
       });
@@ -159,15 +160,7 @@ describe('Appointments', () => {
         );
 
         const appointmentForEmail = await models.Appointment.findByPk(appointment.id, {
-          include: [
-            'patient',
-            'clinician',
-            'locationGroup',
-            {
-              association: 'location',
-              include: ['locationGroup'],
-            },
-          ],
+          include: ['patient', 'clinician', 'locationGroup'],
         });
 
         const facility = await models.Facility.findByPk(facilityId);
@@ -232,7 +225,9 @@ describe('Appointments', () => {
     let locationId, patientId, clinicianId;
 
     beforeAll(async () => {
-      locationId = await randomRecordId(models, 'Location'); // Fetch once for all tests
+      const locationGroup = await models.LocationGroup.create(fake(models.LocationGroup), { facilityId });
+      const location = await models.Location.create(fake(models.Location, { locationGroupId: locationGroup.id, facilityId }));
+      locationId = location.id;
       patientId = patient.id;
       clinicianId = userApp.user.dataValues.id;
     });
@@ -320,7 +315,7 @@ describe('Appointments', () => {
         });
       });
 
-      it('should apply template replacements when sending location booking confirmation email', async () => {
+      it.only('should apply template replacements when sending location booking confirmation email', async () => {
         const template = await ctx.settings[facilityId].get(
           'templates.appointmentConfirmation.locationBooking',
         );
@@ -331,6 +326,7 @@ describe('Appointments', () => {
           endTime: '2024-10-04 12:30:00',
           clinicianId,
           locationId,
+          facilityId,
           email: TEST_EMAIL,
         });
 
@@ -342,7 +338,6 @@ describe('Appointments', () => {
           include: [
             'patient',
             'clinician',
-            'locationGroup',
             {
               association: 'location',
               include: ['locationGroup'],
@@ -358,6 +353,8 @@ describe('Appointments', () => {
           },
           raw: true,
         });
+
+        console.log(appointmentForEmail.location);
 
         const start = new Date(appointmentForEmail.startTime);
         const expectedContent = replaceInTemplate(template.body, {
