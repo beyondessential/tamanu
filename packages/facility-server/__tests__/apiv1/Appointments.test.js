@@ -252,14 +252,16 @@ describe('Appointments', () => {
       });
 
       it('should create patient communication record when created with email in request body', async () => {
-        const result = await userApp.post('/api/appointments/locationBooking').send({
+        const result = await userApp.post('/api/appointments').send({
           patientId,
           startTime: '2024-10-03 12:00:00',
           endTime: '2024-10-03 12:30:00',
           clinicianId,
           locationId,
+          facilityId,
           email: TEST_EMAIL,
         });
+        console.log(result.body);
         expect(result).toHaveSucceeded();
 
         const patientCommunications = await models.PatientCommunication.findAll();
@@ -284,11 +286,12 @@ describe('Appointments', () => {
           SETTINGS_SCOPES.GLOBAL,
         );
 
-        await userApp.post('/api/appointments/locationBooking').send({
+        await userApp.post('/api/appointments').send({
           patientId,
           startTime: '2024-10-04 12:00:00',
           endTime: '2024-10-04 12:30:00',
           clinicianId,
+          facilityId,
           locationId,
           email: TEST_EMAIL,
         });
@@ -299,6 +302,8 @@ describe('Appointments', () => {
           },
           raw: true,
         });
+
+        console.log(patientCommunication);
 
         expect(patientCommunication.subject).toBe(TEST_SUBJECT);
         expect(patientCommunication.content).toBe(TEST_CONTENT);
