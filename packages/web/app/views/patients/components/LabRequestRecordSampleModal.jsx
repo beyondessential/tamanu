@@ -1,6 +1,7 @@
 import React from 'react';
 import * as yup from 'yup';
 import { LAB_REQUEST_STATUSES, SETTING_KEYS, FORM_TYPES } from '@tamanu/constants';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import styled from 'styled-components';
 import { Form, FormGrid, TranslatedText } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
@@ -14,7 +15,6 @@ import {
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 import { useSettings } from '../../../contexts/Settings';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup
@@ -205,7 +205,7 @@ export const LabRequestRecordSampleModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
-            sampleTime: labRequest.sampleTime || getCurrentDateString(),
+            sampleTime: labRequest.sampleTime || getCurrentDateTimeString(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,
