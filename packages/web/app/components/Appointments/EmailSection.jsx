@@ -8,7 +8,7 @@ import { CheckField } from '../Field';
 
 export const EmailSection = () => {
   const { setFieldValue, values } = useFormikContext();
-  const { data: patient } = usePatientDataQuery(values.patientId);
+  const { data: patient, isFetching } = usePatientDataQuery(values.patientId);
 
   // Keep form state up to date with relevant selected patient email
   useEffect(() => {
@@ -21,6 +21,8 @@ export const EmailSection = () => {
     setFieldValue('email', '');
     setFieldValue('confirmEmail', '');
   };
+
+  console.log(isFetching)
 
   return (
     <>
