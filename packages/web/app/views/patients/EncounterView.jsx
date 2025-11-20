@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { useParams } from 'react-router';
 import { ENCOUNTER_TYPES, SETTING_KEYS } from '@tamanu/constants';
 import { useUserPreferencesMutation } from '../../api/mutations/useUserPreferencesMutation';
 import { useEncounter } from '../../contexts/Encounter';
@@ -264,11 +265,12 @@ export const EncounterView = () => {
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
   const patient = useSelector(state => state.patient);
-  const { encounter, isLoadingEncounter } = useEncounter();
+  const { loadEncounter, encounter, isLoadingEncounter } = useEncounter();
   const { data: patientBillingTypeData } = useReferenceDataQuery(encounter?.patientBillingTypeId);
   const { data: userPreferences, isLoading: isLoadingUserPreferences } = useUserPreferencesQuery();
   const { mutate: reorderEncounterTabs } = useUserPreferencesMutation();
 
+  const { encounterId } = useParams();
   const [currentTab, setCurrentTab] = useState(query.get('tab'));
   const [tabs, setTabs] = useState(TABS);
   const disabled = encounter?.endDate || !!patient.dateOfDeath;
@@ -299,6 +301,13 @@ export const EncounterView = () => {
       setCurrentTab(visibleTabs[0].key);
     }
   }, [isLoadingUserPreferences]);
+
+  //Load the encounter on mount
+  useEffect(() => {
+    if (encounterId && !encounter) {
+      loadEncounter(encounterId);
+    }
+  }, [encounterId, encounter, loadEncounter]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
