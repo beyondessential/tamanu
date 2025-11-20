@@ -225,8 +225,12 @@ describe('Appointments', () => {
     let locationId, patientId, clinicianId;
 
     beforeAll(async () => {
-      const locationGroup = await models.LocationGroup.create(fake(models.LocationGroup), { facilityId });
-      const location = await models.Location.create(fake(models.Location, { locationGroupId: locationGroup.id, facilityId }));
+      const locationGroup = await models.LocationGroup.create(
+        fake(models.LocationGroup, { facilityId }),
+      );
+      const location = await models.Location.create(
+        fake(models.Location, { locationGroupId: locationGroup.id, facilityId }),
+      );
       locationId = location.id;
       patientId = patient.id;
       clinicianId = userApp.user.dataValues.id;
@@ -315,7 +319,7 @@ describe('Appointments', () => {
         });
       });
 
-      it.only('should apply template replacements when sending location booking confirmation email', async () => {
+      it('should apply template replacements when sending location booking confirmation email', async () => {
         const template = await ctx.settings[facilityId].get(
           'templates.appointmentConfirmation.locationBooking',
         );
@@ -353,8 +357,6 @@ describe('Appointments', () => {
           },
           raw: true,
         });
-
-        console.log(appointmentForEmail.location);
 
         const start = new Date(appointmentForEmail.startTime);
         const expectedContent = replaceInTemplate(template.body, {
