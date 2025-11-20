@@ -236,14 +236,15 @@ describe('Appointments', () => {
       clinicianId = userApp.user.dataValues.id;
     });
 
-    const makeBooking = async (startTime, endTime, extra = {}) =>
+    const makeBooking = async (startTime, endTime, email) =>
       userApp.post('/api/appointments/locationBooking').send({
         patientId,
         startTime,
         endTime,
         clinicianId,
         locationId,
-        ...extra,
+        facilityId,
+        email,
       });
 
     describe('booked time conflict checking', () => {
@@ -299,10 +300,7 @@ describe('Appointments', () => {
       });
 
       it('should create patient communication record when created with email in request body', async () => {
-        const result = await makeBooking('2024-10-03 12:00:00', '2024-10-03 12:30:00', {
-          facilityId,
-          email: TEST_EMAIL,
-        });
+        const result = await makeBooking('2024-10-03 12:00:00', '2024-10-03 12:30:00', TEST_EMAIL);
         expect(result).toHaveSucceeded();
 
         const patientCommunications = await models.PatientCommunication.findAll();
@@ -319,10 +317,7 @@ describe('Appointments', () => {
           'templates.appointmentConfirmation.locationBooking',
         );
 
-        const result = await makeBooking('2024-10-04 12:00:00', '2024-10-04 12:30:00', {
-          facilityId,
-          email: TEST_EMAIL,
-        });
+        const result = await makeBooking('2024-10-04 12:00:00', '2024-10-04 12:30:00', TEST_EMAIL); 
 
         expect(result).toHaveSucceeded();
 
@@ -376,10 +371,7 @@ describe('Appointments', () => {
           SETTINGS_SCOPES.GLOBAL,
         );
 
-        const result = await makeBooking('2024-10-05 12:00:00', '2024-10-05 12:30:00', {
-          facilityId,
-          email: TEST_EMAIL,
-        });
+        const result = await makeBooking('2024-10-05 12:00:00', '2024-10-05 12:30:00', TEST_EMAIL);
 
         expect(result).toHaveSucceeded();
 
