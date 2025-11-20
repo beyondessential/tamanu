@@ -199,7 +199,7 @@ describe('Appointments', () => {
         expect(patientCommunication.content).toBe(expectedContent);
       });
 
-      it.only('should use overridden outpatient template when settings are updated', async () => {
+      it('should use overridden outpatient template when settings are updated', async () => {
         const OVERRIDE_SUBJECT = 'override outpatient subject';
         const OVERRIDE_BODY = 'override outpatient body';
 
