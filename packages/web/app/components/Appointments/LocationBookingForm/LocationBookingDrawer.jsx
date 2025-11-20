@@ -2,13 +2,14 @@ import OvernightIcon from '@material-ui/icons/Brightness2';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
+import { sub } from 'date-fns';
 
 import { formatShort, toDateTimeString } from '@tamanu/utils/dateTime';
+import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 
 import { usePatientSuggester, useSuggester } from '../../../api';
 import { useCheckOnLeaveMutation, useLocationBookingMutation } from '../../../api/mutations';
 import { Colors } from '../../../constants';
-import { Form, FormGrid, FormSubmitCancelRow } from '@tamanu/ui-components';
 import { useLocationBookingsContext } from '../../../contexts/LocationBookings';
 import { useTranslation } from '../../../contexts/Translation';
 import { notifyError, notifySuccess } from '../../../utils';
@@ -26,8 +27,8 @@ import { TOP_BAR_HEIGHT } from '../../TopBar';
 import { TranslatedText } from '../../Translation/TranslatedText';
 import { DateTimeRangeField } from './DateTimeRangeField';
 import { BodyText } from '../../Typography';
+import { EmailSection } from '../EmailSection';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES, FORM_TYPES } from '@tamanu/constants';
-import { sub } from 'date-fns';
 
 const formStyles = {
   zIndex: 1000,
@@ -565,6 +566,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
             data-testid="field-encounter"
             disabled={!values.patientId}
           />
+          <EmailSection />
           <FormSubmitCancelRow onCancel={warnAndResetForm} data-testid="formsubmitcancelrow-bj5z" />
         </FormGrid>
       </Drawer>
