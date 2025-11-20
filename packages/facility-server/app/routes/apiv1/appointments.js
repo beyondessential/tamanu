@@ -68,8 +68,8 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
   const { patient, clinician } = appointment;
 
   const isLocationBooking = !!appointment.locationId;
+  
   const templateKeySuffix = isLocationBooking ? 'locationBooking' : 'outpatientAppointment';
-
   const appointmentConfirmationTemplate = await settings[facilityId].get(
     `templates.appointmentConfirmation.${templateKeySuffix}`,
   );
