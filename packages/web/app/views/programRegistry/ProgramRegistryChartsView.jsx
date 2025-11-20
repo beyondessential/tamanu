@@ -121,7 +121,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
   const { facilityId, ability } = useAuth();
   const [isInitiated, setIsInitiated] = useState(false);
   const [selectedChartTypeId, setSelectedChartTypeId] = useState('');
-  const chartSurveysQuery = useProgramRegistryLinkedChartsQuery(programRegistryId);
+  const chartSurveysQuery = useProgramRegistryLinkedChartsQuery(programRegistryId, patient?.id);
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
