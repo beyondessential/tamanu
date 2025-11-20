@@ -154,10 +154,9 @@ describe('Appointments', () => {
       });
 
       it('should apply template replacements when sending outpatient reminder email', async () => {
-        const template =
-          await ctx.settings[facilityId].get(
-            'templates.appointmentConfirmation.outpatientAppointment',
-          );
+        const template = await ctx.settings[facilityId].get(
+          'templates.appointmentConfirmation.outpatientAppointment',
+        );
 
         const appointmentForEmail = await models.Appointment.findByPk(appointment.id, {
           include: [
@@ -301,7 +300,7 @@ describe('Appointments', () => {
       });
 
       it('should create patient communication record when created with email in request body', async () => {
-        const result = await userApp.post('/api/appointments').send({
+        const result = await userApp.post('/api/appointments/locationBooking').send({
           patientId,
           startTime: '2024-10-03 12:00:00',
           endTime: '2024-10-03 12:30:00',
@@ -322,17 +321,15 @@ describe('Appointments', () => {
       });
 
       it('should apply template replacements when sending location booking confirmation email', async () => {
-        const template =
-          await ctx.settings[facilityId].get(
-            'templates.appointmentConfirmation.locationBooking',
-          );
+        const template = await ctx.settings[facilityId].get(
+          'templates.appointmentConfirmation.locationBooking',
+        );
 
-        const result = await userApp.post('/api/appointments').send({
+        const result = await userApp.post('/api/appointments/locationBooking').send({
           patientId,
           startTime: '2024-10-04 12:00:00',
           endTime: '2024-10-04 12:30:00',
           clinicianId,
-          facilityId,
           locationId,
           email: TEST_EMAIL,
         });
@@ -390,7 +387,7 @@ describe('Appointments', () => {
           SETTINGS_SCOPES.GLOBAL,
         );
 
-        const result = await userApp.post('/api/appointments').send({
+        const result = await userApp.post('/api/appointments/locationBooking').send({
           patientId,
           startTime: '2024-10-05 12:00:00',
           endTime: '2024-10-05 12:30:00',

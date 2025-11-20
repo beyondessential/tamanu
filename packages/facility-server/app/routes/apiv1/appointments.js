@@ -398,7 +398,7 @@ appointments.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
 
-    const { models, body, settings } = req;
+    const { models, body: {facilityId, ...body}, settings } = req;
     const { startTime, endTime, locationId, patientId, procedureTypeIds, email } = body;
     const { Appointment, PatientFacility, Location } = models;
 
@@ -439,7 +439,7 @@ appointments.post(
           await sendAppointmentReminder({
             appointmentId: appointment.id,
             email,
-            facilityId: location.facilityId,
+            facilityId,
             models,
             settings,
           });
@@ -450,6 +450,7 @@ appointments.post(
 
       res.status(201).send(result);
     } catch (error) {
+      console.log(error);
       res.status(error.status || 500).send();
     }
   }),
