@@ -52,7 +52,11 @@ encounter.get('/:id', simpleGet('Encounter', { auditAccess: true }));
 encounter.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models, body: { facilityId, ...data }, user } = req;
+    const {
+      models,
+      body: { facilityId, ...data },
+      user,
+    } = req;
     req.checkPermission('create', 'Encounter');
     const validatedBody = validate(createEncounterSchema, data);
     const encounterObject = await models.Encounter.create({ ...validatedBody, actorId: user.id });
@@ -61,15 +65,12 @@ encounter.post(
     const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
     const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
     if (isInvoicingEnabled && shouldCreateInvoice) {
-      await models.Invoice.initializeInvoice(
-        req.user.id,
-        {
-          displayId: generateInvoiceDisplayId(),
-          status: INVOICE_STATUSES.IN_PROGRESS,
-          date: encounterObject.startDate,
-          encounterId: encounterObject.id,
-        },
-      );
+      await models.Invoice.initializeInvoice(req.user.id, {
+        displayId: generateInvoiceDisplayId(),
+        status: INVOICE_STATUSES.IN_PROGRESS,
+        date: encounterObject.startDate,
+        encounterId: encounterObject.id,
+      });
     }
 
     if (data.dietIds) {
@@ -530,6 +531,25 @@ encounterRelations.get(
   noteChangelogsHandler(NOTE_RECORD_TYPES.ENCOUNTER),
 );
 
+export const getInsurancePlanItems = invoiceInsurancePlans => {
+  return item => {
+    const itemInsurancePlansById = keyBy(
+      item.product?.invoiceInsurancePlanItems,
+      'invoiceInsurancePlanId',
+    );
+
+    const insurancePlanItems =
+      invoiceInsurancePlans?.map(({ id, code, name, defaultCoverage }) => {
+        const invoiceItem = itemInsurancePlansById[id];
+        const coverageValue = invoiceItem?.coverageValue ?? defaultCoverage;
+        const label = name || code;
+        return { id, code, name, label, coverageValue };
+      }) || [];
+
+    return { ...item, insurancePlanItems };
+  };
+};
+
 encounterRelations.get(
   '/:id/invoice',
   asyncHandler(async (req, res) => {
@@ -555,21 +575,7 @@ encounterRelations.get(
 
     // Convert to plain object to avoid circular references
     const invoice = invoiceRecord.get({ plain: true });
-
-    const invoiceItemsResponse = invoice.items.map(item => {
-      const itemInsurancePlansById = keyBy(item.product?.invoiceInsurancePlanItems, 'invoiceInsurancePlanId');
-
-      const insurancePlanItems =
-        invoice?.insurancePlans?.map(({ id, code, name, defaultCoverage }) => {
-          const invoiceItem = itemInsurancePlansById[id];
-          const coverageValue = invoiceItem?.coverageValue ?? defaultCoverage;
-          const label = name || code;
-          return { id, code, name, label, coverageValue };
-        }) || [];
-
-      return { ...item, insurancePlanItems };
-    });
-
+    const invoiceItemsResponse = invoice.items.map(getInsurancePlanItems(invoice.insurancePlans));
     const responseRecord = { ...invoice, items: invoiceItemsResponse };
 
     res.send(responseRecord);

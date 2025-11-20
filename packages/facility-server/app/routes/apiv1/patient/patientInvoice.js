@@ -2,6 +2,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { getInsurancePlanItems } from '../encounter';
 
 export const patientInvoiceRoutes = express.Router();
 
@@ -19,7 +20,6 @@ patientInvoiceRoutes.get(
 
     const data = await models.Invoice.findAll({
       include: [
-        ...models.Invoice.getFullReferenceAssociations(),
         {
           model: models.Encounter,
           as: 'encounter',
@@ -48,9 +48,31 @@ patientInvoiceRoutes.get(
       ],
     });
 
+    const dataResponse = await Promise.all(
+      data.map(async invoiceRecord => {
+        const { Invoice, InvoicePriceList } = models;
+        // Determine the price list for the invoice based on its encounter
+        const invoiceId = invoiceRecord.id;
+        const encounterId = invoiceRecord.encounterId;
+        const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+        // Refetch the invoice with associations that depend on the price list
+        const hydratedInvoiceRecord = await Invoice.findOne({
+          where: { id: invoiceId },
+          include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+        });
+
+        const invoice = hydratedInvoiceRecord.get({ plain: true });
+        const invoiceItemsResponse = invoice.items.map(
+          getInsurancePlanItems(invoice.insurancePlans),
+        );
+        return { ...invoice, items: invoiceItemsResponse };
+      }),
+    );
+
     res.send({
       count,
-      data,
+      data: dataResponse,
     });
   }),
 );
