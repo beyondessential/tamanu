@@ -1,23 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Plus } from 'lucide-react';
-import { Box, CircularProgress, Button as MuiButton } from '@material-ui/core';
-import PrintIcon from '@material-ui/icons/Print';
-import {
-  Form,
-  Button,
-  TranslatedText,
-  FormSubmitButton,
-  FormCancelButton,
-} from '@tamanu/ui-components';
+import { Box, Button as MuiButton } from '@material-ui/core';
+import { Form, TranslatedText, FormSubmitButton, FormCancelButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FieldArray } from 'formik';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import { InvoiceItemRow } from './InvoiceItem';
 import { InvoiceItemHeader } from './InvoiceItemHeader';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
-import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 
@@ -52,17 +44,10 @@ const ButtonRow = styled.div`
   margin: 10px 0;
 `;
 
-const PrintButton = styled(Button)`
-  position: absolute;
-  right: 70px;
-`;
-
 const getDefaultRow = () => ({ id: uuidv4(), quantity: 1 });
 
 export const InvoiceForm = ({ invoice }) => {
   const { ability } = useAuth();
-  const [printModalOpen, setPrintModalOpen] = useState(false);
-
   const canWriteInvoice = ability.can('write', 'Invoice');
   const editable = isInvoiceEditable(invoice) && canWriteInvoice;
   const { mutate: updateInvoice, isLoading: isUpdatingInvoice } = useUpdateInvoice(invoice);
@@ -84,33 +69,7 @@ export const InvoiceForm = ({ invoice }) => {
   };
 
   return (
-    <>
-      <Box>
-        {!editable && (
-          <PrintButton
-            onClick={() => setPrintModalOpen(true)}
-            color="primary"
-            variant="outlined"
-            startIcon={<PrintIcon data-testid="printicon-700j" />}
-            size="small"
-            data-testid="printbutton-7m03"
-          >
-            <TranslatedText
-              stringId="general.action.print"
-              fallback="Print"
-              data-testid="translatedtext-oqyn"
-            />
-          </PrintButton>
-        )}
-        {printModalOpen && (
-          <InvoiceRecordModal
-            open
-            onClose={() => setPrintModalOpen(false)}
-            invoice={invoice}
-            data-testid="invoicerecordmodal-ep8b"
-          />
-        )}
-      </Box>
+    <Box mb={1}>
       <Form
         suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
         onSubmit={handleSubmit}
@@ -147,8 +106,8 @@ export const InvoiceForm = ({ invoice }) => {
                       );
                     })}
                   </Box>
-                  <ButtonRow>
-                    {editable && canWriteInvoice && (
+                  {editable && canWriteInvoice && (
+                    <ButtonRow>
                       <AddButton
                         variant="text"
                         onClick={() => formArrayMethods.push(getDefaultRow())}
@@ -160,45 +119,29 @@ export const InvoiceForm = ({ invoice }) => {
                           data-testid="translatedtext-9vs0"
                         />
                       </AddButton>
-                    )}
-                    <FormCancelButton
-                      style={{ marginLeft: 'auto' }}
-                      onClick={() => {
-                        resetForm();
-                      }}
-                    >
-                      Cancel
-                    </FormCancelButton>
-                    <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
-                      {!isUpdatingInvoice ? (
-                        editable && canWriteInvoice ? (
-                          <TranslatedText
-                            stringId="invoice.form.action.save"
-                            fallback="Save item/s"
-                            data-testid="translatedtext-26ji"
-                          />
-                        ) : (
-                          <TranslatedText
-                            stringId="general.action.close"
-                            fallback="Close"
-                            data-testid="translatedtext-qol5"
-                          />
-                        )
-                      ) : (
-                        <CircularProgress
-                          size={14}
-                          color={Colors.white}
-                          data-testid="circularprogress-b1j8"
+                      <FormCancelButton
+                        style={{ marginLeft: 'auto' }}
+                        onClick={() => {
+                          resetForm();
+                        }}
+                      >
+                        Cancel
+                      </FormCancelButton>
+                      <SubmitButton onSubmit={submitForm} disabled={isUpdatingInvoice}>
+                        <TranslatedText
+                          stringId="invoice.form.action.save"
+                          fallback="Save item/s"
+                          data-testid="translatedtext-26ji"
                         />
-                      )}
-                    </SubmitButton>
-                  </ButtonRow>
+                      </SubmitButton>
+                    </ButtonRow>
+                  )}
                 </>
               );
             }}
           </FieldArray>
         )}
       />
-    </>
+    </Box>
   );
 };
