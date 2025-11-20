@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 import { SURVEY_TYPES } from '@tamanu/constants';
 
-export const useChartSurveysQuery = () => {
+export const useChartSurveysQuery = encounterId => {
   const api = useApi();
 
-  return useQuery(['chartSurveys'], () => api.get('survey/charts'), {
+  return useQuery(['chartSurveys', encounterId], () => api.get(`survey/charts?encounterId=${encounterId}`), {
     select: data => {
       const complexToCoreSurveysMap = {};
       const complexChartSurveys = data.filter(s => s.surveyType === SURVEY_TYPES.COMPLEX_CHART);

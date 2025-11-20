@@ -1,10 +1,12 @@
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
   REGISTRATION_STATUSES,
+  SURVEY_TYPES,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
 import { disableHardcodedPermissionsForSuite } from '@tamanu/shared/test-helpers';
 import { fake } from '@tamanu/fake-data/fake';
+import { createDummyEncounter } from '@tamanu/database/demoData/patients';
 
 import { createTestContext } from '../utilities';
 
@@ -638,6 +640,103 @@ describe('ProgramRegistry', () => {
         expect(body.count).toEqual(1);
         expect(body.data.length).toEqual(1);
       });
+    });
+  });
+
+  describe.only('Getting linked charts (GET /api/programRegistry/:id/linkedCharts)', () => {
+    let programRegistryId;
+    let patient;
+    let historicalSimpleChart;
+    let historicalComplexChart;
+    let historicalChartWithoutAnswers;
+
+    beforeAll(async () => {
+      // Create program registry and patient
+      const registry = await createProgramRegistry();
+      programRegistryId = registry.id;
+      patient = await models.Patient.create(fake(models.Patient));
+
+      // Create historical simple chart with answers
+      historicalSimpleChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Simple Chart With Answers',
+        }),
+      );
+
+      // Create historical complex chart with answers
+      historicalComplexChart = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.COMPLEX_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Complex Chart With Answers',
+        }),
+      );
+
+      // Create encounters for the patient
+      const encounter1 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      const encounter2 = await models.Encounter.create({
+        ...(await createDummyEncounter(models)),
+        patientId: patient.id,
+      });
+
+      // Create survey responses with answers
+      const response1 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalSimpleChart.id,
+          encounterId: encounter1.id,
+        }),
+      );
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response1.id,
+        }),
+      );
+
+      const response2 = await models.SurveyResponse.create(
+        fake(models.SurveyResponse, {
+          surveyId: historicalComplexChart.id,
+          encounterId: encounter2.id,
+        }),
+      );
+
+      await models.SurveyResponseAnswer.create(
+        fake(models.SurveyResponseAnswer, {
+          responseId: response2.id,
+        }),
+      );
+
+      // Create historical chart without answers (should not be included)
+      historicalChartWithoutAnswers = await models.Survey.create(
+        fake(models.Survey, {
+          programId: registry.programId,
+          surveyType: SURVEY_TYPES.SIMPLE_CHART,
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+          name: 'Historical Chart Without Answers',
+        }),
+      );
+    });
+
+    it('should return historical simple and complex charts with answers', async () => {
+      const result = await app.get(
+        `/api/programRegistry/${programRegistryId}/linkedCharts?patientId=${patient.id}`,
+      );
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body.count).toEqual(2);
+      expect(body.data.length).toEqual(2);
+      const chartIds = body.data.map((c) => c.id);
+      expect(chartIds).toContain(historicalSimpleChart.id);
+      expect(chartIds).toContain(historicalComplexChart.id);
+      expect(chartIds).not.toContain(historicalChartWithoutAnswers.id);
     });
   });
 });

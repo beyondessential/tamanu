@@ -1,11 +1,10 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { REGISTRATION_STATUSES } from '@tamanu/constants';
 import { TranslatedText, TranslatedReferenceData } from '@tamanu/ui-components';
-import { Colors } from '../../constants/styles';
-
+import { Colors } from '../../constants';
 import { DisplayPatientRegDetails } from './DisplayPatientRegDetails';
 import { ProgramRegistryStatusHistory } from './ProgramRegistryStatusHistory';
 import { usePatientProgramRegistrationQuery } from '../../api/queries/usePatientProgramRegistrationQuery';
@@ -14,10 +13,7 @@ import { PatientProgramRegistrationSelectSurvey } from './PatientProgramRegistra
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ConditionSection } from './ConditionSection';
 import { RegistrationStatusIndicator } from './RegistrationStatusIndicator';
-import { PatientNavigation } from '../../components/PatientNavigation';
-import { usePatientRoutes } from '../../routes/PatientRoutes';
 import { ProgramRegistryChartsView } from './ProgramRegistryChartsView';
-import { useProgramRegistryLinkedChartsQuery } from '../../api/queries/useProgramRegistryLinkedChartsQuery';
 
 const ViewHeader = styled.div`
   background-color: ${Colors.white};
@@ -75,14 +71,6 @@ export const PatientProgramRegistryView = () => {
     programRegistryId,
   );
 
-  // Check if there are linked charts for this program registry
-  const { data: { chartSurveys = [] } = {} } = useProgramRegistryLinkedChartsQuery(
-    programRegistryId,
-  );
-  const hasLinkedCharts = chartSurveys.length > 0;
-
-  const patientRoutes = usePatientRoutes();
-
   if (isLoading || isFetching) {
     return <LoadingIndicator />;
   }
@@ -100,7 +88,6 @@ export const PatientProgramRegistryView = () => {
 
   return (
     <>
-      <PatientNavigation patientRoutes={patientRoutes} />
       <ViewHeader>
         <h1>
           <TranslatedReferenceData
@@ -131,8 +118,7 @@ export const PatientProgramRegistryView = () => {
         <Row>
           <PatientProgramRegistryFormHistory patientProgramRegistration={data} />
         </Row>
-        {/* Charts section - only show if there are linked charts */}
-        {hasLinkedCharts && patient && (
+        {patient && (
           <Row>
             <ProgramRegistryChartsView programRegistryId={programRegistryId} patient={patient} />
           </Row>

@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
@@ -85,10 +85,10 @@ programRegistry.get(
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
-    const filteredObjects = objects.filter((programRegistry) =>
+    const filteredObjects = objects.filter(programRegistry =>
       req.ability.can('list', programRegistry),
     );
-    const filteredData = filteredObjects.map((x) => x.forResponse());
+    const filteredData = filteredObjects.map(x => x.forResponse());
     const filteredCount =
       objects.length !== filteredObjects.length ? filteredObjects.length : count;
 
@@ -182,12 +182,12 @@ programRegistry.get(
           active_status: REGISTRATION_STATUSES.ACTIVE,
         }),
       ),
-    ].filter((f) => f);
+    ].filter(f => f);
 
-    const whereClauses = filters.map((f) => f.sql).join(' AND ');
+    const whereClauses = filters.map(f => f.sql).join(' AND ');
 
     const filterReplacements = filters
-      .filter((f) => f.transform)
+      .filter(f => f.transform)
       .reduce(
         (current, { transform }) => ({
           ...current,
@@ -363,8 +363,9 @@ programRegistry.get(
 programRegistry.get(
   '/:id/linkedCharts',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { id: programRegistryId } = params;
+    const patientId = query?.patientId;
 
     req.checkPermission('list', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'Survey');
@@ -374,20 +375,122 @@ programRegistry.get(
       throw new NotFoundError('Program registry not found');
     }
 
+    if (patientId) {
+      const patient = await models.Patient.findByPk(patientId);
+      if (!patient) {
+        throw new NotFoundError('Patient not found');
+      }
+    }
+
     const charts = await models.Survey.findAll({
       where: {
         programId: registry.programId,
-        surveyType: {
-          [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART, SURVEY_TYPES.COMPLEX_CHART_CORE],
-        },
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        [Op.or]: [
+          {
+            surveyType: {
+              [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            },
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
+          {
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal( `
+                EXISTS (
+                  SELECT 1 FROM survey_responses sr
+                  JOIN survey_response_answers sra ON sra.response_id = sr.id
+                  JOIN encounters e ON e.id = sr.encounter_id
+                  WHERE sr.survey_id = "Survey".id
+                    AND sr.deleted_at IS NULL
+                    ${patientId ? 'AND e.patient_id = :patientId' : ''}
+                )
+              `),
+            ],
+          },
+          {
+            surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          },
+        ],
       },
       order: [['name', 'ASC']],
+      ...(patientId && { replacements: { patientId } }),
     });
 
+    // check permissions for each chart
+    const permittedCharts = charts.filter(chart =>
+      req.ability.can('list', subject('Charting', { id: chart.id })),
+    );
+
     res.send({
-      data: charts.map(c => c.forResponse()),
-      count: charts.length,
+      data: permittedCharts.map(c => c.forResponse()),
+      count: permittedCharts.length,
+    });
+  }),
+);
+
+programRegistry.get(
+  '/patient/:patientId/initialChart',
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { patientId } = params;
+    const { programRegistryId } = query;
+
+    req.checkPermission('read', 'Patient');
+
+    let surveyWhereClause = {
+      surveyType: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+    };
+
+    if (programRegistryId) {
+      const registry = await models.ProgramRegistry.findByPk(programRegistryId);
+      if (!registry) {
+        throw new NotFoundError('Program registry not found');
+      }
+
+      surveyWhereClause = {
+        ...surveyWhereClause,
+        programId: registry.programId,
+      };
+    }
+
+    // Get all chart surveys that have responses for this patient
+    // SurveyResponses are linked to encounters, which are linked to patients
+    const chartSurvey = await models.SurveyResponse.findAll({
+      attributes: [],
+      include: [
+        {
+          attributes: [],
+          required: true,
+          model: models.Encounter,
+          as: 'encounter',
+          where: { patientId },
+        },
+        {
+          attributes: ['id', 'name'],
+          required: true,
+          model: models.Survey,
+          as: 'survey',
+          where: surveyWhereClause,
+        },
+      ],
+      order: [['survey', 'name', 'ASC']],
+      group: ['survey.id', 'survey.name'],
+      raw: true,
+    });
+    req.flagPermissionChecked();
+    const allowedSurvey = chartSurvey.find(response =>
+      req.ability.can('list', subject('Charting', { id: response['survey.id'] })),
+    );
+
+    res.send({
+      data: allowedSurvey
+        ? { survey: { id: allowedSurvey['survey.id'], name: allowedSurvey['survey.name'] } }
+        : undefined,
     });
   }),
 );
@@ -405,13 +508,13 @@ programRegistry.get(
   fetchGraphData({
     permissionAction: 'read',
     permissionNoun: 'Charting',
-    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded
+    dateDataElementId: CHARTING_DATA_ELEMENT_IDS.dateRecorded,
   }),
 );
 
 programRegistry.get(
   '/patient/:patientId/charts/:chartSurveyId/chartInstances',
-  fetchChartInstances(), 
+  fetchChartInstances(),
 );
 
 programRegistry.delete(

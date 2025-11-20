@@ -113,7 +113,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
   const {
     data: { chartSurveys = [], complexToCoreSurveysMap = {} } = {},
     isLoading: isLoadingChartSurveys,
-  } = useChartSurveysQuery();
+  } = useChartSurveysQuery(encounter?.id);
   const { getTranslation } = useTranslation();
 
   const [modalOpen, setModalOpen] = useState(false);
