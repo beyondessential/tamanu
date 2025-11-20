@@ -261,7 +261,6 @@ describe('Appointments', () => {
           facilityId,
           email: TEST_EMAIL,
         });
-        console.log(result.body);
         expect(result).toHaveSucceeded();
 
         const patientCommunications = await models.PatientCommunication.findAll();
@@ -302,8 +301,6 @@ describe('Appointments', () => {
           },
           raw: true,
         });
-
-        console.log(patientCommunication);
 
         expect(patientCommunication.subject).toBe(TEST_SUBJECT);
         expect(patientCommunication.content).toBe(TEST_CONTENT);
