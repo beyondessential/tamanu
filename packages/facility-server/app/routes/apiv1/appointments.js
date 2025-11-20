@@ -454,7 +454,6 @@ appointments.post(
 
       res.status(201).send(result);
     } catch (error) {
-      console.log(error);
       res.status(error.status || 500).send();
     }
   }),
