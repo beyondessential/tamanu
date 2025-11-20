@@ -276,6 +276,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
       additionalClinicianId,
       procedureTypeIds,
       linkEncounterId,
+      email,
     },
     { resetForm },
   ) => {
@@ -291,6 +292,7 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
         additionalClinicianId,
         procedureTypeIds,
         linkEncounterId,
+        email,
       },
       {
         onSuccess: () => {
@@ -344,6 +346,24 @@ export const LocationBookingDrawer = ({ open, onClose, initialValues }) => {
     additionalClinicianId: yup.string(),
     procedureTypeIds: yup.array().of(yup.string()),
     linkEncounterId: yup.string(),
+    shouldEmailAppointment: yup.boolean(),
+    email: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .email(getTranslation('validation.rule.validEmail', 'Must be a valid email address')),
+    }),
+    confirmEmail: yup.string().when('shouldEmailAppointment', {
+      is: true,
+      then: yup
+        .string()
+        .required(requiredMessage)
+        .oneOf(
+          [yup.ref('email')],
+          getTranslation('validation.rule.emailsMatch', 'Emails must match'),
+        ),
+    }),
   });
 
   const renderForm = ({ values, resetForm, setFieldValue, dirty, errors }) => {

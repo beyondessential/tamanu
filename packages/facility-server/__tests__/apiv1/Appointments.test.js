@@ -157,7 +157,7 @@ describe('Appointments', () => {
         const TEST_CONTENT = 'test body';
 
         await models.Setting.set(
-          'templates.appointmentConfirmation',
+          'templates.appointmentConfirmation.outpatientAppointment',
           {
             subject: TEST_SUBJECT,
             body: TEST_CONTENT,
@@ -241,6 +241,67 @@ describe('Appointments', () => {
       it('should allow booking if end time equals start time of another', async () => {
         const result = await makeBooking('2024-10-02 11:30:00', '2024-10-02 12:00:00');
         expect(result).toHaveSucceeded();
+      });
+    });
+
+    describe('booking confirmation emails', () => {
+      const TEST_EMAIL = 'booking@test.com';
+
+      afterEach(async () => {
+        await models.PatientCommunication.truncate({ cascade: true, force: true });
+      });
+
+      it('should create patient communication record when created with email in request body', async () => {
+        const result = await userApp.post('/api/appointments/locationBooking').send({
+          patientId,
+          startTime: '2024-10-03 12:00:00',
+          endTime: '2024-10-03 12:30:00',
+          clinicianId,
+          locationId,
+          email: TEST_EMAIL,
+        });
+        expect(result).toHaveSucceeded();
+
+        const patientCommunications = await models.PatientCommunication.findAll();
+        expect(patientCommunications.length).toBe(1);
+        expect(patientCommunications[0]).toMatchObject({
+          type: PATIENT_COMMUNICATION_TYPES.BOOKING_CONFIRMATION,
+          channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+          destination: TEST_EMAIL,
+        });
+      });
+
+      it('should use location booking template from settings for email subject and body', async () => {
+        const TEST_SUBJECT = 'booking subject';
+        const TEST_CONTENT = 'booking body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation.locationBooking',
+          {
+            subject: TEST_SUBJECT,
+            body: TEST_CONTENT,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        await userApp.post('/api/appointments/locationBooking').send({
+          patientId,
+          startTime: '2024-10-04 12:00:00',
+          endTime: '2024-10-04 12:30:00',
+          clinicianId,
+          locationId,
+          email: TEST_EMAIL,
+        });
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
+        expect(patientCommunication.content).toBe(TEST_CONTENT);
       });
     });
   });
