@@ -243,7 +243,6 @@ describe('Appointments', () => {
         endTime,
         clinicianId,
         locationId,
-        facilityId,
         email,
       });
 
