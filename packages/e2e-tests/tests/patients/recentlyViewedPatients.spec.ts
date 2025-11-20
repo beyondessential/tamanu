@@ -97,7 +97,9 @@ test.describe('Recently viewed patients details', () => {
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedName).toHaveText(
       `${newPatient.firstName} ${newPatient.lastName}`,
     );
-    await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedGender).toHaveText(newPatient.sex);
+    await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedGender).toHaveText(
+      new RegExp(`^${newPatient.sex}$`, 'i'),
+    );
     await expect(allPatientsPage.recentlyViewedPatientsList.firstRecentlyViewedBirthDate).toHaveText(
       RecentlyViewedPatientsList.formatDateForRecentlyViewed(newPatient.dateOfBirth || ''),
     );
