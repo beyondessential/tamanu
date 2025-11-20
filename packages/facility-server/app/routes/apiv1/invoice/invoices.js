@@ -247,12 +247,12 @@ invoiceRoute.put(
 );
 
 /**
- * Finalize invoice
+ * Finalise invoice
  * - Only in progress invoices can be finalised
  * - Invoice items data will be frozen
  */
 invoiceRoute.put(
-  '/:id/finalize',
+  '/:id/finalise',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
     const invoiceId = req.params.id;
@@ -272,7 +272,7 @@ invoiceRoute.put(
   }),
 );
 /**
- * Finalize invoice
+ * Finalise invoice
  * You cannot delete a Finalised invoice
  * You can delete a cancelled or in progress invoice
  */
