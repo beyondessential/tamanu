@@ -6,6 +6,7 @@ import {
   APPOINTMENT_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
+  SETTINGS_SCOPES,
   REPEAT_FREQUENCY,
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
@@ -197,6 +198,34 @@ describe('Appointments', () => {
         expect(patientCommunication.subject).toBe(template.subject);
         expect(patientCommunication.content).toBe(expectedContent);
       });
+
+      it.only('should use overridden outpatient template when settings are updated', async () => {
+        const OVERRIDE_SUBJECT = 'override outpatient subject';
+        const OVERRIDE_BODY = 'override outpatient body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation.outpatientAppointment',
+          {
+            subject: OVERRIDE_SUBJECT,
+            body: OVERRIDE_BODY,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        await userApp
+          .post('/api/appointments/emailReminder')
+          .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        expect(patientCommunication.subject).toBe(OVERRIDE_SUBJECT);
+        expect(patientCommunication.content).toBe(OVERRIDE_BODY);
+      });
     });
   });
 
@@ -346,6 +375,42 @@ describe('Appointments', () => {
 
         expect(patientCommunication.subject).toBe(template.subject);
         expect(patientCommunication.content).toBe(expectedContent);
+      });
+
+      it('should use overridden location booking template when settings are updated', async () => {
+        const OVERRIDE_SUBJECT = 'override booking subject';
+        const OVERRIDE_BODY = 'override booking body';
+
+        await models.Setting.set(
+          'templates.appointmentConfirmation.locationBooking',
+          {
+            subject: OVERRIDE_SUBJECT,
+            body: OVERRIDE_BODY,
+          },
+          SETTINGS_SCOPES.GLOBAL,
+        );
+
+        const result = await userApp.post('/api/appointments').send({
+          patientId,
+          startTime: '2024-10-05 12:00:00',
+          endTime: '2024-10-05 12:30:00',
+          clinicianId,
+          facilityId,
+          locationId,
+          email: TEST_EMAIL,
+        });
+
+        expect(result).toHaveSucceeded();
+
+        const patientCommunication = await models.PatientCommunication.findOne({
+          where: {
+            destination: TEST_EMAIL,
+          },
+          raw: true,
+        });
+
+        expect(patientCommunication.subject).toBe(OVERRIDE_SUBJECT);
+        expect(patientCommunication.content).toBe(OVERRIDE_BODY);
       });
     });
   });
