@@ -304,10 +304,10 @@ export const EncounterView = () => {
 
   //Load the encounter on mount
   useEffect(() => {
-    if (encounterId && !encounter) {
+    if (encounterId && encounterId !== encounter?.id) {
       loadEncounter(encounterId);
     }
-  }, [encounterId, encounter, loadEncounter]);
+  }, [encounterId, encounter?.id, loadEncounter]);
 
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
