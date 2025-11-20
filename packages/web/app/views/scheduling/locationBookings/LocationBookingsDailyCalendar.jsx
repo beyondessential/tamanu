@@ -21,7 +21,7 @@ import {
   useLocationBookingsQuery,
   useFacilityLocationAssignmentsQuery,
 } from '../../../api/queries';
-import { TranslatedText, TranslatedReferenceData } from '../../../components';
+import { FormModal, TranslatedText, TranslatedReferenceData } from '../../../components';
 import { APPOINTMENT_CALENDAR_CLASS } from '../../../components/Appointments/AppointmentDetailPopper';
 import { AppointmentTile } from '../../../components/Appointments/AppointmentTile';
 import { Colors } from '../../../constants';
@@ -33,6 +33,9 @@ import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useDrop, useDrag } from 'react-dnd';
 import { useMoveLocationBookingMutation } from '../../../api/mutations/useMoveLocationBookingMutation';
+import { useSendAppointmentEmail } from '../../../api/mutations';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
+import { toast } from 'react-toastify';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -443,6 +446,7 @@ export const LocationBookingsDailyCalendar = ({
   } = useLocationBookingsContext();
 
   const [selectedTimeCell, setSelectedTimeCell] = useState(null);
+  const [emailModalState, setEmailModalState] = useState(null);
 
   useEffect(() => {
     if (!selectedCell || (!selectedCell.locationId && !selectedCell.date)) {
@@ -505,6 +509,26 @@ export const LocationBookingsDailyCalendar = ({
 
   const { slots: bookingSlots, slotDuration, isPending: isBookingSlotsLoading } = useBookingSlots(
     selectedDate,
+  );
+
+  const { mutateAsync: sendAppointmentEmail } = useSendAppointmentEmail(
+    emailModalState?.appointmentId,
+    {
+      onSuccess: () =>
+        toast.success(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.success"
+            fallback="Email successfully sent"
+          />,
+        ),
+      onError: () =>
+        toast.error(
+          <TranslatedText
+            stringId="appointments.action.emailReminder.error"
+            fallback="Error sending email"
+          />,
+        ),
+    },
   );
 
   // Generate hourly time slots based on booking slot time range
@@ -758,6 +782,26 @@ export const LocationBookingsDailyCalendar = ({
                             className="appointment-tile"
                             onEdit={() => openBookingForm(appointment)}
                             onCancel={() => openCancelModal(appointment)}
+                            actions={
+                              canCreateAppointment
+                                ? [
+                                    {
+                                      label: (
+                                        <TranslatedText
+                                          stringId="locationBooking.action.emailBooking"
+                                          fallback="Email booking"
+                                          data-testid={`translatedtext-email-booking-${locationIndex}-${appointmentIndex}`}
+                                        />
+                                      ),
+                                      action: () =>
+                                        setEmailModalState({
+                                          appointmentId: appointment.id,
+                                          email: appointment.patient?.email,
+                                        }),
+                                    },
+                                  ]
+                                : []
+                            }
                             testIdPrefix={`${locationIndex}-${appointmentIndex}`}
                           />
                         </DraggableAppointment>
@@ -770,6 +814,25 @@ export const LocationBookingsDailyCalendar = ({
           })}
         </CalendarGrid>
       </ScrollWrapper>
+      <FormModal
+        title={
+          <TranslatedText
+            stringId="patient.email.title"
+            fallback="Enter email address"
+          />
+        }
+        open={!!emailModalState}
+        onClose={() => setEmailModalState(null)}
+      >
+        <EmailAddressConfirmationForm
+          onSubmit={async ({ email }) => {
+            await sendAppointmentEmail(email);
+            setEmailModalState(null);
+          }}
+          onCancel={() => setEmailModalState(null)}
+          emailOverride={emailModalState?.email}
+        />
+      </FormModal>
     </Box>
   );
 };
