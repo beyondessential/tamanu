@@ -398,7 +398,11 @@ appointments.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
 
-    const { models, body: {facilityId, ...body}, settings } = req;
+    const {
+      models,
+      body,
+      settings,
+    } = req;
     const { startTime, endTime, locationId, patientId, procedureTypeIds, email } = body;
     const { Appointment, PatientFacility, Location } = models;
 
@@ -439,7 +443,7 @@ appointments.post(
           await sendAppointmentReminder({
             appointmentId: appointment.id,
             email,
-            facilityId,
+            facilityId: location.facilityId,
             models,
             settings,
           });

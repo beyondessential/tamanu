@@ -317,7 +317,7 @@ describe('Appointments', () => {
           'templates.appointmentConfirmation.locationBooking',
         );
 
-        const result = await makeBooking('2024-10-04 12:00:00', '2024-10-04 12:30:00', TEST_EMAIL); 
+        const result = await makeBooking('2024-10-04 12:00:00', '2024-10-04 12:30:00', TEST_EMAIL);
 
         expect(result).toHaveSucceeded();
 
