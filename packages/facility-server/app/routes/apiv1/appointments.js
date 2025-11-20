@@ -65,10 +65,9 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
     Facility.findByPk(facilityId),
   ]);
 
-  const { patient, clinician } = appointment;
+  const { patient, clinician, locationId } = appointment;
+  const isLocationBooking = !!locationId;
 
-  const isLocationBooking = !!appointment.locationId;
-  
   const templateKeySuffix = isLocationBooking ? 'locationBooking' : 'outpatientAppointment';
   const appointmentConfirmationTemplate = await settings[facilityId].get(
     `templates.appointmentConfirmation.${templateKeySuffix}`,
@@ -398,11 +397,7 @@ appointments.post(
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Appointment');
 
-    const {
-      models,
-      body,
-      settings,
-    } = req;
+    const { models, body, settings } = req;
     const { startTime, endTime, locationId, patientId, procedureTypeIds, email } = body;
     const { Appointment, PatientFacility, Location } = models;
 
