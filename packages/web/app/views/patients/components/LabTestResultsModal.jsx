@@ -231,6 +231,13 @@ const ResultsFormError = ({ error }) => (
   </Box>
 );
 
+const getPrefilledValue = (uniqueValues, name) => {
+  if (uniqueValues.length === 1) return uniqueValues[0];
+  if (uniqueValues.length === 0 && name === LAB_TEST_PROPERTIES.COMPLETED_DATE)
+    return getCurrentDateTimeString();
+  return null;
+};
+
 const ResultsForm = ({
   labTestResults,
   isLoading,
@@ -260,18 +267,10 @@ const ResultsForm = ({
           .map(([, row]) => row[name]);
 
         const uniqueValues = [...new Set(otherRowsValues)];
+        const valueToSet = getPrefilledValue(uniqueValues, name);
 
-        let valueToSet = null;
-
-        if (uniqueValues.length === 1) {
-          valueToSet = uniqueValues[0];
-        } else if (uniqueValues.length === 0 && name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
-          valueToSet = getCurrentDateTimeString();
-        }
-
-        if (valueToSet) {
-          setFieldValue(`${labTestId}.${name}`, valueToSet);
-        }
+        if (!valueToSet) return;
+        setFieldValue(`${labTestId}.${name}`, valueToSet);
       });
     },
     [values, setFieldValue],
