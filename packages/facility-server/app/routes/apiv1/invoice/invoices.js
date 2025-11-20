@@ -55,6 +55,14 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
+    // Ensure no other invoice exists for the same encounter
+    const existingInvoice = await req.models.Invoice.findOne({
+      where: {
+        encounterId: data.encounterId,
+      },
+    });
+    if (existingInvoice) throw new InvalidOperationError('An invoice already exists for this encounter');
+
     // Handles invoice creation with default insurer and discount
     const invoice = await req.models.Invoice.initializeInvoice(
       req.user.id,
