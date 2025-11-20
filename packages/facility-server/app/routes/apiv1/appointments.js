@@ -67,12 +67,12 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
 
   const { patient, clinician } = appointment;
 
-  const isLocationBooking = !!appointment.locationId
-  const templateKey = isLocationBooking
-    ? 'templates.appointmentConfirmation.locationBooking'
-    : 'templates.appointmentConfirmation.outpatientAppointment';
+  const isLocationBooking = !!appointment.locationId;
+  const templateKeySuffix = isLocationBooking ? 'locationBooking' : 'outpatientAppointment';
 
-  const appointmentConfirmationTemplate = await settings[facilityId].get(templateKey);
+  const appointmentConfirmationTemplate = await settings[facilityId].get(
+    `templates.appointmentConfirmation.${templateKeySuffix}`,
+  );
 
   const start = new Date(appointment.startTime);
   const locationName = isLocationBooking
@@ -706,7 +706,7 @@ appointments.get(
 
     const sortKey = sortKeys[orderBy] || 'startTime';
     const sortOrder = order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
-    
+
     // Build order clause - handle nested associations
     const orderClause = Array.isArray(sortKey)
       ? [sortKey.concat([sortOrder])]
