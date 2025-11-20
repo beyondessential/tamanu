@@ -207,17 +207,17 @@ test.setTimeout(100000);
       await imagingRequestPane.waitForPageToLoad();
       
        const imagingType = await getTableItems(imagingRequestPane.page, 1, 'imagingType');
-       expect(imagingType).toContain(formValues.imagingRequestType);
+       expect(imagingType[0]).toBe(formValues.imagingRequestType);
        const requestId = await getTableItems(imagingRequestPane.page, 1, 'displayId');
-       expect(requestId).toContain(imagingRequestCode);
+       expect(requestId[0]).toBe(imagingRequestCode);
        const requestedAtTime = await getTableItems(imagingRequestPane.page, 1, 'requestedDate');
-       expect(requestedAtTime).toContain(format(new Date(), 'MM/dd/yyyy'));
+       expect(requestedAtTime[0]).toBe(format(new Date(), 'MM/dd/yyyy'));
        const requestedBy = await getTableItems(imagingRequestPane.page, 1, 'requestedBy.displayName');
-       expect(requestedBy).toContain(formValues.requestingClinician);
+       expect(requestedBy[0]).toBe(formValues.requestingClinician);
        const priority = await getTableItems(imagingRequestPane.page, 1, 'priority');
-       expect(priority).toContain(formValues.priority);
+       expect(priority[0]).toBe(formValues.priority);
        const status = await getTableItems(imagingRequestPane.page, 1, 'status');
-       expect(status).toContain('Pending');
+       expect(status[0]).toBe('Pending');
     })
 
     });
