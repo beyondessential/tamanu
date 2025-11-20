@@ -1,15 +1,15 @@
 import config from 'config';
-import { add } from 'date-fns';
+import { add, format } from 'date-fns';
 import { Op } from 'sequelize';
 
 import {
   APPOINTMENT_STATUSES,
   PATIENT_COMMUNICATION_CHANNELS,
   PATIENT_COMMUNICATION_TYPES,
-  SETTINGS_SCOPES,
   REPEAT_FREQUENCY,
   MODIFY_REPEATING_APPOINTMENT_MODE,
 } from '@tamanu/constants';
+import { replaceInTemplate } from '@tamanu/utils/replaceInTemplate';
 import { createDummyPatient } from '@tamanu/database/demoData/patients';
 import { randomRecordId } from '@tamanu/database/demoData/utilities';
 import { fake } from '@tamanu/fake-data/fake';
@@ -152,30 +152,50 @@ describe('Appointments', () => {
         });
       });
 
-      it('should use template from settings for email subject and body', async () => {
-        const TEST_SUBJECT = 'test subject';
-        const TEST_CONTENT = 'test body';
+      it('should apply template replacements when sending outpatient reminder email', async () => {
+        const template =
+          await ctx.settings[facilityId].get(
+            'templates.appointmentConfirmation.outpatientAppointment',
+          );
 
-        await models.Setting.set(
-          'templates.appointmentConfirmation.outpatientAppointment',
-          {
-            subject: TEST_SUBJECT,
-            body: TEST_CONTENT,
-          },
-          SETTINGS_SCOPES.GLOBAL,
-        );
+        const appointmentForEmail = await models.Appointment.findByPk(appointment.id, {
+          include: [
+            'patient',
+            'clinician',
+            'locationGroup',
+            {
+              association: 'location',
+              include: ['locationGroup'],
+            },
+          ],
+        });
+
+        const facility = await models.Facility.findByPk(facilityId);
 
         await userApp
           .post('/api/appointments/emailReminder')
           .send({ facilityId, appointmentId: appointment.id, email: TEST_EMAIL });
+
         const patientCommunication = await models.PatientCommunication.findOne({
           where: {
             destination: TEST_EMAIL,
           },
           raw: true,
         });
-        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
-        expect(patientCommunication.content).toBe(TEST_CONTENT);
+
+        const start = new Date(appointmentForEmail.startTime);
+        const expectedContent = replaceInTemplate(template.body, {
+          firstName: appointmentForEmail.patient.firstName,
+          lastName: appointmentForEmail.patient.lastName,
+          facilityName: facility.name,
+          startDate: format(start, 'PPPP'),
+          startTime: format(start, 'p'),
+          locationName: appointmentForEmail.locationGroup.name,
+          clinicianName: `\nClinician: ${appointmentForEmail.clinician.displayName}`,
+        });
+
+        expect(patientCommunication.subject).toBe(template.subject);
+        expect(patientCommunication.content).toBe(expectedContent);
       });
     });
   });
@@ -272,20 +292,13 @@ describe('Appointments', () => {
         });
       });
 
-      it('should use location booking template from settings for email subject and body', async () => {
-        const TEST_SUBJECT = 'booking subject';
-        const TEST_CONTENT = 'booking body';
+      it('should apply template replacements when sending location booking confirmation email', async () => {
+        const template =
+          await ctx.settings[facilityId].get(
+            'templates.appointmentConfirmation.locationBooking',
+          );
 
-        await models.Setting.set(
-          'templates.appointmentConfirmation.locationBooking',
-          {
-            subject: TEST_SUBJECT,
-            body: TEST_CONTENT,
-          },
-          SETTINGS_SCOPES.GLOBAL,
-        );
-
-        await userApp.post('/api/appointments').send({
+        const result = await userApp.post('/api/appointments').send({
           patientId,
           startTime: '2024-10-04 12:00:00',
           endTime: '2024-10-04 12:30:00',
@@ -295,6 +308,24 @@ describe('Appointments', () => {
           email: TEST_EMAIL,
         });
 
+        expect(result).toHaveSucceeded();
+
+        const createdAppointmentId = result.body.id;
+
+        const appointmentForEmail = await models.Appointment.findByPk(createdAppointmentId, {
+          include: [
+            'patient',
+            'clinician',
+            'locationGroup',
+            {
+              association: 'location',
+              include: ['locationGroup'],
+            },
+          ],
+        });
+
+        const facility = await models.Facility.findByPk(facilityId);
+
         const patientCommunication = await models.PatientCommunication.findOne({
           where: {
             destination: TEST_EMAIL,
@@ -302,8 +333,19 @@ describe('Appointments', () => {
           raw: true,
         });
 
-        expect(patientCommunication.subject).toBe(TEST_SUBJECT);
-        expect(patientCommunication.content).toBe(TEST_CONTENT);
+        const start = new Date(appointmentForEmail.startTime);
+        const expectedContent = replaceInTemplate(template.body, {
+          firstName: appointmentForEmail.patient.firstName,
+          lastName: appointmentForEmail.patient.lastName,
+          facilityName: facility.name,
+          startDate: format(start, 'PPPP'),
+          startTime: format(start, 'p'),
+          locationName: appointmentForEmail.location.locationGroup.name,
+          clinicianName: `\nClinician: ${appointmentForEmail.clinician.displayName}`,
+        });
+
+        expect(patientCommunication.subject).toBe(template.subject);
+        expect(patientCommunication.content).toBe(expectedContent);
       });
     });
   });
