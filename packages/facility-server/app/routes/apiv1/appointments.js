@@ -67,7 +67,7 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
 
   const { patient, clinician } = appointment;
 
-  const isLocationBooking = !!appointment.locationId && !appointment.locationGroupId;
+  const isLocationBooking = !!appointment.locationId
   const templateKey = isLocationBooking
     ? 'templates.appointmentConfirmation.locationBooking'
     : 'templates.appointmentConfirmation.outpatientAppointment';
