@@ -442,8 +442,7 @@ export class Encounter extends Model {
   async addLocationChangeNote(
     contentPrefix: string,
     newLocationId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
+    addSystemNoteRow: (content: string) => void,
   ) {
     const { Location } = this.sequelize.models;
     const oldLocation = await Location.findOne({
@@ -458,19 +457,14 @@ export class Encounter extends Model {
       throw new InvalidOperationError('Invalid location specified');
     }
 
-    await this.addSystemNote(
-      `${contentPrefix} from ${Location.formatFullLocationName(
-        oldLocation!,
-      )} to ${Location.formatFullLocationName(newLocation)}`,
-      submittedTime,
-      user,
+    addSystemNoteRow(
+      `${contentPrefix} from ${Location.formatFullLocationName(oldLocation!)} to ${Location.formatFullLocationName(newLocation)}`,
     );
   }
 
   async addDepartmentChangeNote(
     toDepartmentId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
+    addSystemNoteRow: (content: string) => void,
   ) {
     const { Department } = this.sequelize.models;
     const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
@@ -478,16 +472,12 @@ export class Encounter extends Model {
     if (!newDepartment) {
       throw new InvalidOperationError('Invalid department specified');
     }
-    await this.addSystemNote(
-      `Changed department from ${oldDepartment?.name} to ${newDepartment.name}`,
-      submittedTime,
-      user,
-    );
+    addSystemNoteRow(`Changed department from ${oldDepartment?.name} to ${newDepartment.name}`);
   }
 
   async addTriageScoreNote(
     triageRecord: { score: any; triageTime: string },
-    user: ModelProperties<User>,
+    addSystemNoteRow: (content: string) => void,
   ) {
     const department = await this.sequelize.models.Department.findOne({
       where: { id: this.departmentId },
@@ -499,11 +489,7 @@ export class Encounter extends Model {
       );
     }
 
-    await this.addSystemNote(
-      `${department.name} triage score: ${triageRecord.score}`,
-      triageRecord.triageTime,
-      user,
-    );
+    addSystemNoteRow(`${department.name} triage score: ${triageRecord.score}`);
   }
 
   async addSystemNote(content: string, date: string, user: ModelProperties<User>) {
@@ -527,7 +513,6 @@ export class Encounter extends Model {
   async onDischarge(
     {
       endDate,
-      submittedTime,
       systemNote,
       discharge,
     }: {
@@ -536,7 +521,7 @@ export class Encounter extends Model {
       systemNote?: string;
       discharge: ModelProperties<Discharge>;
     },
-    user: ModelProperties<User>,
+    addSystemNoteRow: (content: string) => void,
   ) {
     const { Discharge } = this.sequelize.models;
     await Discharge.create({
@@ -544,20 +529,16 @@ export class Encounter extends Model {
       encounterId: this.id,
     });
 
-    await this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
+    addSystemNoteRow(systemNote || 'Discharged patient.');
     await this.closeTriage(endDate);
   }
 
   async onEncounterProgression(
     newEncounterType: Encounter['encounterType'],
     submittedTime: string,
-    user: ModelProperties<User>,
+    addSystemNoteRow: (content: string) => void,
   ) {
-    await this.addSystemNote(
-      `Changed type from ${this.encounterType} to ${newEncounterType}`,
-      submittedTime,
-      user,
-    );
+    addSystemNoteRow(`Changed type from ${this.encounterType} to ${newEncounterType}`);
     await this.closeTriage(submittedTime);
   }
 
@@ -571,11 +552,7 @@ export class Encounter extends Model {
     });
   }
 
-  async updateClinician(
-    newClinicianId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
-  ) {
+  async updateClinician(newClinicianId: string, addSystemNoteRow: (content: string) => void) {
     const { User } = this.sequelize.models;
     const oldClinician = await User.findOne({ where: { id: this.examinerId } });
     const newClinician = await User.findOne({ where: { id: newClinicianId } });
@@ -584,10 +561,8 @@ export class Encounter extends Model {
       throw new InvalidOperationError('Invalid clinician specified');
     }
 
-    await this.addSystemNote(
+    addSystemNoteRow(
       `Changed supervising clinician from ${oldClinician?.displayName} to ${newClinician.displayName}`,
-      submittedTime,
-      user,
     );
   }
 
@@ -601,8 +576,14 @@ export class Encounter extends Model {
         plannedLocationId?: string | null;
         plannedLocationStartTime?: string | null;
       } = {};
+
+      const systemNoteRows: string[] = [];
+      const addSystemNoteRow = (content: string) => {
+        systemNoteRows.push(`• ${content}`);
+      };
+
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data, user);
+        await this.onDischarge(data, addSystemNoteRow);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -613,18 +594,13 @@ export class Encounter extends Model {
         data.encounterType && data.encounterType !== this.encounterType;
       if (isEncounterTypeChanged) {
         changeTypes.push(EncounterChangeType.EncounterType);
-        await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime, addSystemNoteRow);
       }
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
         changeTypes.push(EncounterChangeType.Location);
-        await this.addLocationChangeNote(
-          'Changed location',
-          data.locationId,
-          data.submittedTime,
-          user,
-        );
+        await this.addLocationChangeNote('Changed location', data.locationId, addSystemNoteRow);
 
         // When we move to a new location, clear the planned location move
         additionalChanges.plannedLocationId = null;
@@ -637,11 +613,7 @@ export class Encounter extends Model {
           const currentlyPlannedLocation = await Location.findOne({
             where: { id: this.plannedLocationId },
           });
-          await this.addSystemNote(
-            `Cancelled planned move to ${currentlyPlannedLocation?.name}`,
-            data.submittedTime,
-            user,
-          );
+          addSystemNoteRow(`Cancelled planned move to ${currentlyPlannedLocation?.name}`);
         }
         additionalChanges.plannedLocationStartTime = null;
       }
@@ -656,8 +628,7 @@ export class Encounter extends Model {
         await this.addLocationChangeNote(
           'Added a planned location change',
           data.plannedLocationId,
-          data.submittedTime,
-          user,
+          addSystemNoteRow,
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
@@ -666,13 +637,13 @@ export class Encounter extends Model {
       const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
       if (isDepartmentChanged) {
         changeTypes.push(EncounterChangeType.Department);
-        await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
+        await this.addDepartmentChangeNote(data.departmentId, addSystemNoteRow);
       }
 
       const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
       if (isClinicianChanged) {
         changeTypes.push(EncounterChangeType.Examiner);
-        await this.updateClinician(data.examinerId, data.submittedTime, user);
+        await this.updateClinician(data.examinerId, addSystemNoteRow);
       }
 
       const { submittedTime, ...encounterData } = data;
@@ -685,6 +656,14 @@ export class Encounter extends Model {
           changeType: changeTypes,
           submittedTime,
         });
+      }
+
+      if (systemNoteRows.length > 0) {
+        await this.addSystemNote(
+          systemNoteRows.join('\n'),
+          submittedTime || getCurrentDateTimeString(),
+          user,
+        );
       }
 
       return updatedEncounter;
