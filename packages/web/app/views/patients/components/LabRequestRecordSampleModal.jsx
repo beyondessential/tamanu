@@ -14,6 +14,7 @@ import {
 import { useSuggester } from '../../../api';
 import { ModalFormActionRow } from '../../../components/ModalActionRow';
 import { useSettings } from '../../../contexts/Settings';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const validationSchema = yup.object().shape({
   sampleTime: yup
@@ -204,7 +205,7 @@ export const LabRequestRecordSampleModal = React.memo(
           showInlineErrorsOnly
           formType={FORM_TYPES.EDIT_FORM}
           initialValues={{
-            sampleTime: labRequest.sampleTime,
+            sampleTime: labRequest.sampleTime || getCurrentDateString(),
             labSampleSiteId: labRequest.labSampleSiteId,
             specimenTypeId: labRequest.specimenTypeId,
             collectedById: labRequest.collectedById,
