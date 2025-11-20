@@ -24,7 +24,7 @@ import { useInvoiceTotalOutstandingBalanceQuery } from '../../api/queries/useInv
 import { useAuth } from '../../contexts/Auth';
 import { ENCOUNTER_TAB_NAMES } from '../../constants/encounterTabNames';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
-import { PATIENT_PATHS, PATIENT_TABS } from '../../constants/patientPaths';
+import { PATIENT_TABS } from '../../constants/patientPaths';
 
 const TableTitle = styled(Typography)`
   font-size: 16px;
@@ -277,7 +277,6 @@ export const InvoicesTable = ({ patient }) => {
         onClickRow={
           ability.can('read', 'Invoice')
             ? (_, data) => {
-                console.log('test');
                 setNavigateBackTab(PATIENT_TABS.INVOICES);
                 navigateToEncounter(data.encounterId, { tab: ENCOUNTER_TAB_NAMES.INVOICING });
               }
