@@ -13,6 +13,7 @@ import {
   QuantityCell,
   OrderedByCell,
 } from './InvoiceItemCells';
+import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
 const StyledItemRow = styled.div`
   position: relative;
@@ -97,6 +98,8 @@ export const InvoiceItemRow = ({
   const onClick = () => {
     setIsExpanded(!isExpanded);
   };
+  // Todo: Determine input state based on productPriceManualEntry when it's implemented
+  const hidePriceInput = item.productPrice === null || !editable;
 
   return (
     <StyledItemRow>
@@ -127,11 +130,17 @@ export const InvoiceItemRow = ({
       <PriceCell
         index={index}
         item={item}
-        showActionMenu={showActionMenu}
-        formArrayMethods={formArrayMethods}
-        editable={editable}
-        isDeleteDisabled={isDeleteDisabled}
         isExpanded={isExpanded}
+        hidePriceInput={hidePriceInput}
+      />
+      <InvoiceItemActionsMenu
+        index={index}
+        item={item}
+        formArrayMethods={formArrayMethods}
+        isDeleteDisabled={isDeleteDisabled}
+        showActionMenu={showActionMenu}
+        editable={editable}
+        hidePriceInput={hidePriceInput}
       />
     </StyledItemRow>
   );
