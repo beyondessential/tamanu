@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, QueryTypes, Sequelize } from 'sequelize';
+import { Op, QueryTypes, Sequelize, literal } from 'sequelize';
 import { subject } from '@casl/ability';
 import {
   PROGRAM_REGISTRY_CONDITION_CATEGORIES,
@@ -363,8 +363,9 @@ programRegistry.get(
 programRegistry.get(
   '/:id/linkedCharts',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, query } = req;
     const { id: programRegistryId } = params;
+    const patientId = query?.patientId;
 
     req.checkPermission('list', subject('ProgramRegistry', { id: programRegistryId }));
     req.checkPermission('list', 'Survey');
@@ -374,19 +375,50 @@ programRegistry.get(
       throw new NotFoundError('Program registry not found');
     }
 
+    if (patientId) {
+      const patient = await models.Patient.findByPk(patientId);
+      if (!patient) {
+        throw new NotFoundError('Patient not found');
+      }
+    }
+
     const charts = await models.Survey.findAll({
       where: {
         programId: registry.programId,
-        surveyType: {
-          [Op.in]: [
-            SURVEY_TYPES.SIMPLE_CHART,
-            SURVEY_TYPES.COMPLEX_CHART,
-            SURVEY_TYPES.COMPLEX_CHART_CORE,
-          ],
-        },
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        [Op.or]: [
+          {
+            surveyType: {
+              [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+            },
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          },
+          {
+            [Op.and]: [
+              {
+                surveyType: {
+                  [Op.in]: [SURVEY_TYPES.SIMPLE_CHART, SURVEY_TYPES.COMPLEX_CHART],
+                },
+                visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+              },
+              literal( `
+                EXISTS (
+                  SELECT 1 FROM survey_responses sr
+                  JOIN survey_response_answers sra ON sra.response_id = sr.id
+                  JOIN encounters e ON e.id = sr.encounter_id
+                  WHERE sr.survey_id = "Survey".id
+                    AND sr.deleted_at IS NULL
+                    ${patientId ? 'AND e.patient_id = :patientId' : ''}
+                )
+              `),
+            ],
+          },
+          {
+            surveyType: SURVEY_TYPES.COMPLEX_CHART_CORE,
+          },
+        ],
       },
       order: [['name', 'ASC']],
+      ...(patientId && { replacements: { patientId } }),
     });
 
     // check permissions for each chart
