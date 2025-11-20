@@ -236,25 +236,24 @@ describe('Appointments', () => {
       clinicianId = userApp.user.dataValues.id;
     });
 
-    const makeBooking = async (startTime, endTime) => {
-      return await userApp.post('/api/appointments/locationBooking').send({
+    const makeBooking = async (startTime, endTime) =>
+      userApp.post('/api/appointments/locationBooking').send({
         patientId,
         startTime,
         endTime,
         clinicianId,
         locationId,
       });
-    };
-
-    beforeEach(async () => {
-      await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
-    });
-
-    afterEach(async () => {
-      await models.Appointment.truncate();
-    });
 
     describe('booked time conflict checking', () => {
+      beforeEach(async () => {
+        await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
+      });
+
+      afterEach(async () => {
+        await models.Appointment.truncate();
+      });
+
       it('should reject if the same time', async () => {
         const result = await makeBooking('2024-10-02 12:00:00', '2024-10-02 12:30:00');
         expect(result.status).toBe(409);
