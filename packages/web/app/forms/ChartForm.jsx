@@ -66,8 +66,11 @@ export const ChartForm = React.memo(
         patientAdditionalData,
         currentUser,
       );
+
+      const hasPatientChartingDate = visibleComponents.some(c => c.dataElement.id === CHARTING_DATA_ELEMENT_IDS.dateRecorded);
+
       return {
-        [CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString(),
+        ...(hasPatientChartingDate && {[CHARTING_DATA_ELEMENT_IDS.dateRecorded]: getCurrentDateTimeString()} ),
         ...formInitialValues,
         ...editedObject,
       };
