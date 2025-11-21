@@ -19,6 +19,7 @@ import {
   ChartInstanceNameField,
   SurveyAnswerField,
   SurveyQuestionAutocompleteField,
+  SignatureField,
 } from '../Field';
 
 const QUESTION_COMPONENTS = {
@@ -42,6 +43,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: PhotoField,
+  [PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE]: SignatureField,
   [PROGRAM_DATA_ELEMENT_TYPES.RESULT]: null, // intentionally null
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.COMPLEX_CHART_INSTANCE_NAME]: ChartInstanceNameField,

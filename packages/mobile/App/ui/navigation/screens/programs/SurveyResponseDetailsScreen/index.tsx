@@ -108,6 +108,8 @@ export const renderAnswer = ({ type, config, answer }): ReactElement => {
       return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
+    case FieldTypes.SIGNATURE:
+      return <ViewPhotoLink imageId={answer} />;
     case FieldTypes.PATIENT_DATA:
       return <PatientDataDisplayField value={answer} config={JSON.parse(config)} />;
     case FieldTypes.AUTOCOMPLETE:

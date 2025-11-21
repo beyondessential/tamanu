@@ -29,6 +29,7 @@ export const FieldTypes = {
   PATIENT_DATA: 'PatientData',
   USER_DATA: 'UserData',
   PHOTO: 'Photo',
+  SIGNATURE: 'Signature',
   PATIENT_ISSUE_GENERATOR: 'PatientIssueGenerator',
   GEOLOCATE: 'Geolocate',
   COMPLEX_CHART_INSTANCE_NAME: 'ComplexChartInstanceName',
@@ -71,6 +72,10 @@ export const getStringValue = (type: string, value: any): string => {
     case FieldTypes.CALCULATED:
       // TODO: configurable precision on calculated fields
       return value.toFixed(1);
+    case FieldTypes.PHOTO:
+    case FieldTypes.SIGNATURE:
+      // Both photos and signatures are stored as attachment IDs
+      return value;
     default:
       return `${value}`;
   }

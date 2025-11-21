@@ -237,7 +237,7 @@ export const getAnswersFromData = async (data, survey) => {
   for (const [key, val] of Object.entries(data)) {
     const currentComponent = survey.components.find(({ dataElement }) => dataElement.id === key);
     const currentDataElementType = currentComponent?.dataElement?.type;
-    if (currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO && val instanceof File) {
+    if ((currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.PHOTO || currentDataElementType === PROGRAM_DATA_ELEMENT_TYPES.SIGNATURE) && val instanceof File) {
       try {
         const size = val.size;
         const base64Data = await convertToBase64(val);
