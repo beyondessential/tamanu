@@ -21,6 +21,14 @@ export const isGeneratedDisplayId = (displayId: string) => {
   return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
 
+/**
+ * Generates an ID from a pattern.
+ * @param pattern - The pattern to use for generating the ID.
+ * @returns The generated ID.
+ * @example
+ * generateIdFromPattern('AAAA000000') // 'GHIJ675432'
+ * generateIdFromPattern('[B]000000') // 'B675432'
+ */
 export const generateIdFromPattern = (pattern: string) => {
   return pattern.replace(/\[(.*?)\]|A|0/g, (match, staticValue) => {
     if (staticValue !== undefined) return staticValue;
