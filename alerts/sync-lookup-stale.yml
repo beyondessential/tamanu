@@ -28,8 +28,8 @@ send:
 
       **Details:**
       {% for row in rows %}
-      - Last sync tick: {{ row.last_sync_tick if row.last_sync_tick else 'Unknown' }}
-      - Last updated: {{ row.last_updated if row.last_updated else 'Unknown' }}
+      - Last sync tick: {{ row.last_sync_tick }}
+      - Last updated: {{ row.last_updated }}
       - Time since update: {{ row.time_since_update }}
       {% endfor %}
 
