@@ -1,17 +1,16 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { customAlphabet } from 'nanoid';
 import { ValidationError, NotFoundError, InvalidOperationError } from '@tamanu/errors';
-import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES, SETTING_KEYS } from '@tamanu/constants';
+import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
+import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
-
-const invoiceNumberGenerator = customAlphabet('123456789ABCDEFGHIJKLMNPQRSTUVWXYZ', 10);
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -27,27 +26,25 @@ const createInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
+      .nullish(),
     date: z.string(),
   })
   .strip()
   .transform(data => ({
     ...data,
     id: uuidv4(),
-    displayId: invoiceNumberGenerator(),
+    displayId: generateInvoiceDisplayId(),
     status: INVOICE_STATUSES.IN_PROGRESS,
   }));
 invoiceRoute.post(
   '/',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'Invoice');
-    const {
-      body: { facilityId, ...body },
-    } = req;
+    const { body } = req;
 
     const { data, error } = await createInvoiceSchema.safeParseAsync(body);
     if (error) throw new ValidationError(error.message);
@@ -58,48 +55,12 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
-    const insurerId = await req.models.PatientAdditionalData.findOne({
-      where: { patientId: encounter.patientId },
-      attributes: ['insurerId'],
-    }).then(patientData => patientData?.insurerId);
-    const insurerPercentage = await req.settings[facilityId].get(
-      SETTING_KEYS.INSURER_DEFAUlT_CONTRIBUTION,
+    // Handles invoice creation with default insurer and discount
+    const invoice = await req.models.Invoice.initializeInvoice(
+      req.user.id,
+      data,
     );
-    const defaultInsurer =
-      insurerId && insurerPercentage ? { insurerId, percentage: insurerPercentage } : null;
-
-    // create invoice transaction
-    const transaction = await req.db.transaction();
-
-    try {
-      //create invoice
-      const invoice = await req.models.Invoice.create(data, { transaction });
-
-      // insert default insurer
-      if (defaultInsurer)
-        await req.models.InvoiceInsurer.create(
-          { invoiceId: data.id, ...defaultInsurer },
-          { transaction },
-        );
-
-      // create invoice discount
-      if (data.discount)
-        await req.models.InvoiceDiscount.create(
-          {
-            ...data.discount,
-            invoiceId: data.id,
-            appliedByUserId: req.user.id,
-            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
-          },
-          { transaction },
-        );
-
-      await transaction.commit();
-      res.json(invoice);
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
-    }
+    res.json(invoice);
   }),
 );
 
@@ -114,61 +75,45 @@ const updateInvoiceSchema = z
           .min(0)
           .max(1)
           .transform(amount => round(amount, 2)),
-        reason: z.string().optional(),
+        reason: z.string().nullish(),
         isManual: z.boolean(),
       })
       .strip()
-      .optional(),
-    insurers: z
-      .object({
-        id: z.string().uuid().default(uuidv4),
-        percentage: z.coerce
-          .number()
-          .min(0)
-          .max(1)
-          .transform(amount => round(amount, 2)),
-        insurerId: z.string(),
-      })
-      .strip()
-      .array()
-      .refine(
-        insurers => insurers.reduce((sum, insurer) => (sum += insurer.percentage), 0) <= 1,
-        'Total insurer percentage should not exceed 100%',
-      ),
+      .nullish(),
     items: z
       .object({
         id: z.string().uuid().default(uuidv4),
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string(),
+        productName: z.string().nullish(),
         productPrice: z.coerce
           .number()
           .transform(amount => round(amount, 2))
-          .optional(),
-        productCode: z.string().default(''),
+          .nullish(),
+        productCode: z.string().default('').nullish(),
         productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
-        note: z.string().optional(),
-        sourceId: z.string().uuid().optional(),
+        note: z.string().nullish(),
+        sourceId: z.string().uuid().nullish(),
         discount: z
           .object({
             id: z.string().uuid().default(uuidv4),
             type: z.enum(Object.values(INVOICE_ITEMS_DISCOUNT_TYPES)),
             amount: z.coerce.number().transform(amount => round(amount, 2)),
-            reason: z.string().optional(),
+            reason: z.string().nullish(),
           })
           .strip()
-          .optional(),
+          .nullish(),
       })
       .strip()
       .refine(item => {
         if (!item.discount) return true;
         if (item.discount.type === INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE) {
-          return item.discount.amount < 0
-            ? true
-            : item.discount.amount <= 1 && item.discount.amount > 0;
+          return item.discount.amount >= -1 && item.discount.amount <= 1;
         }
+        // If productPrice is not provided, we can't validate against total price
+        if (item.productPrice === undefined) return true;
         return item.discount.amount <= item.productPrice * item.quantity;
       }, 'Invalid discount amount')
       .array(),
@@ -222,16 +167,6 @@ invoiceRoute.put(
         );
       }
 
-      //remove any existing insurer if insurer ids are not matching
-      await req.models.InvoiceInsurer.destroy(
-        { where: { invoiceId, id: { [Op.notIn]: data.insurers.map(insurer => insurer.id) } } },
-        { transaction },
-      );
-      //update or create insurers
-      for (const insurer of data.insurers) {
-        await req.models.InvoiceInsurer.upsert({ ...insurer, invoiceId }, { transaction });
-      }
-
       //remove any existing item if item ids are not matching
       await req.models.InvoiceItem.destroy(
         { where: { invoiceId, id: { [Op.notIn]: data.items.map(item => item.id) } } },
@@ -240,7 +175,6 @@ invoiceRoute.put(
 
       for (const item of data.items) {
         const { discount: itemDiscount, ...itemData } = item;
-
         //update or create item
         await req.models.InvoiceItem.upsert({ ...itemData, invoiceId }, { transaction });
 
@@ -371,3 +305,4 @@ invoiceRoute.delete(
 
 invoiceRoute.use(invoiceItemsRoute);
 invoiceRoute.use(patientPaymentRoute);
+invoiceRoute.use(insurancePlansRoute);

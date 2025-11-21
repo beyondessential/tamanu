@@ -12,6 +12,7 @@ import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinke
 import { dateTimeType, type InitOptions, type Models } from '../../types/model';
 import type { Procedure } from '../Procedure';
 import type { InvoiceProduct } from './InvoiceProduct';
+import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 
 export class Invoice extends Model {
   declare id: string;
@@ -63,9 +64,16 @@ export class Invoice extends Model {
       as: 'discount',
     });
 
-    this.hasMany(models.InvoiceInsurer, {
+    this.hasMany(models.InvoicesInvoiceInsurancePlan, {
       foreignKey: 'invoiceId',
-      as: 'insurers',
+      as: 'invoiceInsurancePlans',
+    });
+
+    this.belongsToMany(models.InvoiceInsurancePlan, {
+      through: models.InvoicesInvoiceInsurancePlan,
+      foreignKey: 'invoiceId',
+      otherKey: 'invoiceInsurancePlanId',
+      as: 'insurancePlans',
     });
 
     this.hasMany(models.InvoiceItem, {
@@ -104,16 +112,6 @@ export class Invoice extends Model {
         include: [{ model: models.User, as: 'appliedByUser', attributes: ['displayName'] }],
       },
       {
-        model: models.InvoiceInsurer,
-        as: 'insurers',
-        include: [
-          {
-            model: models.ReferenceData,
-            as: 'insurer',
-          },
-        ],
-      },
-      {
         model: models.InvoiceItem,
         as: 'items',
         include: models.InvoiceItem.getListReferenceAssociations(models, invoicePriceListId),
@@ -122,6 +120,10 @@ export class Invoice extends Model {
         model: models.InvoicePayment,
         as: 'payments',
         include: models.InvoicePayment.getListReferenceAssociations(models),
+      },
+      {
+        model: models.InvoiceInsurancePlan,
+        as: 'insurancePlans',
       },
     ];
   }
@@ -185,5 +187,33 @@ export class Invoice extends Model {
         sourceRecordId: removedItem.id,
       },
     });
+  }
+
+  static async initializeInvoice(
+    userId: string,
+    data: any,
+  ) {
+    const transaction = await this.sequelize.transaction();
+    try {
+      const invoice = await this.create(data, { transaction });
+
+      if (data.discount) {
+        await this.sequelize.models.InvoiceDiscount.create(
+          {
+            ...data.discount,
+            invoiceId: invoice.id,
+            appliedByUserId: userId,
+            appliedTime: getCurrentCountryTimeZoneDateTimeString(),
+          },
+          { transaction },
+        );
+      }
+
+      await transaction.commit();
+      return invoice;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 }
