@@ -43,6 +43,8 @@ const existingRecordLoaders = {
     TTD.findOne({ where: { taskTemplateId, designationId }, paranoid: false }),
   UserDesignation: (UD, { userId, designationId }) =>
     UD.findOne({ where: { userId, designationId }, paranoid: false }),
+  UserFacility: (UF, { userId, facilityId }) =>
+    UF.findOne({ where: { userId, facilityId }, paranoid: false }),
   ProcedureTypeSurvey: async (Model, values) => {
     const { procedureTypeId, surveyId } = values;
     if (!procedureTypeId || !surveyId) {
