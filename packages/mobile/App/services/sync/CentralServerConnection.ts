@@ -11,7 +11,6 @@ import {
   generalErrorMessage,
   invalidTokenMessage,
   invalidDeviceMessage,
-  invalidUserCredentialsMessage,
   OutdatedVersionError,
 } from '../error';
 import { version } from '/root/package.json';
@@ -47,8 +46,8 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
     return new AuthenticationError(invalidDeviceMessage);
   }
 
-  if (problem.type.startsWith(ERROR_TYPE.AUTH)) {
-    return new AuthenticationError(isLogin ? invalidUserCredentialsMessage : invalidTokenMessage);
+  if (problem.type.startsWith(ERROR_TYPE.AUTH) && !isLogin) {
+    throw new AuthenticationError(invalidTokenMessage);
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
