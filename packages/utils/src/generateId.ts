@@ -23,6 +23,8 @@ export const isGeneratedDisplayId = (displayId: string) => {
 
 /**
  * Generates an ID from a pattern.
+ * A will be replaced with a random letter and 0 will be replaced with a random number.
+ * Wrapping characters in [] will allow static characters to be used.
  * @param pattern - The pattern to use for generating the ID.
  * @returns The generated ID.
  * @example
