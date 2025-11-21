@@ -7,12 +7,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import {
-  InvoiceModalGroup,
-  InvoiceStatus,
-  InvoiceSummaryPanel,
-  InvoiceForm,
-} from '../../../features/Invoice';
+import { InvoiceModalGroup, InvoiceStatus, InvoiceForm } from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
@@ -185,7 +180,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             )}
           </InvoiceTopBar>
           <InvoiceForm invoice={invoice} isPatientView={false} />
-          <InvoiceSummaryPanel invoice={invoice} />
         </InvoiceContainer>
       </TabPane>
       {openInvoiceModal && (

@@ -7,7 +7,7 @@ import { NoteModalActionBlocker } from '../../../components/index.js';
 import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-const invoiceItemActionsMenu = ({
+const useInvoiceItemActionsMenu = ({
   item,
   index,
   formArrayMethods,
@@ -172,7 +172,7 @@ export const InvoiceItemActionsMenu = ({
   editable,
   hidePriceInput,
 }) => {
-  const { actionModal, onCloseActionModal, handleAction, menuItems } = invoiceItemActionsMenu({
+  const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
     item,
     index,
     formArrayMethods,

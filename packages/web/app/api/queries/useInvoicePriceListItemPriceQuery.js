@@ -1,0 +1,18 @@
+import { useQuery } from '@tanstack/react-query';
+import { useApi } from '../useApi';
+
+export const useInvoicePriceListItemPriceQuery = ({ encounterId, productId, enabled }) => {
+  const api = useApi();
+
+  return useQuery(
+    ['invoices/price-list-item', { encounterId, productId }],
+    () =>
+      api.get('invoices/price-list-item', {
+        encounterId,
+        productId,
+      }),
+    {
+      enabled: Boolean(enabled && encounterId && productId),
+    },
+  );
+};

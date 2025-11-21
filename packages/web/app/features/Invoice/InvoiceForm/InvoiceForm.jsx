@@ -12,6 +12,7 @@ import { InvoiceItemHeader } from './InvoiceItemHeader';
 import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
+import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -69,22 +70,22 @@ export const InvoiceForm = ({ invoice }) => {
   };
 
   return (
-    <Box mb={1}>
-      <Form
-        suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
-        onSubmit={handleSubmit}
-        enableReinitialize
-        initialValues={{
-          invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
-          insurers: invoice.insurers?.length
-            ? invoice.insurers.map(insurer => ({
-                ...insurer,
-                percentage: insurer.percentage * 100,
-              }))
-            : [],
-        }}
-        validationSchema={invoiceFormSchema}
-        render={({ submitForm, values, resetForm }) => (
+    <Form
+      suppressErrorDialogCondition={errors => !handleShowErrorDialog(errors)}
+      onSubmit={handleSubmit}
+      enableReinitialize
+      initialValues={{
+        invoiceItems: invoice.items?.length ? invoice.items : [editable ? getDefaultRow() : {}],
+        insurers: invoice.insurers?.length
+          ? invoice.insurers.map(insurer => ({
+              ...insurer,
+              percentage: insurer.percentage * 100,
+            }))
+          : [],
+      }}
+      validationSchema={invoiceFormSchema}
+      render={({ submitForm, values, resetForm }) => (
+        <Box mb={1}>
           <FieldArray name="invoiceItems">
             {formArrayMethods => {
               return (
@@ -97,6 +98,7 @@ export const InvoiceForm = ({ invoice }) => {
                           key={item.id}
                           index={index}
                           item={item}
+                          encounterId={invoice.encounterId}
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
@@ -136,12 +138,13 @@ export const InvoiceForm = ({ invoice }) => {
                       </SubmitButton>
                     </ButtonRow>
                   )}
+                  <InvoiceSummaryPanel invoice={{ items: values.invoiceItems, payments: [] }} />
                 </>
               );
             }}
           </FieldArray>
-        )}
-      />
-    </Box>
+        </Box>
+      )}
+    />
   );
 };

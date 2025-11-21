@@ -5,6 +5,7 @@ import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { useTranslation } from '../../../contexts/Translation';
+import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import {
   PriceCell,
   DateCell,
@@ -52,6 +53,7 @@ export const InvoiceItemRow = ({
   showActionMenu,
   formArrayMethods,
   editable,
+  encounterId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.sourceRecordId && editable;
@@ -86,12 +88,24 @@ export const InvoiceItemRow = ({
 
   const handleChangeProduct = e => {
     const value = e.target;
+    // Build a lightweight product object to keep price list details in form state
+    const nextProduct = {
+      name: value.productName,
+      code: value.code,
+      discountable: value.discountable,
+    };
+    if (value.invoicePriceListItem) {
+      nextProduct.invoicePriceListItem = value.invoicePriceListItem;
+    }
+
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
       productName: value.productName,
       productCode: value.code,
       productDiscountable: value.discountable,
+      // Store nested product details so downstream logic can read price list info
+      product: nextProduct,
     });
   };
 
@@ -99,7 +113,37 @@ export const InvoiceItemRow = ({
     setIsExpanded(!isExpanded);
   };
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
-  const hidePriceInput = item.productPrice === null || !editable;
+  const priceListPrice = item.product?.invoicePriceListItem?.price;
+  const hidePriceInput = (priceListPrice !== null && priceListPrice !== undefined) || !editable;
+
+  // Enable fetching only if a product is selected, the form doesn't already have the price
+  const hasKnownPrice = Boolean(item?.product?.invoicePriceListItem?.price);
+
+  const { data: fetchedPriceData } = useInvoicePriceListItemPriceQuery({
+    encounterId,
+    productId: item.productId,
+    enabled: !hasKnownPrice,
+  });
+
+  // When price is fetched, populate it into the form state for this row
+  React.useEffect(() => {
+    if (fetchedPriceData && fetchedPriceData.price != null) {
+      const { price } = fetchedPriceData;
+
+      const nextProduct = {
+        ...(item.product || {}),
+        invoicePriceListItem: {
+          ...(item.product?.invoicePriceListItem || {}),
+          price,
+        },
+      };
+      formArrayMethods.replace(index, {
+        ...item,
+        product: nextProduct,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchedPriceData]);
 
   return (
     <StyledItemRow>
@@ -132,6 +176,7 @@ export const InvoiceItemRow = ({
         item={item}
         isExpanded={isExpanded}
         hidePriceInput={hidePriceInput}
+        priceListItemPrice={fetchedPriceData?.price}
       />
       <InvoiceItemActionsMenu
         index={index}

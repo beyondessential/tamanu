@@ -66,6 +66,10 @@ export const getInsuranceCoverageTotal = invoiceItems => {
   return invoiceItems.reduce((sum, item) => {
     const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
+    if (!item.insurancePlanItems) {
+      return sum;
+    }
+
     const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
       if (!itemPlan.coverageValue) {
         return itemSum;
