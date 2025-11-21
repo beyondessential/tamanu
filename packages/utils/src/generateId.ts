@@ -41,27 +41,21 @@ export const generateIdFromPattern = (pattern: string) => {
 
 export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
   const matches = pattern.match(/\[(.*?)\]|A|0/g);
-  let currentIndex = 0;
-  return matches?.every((match: string) =>{
-    const char = displayId[currentIndex];
-
-    if (!char) return false;
-    if (match.startsWith('[') && match.endsWith(']')) {
-      const staticValue = match.slice(1, -1);
-      const result = staticValue === displayId.slice(currentIndex, currentIndex + staticValue.length)
-      currentIndex += staticValue.length
-      return result
+  const sanitizeForExpression = (value: string) =>  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const expression = matches?.reduce((acc, match) => {
+    if (match.startsWith('[')) {
+      return acc + sanitizeForExpression(match.slice(1, -1));
     }
     if (match === 'A') {
-      currentIndex++;
-      return /[A-Z]/.test(char)
+      return acc + '[A-Z]';
     }
     if (match === '0') {
-      currentIndex++;
-      return /[0-9]/.test(char)
+      return acc + '[0-9]';
     }
-    return false;
-  }) ?? true;
+    return acc;
+  }, '^');
+  const regex = new RegExp(`^${expression}$`);
+  return regex.test(displayId);
 };
 
 /**
