@@ -76,7 +76,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
-          generateId={generateIdFromPattern(patientIdGenerationPattern)}
+          generateId={() => generateIdFromPattern(patientIdGenerationPattern)}
           onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
