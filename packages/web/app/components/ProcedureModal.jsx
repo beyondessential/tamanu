@@ -97,7 +97,8 @@ export const ProcedureModal = ({
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
   const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
   const [unsavedProgramFormOpen, setUnsavedProgramFormOpen] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState(null); // Add this line
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProcedureProgramResponsesQuery(
     patientId,
@@ -136,7 +137,7 @@ export const ProcedureModal = ({
       }}
       render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
-          if (dirty) {
+          if (dirty || surveyFormDirty) {
             setUnSavedChangesModalOpen(true);
           } else {
             onClose();
@@ -204,6 +205,8 @@ export const ProcedureModal = ({
                     />,
                   );
                 }}
+                surveyFormDirty={surveyFormDirty}
+                onSurveyFormDirtyChange={setSurveyFormDirty}
               />
               {programResponses?.data?.length > 0 && (
                 <>
@@ -271,6 +274,7 @@ export const ProcedureModal = ({
               }}
               onConfirm={() => {
                 setUnSavedChangesModalOpen(false);
+                setSurveyFormDirty(false);
                 onClose();
               }}
             />
