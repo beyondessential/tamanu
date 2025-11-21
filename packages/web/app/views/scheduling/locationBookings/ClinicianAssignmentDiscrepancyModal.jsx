@@ -32,7 +32,7 @@ export const ClinicianAssignmentDiscrepancyModal = ({
       title={
         <TranslatedText
           stringId={'locationBookings.modal.clinicianAssignmentDiscrepancy.title'}
-          fallback="Clinician assignment discrepancy  "
+          fallback="Clinician assignment discrepancy"
         />
       }
       customContent={
