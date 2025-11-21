@@ -1101,8 +1101,8 @@ export const LocationBookingsDailyCalendar = ({
         {clinicianAssignmentDiscrepancyModal && (
           <ClinicianAssignmentDiscrepancyModal
             open
-            onClose={() => clinicianAssignmentDiscrepancyModal.onClose(null)}
-            onConfirm={() => clinicianAssignmentDiscrepancyModal.onConfirm(null)}
+            onClose={clinicianAssignmentDiscrepancyModal.onClose}
+            onConfirm={clinicianAssignmentDiscrepancyModal.onConfirm}
           />
         )}
       </ScrollWrapper>
