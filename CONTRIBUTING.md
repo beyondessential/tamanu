@@ -123,7 +123,7 @@ The following types are conventional:
 - `fix` for bug fixes
 - `tweak` for minor changes
 - `refactor` for code refactoring
-- `chore` for anything else
+- `chore` for changes not included in the release notes, like deps, tooling, and CI configuration
 
 There's also two special types:
 
