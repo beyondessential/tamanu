@@ -22,13 +22,10 @@ export const isGeneratedDisplayId = (displayId: string) => {
 };
 
 export const generateIdFromPattern = (pattern: string) => {
-  const regex = /\[(.*)\]|(A|0)/g;
-  const matches = pattern.match(regex);
-  if (!matches) return '';
-  return matches.map(match => {
-    if (match.startsWith('[')) return match.slice(1, -1);
+  return pattern.replace(/\[(.*?)\]|A|0/g, (match, staticValue) => {
+    if (staticValue !== undefined) return staticValue;
     return generators[match]?.() || '';
-  }).join('');
+  });
 };
 
 /**
