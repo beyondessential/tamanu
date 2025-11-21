@@ -94,6 +94,12 @@ const ComplexChartInstancesTab = styled(TabDisplay)`
   }
 `;
 
+const StyledConditionalTooltip = styled(ConditionalTooltip)`
+  .MuiTooltip-tooltip {
+    left: 5px;
+  }
+`;
+
 export const ChartsPane = React.memo(({ patient, encounter }) => {
   const api = useApi();
   const queryClient = useQueryClient();
@@ -360,9 +366,14 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
               />
             ) : null}
 
-            <ConditionalTooltip
+            <StyledConditionalTooltip
               visible={!recordButtonEnabled}
               maxWidth="8rem"
+              PopperProps={{
+                popperOptions: {
+                  positionFixed: true,
+                },
+              }}
               title={getTooltipMessage(selectedChartTypeId)}
               data-testid="conditionaltooltip-uafz"
             >
@@ -385,7 +396,7 @@ export const ChartsPane = React.memo(({ patient, encounter }) => {
                   />
                 </StyledButtonWithPermissionCheck>
               </NoteModalActionBlocker>
-            </ConditionalTooltip>
+            </StyledConditionalTooltip>
           </TableButtonRow>
         </TableButtonRowWrapper>
 
