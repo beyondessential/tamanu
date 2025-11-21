@@ -21,6 +21,12 @@ export const isGeneratedDisplayId = (displayId: string) => {
   return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
 
+/*
+ * This regex is used to match each token in the pattern.
+ * It will match groups of characters wrapped in [] or single A or 0.
+ */
+const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
+
 /**
  * Generates an ID from a pattern.
  * A will be replaced with a random letter and 0 will be replaced with a random number.
@@ -33,29 +39,35 @@ export const isGeneratedDisplayId = (displayId: string) => {
  * generateIdFromPattern('[B]AA[A]000') // 'BGHA675'
  */
 export const generateIdFromPattern = (pattern: string) => {
-  return pattern.replace(/\[(.*?)\]|A|0/g, (match, staticValue) => {
+  return pattern.replace(PATTERN_TOKEN_REGEX, (match, staticValue) => {
     if (staticValue !== undefined) return staticValue;
     return generators[match]?.() || '';
   });
 };
 
+const escapeForRegex = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+const tokenAsRegex = (token: string) => {
+  if (token.startsWith('[') && token.endsWith(']')) {
+    return escapeForRegex(token.slice(1, -1));
+  }
+  if (token === 'A') {
+    return '[A-Z]';
+  }
+  if (token === '0') {
+    return '[0-9]';
+  }
+  return '';
+};
+
 export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
-  const matches = pattern.match(/\[(.*?)\]|A|0/g);
-  const sanitizeForExpression = (value: string) =>  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const expression = matches?.reduce((acc, match) => {
-    if (match.startsWith('[')) {
-      return acc + sanitizeForExpression(match.slice(1, -1));
-    }
-    if (match === 'A') {
-      return acc + '[A-Z]';
-    }
-    if (match === '0') {
-      return acc + '[0-9]';
-    }
-    return acc;
-  }, '^');
-  const regex = new RegExp(`^${expression}$`);
-  return regex.test(displayId);
+  const patternTokens = pattern.match(PATTERN_TOKEN_REGEX);
+  if (!patternTokens) return false;
+  const expression = patternTokens.reduce((acc, token) => acc + tokenAsRegex(token), '');
+  const patternRegex = new RegExp(`^${expression}$`);
+  return patternRegex.test(displayId);
 };
 
 /**
