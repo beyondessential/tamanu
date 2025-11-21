@@ -3,13 +3,13 @@ import { toast } from 'react-toastify';
 
 import { useApi } from '../useApi';
 
-export const useMoveLocationBookingMutation = (useMutationOptions = {}) => {
+export const useReorderLocationBookingMutation = (useMutationOptions = {}) => {
   const api = useApi();
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, startTime }) =>
-      api.put(`appointments/locationBooking/${id}/move`, { startTime }, { throwResponse: true }),
+    ({ appointments }) =>
+      api.put(`appointments/reorder-location-bookings`, { appointments }, { throwResponse: true }),
     {
       ...useMutationOptions,
       onSuccess: (data, variables, context) => {
@@ -18,7 +18,7 @@ export const useMoveLocationBookingMutation = (useMutationOptions = {}) => {
       },
       onError: async (response, variables, context) => {
         const error = await response.json();
-        toast.error(error.error?.message || 'Unable to move booking');
+        toast.error(error.error?.message || 'Unable to reorder bookings');
         useMutationOptions.onError?.(error, variables, context);
       },
     },
