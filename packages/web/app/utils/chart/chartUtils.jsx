@@ -4,7 +4,7 @@ import { SURVEY_TYPES } from '@tamanu/constants';
 import { COMPLEX_CHART_FORM_MODES } from '../../components/Charting/constants';
 import { TranslatedText } from '../../components/Translation/TranslatedText';
 
-export const getComplexChartFormMode = (chartSurvey) => {
+export const getComplexChartFormMode = chartSurvey => {
   switch (chartSurvey?.surveyType) {
     case SURVEY_TYPES.COMPLEX_CHART_CORE:
       return COMPLEX_CHART_FORM_MODES.ADD_CHART_INSTANCE;
@@ -31,7 +31,7 @@ export const getNoDataMessage = (isComplexChart, complexChartInstances, selected
     return (
       <TranslatedText
         stringId="chart.table.simple.noChart"
-        fallback="This patient has no recorded charts to display. Select the required chart to document a chart."
+        fallback="This patient has no chart records to display. Please select a chart to document a record."
         data-testid="translatedtext-h93c"
       />
     );
@@ -56,7 +56,7 @@ export const getNoDataMessage = (isComplexChart, complexChartInstances, selected
   );
 };
 
-export const getTooltipMessage = (selectedSurveyId) => {
+export const getTooltipMessage = selectedSurveyId => {
   if (!selectedSurveyId) {
     return (
       <TranslatedText
@@ -75,5 +75,3 @@ export const getTooltipMessage = (selectedSurveyId) => {
     />
   );
 };
-
-
