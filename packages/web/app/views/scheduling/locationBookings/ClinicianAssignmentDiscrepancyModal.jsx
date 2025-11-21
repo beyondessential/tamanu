@@ -40,7 +40,7 @@ export const ClinicianAssignmentDiscrepancyModal = ({
           <BodyText color={Colors.darkestText}>
             <TranslatedText
               stringId={'locationBookings.modal.clinicianAssignmentDiscrepancy.description1'}
-              fallback="The clinician allocated to this booking is not assigned to this location at the newly selected time. "
+              fallback="The clinician allocated to this booking is not assigned to this location at the newly selected time."
             />
           </BodyText>
           <BodyText color={Colors.darkestText}>
