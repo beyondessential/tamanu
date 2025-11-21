@@ -13,7 +13,6 @@ import {
   INVOICE_PATIENT_PAYMENT_STATUSES_LABELS,
 } from './invoices';
 import { ENCOUNTER_TYPE_ABBREVIATION_LABELS, ENCOUNTER_TYPE_LABELS } from './encounters';
-import { NOTE_TYPE_LABELS } from './notes';
 import {
   REFERRAL_STATUS_LABELS,
   APPOINTMENT_STATUSES,
@@ -92,7 +91,6 @@ export const registeredEnums = {
   LOCATION_AVAILABILITY_STATUS_LABELS,
   MANNER_OF_DEATHS,
   MARTIAL_STATUS_LABELS,
-  NOTE_TYPE_LABELS,
   PATIENT_ISSUE_LABELS,
   PLACE_OF_BIRTH_LABELS,
   PLACE_OF_DEATHS,
@@ -149,7 +147,6 @@ export const translationPrefixes: Record<EnumKeys, string> = {
   LOCATION_AVAILABILITY_STATUS_LABELS: 'bedManagement.property.status',
   MANNER_OF_DEATHS: 'death.property.mannerOfDeath',
   MARTIAL_STATUS_LABELS: 'patient.property.maritalStatus',
-  NOTE_TYPE_LABELS: 'note.property.type',
   PATIENT_ISSUE_LABELS: 'patient.property.issue',
   PLACE_OF_BIRTH_LABELS: 'birth.property.placeOfBirth',
   PLACE_OF_DEATHS: 'death.property.placeOfDeath',

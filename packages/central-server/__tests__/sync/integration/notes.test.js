@@ -49,7 +49,7 @@ describe('CentralSyncManager', () => {
       triageTime: getCurrentDateTimeString(),
     });
     const triageNote = await triage.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'triageNote',
       authorId: user.id,
     });
@@ -60,7 +60,7 @@ describe('CentralSyncManager', () => {
       status: LAB_REQUEST_STATUSES.PENDING,
     });
     const labRequestNote = await labRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'labRequestNote',
       authorId: user.id,
     });
@@ -71,7 +71,7 @@ describe('CentralSyncManager', () => {
       requestedById: user.id,
     });
     const imagingNote = await imagingRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'imagingNote',
       authorId: user.id,
     });
@@ -164,17 +164,17 @@ describe('CentralSyncManager', () => {
     await models.LocalSystemFact.set(FACT_CURRENT_SYNC_TICK, NEW_SYNC_TICK);
 
     const encounter1Note = await encounter1.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter1Note',
       authorId: user.id,
     });
     const encounter2Note = await encounter2.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter2Note',
       authorId: user.id,
     });
     const encounter3Note = await encounter3.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter3Note',
       authorId: user.id,
     });
@@ -215,7 +215,7 @@ describe('CentralSyncManager', () => {
     const [encounter1] = encounters;
 
     await encounter1.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       content: 'encounter1Note',
       authorId: user.id,
     });

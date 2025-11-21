@@ -4,9 +4,9 @@ import { get, startCase } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_LABELS,
-  NOTE_TYPE_LABELS,
   DRUG_ROUTE_LABELS,
   NOTE_TYPES,
+  REFERENCE_TYPES,
 } from '@tamanu/constants';
 import { formatShort, formatShortest, formatTime, parseDate } from '@tamanu/utils/dateTime';
 
@@ -22,6 +22,7 @@ import { useLanguageContext, withLanguageContext } from '../pdf/languageContext'
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
 import { getMedicationDoseDisplay, getTranslatedFrequency } from '../medication';
+import { getReferenceDataStringId } from '../translation/getReferenceDataStringId';
 
 const borderStyle = '1 solid black';
 
@@ -258,7 +259,7 @@ const NoteFooter = ({ note }) => {
   return (
     <Text style={textStyles.tableCellFooter}>
       {[
-        note.noteType === NOTE_TYPES.TREATMENT_PLAN &&
+        note.noteTypeId === NOTE_TYPES.TREATMENT_PLAN &&
           `${getTranslation('general.lastUpdated.label', 'Last updated')}:`,
         note.author?.displayName,
         note.onBehalfOf &&
@@ -291,7 +292,7 @@ const NotesMultipageCellPadding = () => {
 };
 
 const NotesSection = ({ notes }) => {
-  const { getTranslation, getEnumTranslation } = useLanguageContext();
+  const { getTranslation } = useLanguageContext();
   return (
     <>
       <View minPresenceAhead={80} />
@@ -315,7 +316,10 @@ const NotesSection = ({ notes }) => {
                 <NotesCell>
                   <NotesMultipageCellPadding />
                   <MultipageTableHeading
-                    title={getEnumTranslation(NOTE_TYPE_LABELS, note.noteType)}
+                    title={getTranslation(
+                      getReferenceDataStringId(note.noteTypeId, REFERENCE_TYPES.NOTE_TYPE),
+                      note.noteTypeReference?.name || note.noteTypeId
+                    )}
                     style={textStyles.tableColumnHeader}
                   />
                   <Text style={textStyles.tableCellContent}>{`${note.content}\n`}</Text>

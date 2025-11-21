@@ -618,7 +618,7 @@ async function createLabRequest(
   const newLabRequest = await models.LabRequest.createWithTests(labRequestData);
   if (note?.content) {
     await newLabRequest.createNote({
-      noteType: NOTE_TYPES.OTHER,
+      noteTypeId: NOTE_TYPES.OTHER,
       date: note.date,
       ...note,
       authorId: user.id,

@@ -1,6 +1,6 @@
 import { FACT_CURRENT_SYNC_TICK, FACT_LOOKUP_UP_TO_TICK } from '@tamanu/constants/facts';
 import { fake } from '@tamanu/fake-data/fake';
-import { SETTINGS_SCOPES, SYSTEM_USER_UUID } from '@tamanu/constants';
+import { NOTE_TYPES, REFERENCE_TYPES, SETTINGS_SCOPES, SYSTEM_USER_UUID } from '@tamanu/constants';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import {
@@ -45,6 +45,16 @@ describe('CentralSyncManager Sensitive Facilities', () => {
     await models.LocalSystemFact.set(FACT_LOOKUP_UP_TO_TICK, null);
     await models.SyncLookup.truncate({ force: true });
     await models.DebugLog.truncate({ force: true });
+    await models.ReferenceData.bulkCreate([
+      {
+        id: NOTE_TYPES.OTHER,
+        code: 'other',
+        name: 'Other',
+        type: REFERENCE_TYPES.NOTE_TYPE,
+        visibilityStatus: 'current',
+        systemRequired: true,
+      }
+    ]);
   });
 
   afterAll(() => ctx.close());
@@ -277,12 +287,14 @@ describe('CentralSyncManager Sensitive Facilities', () => {
         fake(models.Note, {
           recordId: sensitiveEncounter.id,
           recordType: 'Encounter',
+          noteTypeId: NOTE_TYPES.OTHER
         }),
       );
       const nonSensitiveNote = await models.Note.create(
         fake(models.Note, {
           recordId: nonSensitiveEncounter.id,
           recordType: 'Encounter',
+          noteTypeId: NOTE_TYPES.OTHER
         }),
       );
 
