@@ -58,10 +58,7 @@ export const facilitySettings = {
             },
             daysSinceSampleTime: {
               description: '-',
-              type: yup
-                .number()
-                .integer()
-                .positive(),
+              type: yup.number().integer().positive(),
               defaultValue: 13,
             },
             labTestCategories: {
@@ -82,6 +79,12 @@ export const facilitySettings = {
           },
         },
       },
+    },
+    patientIdGenerationPattern: {
+      description:
+        'The pattern to use for generating patient IDs. A will be replaced with a random letter and 0 will be replaced with a random number. Wrapping characters in [] will allow static characters to be used.',
+      type: yup.string(),
+      defaultValue: 'AAAA000000',
     },
     questionCodeIds: {
       deprecated: true,
@@ -114,10 +117,7 @@ export const facilitySettings = {
           name: 'Sync urgent interval',
           unit: 'seconds',
           description: 'Mobile urgent sync interval',
-          type: yup
-            .number()
-            .integer()
-            .positive(),
+          type: yup.number().integer().positive(),
           defaultValue: 10,
         },
       },

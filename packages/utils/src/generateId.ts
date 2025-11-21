@@ -21,6 +21,16 @@ export const isGeneratedDisplayId = (displayId: string) => {
   return /^[A-Z]{4}\d{6}$/.test(displayId);
 };
 
+export const generateIdFromPattern = (pattern: string) => {
+  const regex = /\[(.*)\]|(A|0)/g;
+  const matches = pattern.match(regex);
+  if (!matches) return '';
+  return matches.map(match => {
+    if (match.startsWith('[')) return match.slice(1, -1);
+    return generators[match]?.() || '';
+  }).join('');
+};
+
 /**
  * Makes a 'fake' but valid uuid like '2964ea0d-073d-0000-bda1-ce47fd5de340'.
  *
