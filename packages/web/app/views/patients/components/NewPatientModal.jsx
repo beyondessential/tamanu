@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { generateId } from '@tamanu/utils/generateId';
+import { generateIdFromPattern } from '@tamanu/utils/generateId';
 
 import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
@@ -10,11 +10,14 @@ import { TranslatedText } from '../../../components/Translation/TranslatedText';
 import { useAuth } from '../../../contexts/Auth';
 import { DuplicatePatientWarningModal } from './DuplicatePatientWarningModal';
 import { CancelNewPatientConfirmationModal } from './CancelNewPatientConfirmationModal';
+import { useSettings } from '@tamanu/ui-components';
 
 export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formProps }) => {
   const api = useApi();
+  const { getSetting } = useSettings();
   const { facilityId } = useAuth();
-
+  const patientIdGenerationPattern = getSetting('patientIdGenerationPattern');
+  
   const [cancelNewPatientModalOpen, setCancelNewPatientModalOpen] = useState(false);
   const [duplicateWarningModalOpen, setDuplicateWarningModalOpen] = useState(false);
   const [duplicateWarningModalData, setDuplicateWarningModalData] = useState({
@@ -73,7 +76,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
-          generateId={generateId}
+          generateId={generateIdFromPattern(patientIdGenerationPattern)}
           onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
