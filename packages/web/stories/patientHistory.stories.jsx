@@ -23,12 +23,14 @@ const encounters = [
     ...fakeEncounter(),
     endDate: null,
     facilityName: 'Colonial War Memorial Division Hospital',
+    dischargingClinicianName: 'Dr. John Doe',
     locationGroupName: 'Outpatients Department - Wing 1',
     reasonForEncounter: 'Routine tests for a visa, plus a sore eye',
   },
   {
     ...fakeEncounter(),
     facilityName: 'Colonial War Memorial Division Hospital',
+    dischargingClinicianName: 'Dr. Jane Doe',
     locationGroupName: 'ACU',
     reasonForEncounter:
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil, totam. This is roman text for a second time: Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil, totam.',
