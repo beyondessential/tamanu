@@ -39,6 +39,31 @@ export const generateIdFromPattern = (pattern: string) => {
   });
 };
 
+export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
+  const matches = pattern.match(/\[(.*?)\]|A|0/g);
+  let currentIndex = 0;
+  return matches?.every((match: string) =>{
+    const char = displayId[currentIndex];
+
+    if (!char) return false;
+    if (match.startsWith('[') && match.endsWith(']')) {
+      const staticValue = match.slice(1, -1);
+      const result = staticValue === displayId.slice(currentIndex, currentIndex + staticValue.length)
+      currentIndex += staticValue.length
+      return result
+    }
+    if (match === 'A') {
+      currentIndex++;
+      return /[A-Z]/.test(char)
+    }
+    if (match === '0') {
+      currentIndex++;
+      return /[0-9]/.test(char)
+    }
+    return false;
+  }) ?? true;
+};
+
 /**
  * Makes a 'fake' but valid uuid like '2964ea0d-073d-0000-bda1-ce47fd5de340'.
  *

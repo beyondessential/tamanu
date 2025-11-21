@@ -1,4 +1,11 @@
-import { generateId, isGeneratedDisplayId, fakeUUID, FAKE_UUID_PATTERN, generateIdFromPattern } from '../src/generateId';
+import {
+  generateId,
+  isGeneratedDisplayId,
+  fakeUUID,
+  FAKE_UUID_PATTERN,
+  generateIdFromPattern,
+  isGeneratedDisplayIdFromPattern,
+} from '../src/generateId';
 import { describe, expect, it } from 'vitest';
 
 describe('generateId', () => {
@@ -56,5 +63,31 @@ describe('generateIdFromPattern', () => {
   it('should combine static, letter, and digit segments', () => {
     const id = generateIdFromPattern('[B]AA[A]000');
     expect(id).toMatch(/^B[A-Z]{2}A\d{3}$/);
+  });
+});
+
+describe('isGeneratedDisplayIdFromPattern', () => {
+  it('should validate IDs generated from a simple pattern', () => {
+    const pattern = 'AA000';
+    const id = generateIdFromPattern(pattern);
+    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  });
+
+  it('should validate IDs with static bracketed characters', () => {
+    const pattern = '[B]000000';
+    const id = generateIdFromPattern(pattern);
+    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  });
+
+  it('should validate IDs with mixed static, letters, and digits', () => {
+    const pattern = '[B]AA[A]000';
+    const id = generateIdFromPattern(pattern);
+    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  });
+
+  it('should return false for IDs that do not match the pattern', () => {
+    const pattern = '[B]AA[A]000';
+    expect(isGeneratedDisplayIdFromPattern('C123456', pattern)).toBe(false);
+    expect(isGeneratedDisplayIdFromPattern('BAAA123', pattern)).toBe(false);
   });
 });
