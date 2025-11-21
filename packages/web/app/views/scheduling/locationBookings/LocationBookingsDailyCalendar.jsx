@@ -898,11 +898,14 @@ export const LocationBookingsDailyCalendar = ({
   }, [partitionAppointmentsByLocationData, triggerReorder, timeSlots]);
 
   const isAssignedToLocation = (assignment, appointment) => {
+    const assignmentStart = new Date(assignment.startTime);
+    const appointmentStart = new Date(appointment.startTime);
+    const assignmentEnd = new Date(assignment.endTime);
+    const appointmentEnd = new Date(appointment.endTime);
+
     return (
-      (isSameSecond(new Date(assignment.startTime), new Date(appointment.startTime)) ||
-        isBefore(new Date(assignment.startTime), new Date(appointment.startTime))) &&
-      (isSameSecond(new Date(assignment.endTime), new Date(appointment.endTime)) ||
-        isAfter(new Date(assignment.endTime), new Date(appointment.endTime)))
+      (isSameSecond(assignmentStart, appointmentStart) || isBefore(assignmentStart, appointmentStart)) &&
+      (isSameSecond(assignmentEnd, appointmentEnd) || isAfter(assignmentEnd, appointmentEnd))
     );
   };
 
