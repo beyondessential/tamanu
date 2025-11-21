@@ -8,6 +8,7 @@ import {
 } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { toast } from 'react-toastify';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
@@ -22,7 +23,6 @@ import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader
 import { partitionAppointmentsByLocation } from './utils';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
-import { toast } from 'react-toastify';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
