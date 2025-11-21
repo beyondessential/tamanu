@@ -36,6 +36,9 @@ const Tile = styled(UnstyledHtmlButton)`
 
   ${({ $isDragging = false }) => $isDragging && css`
     opacity: 0.5;
+    > * {
+      opacity: 0;
+    }
   `}
 
   &:hover {
