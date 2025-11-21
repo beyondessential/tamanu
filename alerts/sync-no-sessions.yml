@@ -31,7 +31,7 @@ send:
 
       **Facilities with no recent successful syncs:**
       {% for row in rows %}
-      - Facility ID: {{ row.facility_id }} - Last successful sync: {% if row.last_successful_sync %}{{ row.last_successful_sync }}{% else %}Unknown{% endif %}
+      - Facility ID: {{ row.facility_id }} - Last successful sync: {{ row.last_successful_sync }}
       {% endfor %}
 
       **Immediate action required:**
