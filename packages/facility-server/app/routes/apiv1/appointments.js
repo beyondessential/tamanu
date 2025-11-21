@@ -57,7 +57,6 @@ const sendAppointmentReminder = async ({ appointmentId, email, facilityId, model
         'locationGroup',
         {
           association: 'location',
-          required: false,
           include: ['locationGroup'],
         },
       ],
