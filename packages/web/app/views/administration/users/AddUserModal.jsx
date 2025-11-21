@@ -6,6 +6,7 @@ import {
   TextField,
   AutocompleteField,
   MultiAutocompleteField,
+  NumberField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
 import { TranslatedText, FormModal, Button, OutlinedButton } from '../../../components';
@@ -138,6 +139,7 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
     phoneNumber: '',
     newPassword: '',
     confirmPassword: '',
+    deviceRegistrationQuota: 0,
   };
 
   return (
@@ -248,6 +250,18 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
                     component={TextField}
                     type="password"
                     required
+                  />
+                  <Field
+                    name="deviceRegistrationQuota"
+                    label={
+                      <TranslatedText
+                        stringId="admin.users.deviceRegistrationQuota.label"
+                        fallback="Device registration quota"
+                      />
+                    }
+                    component={NumberField}
+                    min={0}
+                    style={{ gridColumn: 'span 2' }}
                   />
                   <Field
                     name="allowedFacilityIds"
