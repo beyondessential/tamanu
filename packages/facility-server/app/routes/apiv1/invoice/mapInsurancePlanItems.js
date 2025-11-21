@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 
-export const getInsurancePlanItems = invoiceInsurancePlans => {
+export const mapInsurancePlanItems = invoiceInsurancePlans => {
   return item => {
     const itemInsurancePlansById = keyBy(
       item.product?.invoiceInsurancePlanItems,

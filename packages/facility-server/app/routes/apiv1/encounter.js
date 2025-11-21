@@ -43,7 +43,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
-import { getInsurancePlanItems } from './invoice/getInsurancePlanItems';
+import { mapInsurancePlanItems } from './invoice/mapInsurancePlanItems';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -555,7 +555,7 @@ encounterRelations.get(
 
     // Convert to plain object to avoid circular references
     const invoice = invoiceRecord.get({ plain: true });
-    const invoiceItemsResponse = invoice.items.map(getInsurancePlanItems(invoice.insurancePlans));
+    const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
     const responseRecord = { ...invoice, items: invoiceItemsResponse };
 
     res.send(responseRecord);

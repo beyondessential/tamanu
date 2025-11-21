@@ -2,7 +2,7 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getInsurancePlanItems } from '../invoice/getInsurancePlanItems';
+import { mapInsurancePlanItems } from '../invoice/mapInsurancePlanItems';
 
 export const patientInvoiceRoutes = express.Router();
 
@@ -26,7 +26,7 @@ async function hydrateInvoices(invoiceRecords, models) {
       });
 
       const invoice = hydratedInvoiceRecord.get({ plain: true });
-      const invoiceItemsResponse = invoice.items.map(getInsurancePlanItems(invoice.insurancePlans));
+      const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
       return { ...invoice, items: invoiceItemsResponse };
     }),
   );
