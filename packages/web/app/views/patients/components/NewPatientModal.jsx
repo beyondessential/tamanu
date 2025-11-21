@@ -16,7 +16,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const api = useApi();
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
-  const patientIdGenerationPattern = getSetting('patientIdGenerationPattern');
+  const patientDisplayIdGenerationPattern = getSetting('patientDisplayIdGenerationPattern');
   
   const [cancelNewPatientModalOpen, setCancelNewPatientModalOpen] = useState(false);
   const [duplicateWarningModalOpen, setDuplicateWarningModalOpen] = useState(false);
@@ -29,7 +29,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const confirmUniquePatientWithUser = async () =>
     new Promise(resolve => {
       setResolveFn(() => resolve); // Save resolve to use in onConfirm/onCancel
-      setDuplicateWarningModalOpen(true);
+      setDuplicateWarningModalOpen(true); 
     });
 
   const onSubmit = useCallback(
@@ -76,7 +76,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
-          generateId={() => generateIdFromPattern(patientIdGenerationPattern)}
+          generateId={() => generateIdFromPattern(patientDisplayIdGenerationPattern)}
           onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
