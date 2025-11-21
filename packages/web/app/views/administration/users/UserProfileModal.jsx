@@ -9,6 +9,7 @@ import {
   AutocompleteField,
   MultiAutocompleteField,
   SelectField,
+  NumberField,
 } from '../../../components/Field';
 import { useSuggester } from '../../../api';
 import { TranslatedText, FormModal, Button, OutlinedButton, BodyText } from '../../../components';
@@ -231,7 +232,14 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
       newPassword: '',
       confirmPassword: '',
       allowedFacilityIds: user?.facilities?.map(f => f.id) || [],
+      deviceRegistrationQuota: user?.deviceRegistrationQuota ?? 0,
     };
+  }, [user]);
+
+  const registrationsRemaining = useMemo(() => {
+    const quota = user?.deviceRegistrationQuota ?? 0;
+    const registered = user?.registeredDevicesCount ?? 0;
+    return Math.max(0, quota - registered);
   }, [user]);
 
   return (
@@ -333,6 +341,26 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         <TranslatedText stringId="admin.users.phoneNumber.label" fallback="Phone" />
                       }
                       component={TextField}
+                      disabled={!canUpdateUser}
+                    />
+                    <Field
+                      name="deviceRegistrationQuota"
+                      label={
+                        <TranslatedText
+                          stringId="admin.users.deviceRegistrationQuota.label"
+                          fallback="Device registration quota"
+                        />
+                      }
+                      component={NumberField}
+                      min={0}
+                      helperText={
+                        <Box fontWeight={400} fontSize={11}>
+                          <TranslatedText
+                            stringId="admin.users.deviceRegistrationQuota.helperText"
+                            fallback={`${registrationsRemaining} registration${registrationsRemaining !== 1 ? 's' : ''} remaining`}
+                          />
+                        </Box>
+                      }
                       disabled={!canUpdateUser}
                     />
                     <Field
