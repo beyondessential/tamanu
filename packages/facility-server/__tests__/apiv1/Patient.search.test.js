@@ -14,7 +14,7 @@ import { afterAll, beforeAll } from '@jest/globals';
 // (we're using first name as the field that indicates which
 // test it should/shouldn't be found in)
 const withFirstName =
-  (name) =>
+  name =>
   ({ firstName }) =>
     firstName === name;
 
@@ -72,29 +72,6 @@ const searchTestPatients = [
   { firstName: 'pagination', lastName: 'I' },
   { firstName: 'locale-test', lastName: 'Böhm' },
   { firstName: 'locale-test', lastName: 'Brunet' },
-  {
-    firstName: 'more-than-one-open-encounter',
-    encounters: [
-      {
-        id: 'should-be-ignored-1',
-        encounterType: 'clinic',
-        current: false,
-        startDate: '2015-01-01 08:00:00',
-      },
-      {
-        id: 'should-be-chosen',
-        encounterType: 'admission',
-        current: true,
-        startDate: '2014-01-01 08:00:00',
-      },
-      {
-        id: 'should-be-ignored-2',
-        encounterType: 'clinic',
-        current: true,
-        startDate: '2013-01-01 08:00:00',
-      },
-    ],
-  },
 ];
 
 const ageInCount = searchTestPatients.filter(withFirstName('search-by-age-IN')).length;
@@ -133,7 +110,7 @@ describe('Patient search', () => {
     }
     if (secondaryIds) {
       await Promise.all(
-        secondaryIds.map(async (secondaryId) => {
+        secondaryIds.map(async secondaryId => {
           const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
           await models.PatientSecondaryId.create({
             value: secondaryId,
@@ -290,7 +267,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.forEach((responsePatient) => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -304,7 +281,7 @@ describe('Patient search', () => {
     expect(response).toHaveSucceeded();
     expect(response.body.count).toEqual(3);
 
-    response.body.data.forEach((responsePatient) => {
+    response.body.data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('firstName', 'search-by-name');
     });
   });
@@ -380,7 +357,7 @@ describe('Patient search', () => {
 
     const { data } = response.body;
     expect(data.length).toBeGreaterThan(0);
-    data.forEach((responsePatient) => {
+    data.forEach(responsePatient => {
       expect(responsePatient).toHaveProperty('villageId', villageId);
       expect(responsePatient).toHaveProperty('villageName', villageName);
     });
@@ -398,11 +375,11 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       // ensure all of the test entries are present
-      const testOutpatients = response.body.data.filter((x) => x.firstName === 'search-outpatient');
+      const testOutpatients = response.body.data.filter(x => x.firstName === 'search-outpatient');
       expect(testOutpatients.length).toEqual(3);
 
       // ensure all of the response objects match the filter
-      response.body.data.forEach((responsePatient) => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'clinic');
       });
     });
@@ -416,11 +393,11 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       // ensure all of the test entries are present
-      const testInpatients = response.body.data.filter((x) => x.firstName === 'search-inpatient');
+      const testInpatients = response.body.data.filter(x => x.firstName === 'search-inpatient');
       expect(testInpatients.length).toEqual(2);
 
       // ensure all of the response objects match the filter
-      response.body.data.forEach((responsePatient) => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('encounterType', 'admission');
       });
     });
@@ -432,7 +409,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-location')));
-      response.body.data.forEach((responsePatient) => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('locationName', locations[0].name);
       });
     });
@@ -444,7 +421,7 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-location-group')));
-      response.body.data.forEach((responsePatient) => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('locationGroupName', locationGroups[0].name);
       });
     });
@@ -456,23 +433,9 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       expect(response.body.data.some(withFirstName('search-by-department')));
-      response.body.data.forEach((responsePatient) => {
+      response.body.data.forEach(responsePatient => {
         expect(responsePatient).toHaveProperty('departmentName', departments[0].name);
       });
-    });
-
-    it('should return only 1 result for patients with multiple open encounters', async () => {
-      const response = await app
-        .get(`/api/patient?facilityId=${facilityId}&isAllPatientsListing=true`)
-        .query({
-          firstName: 'more-than-one-open-encounter',
-        });
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toEqual(1);
-
-      // Make sure it chooses the correct encounter
-      expect(response.body.data[0].encounterId).toEqual('should-be-chosen');
-      expect(response.body.data[0].encounterType).toEqual('admission');
     });
   });
 
@@ -514,7 +477,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.lastName);
+      expectSorted(response.body.data, x => x.lastName);
     });
 
     it('should sort in descending order', async () => {
@@ -527,7 +490,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data.reverse(), (x) => x.lastName, true);
+      expectSorted(response.body.data.reverse(), x => x.lastName, true);
     });
 
     it('should sort by date of birth', async () => {
@@ -539,7 +502,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.dateOfBirth);
+      expectSorted(response.body.data, x => x.dateOfBirth);
     });
 
     it('should sort by date of birth in descending order', async () => {
@@ -552,7 +515,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.dateOfBirth, true);
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
     });
 
     it('should sort by age', async () => {
@@ -564,7 +527,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.dateOfBirth);
+      expectSorted(response.body.data, x => x.dateOfBirth);
     });
 
     it('should sort by age in descending order', async () => {
@@ -577,7 +540,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.dateOfBirth, true);
+      expectSorted(response.body.data, x => x.dateOfBirth, true);
     });
 
     it('should sort by encounter type', async () => {
@@ -589,7 +552,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.encounterType);
+      expectSorted(response.body.data, x => x.encounterType);
     });
 
     it('should sort by encounter type in descending order', async () => {
@@ -602,7 +565,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.encounterType, true);
+      expectSorted(response.body.data, x => x.encounterType, true);
     });
 
     it('should sort by location (not on all-patients listing)', async () => {
@@ -612,7 +575,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.locationName);
+      expectSorted(response.body.data, x => x.locationName);
     });
 
     it('should sort by department (not on all-patients listing)', async () => {
@@ -622,7 +585,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.departmentName);
+      expectSorted(response.body.data, x => x.departmentName);
     });
 
     it('should sort by village', async () => {
@@ -634,7 +597,7 @@ describe('Patient search', () => {
 
       expect(response).toHaveSucceeded();
 
-      expectSorted(response.body.data, (x) => x.villageName);
+      expectSorted(response.body.data, x => x.villageName);
     });
   });
 
@@ -715,7 +678,7 @@ describe('Patient search', () => {
       expect(data.length).toEqual(4);
       expect(count).toEqual(4);
 
-      expect(data.map((d) => d.displayId)).toEqual([
+      expect(data.map(d => d.displayId)).toEqual([
         'sort-test-1C',
         'sort-test-1CA',
         'sort-test-1CB',
@@ -736,7 +699,7 @@ describe('Patient search', () => {
       expect(data).toHaveLength(9);
       expect(count).toEqual(9);
 
-      expect(data.map((d) => d.firstName)).toEqual([
+      expect(data.map(d => d.firstName)).toEqual([
         'QQQQ',
         'QQQQcael',
         'QQQQchael',
@@ -761,7 +724,7 @@ describe('Patient search', () => {
       const { data } = response.body;
       expect(data).toHaveLength(6);
 
-      expect(data.map((d) => d.lastName)).toEqual([
+      expect(data.map(d => d.lastName)).toEqual([
         'UUUU',
         'UUUUrd',
         'UUUUrda',
@@ -788,7 +751,7 @@ describe('Patient search', () => {
       const { data } = response.body;
       expect(data.length).toEqual(5);
 
-      expect(data.map((d) => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
+      expect(data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`)).toEqual([
         'sort-test-1 - QQQQke - UUUUrdan',
         'sort-test-1A - QQQQke - UUUU',
         'sort-test-1C - QQQQ - UUUUrd',
@@ -808,10 +771,10 @@ describe('Patient search', () => {
       expect(response).toHaveSucceeded();
 
       const { data } = response.body;
-      expect(data.every((d) => d.firstName.startsWith('QQQQ')));
-      expect(data.every((d) => d.lastName.startsWith('UUUU')));
+      expect(data.every(d => d.firstName.startsWith('QQQQ')));
+      expect(data.every(d => d.lastName.startsWith('UUUU')));
 
-      const concatenated = data.map((d) => `${d.displayId} - ${d.firstName} - ${d.lastName}`);
+      const concatenated = data.map(d => `${d.displayId} - ${d.firstName} - ${d.lastName}`);
       expect(concatenated).toEqual([
         'sort-test-1A - QQQQke - UUUU',
         'sort-test-1C - QQQQ - UUUUrd',

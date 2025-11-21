@@ -39,7 +39,7 @@ describe('PatientLocations', () => {
       generateFakeLocation(models.Location),
       generateFakeLocation(models.Location, { maxOccupancy: null }),
     ]);
-    maxOneOccupancyLocations = locations.filter((location) => location.maxOccupancy === 1);
+    maxOneOccupancyLocations = locations.filter(location => location.maxOccupancy === 1);
   });
   beforeEach(async () => {
     await models.Encounter.truncate({
@@ -240,10 +240,10 @@ describe('PatientLocations', () => {
 
     const threeDaysAgo = new Date();
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-    // Older encounter
+    const patient2 = await models.Patient.create(await createDummyPatient(models));
     await models.Encounter.create({
       ...(await createDummyEncounter(models)),
-      patientId: patient.id,
+      patientId: patient2.id,
       encounterType: 'admission',
       locationId: maxOneOccupancyLocations[0].id,
       startDate: threeDaysAgo,
@@ -268,11 +268,10 @@ describe('PatientLocations', () => {
       status: LOCATION_AVAILABILITY_STATUS.OCCUPIED,
     });
 
-    const patient2 = await models.Patient.create(await createDummyPatient(models));
-    // Same location open encounter
+    const patient3 = await models.Patient.create(await createDummyPatient(models));
     await models.Encounter.create({
       ...(await createDummyEncounter(models)),
-      patientId: patient2.id,
+      patientId: patient3.id,
       encounterType: 'admission',
       locationId: maxOneOccupancyLocations[0].id,
       plannedLocationId: maxOneOccupancyLocations[1].id,
@@ -299,8 +298,8 @@ describe('PatientLocations', () => {
       locationMaxOccupancy: 1,
       occupancy: null, // (no encounters in this location, only planned, displays 0 on front-end)
       numberOfOccupants: 0,
-      patientFirstName: patient2.firstName,
-      patientLastName: patient2.lastName,
+      patientFirstName: patient3.firstName,
+      patientLastName: patient3.lastName,
       status: LOCATION_AVAILABILITY_STATUS.RESERVED,
     });
   });
@@ -309,11 +308,11 @@ describe('PatientLocations', () => {
     // Arrange
     const { Location } = models;
     const createdLocations = await Location.bulkCreate(
-      Object.values(VISIBILITY_STATUSES).map((visibilityStatus) =>
+      Object.values(VISIBILITY_STATUSES).map(visibilityStatus =>
         fake(Location, { visibilityStatus, facilityId }),
       ),
     );
-    const locationIds = createdLocations.map((l) => l.id);
+    const locationIds = createdLocations.map(l => l.id);
 
     // Act
     const response = await app.get(`/api/patient/locations/bedManagement?facilityId=${facilityId}`);
@@ -321,13 +320,10 @@ describe('PatientLocations', () => {
     // Assert
     expect(response).toHaveSucceeded();
     expect(response.body?.data).toBeInstanceOf(Array);
-    const ourLocations = response.body.data.filter((datum) =>
-      locationIds.includes(datum.locationId),
-    );
+    const ourLocations = response.body.data.filter(datum => locationIds.includes(datum.locationId));
     expect(ourLocations).toHaveLength(1);
     expect(ourLocations[0]).toMatchObject({
-      locationId: createdLocations.find((l) => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT)
-        .id,
+      locationId: createdLocations.find(l => l.visibilityStatus === VISIBILITY_STATUSES.CURRENT).id,
     });
   });
 });

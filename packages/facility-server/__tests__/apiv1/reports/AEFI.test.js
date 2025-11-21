@@ -63,7 +63,7 @@ describe('AEFI report', () => {
     await models.SurveyScreenComponent.bulkCreate(createDummyAefiSurveyScreenComponent());
 
     const encounter1 = await models.Encounter.create(
-      await createDummyEncounter(models, { patientId: expectedPatient.id, current: true }),
+      await createDummyEncounter(models, { patientId: expectedPatient.id }),
     );
 
     const encounter2 = await models.Encounter.create(

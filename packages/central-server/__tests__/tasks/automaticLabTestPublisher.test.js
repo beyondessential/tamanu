@@ -31,7 +31,7 @@ describe('Lab test publisher', () => {
   let testCategory;
   let patient;
 
-  const makeLabRequest = async (testType) => {
+  const makeLabRequest = async testType => {
     const examiner = await models.User.create(fakeUser());
     const facility = await models.Facility.create(fake(models.Facility));
     const department = await models.Department.create({
@@ -43,8 +43,8 @@ describe('Lab test publisher', () => {
       facilityId: facility.id,
     });
     const encounter = await models.Encounter.create({
+      ...fake(models.Encounter),
       patientId: patient.id,
-      startDate: new Date(),
       encounterType: ENCOUNTER_TYPES.IMAGING,
       departmentId: department.id,
       locationId: location.id,

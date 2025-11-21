@@ -33,7 +33,7 @@ export const EncounterModal = React.memo(
       setModalStatus(MODAL_STATES.SELECT_OPEN);
       onClose();
     }, [onClose]);
-    const onSelectEncounterType = useCallback((value) => {
+    const onSelectEncounterType = useCallback(value => {
       if (value === ENCOUNTER_TYPES.TRIAGE) {
         setModalStatus(MODAL_STATES.TRIAGE_OPEN);
         return;
