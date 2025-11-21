@@ -114,7 +114,16 @@ const HistoryLog = ({ logData, vitalLabel, vitalEditReasons }) => {
   );
 };
 
-export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital }) => {
+export const EditVitalCellForm = ({ 
+  vitalLabel, 
+  dataPoint, 
+  handleClose, 
+  isVital,
+  // Program registry context props (optional)
+  programRegistryPatientId,
+  programRegistrySurveyId,
+  programRegistryInstanceId,
+}) => {
   const { getTranslation } = useTranslation();
   const [isDeleted, setIsDeleted] = useState(false);
   const api = useApi();
@@ -138,7 +147,7 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
   const valueName = dataPoint.component.dataElement.id;
   const editVitalData = getEditVitalData(dataPoint.component, isReasonMandatory);
   const validationSchema = getValidationSchema(editVitalData, getTranslation, {
-    encounterType: encounter.encounterType,
+    encounterType: encounter?.encounterType,
   });
   const handleDeleteEntry = useCallback(
     setFieldValue => {
@@ -168,13 +177,24 @@ export const EditVitalCellForm = ({ vitalLabel, dataPoint, handleClose, isVital 
       const newVitalData = {
         ...newShapeData,
         dataElementId: valueName,
-        encounterId: encounter.id,
+        encounterId: encounter?.id,
         recordedDate: dataPoint.recordedDate,
       };
       await api.post(`surveyResponseAnswer/${directory}`, { facilityId, ...newVitalData });
     }
     const primaryQueryKey = isVital ? 'encounterVitals' : 'encounterCharts';
-    queryClient.invalidateQueries([primaryQueryKey, encounter.id]);
+    queryClient.invalidateQueries([primaryQueryKey, encounter?.id]);
+    
+    // Also invalidate program registry queries if in program registry context
+    if (!isVital && programRegistryPatientId && programRegistrySurveyId) {
+      queryClient.invalidateQueries([
+        'programRegistryPatientCharts',
+        programRegistryPatientId,
+        programRegistrySurveyId,
+        programRegistryInstanceId,
+      ]);
+    }
+    
     handleClose();
   };
   const validateFn = values => {

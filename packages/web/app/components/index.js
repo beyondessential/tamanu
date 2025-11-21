@@ -27,6 +27,7 @@ export * from './TopBar';
 export * from './Typography';
 export * from './FormSectionSeparator';
 export * from './Translation';
+export * from './WebcamCaptureModal';
 export * from './ReminderContact/AddReminderContact';
 export * from './ReminderContact/ReminderContactQR';
 export * from './ReminderContact/ReminderContactModal';

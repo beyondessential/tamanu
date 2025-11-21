@@ -1,5 +1,7 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op, Sequelize } from 'sequelize';
 import {
+  CHARTING_DATA_ELEMENT_IDS,
+  CHARTING_SURVEY_TYPES,
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
@@ -261,12 +263,14 @@ export class SurveyResponse extends Model {
     patientId,
     forceNewEncounter,
     reasonForEncounter,
+    answers,
     ...responseData
   }: {
     encounterId: string | null;
     patientId: string;
     forceNewEncounter: boolean;
     reasonForEncounter: string;
+    answers?: Record<string, any>;
     [key: string]: any;
   }) {
     if (!this.sequelize.isInsideTransaction()) {
@@ -285,8 +289,12 @@ export class SurveyResponse extends Model {
       );
     }
 
+    // Extract date - chart entries have dateRecorded field, complex chart instances have complexChartDate
+    const dateRecordedValue = answers?.[CHARTING_DATA_ELEMENT_IDS.dateRecorded]
+      || answers?.[CHARTING_DATA_ELEMENT_IDS.complexChartDate];
+
     if (!forceNewEncounter) {
-      // find open encounter
+      // First, check for open encounter (active encounter takes precedence)
       const openEncounter = await Encounter.findOne({
         where: {
           patientId,
@@ -296,9 +304,38 @@ export class SurveyResponse extends Model {
       if (openEncounter) {
         return openEncounter;
       }
+
+      // Then, check for existing form response encounter on the same date
+      const recordedDate = dateRecordedValue || responseData.startTime || null;
+
+      if (recordedDate) {
+        const whereConditions = {
+          patientId,
+          encounterType: 'surveyResponse',
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('DATE', Sequelize.col('start_date')),
+              Sequelize.fn('DATE', recordedDate),
+            ),
+          ],
+          ...(responseData.departmentId && { departmentId: responseData.departmentId }),
+          ...(responseData.locationId && { locationId: responseData.locationId }),
+        };
+
+        const existingFormResponseEncounter = await Encounter.findOne({
+          where: whereConditions,
+        });
+
+        if (existingFormResponseEncounter) {
+          return existingFormResponseEncounter;
+        }
+      }
     }
 
     const { departmentId, examinerId, userId, locationId } = responseData;
+
+    const encounterStartDate = dateRecordedValue || responseData.startTime || getCurrentDateTimeString();
+    const encounterEndDate = dateRecordedValue || responseData.endTime || getCurrentDateTimeString();
 
     // need to create a new encounter with examiner set as the user who submitted the survey.
     const newEncounter = await Encounter.create({
@@ -310,12 +347,12 @@ export class SurveyResponse extends Model {
       locationId,
       // Survey responses will usually have a startTime and endTime and we prefer to use that
       // for the encounter to ensure the times are set in the browser timezone
-      startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      startDate: encounterStartDate,
       actorId: userId,
     });
 
     return newEncounter.update({
-      endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
+      endDate: encounterEndDate,
       systemNote: 'Automatically discharged',
       discharge: {
         note: 'Automatically discharged after survey completion',
@@ -365,11 +402,16 @@ export class SurveyResponse extends Model {
       ...calculatedAnswers,
     };
 
+    // Determine if this is a chart entry or form response
+    const isChartEntry = CHARTING_SURVEY_TYPES.includes(survey.surveyType);
+    const reasonForEncounter = isChartEntry ? 'Chart entry' : 'Form response';
+
     const encounter = await this.getSurveyEncounter({
       encounterId,
       patientId,
       forceNewEncounter,
-      reasonForEncounter: 'Form response',
+      reasonForEncounter,
+      answers: finalAnswers,
       ...responseData,
     });
     const { result, resultText } = getResultValue(questions, answers, {

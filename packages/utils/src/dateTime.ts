@@ -44,6 +44,9 @@ export const isISOString = (dateString: string) =>
 export const parseDate = (date: string | Date | null | undefined) => {
   if (date == null) return null;
 
+  // Handle empty strings
+  if (typeof date === 'string' && date.trim() === '') return null;
+
   const dateObj =
     typeof date === 'string'
       ? isISOString(date)
