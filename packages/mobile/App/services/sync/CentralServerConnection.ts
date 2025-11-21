@@ -47,7 +47,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
   }
 
   if (problem.type.startsWith(ERROR_TYPE.AUTH) && !isLogin) {
-    throw new AuthenticationError(invalidTokenMessage);
+    return new AuthenticationError(invalidTokenMessage);
   }
 
   if (problem.type === ERROR_TYPE.CLIENT_INCOMPATIBLE) {
