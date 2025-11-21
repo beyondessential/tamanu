@@ -152,6 +152,10 @@ export class CentralServerConnection extends TamanuApi {
     return { sessionId, startedAtTick };
   }
 
+  async markSessionErrored(sessionId, error) {
+    return this.fetch(`sync/${sessionId}/error`, { method: 'POST', body: { error } });
+  }
+
   async endSyncSession(sessionId) {
     return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
