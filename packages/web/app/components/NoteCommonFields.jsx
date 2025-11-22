@@ -283,17 +283,20 @@ export const NoteTypeField = ({
   const { data: noteTypes = [] } = useSuggestionsQuery('noteType');
 
   const noteTypeOptions = useMemo(() => {
-    return noteTypes.map(noteType => ({
-      value: noteType.id,
-      label: (
-        <TranslatedReferenceData
-          fallback={noteType.name}
-          value={noteType.id}
-          category={REFERENCE_TYPES.NOTE_TYPE}
-        />
-      ),
-      isDisabled: noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
-    }));
+    return noteTypes
+      .filter(noteType => noteType.id !== NOTE_TYPES.SYSTEM)
+      .map(noteType => ({
+        value: noteType.id,
+        label: (
+          <TranslatedReferenceData
+            fallback={noteType.name}
+            value={noteType.id}
+            category={REFERENCE_TYPES.NOTE_TYPE}
+          />
+        ),
+        isDisabled:
+          noteType.id === NOTE_TYPES.TREATMENT_PLAN && !!noteTypeCountByType?.[noteType.id],
+      }));
   }, [noteTypes]);
 
   return (

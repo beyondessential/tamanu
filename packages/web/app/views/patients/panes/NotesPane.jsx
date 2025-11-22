@@ -22,7 +22,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
   const { loadEncounter } = useEncounter();
   const { openNoteModal, updateNoteModalProps } = useNoteModal();
   const noteTypeSuggester = useSuggester('noteType', {
-    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE && id !== NOTE_TYPES.SYSTEM,
+    filterer: ({ id }) => id !== NOTE_TYPES.CLINICAL_MOBILE,
   });
 
   const noteModalOnSaved = async createdNote => {
