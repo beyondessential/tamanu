@@ -1,0 +1,39 @@
+sql: |
+  SELECT
+    key,
+    value AS last_sync_tick,
+    updated_at::text AS last_updated,
+    (now() - updated_at)::text AS time_since_update
+  FROM local_system_facts
+  WHERE key = 'lastSuccessfulLookupTableUpdate'
+    AND updated_at < now() - interval '1 hour'
+
+send:
+  - target: external
+    id: default
+    subject: '[Tamanu Alert] Sync lookup table has not been updated recently ({{ hostname }})'
+    template: |
+      - Server: {{ hostname }}
+      - Alert: {{ filename }}
+
+      **Report this immediately to support.**
+
+      The sync lookup table has not been updated in the last hour.
+
+      This could indicate:
+      - The sync lookup table update process is not running
+      - The update process is failing silently
+      - The central sync manager is not processing updates
+      - Database connection or transaction issues
+
+      **Details:**
+      {% for row in rows %}
+      - Last sync tick: {{ row.last_sync_tick }}
+      - Last updated: {{ row.last_updated }}
+      - Time since update: {{ row.time_since_update }}
+      {% endfor %}
+
+      **Immediate action required:**
+      1. Check if the central sync manager service is running
+      2. Review system logs for sync lookup table update errors
+      3. Check if sync sessions are completing successfully
