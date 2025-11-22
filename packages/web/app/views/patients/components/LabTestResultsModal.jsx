@@ -17,6 +17,7 @@ import { AccessorField, LabResultAccessorField } from './AccessorField';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { TranslatedText, TranslatedReferenceData } from '../../../components/Translation';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const TableContainer = styled.div`
   overflow-y: auto;
@@ -230,6 +231,13 @@ const ResultsFormError = ({ error }) => (
   </Box>
 );
 
+const getPrefilledValue = (uniqueValues, name) => {
+  if (uniqueValues.length === 1) return uniqueValues[0];
+  if (uniqueValues.length === 0 && name === LAB_TEST_PROPERTIES.COMPLETED_DATE)
+    return getCurrentDateTimeString();
+  return null;
+};
+
 const ResultsForm = ({
   labTestResults,
   isLoading,
@@ -248,17 +256,21 @@ const ResultsForm = ({
    */
   const onChangeResult = useCallback(
     (value, labTestId) => {
+      if (!value) return;
       const rowValues = values[labTestId];
-      if (rowValues?.result || !value) return;
+
       AUTOFILL_FIELD_NAMES.forEach(name => {
-        // Get unique values for this field across all rows
-        const unique = Object.values(values).reduce(
-          (acc, row) => (row[name] && !acc.includes(row[name]) ? [...acc, row[name]] : acc),
-          [],
-        );
-        if (unique.length !== 1 || rowValues?.[name]) return;
-        // Prefill the field with the unique value
-        setFieldValue(`${labTestId}.${name}`, unique[0]);
+        if (rowValues?.[name]) return;
+
+        const otherRowsValues = Object.entries(values)
+          .filter(([id, row]) => id !== labTestId && row[name])
+          .map(([, row]) => row[name]);
+
+        const uniqueValues = [...new Set(otherRowsValues)];
+        const valueToSet = getPrefilledValue(uniqueValues, name);
+
+        if (!valueToSet) return;
+        setFieldValue(`${labTestId}.${name}`, valueToSet);
       });
     },
     [values, setFieldValue],
