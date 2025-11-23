@@ -15,7 +15,7 @@ import {
   ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
-import { isGeneratedDisplayId, isGeneratedDisplayIdFromPattern } from '@tamanu/utils/generateId';
+import { isGeneratedDisplayId, isGeneratedIdFromPattern } from '@tamanu/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -115,7 +115,7 @@ patientRoute.put(
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
         const oldDisplayIdType =
           isGeneratedDisplayId(patient.displayId) ||
-          isGeneratedDisplayIdFromPattern(patient.displayId, patientDisplayIdPattern)
+          isGeneratedIdFromPattern(patient.displayId, patientDisplayIdPattern)
             ? 'secondaryIdType-tamanu-display-id'
             : 'secondaryIdType-nhn';
         await PatientSecondaryId.create({

@@ -4,7 +4,7 @@ import {
   fakeUUID,
   FAKE_UUID_PATTERN,
   generateIdFromPattern,
-  isGeneratedDisplayIdFromPattern,
+  isGeneratedIdFromPattern,
 } from '../src/generateId';
 import { describe, expect, it } from 'vitest';
 
@@ -67,36 +67,36 @@ describe('generateIdFromPattern', () => {
   });
 });
 
-describe('isGeneratedDisplayIdFromPattern', () => {
+describe('isGeneratedIdFromPattern', () => {
   it('should validate IDs that match a simple pattern', () => {
-    expect(isGeneratedDisplayIdFromPattern('AB123', 'AA000')).toBe(true);
-    expect(isGeneratedDisplayIdFromPattern('HXI9252', 'AAA0000')).toBe(true);
+    expect(isGeneratedIdFromPattern('AB123', 'AA000')).toBe(true);
+    expect(isGeneratedIdFromPattern('HXI9252', 'AAA0000')).toBe(true);
   });
 
   it('should validate IDs with static bracketed characters', () => {
-    expect(isGeneratedDisplayIdFromPattern('B123456', '[B]000000')).toBe(true);
-    expect(isGeneratedDisplayIdFromPattern('AB463', '[AB]000')).toBe(true);
+    expect(isGeneratedIdFromPattern('B123456', '[B]000000')).toBe(true);
+    expect(isGeneratedIdFromPattern('AB463', '[AB]000')).toBe(true);
   });
 
   it('should validate IDs with mixed static, letters, and digits', () => {
-    expect(isGeneratedDisplayIdFromPattern('BXYA123', '[B]AA[A]000')).toBe(true);
-    expect(isGeneratedDisplayIdFromPattern('TBA4502G5', 'AA[A45]00A[5]')).toBe(true);
+    expect(isGeneratedIdFromPattern('BXYA123', '[B]AA[A]000')).toBe(true);
+    expect(isGeneratedIdFromPattern('TBA4502G5', 'AA[A45]00A[5]')).toBe(true);
   });
 
   it('should validate IDs from complex nested bracket patterns', () => {
-    expect(isGeneratedDisplayIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
-    expect(isGeneratedDisplayIdFromPattern('[C]-25LDB', '[[C]-]00AA[B]')).toBe(true);
+    expect(isGeneratedIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
+    expect(isGeneratedIdFromPattern('[C]-25LDB', '[[C]-]00AA[B]')).toBe(true);
   });
 
   it('should return false for IDs that do not match the pattern', () => {
     const pattern = '[B]AA[A]000';
-    expect(isGeneratedDisplayIdFromPattern('C123456', pattern)).toBe(false);
-    expect(isGeneratedDisplayIdFromPattern('BAAA12X', pattern)).toBe(false);
+    expect(isGeneratedIdFromPattern('C123456', pattern)).toBe(false);
+    expect(isGeneratedIdFromPattern('BAAA12X', pattern)).toBe(false);
   });
 
   it('should return false when complex nested bracket patterns do not match', () => {
     const pattern = '[[[]00AA[B]';
-    expect(isGeneratedDisplayIdFromPattern('[[12ABX', pattern)).toBe(false);
-    expect(isGeneratedDisplayIdFromPattern('[[AB12B', pattern)).toBe(false);
+    expect(isGeneratedIdFromPattern('[[12ABX', pattern)).toBe(false);
+    expect(isGeneratedIdFromPattern('[[AB12B', pattern)).toBe(false);
   });
 });
