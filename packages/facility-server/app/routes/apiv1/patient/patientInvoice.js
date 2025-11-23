@@ -1,5 +1,6 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { mapInsurancePlanItems } from '../invoice/mapInsurancePlanItems';
@@ -24,6 +25,10 @@ async function hydrateInvoices(invoiceRecords, models) {
         where: { id: invoiceId },
         include: Invoice.getFullReferenceAssociations(invoicePriceListId),
       });
+
+      if (!hydratedInvoiceRecord) {
+        throw new NotFoundError('Invoice not found');
+      }
 
       const invoice = hydratedInvoiceRecord.get({ plain: true });
       const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
