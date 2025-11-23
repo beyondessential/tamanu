@@ -92,7 +92,7 @@ export const ProcedureAdditionalData = ({
       onSuccess: data => {
         onSuccess(data.procedureId);
         setSelectedSurveyId(null);
-        onSurveyFormDirtyChange?.(false);
+        setSurveyFormDirty(false);
       },
     },
   );

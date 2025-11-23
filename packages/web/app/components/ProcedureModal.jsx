@@ -208,7 +208,7 @@ export const ProcedureModal = ({
                   );
                 }}
                 surveyFormDirty={surveyFormDirty}
-                onSurveyFormDirtyChange={setSurveyFormDirty}
+                setSurveyFormDirty={setSurveyFormDirty}
               />
               {programResponses?.data?.length > 0 && (
                 <>

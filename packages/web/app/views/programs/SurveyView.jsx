@@ -98,7 +98,7 @@ export const SurveyViewForm = ({
 
     return (
       <>
-        <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
+        <DirtyStateTracker dirty={dirty} setDirty={setDirty} />
         <SurveyScreenPaginator
           survey={survey}
           patient={patient}
