@@ -62,13 +62,13 @@ export const generateIdFromPattern = (pattern: string) => {
 };
 
 /**
- * 
+ * Validates if a display ID matches a given pattern.
  * @param displayId - The display ID to validate.
  * @param pattern - The pattern to use for validating the display ID.
  * @returns True if the display ID matches the pattern, false otherwise.
  * @example
  * isGeneratedDisplayIdFromPattern('GHIJ675432', 'AAAA000000') // true
- * isGeneratedDisplayIdFromPattern('BCHIJA125', '[BC]AA[A]000') // true
+ * isGeneratedDisplayIdFromPattern('BCDEFA123', '[BC]AA[A]000') // true
  * isGeneratedDisplayIdFromPattern('B350031', '[B]AA[A]000') // false
  */
 export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
