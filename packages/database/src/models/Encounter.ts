@@ -513,6 +513,7 @@ export class Encounter extends Model {
   async onDischarge(
     {
       endDate,
+      submittedTime,
       systemNote,
       discharge,
     }: {
@@ -521,7 +522,7 @@ export class Encounter extends Model {
       systemNote?: string;
       discharge: ModelProperties<Discharge>;
     },
-    addSystemNoteRow: (content: string) => void,
+    user: ModelProperties<User>,
   ) {
     const { Discharge } = this.sequelize.models;
     await Discharge.create({
@@ -529,7 +530,7 @@ export class Encounter extends Model {
       encounterId: this.id,
     });
 
-    addSystemNoteRow(systemNote || 'Discharged patient.');
+    this.addSystemNote(systemNote || 'Discharged patient.', submittedTime, user);
     await this.closeTriage(endDate);
   }
 
@@ -583,7 +584,7 @@ export class Encounter extends Model {
       };
 
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data, addSystemNoteRow);
+        await this.onDischarge(data, user);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -654,16 +655,34 @@ export class Encounter extends Model {
       const isPatientBillingTypeChanged =
         data.patientBillingTypeId && data.patientBillingTypeId !== this.patientBillingTypeId;
       if (isPatientBillingTypeChanged) {
+        const oldPatientBillingType = await this.sequelize.models.ReferenceData.findOne({
+          where: { id: this.patientBillingTypeId },
+        });
+        const newPatientBillingType = await this.sequelize.models.ReferenceData.findOne({
+          where: { id: data.patientBillingTypeId },
+        });
+        if (!newPatientBillingType) {
+          throw new InvalidOperationError('Invalid patient billing type specified');
+        }
         addSystemNoteRow(
-          `Changed patient type from '${this.patientBillingTypeId}' to '${data.patientBillingTypeId}'`,
+          `Changed patient type from '${oldPatientBillingType?.name}' to '${newPatientBillingType.name}'`,
         );
       }
 
       const isReferralSourceChanged =
         data.referralSourceId && data.referralSourceId !== this.referralSourceId;
       if (isReferralSourceChanged) {
+        const oldReferralSource = await this.sequelize.models.ReferenceData.findOne({
+          where: { id: this.referralSourceId },
+        });
+        const newReferralSource = await this.sequelize.models.ReferenceData.findOne({
+          where: { id: data.referralSourceId },
+        });
+        if (!newReferralSource) {
+          throw new InvalidOperationError('Invalid referral source specified');
+        }
         addSystemNoteRow(
-          `Changed referral source from '${this.referralSourceId}' to '${data.referralSourceId}'`,
+          `Changed referral source from '${oldReferralSource?.name}' to '${newReferralSource.name}'`,
         );
       }
 
