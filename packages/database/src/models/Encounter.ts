@@ -562,7 +562,7 @@ export class Encounter extends Model {
     }
 
     addSystemNoteRow(
-      `Changed supervising clinician from ${oldClinician?.displayName} to ${newClinician.displayName}`,
+      `Changed supervising clinician from '${oldClinician?.displayName}' to '${newClinician.displayName}'`,
     );
   }
 
@@ -613,7 +613,7 @@ export class Encounter extends Model {
           const currentlyPlannedLocation = await Location.findOne({
             where: { id: this.plannedLocationId },
           });
-          addSystemNoteRow(`Cancelled planned move to ${currentlyPlannedLocation?.name}`);
+          addSystemNoteRow(`Cancelled planned move to '${currentlyPlannedLocation?.name}'`);
         }
         additionalChanges.plannedLocationStartTime = null;
       }
@@ -644,6 +644,35 @@ export class Encounter extends Model {
       if (isClinicianChanged) {
         changeTypes.push(EncounterChangeType.Examiner);
         await this.updateClinician(data.examinerId, addSystemNoteRow);
+      }
+
+      const isStartDateChanged = data.startDate && data.startDate !== this.startDate;
+      if (isStartDateChanged) {
+        addSystemNoteRow(`Changed start date from '${this.startDate}' to '${data.startDate}'`);
+      }
+
+      const isPatientBillingTypeChanged =
+        data.patientBillingTypeId && data.patientBillingTypeId !== this.patientBillingTypeId;
+      if (isPatientBillingTypeChanged) {
+        addSystemNoteRow(
+          `Changed patient type from '${this.patientBillingTypeId}' to '${data.patientBillingTypeId}'`,
+        );
+      }
+
+      const isReferralSourceChanged =
+        data.referralSourceId && data.referralSourceId !== this.referralSourceId;
+      if (isReferralSourceChanged) {
+        addSystemNoteRow(
+          `Changed referral source from '${this.referralSourceId}' to '${data.referralSourceId}'`,
+        );
+      }
+
+      const isReasonForEncounterChanged =
+        data.reasonForEncounter && data.reasonForEncounter !== this.reasonForEncounter;
+      if (isReasonForEncounterChanged) {
+        addSystemNoteRow(
+          `Changed reason for encounter from '${this.reasonForEncounter}' to '${data.reasonForEncounter}'`,
+        );
       }
 
       const { submittedTime, ...encounterData } = data;
