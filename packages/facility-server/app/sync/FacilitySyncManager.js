@@ -163,8 +163,8 @@ export class FacilitySyncManager {
       await this.pullChanges(sessionId);
       await this.centralServer.endSyncSession(sessionId);
     } catch (error) {
-      if (!(error instanceof Problem)) {
-        // if the error is not a Problem, it occurred locally on the facility-server and we should notify the central server
+      if (!(error instanceof Problem && error.response)) {
+        // if the error is not a Problem or doesn't have a response, it occurred locally on the facility-server and we should notify the central server
         await this.centralServer.markSessionErrored(sessionId, error.message);
       }
       throw error;
