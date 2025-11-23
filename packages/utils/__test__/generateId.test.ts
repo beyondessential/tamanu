@@ -74,22 +74,16 @@ describe('generateIdFromPattern', () => {
 });
 
 describe('isGeneratedDisplayIdFromPattern', () => {
-  it('should validate IDs generated from a simple pattern', () => {
-    const pattern = 'AA000';
-    const id = generateIdFromPattern(pattern);
-    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  it('should validate IDs that match a simple pattern', () => {
+    expect(isGeneratedDisplayIdFromPattern('AB123', 'AA000')).toBe(true);
   });
 
   it('should validate IDs with static bracketed characters', () => {
-    const pattern = '[B]000000';
-    const id = generateIdFromPattern(pattern);
-    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('B123456', '[B]000000')).toBe(true);
   });
 
   it('should validate IDs with mixed static, letters, and digits', () => {
-    const pattern = '[B]AA[A]000';
-    const id = generateIdFromPattern(pattern);
-    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('BXYA123', '[B]AA[A]000')).toBe(true);
   });
 
   it('should return false for IDs that do not match the pattern', () => {
@@ -98,10 +92,8 @@ describe('isGeneratedDisplayIdFromPattern', () => {
     expect(isGeneratedDisplayIdFromPattern('BAAA12X', pattern)).toBe(false);
   });
 
-  it('should validate IDs generated from complex nested bracket patterns', () => {
-    const pattern = '[[[]00AA[B]';
-    const id = generateIdFromPattern(pattern);
-    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  it('should validate IDs from complex nested bracket patterns', () => {
+    expect(isGeneratedDisplayIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
   });
 
   it('should return false when complex nested bracket patterns do not match', () => {
