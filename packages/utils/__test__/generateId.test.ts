@@ -83,15 +83,15 @@ describe('isGeneratedDisplayIdFromPattern', () => {
     expect(isGeneratedDisplayIdFromPattern('TBA4502G5', 'AA[A45]00A[5]')).toBe(true);
   });
 
+  it('should validate IDs from complex nested bracket patterns', () => {
+    expect(isGeneratedDisplayIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('[C]-25LDB', '[[C]-]00AA[B]')).toBe(true);
+  });
+
   it('should return false for IDs that do not match the pattern', () => {
     const pattern = '[B]AA[A]000';
     expect(isGeneratedDisplayIdFromPattern('C123456', pattern)).toBe(false);
     expect(isGeneratedDisplayIdFromPattern('BAAA12X', pattern)).toBe(false);
-  });
-
-  it('should validate IDs from complex nested bracket patterns', () => {
-    expect(isGeneratedDisplayIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
-    expect(isGeneratedDisplayIdFromPattern('[C]-25LDB', '[[C]-]00AA[B]')).toBe(true);
   });
 
   it('should return false when complex nested bracket patterns do not match', () => {
