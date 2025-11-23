@@ -64,7 +64,7 @@ export const ProcedureAdditionalData = ({
   setSelectedSurveyId,
   onSuccess,
   surveyFormDirty,
-  onSurveyFormDirtyChange,
+  setSurveyFormDirty,
 }) => {
   const api = useApi();
   const { currentUser, facilityId } = useAuth();
@@ -160,7 +160,7 @@ export const ProcedureAdditionalData = ({
               patientAdditionalData={patientAdditionalData}
               currentUser={currentUser}
               showCancelButton
-              onFormDirtyChange={onSurveyFormDirtyChange}
+              setSurveyFormDirty={setSurveyFormDirty}
             />
           </SurveyBox>
         )}
@@ -177,7 +177,7 @@ export const ProcedureAdditionalData = ({
           // If there's a pending survey selection, apply it; otherwise clear the current selection
           setSelectedSurveyId(pendingSelectedSurveyId);
           setPendingSelectedSurveyId(null);
-          onSurveyFormDirtyChange?.(false);
+          setSurveyFormDirty(false);
         }}
       />
     </>
