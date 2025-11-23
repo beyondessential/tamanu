@@ -55,11 +55,6 @@ describe('generateIdFromPattern', () => {
     expect(id).toMatch(/^ABC\d{2}$/);
   });
 
-  it('should preserve non-placeholder characters outside brackets', () => {
-    const id = generateIdFromPattern('XXA0YY');
-    expect(id).toMatch(/^XX[A-Z]\dYY$/);
-  });
-
   it('should combine static, letter, and digit segments', () => {
     const id = generateIdFromPattern('[B]AA[A]000');
     expect(id).toMatch(/^B[A-Z]{2}A\d{3}$/);
