@@ -688,11 +688,7 @@ export class Encounter extends Model {
       }
 
       if (systemNoteRows.length > 0) {
-        const formattedSystemNote =
-          systemNoteRows.length > 1
-            ? systemNoteRows.map(row => `• ${row}`).join('\n')
-            : (systemNoteRows[0] ?? '');
-
+        const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
         await this.addSystemNote(
           formattedSystemNote,
           submittedTime || getCurrentDateTimeString(),
