@@ -71,6 +71,7 @@ describe('generateIdFromPattern', () => {
 describe('isGeneratedDisplayIdFromPattern', () => {
   it('should validate IDs that match a simple pattern', () => {
     expect(isGeneratedDisplayIdFromPattern('AB123', 'AA000')).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('HXI9252', 'AAA0000')).toBe(true);
   });
 
   it('should validate IDs with static bracketed characters', () => {
