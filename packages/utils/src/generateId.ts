@@ -27,6 +27,20 @@ export const isGeneratedDisplayId = (displayId: string) => {
  */
 const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
 
+const tokenAsRegex = (token: string) => {
+  if (token.startsWith('[') && token.endsWith(']')) {
+    return token.slice(1, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  if (token === 'A') {
+    return '[A-Z]';
+  }
+  if (token === '0') {
+    return '[0-9]';
+  }
+  throw new Error(`Invalid token: ${token}`);
+};
+
+
 /**
  * Generates an ID from a pattern.
  * A will be replaced with a random letter and 0 will be replaced with a random number.
@@ -47,23 +61,16 @@ export const generateIdFromPattern = (pattern: string) => {
   });
 };
 
-const escapeForRegex = (value: string) => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-};
-
-const tokenAsRegex = (token: string) => {
-  if (token.startsWith('[') && token.endsWith(']')) {
-    return escapeForRegex(token.slice(1, -1));
-  }
-  if (token === 'A') {
-    return '[A-Z]';
-  }
-  if (token === '0') {
-    return '[0-9]';
-  }
-  throw new Error(`Invalid token: ${token}`);
-};
-
+/**
+ * 
+ * @param displayId - The display ID to validate.
+ * @param pattern - The pattern to use for validating the display ID.
+ * @returns True if the display ID matches the pattern, false otherwise.
+ * @example
+ * isGeneratedDisplayIdFromPattern('GHIJ675432', 'AAAA000000') // true
+ * isGeneratedDisplayIdFromPattern('BCHIJA125', '[BC]AA[A]000') // true
+ * isGeneratedDisplayIdFromPattern('B350031', '[B]AA[A]000') // false
+ */
 export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
   const patternTokens = pattern.match(PATTERN_TOKEN_REGEX);
   if (!patternTokens) return false;
