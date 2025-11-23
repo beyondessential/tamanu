@@ -46,6 +46,7 @@ const diagnoseProblem = (err: AxiosError, isLogin: boolean): Error => {
     return new AuthenticationError(invalidDeviceMessage);
   }
 
+  // Auth login errors are handled down the line as we need to access data from the problem object
   if (problem.type.startsWith(ERROR_TYPE.AUTH) && !isLogin) {
     return new AuthenticationError(invalidTokenMessage);
   }
