@@ -8,7 +8,6 @@ import { ENCOUNTER_TYPES, NOTE_TYPES } from '@tamanu/constants';
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 export const triage = express.Router();
 
