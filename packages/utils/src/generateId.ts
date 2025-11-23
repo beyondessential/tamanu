@@ -29,6 +29,7 @@ const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
 
 const tokenAsRegex = (token: string) => {
   if (token.startsWith('[') && token.endsWith(']')) {
+    // Escape special characters in the token to use in a regex
     return token.slice(1, -1).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
   if (token === 'A') {
