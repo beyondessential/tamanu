@@ -89,6 +89,7 @@ describe('isGeneratedDisplayIdFromPattern', () => {
 
   it('should validate IDs from complex nested bracket patterns', () => {
     expect(isGeneratedDisplayIdFromPattern('[[25LDB', '[[[]00AA[B]')).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('[C]-25LDB', '[[C]-]00AA[B]')).toBe(true);
   });
 
   it('should return false when complex nested bracket patterns do not match', () => {
