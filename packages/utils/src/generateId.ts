@@ -59,7 +59,7 @@ const tokenAsRegex = (token: string) => {
   if (token === '0') {
     return '[0-9]';
   }
-  return '';
+  throw new Error(`Invalid token: ${token}`);
 };
 
 export const isGeneratedDisplayIdFromPattern = (displayId: string, pattern: string) => {
