@@ -7,6 +7,7 @@ import {
   TextButton,
   TranslatedEnum,
 } from '../../../components';
+import { differenceInMinutes, formatDuration, intervalToDuration, parseISO } from 'date-fns';
 import { getFullLocationName } from '../../../utils/location';
 import {
   EncounterInfoCard as InfoCard,
@@ -34,17 +35,6 @@ import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
-
-const CardLabel = styled.span`
-  margin-right: 5px;
-  font-weight: 400;
-  color: ${props => props.theme.palette.text.secondary};
-`;
-
-const CardValue = styled(CardLabel)`
-  font-weight: 500;
-  color: ${props => props.theme.palette.text.primary};
-`;
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -155,6 +145,44 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
   );
 };
 
+export const getEncounterType = ({ encounterType }) => (
+  <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+);
+
+const LengthOfStayText = styled.span`
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.darkestText};
+`;
+
+const LengthOfStayDisplay = ({ startDate, endDate }) => {
+  const parsedEndDate = endDate ? parseISO(endDate) : new Date();
+  const parsedStartDate = parseISO(startDate);
+
+  const duration = intervalToDuration({ start: parsedStartDate, end: parsedEndDate });
+  const totalMinutes = differenceInMinutes(parsedEndDate, parsedStartDate);
+
+  let formattedDuration;
+  if (totalMinutes === 0) {
+    formattedDuration = formatDuration(duration, { format: ['seconds'] });
+  } else if (totalMinutes < 60) {
+    formattedDuration = formatDuration(duration, { format: ['minutes'] });
+  } else if (totalMinutes < 1440) {
+    formattedDuration = formatDuration(duration, { format: ['hours'] });
+  } else {
+    formattedDuration = formatDuration(duration, { format: ['days'] });
+  }
+
+  if (!formattedDuration) return null;
+
+  return (
+    <LengthOfStayText>
+      (<TranslatedText stringId="encounter.summary.lengthOfStay.label" fallback="LOS" />
+      {' - '}
+      {formattedDuration})
+    </LengthOfStayText>
+  );
+};
+
 export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBillingType }) => {
   const [isEstimatedDischargeModalOpen, setIsEstimatedDischargeModalOpen] = useState(false);
 
@@ -253,22 +281,9 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
           }
           value={
             <>
-              <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
-              {encounter.endDate && (
-                <>
-                  <CardLabel data-testid="cardlabel-veb6">
-                    {' – '}
-                    <TranslatedText
-                      stringId="encounter.summary.dischargeDate.label"
-                      fallback="Discharge date"
-                      data-testid="translatedtext-btml"
-                    />
-                    {':'}
-                  </CardLabel>
-                  <CardValue data-testid="cardvalue-v72z">
-                    {DateDisplay.stringFormat(encounter.endDate)}
-                  </CardValue>
-                </>
+              <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
+              {isInpatient(encounter?.encounterType) && (
+                <LengthOfStayDisplay startDate={encounter.startDate} endDate={encounter.endDate} />
               )}
             </>
           }
