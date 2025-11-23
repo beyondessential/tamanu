@@ -63,7 +63,6 @@ describe('generateIdFromPattern', () => {
   it('should handle complex nested bracket and token patterns', () => {
     const pattern = '[[[]00AA[B]';
     const id = generateIdFromPattern(pattern);
-    // Example: '[[25LDB'
     expect(id).toMatch(/^\[{2}\d{2}[A-Z]{2}B$/);
   });
 });
@@ -76,6 +75,7 @@ describe('isGeneratedDisplayIdFromPattern', () => {
 
   it('should validate IDs with static bracketed characters', () => {
     expect(isGeneratedDisplayIdFromPattern('B123456', '[B]000000')).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('AB463', '[AB]000')).toBe(true);
   });
 
   it('should validate IDs with mixed static, letters, and digits', () => {
