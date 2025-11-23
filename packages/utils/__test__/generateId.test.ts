@@ -80,6 +80,7 @@ describe('isGeneratedDisplayIdFromPattern', () => {
 
   it('should validate IDs with mixed static, letters, and digits', () => {
     expect(isGeneratedDisplayIdFromPattern('BXYA123', '[B]AA[A]000')).toBe(true);
+    expect(isGeneratedDisplayIdFromPattern('TBA4502G5', 'AA[A45]00A[5]')).toBe(true);
   });
 
   it('should return false for IDs that do not match the pattern', () => {
