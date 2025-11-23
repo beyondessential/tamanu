@@ -20,7 +20,7 @@ import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
-import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -58,7 +58,7 @@ const PrintButton = styled(Button)`
   right: 70px;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateTimeString() });
+const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
 export const InvoiceForm = ({ invoice, isPatientView }) => {
   const { ability } = useAuth();
