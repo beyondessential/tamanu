@@ -64,6 +64,13 @@ describe('generateIdFromPattern', () => {
     const id = generateIdFromPattern('[B]AA[A]000');
     expect(id).toMatch(/^B[A-Z]{2}A\d{3}$/);
   });
+
+  it('should handle complex nested bracket and token patterns', () => {
+    const pattern = '[[[]00AA[B]';
+    const id = generateIdFromPattern(pattern);
+    // Example: '[[25LDB'
+    expect(id).toMatch(/^\[{2}\d{2}[A-Z]{2}B$/);
+  });
 });
 
 describe('isGeneratedDisplayIdFromPattern', () => {
@@ -89,5 +96,17 @@ describe('isGeneratedDisplayIdFromPattern', () => {
     const pattern = '[B]AA[A]000';
     expect(isGeneratedDisplayIdFromPattern('C123456', pattern)).toBe(false);
     expect(isGeneratedDisplayIdFromPattern('BAAA123', pattern)).toBe(false);
+  });
+
+  it('should validate IDs generated from complex nested bracket patterns', () => {
+    const pattern = '[[[]00AA[B]';
+    const id = generateIdFromPattern(pattern);
+    expect(isGeneratedDisplayIdFromPattern(id, pattern)).toBe(true);
+  });
+
+  it('should return false when complex nested bracket patterns do not match', () => {
+    const pattern = '[[[]00AA[B]';
+    expect(isGeneratedDisplayIdFromPattern('[[12ABX', pattern)).toBe(false);
+    expect(isGeneratedDisplayIdFromPattern('[[AB12B', pattern)).toBe(false);
   });
 });

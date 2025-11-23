@@ -39,9 +39,11 @@ const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
  * generateIdFromPattern('[B]AA[A]000') // 'BGHA675'
  */
 export const generateIdFromPattern = (pattern: string) => {
-  return pattern.replace(PATTERN_TOKEN_REGEX, (match, staticValue) => {
-    if (staticValue !== undefined) return staticValue;
-    return generators[match]?.() || '';
+  return pattern.replace(PATTERN_TOKEN_REGEX, token => {
+    if (token.startsWith('[') && token.endsWith(']')) {
+      return token.slice(1, -1);
+    }
+    return generators[token]?.() || '';
   });
 };
 
