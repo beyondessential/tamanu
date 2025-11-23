@@ -662,7 +662,7 @@ export class Encounter extends Model {
         const formattedSystemNote =
           systemNoteRows.length > 1
             ? systemNoteRows.map(row => `• ${row}`).join('\n')
-            : (systemNoteRows[0] ?? '');
+            : systemNoteRows[0]!;
 
         await this.addSystemNote(
           formattedSystemNote,
