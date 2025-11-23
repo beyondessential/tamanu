@@ -1,8 +1,10 @@
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
+import { NotFoundError } from '@tamanu/errors';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getInsurancePlanItems } from '../invoice/getInsurancePlanItems';
+import Decimal from 'decimal.js';
+import { mapInsurancePlanItems } from '../invoice/mapInsurancePlanItems';
 
 export const patientInvoiceRoutes = express.Router();
 
@@ -25,19 +27,24 @@ async function hydrateInvoices(invoiceRecords, models) {
         include: Invoice.getFullReferenceAssociations(invoicePriceListId),
       });
 
+      if (!hydratedInvoiceRecord) {
+        throw new NotFoundError('Invoice not found');
+      }
+
       const invoice = hydratedInvoiceRecord.get({ plain: true });
-      const invoiceItemsResponse = invoice.items.map(getInsurancePlanItems(invoice.insurancePlans));
+      const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
       return { ...invoice, items: invoiceItemsResponse };
     }),
   );
 }
 
-// Shared function to calculate total balance from invoices
+// Calculate total balance from invoices
 function calculateTotalBalance(invoices) {
-  return invoices.reduce(
-    (acc, invoice) => acc + getInvoiceSummary(invoice).patientPaymentRemainingBalance,
-    0,
-  );
+  const balance = invoices.reduce((sum, invoice) => {
+    const invoiceAmount = new Decimal(getInvoiceSummary(invoice).patientPaymentRemainingBalance);
+    return sum.add(invoiceAmount);
+  }, new Decimal(0));
+  return balance.toNumber();
 }
 
 patientInvoiceRoutes.get(
