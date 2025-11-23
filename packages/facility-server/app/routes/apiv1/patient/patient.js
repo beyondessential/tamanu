@@ -15,7 +15,7 @@ import {
   ENCOUNTER_TYPES,
   DRUG_ROUTE_LABELS,
 } from '@tamanu/constants';
-import { isGeneratedDisplayId } from '@tamanu/utils/generateId';
+import { isGeneratedDisplayId, isGeneratedDisplayIdFromPattern } from '@tamanu/utils/generateId';
 
 import { renameObjectKeys } from '@tamanu/utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -93,6 +93,7 @@ patientRoute.put(
     const {
       db,
       models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      settings,
       params,
       body: { facilityId, ...body },
     } = req;
@@ -107,12 +108,16 @@ patientRoute.put(
 
     const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
 
+    const patientDisplayIdPattern = await settings.get('patientDisplayIdPattern');
+
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
       if (validatedBody.displayId && validatedBody.displayId !== patient.displayId) {
-        const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
-          ? 'secondaryIdType-tamanu-display-id'
-          : 'secondaryIdType-nhn';
+        const oldDisplayIdType =
+          isGeneratedDisplayId(patient.displayId) ||
+          isGeneratedDisplayIdFromPattern(patient.displayId, patientDisplayIdPattern)
+            ? 'secondaryIdType-tamanu-display-id'
+            : 'secondaryIdType-nhn';
         await PatientSecondaryId.create({
           value: patient.displayId,
           visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
