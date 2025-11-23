@@ -579,7 +579,7 @@ export class Encounter extends Model {
 
       const systemNoteRows: string[] = [];
       const addSystemNoteRow = (content: string) => {
-        systemNoteRows.push(`• ${content}`);
+        systemNoteRows.push(content);
       };
 
       if (data.endDate && !this.endDate) {
@@ -659,8 +659,13 @@ export class Encounter extends Model {
       }
 
       if (systemNoteRows.length > 0) {
+        const formattedSystemNote =
+          systemNoteRows.length > 1
+            ? systemNoteRows.map(row => `• ${row}`).join('\n')
+            : (systemNoteRows[0] ?? '');
+
         await this.addSystemNote(
-          systemNoteRows.join('\n'),
+          formattedSystemNote,
           submittedTime || getCurrentDateTimeString(),
           user,
         );
