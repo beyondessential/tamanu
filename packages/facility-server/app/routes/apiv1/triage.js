@@ -86,7 +86,7 @@ triage.post(
 
     if (!department) {
       throw new InvalidOperationError(
-        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
+        `Couldn’t record triage score as system note; no department found with with ID ‘${encounter.departmentId}’`,
       );
     }
 
