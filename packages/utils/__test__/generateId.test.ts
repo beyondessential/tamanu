@@ -95,7 +95,7 @@ describe('isGeneratedDisplayIdFromPattern', () => {
   it('should return false for IDs that do not match the pattern', () => {
     const pattern = '[B]AA[A]000';
     expect(isGeneratedDisplayIdFromPattern('C123456', pattern)).toBe(false);
-    expect(isGeneratedDisplayIdFromPattern('BAAA123', pattern)).toBe(false);
+    expect(isGeneratedDisplayIdFromPattern('BAAA12X', pattern)).toBe(false);
   });
 
   it('should validate IDs generated from complex nested bracket patterns', () => {
