@@ -108,7 +108,7 @@ patientRoute.put(
 
     const validatedBody = validate(updatePatientSchema, { ...body, facilityId });
 
-    const patientDisplayIdPattern = await settings.get('patientDisplayIdPattern');
+    const patientDisplayIdPattern = await settings[facilityId].get('patientDisplayIdPattern');
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
