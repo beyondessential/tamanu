@@ -458,7 +458,7 @@ export class Encounter extends Model {
     }
 
     addSystemNoteRow(
-      `${contentPrefix} from ${Location.formatFullLocationName(oldLocation!)} to ${Location.formatFullLocationName(newLocation)}`,
+      `${contentPrefix} from ‘${Location.formatFullLocationName(oldLocation!)}’ to ‘${Location.formatFullLocationName(newLocation)}’`,
     );
   }
 
@@ -472,7 +472,7 @@ export class Encounter extends Model {
     if (!newDepartment) {
       throw new InvalidOperationError('Invalid department specified');
     }
-    addSystemNoteRow(`Changed department from ${oldDepartment?.name} to ${newDepartment.name}`);
+    addSystemNoteRow(`Changed department from ‘${oldDepartment?.name}’ to ‘${newDepartment.name}’`);
   }
 
   async addTriageScoreNote(
@@ -539,7 +539,7 @@ export class Encounter extends Model {
     submittedTime: string,
     addSystemNoteRow: (content: string) => void,
   ) {
-    addSystemNoteRow(`Changed type from ${this.encounterType} to ${newEncounterType}`);
+    addSystemNoteRow(`Changed type from ‘${this.encounterType}’ to ‘${newEncounterType}’`);
     await this.closeTriage(submittedTime);
   }
 
@@ -563,7 +563,7 @@ export class Encounter extends Model {
     }
 
     addSystemNoteRow(
-      `Changed supervising clinician from '${oldClinician?.displayName}' to '${newClinician.displayName}'`,
+      `Changed supervising clinician from ‘${oldClinician?.displayName}’ to ‘${newClinician.displayName}’`,
     );
   }
 
@@ -614,7 +614,7 @@ export class Encounter extends Model {
           const currentlyPlannedLocation = await Location.findOne({
             where: { id: this.plannedLocationId },
           });
-          addSystemNoteRow(`Cancelled planned move to '${currentlyPlannedLocation?.name}'`);
+          addSystemNoteRow(`Cancelled planned move to ‘${currentlyPlannedLocation?.name}’`);
         }
         additionalChanges.plannedLocationStartTime = null;
       }
@@ -649,7 +649,7 @@ export class Encounter extends Model {
 
       const isStartDateChanged = data.startDate && data.startDate !== this.startDate;
       if (isStartDateChanged) {
-        addSystemNoteRow(`Changed start date from '${this.startDate}' to '${data.startDate}'`);
+        addSystemNoteRow(`Changed start date from ‘${this.startDate}’ to ‘${data.startDate}’`);
       }
 
       const isPatientBillingTypeChanged =
@@ -665,7 +665,7 @@ export class Encounter extends Model {
           throw new InvalidOperationError('Invalid patient billing type specified');
         }
         addSystemNoteRow(
-          `Changed patient type from '${oldPatientBillingType?.name}' to '${newPatientBillingType.name}'`,
+          `Changed patient type from ‘${oldPatientBillingType?.name}’ to ‘${newPatientBillingType.name}’`,
         );
       }
 
@@ -682,7 +682,7 @@ export class Encounter extends Model {
           throw new InvalidOperationError('Invalid referral source specified');
         }
         addSystemNoteRow(
-          `Changed referral source from '${oldReferralSource?.name}' to '${newReferralSource.name}'`,
+          `Changed referral source from ‘${oldReferralSource?.name}’ to ‘${newReferralSource.name}’`,
         );
       }
 
@@ -690,7 +690,7 @@ export class Encounter extends Model {
         data.reasonForEncounter && data.reasonForEncounter !== this.reasonForEncounter;
       if (isReasonForEncounterChanged) {
         addSystemNoteRow(
-          `Changed reason for encounter from '${this.reasonForEncounter}' to '${data.reasonForEncounter}'`,
+          `Changed reason for encounter from ‘${this.reasonForEncounter}’ to ‘${data.reasonForEncounter}’`,
         );
       }
 
