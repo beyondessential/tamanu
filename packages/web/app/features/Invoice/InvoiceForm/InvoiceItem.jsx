@@ -88,16 +88,6 @@ export const InvoiceItemRow = ({
 
   const handleChangeProduct = e => {
     const value = e.target;
-    // Build a lightweight product object to keep price list details in form state
-    const nextProduct = {
-      name: value.productName,
-      code: value.code,
-      discountable: value.discountable,
-    };
-    if (value.invoicePriceListItem) {
-      nextProduct.invoicePriceListItem = value.invoicePriceListItem;
-    }
-
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
@@ -105,7 +95,11 @@ export const InvoiceItemRow = ({
       productCode: value.code,
       productDiscountable: value.discountable,
       // Store nested product details so downstream logic can read price list info
-      product: nextProduct,
+      product: {
+        name: value.productName,
+        code: value.code,
+        discountable: value.discountable,
+      },
     });
   };
 
