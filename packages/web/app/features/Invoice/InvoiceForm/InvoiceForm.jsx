@@ -13,6 +13,7 @@ import { useUpdateInvoice } from '../../../api/mutations/useInvoiceMutation';
 import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
+import { INVOICE_STATUSES } from '@tamanu/constants';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -138,7 +139,9 @@ export const InvoiceForm = ({ invoice }) => {
                       </SubmitButton>
                     </ButtonRow>
                   )}
-                  <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                  {invoice?.status === INVOICE_STATUSES.IN_PROGRESS && (
+                    <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
+                  )}
                 </>
               );
             }}

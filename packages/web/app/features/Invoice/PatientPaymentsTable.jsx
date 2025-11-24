@@ -1,19 +1,19 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import Decimal from 'decimal';
+import Decimal from 'decimal.js';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../../components/Translation';
-import { Table } from '../../../components/Table';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
-import { Heading4 } from '../../../components/Typography';
-import { DateDisplay } from '../../../components/DateDisplay';
-import { useAuth } from '../../../contexts/Auth';
-import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
-import { PencilIcon } from '../../../assets/icons/PencilIcon';
-import useOverflow from '../../../hooks/useOverflow';
-import { ThemedTooltip } from '../../../components/Tooltip';
+import { TranslatedText } from '../../components/Translation';
+import { Table } from '../../components/Table';
+import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+import { Heading4 } from '../../components/Typography';
+import { DateDisplay } from '../../components/DateDisplay';
+import { useAuth } from '../../contexts/Auth';
+import { PatientPaymentForm } from '../../forms/PatientPaymentForm';
+import { PencilIcon } from '../../assets/icons/PencilIcon';
+import useOverflow from '../../hooks/useOverflow';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const TableContainer = styled.div`
   padding-left: 16px;

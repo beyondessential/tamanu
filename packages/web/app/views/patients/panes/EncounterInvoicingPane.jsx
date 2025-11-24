@@ -7,7 +7,14 @@ import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
-import { InvoiceModalGroup, InvoiceStatus, InvoiceForm } from '../../../features/Invoice';
+import {
+  InvoiceModalGroup,
+  InvoiceStatus,
+  InvoiceForm,
+  InvoiceSummaryPanel,
+  PatientPaymentsTable,
+  InsurerPaymentsTable,
+} from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
 import { TabPane } from '../components';
@@ -68,6 +75,12 @@ const PrintButton = styled(OutlinedButton)`
   .MuiButton-startIcon {
     margin-right: 0;
   }
+`;
+
+const PaymentsSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 8px;
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {
@@ -180,6 +193,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             )}
           </InvoiceTopBar>
           <InvoiceForm invoice={invoice} isPatientView={false} />
+          {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
+            <PaymentsSection>
+              <PatientPaymentsTable invoice={invoice} />
+              <InvoiceSummaryPanel invoiceItems={invoice?.items} />
+              <InsurerPaymentsTable invoice={invoice} />
+            </PaymentsSection>
+          )}
         </InvoiceContainer>
       </TabPane>
       {openInvoiceModal && (

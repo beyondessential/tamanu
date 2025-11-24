@@ -7,6 +7,7 @@ import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
 
 const Container = styled.div`
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: 10px;

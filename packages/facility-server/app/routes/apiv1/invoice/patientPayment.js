@@ -38,6 +38,7 @@ async function getInvoiceWithDetails(req, invoiceId) {
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   req.checkPermission('create', 'InvoicePayment');
 
+  console.log('InvoicePayment');
   const invoiceId = req.params.invoiceId;
 
   const invoice = await getInvoiceWithDetails(req, invoiceId);
@@ -47,6 +48,8 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
     throw new ForbiddenError('Invoice is not finalised');
 
   const { data, error } = await createPatientPaymentSchema.safeParseAsync(req.body);
+  console.log('error', error);
+  console.log('data', data);
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
@@ -56,6 +59,7 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   const transaction = await req.db.transaction();
 
   try {
+    console.log('createPatientPayment transaction', req.user?.id);
     const payment = await req.models.InvoicePayment.create(
       {
         invoiceId,
