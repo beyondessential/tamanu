@@ -70,7 +70,7 @@ export const UnSavedProcedureProgramModal = ({ open, onCancel, onConfirm }) => (
       <p>
         <TranslatedText
           stringId="procedure.modal.unsavedAdditionalData.content"
-          fallback="Additional data has not been saved. Are you sure you would like save the procedure without submitting the additional data? Any additional data entered will be lost."
+          fallback="Additional data has not been saved. Are you sure you would like to save the procedure without submitting the additional data? Any additional data entered will be lost."
         />
       </p>
     }
