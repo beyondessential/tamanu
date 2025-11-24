@@ -109,10 +109,6 @@ export const InvoiceItemRow = ({
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const priceListPrice = item.product?.invoicePriceListItem?.price;
   const hasKnownPrice = Boolean(priceListPrice);
-  const hidePriceInput =
-    (priceListPrice !== null && priceListPrice !== undefined) ||
-    !editable ||
-    fetchedPriceData?.price;
 
   // Todo: Also need to lookup the insurance plan for the product
   const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
@@ -139,6 +135,11 @@ export const InvoiceItemRow = ({
       });
     },
   });
+
+  const hidePriceInput =
+    (priceListPrice !== null && priceListPrice !== undefined) ||
+    !editable ||
+    fetchedPriceData?.price;
 
   return (
     <StyledItemRow>
