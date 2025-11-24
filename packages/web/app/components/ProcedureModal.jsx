@@ -148,7 +148,7 @@ export const ProcedureModal = ({
         const isNewProcedure =
           editedProcedure && editedProcedure.id && Object.keys(editedProcedure).length > 1;
 
-        const showCancelAndSaveButtons = !procedureId || dirty || surveyFormDirty;
+        const showCancelAndSaveButtons = !procedureId || dirty;
 
         return (
           <>
@@ -235,7 +235,7 @@ export const ProcedureModal = ({
                 </>
               )}
               <ButtonRow>
-                {showCancelAndSaveButtons ? (
+                { !procedureId || dirty ? (
                   <FormCancelButton onClick={handleCancel}>
                     <TranslatedText stringId="general.action.cancel" fallback="Cancel" />
                   </FormCancelButton>
@@ -244,7 +244,7 @@ export const ProcedureModal = ({
                     <TranslatedText stringId="general.action.close" fallback="Close" />
                   </FormCancelButton>
                 )}
-                {showCancelAndSaveButtons ? (
+                { !procedureId || dirty ? (
                   <FormSubmitButton onSubmit={submitForm}>
                     <TranslatedText
                       stringId="procedure.form.action.submit"
