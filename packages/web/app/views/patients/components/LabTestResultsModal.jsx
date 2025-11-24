@@ -303,7 +303,7 @@ const ResultsForm = ({
       <Box margin="20px 30px">
       <Field component={TextField} 
         multiline
-        rows={4}
+        rows={6}
         name="resultsInterpretation"
           label="Results Interpretation"
           data-testid="field-resultsinterpretation"
