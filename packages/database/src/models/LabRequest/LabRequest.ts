@@ -1,22 +1,28 @@
 import { DataTypes } from 'sequelize';
-import { LAB_REQUEST_STATUSES, NOTIFICATION_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { dateTimeType, type InitOptions, type ModelProperties, type Models } from '../types/model';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import {
+  dateTimeType,
+  type InitOptions,
+  type ModelProperties,
+  type Models,
+} from '../../types/model';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import { generateDisplayId } from '@tamanu/utils/generateDisplayId';
-import type { SessionConfig } from '../types/sync';
-import type { LabTest } from './LabTest';
-import type { ReferenceData } from './ReferenceData';
-import type { Encounter } from './Encounter';
-import type { User } from './User';
-import type { Note } from './Note';
-import type { LabTestPanelRequest } from './LabTestPanelRequest';
+import type { SessionConfig } from '../../types/sync';
+import type { LabTest } from '../LabTest';
+import type { ReferenceData } from '../ReferenceData';
+import type { Encounter } from '../Encounter';
+import type { User } from '../User';
+import type { Note } from '../Note';
+import type { LabTestPanelRequest } from '../LabTestPanelRequest';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
+import { afterCreateHook, afterDestroyHook, afterUpdateHook } from './hooks';
 
 interface LabRequestData {
   labTestTypeIds?: string[];
@@ -54,7 +60,7 @@ export class LabRequest extends Model {
   declare notes: Note[];
   declare labTestPanelRequest?: LabTestPanelRequest;
 
-  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -103,37 +109,9 @@ export class LabRequest extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
-          afterUpdate: async (labRequest: LabRequest, options) => {
-            const shouldPushNotification = [
-              LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-              LAB_REQUEST_STATUSES.PUBLISHED,
-              LAB_REQUEST_STATUSES.INVALIDATED,
-            ].includes(labRequest.status);
-
-            if (shouldPushNotification && labRequest.status !== labRequest.previous('status')) {
-              await models.Notification.pushNotification(
-                NOTIFICATION_TYPES.LAB_REQUEST,
-                labRequest.dataValues,
-                { transaction: options.transaction },
-              );
-            }
-
-            const shouldDeleteNotification = [
-              LAB_REQUEST_STATUSES.DELETED,
-              LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
-            ].includes(labRequest.status);
-
-            if (shouldDeleteNotification && labRequest.status !== labRequest.previous('status')) {
-              await models.Notification.destroy({
-                where: {
-                  metadata: {
-                    id: labRequest.id,
-                  },
-                },
-                transaction: options.transaction,
-              });
-            }
-          },
+          afterUpdate: afterUpdateHook,
+          afterCreate: afterCreateHook,
+          afterDestroy: afterDestroyHook,
         },
       },
     );
