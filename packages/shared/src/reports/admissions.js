@@ -125,39 +125,20 @@ const getPlaceHistoryFromNotes = (models, changeNotes, encounterData, placeType)
   }
 
   const matcher = patternsForPlaceTypes[placeType];
-
-  // Extract all matches from multi-line notes
-  const extractMatches = content => {
-    const matches = [];
-    const lines = content.split('\n');
-    for (const line of lines) {
-      const match = line.match(matcher);
-      if (match && match.groups) {
-        matches.push(match.groups);
-      }
-    }
-    return matches;
-  };
-
-  // Get the first "from" value from the earliest note
-  const firstMatches = extractMatches(relevantNotes[0].content);
-  const firstFrom = firstMatches.length > 0 ? firstMatches[0].from : null;
-
-  if (!firstFrom) {
-    // Fallback if regex doesn't match
-    const { [placeType]: place, startDate } = encounterData;
-    const placeName = models.Location.formatFullLocationName(place);
-    return [{ to: placeName, date: startDate }];
-  }
+  const {
+    groups: { from },
+  } = relevantNotes[0].content.match(matcher);
 
   const history = [
     {
-      to: firstFrom,
+      to: from,
       date: encounterData.startDate,
     },
-    ...relevantNotes.flatMap(({ content, date }) => {
-      const matches = extractMatches(content);
-      return matches.map(({ to }) => ({ to, date }));
+    ...relevantNotes.map(({ content, date }) => {
+      const {
+        groups: { to },
+      } = content.match(matcher);
+      return { to, date };
     }),
   ];
 
