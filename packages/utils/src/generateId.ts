@@ -5,13 +5,7 @@ const generators: Record<string, () => string> = {
   '0': () => Math.floor(Math.random() * 10).toFixed(0),
 };
 
-const createIdGenerator = (format: string) => {
-  const generatorPattern = Array.from(format).map(char => generators[char] || (() => ''));
-
-  return () => generatorPattern.map(generator => generator()).join('');
-};
 const DISPLAY_ID_FORMAT = 'AAAA000000';
-export const generateId = createIdGenerator(DISPLAY_ID_FORMAT);
 
 // Checks if the passed displayId was generated using generateId function above
 // with the specific 10 digit format DISPLAY_ID_FORMAT. It will need to be reevaluated
@@ -53,14 +47,15 @@ const tokenAsRegex = (token: string) => {
  * generateIdFromPattern('[B]000000') // 'B675432'
  * generateIdFromPattern('[B]AA[A]000') // 'BGHA675'
  */
-export const generateIdFromPattern = (pattern: string) => {
-  return pattern.replace(PATTERN_TOKEN_REGEX, token => {
+export const generateIdFromPattern = (pattern: string) =>
+  pattern.replace(PATTERN_TOKEN_REGEX, token => {
     if (token.startsWith('[') && token.endsWith(']')) {
       return token.slice(1, -1);
     }
-    return generators[token]?.() || '';
+    return generators[token]?.() ?? '';
   });
-};
+
+export const generateId = () => generateIdFromPattern(DISPLAY_ID_FORMAT);
 
 /**
  * Validates if a display ID matches a given pattern.

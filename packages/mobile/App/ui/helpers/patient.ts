@@ -40,15 +40,17 @@ const generators = {
   0: (): string => Math.floor(Math.random() * 10).toFixed(0),
 };
 
-function createIdGenerator(format): () => {} {
-  const generatorPattern = Array.from(format).map(
-    (char: string) => generators[char] || ((): string => ''),
-  );
+const PATTERN_TOKEN_REGEX = /(\[.+?\])(?=\[|[A0]|$)|[A0]/g;
 
-  return (): string => generatorPattern.map(generator => generator()).join('');
-}
+export const generateIdFromPattern = (pattern: string): string =>
+  pattern.replace(PATTERN_TOKEN_REGEX, token => {
+    if (token.startsWith('[') && token.endsWith(']')) {
+      return token.slice(1, -1);
+    }
+    return generators[token as keyof typeof generators]?.() ?? '';
+  });
 
-export const generateId = createIdGenerator('AAAA000000');
+export const generateId = (): string => generateIdFromPattern('AAAA000000');
 
 export const getFieldData = (data: IPatientAdditionalData, fieldName: string): string => {
   // Field is reference data

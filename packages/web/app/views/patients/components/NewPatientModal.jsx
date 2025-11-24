@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
-import { generateIdFromPattern } from '@tamanu/utils/generateId';
+import { generateId, generateIdFromPattern } from '@tamanu/utils/generateId';
 
 import { FormModal } from '../../../components';
 import { NewPatientForm } from '../../../forms';
@@ -17,7 +17,7 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
   const { getSetting } = useSettings();
   const { facilityId } = useAuth();
   const patientDisplayIdPattern = getSetting('patientDisplayIdPattern');
-  
+
   const [cancelNewPatientModalOpen, setCancelNewPatientModalOpen] = useState(false);
   const [duplicateWarningModalOpen, setDuplicateWarningModalOpen] = useState(false);
   const [duplicateWarningModalData, setDuplicateWarningModalData] = useState({
@@ -76,7 +76,11 @@ export const NewPatientModal = ({ open, onCancel, onCreateNewPatient, ...formPro
         data-testid="formmodal-jc02"
       >
         <NewPatientForm
-          generateId={() => generateIdFromPattern(patientDisplayIdPattern)}
+          generateId={() =>
+            patientDisplayIdPattern
+              ? generateIdFromPattern(patientDisplayIdPattern)
+              : generateId()
+          }
           onCancel={() => setCancelNewPatientModalOpen(true)}
           onSubmit={onSubmit}
           {...formProps}
