@@ -566,8 +566,8 @@ export class Encounter extends Model {
           if (model) {
             const oldRecord = await model.findByPk(this[key], { raw: true });
             const newRecord = await model.findByPk(data[key], { raw: true });
-            oldValue = oldRecord.name;
-            newValue = newRecord.name;
+            oldValue = oldRecord.name ?? '-';
+            newValue = newRecord.name ?? '-';
           } else {
             oldValue = this[key];
             newValue = data[key];
