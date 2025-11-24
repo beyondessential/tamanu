@@ -243,7 +243,7 @@ const ResultsForm = ({
   const { count, data } = labTestResults;
   /**
    * On entering lab result field for a test some other fields are auto-filled optimistically
-   * This occurs in the case that:
+   * In the case of labTestMethod this occurs in the case that:
    * 1. The user has only entered a single unique value for this field across other rows
    * 2. The user has not already entered a value for this field in the current row
    */
@@ -263,7 +263,7 @@ const ResultsForm = ({
         const fieldName = `${labTestId}.${name}`;
         if (name === LAB_TEST_PROPERTIES.COMPLETED_DATE) {
           setFieldValue(fieldName, getCurrentDateTimeString());
-        } else if (uniqueValues.length > 0) {
+        } else if (uniqueValues.length === 1) {
           setFieldValue(fieldName, uniqueValues[0]);
         }
       });
