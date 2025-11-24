@@ -556,9 +556,6 @@ export class Encounter extends Model {
             const newRecord = await model.findByPk(data[key], { raw: true });
             oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
             newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
-          } else if (isDateTime) {
-            oldValue = this[key] ? format(this[key], 'MM/dd/yyyy h:mma') : '-';
-            newValue = data[key] ? format(data[key], 'MM/dd/yyyy h:mma') : '-';
           } else {
             oldValue = this[key];
             newValue = data[key];
@@ -640,7 +637,6 @@ export class Encounter extends Model {
       await recordColumnChange({
         key: 'startDate',
         noteLabel: 'start date',
-        isDateTime: true,
       });
 
       await recordColumnChange({
