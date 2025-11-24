@@ -30,7 +30,8 @@ export class migrateNoteTypesToReferenceData1761474536815 implements MigrationIn
         ON CONFLICT(id) DO UPDATE SET
           code = excluded.code,
           name = excluded.name,
-          visibilityStatus = 'current'
+          visibilityStatus = 'current',
+          updated_at_sync_tick = 1
         `,
         [noteType.id, noteType.code, noteType.name],
       );
