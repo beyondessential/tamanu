@@ -390,13 +390,8 @@ labRelations.put(
 
     const testIds = Object.keys(body);
 
-    const labTests = await models.LabTest.findAll({
-      where: {
-        labRequestId: id,
-        id: testIds,
-      },
-      include: ['labTestType'],
-    });
+    const labRequest = await models.LabRequest.findByPk(id);
+    const labTests = await labRequest.getTests();
 
     // Reject all updates if it includes sensitive tests and user lacks permission
     const areSensitiveTests = labTests.some((test) => test.labTestType.isSensitive);
@@ -421,6 +416,10 @@ labRelations.put(
 
     db.transaction(async () => {
       const promises = [];
+
+      await labRequest.update({
+        resultsInterpretation: body.resultsInterpretation,
+      });
 
       labTests.forEach((labTest) => {
         req.checkPermission('write', labTest);
