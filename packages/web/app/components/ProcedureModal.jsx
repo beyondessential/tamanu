@@ -137,8 +137,10 @@ export const ProcedureModal = ({
       }}
       render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
-          if (dirty || surveyFormDirty) {
+          if (dirty) {
             setUnSavedChangesModalOpen(true);
+          } else if (surveyFormDirty) {
+            setUnsavedProgramFormOpen(true);
           } else {
             onClose();
           }
