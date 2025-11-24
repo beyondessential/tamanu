@@ -27,6 +27,7 @@ import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterM
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { format } from 'date-fns';
 
 export class Encounter extends Model {
   declare id: string;
@@ -552,13 +553,15 @@ export class Encounter extends Model {
         labelKey = 'name',
         changeType,
         onChange,
+        isDateTime,
       }: {
         key: keyof Encounter;
         noteLabel: string;
-        model?: any; // TODO: type this
+        model?: typeof Model;
         labelKey?: string;
         changeType?: EncounterChangeType;
         onChange?: () => Promise<void>;
+        isDateTime?: boolean;
       }) => {
         const isChanged = data[key] && data[key] !== this[key];
         if (isChanged) {
@@ -568,8 +571,14 @@ export class Encounter extends Model {
           if (model) {
             const oldRecord = await model.findByPk(this[key], { raw: true });
             const newRecord = await model.findByPk(data[key], { raw: true });
-            oldValue = oldRecord[labelKey] ?? '-';
-            newValue = newRecord[labelKey] ?? '-';
+            if (!oldRecord || !newRecord) {
+              throw new InvalidOperationError('Record not found');
+            }
+            oldValue = oldRecord[labelKey as keyof typeof oldRecord] ?? '-';
+            newValue = newRecord[labelKey as keyof typeof newRecord] ?? '-';
+          } else if (isDateTime) {
+            oldValue = this[key] ? format(this[key], 'MM/dd/yyyy h:mma') : '-';
+            newValue = data[key] ? format(data[key], 'MM/dd/yyyy h:mma') : '-';
           } else {
             oldValue = this[key];
             newValue = data[key];
@@ -651,6 +660,7 @@ export class Encounter extends Model {
       await recordColumnChange({
         key: 'startDate',
         noteLabel: 'start date',
+        isDateTime: true,
       });
 
       await recordColumnChange({

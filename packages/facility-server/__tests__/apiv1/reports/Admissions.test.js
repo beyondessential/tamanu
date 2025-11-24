@@ -179,12 +179,20 @@ describe('Admissions report', () => {
         locationId: newLocation.id,
       });
 
+      const allNotes = await models.Note.findAll({
+        where: {
+          recordId: expectedEncounter.id,
+          noteType: 'system',
+        },
+      });
+      console.log(allNotes);
+
       const departmentChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
           content: {
-            [Op.like]: 'Changed department from%',
+            [Op.like]: '• Changed department from%',
           },
         },
       });
@@ -194,7 +202,7 @@ describe('Admissions report', () => {
           recordId: expectedEncounter.id,
           noteType: 'system',
           content: {
-            [Op.like]: 'Changed location from%',
+            [Op.like]: '• Changed location from%',
           },
         },
       });
