@@ -8,7 +8,7 @@
   "license": "GPL-3.0-and-later AND BUSL-1.1",
   "type": "module",
   "scripts": {
-    "prepare": "CI=false patch-package && npm run patch-package --workspaces --if-present",
+    "prepare": "patch-package && npm run patch-package --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
     "clean:deps": "npm run clean:deps --workspaces --if-present && rimraf node_modules",
     "create-package": "node scripts/create-package.mjs",
