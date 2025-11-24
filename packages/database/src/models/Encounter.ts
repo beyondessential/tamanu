@@ -529,35 +529,35 @@ export class Encounter extends Model {
       const addSystemNoteRow = (content: string) => systemNoteRows.push(content);
 
       const recordColumnChange = async ({
-        key,
-        noteLabel,
+        columnName,
+        fieldLabel,
         model,
         labelKey = 'name',
         changeType,
         onChange,
       }: {
-        key: keyof Encounter;
-        noteLabel: string;
+        columnName: keyof Encounter;
+        fieldLabel: string;
         model?: typeof Model;
         labelKey?: string;
         changeType?: EncounterChangeType;
         onChange?: () => Promise<void>;
       }) => {
-        const isChanged = key in data && data[key] !== this[key];
+        const isChanged = columnName in data && data[columnName] !== this[columnName];
         if (isChanged) {
           if (changeType) changeTypes.push(changeType);
           let oldValue: string;
           let newValue: string;
           if (model) {
-            const oldRecord = await model.findByPk(this[key], { raw: true });
-            const newRecord = await model.findByPk(data[key], { raw: true });
+            const oldRecord = await model.findByPk(this[columnName], { raw: true });
+            const newRecord = await model.findByPk(data[columnName], { raw: true });
             oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
             newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
           } else {
-            oldValue = this[key] ?? '-';
-            newValue = data[key] ?? '-';
+            oldValue = this[columnName] ?? '-';
+            newValue = data[columnName] ?? '-';
           }
-          addSystemNoteRow(`Changed ${noteLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+          addSystemNoteRow(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
           await onChange?.();
         }
       };
@@ -571,8 +571,8 @@ export class Encounter extends Model {
       }
 
       await recordColumnChange({
-        key: 'encounterType',
-        noteLabel: 'encounter type',
+        columnName: 'encounterType',
+        fieldLabel: 'encounter type',
         changeType: EncounterChangeType.EncounterType,
         onChange: async () => {
           await this.closeTriage(data.submittedTime);
@@ -617,40 +617,40 @@ export class Encounter extends Model {
       }
 
       await recordColumnChange({
-        key: 'departmentId',
-        noteLabel: 'department',
+        columnName: 'departmentId',
+        fieldLabel: 'department',
         model: Department,
         changeType: EncounterChangeType.Department,
       });
 
       await recordColumnChange({
-        key: 'examinerId',
-        noteLabel: 'supervising clinician',
+        columnName: 'examinerId',
+        fieldLabel: 'supervising clinician',
         model: User,
         labelKey: 'displayName',
         changeType: EncounterChangeType.Examiner,
       });
 
       await recordColumnChange({
-        key: 'startDate',
-        noteLabel: 'start date',
+        columnName: 'startDate',
+        fieldLabel: 'start date',
       });
 
       await recordColumnChange({
-        key: 'patientBillingTypeId',
-        noteLabel: 'patient type',
+        columnName: 'patientBillingTypeId',
+        fieldLabel: 'patient type',
         model: ReferenceData,
       });
 
       await recordColumnChange({
-        key: 'referralSourceId',
-        noteLabel: 'referral source',
+        columnName: 'referralSourceId',
+        fieldLabel: 'referral source',
         model: ReferenceData,
       });
 
       await recordColumnChange({
-        key: 'reasonForEncounter',
-        noteLabel: 'reason for encounter',
+        columnName: 'reasonForEncounter',
+        fieldLabel: 'reason for encounter',
       });
 
       const { submittedTime, ...encounterData } = data;
