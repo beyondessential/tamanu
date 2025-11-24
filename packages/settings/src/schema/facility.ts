@@ -87,7 +87,7 @@ export const facilitySettings = {
         'A' will be replaced with a random letter and '0' will be replaced with a random number.
         Wrapping characters in [] will allow static characters to be used. For example,
         '[B]AAAA000000' will generate an 11 character ID with a static B followed by 4 letter and 6 numbers.`,
-      type: yup.string().matches(/(?:(?:\[.+?\])(?=\[|[A0]|$)|[A0])+/, 'Invalid pattern'),
+      type: yup.string().matches(/^(?:(?:\[.+?\])(?=\[|[A0]|$)|[A0])+$/, 'Invalid pattern'),
       defaultValue: 'AAAA000000',
     },
     questionCodeIds: {
