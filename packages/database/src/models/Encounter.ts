@@ -442,7 +442,7 @@ export class Encounter extends Model {
   async addLocationChangeNote(
     contentPrefix: string,
     newLocationId: string,
-    addSystemNoteRow: (content: string) => void,
+    systemNoteRows: string[],
   ) {
     const { Location } = this.sequelize.models;
     const oldLocation = await Location.findOne({
@@ -457,7 +457,7 @@ export class Encounter extends Model {
       throw new InvalidOperationError('Invalid location specified');
     }
 
-    addSystemNoteRow(
+    systemNoteRows.push(
       `${contentPrefix} from ‘${Location.formatFullLocationName(oldLocation!)}’ to ‘${Location.formatFullLocationName(newLocation)}’`,
     );
   }
@@ -518,49 +518,62 @@ export class Encounter extends Model {
     const [data, user] = args;
     const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
     const changeTypes: string[] = [];
+    const systemNoteRows: string[] = [];
+
+    const recordForeignKeyChange = async ({
+      columnName,
+      fieldLabel,
+      model,
+      labelKey = 'name',
+      changeType,
+      onChange,
+    }: {
+      columnName: keyof Encounter;
+      fieldLabel: string;
+      model: typeof Model;
+      labelKey?: string;
+      changeType?: EncounterChangeType;
+      onChange?: () => Promise<void>;
+    }) => {
+      const isChanged = columnName in data && data[columnName] !== this[columnName];
+      if (!isChanged) return;
+
+      if (changeType) changeTypes.push(changeType);
+
+      const oldRecord = await model.findByPk(this[columnName], { raw: true });
+      const newRecord = await model.findByPk(data[columnName], { raw: true });
+      const oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
+      const newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
+
+      systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+      await onChange?.();
+    };
+
+    const recordTextColumnChange = async ({
+      columnName,
+      fieldLabel,
+      changeType,
+      onChange,
+    }: {
+      columnName: keyof Encounter;
+      fieldLabel: string;
+      changeType?: EncounterChangeType;
+      onChange?: () => Promise<void>;
+    }) => {
+      const isChanged = columnName in data && data[columnName] !== this[columnName];
+      if (!isChanged) return;
+      if (changeType) changeTypes.push(changeType);
+      const oldValue = this[columnName] ?? '-';
+      const newValue = data[columnName] ?? '-';
+      systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+      await onChange?.();
+    };
 
     const updateEncounter = async () => {
       const additionalChanges: {
         plannedLocationId?: string | null;
         plannedLocationStartTime?: string | null;
       } = {};
-
-      const systemNoteRows: string[] = [];
-      const addSystemNoteRow = (content: string) => systemNoteRows.push(content);
-
-      const recordColumnChange = async ({
-        columnName,
-        fieldLabel,
-        model,
-        labelKey = 'name',
-        changeType,
-        onChange,
-      }: {
-        columnName: keyof Encounter;
-        fieldLabel: string;
-        model?: typeof Model;
-        labelKey?: string;
-        changeType?: EncounterChangeType;
-        onChange?: () => Promise<void>;
-      }) => {
-        const isChanged = columnName in data && data[columnName] !== this[columnName];
-        if (isChanged) {
-          if (changeType) changeTypes.push(changeType);
-          let oldValue: string;
-          let newValue: string;
-          if (model) {
-            const oldRecord = await model.findByPk(this[columnName], { raw: true });
-            const newRecord = await model.findByPk(data[columnName], { raw: true });
-            oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
-            newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
-          } else {
-            oldValue = this[columnName] ?? '-';
-            newValue = data[columnName] ?? '-';
-          }
-          addSystemNoteRow(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
-          await onChange?.();
-        }
-      };
 
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data, user);
@@ -570,19 +583,10 @@ export class Encounter extends Model {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
-      await recordColumnChange({
-        columnName: 'encounterType',
-        fieldLabel: 'encounter type',
-        changeType: EncounterChangeType.EncounterType,
-        onChange: async () => {
-          await this.closeTriage(data.submittedTime);
-        },
-      });
-
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
         changeTypes.push(EncounterChangeType.Location);
-        await this.addLocationChangeNote('Changed location', data.locationId, addSystemNoteRow);
+        await this.addLocationChangeNote('Changed location', data.locationId, systemNoteRows);
 
         // When we move to a new location, clear the planned location move
         additionalChanges.plannedLocationId = null;
@@ -595,7 +599,7 @@ export class Encounter extends Model {
           const currentlyPlannedLocation = await Location.findOne({
             where: { id: this.plannedLocationId },
           });
-          addSystemNoteRow(`Cancelled planned move to ‘${currentlyPlannedLocation?.name}’`);
+          systemNoteRows.push(`Cancelled planned move to ‘${currentlyPlannedLocation?.name}’`);
         }
         additionalChanges.plannedLocationStartTime = null;
       }
@@ -610,45 +614,48 @@ export class Encounter extends Model {
         await this.addLocationChangeNote(
           'Added a planned location change',
           data.plannedLocationId,
-          addSystemNoteRow,
+          systemNoteRows,
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      await recordColumnChange({
+      await recordTextColumnChange({
+        columnName: 'encounterType',
+        fieldLabel: 'encounter type',
+        changeType: EncounterChangeType.EncounterType,
+        onChange: async () => {
+          await this.closeTriage(data.submittedTime);
+        },
+      });
+      await recordForeignKeyChange({
         columnName: 'departmentId',
         fieldLabel: 'department',
         model: Department,
         changeType: EncounterChangeType.Department,
       });
-
-      await recordColumnChange({
+      await recordForeignKeyChange({
         columnName: 'examinerId',
         fieldLabel: 'supervising clinician',
         model: User,
         labelKey: 'displayName',
         changeType: EncounterChangeType.Examiner,
       });
-
-      await recordColumnChange({
+      await recordTextColumnChange({
         columnName: 'startDate',
         fieldLabel: 'start date',
       });
-
-      await recordColumnChange({
+      await recordForeignKeyChange({
         columnName: 'patientBillingTypeId',
         fieldLabel: 'patient type',
         model: ReferenceData,
       });
-
-      await recordColumnChange({
+      await recordForeignKeyChange({
         columnName: 'referralSourceId',
         fieldLabel: 'referral source',
         model: ReferenceData,
       });
-
-      await recordColumnChange({
+      await recordTextColumnChange({
         columnName: 'reasonForEncounter',
         fieldLabel: 'reason for encounter',
       });
