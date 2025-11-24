@@ -2,6 +2,8 @@ import { createDummyEncounter, createDummyPatient } from '@tamanu/database/demoD
 import { fake, fakeUser } from '@tamanu/fake-data/fake';
 import { createTestContext } from '../utilities';
 import {
+  IMAGING_REQUEST_STATUS_TYPES,
+  IMAGING_TYPES,
   INVOICE_ITEMS_CATEGORIES,
   INVOICE_ITEMS_CATEGORIES_MODELS,
   INVOICE_STATUSES,
@@ -122,6 +124,279 @@ describe('Encounter invoice', () => {
         encounterId: encounter.id,
         status: INVOICE_STATUSES.IN_PROGRESS,
         items: [],
+      });
+    });
+
+    describe('Imaging request', () => {
+      let imagingRequestProduct;
+      let imagingAreaHeadProduct;
+      let imagingAreaHead;
+      let imagingAreaFoot;
+
+      beforeAll(async () => {
+        const imagingType = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.IMAGING_TYPE,
+            name: 'xRay',
+            code: IMAGING_TYPES.X_RAY,
+          }),
+        );
+        imagingAreaHead = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+            name: 'xRay - Head',
+            code: 'xRay - Head',
+          }),
+        );
+        imagingAreaFoot = await models.ReferenceData.create(
+          fake(models.ReferenceData, {
+            type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+            name: 'xRay - Foot',
+            code: 'xRay - Foot',
+          }),
+        );
+        imagingRequestProduct = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE,
+            sourceRecordType:
+              INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE],
+            sourceRecordId: imagingType.id,
+          }),
+        );
+        imagingAreaHeadProduct = await models.InvoiceProduct.create(
+          fake(models.InvoiceProduct, {
+            category: INVOICE_ITEMS_CATEGORIES.IMAGING_AREA,
+            sourceRecordType:
+              INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.IMAGING_AREA],
+            sourceRecordId: imagingAreaHead.id,
+          }),
+        );
+      });
+
+      it('should automatically add/remove items to the invoice when an imaging request is created/deleted', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+          encounterId: encounter.id,
+          imagingType: IMAGING_TYPES.X_RAY,
+          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          date: new Date(),
+          requestedById: user.id,
+          areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
+        });
+
+        const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaHead.id,
+          },
+        });
+        const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaFoot.id,
+          },
+        });
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result.body.items).toHaveLength(2);
+        expect(result.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaHead.id,
+              sourceRecordType: imagingRequestAreaHead.getModelName(),
+              productId: imagingAreaHeadProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaFoot.id,
+              sourceRecordType: imagingRequestAreaFoot.getModelName(),
+              productId: imagingRequestProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
+
+        // Cancelling the request should remove the items from the invoice
+        await app.put(`/api/imagingRequest/${imagingRequest.id}`).send({
+          status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
+        });
+      });
+
+      it('should not automatically add/remove items to the invoice when the transaction is rolled back', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+        await models.Invoice.create({
+          encounterId: encounter.id,
+          displayId: 'INV-123',
+          date: new Date(),
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+
+        try {
+          await models.ImagingRequest.sequelize.transaction(async () => {
+            const imagingRequest = await models.ImagingRequest.create(
+              fake(models.ImagingRequest, {
+                encounterId: encounter.id,
+                imagingType: IMAGING_TYPES.X_RAY,
+                status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+                date: new Date(),
+                requestedById: user.id,
+              }),
+            );
+            await models.ImagingRequestArea.create(
+              fake(models.ImagingRequestArea, {
+                imagingRequestId: imagingRequest.id,
+                areaId: imagingAreaHead.id,
+              }),
+            );
+            await models.ImagingRequestArea.create(
+              fake(models.ImagingRequestArea, {
+                imagingRequestId: imagingRequest.id,
+                areaId: imagingAreaFoot.id,
+              }),
+            );
+            throw new Error('Test error');
+          });
+        } catch (error) {
+          // ignore error
+        }
+
+        const result = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result).toHaveSucceeded();
+        expect(result.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+          items: [],
+        });
+
+        const { body: imagingRequest } = await app.post(`/api/imagingRequest`).send({
+          encounterId: encounter.id,
+          imagingType: IMAGING_TYPES.X_RAY,
+          status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+          date: new Date(),
+          requestedById: user.id,
+          areas: JSON.stringify([imagingAreaHead.id, imagingAreaFoot.id]),
+        });
+
+        const imagingRequestAreaHead = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaHead.id,
+          },
+        });
+        const imagingRequestAreaFoot = await models.ImagingRequestArea.findOne({
+          where: {
+            imagingRequestId: imagingRequest.id,
+            areaId: imagingAreaFoot.id,
+          },
+        });
+
+        const result2 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result2).toHaveSucceeded();
+        expect(result2.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result2.body.items).toHaveLength(2);
+        expect(result2.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaHead.id,
+              sourceRecordType: imagingRequestAreaHead.getModelName(),
+              productId: imagingAreaHeadProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaFoot.id,
+              sourceRecordType: imagingRequestAreaFoot.getModelName(),
+              productId: imagingRequestProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
+
+        try {
+          await models.ImagingRequest.sequelize.transaction(async () => {
+            await models.ImagingRequest.update(
+              {
+                status: IMAGING_REQUEST_STATUS_TYPES.CANCELLED,
+              },
+              {
+                where: {
+                  id: imagingRequest.id,
+                },
+              },
+            );
+            throw new Error('Test error');
+          });
+        } catch (error) {
+          // ignore error
+        }
+
+        const result3 = await app.get(`/api/encounter/${encounter.id}/invoice`);
+        expect(result3.body).toMatchObject({
+          displayId: 'INV-123',
+          encounterId: encounter.id,
+          status: INVOICE_STATUSES.IN_PROGRESS,
+        });
+        expect(result3.body.items).toHaveLength(2);
+        expect(result3.body.items).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaHead.id,
+              sourceRecordType: imagingRequestAreaHead.getModelName(),
+              productId: imagingAreaHeadProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+            expect.objectContaining({
+              sourceRecordId: imagingRequestAreaFoot.id,
+              sourceRecordType: imagingRequestAreaFoot.getModelName(),
+              productId: imagingRequestProduct.id,
+              orderedByUserId: user.id,
+              quantity: 1,
+              insurancePlanItems: [],
+            }),
+          ]),
+        );
       });
     });
   });
