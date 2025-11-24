@@ -549,12 +549,14 @@ export class Encounter extends Model {
         key,
         noteLabel,
         model,
+        labelKey = 'name',
         changeType,
         onChange,
       }: {
         key: keyof Encounter;
         noteLabel: string;
         model?: any; // TODO: type this
+        labelKey?: string;
         changeType?: EncounterChangeType;
         onChange?: () => Promise<void>;
       }) => {
@@ -566,8 +568,8 @@ export class Encounter extends Model {
           if (model) {
             const oldRecord = await model.findByPk(this[key], { raw: true });
             const newRecord = await model.findByPk(data[key], { raw: true });
-            oldValue = oldRecord.name ?? '-';
-            newValue = newRecord.name ?? '-';
+            oldValue = oldRecord[labelKey] ?? '-';
+            newValue = newRecord[labelKey] ?? '-';
           } else {
             oldValue = this[key];
             newValue = data[key];
@@ -642,6 +644,7 @@ export class Encounter extends Model {
         key: 'examinerId',
         noteLabel: 'supervising clinician',
         model: User,
+        labelKey: 'displayName',
         changeType: EncounterChangeType.Examiner,
       });
 
