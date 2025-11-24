@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/settings",
-  "version": "2.44.2",
+  "version": "2.44.3",
   "private": true,
   "description": "BES - Settings",
   "main": "dist/cjs/index.js",
