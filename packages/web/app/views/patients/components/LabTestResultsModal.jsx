@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { FormModal } from '../../../components/FormModal';
 import { BodyText, Heading4, SmallBodyText } from '../../../components/Typography';
-import { TextField, Form, ConfirmCancelRow } from '@tamanu/ui-components';
+import { TextField, Form, ConfirmCancelRow, Field } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { FORM_TYPES } from '@tamanu/constants/forms';
 import { DateTimeField, SuggesterSelectField } from '../../../components/Field';
@@ -300,6 +300,15 @@ const ResultsForm = ({
           data-testid="styledtableformfields-5s0u"
         />
       </TableContainer>
+      <Box margin="20px 30px">
+      <Field component={TextField} 
+        multiline
+        rows={4}
+        name="resultsInterpretation"
+          label="Results Interpretation"
+          data-testid="field-resultsinterpretation"
+        />
+      </Box>
     </Box>
   );
 };
