@@ -30,19 +30,8 @@ export const formatDisplayPrice = value => {
  * @param {Invoice} invoice
  */
 export const getInvoiceSummaryDisplay = invoice => {
-  const discountableItems = invoice.items.filter(
-    item => item.productDiscountable && !isNaN(parseFloat(item.productPrice)),
-  );
-  const nonDiscountableItems = invoice.items.filter(
-    item => !item.productDiscountable && !isNaN(parseFloat(item.productPrice)),
-  );
   const summary = getInvoiceSummary(invoice);
-  return mapValues(summary, (value, key) => {
-    if (!discountableItems.length && !nonDiscountableItems.length) return undefined;
-    if (!discountableItems.length && key === 'discountableItemsSubtotal') return undefined;
-    if (!nonDiscountableItems.length && key === 'nonDiscountableItemsSubtotal') return undefined;
-    return formatDisplayPrice(value);
-  });
+  return mapValues(summary, value => formatDisplayPrice(value));
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
