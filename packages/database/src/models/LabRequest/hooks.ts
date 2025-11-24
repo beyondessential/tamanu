@@ -80,30 +80,36 @@ const getItemsForLabRequest = async (instance: LabRequest) => {
 };
 
 const addToInvoice = async (instance: LabRequest) => {
-  if (!instance.encounterId) {
+  const encounterId = instance.encounterId;
+  if (!encounterId) {
     return; // No encounter for procedure, so no invoice to add to
   }
 
   const products = await getItemsForLabRequest(instance);
-  for (const { item, product } of products) {
-    await instance.sequelize.models.Invoice.addItemToInvoice(
-      item,
-      instance.encounterId,
-      product,
-      instance.requestedById,
-    );
-  }
+  await Promise.all(
+    products.map(async ({ item, product }) =>
+      instance.sequelize.models.Invoice.addItemToInvoice(
+        item,
+        encounterId,
+        product,
+        instance.requestedById,
+      ),
+    ),
+  );
 };
 
 const removeFromInvoice = async (instance: LabRequest) => {
-  if (!instance.encounterId) {
+  const encounterId = instance.encounterId;
+  if (!encounterId) {
     return; // No encounter for procedure, so no invoice to remove from
   }
 
   const items = await getItemsForLabRequest(instance);
-  for (const { item } of items) {
-    await instance.sequelize.models.Invoice.removeItemFromInvoice(item, instance.encounterId);
-  }
+  await Promise.all(
+    items.map(async ({ item }) =>
+      instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
+    ),
+  );
 };
 
 const addToInvoiceAfterCreateHook = async (instance: LabRequest) => {

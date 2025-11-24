@@ -95,31 +95,37 @@ const getItemsForImagingRequest = async (instance: ImagingRequest) => {
 };
 
 const addToInvoice = async (instance: ImagingRequest) => {
-  if (!instance.encounterId) {
+  const encounterId = instance.encounterId;
+  if (!encounterId) {
     return; // No encounter for procedure, so no invoice to add to
   }
 
   const products = await getItemsForImagingRequest(instance);
-  for (const { item, product, note } of products) {
-    await instance.sequelize.models.Invoice.addItemToInvoice(
-      item,
-      instance.encounterId,
-      product,
-      instance.requestedById,
-      note,
-    );
-  }
+  await Promise.all(
+    products.map(async ({ item, product, note }) =>
+      instance.sequelize.models.Invoice.addItemToInvoice(
+        item,
+        encounterId,
+        product,
+        instance.requestedById,
+        note,
+      ),
+    ),
+  );
 };
 
 const removeFromInvoice = async (instance: ImagingRequest) => {
-  if (!instance.encounterId) {
+  const encounterId = instance.encounterId;
+  if (!encounterId) {
     return; // No encounter for procedure, so no invoice to remove from
   }
 
   const items = await getItemsForImagingRequest(instance);
-  for (const { item } of items) {
-    await instance.sequelize.models.Invoice.removeItemFromInvoice(item, instance.encounterId);
-  }
+  await Promise.all(
+    items.map(async ({ item }) =>
+      instance.sequelize.models.Invoice.removeItemFromInvoice(item, encounterId),
+    ),
+  );
 };
 
 const addToInvoiceAfterCreateHook = async (instance: ImagingRequest) => {
