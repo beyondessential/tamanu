@@ -462,19 +462,6 @@ export class Encounter extends Model {
     );
   }
 
-  async addDepartmentChangeNote(
-    toDepartmentId: string,
-    addSystemNoteRow: (content: string) => void,
-  ) {
-    const { Department } = this.sequelize.models;
-    const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
-    const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
-    if (!newDepartment) {
-      throw new InvalidOperationError('Invalid department specified');
-    }
-    addSystemNoteRow(`Changed department from ‘${oldDepartment?.name}’ to ‘${newDepartment.name}’`);
-  }
-
   async addTriageScoreNote(
     triageRecord: { score: any; triageTime: string },
     addSystemNoteRow: (content: string) => void,
@@ -534,15 +521,6 @@ export class Encounter extends Model {
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(
-    newEncounterType: Encounter['encounterType'],
-    submittedTime: string,
-    addSystemNoteRow: (content: string) => void,
-  ) {
-    addSystemNoteRow(`Changed type from ‘${this.encounterType}’ to ‘${newEncounterType}’`);
-    await this.closeTriage(submittedTime);
-  }
-
   async closeTriage(endDate: string) {
     const triage = await this.getLinkedTriage();
     if (!triage) return;
@@ -553,23 +531,9 @@ export class Encounter extends Model {
     });
   }
 
-  async updateClinician(newClinicianId: string, addSystemNoteRow: (content: string) => void) {
-    const { User } = this.sequelize.models;
-    const oldClinician = await User.findOne({ where: { id: this.examinerId } });
-    const newClinician = await User.findOne({ where: { id: newClinicianId } });
-
-    if (!newClinician) {
-      throw new InvalidOperationError('Invalid clinician specified');
-    }
-
-    addSystemNoteRow(
-      `Changed supervising clinician from ‘${oldClinician?.displayName}’ to ‘${newClinician.displayName}’`,
-    );
-  }
-
   async update(...args: any): Promise<any> {
     const [data, user] = args;
-    const { Location, EncounterHistory } = this.sequelize.models;
+    const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
     const changeTypes: string[] = [];
 
     const updateEncounter = async () => {
@@ -579,8 +543,38 @@ export class Encounter extends Model {
       } = {};
 
       const systemNoteRows: string[] = [];
-      const addSystemNoteRow = (content: string) => {
-        systemNoteRows.push(content);
+      const addSystemNoteRow = (content: string) => systemNoteRows.push(content);
+
+      const recordColumnChange = async ({
+        key,
+        noteLabel,
+        model,
+        changeType,
+        onChange,
+      }: {
+        key: keyof Encounter;
+        noteLabel: string;
+        model?: any; // TODO: type this
+        changeType?: EncounterChangeType;
+        onChange?: () => void;
+      }) => {
+        const isChanged = data[key] && data[key] !== this[key];
+        if (isChanged) {
+          if (changeType) changeTypes.push(changeType);
+          let oldValue: any;
+          let newValue: any;
+          if (model) {
+            const oldRecord = await model.findByPk(this[key], { raw: true });
+            const newRecord = await model.findByPk(data[key], { raw: true });
+            oldValue = oldRecord.name;
+            newValue = newRecord.name;
+          } else {
+            oldValue = this[key];
+            newValue = data[key];
+          }
+          addSystemNoteRow(`Changed ${noteLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+          onChange?.();
+        }
       };
 
       if (data.endDate && !this.endDate) {
@@ -591,12 +585,14 @@ export class Encounter extends Model {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
 
-      const isEncounterTypeChanged =
-        data.encounterType && data.encounterType !== this.encounterType;
-      if (isEncounterTypeChanged) {
-        changeTypes.push(EncounterChangeType.EncounterType);
-        await this.onEncounterProgression(data.encounterType, data.submittedTime, addSystemNoteRow);
-      }
+      await recordColumnChange({
+        key: 'encounterType',
+        noteLabel: 'encounter type',
+        changeType: EncounterChangeType.EncounterType,
+        onChange: async () => {
+          await this.closeTriage(data.submittedTime);
+        },
+      });
 
       const isLocationChanged = data.locationId && data.locationId !== this.locationId;
       if (isLocationChanged) {
@@ -635,64 +631,41 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
-      if (isDepartmentChanged) {
-        changeTypes.push(EncounterChangeType.Department);
-        await this.addDepartmentChangeNote(data.departmentId, addSystemNoteRow);
-      }
+      await recordColumnChange({
+        key: 'departmentId',
+        noteLabel: 'department',
+        model: Department,
+        changeType: EncounterChangeType.Department,
+      });
 
-      const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
-      if (isClinicianChanged) {
-        changeTypes.push(EncounterChangeType.Examiner);
-        await this.updateClinician(data.examinerId, addSystemNoteRow);
-      }
+      await recordColumnChange({
+        key: 'examinerId',
+        noteLabel: 'supervising clinician',
+        model: User,
+        changeType: EncounterChangeType.Examiner,
+      });
 
-      const isStartDateChanged = data.startDate && data.startDate !== this.startDate;
-      if (isStartDateChanged) {
-        addSystemNoteRow(`Changed start date from ‘${this.startDate}’ to ‘${data.startDate}’`);
-      }
+      await recordColumnChange({
+        key: 'startDate',
+        noteLabel: 'start date',
+      });
 
-      const isPatientBillingTypeChanged =
-        data.patientBillingTypeId && data.patientBillingTypeId !== this.patientBillingTypeId;
-      if (isPatientBillingTypeChanged) {
-        const oldPatientBillingType = await this.sequelize.models.ReferenceData.findOne({
-          where: { id: this.patientBillingTypeId },
-        });
-        const newPatientBillingType = await this.sequelize.models.ReferenceData.findOne({
-          where: { id: data.patientBillingTypeId },
-        });
-        if (!newPatientBillingType) {
-          throw new InvalidOperationError('Invalid patient billing type specified');
-        }
-        addSystemNoteRow(
-          `Changed patient type from ‘${oldPatientBillingType?.name}’ to ‘${newPatientBillingType.name}’`,
-        );
-      }
+      await recordColumnChange({
+        key: 'patientBillingTypeId',
+        noteLabel: 'patient type',
+        model: ReferenceData,
+      });
 
-      const isReferralSourceChanged =
-        data.referralSourceId && data.referralSourceId !== this.referralSourceId;
-      if (isReferralSourceChanged) {
-        const oldReferralSource = await this.sequelize.models.ReferenceData.findOne({
-          where: { id: this.referralSourceId },
-        });
-        const newReferralSource = await this.sequelize.models.ReferenceData.findOne({
-          where: { id: data.referralSourceId },
-        });
-        if (!newReferralSource) {
-          throw new InvalidOperationError('Invalid referral source specified');
-        }
-        addSystemNoteRow(
-          `Changed referral source from ‘${oldReferralSource?.name}’ to ‘${newReferralSource.name}’`,
-        );
-      }
+      await recordColumnChange({
+        key: 'referralSourceId',
+        noteLabel: 'referral source',
+        model: ReferenceData,
+      });
 
-      const isReasonForEncounterChanged =
-        data.reasonForEncounter && data.reasonForEncounter !== this.reasonForEncounter;
-      if (isReasonForEncounterChanged) {
-        addSystemNoteRow(
-          `Changed reason for encounter from ‘${this.reasonForEncounter}’ to ‘${data.reasonForEncounter}’`,
-        );
-      }
+      await recordColumnChange({
+        key: 'reasonForEncounter',
+        noteLabel: 'reason for encounter',
+      });
 
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
