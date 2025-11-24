@@ -18,7 +18,7 @@
     "typecheck": "tsc --project tsconfig.json",
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
-    "patch-package": "patch-package",
+    "patch-package": "CI=false patch-package",
     "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "dependencies": {
