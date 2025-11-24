@@ -22,12 +22,13 @@ import {
   getFirstAdministrationDate,
   areDatesInSameTimeSlot,
 } from '@tamanu/shared/utils/medication';
-import { Model } from './Model';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { Prescription } from './Prescription';
+import { Model } from '../Model';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
+import type { Prescription } from '../Prescription';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
-import { Task } from './Task';
-import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { Task } from '../Task';
+import { buildEncounterLinkedLookupSelect } from '../../sync/buildEncounterLinkedLookupFilter';
+import { afterCreateHook, afterUpdateHook } from './hooks';
 
 export class MedicationAdministrationRecord extends Model {
   declare id: string;
@@ -46,7 +47,7 @@ export class MedicationAdministrationRecord extends Model {
 
   declare prescription?: Prescription;
 
-  static initModel({ primaryKey, ...options }: InitOptions, models: Models) {
+  static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
       {
         id: primaryKey,
@@ -72,52 +73,8 @@ export class MedicationAdministrationRecord extends Model {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         hooks: {
-          afterCreate: async (mar: MedicationAdministrationRecord) => {
-            // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
-            // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-            const prescription = await models.Prescription.findByPk(mar.prescriptionId);
-            if (
-              prescription?.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-              !prescription?.discontinued &&
-              mar.status
-            ) {
-              Object.assign(prescription, {
-                discontinuingReason: 'STAT dose recorded',
-                discontinuingClinicianId: SYSTEM_USER_UUID,
-                discontinuedDate: getCurrentDateTimeString(),
-                discontinued: true,
-              });
-              await prescription.save();
-            }
-
-            // Create a task for the MAR if it's not recorded yet
-            if (!mar.status) {
-              await this.createMedicationDueTaskForMar(mar);
-            }
-          },
-          afterUpdate: async (mar: MedicationAdministrationRecord) => {
-            // If the prescription is immediately and the MAR is the first time being not given, then discontinue the prescription
-            // https://linear.app/bes/issue/EPI-1143/automatically-discontinue-prescriptions-with-frequency-of-immediately
-            const prescription = await models.Prescription.findByPk(mar.prescriptionId);
-            if (
-              prescription?.frequency === ADMINISTRATION_FREQUENCIES.IMMEDIATELY &&
-              !prescription?.discontinued &&
-              mar.status
-            ) {
-              Object.assign(prescription, {
-                discontinuingReason: 'STAT dose recorded',
-                discontinuingClinicianId: SYSTEM_USER_UUID,
-                discontinuedDate: getCurrentDateTimeString(),
-                discontinued: true,
-              });
-              await prescription.save();
-            }
-
-            const previousStatus = mar.previous('status');
-            if (!previousStatus && mar.status) {
-              await this.checkAndCompleteMedicationDueTask(mar);
-            }
-          },
+          afterCreate: afterCreateHook,
+          afterUpdate: afterUpdateHook,
         },
       },
     );

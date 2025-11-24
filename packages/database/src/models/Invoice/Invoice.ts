@@ -17,13 +17,15 @@ import type { ImagingRequest } from 'models/ImagingRequest';
 import type { LabTestPanelRequest } from 'models/LabTestPanelRequest';
 import type { LabTest } from 'models/LabTest';
 import type { ImagingRequestArea } from 'models/ImagingRequestArea';
+import type { Prescription } from 'models/Prescription';
 
 type InvoiceItemSourceRecord =
   | Procedure
   | LabTestPanelRequest
   | LabTest
   | ImagingRequestArea
-  | ImagingRequest;
+  | ImagingRequest
+  | Prescription;
 
 export class Invoice extends Model {
   declare id: string;
