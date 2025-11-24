@@ -74,7 +74,7 @@ usersRouter.get(
   asyncHandler(async (req, res) => {
     const {
       store: {
-        models: { User, UserDesignation, ReferenceData, Role },
+        models: { User, UserDesignation, ReferenceData, Role, Device },
       },
       query: { order = 'ASC', orderBy = 'displayName', rowsPerPage, page, ...filterParams },
     } = req;
@@ -154,8 +154,9 @@ usersRouter.get(
     });
     const roleMap = new Map(roles.map(role => [role.id, role.name]));
 
-    const { Device } = req.store.models;
-    
+    const userIds = users.map(user => user.id);
+    const registeredDevicesCounts = await Device.getQuotaCountsByUserIds(userIds);
+
     res.send({
       count,
       data: await Promise.all(
@@ -164,7 +165,7 @@ usersRouter.get(
           const obj = user.get({ plain: true });
           const designations = user.designations || [];
           const roleName = roleMap.get(user.role) || null;
-          const registeredDevicesCount = await Device.getQuotaByUserId(user.id);
+          const registeredDevicesCount = registeredDevicesCounts[user.id] ?? 0;
           return {
             ...pick(obj, [
               'id',
