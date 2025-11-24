@@ -4,7 +4,7 @@ import { startOfDay } from 'date-fns';
 import { omit, pick } from 'lodash';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import styled from 'styled-components';
 
 import { parseDate } from '@tamanu/utils/dateTime';
@@ -105,16 +105,16 @@ export const OutpatientAppointmentsView = () => {
     }
   }, [location.search]);
 
-  const handleChangeDate = (event) => {
+  const handleChangeDate = event => {
     setSelectedDate(event.target.value);
   };
 
-  const handleOpenCancelModal = (appointment) => {
+  const handleOpenCancelModal = appointment => {
     setSelectedAppointment(appointment);
     setIsCancelModalOpen(true);
   };
 
-  const handleSelectAppointment = (appointment) => {
+  const handleSelectAppointment = appointment => {
     setSelectedAppointment(
       pick(appointment, [
         'id',
@@ -130,7 +130,7 @@ export const OutpatientAppointmentsView = () => {
     );
   };
 
-  const handleModifyAppointment = (appointment) => {
+  const handleModifyAppointment = appointment => {
     handleSelectAppointment(appointment);
     if (!appointment.schedule) {
       handleOpenDrawer();
@@ -140,7 +140,7 @@ export const OutpatientAppointmentsView = () => {
     setIsModifyModalOpen(true);
   };
 
-  const handleCreateFromExistingAppointment = (appointment) => {
+  const handleCreateFromExistingAppointment = appointment => {
     handleSelectAppointment(omit(appointment, ['id', 'schedule', 'startTime', 'endTime']));
     if (!appointment.schedule) {
       handleOpenDrawer();
