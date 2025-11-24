@@ -556,7 +556,7 @@ export class Encounter extends Model {
         noteLabel: string;
         model?: any; // TODO: type this
         changeType?: EncounterChangeType;
-        onChange?: () => void;
+        onChange?: () => Promise<void>;
       }) => {
         const isChanged = data[key] && data[key] !== this[key];
         if (isChanged) {
@@ -573,7 +573,7 @@ export class Encounter extends Model {
             newValue = data[key];
           }
           addSystemNoteRow(`Changed ${noteLabel} from ‘${oldValue}’ to ‘${newValue}’`);
-          onChange?.();
+          await onChange?.();
         }
       };
 
