@@ -138,7 +138,7 @@ export const InvoiceForm = ({ invoice }) => {
                       </SubmitButton>
                     </ButtonRow>
                   )}
-                  <InvoiceSummaryPanel invoice={{ items: values.invoiceItems, payments: [] }} />
+                  <InvoiceSummaryPanel invoiceItems={values.invoiceItems} />
                 </>
               );
             }}

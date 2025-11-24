@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useApi } from '../useApi';
 
-export const useInvoicePriceListItemPriceQuery = ({ encounterId, productId, enabled }) => {
+export const useInvoicePriceListItemPriceQuery = ({
+  encounterId,
+  productId,
+  enabled,
+  onSuccess,
+}) => {
   const api = useApi();
 
   return useQuery(
@@ -13,6 +18,8 @@ export const useInvoicePriceListItemPriceQuery = ({ encounterId, productId, enab
       }),
     {
       enabled: Boolean(enabled && encounterId && productId),
+      onSuccess,
+      keepPreviousData: true,
     },
   );
 };

@@ -29,8 +29,10 @@ const TotalCardItem = styled(CardItem)`
   font-weight: 500;
 `;
 
-export const InvoiceSummaryPanel = ({ invoice }) => {
-  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary(invoice);
+export const InvoiceSummaryPanel = ({ invoiceItems }) => {
+  const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary({
+    items: invoiceItems,
+  });
   const coverageDisplay = insuranceCoverageTotal * -1;
   return (
     <Container>

@@ -114,21 +114,23 @@ export const InvoiceItemRow = ({
   };
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
   const priceListPrice = item.product?.invoicePriceListItem?.price;
-  const hidePriceInput = (priceListPrice !== null && priceListPrice !== undefined) || !editable;
+  const hasKnownPrice = Boolean(priceListPrice);
+  const hidePriceInput =
+    (priceListPrice !== null && priceListPrice !== undefined) ||
+    !editable ||
+    fetchedPriceData?.price;
 
-  // Enable fetching only if a product is selected, the form doesn't already have the price
-  const hasKnownPrice = Boolean(item?.product?.invoicePriceListItem?.price);
-
-  const { data: fetchedPriceData } = useInvoicePriceListItemPriceQuery({
+  // Todo: Also need to lookup the insurance plan for the product
+  const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
     encounterId,
     productId: item.productId,
     enabled: !hasKnownPrice,
-  });
-
-  // When price is fetched, populate it into the form state for this row
-  React.useEffect(() => {
-    if (fetchedPriceData && fetchedPriceData.price != null) {
-      const { price } = fetchedPriceData;
+    onSuccess: data => {
+      if (!data?.price) {
+        return;
+      }
+      // If there is a price list price, update the form data
+      const { price } = data;
 
       const nextProduct = {
         ...(item.product || {}),
@@ -141,9 +143,8 @@ export const InvoiceItemRow = ({
         ...item,
         product: nextProduct,
       });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchedPriceData]);
+    },
+  });
 
   return (
     <StyledItemRow>
@@ -171,13 +172,15 @@ export const InvoiceItemRow = ({
         practitionerSuggester={practitionerSuggester}
         handleChangeOrderedBy={handleChangeOrderedBy}
       />
-      <PriceCell
-        index={index}
-        item={item}
-        isExpanded={isExpanded}
-        hidePriceInput={hidePriceInput}
-        priceListItemPrice={fetchedPriceData?.price}
-      />
+      {!isFetching && (
+        <PriceCell
+          index={index}
+          item={item}
+          isExpanded={isExpanded}
+          hidePriceInput={hidePriceInput}
+          priceListItemPrice={fetchedPriceData?.price}
+        />
+      )}
       <InvoiceItemActionsMenu
         index={index}
         item={item}

@@ -42,7 +42,7 @@ invoiceRoute.get(
       attributes: ['price'],
     });
 
-    res.json({ price: item ? item.price : null });
+    res.json(item);
   }),
 );
 
