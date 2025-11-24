@@ -270,6 +270,7 @@ export async function importRows(
               'UserFacility',
               'ProcedureTypeSurvey',
               'TranslatedString',
+              'ReferenceDataRelation',
             ].includes(model)
           ) {
             throw new Error(`Deleting ${model} via the importer is not supported`);
