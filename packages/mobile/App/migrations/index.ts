@@ -77,7 +77,6 @@ import { addTaskTables1754000000000 } from './1754000000000-addTaskTables';
 import { addMotherFatherIdToPatientAdditionalData1756663661549 } from './1756663661549-addMotherFatherIdToPatientAdditionalData';
 import { removeLocalPasswordAddPassword1760456312000 } from './1760456312000-removeLocalPasswordAddPassword';
 import { ensureSystemUserPresent1758183012000 } from './1758183012000-ensureSystemUserPresent';
-import { migrateNoteTypesToReferenceData1761474536815 } from './1761474536815-migrateNoteTypesToReferenceData';
 import { addNoteTypeIdColumn1761474536816 } from './1761474536816-addNoteTypeIdColumn';
 
 export const migrationList = [
@@ -159,6 +158,5 @@ export const migrationList = [
   addMotherFatherIdToPatientAdditionalData1756663661549,
   removeLocalPasswordAddPassword1760456312000,
   ensureSystemUserPresent1758183012000,
-  migrateNoteTypesToReferenceData1761474536815,
   addNoteTypeIdColumn1761474536816,
 ];
