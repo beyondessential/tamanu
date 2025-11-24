@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/synthetic-tests",
-  "version": "2.44.3",
+  "version": "2.44.4",
   "private": true,
   "dependencies": {
     "@tamanu/constants": "*",

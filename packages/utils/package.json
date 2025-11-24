@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/utils",
-  "version": "2.44.3",
+  "version": "2.44.4",
   "private": true,
   "description": "Common code across Tamanu packages",
   "main": "dist/cjs/index.js",
