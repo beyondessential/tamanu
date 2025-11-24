@@ -391,7 +391,19 @@ labRelations.put(
     const testIds = Object.keys(body);
 
     const labRequest = await models.LabRequest.findByPk(id);
-    const labTests = await labRequest.getTests();
+    const labTests = await labRequest.getTests({
+      where: {
+        id: {
+          [Op.in]: testIds,
+        },
+      },
+      include: [
+        {
+          model: models.LabTestType,
+          as: 'labTestType',
+        },
+      ],
+    });
 
     // Reject all updates if it includes sensitive tests and user lacks permission
     const areSensitiveTests = labTests.some((test) => test.labTestType.isSensitive);
