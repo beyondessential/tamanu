@@ -543,11 +543,11 @@ export class Encounter extends Model {
         changeType?: EncounterChangeType;
         onChange?: () => Promise<void>;
       }) => {
-        const isChanged = data[key] && data[key] !== this[key];
+        const isChanged = key in data && data[key] !== this[key];
         if (isChanged) {
           if (changeType) changeTypes.push(changeType);
-          let oldValue: any;
-          let newValue: any;
+          let oldValue: string;
+          let newValue: string;
           if (model) {
             const oldRecord = await model.findByPk(this[key], { raw: true });
             const newRecord = await model.findByPk(data[key], { raw: true });
