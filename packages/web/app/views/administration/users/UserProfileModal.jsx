@@ -357,7 +357,8 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
                         <Box fontWeight={400} fontSize={11}>
                           <TranslatedText
                             stringId="admin.users.deviceRegistrationQuota.helperText"
-                            fallback={`${registrationsRemaining} registration${registrationsRemaining !== 1 ? 's' : ''} remaining`}
+                            fallback="Remaining quota: :registrationsRemaining"
+                            replacements={{ registrationsRemaining }}
                           />
                         </Box>
                       }
