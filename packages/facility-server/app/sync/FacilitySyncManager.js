@@ -15,6 +15,7 @@ import {
   waitForPendingEditsUsingSyncTick,
 } from '@tamanu/database/sync';
 import { attachChangelogToSnapshotRecords, pauseAudit } from '@tamanu/database/utils/audit';
+import { Problem } from '@tamanu/errors';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges, streamIncomingChanges } from './pullIncomingChanges';
@@ -156,11 +157,21 @@ export class FacilitySyncManager {
       startedAtTick: newSyncClockTime,
     });
 
-    await this.pushChanges(sessionId, newSyncClockTime);
+    try {
+      await this.pushChanges(sessionId, newSyncClockTime);
 
-    await this.pullChanges(sessionId);
-
-    await this.centralServer.endSyncSession(sessionId);
+      await this.pullChanges(sessionId);
+      await this.centralServer.endSyncSession(sessionId);
+    } catch (error) {
+      if (!(error instanceof Problem && error.response)) {
+        // if the error is not a Problem or doesn't have a response, it occurred locally on the facility-server and we should notify the central server
+        await this.centralServer.markSessionErrored(sessionId, error.message);
+      }
+      throw error;
+    } finally {
+      // clear temp data stored for persist
+      await dropSnapshotTable(this.sequelize, sessionId);
+    }
 
     const durationMs = Date.now() - startTime;
     log.info('FacilitySyncManager.completedSession', {
@@ -169,8 +180,6 @@ export class FacilitySyncManager {
     this.lastDurationMs = durationMs;
     this.lastCompletedAt = new Date();
 
-    // clear temp data stored for persist
-    await dropSnapshotTable(this.sequelize, sessionId);
     return { queued: false, ran: true };
   }
 
@@ -228,8 +237,15 @@ export class FacilitySyncManager {
     // pull incoming changes also returns the sync tick that the central server considers this
     // session to have synced up to
     await createSnapshotTable(this.sequelize, sessionId);
-    const pull = (await this.centralServer.streaming()) ? streamIncomingChanges : pullIncomingChanges;
-    const { totalPulled, pullUntil } = await pull(this.centralServer, this.sequelize, sessionId, pullSince);
+    const pull = (await this.centralServer.streaming())
+      ? streamIncomingChanges
+      : pullIncomingChanges;
+    const { totalPulled, pullUntil } = await pull(
+      this.centralServer,
+      this.sequelize,
+      sessionId,
+      pullSince,
+    );
 
     if (this.constructor.config.sync.assertIfPulledRecordsUpdatedAfterPushSnapshot) {
       await assertIfPulledRecordsUpdatedAfterPushSnapshot(
