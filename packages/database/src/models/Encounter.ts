@@ -27,7 +27,6 @@ import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterM
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
-import { format } from 'date-fns';
 
 export class Encounter extends Model {
   declare id: string;
@@ -536,7 +535,6 @@ export class Encounter extends Model {
         labelKey = 'name',
         changeType,
         onChange,
-        isDateTime,
       }: {
         key: keyof Encounter;
         noteLabel: string;
@@ -544,7 +542,6 @@ export class Encounter extends Model {
         labelKey?: string;
         changeType?: EncounterChangeType;
         onChange?: () => Promise<void>;
-        isDateTime?: boolean;
       }) => {
         const isChanged = data[key] && data[key] !== this[key];
         if (isChanged) {
@@ -557,8 +554,8 @@ export class Encounter extends Model {
             oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
             newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
           } else {
-            oldValue = this[key];
-            newValue = data[key];
+            oldValue = this[key] ?? '-';
+            newValue = data[key] ?? '-';
           }
           addSystemNoteRow(`Changed ${noteLabel} from ‘${oldValue}’ to ‘${newValue}’`);
           await onChange?.();
