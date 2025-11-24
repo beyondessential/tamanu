@@ -555,7 +555,7 @@ describe('Encounter', () => {
 
         expect(result).toHaveSucceeded();
         expect(notes.content).toEqual(
-          `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
+          `• Changed location from ‘${locationGroup.name}, ${location.name}’ to ‘${locationGroup2.name}, ${location2.name}’`,
         );
       });
 
@@ -582,7 +582,7 @@ describe('Encounter', () => {
         const notes = await existingEncounter.getNotes();
         expect(notes).toHaveLength(1);
         expect(notes[0].content).toEqual(
-          `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
+          `• Changed supervising clinician from ‘${fromClinician.displayName}’ to ‘${toClinician.displayName}’`,
         );
         expect(notes[0].authorId).toEqual(app.user.id);
       });
