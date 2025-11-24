@@ -141,11 +141,11 @@ export const afterCreateHook = async (instance: ImagingRequest) => {
 };
 
 export const afterUpdateHook = async (
-  labRequest: ImagingRequest,
+  imagingRequest: ImagingRequest,
   options: InstanceUpdateOptions,
 ) => {
   await Promise.all([
-    pushNotificationAfterUpdateHook(labRequest, options),
-    addOrRemoveFromInvoiceAfterUpdateHook(labRequest),
+    pushNotificationAfterUpdateHook(imagingRequest, options),
+    addOrRemoveFromInvoiceAfterUpdateHook(imagingRequest),
   ]);
 };
