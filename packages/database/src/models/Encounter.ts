@@ -571,11 +571,8 @@ export class Encounter extends Model {
           if (model) {
             const oldRecord = await model.findByPk(this[key], { raw: true });
             const newRecord = await model.findByPk(data[key], { raw: true });
-            if (!oldRecord || !newRecord) {
-              throw new InvalidOperationError('Record not found');
-            }
-            oldValue = oldRecord[labelKey as keyof typeof oldRecord] ?? '-';
-            newValue = newRecord[labelKey as keyof typeof newRecord] ?? '-';
+            oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
+            newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
           } else if (isDateTime) {
             oldValue = this[key] ? format(this[key], 'MM/dd/yyyy h:mma') : '-';
             newValue = data[key] ? format(data[key], 'MM/dd/yyyy h:mma') : '-';
