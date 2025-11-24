@@ -192,7 +192,7 @@ describe('Admissions report', () => {
           recordId: expectedEncounter.id,
           noteType: 'system',
           content: {
-            [Op.like]: '• Changed department from%',
+            [Op.like]: '%Changed department from%',
           },
         },
       });
@@ -202,7 +202,7 @@ describe('Admissions report', () => {
           recordId: expectedEncounter.id,
           noteType: 'system',
           content: {
-            [Op.like]: '• Changed location from%',
+            [Op.like]: '%Changed location from%',
           },
         },
       });
