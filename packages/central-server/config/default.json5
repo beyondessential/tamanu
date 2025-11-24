@@ -3,7 +3,6 @@
   "deviceId": null,
   // this should be set to the external address of the server, e.g. "https://central.main.cd.tamanu.app"
   "canonicalHostName": "http://localhost:3000",
-  "portalHostName": "http://localhost:5175",
   "db": {
     "name": "tamanu-central",
     // when verbose to true, log.consoleLevel must be set to "debug" to see any output
@@ -542,7 +541,7 @@
     "upcomingRecordsShouldBeGeneratedTimeFrame": 72, // hours
   },
   "patientPortal": {
-    "portalUrl": "http://localhost:5175",
+    "portalUrl": null,
     "tokenDuration": "24h",
     "loginTokenDurationMinutes": 20,
     "registerTokenDurationMinutes": 43800 // 1 month
