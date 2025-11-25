@@ -27,6 +27,7 @@ import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterM
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
+import { compact, isEqual, map } from 'lodash';
 
 export class Encounter extends Model {
   declare id: string;
@@ -618,6 +619,21 @@ export class Encounter extends Model {
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
+      }
+
+      const currentDiets = await (this as any).getDiets();
+      const currentDietIds = map(currentDiets, 'id');
+      if (data.dietIds && !isEqual(currentDietIds, JSON.parse(data.dietIds))) {
+        const newDietIds = JSON.parse(data.dietIds);
+        const oldDietString = map(currentDiets, 'name').join(', ') || '-';
+        const newDietNames = await Promise.all(
+          map(newDietIds, async (dietId: string) => {
+            const diet = await ReferenceData.findByPk(dietId);
+            return diet?.name;
+          }),
+        );
+        const newDietString = compact(newDietNames).join(', ') || '-';
+        systemNoteRows.push(`Changed diet from '${oldDietString}' to '${newDietString}'`);
       }
 
       await recordTextColumnChange({
