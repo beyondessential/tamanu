@@ -265,11 +265,7 @@ invoiceRoute.put(
         if (item.product) {
           item.productNameFinal = item.product.name;
 
-          // Get code from the appropriate source record
-          const sourceRecord =
-            item.product.sourceRefDataRecord ||
-            item.product.sourceLabTestTypeRecord ||
-            item.product.sourceLabTestPanelRecord;
+          const sourceRecord = getProductCode(item);
           item.productCodeFinal = sourceRecord?.code || null;
 
           if (

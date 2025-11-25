@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
+import { INVOICE_ITEMS_CATEGORIES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 
@@ -11,6 +11,10 @@ export class InvoiceProduct extends Model {
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
   declare visibilityStatus: string;
+
+  declare sourceRefDataRecord?: any;
+  declare sourceLabTestTypeRecord?: any;
+  declare sourceLabTestPanelRecord?: any;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -85,5 +89,31 @@ export class InvoiceProduct extends Model {
 
   static getFullReferenceAssociations() {
     return ['invoicePriceListItems'];
+  }
+
+  getSourceRecord() {
+    switch (this.category) {
+      case INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE:
+      case INVOICE_ITEMS_CATEGORIES.IMAGING_TYPE:
+      case INVOICE_ITEMS_CATEGORIES.IMAGING_AREA:
+      case INVOICE_ITEMS_CATEGORIES.DRUG:
+        return this.sourceRefDataRecord;
+      case INVOICE_ITEMS_CATEGORIES.LAB_TEST_TYPE:
+        return this.sourceLabTestTypeRecord;
+      case INVOICE_ITEMS_CATEGORIES.LAB_TEST_PANEL:
+        return this.sourceLabTestPanelRecord;
+      default:
+        return (
+          this.sourceRefDataRecord ||
+          this.sourceLabTestTypeRecord ||
+          this.sourceLabTestPanelRecord ||
+          null
+        );
+    }
+  }
+
+  getProductCode(): string | null {
+    const sourceRecord = this.getSourceRecord();
+    return sourceRecord?.code || null;
   }
 }
