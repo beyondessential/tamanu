@@ -183,7 +183,7 @@ export const PatientPaymentsTable = ({ invoice }) => {
     {
       key: 'status',
       title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
-      accessor: () => 'Paid',
+      accessor: () => <TranslatedText stringId="invoice.paymentStatus.paid" fallback="Paid" />,
       sortable: false,
     },
     {
