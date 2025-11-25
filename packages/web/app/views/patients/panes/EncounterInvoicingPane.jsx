@@ -139,7 +139,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>
-            {(cancelable || deletable) && (
+            {(cancelable || deletable || finalisable) && (
               <ActionsPane data-testid="actionspane-l9ey">
                 <NoteModalActionBlocker>
                   <ThreeDotMenu
