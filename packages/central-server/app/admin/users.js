@@ -474,7 +474,7 @@ usersRouter.put(
     }
 
     // Add deviceRegistrationQuota to update fields if provided
-    if (fields.deviceRegistrationQuota && fields.deviceRegistrationQuota !== 0) {
+    if (fields.deviceRegistrationQuota != null) {
       updateFields.deviceRegistrationQuota = fields.deviceRegistrationQuota;
     }
 

@@ -88,6 +88,10 @@ export const AddUserModal = ({ open, onClose, handleRefresh }) => {
   const facilitySuggester = useSuggester('facility', { baseQueryParameters: { noLimit: true } });
 
   const handleSubmit = async (values, { setFieldError }) => {
+    if (values.deviceRegistrationQuota?.trim() === '') {
+      delete values.deviceRegistrationQuota;
+    }
+
     const data = await validateUser(values);
     if (!data.isEmailUnique) {
       setFieldError(

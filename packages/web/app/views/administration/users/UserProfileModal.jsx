@@ -149,6 +149,10 @@ export const UserProfileModal = ({ open, onClose, user, handleRefresh }) => {
   ];
 
   const handleSubmit = async (values, { setFieldError }) => {
+    if (values.deviceRegistrationQuota?.trim() === '') {
+      delete values.deviceRegistrationQuota;
+    }
+
     // Only validate if email or displayName changed
     const emailChanged = values.email !== user.email;
     const displayNameChanged = values.displayName !== user.displayName;
