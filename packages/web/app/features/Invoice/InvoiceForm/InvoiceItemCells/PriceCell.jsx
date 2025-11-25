@@ -124,7 +124,7 @@ export const PriceCell = ({
   isExpanded,
 }) => {
   // Todo: Determine input state based on productPriceManualEntry when it's implemented
-  const hidePriceInput = item.productPrice === null || !editable;
+  const hidePriceInput = item.manualEntryPrice === null || !editable;
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActions({
     item,
     index,
@@ -156,7 +156,7 @@ export const PriceCell = ({
             item.productId && (
               <NoteModalActionBlocker>
                 <Field
-                  name={`invoiceItems.${index}.productPrice`}
+                  name={`invoiceItems.${index}.manualEntryPrice`}
                   component={PriceField}
                   required
                   style={{ width: '100%' }}

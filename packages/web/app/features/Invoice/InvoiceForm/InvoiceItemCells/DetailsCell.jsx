@@ -16,7 +16,6 @@ export const DetailsCell = ({
   isItemEditable,
   invoiceProductsSuggester,
   handleChangeProduct,
-  nonDiscountableTranslation,
   editable,
 }) => (
   <ItemCell width="28%">
@@ -32,10 +31,7 @@ export const DetailsCell = ({
         />
       </NoteModalActionBlocker>
     ) : (
-      <ViewOnlyCell>
-        {item.product?.name}
-        {item.productId && (item.productDiscountable ? '' : ` (${nonDiscountableTranslation})`)}
-      </ViewOnlyCell>
+      <ViewOnlyCell>{item.product?.name}</ViewOnlyCell>
     )}
     {item.note && (
       <Box

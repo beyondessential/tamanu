@@ -169,7 +169,6 @@ export class Invoice extends Model {
       orderedByUserId,
       orderDate: new Date(),
       quantity: 1,
-      productDiscountable: invoiceProduct.discountable,
     });
   }
 
@@ -189,10 +188,7 @@ export class Invoice extends Model {
     });
   }
 
-  static async initializeInvoice(
-    userId: string,
-    data: any,
-  ) {
+  static async initializeInvoice(userId: string, data: any) {
     const transaction = await this.sequelize.transaction();
     try {
       const invoice = await this.create(data, { transaction });

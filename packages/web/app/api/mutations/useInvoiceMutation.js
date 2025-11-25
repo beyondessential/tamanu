@@ -48,7 +48,7 @@ export const useFinaliseInvoice = invoice => {
 
   return useMutation({
     mutationFn: async () => {
-      await api.put(`invoices/${invoice?.id}/finalize`);
+      await api.put(`invoices/${invoice?.id}/finalize`, { encounterId: invoice?.encounterId });
       await queryClient.invalidateQueries([`encounter/${invoice?.encounterId}/invoice`]);
       await queryClient.invalidateQueries({
         queryKey: [`patient/${invoice.encounter?.patientId}/invoices/totalOutstandingBalance`],

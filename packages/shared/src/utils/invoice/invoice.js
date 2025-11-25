@@ -32,7 +32,13 @@ const discountAmount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  */
 export const getInvoiceItemTotalPrice = invoiceItem => {
-  const price = invoiceItem.productPrice || invoiceItem?.product?.invoicePriceListItem?.price || 0;
+  // Prefer final price if present, then manual entry price, then legacy productPrice,
+  // otherwise fall back to price list item price
+  const price =
+    invoiceItem.priceFinal ??
+    invoiceItem.manualEntryPrice ??
+    invoiceItem?.product?.invoicePriceListItem?.price ??
+    0;
   const quantity = invoiceItem.quantity || 0;
   return new Decimal(price).times(quantity).toNumber();
 };

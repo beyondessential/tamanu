@@ -56,10 +56,7 @@ invoiceRoute.post(
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
     // Handles invoice creation with default insurer and discount
-    const invoice = await req.models.Invoice.initializeInvoice(
-      req.user.id,
-      data,
-    );
+    const invoice = await req.models.Invoice.initializeInvoice(req.user.id, data);
     res.json(invoice);
   }),
 );
@@ -86,13 +83,10 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productName: z.string().nullish(),
         productPrice: z.coerce
           .number()
           .transform(amount => round(amount, 2))
           .nullish(),
-        productCode: z.string().default('').nullish(),
-        productDiscountable: z.boolean().default(true),
         quantity: z.coerce.number().default(1),
         note: z.string().nullish(),
         sourceId: z.string().uuid().nullish(),
@@ -240,8 +234,6 @@ invoiceRoute.put(
 
 /**
  * Finalize invoice
- * - An invoice cannot be finalised until the Encounter has been closed
- * - Only in progress invoices can be finalised
  * - Invoice items data will be frozen
  */
 invoiceRoute.put(
@@ -249,30 +241,59 @@ invoiceRoute.put(
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
     const invoiceId = req.params.id;
-    const invoice = await req.models.Invoice.findByPk(invoiceId, {
-      attributes: ['id', 'status'],
+    const { Invoice, InvoicePriceList } = req.models;
+    const { encounterId } = req.body;
+
+    if (!encounterId) {
+      throw new NotFoundError('encounterId is required');
+    }
+
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    const invoice = await Invoice.findByPk(invoiceId, {
+      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
     });
-    if (!invoice) throw new NotFoundError('Invoice not found');
-
-    //only in progress invoices can be finalised
-    if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
-      throw new InvalidOperationError('Only in progress invoices can be finalised');
+    if (!invoice) {
+      throw new NotFoundError('Invoice not found');
     }
 
-    //An invoice cannot be finalised until the Encounter has been closed
-    //an encounter is considered closed if it has an end date
-    const encounterClosed = await req.models.Encounter.findByPk(invoice.encounterId, {
-      attributes: ['endDate'],
-    }).then(encounter => !!encounter?.endDate);
+    const transaction = await req.db.transaction();
 
-    if (encounterClosed) {
-      throw new InvalidOperationError(
-        'Ivnvoice cannot be finalised until the Encounter has been closed',
-      );
+    try {
+      // Copy product details to invoice item final fields
+      for (const item of invoice.items) {
+        if (item.product) {
+          item.productNameFinal = item.product.name;
+
+          // Get code from the appropriate source record
+          const sourceRecord =
+            item.product.sourceRefDataRecord ||
+            item.product.sourceLabTestTypeRecord ||
+            item.product.sourceLabTestPanelRecord;
+          item.productCodeFinal = sourceRecord?.code || null;
+
+          if (
+            item.product.invoicePriceListItem &&
+            item.product.invoicePriceListItem.price !== null
+          ) {
+            item.priceFinal = item.product.invoicePriceListItem.price;
+          } else {
+            item.priceFinal = item.manualEntryPrice;
+          }
+          // Todo: save insurance plan coverage values
+          await item.save({ transaction });
+        }
+      }
+
+      invoice.status = INVOICE_STATUSES.FINALISED;
+      await invoice.save({ transaction });
+
+      await transaction.commit();
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
     }
 
-    invoice.status = INVOICE_STATUSES.FINALISED;
-    await invoice.save();
     res.json(invoice);
   }),
 );

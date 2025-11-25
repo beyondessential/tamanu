@@ -4,7 +4,6 @@ import { useSuggester } from '../../../api';
 import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
-import { useTranslation } from '../../../contexts/Translation';
 import {
   PriceCell,
   DateCell,
@@ -54,20 +53,13 @@ export const InvoiceItemRow = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.sourceRecordId && editable;
-  const { getTranslation } = useTranslation();
-  const nonDiscountableTranslation = getTranslation(
-    'invoice.table.details.nonDiscountable',
-    'Non-discountable',
-    {
-      casing: 'lower',
-    },
-  );
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id, ...others }) => ({
       ...others,
       productName: name,
-      label: others.discountable ? name : `${name} (${nonDiscountableTranslation})`,
+      productNameFinal: name,
+      label: name,
       value: id,
     }),
   });
@@ -88,9 +80,6 @@ export const InvoiceItemRow = ({
     formArrayMethods.replace(index, {
       ...item,
       productId: value.value,
-      productName: value.productName,
-      productCode: value.code,
-      productDiscountable: value.discountable,
     });
   };
 
@@ -112,7 +101,6 @@ export const InvoiceItemRow = ({
         isItemEditable={isItemEditable}
         invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
-        nonDiscountableTranslation={nonDiscountableTranslation}
         editable={editable}
       />
       <CodeCell item={item} />

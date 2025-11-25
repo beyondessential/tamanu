@@ -38,7 +38,7 @@ export const FinaliseInvoiceModal = ({ open, onClose, invoice }) => {
       <ContentText data-testid="contenttext-ebxz">
         <TranslatedText
           stringId="invoice.modal.finaliseInvoice.warningText"
-          fallback="Are you sure you would like to finalise this invoice? You will not be able to make any changes."
+          fallback="Are you sure you would like to finalise this invoice? You will not be able to make any changes to the invoice after finalising."
           data-testid="translatedtext-80vy"
         />
       </ContentText>

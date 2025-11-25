@@ -50,20 +50,7 @@ const getPrice = row => {
 };
 
 const getInvoiceItemDetails = row => {
-  if (row.productDiscountable) {
-    return row.productName;
-  }
-  return (
-    <>
-      {row.productName} {'('}
-      <TranslatedText
-        stringId="invoice.table.details.nonDiscountable"
-        fallback="Non-discountable"
-        data-testid="translatedtext-s9s9"
-      />
-      {')'}
-    </>
-  );
+  return row.productNameFinal ?? row.product.name;
 };
 
 const INVOICE_LINE_COLUMNS = [
@@ -94,7 +81,7 @@ const INVOICE_LINE_COLUMNS = [
     TitleCellComponent: StyledTitleCell,
   },
   {
-    key: 'productCode',
+    key: 'productCodeFinal',
     title: (
       <TranslatedText
         stringId="invoice.table.column.code"
@@ -103,6 +90,7 @@ const INVOICE_LINE_COLUMNS = [
       />
     ),
     sortable: false,
+    accessor: ({ productCodeFinal, productCode }) => productCodeFinal ?? productCode,
     TitleCellComponent: StyledTitleCell,
   },
   {
