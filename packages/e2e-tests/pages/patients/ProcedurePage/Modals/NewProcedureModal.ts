@@ -149,7 +149,6 @@ export class NewProcedureModal extends BasePage {
   }
 
   async waitForModalToLoad(): Promise<void> {
-   await this.procedureModalHeader.waitFor({ state: 'visible' });
    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
   }
 
