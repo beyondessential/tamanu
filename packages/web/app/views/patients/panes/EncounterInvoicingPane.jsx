@@ -84,11 +84,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
+  const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+  const finalisable = invoice.status === INVOICE_STATUSES.IN_PROGRESS && canCreateInvoice;
   const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   if (isLoading) {
@@ -176,6 +178,16 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
                   </Button>
                 </NoteModalActionBlocker>
+                {finalisable && (
+                  <NoteModalActionBlocker>
+                    <OutlinedButton
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+                      data-testid="button-yicz"
+                    >
+                      <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
+                    </OutlinedButton>
+                  </NoteModalActionBlocker>
+                )}
               </ActionsPane>
             )}
             {!editable && (
