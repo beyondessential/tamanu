@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
-import { styles, CertificateContent, CertificateHeader} from './Layout';
+import { styles, CertificateContent, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { withLanguageContext } from '../pdf/languageContext';
@@ -27,10 +27,14 @@ const LabResultsPrintoutComponent = React.memo(
             <LetterheadSection
               logoSrc={logo}
               letterheadConfig={certificateData}
-              certificateTitle="Lab results" 
+              certificateTitle="Lab results"
             />
             <SectionContainer>
-              <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
+              <PatientDetailsWithBarcode
+                patient={patientData}
+                getLocalisation={getLocalisation}
+                getSetting={getSetting}
+              />
             </SectionContainer>
             <SectionContainer>
               <EncounterDetails encounter={encounter} hideLocation />
@@ -38,7 +42,7 @@ const LabResultsPrintoutComponent = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-                <LabRequestDetailsView labRequests={labRequests} />
+              <LabRequestDetailsView labRequests={labRequests} />
             </SectionContainer>
           </CertificateContent>
         </Page>
@@ -47,6 +51,4 @@ const LabResultsPrintoutComponent = React.memo(
   },
 );
 
-export const LabResultsPrintout = withLanguageContext(
-  LabResultsPrintoutComponent,
-);
+export const LabResultsPrintout = withLanguageContext(LabResultsPrintoutComponent);
