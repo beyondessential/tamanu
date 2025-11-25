@@ -32,7 +32,9 @@ async function hydrateInvoices(invoiceRecords, models) {
       }
 
       const invoice = hydratedInvoiceRecord.get({ plain: true });
-      const invoiceItemsResponse = invoice.items.map(mapInsurancePlanItems(invoice.insurancePlans));
+      const invoiceItemsResponse = hydratedInvoiceRecord.items.map(
+        mapInsurancePlanItems(hydratedInvoiceRecord),
+      );
       return { ...invoice, items: invoiceItemsResponse };
     }),
   );

@@ -264,9 +264,7 @@ invoiceRoute.put(
       for (const item of invoice.items) {
         if (item.product) {
           item.productNameFinal = item.product.name;
-
-          const sourceRecord = getProductCode(item);
-          item.productCodeFinal = sourceRecord?.code || null;
+          item.productCodeFinal = item.product.getProductCode();
 
           if (
             item.product.invoicePriceListItem &&
