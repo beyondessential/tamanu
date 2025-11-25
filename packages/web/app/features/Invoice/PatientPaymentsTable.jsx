@@ -181,6 +181,12 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
     },
     {
+      key: 'status',
+      title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
+      accessor: () => 'Paid',
+      sortable: false,
+    },
+    {
       key: '',
       sortable: false,
       accessor: row =>
@@ -212,14 +218,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
       width ${showChequeNumberColumn ? '15%' : '13%'};
     }
     &:nth-child(4) {
-      width ${showChequeNumberColumn ? '13%' : '18%'};
+      width ${showChequeNumberColumn ? '18%' : '25%'};
     }
     ${showChequeNumberColumn ? `&:nth-child(5) { width 18%; }` : ''}
-    &.MuiTableCell-body {
-      padding: 12px 12px 12px 0px;
-      &:last-child {
+
+    &.MuiTableCell-root {
+      padding: 12px 0;
+    }
+
+    &.MuiTableCell-body:last-child {
         padding-right: 5px;
-      }
     }
   `;
 
