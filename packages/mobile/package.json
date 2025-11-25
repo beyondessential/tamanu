@@ -1,6 +1,6 @@
 {
   "name": "@tamanu/mobile",
-  "version": "2.44.4",
+  "version": "2.44.5",
   "private": true,
   "scripts": {
     "android": "npx react-native start --reset-cache",
