@@ -113,8 +113,8 @@ describe('FacilitySyncManager edge cases', () => {
     // argument to pushOutgoingChanges, which we spy on)
     expect(
       syncManager.__testOnlyPushChangesSpy[0].outgoingChanges
-        .filter((c) => c.recordType === 'patients')
-        .map((c) => c.recordId)
+        .filter(c => c.recordType === 'patients')
+        .map(c => c.recordId)
         .sort(),
     ).toStrictEqual([safePatientId, riskyPatientId].sort());
   });
@@ -177,6 +177,7 @@ describe('FacilitySyncManager edge cases', () => {
               },
             },
           ]),
+          markSessionErrored: jest.fn(),
           completePush: jest.fn(),
           endSyncSession: jest.fn(),
           initiatePull: jest.fn().mockImplementation(async () => ({
@@ -200,7 +201,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('does not throw an error if pulled records was not updated between push and pull', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise((resolve) => {
+      const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
@@ -229,7 +230,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('throws an error if a pulled record was updated between push and pull', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise((resolve) => {
+      const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
@@ -264,7 +265,7 @@ describe('FacilitySyncManager edge cases', () => {
 
     it('does not throw an error if a pulled record was updated between push and pull, but the config was disabled', async () => {
       let resolvePushOutgoingChangesPromise;
-      const pushOutgoingChangesPromise = new Promise((resolve) => {
+      const pushOutgoingChangesPromise = new Promise(resolve => {
         resolvePushOutgoingChangesPromise = async () => resolve(true);
       });
       jest.doMock('../../dist/sync/pushOutgoingChanges', () => ({
@@ -292,6 +293,90 @@ describe('FacilitySyncManager edge cases', () => {
 
       // No expects as if there is an error, it should fail the test
       await syncPromise;
+    });
+  });
+
+  describe('Posts local errors back to central server', () => {
+    beforeAll(async () => {
+      jest.resetModules();
+    });
+
+    it('Will notify central-server if the error occurred locally on the facility-server', async () => {
+      const errorMessage = 'Local error';
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../dist/sync/FacilitySyncManager');
+
+      const markSessionErrored = jest.fn();
+
+      // start the sync
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: {
+          streaming: () => false,
+          startSyncSession: jest.fn().mockImplementation(async () => ({
+            sessionId: TEST_SESSION_ID,
+            startedAtTick: '1',
+          })),
+          push: jest.fn(),
+          pull: jest.fn().mockImplementation(async () => {
+            throw new Error(errorMessage);
+          }),
+          completePush: jest.fn(),
+          endSyncSession: jest.fn(),
+          initiatePull: jest.fn().mockImplementation(async () => ({
+            totalToPull: 1,
+            pullUntil: 1,
+          })),
+          markSessionErrored,
+        },
+      });
+      const syncPromise = syncManager.runSync();
+
+      await expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow(errorMessage);
+      expect(markSessionErrored).toHaveBeenCalledWith(TEST_SESSION_ID, errorMessage);
+    });
+
+    it('Will not notify central-server if the error occurred remotely on the central-server', async () => {
+      const errorMessage = 'Remote error';
+
+      jest.doMock('@tamanu/api-client/fetch', () => ({
+        ...jest.requireActual('@tamanu/api-client/fetch'),
+        fetchOrThrowIfUnavailable: jest.fn().mockImplementation(() => {
+          throw new Error(errorMessage);
+        }),
+      }));
+
+      const {
+        FacilitySyncManager: TestFacilitySyncManager,
+      } = require('../../dist/sync/FacilitySyncManager');
+
+      const { CentralServerConnection: TestCentralServerConnection } = jest.requireActual(
+        '../../dist/sync/CentralServerConnection',
+      );
+
+      const markSessionErrored = jest.fn();
+
+      const centralServerConnection = new TestCentralServerConnection({
+        deviceId: 'test',
+      });
+
+      // start the sync
+      const syncManager = new TestFacilitySyncManager({
+        models,
+        sequelize,
+        centralServer: centralServerConnection,
+      });
+      const syncPromise = syncManager.runSync();
+
+      await expect(async () => {
+        await syncPromise;
+      }).rejects.toThrow(errorMessage);
+      expect(markSessionErrored).not.toHaveBeenCalled();
     });
   });
 });

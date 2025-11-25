@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import * as z from 'zod';
 
 import { Op } from 'sequelize';
 import { log } from '@tamanu/shared/services/logging';
@@ -336,6 +337,22 @@ export const buildSyncRoutes = ctx => {
       const { sessionId } = params;
       const isComplete = await syncManager.checkPushComplete(sessionId);
       res.json(isComplete);
+    }),
+  );
+
+  const postErrorBodySchema = z.object({
+    error: z.string(),
+  });
+  // mark session as errored, so server will record the error and cancel the sync
+  syncRoutes.post(
+    '/:sessionId/error',
+    asyncHandler(async (req, res) => {
+      const { params } = req;
+      const { sessionId } = params;
+      const { error } = await postErrorBodySchema.parseAsync(req.body);
+
+      await syncManager.endSession(sessionId, error);
+      res.json({});
     }),
   );
 
