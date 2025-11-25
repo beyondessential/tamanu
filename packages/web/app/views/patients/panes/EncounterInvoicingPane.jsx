@@ -90,7 +90,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice.status === INVOICE_STATUSES.IN_PROGRESS && canCreateInvoice;
+  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
   const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   if (isLoading) {
