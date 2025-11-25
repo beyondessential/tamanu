@@ -5,7 +5,7 @@ import { getLocationName } from '../../patientAccessors';
 import { Col } from '../Layout';
 import { HorizontalRule } from './HorizontalRule';
 
-export const EncounterDetails = ({ encounter }) => {
+export const EncounterDetails = ({ encounter, hideLocation = false }) => {
   const { location, department } = encounter || {};
 
   return (
@@ -13,7 +13,7 @@ export const EncounterDetails = ({ encounter }) => {
       <DataSection title="Encounter details" hideBottomRule>
         <Col>
           <DataItem label="Facility" value={location?.facility?.name} />
-          <DataItem label="Location" value={getLocationName(encounter)} />
+          {!hideLocation && <DataItem label="Location" value={getLocationName(encounter)} />}
         </Col>
         <Col>
           <DataItem label="Department" value={department?.name} />

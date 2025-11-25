@@ -32,7 +32,7 @@ const LabResultsPrintoutComponent = React.memo(
               <PatientDetailsWithBarcode patient={patientData} getLocalisation={getLocalisation} getSetting={getSetting} />
             </SectionContainer>
             <SectionContainer>
-              <EncounterDetails encounter={encounter} />
+              <EncounterDetails encounter={encounter} hideLocation />
             </SectionContainer>
           </CertificateHeader>
           <CertificateContent>
