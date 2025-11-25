@@ -182,6 +182,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                   <NoteModalActionBlocker>
                     <OutlinedButton
                       onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+                      style={{ marginRight: 10 }}
                       data-testid="button-yicz"
                     >
                       <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
