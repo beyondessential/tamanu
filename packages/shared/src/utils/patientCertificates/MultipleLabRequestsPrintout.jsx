@@ -6,18 +6,12 @@ import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithB
 import { styles, CertificateContent, CertificateHeader, Col, Row, Signature } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { P } from './Typography';
-import { DataItem } from './printComponents/DataItem';
-import { PrintableBarcode } from './printComponents/PrintableBarcode';
-import { HorizontalRule } from './printComponents/HorizontalRule';
 import { EncounterDetails } from './printComponents/EncounterDetails';
-import { getDisplayDate } from './getDisplayDate';
-import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { Text } from '../pdf/Text';
+import { LabRequestDetailsView } from './LabRequestDetailsView';
 
-const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-const headingFontSize = 11;
 const textFontSize = 9;
 
 const signingSectionStyles = StyleSheet.create({
@@ -30,19 +24,6 @@ const signingSectionStyles = StyleSheet.create({
   disclaimerText: {
     fontStyle: 'italic',
     fontSize: 8,
-  },
-});
-
-const labDetailsSectionStyles = StyleSheet.create({
-  barcodeLabelText: {
-    marginTop: 9,
-  },
-  divider: {
-    borderBottom: '2px solid black',
-    marginVertical: '10px',
-  },
-  detailsContainer: {
-    marginBottom: 5,
   },
 });
 
@@ -82,79 +63,6 @@ const LabRequestSigningSection = ({ getTranslation }) => {
           </Text>
         </Col>
       </Row>
-    </View>
-  );
-};
-
-const LabRequestDetailsView = ({ labRequests }) => {
-  const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
-    if (labTestPanelRequest) {
-      return labTestPanelRequest.labTestPanel.name;
-    }
-    return tests?.map(test => test.labTestType?.name).join(', ') || '';
-  };
-
-  const notesAccessor = ({ notes }) => {
-    return (
-      notes
-        ?.map(note => note?.content || '')
-        .filter(Boolean)
-        .join(',\n') || ''
-    );
-  };
-
-  return (
-    <View>
-      <P bold fontSize={headingFontSize} mb={3}>
-        Lab request details
-      </P>
-      <HorizontalRule />
-      {labRequests.map((request, index) => {
-        return (
-          <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-            <Row>
-              <Col>
-                <DataItem label="Request ID" value={request.displayId} />
-                <DataItem label="Priority" value={request.priority?.name} />
-                <DataItem
-                  label="Requested date & time"
-                  value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Requested by" value={request.requestedBy?.displayName} />
-                <DataItem label="Test category" value={request.category?.name} />
-                <DataItem label="Tests" value={labTestTypeAccessor(request)} />
-              </Col>
-              <Col>
-                <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
-                    Request ID barcode:
-                  </P>
-                  <PrintableBarcode id={request.displayId} />
-                </Row>
-              </Col>
-            </Row>
-            <Row>
-              <DataItem label="Notes" value={notesAccessor(request)} />
-            </Row>
-            <HorizontalRule />
-            <Row>
-              <Col>
-                <DataItem
-                  label="Sample date & time"
-                  value={getDisplayDate(request.sampleTime, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Collected by" value={request.collectedBy?.displayName} />
-              </Col>
-              <Col>
-                <DataItem label="Site" value={request.site?.name} />
-                <DataItem label="Specimen type" value={request.specimenType?.name} />
-              </Col>
-            </Row>
-            {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
-          </View>
-        );
-      })}
-      <DoubleHorizontalRule />
     </View>
   );
 };

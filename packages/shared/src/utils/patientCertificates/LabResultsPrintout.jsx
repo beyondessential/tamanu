@@ -7,6 +7,7 @@ import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
+import { LabRequestDetailsView } from './LabRequestDetailsView';
 
 const generalStyles = StyleSheet.create({
   container: {
@@ -17,7 +18,7 @@ const generalStyles = StyleSheet.create({
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const LabResultsPrintoutComponent = React.memo(
-  ({ patientData, encounter, certificateData, getLocalisation, getSetting }) => {
+  ({ patientData, encounter, labRequests, certificateData, getLocalisation, getSetting }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -36,6 +37,9 @@ const LabResultsPrintoutComponent = React.memo(
             </SectionContainer>
           </CertificateHeader>
           <CertificateContent>
+            <SectionContainer>
+                <LabRequestDetailsView labRequests={labRequests} />
+            </SectionContainer>
           </CertificateContent>
         </Page>
       </Document>
