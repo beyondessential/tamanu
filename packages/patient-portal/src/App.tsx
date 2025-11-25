@@ -15,7 +15,7 @@ export const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={<PrivateRoute element={<DashboardView />} />} />
-        <Route path="/survey/:surveyId" element={<PublicRoute element={<SurveyView />} />} />
+        <Route path="/survey/:surveyId" element={<PrivateRoute element={<SurveyView />} />} />
         <Route path="/login" element={<PublicRoute element={<RequestLoginTokenView />} />} />
         <Route path="/login-submit" element={<PublicRoute element={<LoginView />} />} />
         <Route path="/register/:token" element={<PublicRoute element={<RegistrationView />} />} />
