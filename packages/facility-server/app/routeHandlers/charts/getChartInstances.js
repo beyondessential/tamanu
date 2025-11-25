@@ -18,11 +18,30 @@ export const fetchChartInstances = (options = {}) =>
 
     req.checkPermission(permissionAction, subject('Charting', { id: chartSurveyId }));
 
-    const survey = await models.Survey.findByPk(chartSurveyId);
-    const isChartLinkedToProgramRegistry = survey?.programId != null;
+    const survey = await models.Survey.findOne({
+      where: { id: chartSurveyId },
+      include: [
+        {
+          model: models.Program,
+          as: 'program',
+          required: false,
+          include: [
+            {
+              model: models.ProgramRegistry,
+              as: 'programRegistries',
+              required: false,
+              limit: 1,
+            },
+          ],
+        },
+      ],
+    });
+
+    const isChartLinkedToProgramRegistry =
+      survey?.program?.programRegistries && survey.program.programRegistries.length > 0;
 
     let encounterFilter;
-    let currentEncounterEndDate = null;
+    let currentEncounterDate = null;
     let encounterPatientId = patientId;
 
     if (encounterId) {
@@ -33,20 +52,13 @@ export const fetchChartInstances = (options = {}) =>
       encounterPatientId = currentEncounter.patientId;
 
       if (isChartLinkedToProgramRegistry) {
-        // Chart is linked to program registry: show instances from current and future encounters
-        if (currentEncounter.endDate) {
-          currentEncounterEndDate = currentEncounter.endDate;
-          encounterFilter = `
-            e.patient_id = :encounterPatientId 
-            AND e.end_date <= :currentEncounterEndDate
-            AND e.deleted_at IS NULL
-          `;
-        } else {
-          encounterFilter = `
-            e.patient_id = :encounterPatientId 
-            AND e.deleted_at IS NULL
-          `;
-        }
+        // Chart is linked to program registry: show instances from encounters that started on or before current encounter
+        currentEncounterDate = currentEncounter.endDate || currentEncounter.startDate;
+        encounterFilter = `
+          e.patient_id = :encounterPatientId
+          AND e.start_date <= :currentEncounterDate
+          AND e.deleted_at IS NULL
+        `;
       } else {
         // Chart is NOT linked to program registry: only show in the encounter where created
         encounterFilter = 'sr.encounter_id = :encounterId';
@@ -91,7 +103,7 @@ export const fetchChartInstances = (options = {}) =>
           encounterId,
           patientId,
           encounterPatientId,
-          currentEncounterEndDate,
+          currentEncounterDate,
           complexChartInstanceNameElementId: CHARTING_DATA_ELEMENT_IDS.complexChartInstanceName,
           complexChartDateElementId: CHARTING_DATA_ELEMENT_IDS.complexChartDate,
           complexChartTypeElementId: CHARTING_DATA_ELEMENT_IDS.complexChartType,
