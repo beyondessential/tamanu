@@ -70,7 +70,7 @@ export const CloseWithoutAdditionalDataModal = ({ open, onCancel, onConfirm }) =
       <p>
         <TranslatedText
           stringId="procedure.modal.closeWithoutAdditionalData.content"
-          fallback="Additional data as not been saved. Are you sure you would like to close the modal without submitting the additional data? Any additional data entered will be lost."
+          fallback="Additional data has not been saved. Are you sure you would like to close the modal without submitting the additional data? Any additional data entered will be lost."
         />
       </p>
     }
