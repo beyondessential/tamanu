@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router';
 import { pick } from 'lodash';
 import styled from 'styled-components';
 
@@ -180,8 +179,8 @@ const ImagingRequestSection = ({ currentStatus, imagingRequest }) => {
       <TextInput
         multiline
         value={imagingRequest.notes
-          ?.filter(note => note.noteType === NOTE_TYPES.OTHER)
-          .map(note => note.content)
+          ?.filter((note) => note.noteTypeId === NOTE_TYPES.OTHER)
+          .map((note) => note.content)
           .join('\n')}
         label={
           <TranslatedText
@@ -434,13 +433,11 @@ export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
 
-  const dispatch = useDispatch();
   const params = useParams();
+  const navigate = useNavigate();
   const onNavigateBackToImaging = () => {
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
-      ),
+    navigate(
+      `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
     );
   };
 

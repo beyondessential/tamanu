@@ -7,7 +7,7 @@ export const useSuggestionsQuery = (endpoint, options = {}) => {
 
   return useQuery(
     ['suggestions', endpoint],
-    () => api.get(`suggestions/${endpoint}`),
+    () => api.get(`suggestions/${endpoint}`, { noLimit: 'true' }),
     {
       enabled: !!endpoint,
       ...options,

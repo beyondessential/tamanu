@@ -49,7 +49,9 @@ const discountAmount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  */
 const getInvoiceItemTotalPrice = invoiceItem => {
-  return new Decimal(invoiceItem?.productPrice || 0).times(invoiceItem?.quantity || 1).toNumber();
+  const rawPriceValue =
+    invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
+  return new Decimal(rawPriceValue || 0).times(invoiceItem?.quantity || 1).toNumber();
 };
 
 /**
@@ -209,9 +211,14 @@ export const getSpecificInsurerPaymentRemainingBalance = (insurers, payments, in
 };
 
 export const getInvoiceItemPriceDisplay = invoiceItem => {
-  return formatDisplayPrice(
-    isNaN(parseFloat(invoiceItem.productPrice)) ? undefined : getInvoiceItemTotalPrice(invoiceItem),
-  );
+  const rawPriceValue =
+    invoiceItem.productPrice ?? invoiceItem?.product?.invoicePriceListItem?.price;
+
+  const unformattedPrice = isNaN(parseFloat(rawPriceValue))
+    ? undefined
+    : getInvoiceItemTotalPrice(invoiceItem);
+
+  return formatDisplayPrice(unformattedPrice);
 };
 
 export const getInvoiceItemDiscountPriceDisplay = invoiceItem => {

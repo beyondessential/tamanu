@@ -53,6 +53,7 @@ export const REFERENCE_TYPES = {
   MEDICATION_NOT_GIVEN_REASON: 'medicationNotGivenReason',
   MEDICATION_TEMPLATE: 'medicationTemplate',
   MEDICATION_SET: 'medicationSet',
+  NOTE_TYPE: 'noteType',
   ...IMAGING_AREA_TYPES,
 };
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -71,6 +72,8 @@ export const OTHER_REFERENCE_TYPES = {
   PATIENT_FIELD_DEFINITION_CATEGORY: 'patientFieldDefinitionCategory',
   INVOICE_PRICE_LIST: 'invoicePriceList',
   INVOICE_PRICE_LIST_ITEM: 'invoicePriceListItem',
+  INVOICE_INSURANCE_PLAN: 'invoiceInsurancePlan',
+  INVOICE_INSURANCE_PLAN_ITEM: 'invoiceInsurancePlanItem',
   SCHEDULED_VACCINE: 'scheduledVaccine',
 };
 
