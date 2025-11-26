@@ -53,6 +53,10 @@ const StyledFormGrid = styled(FormGrid)`
   position: relative;
 `;
 
+const StyledFormSeparatorLine = styled(FormSeparatorLine)`
+  margin-bottom: 20px;
+`;
+
 const MoveActionsContainer = styled.div`
   position: relative;
   margin-bottom: 20px;
@@ -259,7 +263,7 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 const HospitalAdmissionFields = () => {
   return (
     <>
-      <FormSeparatorLine />
+      <StyledFormSeparatorLine />
       <SectionHeading>
         <TranslatedText
           stringId="patient.encounter.modal.movePatient.section.encounterDetails.heading"
@@ -398,7 +402,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                   encounterType={encounter.encounterType}
                   newEncounterType={newEncounterType}
                 />
-                <FormSeparatorLine />
+                <StyledFormSeparatorLine />
               </>
             )}
             <SectionHeading>
@@ -441,7 +445,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 data-testid="field-tykg"
               />
             </StyledFormGrid>
-            <FormSeparatorLine />
+            <StyledFormSeparatorLine />
             <SectionHeading>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.basic.heading"
