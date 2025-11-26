@@ -310,12 +310,21 @@ export async function importRows(
         updateStat(stats, statkey(model, sheetName), 'created');
       }
 
-      const recordTranslationData = generateTranslationsForData(model, sheetName, normalizedValues);
+      const { createRecords, deleteClause } = generateTranslationsForData(
+        model,
+        sheetName,
+        normalizedValues,
+      );
       try {
-        await models.TranslatedString.bulkCreate(recordTranslationData, {
-          validate: true,
-          updateOnDuplicate: ['text', 'deletedAt'],
-        });
+        if (createRecords.length > 0) {
+          await models.TranslatedString.bulkCreate(createRecords, {
+            validate: true,
+            updateOnDuplicate: ['text', 'deletedAt'],
+          });
+        }
+        if (deleteClause) {
+          await models.TranslatedString.destroy({ where: deleteClause });
+        }
       } catch (err) {
         if (!(err instanceof AggregateError)) {
           throw err; // Not a sequelize bulk create error, so let it bubble up

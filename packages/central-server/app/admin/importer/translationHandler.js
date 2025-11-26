@@ -1,4 +1,5 @@
 import { camelCase, isArray, isObject, isString } from 'lodash';
+import { Op } from 'sequelize';
 import {
   TRANSLATABLE_REFERENCE_TYPES,
   REFERENCE_DATA_TRANSLATION_PREFIX,
@@ -39,7 +40,8 @@ export function normaliseOptions(options) {
 }
 
 export function generateTranslationsForData(model, sheetName, values) {
-  const translationData = [];
+  const createRecords = [];
+  const deleteStringIds = [];
 
   const dataType = normaliseSheetName(sheetName, model);
   const isValidTable = model === 'ReferenceData' || camelCase(model) === dataType;
@@ -49,7 +51,7 @@ export function generateTranslationsForData(model, sheetName, values) {
     const recordText = extractTranslatableRecordText(values, dataType);
     if (recordText && isString(recordText)) {
       const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${values.id}`;
-      translationData.push({ stringId, text: recordText, language: DEFAULT_LANGUAGE_CODE });
+      createRecords.push({ stringId, text: recordText, language: DEFAULT_LANGUAGE_CODE });
     }
 
     // Handle records with multiple translatable text fields by adding another layer of nesting
@@ -57,14 +59,15 @@ export function generateTranslationsForData(model, sheetName, values) {
       Object.entries(recordText).forEach(([key, text]) => {
         const stringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.${dataType}.${key}.${values.id}`;
         if (text) {
-          translationData.push({ stringId, text, language: DEFAULT_LANGUAGE_CODE });
-        } else {
-          translationData.push({
+          createRecords.push({
             stringId,
-            text: '',
+            text,
             language: DEFAULT_LANGUAGE_CODE,
-            deletedAt: new Date(),
+            deletedAt: null,
           });
+        } else {
+          // Track stringIds that need to be deleted instead of creating empty records
+          deleteStringIds.push(stringId);
         }
       });
     }
@@ -74,7 +77,7 @@ export function generateTranslationsForData(model, sheetName, values) {
 
     if (options.length > 0) {
       for (const option of options) {
-        translationData.push({
+        createRecords.push({
           stringId: getReferenceDataOptionStringId(values.id, dataType, option),
           text: option,
           language: DEFAULT_LANGUAGE_CODE,
@@ -83,5 +86,11 @@ export function generateTranslationsForData(model, sheetName, values) {
     }
   }
 
-  return translationData;
+  return {
+    createRecords,
+    deleteClause:
+      deleteStringIds.length > 0
+        ? { language: DEFAULT_LANGUAGE_CODE, stringId: { [Op.in]: deleteStringIds } }
+        : null,
+  };
 }

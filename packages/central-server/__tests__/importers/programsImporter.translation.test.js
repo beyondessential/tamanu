@@ -6,7 +6,10 @@ import { importerTransaction } from '../../dist/admin/importer/importerEndpoint'
 import { programImporter } from '../../dist/admin/programImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
-import { normaliseOptions } from '../../app/admin/importer/translationHandler';
+import {
+  normaliseOptions,
+  generateTranslationsForData,
+} from '../../app/admin/importer/translationHandler';
 
 // the importer can take a little while
 jest.setTimeout(60000);
@@ -147,7 +150,9 @@ describe('Programs import - Translation', () => {
     });
 
     if (programDataElements.length === 0)
-      throw new Error('No program data elements with options found in invalid-translation-string-ids.xlsx');
+      throw new Error(
+        'No program data elements with options found in invalid-translation-string-ids.xlsx',
+      );
 
     const translations = await models.TranslatedString.findAll({
       where: { stringId: { [Op.like]: 'refData.programDataElement%' } },
@@ -163,5 +168,50 @@ describe('Programs import - Translation', () => {
       .flat();
 
     expect(stringIds).toEqual(expect.arrayContaining(expectedStringIds));
+  });
+
+  it('should delete translations when nested fields are empty', async () => {
+    await doImport({
+      file: 'valid',
+      dryRun: false,
+    });
+
+    const componentWithDetail = await models.SurveyScreenComponent.findOne({
+      where: { detail: { [Op.ne]: '' } },
+    });
+
+    if (!componentWithDetail) {
+      throw new Error('No survey screen component with detail found in programs-valid.xlsx');
+    }
+
+    const detailStringId = `${REFERENCE_DATA_TRANSLATION_PREFIX}.surveyScreenComponent.detail.${componentWithDetail.id}`;
+
+    const detailTranslation = await models.TranslatedString.findOne({
+      where: { stringId: detailStringId },
+    });
+    expect(detailTranslation).toBeTruthy();
+
+    componentWithDetail.detail = null;
+    await componentWithDetail.save();
+
+    const { createRecords, deleteClause } = generateTranslationsForData(
+      'SurveyScreenComponent',
+      'surveyScreenComponent',
+      componentWithDetail,
+    );
+
+    const detailInDeleteClause = deleteClause?.stringId?.[Op.in]?.includes(detailStringId);
+    expect(detailInDeleteClause).toBe(true);
+    const detailInCreateRecords = createRecords.some(r => r.stringId === detailStringId);
+    expect(detailInCreateRecords).toBe(false);
+
+    await models.TranslatedString.destroy({ where: deleteClause });
+
+    const detailTranslationAfter = await models.TranslatedString.findOne({
+      where: { stringId: detailStringId },
+      paranoid: false,
+    });
+    expect(detailTranslationAfter).toBeTruthy();
+    expect(detailTranslationAfter.deletedAt).not.toBeNull();
   });
 });
