@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
-import { styles, CertificateContent, CertificateHeader } from './Layout';
+import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { withLanguageContext } from '../pdf/languageContext';

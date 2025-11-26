@@ -8,6 +8,8 @@ import { PrintableBarcode } from './printComponents/PrintableBarcode';
 import { HorizontalRule } from './printComponents/HorizontalRule';
 import { getDisplayDate } from './getDisplayDate';
 import { DoubleHorizontalRule } from './printComponents/DoubleHorizontalRule';
+import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
+import { useLanguageContext } from '../pdf/languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
 const headingFontSize = 11;
@@ -42,7 +44,9 @@ const SampleDetailsRow = ({ request }) => (
   </Row>
 );
 
-const PublishedDetailsRow = ({ request }) => (
+const PublishedDetailsRow = ({ request }) => {
+  const { getEnumTranslation } = useLanguageContext();
+  return (
   <Row>
     <Col>
       <DataItem
@@ -52,10 +56,11 @@ const PublishedDetailsRow = ({ request }) => (
       <DataItem label="Published by" value={request.publishedBy?.displayName} />
     </Col>
     <Col>
-      <DataItem label="Status" value={request.status} />
+      <DataItem label="Status" value={getEnumTranslation(LAB_REQUEST_STATUS_LABELS, request.status)} />
     </Col>
   </Row>
-);
+  );
+};
 
 const MinimalLabRequestDetailsRow = ({ request }) => (
   <Row>
