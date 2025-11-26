@@ -26,7 +26,38 @@ const labDetailsSectionStyles = StyleSheet.create({
   },
 });
 
-export const LabRequestDetailsView = ({ labRequests }) => {
+const SampleDetailsRow = ({ request }) => (
+  <Row>
+    <Col>
+      <DataItem
+        label="Sample date & time"
+        value={getDisplayDate(request.sampleTime, DATE_TIME_FORMAT)}
+      />
+      <DataItem label="Collected by" value={request.collectedBy?.displayName} />
+    </Col>
+    <Col>
+      <DataItem label="Site" value={request.site?.name} />
+      <DataItem label="Specimen type" value={request.specimenType?.name} />
+    </Col>
+  </Row>
+);
+
+const PublishedDetailsRow = ({ request }) => (
+  <Row>
+    <Col>
+      <DataItem
+        label="Published date & time"
+        value={getDisplayDate(request.publishedDate, DATE_TIME_FORMAT)}
+      />
+      <DataItem label="Published by" value={request.publishedBy?.displayName} />
+    </Col>
+    <Col>
+      <DataItem label="Status" value={request.status} />
+    </Col>
+  </Row>
+);
+
+export const LabRequestDetailsView = ({ labRequests, showPublishedDetails = false }) => {
   const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
     if (labTestPanelRequest) {
       return labTestPanelRequest.labTestPanel.name;
@@ -77,19 +108,13 @@ export const LabRequestDetailsView = ({ labRequests }) => {
               <DataItem label="Notes" value={notesAccessor(request)} />
             </Row>
             <HorizontalRule />
-            <Row>
-              <Col>
-                <DataItem
-                  label="Sample date & time"
-                  value={getDisplayDate(request.sampleTime, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Collected by" value={request.collectedBy?.displayName} />
-              </Col>
-              <Col>
-                <DataItem label="Site" value={request.site?.name} />
-                <DataItem label="Specimen type" value={request.specimenType?.name} />
-              </Col>
-            </Row>
+            <SampleDetailsRow request={request} />
+            {showPublishedDetails && (
+              <>
+                <HorizontalRule />
+                <PublishedDetailsRow request={request} />
+              </>
+            )}
             {index < labRequests.length - 1 && <View style={labDetailsSectionStyles.divider} />}
           </View>
         );
@@ -98,4 +123,3 @@ export const LabRequestDetailsView = ({ labRequests }) => {
     </View>
   );
 };
-
