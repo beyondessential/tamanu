@@ -11,7 +11,6 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
-  useTranslation,
 } from '@tamanu/ui-components';
 import {
   BodyText,
