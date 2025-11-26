@@ -269,15 +269,17 @@ const NumberFieldWithoutLabel = ({ field, ...props }) => (
 
 const MedicationAccessor = ({ medication, getTranslation, getEnumTranslation }) => {
   const { medication: medicationReferenceData } = medication;
-  const durationDisplay = medication.durationValue
-    ? `${medication.durationValue} ${singularize(
-        getEnumTranslation(
-          MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
-          medication.durationUnit,
-        ),
-        medication.durationValue,
-      ).toLowerCase()}`
-    : null;
+  const translatedUnit = getEnumTranslation(
+    MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+    medication.durationUnit,
+  );
+  const durationDisplay =
+    medication.durationValue && translatedUnit
+      ? `${medication.durationValue} ${singularize(
+          translatedUnit,
+          medication.durationValue,
+        ).toLowerCase()}`
+      : null;
   return (
     <Box>
       <DarkestText>
