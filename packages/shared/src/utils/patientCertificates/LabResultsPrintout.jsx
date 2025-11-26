@@ -32,6 +32,16 @@ const generalStyles = StyleSheet.create({
   tableContainer: {
     marginTop: 8,
   },
+  tableHeaderStyles: {
+    paddingLeft: 6,
+    paddingVertical: 8,
+    fontSize: 9,
+  },
+  tableBodyStyles: {
+    paddingLeft: 6,
+    paddingVertical: 4,
+    fontSize: 9,
+  },
 });
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
@@ -130,8 +140,8 @@ const LabResultsPrintoutComponent = React.memo(
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
                   hideRowDividers
-                  headerStyleOverrides={{ paddingLeft: 6, paddingTop: 8, paddingBottom: 8 }}
-                  bodyStyleOverrides={{ paddingLeft: 6, paddingTop: 4, paddingBottom: 4 }}
+                  headerStyleOverrides={generalStyles.tableHeaderStyles}
+                  bodyStyleOverrides={generalStyles.tableBodyStyles}
                 />
               </View>
             </SectionContainer>
