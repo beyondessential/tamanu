@@ -6,7 +6,7 @@ import {
   SYSTEM_USER_UUID,
 } from '@tamanu/constants';
 import type { MedicationAdministrationRecord } from './MedicationAdministrationRecord';
-import { getCurrentDateString } from '@tamanu/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 const createTaskAfterCreateHook = async (instance: MedicationAdministrationRecord) => {
   // Create a task for the MAR if it's not recorded yet
@@ -40,7 +40,7 @@ const discontinuePrescriptionIfNeeded = async (instance: MedicationAdministratio
     Object.assign(prescription, {
       discontinuingReason: 'STAT dose recorded',
       discontinuingClinicianId: SYSTEM_USER_UUID,
-      discontinuedDate: getCurrentDateString(),
+      discontinuedDate: getCurrentDateTimeString(),
       discontinued: true,
     });
     await prescription.save();
