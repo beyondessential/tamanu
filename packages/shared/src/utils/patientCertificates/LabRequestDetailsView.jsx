@@ -47,18 +47,22 @@ const SampleDetailsRow = ({ request }) => (
 const PublishedDetailsRow = ({ request }) => {
   const { getEnumTranslation } = useLanguageContext();
   return (
-  <Row>
-    <Col>
-      <DataItem
-        label="Published date & time"
-        value={getDisplayDate(request.publishedDate, DATE_TIME_FORMAT)}
-      />
-      <DataItem label="Published by" value={request.publishedBy?.displayName} />
-    </Col>
-    <Col>
-      <DataItem label="Status" value={getEnumTranslation(LAB_REQUEST_STATUS_LABELS, request.status)} />
-    </Col>
-  </Row>
+    <Row>
+      <Col>
+        <DataItem
+          label="Published date & time"
+          value={getDisplayDate(request.publishedDate, DATE_TIME_FORMAT)}
+        />
+        {/* TODO: this aint a thing */}
+        <DataItem label="Published by" value={request.publishedBy?.displayName} />
+      </Col>
+      <Col>
+        <DataItem
+          label="Status"
+          value={getEnumTranslation(LAB_REQUEST_STATUS_LABELS, request.status)}
+        />
+      </Col>
+    </Row>
   );
 };
 
