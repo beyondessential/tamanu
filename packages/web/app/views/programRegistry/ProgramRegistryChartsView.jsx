@@ -10,6 +10,7 @@ import { subject } from '@casl/ability';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import {
   CHARTING_DATA_ELEMENT_IDS,
+  REGISTRATION_STATUSES,
   SURVEY_TYPES,
   USER_PREFERENCES_KEYS,
   VISIBILITY_STATUSES,
@@ -68,9 +69,12 @@ const AddComplexChartButton = styled.span`
   color: ${Colors.primary};
   font-size: 15px;
   font-weight: 500;
-  cursor: pointer;
+  cursor: ${props => (props.$disabled ? 'default' : 'pointer')};
+  display: inline-flex;
+  align-items: center;
   margin-left: 10px;
   margin-right: 20px;
+  opacity: ${props => (props.$disabled ? 0.5 : 1)};
 `;
 
 const StyledButtonWithPermissionCheck = styled(ButtonWithPermissionCheck)`
@@ -121,7 +125,7 @@ const ChartsPanel = styled.div`
 
 // helpers moved to chartUtils
 
-export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patient }) => {
+export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patient, patientProgramRegistration }) => {
   const api = useApi();
   const queryClient = useQueryClient();
   const { facilityId, ability } = useAuth();
@@ -378,7 +382,10 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
       : getTranslation('general.action.record', 'Record');
   const chartModalTitle = `${selectedChartSurveyName} | ${actionText}`;
   const isCurrentChart = selectedChartSurvey?.visibilityStatus === VISIBILITY_STATUSES.CURRENT;
+  const isPatientRemoved =
+    patientProgramRegistration?.registrationStatus === REGISTRATION_STATUSES.INACTIVE;
   const recordButtonEnabled =
+    !isPatientRemoved &&
     isCurrentChart &&
     ((isComplexChart && !!currentComplexChartInstance) ||
       (!isComplexChart && !!selectedChartTypeId));
@@ -397,6 +404,13 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
     onSubmit: handleSubmitChart,
     patient,
   };
+
+  const patientInactiveTooltip = (
+    <TranslatedText
+      stringId="programRegistry.patientInactive.tooltip"
+      fallback="Patient must be active"
+    />
+  );
 
   if (isLoadingChartSurveys || isWaitingForInstances || hasNoCharts) {
     return (
@@ -450,15 +464,27 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                   data-testid="chartdropdown-eox5"
                 />
                 {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
-                  <AddComplexChartButton
-                    onClick={() => {
-                      setChartSurveyIdToSubmit(coreComplexChartSurveyId);
-                      setModalOpen(true);
-                    }}
-                    data-testid="addcomplexchartbutton-w4wk"
+                  <ConditionalTooltip
+                    title={
+                      isPatientRemoved ? patientInactiveTooltip : null
+                    }
+                    visible={isPatientRemoved}
                   >
-                    + Add
-                  </AddComplexChartButton>
+                    <NoteModalActionBlocker>
+                      <AddComplexChartButton
+                        onClick={() => {
+                          if (!isPatientRemoved) {
+                            setChartSurveyIdToSubmit(coreComplexChartSurveyId);
+                            setModalOpen(true);
+                          }
+                        }}
+                        $disabled={isPatientRemoved}
+                        data-testid="addcomplexchartbutton-w4wk"
+                      >
+                        + Add
+                      </AddComplexChartButton>
+                    </NoteModalActionBlocker>
+                  </ConditionalTooltip>
                 ) : null}
               </StyledButtonGroup>
 
@@ -479,7 +505,13 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                     positionFixed: true,
                   },
                 }}
-                title={getTooltipMessage(selectedChartTypeId)}
+                title={
+                  isPatientRemoved ? (
+                    patientInactiveTooltip
+                  ) : (
+                    getTooltipMessage(selectedChartTypeId)
+                  )
+                }
                 data-testid="conditionaltooltip-uafz"
               >
                 <NoteModalActionBlocker>
@@ -542,4 +574,5 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
 ProgramRegistryChartsView.propTypes = {
   programRegistryId: PropTypes.string.isRequired,
   patient: PropTypes.object.isRequired,
+  patientProgramRegistration: PropTypes.object.isRequired,
 };

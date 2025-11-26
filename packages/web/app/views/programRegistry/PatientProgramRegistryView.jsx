@@ -120,7 +120,11 @@ export const PatientProgramRegistryView = () => {
         </Row>
         {patient && (
           <Row>
-            <ProgramRegistryChartsView programRegistryId={programRegistryId} patient={patient} />
+            <ProgramRegistryChartsView
+              programRegistryId={programRegistryId}
+              patient={patient}
+              patientProgramRegistration={data}
+            />
           </Row>
         )}
       </Container>
