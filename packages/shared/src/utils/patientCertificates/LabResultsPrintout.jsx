@@ -23,12 +23,11 @@ const generalStyles = StyleSheet.create({
   container: {
     marginVertical: 6,
   },
-  interimBanner: {
-    padding: '12px',
+  interimBannerText: {
     border: '1px solid black',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    textAlign: 'center',
+    padding: '8px',
+    marginHorizontal: '18px',
   },
   tableContainer: {
     marginTop: 8,
@@ -41,6 +40,7 @@ const makeReferenceRangeString = (labTestType, sex) => {
   if (!labTestType) return '';
 
   console.log(labTestType)
+
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
   const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
   const hasMax = max || max === 0;
@@ -56,6 +56,7 @@ const makeReferenceRangeString = (labTestType, sex) => {
   const unit = labTestType.unit;
   if (!unit) return baseRange;
   if (baseRange === 'n/a') return baseRange;
+  console.log(baseRange, unit)
   return `${baseRange} ${unit}`;
 };
 
@@ -98,11 +99,9 @@ const LabResultsPrintoutComponent = React.memo(
               certificateTitle="Lab results"
             />
             {showInterimBanner && (
-              <View style={generalStyles.interimBanner}>
                 <P style={generalStyles.interimBannerText} fontSize={14} bold>
                   This report contains interim results that have not yet been published
                 </P>
-              </View>
             )}
             <SectionContainer>
               <PatientDetailsWithBarcode
