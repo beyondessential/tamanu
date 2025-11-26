@@ -240,17 +240,19 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
 };
 
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
-  const { getEnumTranslation } = useTranslation();
   return (
     <EncounterChangeDescription>
       <TranslatedText
-        stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from :encounterType to :newEncounterType"
-        replacements={{
-          encounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType),
-          newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
-        }}
-      />
+        stringId="patient.encounter.modal.movePatient.action.changeEncounterType.prefix"
+        fallback="Changing encounter type from"
+      />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+      </b>{' '}
+      <TranslatedText stringId="general.to" fallback="to" />{' '}
+      <b>
+        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
+      </b>
     </EncounterChangeDescription>
   );
 };
