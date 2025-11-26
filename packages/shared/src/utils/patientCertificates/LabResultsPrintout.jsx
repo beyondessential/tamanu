@@ -26,10 +26,9 @@ const generalStyles = StyleSheet.create({
   interimBanner: {
     padding: '12px',
     border: '1px solid black',
-  },
-  interimBannerText: {
-    fontSize: 16,
-    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   tableContainer: {
     marginTop: 8,
@@ -41,6 +40,7 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 const makeReferenceRangeString = (labTestType, sex) => {
   if (!labTestType) return '';
 
+  console.log(labTestType)
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
   const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
   const hasMax = max || max === 0;
@@ -99,7 +99,7 @@ const LabResultsPrintoutComponent = React.memo(
             />
             {showInterimBanner && (
               <View style={generalStyles.interimBanner}>
-                <P style={generalStyles.interimBannerText} fontSize={11}>
+                <P style={generalStyles.interimBannerText} fontSize={14} bold>
                   This report contains interim results that have not yet been published
                 </P>
               </View>
