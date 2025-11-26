@@ -41,6 +41,7 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useDrop, useDrag } from 'react-dnd';
 import { useReorderLocationBookingMutation } from '../../../api/mutations/useReorderLocationBookingMutation';
 import { cloneDeep } from 'lodash';
+import { ClinicianAssignmentDiscrepancyModal } from './ClinicianAssignmentDiscrepancyModal';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -465,6 +466,9 @@ export const LocationBookingsDailyCalendar = ({
   const dragData = useRef(null);
   const [triggerReorder, setTriggerReorder] = useState(0);
   const [isInDragDropProcess, setIsInDragDropProcess] = useState(false);
+  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] = useState(
+    null,
+  );
 
   const { mutate: reorderMutation } = useReorderLocationBookingMutation({
     onError: () => setTriggerReorder(0),
@@ -893,16 +897,64 @@ export const LocationBookingsDailyCalendar = ({
     return data;
   }, [partitionAppointmentsByLocationData, triggerReorder, timeSlots]);
 
+  const isAssignedToAClinician = (appointment, assignment) => {
+    const assignmentStart = new Date(assignment.startTime);
+    const appointmentStart = new Date(appointment.startTime);
+    const assignmentEnd = new Date(assignment.endTime);
+    const appointmentEnd = new Date(appointment.endTime);
+
+    return (
+      (isSameSecond(assignmentStart, appointmentStart) ||
+        isBefore(assignmentStart, appointmentStart)) &&
+      (isSameSecond(assignmentEnd, appointmentEnd) || isAfter(assignmentEnd, appointmentEnd))
+    );
+  };
+
   const onDragEnd = () => {
     setIsInDragDropProcess(false);
     if (!dragData.current) return;
     const locationId = dragData.current.item.locationId;
-    const appointments =
-      appointmentsByLocation[locationId]?.filter(appointment =>
-        isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
-      ) || [];
-    reorderMutation({ appointments });
-    dragData.current = null;
+    const assignments = assignmentsByLocation[locationId] || [];
+    const currentAssignment = assignments.find(assignment =>
+      isAssignedToAClinician(dragData.current.item, assignment),
+    );
+    const updatedAppointment = appointmentsByLocation[locationId]?.find(
+      appointment => appointment.id === dragData.current.item.id,
+    );
+
+    const isUpdatedAppointmentAssignedToTheSameClinician =
+      currentAssignment &&
+      updatedAppointment &&
+      !!assignments.find(
+        assignment =>
+          assignment.userId === currentAssignment.userId &&
+          isAssignedToAClinician(updatedAppointment, assignment),
+      );
+
+    const onReorder = () => {
+      dragData.current = null;
+      const appointments =
+        appointmentsByLocation[locationId]?.filter(appointment =>
+          isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+        ) || [];
+      reorderMutation({ appointments });
+      setClinicianAssignmentDiscrepancyModal(null);
+    };
+
+    if (currentAssignment && !isUpdatedAppointmentAssignedToTheSameClinician) {
+      setClinicianAssignmentDiscrepancyModal({
+        open: true,
+        onClose: () => {
+          dragData.current = null;
+          setClinicianAssignmentDiscrepancyModal(null);
+          setTriggerReorder(0);
+        },
+        onConfirm: onReorder,
+      });
+      return;
+    }
+
+    onReorder();
   };
 
   if (isLoading || isAssignmentsLoading || isBookingSlotsLoading) {
@@ -1052,6 +1104,13 @@ export const LocationBookingsDailyCalendar = ({
             );
           })}
         </CalendarGrid>
+        {clinicianAssignmentDiscrepancyModal && (
+          <ClinicianAssignmentDiscrepancyModal
+            open
+            onClose={clinicianAssignmentDiscrepancyModal.onClose}
+            onConfirm={clinicianAssignmentDiscrepancyModal.onConfirm}
+          />
+        )}
       </ScrollWrapper>
     </Box>
   );
