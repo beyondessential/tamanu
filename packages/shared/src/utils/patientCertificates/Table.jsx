@@ -52,6 +52,7 @@ export const Table = ({
   columnStyle,
   hideRowDividers = false,
   headerStyleOverrides,
+  bodyStyleOverrides,
 }) => {
   const leftColumnStyle = {
     ...columnStyle,
@@ -83,7 +84,7 @@ export const Table = ({
           <TR key={rowIndex} style={bodyRowStyle}>
             {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => {
               const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-              const cellStyles = [baseStyle, customStyles];
+              const cellStyles = [baseStyle, customStyles, bodyStyleOverrides];
               return (
                 <TD key={key} customStyles={cellStyles}>
                   {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
