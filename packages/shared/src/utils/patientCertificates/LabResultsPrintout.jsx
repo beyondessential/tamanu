@@ -18,7 +18,7 @@ const generalStyles = StyleSheet.create({
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
 const LabResultsPrintoutComponent = React.memo(
-  ({ patientData, encounter, labRequests, certificateData, getLocalisation, getSetting }) => {
+  ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
     const { logo } = certificateData;
     return (
       <Document>
@@ -42,7 +42,7 @@ const LabResultsPrintoutComponent = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <LabRequestDetailsView labRequests={labRequests} />
+              <LabRequestDetailsView labRequests={[labRequest]} showPublishedDetails />
             </SectionContainer>
           </CertificateContent>
         </Page>
