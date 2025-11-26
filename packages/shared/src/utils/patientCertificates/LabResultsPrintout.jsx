@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { getReferenceRangeWithUnit } from '@tamanu/utils';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -46,27 +47,6 @@ const generalStyles = StyleSheet.create({
 
 const SectionContainer = props => <View style={generalStyles.container} {...props} />;
 
-const makeReferenceRangeString = (labTestType, sex) => {
-  if (!labTestType) return '';
-
-  const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
-  const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
-  const hasMax = max || max === 0;
-  const hasMin = min || min === 0;
-
-  let baseRange;
-  if (hasMin && hasMax) baseRange = `${min} – ${max}`;
-  else if (hasMin) baseRange = `>${min}`;
-  else if (hasMax) baseRange = `<${max}`;
-  else if (labTestType.rangeText) baseRange = labTestType.rangeText;
-  else baseRange = 'n/a';
-
-  const unit = labTestType.unit;
-  if (!unit) return baseRange;
-  if (baseRange === 'n/a') return baseRange;
-  return `${baseRange} ${unit}`;
-};
-
 const getLabResultsColumns = patientSex => [
   {
     key: 'labTestType.name',
@@ -85,7 +65,7 @@ const getLabResultsColumns = patientSex => [
   {
     key: 'reference',
     title: 'Reference',
-    accessor: ({ labTestType }) => makeReferenceRangeString(labTestType, patientSex),
+    accessor: ({ labTestType }) => getReferenceRangeWithUnit(labTestType, patientSex),
   },
 ];
 
