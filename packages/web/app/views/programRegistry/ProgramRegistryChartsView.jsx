@@ -465,9 +465,7 @@ export const ProgramRegistryChartsView = React.memo(({ programRegistryId, patien
                 />
                 {isComplexChart && canCreateCoreComplexInstance && isCurrentChart ? (
                   <ConditionalTooltip
-                    title={
-                      isPatientRemoved ? patientInactiveTooltip : null
-                    }
+                    title={patientInactiveTooltip}
                     visible={isPatientRemoved}
                   >
                     <NoteModalActionBlocker>
