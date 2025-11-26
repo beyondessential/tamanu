@@ -9,6 +9,7 @@ import { RecentlyViewedPatientsList } from '@pages/patients/RecentlyViewedPatien
 import { ImagingRequestPane } from '@pages/patients/ImagingRequestPage/panes/ImagingRequestPane';
 import { getUser } from '@utils/apiHelpers';
 import { format } from 'date-fns';
+import { SidebarPage } from '@pages/SidebarPage';
 
 test.setTimeout(100000);
 
@@ -219,57 +220,19 @@ test.setTimeout(100000);
        const status = await getTableItems(imagingRequestPane.page, 1, 'status');
        expect(status[0]).toBe('Pending');
     })
-    /*
-    test.skip('[BT-0009][AT-2006]Add a new prescription', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
-      await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-      await patientDetailsPage.navigateToMedicationTab();
-      const medicationPane = new EncounterMedicationPane(patientDetailsPage.page);
-      await medicationPane.waitForPaneToLoad();
-      await medicationPane.newPrescriptionButton.click();
-      const newPrescriptionModal = medicationPane.getNewPrescriptionModal();
-      await newPrescriptionModal.waitForModalToLoad();
-      await newPrescriptionModal.fillForm({
-        medication: 'Medication 1',
-        dosage: '100mg',
-        frequency: 'Daily',
-      })
-      await newPrescriptionModal.submitButton.click();
-      await medicationPane.waitForPaneToLoad();
-      await expect(medicationPane.medicationTable).toHaveText('Medication 1');
-      await expect(medicationPane.dosageTable).toHaveText('100mg');
-      await expect(medicationPane.frequencyTable).toHaveText('Daily');
-    });
-    
-  test('[BT-0010][AT-2007]check result tab', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => {
-    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
-    await patientDetailsPage.navigateToLabsTab();
-    const labRequestPane = new LabRequestPane(patientDetailsPage.page);
-    await labRequestPane.waitForTableToLoad();
-    await labRequestPane.newLabRequestButton.click();
-    const labRequestModal = new LabRequestModal(patientDetailsPage.page);
-    const panelsToSelect = ['Demo Test Panel'];
-    const { requestedDateTime, priority, panelCategories } = await labRequestModal.panelModal.createPanelLabRequestWithAllFields(panelsToSelect);
-    await labRequestPane.waitForTableToLoad();
-    await labRequestPane.sortTableByCategory();
-    await labRequestPane.validateLabRequestTableContent(
-      panelCategories,
-      requestedDateTime,
-      (await labRequestModal.getCurrentUser()).displayName,
-      priority!,
-      LAB_REQUEST_STATUS.RECEPTION_PENDING,
-    );
-    await labRequestPane.tableRows.first().click();
-    const labRequestDetailsPage = new LabRequestDetailsPage(patientDetailsPage.page);
-    const result = 'Positive';
-    const labTestMethod = 'GeneXpert';
-    const verification = 'test';
-    const currentDateTime = new Date().toISOString().slice(0, 16);
-    await labRequestDetailsPage.enterResultForFirstRow(
-      result,
-      labTestMethod,
-      verification,
-      currentDateTime
-    );
-    await labRequestDetailsPage.waitForResultsTableToLoad();
-  })*/
+  test.skip('[BT-0009][AT-2006]Add a new prescription', async () => {});
+  test.skip('[BT-0010][AT-2007]add a document and view it', async () => {});
+  test.skip('[BT-0010][AT-2008]add a document and download it', async () => {});
+  test.skip('[BT-0011][AT-2009]check result tab', async () => {});
+  test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
+  test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
+  test.only('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
+    await patientDetailsPage.goToPatient(newPatient);
+    const formValues = await patientDetailsPage.admitToHospital();
+    const encounterValues = await patientDetailsPage.encounterHistoryPane.getLatestEncounterValues();
+    const sidebarPage = new SidebarPage(patientDetailsPage.page);
+    expect(encounterValues.facilityName).toBe(await sidebarPage.getFacilityName());
+    expect(encounterValues.area).toBe(formValues.area);
+    expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
+  });
   });

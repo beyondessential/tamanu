@@ -15,6 +15,8 @@ import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
 import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
+import { HospitalAdmissionModal } from './modals/HospitalAdmissionModal';
+import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -30,6 +32,7 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  private _encounterHistoryPane?: EncounterHistoryPane;
   readonly encounterMedicationTab: Locator;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
@@ -510,5 +513,24 @@ export class PatientDetailsPage extends BasePatientPage {
       this.emergencyTriageModal = new EmergencyTriageModal(this.page);
     }
     return this.emergencyTriageModal;
+  }
+
+  get encounterHistoryPane(): EncounterHistoryPane {
+    if (!this._encounterHistoryPane) {
+      this._encounterHistoryPane = new EncounterHistoryPane(this.page);
+    }
+    return this._encounterHistoryPane;
+  }
+
+  async admitToHospital(): Promise<Record<string, string>> {
+    await this.admitOrCheckinButton.click();
+    const createEncounterModal = this.getCreateEncounterModal();
+    await createEncounterModal.waitForModalToLoad();
+    await createEncounterModal.hospitalAdmissionButton.click();
+    const hospitalAdmissionModal = createEncounterModal.getHospitalAdmissionModal();
+    await hospitalAdmissionModal.waitForModalToLoad();
+    const formValues = await hospitalAdmissionModal.fillHospitalAdmissionForm();
+    await hospitalAdmissionModal.confirmButton.click();
+    return formValues;
   }
 }
