@@ -4,14 +4,13 @@ import { capitalize } from 'lodash';
 import { Box } from '@material-ui/core';
 import { INVOICE_INSURER_PAYMENT_STATUSES } from '@tamanu/constants';
 import { formatDisplayPrice, getInvoiceSummary } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../../components/Translation';
-import { Table } from '../../../components/Table';
-import { Colors, denseTableStyle } from '../../../constants';
-import { Heading4 } from '../../../components/Typography';
-import { DateDisplay } from '../../../components/DateDisplay';
+import { TranslatedText } from '../../components/Translation';
+import { Table } from '../../components/Table';
+import { Colors, denseTableStyle } from '../../constants';
+import { Heading4 } from '../../components/Typography';
+import { DateDisplay } from '../../components/DateDisplay';
 
 const TableContainer = styled.div`
-  margin-top: 10px;
   padding-left: 16px;
   padding-right: 16px;
   background-color: ${Colors.white};

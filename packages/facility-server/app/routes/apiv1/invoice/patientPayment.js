@@ -32,7 +32,7 @@ const updatePatientPaymentSchema = z
 
 async function getInvoiceWithDetails(req, invoiceId) {
   return await req.models.Invoice.findByPk(invoiceId, {
-    include: req.models.Invoice.getFullReferenceAssociations(req.models),
+    include: req.models.Invoice.getFullReferenceAssociations(),
   });
 }
 const handleCreatePatientPayment = asyncHandler(async (req, res) => {
@@ -50,8 +50,9 @@ const handleCreatePatientPayment = asyncHandler(async (req, res) => {
   if (error) throw new ValidationError(error.message);
 
   const { patientTotal, patientPaymentRemainingBalance } = getInvoiceSummary(invoice);
-  if (data.amount > round(patientPaymentRemainingBalance, 2))
+  if (data.amount > round(patientPaymentRemainingBalance, 2)) {
     throw new ForbiddenError('Amount of payment is higher than the owing total');
+  }
 
   const transaction = await req.db.transaction();
 

@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
-import { NoteModalActionBlocker } from '../../../components/index.js';
-import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
+import { NoteModalActionBlocker } from '../../../components';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal';
 import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
 const useInvoiceItemActionsMenu = ({
