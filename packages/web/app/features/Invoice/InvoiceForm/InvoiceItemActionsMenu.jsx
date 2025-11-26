@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import { TranslatedText } from '../../../components/Translation';
 import { INVOICE_ITEM_ACTION_MODAL_TYPES } from '../../../constants';
+import { NoteModalActionBlocker } from '../../../components/index.js';
+import { InvoiceItemActionModal } from './InvoiceItemActionModal.jsx';
+import { ThreeDotMenu } from '../../../components/ThreeDotMenu';
 
-export const useInvoiceItemActions = ({
+const useInvoiceItemActionsMenu = ({
   item,
   index,
   formArrayMethods,
@@ -151,4 +155,47 @@ export const useInvoiceItemActions = ({
     handleAction,
     menuItems,
   };
+};
+
+const MenuButton = styled(ThreeDotMenu)`
+  position: absolute;
+  top: 2px;
+  right: 0;
+`;
+
+export const InvoiceItemActionsMenu = ({
+  item,
+  index,
+  formArrayMethods,
+  isDeleteDisabled,
+  showActionMenu,
+  editable,
+  hidePriceInput,
+}) => {
+  const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
+    item,
+    index,
+    formArrayMethods,
+    isDeleteDisabled,
+    hidePriceInput,
+  });
+  return (
+    <>
+      {showActionMenu && editable && (
+        <NoteModalActionBlocker>
+          <MenuButton items={menuItems} data-testid="threedotmenu-zw6l" />
+        </NoteModalActionBlocker>
+      )}
+      {actionModal && (
+        <InvoiceItemActionModal
+          open
+          action={actionModal}
+          onClose={onCloseActionModal}
+          onAction={data => handleAction(data)}
+          item={item}
+          data-testid="invoiceitemactionmodal-lar4"
+        />
+      )}
+    </>
+  );
 };

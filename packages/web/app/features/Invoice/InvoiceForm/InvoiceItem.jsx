@@ -5,6 +5,7 @@ import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { useTranslation } from '../../../contexts/Translation';
+import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
 import {
   PriceCell,
   DateCell,
@@ -13,6 +14,7 @@ import {
   QuantityCell,
   OrderedByCell,
 } from './InvoiceItemCells';
+import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
 const StyledItemRow = styled.div`
   position: relative;
@@ -51,6 +53,7 @@ export const InvoiceItemRow = ({
   showActionMenu,
   formArrayMethods,
   editable,
+  encounterId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const isItemEditable = !item.product?.sourceRecordId && editable;
@@ -91,12 +94,52 @@ export const InvoiceItemRow = ({
       productName: value.productName,
       productCode: value.code,
       productDiscountable: value.discountable,
+      // Store nested product details so downstream logic can read price list info
+      product: {
+        name: value.productName,
+        code: value.code,
+        discountable: value.discountable,
+      },
     });
   };
 
   const onClick = () => {
     setIsExpanded(!isExpanded);
   };
+  // Todo: Determine input state based on productPriceManualEntry when it's implemented
+  const priceListPrice = item.product?.invoicePriceListItem?.price;
+  const hasKnownPrice = Boolean(priceListPrice);
+
+  // Todo: Also need to lookup the insurance plan for the product
+  const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
+    encounterId,
+    productId: item.productId,
+    enabled: !hasKnownPrice,
+    onSuccess: data => {
+      if (!data?.price) {
+        return;
+      }
+      // If there is a price list price, update the form data
+      const { price } = data;
+
+      const nextProduct = {
+        ...(item.product || {}),
+        invoicePriceListItem: {
+          ...(item.product?.invoicePriceListItem || {}),
+          price,
+        },
+      };
+      formArrayMethods.replace(index, {
+        ...item,
+        product: nextProduct,
+      });
+    },
+  });
+
+  const hidePriceInput =
+    (priceListPrice !== null && priceListPrice !== undefined) ||
+    !editable ||
+    fetchedPriceData?.price;
 
   return (
     <StyledItemRow>
@@ -124,14 +167,23 @@ export const InvoiceItemRow = ({
         practitionerSuggester={practitionerSuggester}
         handleChangeOrderedBy={handleChangeOrderedBy}
       />
-      <PriceCell
+      {!isFetching && (
+        <PriceCell
+          index={index}
+          item={item}
+          isExpanded={isExpanded}
+          hidePriceInput={hidePriceInput}
+          priceListItemPrice={fetchedPriceData?.price}
+        />
+      )}
+      <InvoiceItemActionsMenu
         index={index}
         item={item}
-        showActionMenu={showActionMenu}
         formArrayMethods={formArrayMethods}
-        editable={editable}
         isDeleteDisabled={isDeleteDisabled}
-        isExpanded={isExpanded}
+        showActionMenu={showActionMenu}
+        editable={editable}
+        hidePriceInput={hidePriceInput}
       />
     </StyledItemRow>
   );
