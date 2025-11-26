@@ -72,6 +72,10 @@ export const getInsuranceCoverageTotal = invoiceItems => {
   return invoiceItems.reduce((sum, item) => {
     const discountedPrice = getInvoiceItemTotalDiscountedPrice(item) || 0;
 
+    if (!item.insurancePlanItems) {
+      return sum;
+    }
+
     const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
       if (!itemPlan.coverageValue) {
         return itemSum;
@@ -102,16 +106,17 @@ export const getInvoiceSummary = invoice => {
   const insuranceCoverageTotal = getInsuranceCoverageTotal(invoice.items);
   const patientTotal = invoiceItemsTotal.minus(insuranceCoverageTotal);
 
-  //Calculate payments as well
-  const patientPaymentsTotal = invoice.payments
+  // Calculate payments as well
+  const payments = invoice?.payments || [];
+  const patientPaymentsTotal = payments
     .filter(payment => payment?.patientPayment?.id)
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
-  const insurerPaymentsTotal = invoice.payments
+  const insurerPaymentsTotal = payments
     .filter(payment => payment?.insurerPayment?.id)
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
-  const paymentsTotal = invoice.payments
+  const paymentsTotal = payments
     .reduce((sum, payment) => sum.plus(payment.amount), new Decimal(0))
     .toNumber();
 

@@ -15,6 +15,37 @@ import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
 
+invoiceRoute.get(
+  '/price-list-item',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Invoice');
+
+    const { encounterId, productId } = req.query;
+
+    if (!encounterId || !productId) {
+      throw new ValidationError('encounterId and productId are required');
+    }
+
+    const { InvoicePriceList, InvoicePriceListItem } = req.models;
+
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+
+    if (!invoicePriceListId) {
+      throw new NotFoundError('Invoice Price List not found');
+    }
+
+    const item = await InvoicePriceListItem.findOne({
+      where: {
+        invoicePriceListId,
+        invoiceProductId: productId,
+      },
+      attributes: ['price'],
+    });
+
+    res.json(item);
+  }),
+);
+
 //* Create invoice
 const createInvoiceSchema = z
   .object({

@@ -9,10 +9,7 @@ import Collapse from '@material-ui/core/Collapse';
 import { Box } from '@mui/material';
 import { Field, NoteModalActionBlocker } from '../../../../components';
 import { ThemedTooltip } from '@tamanu/ui-components';
-import { ThreeDotMenu } from '../../../../components/ThreeDotMenu';
-import { InvoiceItemActionModal } from '../InvoiceItemActionModal';
 import { PriceField } from '../../../../components/Field/PriceField';
-import { useInvoiceItemActions } from '../useInvoiceItemActions';
 import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
 
@@ -32,12 +29,6 @@ const Container = styled.div`
   .MuiTextField-root {
     max-width: 80px;
   }
-`;
-
-const Menu = styled(ThreeDotMenu)`
-  position: absolute;
-  top: 2px;
-  right: 0;
 `;
 
 const Row = styled.div`
@@ -114,25 +105,7 @@ const DiscountSection = ({ price, discountReason, discountedPrice }) => {
   );
 };
 
-export const PriceCell = ({
-  index,
-  item,
-  showActionMenu,
-  editable,
-  isDeleteDisabled,
-  formArrayMethods,
-  isExpanded,
-}) => {
-  // Todo: Determine input state based on productPriceManualEntry when it's implemented
-  const hidePriceInput = item.manualEntryPrice === null || !editable;
-  const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActions({
-    item,
-    index,
-    formArrayMethods,
-    isDeleteDisabled,
-    hidePriceInput,
-  });
-
+export const PriceCell = ({ index, item, isExpanded, hidePriceInput }) => {
   const price = getInvoiceItemTotalPrice(item);
   const discountedPrice = getInvoiceItemTotalDiscountedPrice(item);
   const hasDiscount = price !== discountedPrice;
@@ -169,22 +142,7 @@ export const PriceCell = ({
             <InsuranceSection item={item} discountedPrice={discountedPrice} />
           </Collapse>
         </Container>
-        {showActionMenu && editable && (
-          <NoteModalActionBlocker>
-            <Menu items={menuItems} data-testid="threedotmenu-zw6l" />
-          </NoteModalActionBlocker>
-        )}
       </ItemCell>
-      {actionModal && (
-        <InvoiceItemActionModal
-          open
-          action={actionModal}
-          onClose={onCloseActionModal}
-          onAction={data => handleAction(data)}
-          item={item}
-          data-testid="invoiceitemactionmodal-lar4"
-        />
-      )}
     </>
   );
 };

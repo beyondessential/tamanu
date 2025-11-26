@@ -10,8 +10,10 @@ import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import {
   InvoiceModalGroup,
   InvoiceStatus,
-  InvoiceSummaryPanel,
   InvoiceForm,
+  InvoiceSummaryPanel,
+  PatientPaymentsTable,
+  InsurerPaymentsTable,
 } from '../../../features/Invoice';
 import { ContentPane } from '../../../components/ContentPane';
 import { INVOICE_MODAL_TYPES } from '../../../constants';
@@ -82,6 +84,12 @@ const PrintButton = styled(OutlinedButton)`
   .MuiButton-startIcon {
     margin-right: 0;
   }
+`;
+
+const PaymentsSection = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 8px;
 `;
 
 export const EncounterInvoicingPane = ({ encounter }) => {
@@ -210,7 +218,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             )}
           </InvoiceTopBar>
           <InvoiceForm invoice={invoice} isPatientView={false} />
-          <InvoiceSummaryPanel invoice={invoice} />
+          {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
+            <PaymentsSection>
+              <PatientPaymentsTable invoice={invoice} />
+              <InvoiceSummaryPanel invoiceItems={invoice?.items} />
+              <InsurerPaymentsTable invoice={invoice} />
+            </PaymentsSection>
+          )}
         </InvoiceContainer>
       </TabPane>
       {openInvoiceModal && (

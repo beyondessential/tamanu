@@ -1,19 +1,19 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import Decimal from 'decimal';
+import Decimal from 'decimal.js';
 import { Box, Divider } from '@material-ui/core';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import { getInvoiceSummary, formatDisplayPrice, round } from '@tamanu/shared/utils/invoice';
-import { TranslatedText } from '../../../components/Translation';
-import { Table } from '../../../components/Table';
-import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../../constants';
-import { Heading4 } from '../../../components/Typography';
-import { DateDisplay } from '../../../components/DateDisplay';
-import { useAuth } from '../../../contexts/Auth';
-import { PatientPaymentForm } from '../../../forms/PatientPaymentForm';
-import { PencilIcon } from '../../../assets/icons/PencilIcon';
-import useOverflow from '../../../hooks/useOverflow';
-import { ThemedTooltip } from '../../../components/Tooltip';
+import { TranslatedText } from '../../components/Translation';
+import { Table } from '../../components/Table';
+import { Colors, denseTableStyle, CHEQUE_PAYMENT_METHOD_ID } from '../../constants';
+import { Heading4 } from '../../components/Typography';
+import { DateDisplay } from '../../components/DateDisplay';
+import { useAuth } from '../../contexts/Auth';
+import { PatientPaymentForm } from '../../forms/PatientPaymentForm';
+import { PencilIcon } from '../../assets/icons/PencilIcon';
+import useOverflow from '../../hooks/useOverflow';
+import { ThemedTooltip } from '../../components/Tooltip';
 
 const TableContainer = styled.div`
   padding-left: 16px;
@@ -181,6 +181,12 @@ export const PatientPaymentsTable = ({ invoice }) => {
       sortable: false,
     },
     {
+      key: 'status',
+      title: <TranslatedText stringId="invoice.table.payment.column.status" fallback="Status" />,
+      accessor: () => <TranslatedText stringId="invoice.paymentStatus.paid" fallback="Paid" />,
+      sortable: false,
+    },
+    {
       key: '',
       sortable: false,
       accessor: row =>
@@ -212,14 +218,16 @@ export const PatientPaymentsTable = ({ invoice }) => {
       width ${showChequeNumberColumn ? '15%' : '13%'};
     }
     &:nth-child(4) {
-      width ${showChequeNumberColumn ? '13%' : '18%'};
+      width ${showChequeNumberColumn ? '18%' : '25%'};
     }
     ${showChequeNumberColumn ? `&:nth-child(5) { width 18%; }` : ''}
-    &.MuiTableCell-body {
-      padding: 12px 12px 12px 0px;
-      &:last-child {
+
+    &.MuiTableCell-root {
+      padding: 12px 0;
+    }
+
+    &.MuiTableCell-body:last-child {
         padding-right: 5px;
-      }
     }
   `;
 
