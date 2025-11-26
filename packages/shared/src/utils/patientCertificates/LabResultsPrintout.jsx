@@ -40,11 +40,13 @@ const LabResultsPrintoutComponent = React.memo(
               <EncounterDetails encounter={encounter} hideLocation />
             </SectionContainer>
           </CertificateHeader>
-          <CertificateContent>
-            <SectionContainer>
-              <LabRequestDetailsView labRequests={[labRequest]} showFullRequestDetails={false} showPublishedDetails />
-            </SectionContainer>
-          </CertificateContent>
+          <SectionContainer>
+            <LabRequestDetailsView
+              labRequests={[labRequest]}
+              showFullRequestDetails={false}
+              showPublishedDetails
+            />
+          </SectionContainer>
         </Page>
       </Document>
     );
