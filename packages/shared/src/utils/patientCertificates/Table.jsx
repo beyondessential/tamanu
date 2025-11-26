@@ -51,6 +51,7 @@ export const Table = ({
   getSetting,
   columnStyle,
   hideRowDividers = false,
+  headerStyleOverrides,
 }) => {
   const leftColumnStyle = {
     ...columnStyle,
@@ -60,28 +61,35 @@ export const Table = ({
   return (
     <View style={tableStyles.table}>
       <TR fixed>
-        {visibleColumns.map(({ title, key, customStyles }, columnIndex) => (
-          <TH
-            key={key}
-            customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
-          >
-            {title}
-          </TH>
-        ))}
+        {visibleColumns.map(({ title, key, customStyles, headerStyles }, columnIndex) => {
+          const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
+          const headerCustomStyles = [
+            baseStyle,
+            customStyles,
+            headerStyles,
+            headerStyleOverrides,
+          ];
+          return (
+            <TH key={key} customStyles={headerCustomStyles}>
+              {title}
+            </TH>
+          );
+        })}
       </TR>
       {data.map((row, rowIndex) => {
         const bodyRowStyle = getBodyRowStyle(rowIndex, data.length, hideRowDividers);
 
         return (
           <TR key={rowIndex} style={bodyRowStyle}>
-            {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
-              <TD
-                key={key}
-                customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
-              >
-                {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
-              </TD>
-            ))}
+            {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => {
+              const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
+              const cellStyles = [baseStyle, customStyles];
+              return (
+                <TD key={key} customStyles={cellStyles}>
+                  {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
+                </TD>
+              );
+            })}
           </TR>
         );
       })}
