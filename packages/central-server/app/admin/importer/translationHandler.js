@@ -66,7 +66,6 @@ export function generateTranslationsForData(model, sheetName, values) {
             deletedAt: null,
           });
         } else {
-          // Track stringIds that need to be deleted instead of creating empty records
           deleteStringIds.push(stringId);
         }
       });
