@@ -131,7 +131,7 @@ const LabResultsPrintoutComponent = React.memo(
                   getSetting={getSetting}
                   hideRowDividers
                   headerStyleOverrides={{ paddingLeft: 6, paddingTop: 8, paddingBottom: 8 }}
-                  bodyStyleOverrides={{ paddingLeft: 6, paddingTop: 6, paddingBottom: 6 }}
+                  bodyStyleOverrides={{ paddingLeft: 6, paddingTop: 4, paddingBottom: 4 }}
                 />
               </View>
             </SectionContainer>
