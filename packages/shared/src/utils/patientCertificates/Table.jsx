@@ -16,7 +16,7 @@ const tableStyles = StyleSheet.create({
     flex: 1,
     fontSize: 10,
     fontWeight: 700,
-    padding: 6,
+    padding: 3,
     borderRight: basicBorder,
     margin: 0,
   },

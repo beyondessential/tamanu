@@ -57,11 +57,14 @@ const makeReferenceRangeString = (labTestType, sex) => {
   return `${baseRange} ${unit}`;
 };
 
+const labResultsHeaderStyles = { padding: 6 };
+
 const getLabResultsColumns = patientSex => [
   {
     key: 'labTestType.name',
     title: 'Test',
     accessor: ({ labTestType }) => labTestType?.name || '',
+    headerStyles: labResultsHeaderStyles,
   },
   {
     key: 'result',
@@ -71,11 +74,13 @@ const getLabResultsColumns = patientSex => [
       const unit = labTestType?.unit;
       return unit ? `${result} ${unit}` : result;
     },
+    headerStyles: labResultsHeaderStyles,
   },
   {
     key: 'reference',
     title: 'Reference',
     accessor: ({ labTestType }) => makeReferenceRangeString(labTestType, patientSex),
+    headerStyles: labResultsHeaderStyles,
   },
 ];
 
