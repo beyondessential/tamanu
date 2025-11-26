@@ -66,7 +66,6 @@ test.describe('Procedures', () => {
     const modal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
     const procedureData = await modal.fillAllFields();
     await modal.saveProcedureButton.click();
-    await modal.waitForModalToClose();
     await patientDetailsPage.patientProcedurePane?.waitForTableToLoad();
     await patientDetailsPage.patientProcedurePane?.getFirstTableRow().click();
     const viewModal = patientDetailsPage.patientProcedurePane!.getNewProcedureModal();
