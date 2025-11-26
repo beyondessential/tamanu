@@ -440,29 +440,6 @@ export class Encounter extends Model {
     return encounter;
   }
 
-  async addLocationChangeNote(
-    contentPrefix: string,
-    newLocationId: string,
-    systemNoteRows: string[],
-  ) {
-    const { Location } = this.sequelize.models;
-    const oldLocation = await Location.findOne({
-      where: { id: this.locationId },
-      include: 'locationGroup',
-    });
-    const newLocation = await Location.findOne({
-      where: { id: newLocationId },
-      include: 'locationGroup',
-    });
-    if (!newLocation) {
-      throw new InvalidOperationError('Invalid location specified');
-    }
-
-    systemNoteRows.push(
-      `${contentPrefix} from ‘${Location.formatFullLocationName(oldLocation!)}’ to ‘${Location.formatFullLocationName(newLocation)}’`,
-    );
-  }
-
   async addSystemNote(content: string, date: string, user: ModelProperties<User>) {
     return (this as any).createNote({
       noteType: NOTE_TYPES.SYSTEM,
@@ -525,14 +502,14 @@ export class Encounter extends Model {
       columnName,
       fieldLabel,
       model,
-      labelKey = 'name',
+      accessor = (record: any) => record.name ?? '-',
       changeType,
       onChange,
     }: {
       columnName: keyof Encounter;
       fieldLabel: string;
       model: typeof Model;
-      labelKey?: string;
+      accessor?: (record: any) => string;
       changeType?: EncounterChangeType;
       onChange?: () => Promise<void>;
     }) => {
@@ -543,10 +520,10 @@ export class Encounter extends Model {
 
       const oldRecord = await model.findByPk(this[columnName], { raw: true });
       const newRecord = await model.findByPk(data[columnName], { raw: true });
-      const oldValue = oldRecord?.[labelKey as keyof typeof oldRecord] ?? '-';
-      const newValue = newRecord?.[labelKey as keyof typeof newRecord] ?? '-';
 
-      systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+      systemNoteRows.push(
+        `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
+      );
       await onChange?.();
     };
 
@@ -563,7 +540,9 @@ export class Encounter extends Model {
     }) => {
       const isChanged = columnName in data && data[columnName] !== this[columnName];
       if (!isChanged) return;
+
       if (changeType) changeTypes.push(changeType);
+
       const oldValue = this[columnName] ?? '-';
       const newValue = data[columnName] ?? '-';
       systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
@@ -583,15 +562,8 @@ export class Encounter extends Model {
       if (data.patientId && data.patientId !== this.patientId) {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
-
-      const isLocationChanged = data.locationId && data.locationId !== this.locationId;
-      if (isLocationChanged) {
-        changeTypes.push(EncounterChangeType.Location);
-        await this.addLocationChangeNote('Changed location', data.locationId, systemNoteRows);
-
-        // When we move to a new location, clear the planned location move
-        additionalChanges.plannedLocationId = null;
-        additionalChanges.plannedLocationStartTime = null;
+      if (data.plannedLocationId && data.plannedLocationId === this.locationId) {
+        throw new InvalidOperationError('Planned location cannot be the same as current location');
       }
 
       if (data.plannedLocationId === null) {
@@ -606,16 +578,21 @@ export class Encounter extends Model {
       }
 
       if (data.plannedLocationId && data.plannedLocationId !== this.plannedLocationId) {
-        if (data.plannedLocationId === this.locationId) {
-          throw new InvalidOperationError(
-            'Planned location cannot be the same as current location',
-          );
+        const { Location } = this.sequelize.models;
+        const oldLocation = await Location.findOne({
+          where: { id: this.locationId },
+          include: 'locationGroup',
+        });
+        const newLocation = await Location.findOne({
+          where: { id: data.plannedLocationId },
+          include: 'locationGroup',
+        });
+        if (!newLocation) {
+          throw new InvalidOperationError('Invalid location specified');
         }
 
-        await this.addLocationChangeNote(
-          'Added a planned location change',
-          data.plannedLocationId,
-          systemNoteRows,
+        systemNoteRows.push(
+          `Added a planned location change from ‘${Location.formatFullLocationName(oldLocation!)}’ to ‘${Location.formatFullLocationName(newLocation)}’`,
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
@@ -636,6 +613,18 @@ export class Encounter extends Model {
         systemNoteRows.push(`Changed diet from '${oldDietString}' to '${newDietString}'`);
       }
 
+      await recordForeignKeyChange({
+        columnName: 'locationId',
+        fieldLabel: 'location',
+        model: Location,
+        accessor: Location.formatFullLocationName,
+        changeType: EncounterChangeType.Location,
+        onChange: async () => {
+          // When we move to a new location, clear the planned location move
+          additionalChanges.plannedLocationId = null;
+          additionalChanges.plannedLocationStartTime = null;
+        },
+      });
       await recordTextColumnChange({
         columnName: 'encounterType',
         fieldLabel: 'encounter type',
@@ -654,7 +643,7 @@ export class Encounter extends Model {
         columnName: 'examinerId',
         fieldLabel: 'supervising clinician',
         model: User,
-        labelKey: 'displayName',
+        accessor: (record: any) => record.displayName ?? '-',
         changeType: EncounterChangeType.Examiner,
       });
       await recordTextColumnChange({
