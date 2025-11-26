@@ -14,8 +14,6 @@ import { CreateEncounterModal } from './modals/CreateEncounterModal';
 import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
-import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
-import { HospitalAdmissionModal } from './modals/HospitalAdmissionModal';
 import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
 
 export class PatientDetailsPage extends BasePatientPage {

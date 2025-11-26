@@ -226,7 +226,7 @@ test.setTimeout(100000);
   test.skip('[BT-0011][AT-2009]check result tab', async () => {});
   test.skip('[BT-0015][AT-2010]add a new referral and view it', async () => {});
   test.skip('[BT-0016][AT-2011]add a new program and view it', async () => {});
-  test.only('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
+  test('[BT-0018][AT-2012]admit the patient to hospital', async ({ newPatient, patientDetailsPage }) => {
     await patientDetailsPage.goToPatient(newPatient);
     const formValues = await patientDetailsPage.admitToHospital();
     const encounterValues = await patientDetailsPage.encounterHistoryPane.getLatestEncounterValues();
