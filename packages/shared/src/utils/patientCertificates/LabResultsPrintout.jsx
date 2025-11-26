@@ -39,8 +39,6 @@ const SectionContainer = props => <View style={generalStyles.container} {...prop
 const makeReferenceRangeString = (labTestType, sex) => {
   if (!labTestType) return '';
 
-  console.log(labTestType)
-
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
   const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
   const hasMax = max || max === 0;
@@ -56,7 +54,6 @@ const makeReferenceRangeString = (labTestType, sex) => {
   const unit = labTestType.unit;
   if (!unit) return baseRange;
   if (baseRange === 'n/a') return baseRange;
-  console.log(baseRange, unit)
   return `${baseRange} ${unit}`;
 };
 
@@ -132,6 +129,7 @@ const LabResultsPrintoutComponent = React.memo(
                   columns={labResultsColumns}
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
+                  hideRowDividers
                 />
               </View>
             </SectionContainer>

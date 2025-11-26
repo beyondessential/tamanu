@@ -29,7 +29,7 @@ const tableStyles = StyleSheet.create({
   },
 });
 
-const TR = props => <View {...props} style={tableStyles.tr} />;
+const TR = ({ style, ...props }) => <View {...props} style={[tableStyles.tr, style]} />;
 const TH = ({ customStyles, ...props }) => (
   <Text bold {...props} style={[tableStyles.th, customStyles]} />
 );
@@ -37,7 +37,21 @@ const TD = ({ customStyles, ...props }) => (
   <Text wrap={false} {...props} style={[tableStyles.td, customStyles]} />
 );
 
-export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle }) => {
+const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
+  if (!hideRowDividers) return undefined;
+  const isLastRow = rowIndex === rowCount - 1;
+  if (isLastRow) return { borderTopWidth: 0 };
+  return { borderTopWidth: 0, borderBottomWidth: 0 };
+};
+
+export const Table = ({
+  data,
+  columns,
+  getLocalisation,
+  getSetting,
+  columnStyle,
+  hideRowDividers = false,
+}) => {
   const leftColumnStyle = {
     ...columnStyle,
     borderLeft: basicBorder,
@@ -55,19 +69,22 @@ export const Table = ({ data, columns, getLocalisation, getSetting, columnStyle 
           </TH>
         ))}
       </TR>
-      {data.map((row, rowIndex) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <TR key={rowIndex}>
-          {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
-            <TD
-              key={key}
-              customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
-            >
-              {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
-            </TD>
-          ))}
-        </TR>
-      ))}
+      {data.map((row, rowIndex) => {
+        const bodyRowStyle = getBodyRowStyle(rowIndex, data.length, hideRowDividers);
+
+        return (
+          <TR key={rowIndex} style={bodyRowStyle}>
+            {visibleColumns.map(({ accessor, key, customStyles }, columnIndex) => (
+              <TD
+                key={key}
+                customStyles={[customStyles, columnIndex === 0 ? leftColumnStyle : columnStyle]}
+              >
+                {accessor ? accessor(row, getLocalisation, getSetting) : row[key]}
+              </TD>
+            ))}
+          </TR>
+        );
+      })}
     </View>
   );
 };
