@@ -3,7 +3,6 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   IMAGING_TYPES_VALUES,
   NOTE_TYPES,
-  NOTIFICATION_TYPES,
   SYNC_DIRECTIONS,
   VISIBILITY_STATUSES,
 } from '@tamanu/constants';
@@ -11,16 +10,17 @@ import { getNoteWithType } from '@tamanu/shared/utils/notes';
 import { InvalidOperationError } from '@tamanu/errors';
 import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
-import { dateTimeType, type InitOptions, type Models } from '../types/model';
-import type { ImagingRequestArea } from './ImagingRequestArea';
-import type { Encounter } from './Encounter';
-import type { User } from './User';
-import type { Note } from './Note';
-import type { Location } from './Location';
-import type { LocationGroup } from './LocationGroup';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedLookupFilter } from '../../sync/buildEncounterLinkedLookupFilter';
+import { dateTimeType, type InitOptions, type Models } from '../../types/model';
+import type { ImagingRequestArea } from '../ImagingRequestArea';
+import type { Encounter } from '../Encounter';
+import type { User } from '../User';
+import type { Note } from '../Note';
+import type { Location } from '../Location';
+import type { LocationGroup } from '../LocationGroup';
+import { afterCreateHook, afterUpdateHook } from './hooks';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
@@ -46,7 +46,7 @@ export class ImagingRequest extends Model {
   declare location?: Location;
   declare locationGroup?: LocationGroup;
 
-  static initModel(options: InitOptions, models: Models) {
+  static initModel(options: InitOptions) {
     super.init(
       {
         id: {
@@ -102,41 +102,8 @@ export class ImagingRequest extends Model {
           },
         },
         hooks: {
-          afterUpdate: async (imagingRequest: ImagingRequest, options) => {
-            const shouldPushNotification = [IMAGING_REQUEST_STATUS_TYPES.COMPLETED].includes(
-              imagingRequest.status,
-            );
-
-            if (
-              shouldPushNotification &&
-              imagingRequest.status !== imagingRequest.previous('status')
-            ) {
-              await models.Notification.pushNotification(
-                NOTIFICATION_TYPES.IMAGING_REQUEST,
-                imagingRequest.dataValues,
-                { transaction: options.transaction },
-              );
-            }
-
-            const shouldDeleteNotification = [
-              IMAGING_REQUEST_STATUS_TYPES.DELETED,
-              IMAGING_REQUEST_STATUS_TYPES.ENTERED_IN_ERROR,
-            ].includes(imagingRequest.status);
-
-            if (
-              shouldDeleteNotification &&
-              imagingRequest.status !== imagingRequest.previous('status')
-            ) {
-              await models.Notification.destroy({
-                where: {
-                  metadata: {
-                    id: imagingRequest.id,
-                  },
-                },
-                transaction: options.transaction,
-              });
-            }
-          },
+          afterCreate: afterCreateHook,
+          afterUpdate: afterUpdateHook,
         },
       },
     );
