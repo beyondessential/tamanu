@@ -85,7 +85,6 @@ const LabResultsPrintoutComponent = React.memo(
     const showInterimBanner = INTERIM_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
     const labResultsColumns = getLabResultsColumns(patientData?.sex);
-    const labResultsHeaderStyleOverrides = { padding: 6 };
 
     return (
       <Document>
@@ -97,9 +96,9 @@ const LabResultsPrintoutComponent = React.memo(
               certificateTitle="Lab results"
             />
             {showInterimBanner && (
-                <P style={generalStyles.interimBannerText} fontSize={14} bold>
-                  This report contains interim results that have not yet been published
-                </P>
+              <P style={generalStyles.interimBannerText} fontSize={14} bold>
+                This report contains interim results that have not yet been published
+              </P>
             )}
             <SectionContainer>
               <PatientDetailsWithBarcode
@@ -131,7 +130,7 @@ const LabResultsPrintoutComponent = React.memo(
                   getLocalisation={getLocalisation}
                   getSetting={getSetting}
                   hideRowDividers
-                  headerStyleOverrides={labResultsHeaderStyleOverrides}
+                  headerStyleOverrides={{ paddingLeft: 6, paddingTop: 8, paddingBottom: 8 }}
                 />
               </View>
             </SectionContainer>
