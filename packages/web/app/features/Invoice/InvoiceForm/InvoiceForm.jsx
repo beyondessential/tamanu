@@ -14,6 +14,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { invoiceFormSchema } from './invoiceFormSchema';
 import { InvoiceSummaryPanel } from '../InvoiceSummaryPanel';
 import { INVOICE_STATUSES } from '@tamanu/constants';
+import { getCurrentDateString } from '@tamanu/utils/dateTime';
 
 const AddButton = styled(MuiButton)`
   font-size: 14px;
@@ -46,7 +47,7 @@ const ButtonRow = styled.div`
   margin: 10px 0;
 `;
 
-const getDefaultRow = () => ({ id: uuidv4(), quantity: 1 });
+const getDefaultRow = () => ({ id: uuidv4(), quantity: 1, orderDate: getCurrentDateString() });
 
 export const InvoiceForm = ({ invoice }) => {
   const { ability } = useAuth();
