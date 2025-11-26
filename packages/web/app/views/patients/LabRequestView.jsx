@@ -43,6 +43,7 @@ import { LabRequestRecordSampleModal } from './components/LabRequestRecordSample
 import { LabTestResultsModal } from './components/LabTestResultsModal';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { LabRequestPrintLabelModal } from '../../components/PatientPrinting/modals/LabRequestPrintLabelModal';
+import { LabResultsPrintoutModal } from '../../components/PatientPrinting/modals/LabResultsPrintoutModal';
 import { LabRequestSampleDetailsModal } from './components/LabRequestSampleDetailsModal';
 import { LabAttachmentModal } from '../../components/LabAttachmentModal';
 import { ConditionalTooltip } from '../../components/Tooltip';
@@ -97,6 +98,7 @@ const MODAL_IDS = {
   ENTER_RESULTS: 'enterResults',
   LABEL_PRINT: 'labelPrint',
   PRINT: 'print',
+  RESULTS_PRINT: 'resultsPrint',
   RECORD_SAMPLE: 'recordSample',
   SAMPLE_DETAILS: 'sampleDetails',
   VIEW_STATUS_LOG: 'viewStatusLog',
@@ -117,6 +119,7 @@ const MODALS = {
     />
   ),
   [MODAL_IDS.PRINT]: LabRequestPrintModal,
+  [MODAL_IDS.RESULTS_PRINT]: LabResultsPrintoutModal,
   [MODAL_IDS.RECORD_SAMPLE]: LabRequestRecordSampleModal,
   [MODAL_IDS.SAMPLE_DETAILS]: LabRequestSampleDetailsModal,
   [MODAL_IDS.VIEW_STATUS_LOG]: LabRequestLogModal,
@@ -137,6 +140,26 @@ const Menu = ({ setModal, status, disabled }) => {
     },
   ];
 
+  const canShowInterimReport = [
+    LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+    LAB_REQUEST_STATUSES.RESULTS_PENDING,
+    LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+    LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+  ].includes(status);
+
+  if (canShowInterimReport) {
+    menuActions.push({
+      label: (
+        <TranslatedText
+          stringId="lab.action.printInterimReport"
+          fallback="Print interim report"
+          data-testid="translatedtext-print-interim-report"
+        />
+      ),
+      action: () => setModal(MODAL_IDS.RESULTS_PRINT),
+    });
+  }
+
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
     menuActions.push({
       label: (
@@ -149,6 +172,7 @@ const Menu = ({ setModal, status, disabled }) => {
       action: () => setModal(MODAL_IDS.CANCEL),
     });
   }
+
   return (
     <MenuButton
       disabled={disabled}
