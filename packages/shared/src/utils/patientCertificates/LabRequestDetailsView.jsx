@@ -57,7 +57,22 @@ const PublishedDetailsRow = ({ request }) => (
   </Row>
 );
 
-export const LabRequestDetailsView = ({ labRequests, showPublishedDetails = false }) => {
+const MinimalLabRequestDetailsRow = ({ request }) => (
+  <Row>
+    <Col>
+      <DataItem label="Request ID" value={request.displayId} />
+      <DataItem label="Requested by" value={request.requestedBy?.displayName} />
+    </Col>
+    <Col>
+      <DataItem
+        label="Requested date & time"
+        value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
+      />
+    </Col>
+  </Row>
+);
+
+const FullLabRequestDetailsRow = ({ request }) => {
   const labTestTypeAccessor = ({ labTestPanelRequest, tests }) => {
     if (labTestPanelRequest) {
       return labTestPanelRequest.labTestPanel.name;
@@ -75,6 +90,36 @@ export const LabRequestDetailsView = ({ labRequests, showPublishedDetails = fals
   };
 
   return (
+    <>
+      <Row>
+        <Col>
+          <DataItem label="Request ID" value={request.displayId} />
+          <DataItem label="Requested by" value={request.requestedBy?.displayName} />
+          <DataItem label="Test category" value={request.category?.name} />
+          <DataItem label="Tests" value={labTestTypeAccessor(request)} />
+        </Col>
+        <Col>
+          <Row>
+            <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
+              Request ID barcode:
+            </P>
+            <PrintableBarcode id={request.displayId} />
+          </Row>
+        </Col>
+      </Row>
+      <Row>
+        <DataItem label="Notes" value={notesAccessor(request)} />
+      </Row>
+    </>
+  );
+};
+
+export const LabRequestDetailsView = ({
+  labRequests,
+  showFullRequestDetails = true,
+  showPublishedDetails = false,
+}) => {
+  return (
     <View>
       <P bold fontSize={headingFontSize} mb={3}>
         Lab request details
@@ -83,30 +128,11 @@ export const LabRequestDetailsView = ({ labRequests, showPublishedDetails = fals
       {labRequests.map((request, index) => {
         return (
           <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-            <Row>
-              <Col>
-                <DataItem label="Request ID" value={request.displayId} />
-                <DataItem label="Priority" value={request.priority?.name} />
-                <DataItem
-                  label="Requested date & time"
-                  value={getDisplayDate(request.requestedDate, DATE_TIME_FORMAT)}
-                />
-                <DataItem label="Requested by" value={request.requestedBy?.displayName} />
-                <DataItem label="Test category" value={request.category?.name} />
-                <DataItem label="Tests" value={labTestTypeAccessor(request)} />
-              </Col>
-              <Col>
-                <Row>
-                  <P style={labDetailsSectionStyles.barcodeLabelText} fontSize={textFontSize} bold>
-                    Request ID barcode:
-                  </P>
-                  <PrintableBarcode id={request.displayId} />
-                </Row>
-              </Col>
-            </Row>
-            <Row>
-              <DataItem label="Notes" value={notesAccessor(request)} />
-            </Row>
+            {showFullRequestDetails ? (
+              <FullLabRequestDetailsRow request={request} />
+            ) : (
+              <MinimalLabRequestDetailsRow request={request} />
+            )}
             <HorizontalRule />
             <SampleDetailsRow request={request} />
             {showPublishedDetails && (

@@ -42,7 +42,7 @@ const LabResultsPrintoutComponent = React.memo(
           </CertificateHeader>
           <CertificateContent>
             <SectionContainer>
-              <LabRequestDetailsView labRequests={[labRequest]} showPublishedDetails />
+              <LabRequestDetailsView labRequests={[labRequest]} showFullRequestDetails={false} showPublishedDetails />
             </SectionContainer>
           </CertificateContent>
         </Page>
