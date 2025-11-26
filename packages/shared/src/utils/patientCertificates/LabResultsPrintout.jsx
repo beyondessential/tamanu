@@ -24,15 +24,11 @@ const generalStyles = StyleSheet.create({
     marginVertical: 6,
   },
   interimBanner: {
-    marginTop: 10,
-    marginBottom: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#f2f2f2',
-    borderRadius: 2,
+    padding: '12px',
+    border: '1px solid black',
   },
   interimBannerText: {
-    fontSize: 11,
+    fontSize: 16,
     textAlign: 'center',
   },
   tableContainer: {
