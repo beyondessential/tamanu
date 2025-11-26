@@ -90,6 +90,13 @@ const STATUSES_TO_DISPLAY_AS_CANCELLED = [
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
+const INTERIM_STATUSES = [
+  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+  LAB_REQUEST_STATUSES.RESULTS_PENDING,
+  LAB_REQUEST_STATUSES.INTERIM_RESULTS,
+  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
+]
+
 const MODAL_IDS = {
   CANCEL: 'cancel',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -140,14 +147,7 @@ const Menu = ({ setModal, status, disabled }) => {
     },
   ];
 
-  const canShowInterimReport = [
-    LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-    LAB_REQUEST_STATUSES.RESULTS_PENDING,
-    LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-    LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-  ].includes(status);
-
-  if (canShowInterimReport) {
+  if (INTERIM_STATUSES.includes(status)) {
     menuActions.push({
       label: (
         <TranslatedText
