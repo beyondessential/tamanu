@@ -43,7 +43,7 @@ import {
 } from '../../routeHandlers/deleteModel';
 import { getPermittedSurveyIds } from '../../utils/getPermittedSurveyIds';
 import { validate } from '../../utils/validate';
-import { mapInvoiceItemsForResponse } from './invoice/mapInvoiceItemsForResponse';
+import { invoiceForResponse } from './invoice/invoiceForResponse';
 
 export const encounter = softDeletionCheckingRouter('Encounter');
 
@@ -553,7 +553,7 @@ encounterRelations.get(
       model: Invoice,
     });
 
-    const responseRecord = mapInvoiceItemsForResponse(invoiceRecord);
+    const responseRecord = invoiceForResponse(invoiceRecord);
     res.send(responseRecord);
   }),
 );

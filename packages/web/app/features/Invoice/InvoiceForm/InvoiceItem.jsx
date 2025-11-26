@@ -13,6 +13,7 @@ import {
   QuantityCell,
   OrderedByCell,
 } from './InvoiceItemCells';
+import { InvoiceItemActionsMenu } from './InvoiceItemActionsMenu';
 
 const StyledItemRow = styled.div`
   position: relative;
@@ -157,6 +158,15 @@ export const InvoiceItemRow = ({
           priceListItemPrice={fetchedPriceData?.price}
         />
       )}
+      <InvoiceItemActionsMenu
+        index={index}
+        item={item}
+        formArrayMethods={formArrayMethods}
+        isDeleteDisabled={isDeleteDisabled}
+        showActionMenu={showActionMenu}
+        editable={editable}
+        hidePriceInput={hidePriceInput}
+      />
     </StyledItemRow>
   );
 };
