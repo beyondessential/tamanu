@@ -15,22 +15,9 @@ import {
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
 
-export interface CreateNoteParams {
-  noteTypeId: string;
-  content: string;
-  authorId: string;
-  recordType?: string;
-  recordId?: string;
-  date?: string;
-  dateLegacy?: Date;
-  onBehalfOfId?: string;
-  revisedById?: string;
-  visibilityStatus?: string;
-}
-
 export class Note extends Model {
   declare id: string;
-  declare noteTypeId?: string;
+  declare noteTypeId: string;
   declare recordType: string;
   declare date: string;
   declare content: string;
@@ -48,7 +35,7 @@ export class Note extends Model {
         },
         noteTypeId: {
           type: DataTypes.STRING(255),
-          allowNull: true,
+          allowNull: false,
           references: {
             model: 'ReferenceData',
             key: 'id',

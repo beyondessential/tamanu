@@ -111,9 +111,7 @@ export const noteListHandler = recordType =>
       offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
     const totalCount = await models.Note.count({
-      include,
       where,
-      distinct: true,
     });
 
     res.send({ data: rows, count: totalCount });
