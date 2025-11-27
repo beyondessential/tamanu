@@ -95,7 +95,7 @@ const INTERIM_STATUSES = [
   LAB_REQUEST_STATUSES.RESULTS_PENDING,
   LAB_REQUEST_STATUSES.INTERIM_RESULTS,
   LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-]
+];
 
 const MODAL_IDS = {
   CANCEL: 'cancel',
@@ -226,6 +226,9 @@ export const LabRequestView = () => {
   const canWriteLabTest = ability?.can('write', 'LabTest');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
+  const isInterim = INTERIM_STATUSES.includes(labRequest.status);
+  const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
+
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
   const displayAsCancelled = STATUSES_TO_DISPLAY_AS_CANCELLED.includes(labRequest.status);
   const areLabRequestsReadOnly = !canWriteLabRequest || isHidden;
@@ -295,19 +298,35 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              <OutlinedButton
-                disabled={isHidden}
-                onClick={() => {
-                  handleChangeModalId(MODAL_IDS.PRINT);
-                }}
-                data-testid="outlinedbutton-fdjm"
-              >
-                <TranslatedText
-                  stringId="lab.action.printRequest"
-                  fallback="Print request"
-                  data-testid="translatedtext-7zng"
-                />
-              </OutlinedButton>
+              {isPublished ? (
+                <OutlinedButton
+                  disabled={isHidden}
+                  onClick={() => {
+                    handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
+                  }}
+                  data-testid="outlinedbutton-fdjm"
+                >
+                  <TranslatedText
+                    stringId="lab.action.printResults"
+                    fallback="Print results"
+                    data-testid="translatedtext-7zng"
+                  />
+                </OutlinedButton>
+              ) : (
+                <OutlinedButton
+                  disabled={isHidden}
+                  onClick={() => {
+                    handleChangeModalId(MODAL_IDS.PRINT);
+                  }}
+                  data-testid="outlinedbutton-fdjm"
+                >
+                  <TranslatedText
+                    stringId="lab.action.printRequest"
+                    fallback="Print request"
+                    data-testid="translatedtext-7zng"
+                  />
+                </OutlinedButton>
+              )}
               <Menu
                 setModal={handleChangeModalId}
                 status={labRequest.status}
