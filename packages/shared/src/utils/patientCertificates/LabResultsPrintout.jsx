@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 
-import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
+import { INTERIM_LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReferenceRangeWithUnit } from '@tamanu/utils/labTests';
 
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
@@ -16,13 +16,6 @@ import { LabRequestDetailsView } from './LabRequestDetailsView';
 import { Table } from './Table';
 import { P } from './Typography';
 import { getName } from '../patientAccessors';
-
-const INTERIM_STATUSES = [
-  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-  LAB_REQUEST_STATUSES.RESULTS_PENDING,
-  LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-];
 
 const generalStyles = StyleSheet.create({
   container: {
@@ -76,7 +69,7 @@ const getLabResultsColumns = patientSex => [
 const LabResultsPrintoutComponent = React.memo(
   ({ patientData, encounter, labRequest, certificateData, getLocalisation, getSetting }) => {
     const { logo } = certificateData;
-    const showInterimBanner = INTERIM_STATUSES.includes(labRequest.status);
+    const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
     const labResultsColumns = getLabResultsColumns(patientData?.sex);
 

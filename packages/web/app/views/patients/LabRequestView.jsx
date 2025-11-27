@@ -7,6 +7,7 @@ import {
   LAB_REQUEST_STATUS_CONFIG,
   LAB_REQUEST_STATUS_LABELS,
   LAB_REQUEST_STATUSES,
+  INTERIM_LAB_REQUEST_STATUSES,
 } from '@tamanu/constants';
 import {
   OutlinedButton,
@@ -90,13 +91,6 @@ const STATUSES_TO_DISPLAY_AS_CANCELLED = [
   LAB_REQUEST_STATUSES.ENTERED_IN_ERROR,
 ];
 
-const INTERIM_STATUSES = [
-  LAB_REQUEST_STATUSES.RECEPTION_PENDING,
-  LAB_REQUEST_STATUSES.RESULTS_PENDING,
-  LAB_REQUEST_STATUSES.INTERIM_RESULTS,
-  LAB_REQUEST_STATUSES.TO_BE_VERIFIED,
-];
-
 const MODAL_IDS = {
   CANCEL: 'cancel',
   CHANGE_LABORATORY: 'changeLaboratory',
@@ -147,7 +141,7 @@ const Menu = ({ setModal, status, disabled }) => {
     },
   ];
 
-  if (INTERIM_STATUSES.includes(status)) {
+  if (INTERIM_LAB_REQUEST_STATUSES.includes(status)) {
     menuActions.push({
       label: (
         <TranslatedText
