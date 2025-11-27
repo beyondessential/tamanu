@@ -307,18 +307,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
       CellComponent: LimitedLinesCell,
     },
     {
-      key: 'dischargingClinicianName',
-      title: (
-        <TranslatedText
-          stringId="general.localisedField.clinician.label.short"
-          fallback="Clinician"
-          data-testid="translatedtext-clinician"
-        />
-      ),
-      accessor: getClinician,
-      CellComponent: LimitedLinesCell,
-    },
-    {
       key: 'locationGroupName',
       title: (
         <TranslatedText
@@ -337,6 +325,18 @@ export const PatientHistory = ({ patient, onItemClick }) => {
           />
         </TranslationContext.Provider>
       ),
+      CellComponent: LimitedLinesCell,
+    },
+    {
+      key: 'dischargingClinicianName',
+      title: (
+        <TranslatedText
+          stringId="general.localisedField.clinician.label.short"
+          fallback="Clinician"
+          data-testid="translatedtext-clinician"
+        />
+      ),
+      accessor: getClinician,
       CellComponent: LimitedLinesCell,
     },
     {
