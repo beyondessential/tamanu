@@ -30,7 +30,7 @@ export const ExistingEncounterWarningModal = React.memo(({ open, onClose }) => {
     <Modal
       title={
         <TranslatedText
-          stringId="patient.encounterSummary.activeEncounterWarning.title"
+          stringId="patient.modal.activeEncounterWarning.title"
           fallback="Cannot create new encounter"
         />
       }
