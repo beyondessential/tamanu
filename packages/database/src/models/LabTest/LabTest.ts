@@ -1,15 +1,16 @@
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import { Model } from './Model';
-import { dateTimeType, dateType, type InitOptions, type Models } from '../types/model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import { Model } from '../../models/Model';
+import { dateTimeType, dateType, type InitOptions, type Models } from '../../types/model';
 import { getCurrentDateString } from '@tamanu/utils/dateTime';
-import type { SessionConfig } from '../types/sync';
-import type { LabTestType } from './LabTestType';
+import type { SessionConfig } from '../../types/sync';
+import type { LabTestType } from '../../models/LabTestType';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
+import { afterCreateHook } from './hooks';
 
 export class LabTest extends Model {
   declare id: string;
@@ -42,7 +43,13 @@ export class LabTest extends Model {
         },
         completedDate: dateTimeType('completedDate'),
       },
-      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+      {
+        ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: afterCreateHook,
+        },
+      },
     );
   }
 

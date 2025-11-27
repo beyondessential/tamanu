@@ -86,6 +86,14 @@ invoiceRoute.post(
     });
     if (!encounter) throw new ValidationError(`encounter ${data.encounterId} not found`);
 
+    // Ensure no other invoice exists for the same encounter
+    const existingInvoice = await req.models.Invoice.findOne({
+      where: {
+        encounterId: data.encounterId,
+      },
+    });
+    if (existingInvoice) throw new InvalidOperationError('An invoice already exists for this encounter');
+
     // Handles invoice creation with default insurer and discount
     const invoice = await req.models.Invoice.initializeInvoice(req.user.id, data);
     res.json(invoice);
@@ -264,11 +272,12 @@ invoiceRoute.put(
 );
 
 /**
- * Finalize invoice
+ * Finalise invoice
+ * - Only in progress invoices can be finalised
  * - Invoice items data will be frozen
  */
 invoiceRoute.put(
-  '/:id/finalize',
+  '/:id/finalise',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
     const invoiceId = req.params.id;
@@ -323,7 +332,7 @@ invoiceRoute.put(
   }),
 );
 /**
- * Finalize invoice
+ * Finalise invoice
  * You cannot delete a Finalised invoice
  * You can delete a cancelled or in progress invoice
  */

@@ -101,6 +101,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
+  const canCreateInvoice = ability.can('create', 'Invoice');
   const handleFinaliseInvoice = () => {
     handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE);
   };
@@ -110,7 +111,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
-  const finalisable = invoice && invoice.status === INVOICE_STATUSES.IN_PROGRESS && canWriteInvoice;
+  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
   const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   if (isLoading) {
@@ -138,6 +139,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             </Button>
           </NoteModalActionBlocker>
         )}
+        <InvoiceModalGroup
+          initialModalType={openInvoiceModal}
+          initialInvoice={invoice}
+          encounterId={encounter.id}
+          onClose={() => setOpenInvoiceModal()}
+          data-testid="invoicemodalgroup-rx7c"
+        />
       </EmptyPane>
     );
   }
@@ -159,7 +167,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>
-            {(cancelable || deletable) && (
+            {(cancelable || deletable || finalisable) && (
               <ActionsPane data-testid="actionspane-l9ey">
                 {finalisable && (
                   <NoteModalActionBlocker>
@@ -209,6 +217,17 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     data-testid="threedotmenu-5t9u"
                   />
                 </NoteModalActionBlocker>
+                {finalisable && (
+                  <NoteModalActionBlocker>
+                    <OutlinedButton
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+                      style={{ marginRight: 10 }}
+                      data-testid="button-yicz"
+                    >
+                      <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
+                    </OutlinedButton>
+                  </NoteModalActionBlocker>
+                )}
               </ActionsPane>
             )}
             {!editable && (

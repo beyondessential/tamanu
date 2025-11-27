@@ -1,16 +1,20 @@
 import { SYNC_DIRECTIONS } from '@tamanu/constants';
-import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
-import type { InitOptions, Models } from '../types/model';
+import { Model } from '../Model';
+import { buildEncounterLinkedSyncFilter } from '../../sync/buildEncounterLinkedSyncFilter';
+import type { InitOptions, Models } from '../../types/model';
 import {
   buildEncounterLinkedLookupJoins,
   buildEncounterLinkedLookupSelect,
-} from '../sync/buildEncounterLinkedLookupFilter';
+} from '../../sync/buildEncounterLinkedLookupFilter';
+import { afterCreateHook, afterUpdateHook } from './hooks';
+import type { ReferenceData } from 'models/ReferenceData';
 
 export class ImagingRequestArea extends Model {
   declare id: string;
   declare imagingRequestId?: string;
   declare areaId?: string;
+
+  declare area?: ReferenceData;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
@@ -20,6 +24,10 @@ export class ImagingRequestArea extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        hooks: {
+          afterCreate: afterCreateHook,
+          afterUpdate: afterUpdateHook,
+        },
       },
     );
   }
