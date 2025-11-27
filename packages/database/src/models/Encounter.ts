@@ -1,4 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
+import { isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
@@ -23,6 +24,8 @@ import {
 import type { Location } from './Location';
 import type { Patient } from './Patient';
 import type { Discharge } from './Discharge';
+import type { ReferenceData } from './ReferenceData';
+
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
@@ -439,73 +442,6 @@ export class Encounter extends Model {
     return encounter;
   }
 
-  async addLocationChangeNote(
-    contentPrefix: string,
-    newLocationId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
-  ) {
-    const { Location } = this.sequelize.models;
-    const oldLocation = await Location.findOne({
-      where: { id: this.locationId },
-      include: 'locationGroup',
-    });
-    const newLocation = await Location.findOne({
-      where: { id: newLocationId },
-      include: 'locationGroup',
-    });
-    if (!newLocation) {
-      throw new InvalidOperationError('Invalid location specified');
-    }
-
-    await this.addSystemNote(
-      `${contentPrefix} from ${Location.formatFullLocationName(
-        oldLocation!,
-      )} to ${Location.formatFullLocationName(newLocation)}`,
-      submittedTime,
-      user,
-    );
-  }
-
-  async addDepartmentChangeNote(
-    toDepartmentId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
-  ) {
-    const { Department } = this.sequelize.models;
-    const oldDepartment = await Department.findOne({ where: { id: this.departmentId } });
-    const newDepartment = await Department.findOne({ where: { id: toDepartmentId } });
-    if (!newDepartment) {
-      throw new InvalidOperationError('Invalid department specified');
-    }
-    await this.addSystemNote(
-      `Changed department from ${oldDepartment?.name} to ${newDepartment.name}`,
-      submittedTime,
-      user,
-    );
-  }
-
-  async addTriageScoreNote(
-    triageRecord: { score: any; triageTime: string },
-    user: ModelProperties<User>,
-  ) {
-    const department = await this.sequelize.models.Department.findOne({
-      where: { id: this.departmentId },
-    });
-
-    if (!department) {
-      throw new InvalidOperationError(
-        `Couldn’t record triage score as system note; no department found with with ID ‘${this.departmentId}’`,
-      );
-    }
-
-    await this.addSystemNote(
-      `${department.name} triage score: ${triageRecord.score}`,
-      triageRecord.triageTime,
-      user,
-    );
-  }
-
   async addSystemNote(content: string, date: string, user: ModelProperties<User>) {
     return (this as any).createNote({
       noteTypeId: NOTE_TYPES.SYSTEM,
@@ -548,19 +484,6 @@ export class Encounter extends Model {
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(
-    newEncounterType: Encounter['encounterType'],
-    submittedTime: string,
-    user: ModelProperties<User>,
-  ) {
-    await this.addSystemNote(
-      `Changed type from ${this.encounterType} to ${newEncounterType}`,
-      submittedTime,
-      user,
-    );
-    await this.closeTriage(submittedTime);
-  }
-
   async closeTriage(endDate: string) {
     const triage = await this.getLinkedTriage();
     if (!triage) return;
@@ -571,36 +494,77 @@ export class Encounter extends Model {
     });
   }
 
-  async updateClinician(
-    newClinicianId: string,
-    submittedTime: string,
-    user: ModelProperties<User>,
-  ) {
-    const { User } = this.sequelize.models;
-    const oldClinician = await User.findOne({ where: { id: this.examinerId } });
-    const newClinician = await User.findOne({ where: { id: newClinicianId } });
-
-    if (!newClinician) {
-      throw new InvalidOperationError('Invalid clinician specified');
-    }
-
-    await this.addSystemNote(
-      `Changed supervising clinician from ${oldClinician?.displayName} to ${newClinician.displayName}`,
-      submittedTime,
-      user,
-    );
-  }
-
   async update(...args: any): Promise<any> {
     const [data, user] = args;
-    const { Location, EncounterHistory } = this.sequelize.models;
+    const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
+    // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
+    // To collect system note messages describing all changes in this encounter update
+    const systemNoteRows: string[] = [];
+
+    // Records changes to foreign key columns (e.g., locationId, departmentId)
+    // Fetches the related records to get human-readable names for the system note
+    const recordForeignKeyChange = async ({
+      columnName,
+      fieldLabel,
+      model,
+      sequelizeOptions = {},
+      accessor = (record: typeof Model) => record?.name ?? '-',
+      changeType,
+      onChange,
+    }: {
+      columnName: keyof Encounter;
+      fieldLabel: string;
+      model: typeof Model;
+      sequelizeOptions?: any;
+      accessor?: (record: any) => string;
+      changeType?: EncounterChangeType;
+      onChange?: () => Promise<void>;
+    }) => {
+      const isChanged = columnName in data && data[columnName] !== this[columnName];
+      if (!isChanged) return;
+
+      if (changeType) changeTypes.push(changeType);
+
+      const oldRecord = await model.findByPk(this[columnName], sequelizeOptions);
+      const newRecord = await model.findByPk(data[columnName], sequelizeOptions);
+
+      systemNoteRows.push(
+        `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
+      );
+      await onChange?.();
+    };
+
+    // Records changes to text/string columns (e.g., encounterType, reasonForEncounter)
+    // Uses the raw values directly since there's no related record to fetch
+    const recordTextColumnChange = async ({
+      columnName,
+      fieldLabel,
+      changeType,
+      onChange,
+    }: {
+      columnName: keyof Encounter;
+      fieldLabel: string;
+      changeType?: EncounterChangeType;
+      onChange?: () => Promise<void>;
+    }) => {
+      const isChanged = columnName in data && data[columnName] !== this[columnName];
+      if (!isChanged) return;
+
+      if (changeType) changeTypes.push(changeType);
+
+      const oldValue = this[columnName] ?? '-';
+      const newValue = data[columnName] ?? '-';
+      systemNoteRows.push(`Changed ${fieldLabel} from ‘${oldValue}’ to ‘${newValue}’`);
+      await onChange?.();
+    };
 
     const updateEncounter = async () => {
       const additionalChanges: {
         plannedLocationId?: string | null;
         plannedLocationStartTime?: string | null;
       } = {};
+
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data, user);
       }
@@ -608,72 +572,118 @@ export class Encounter extends Model {
       if (data.patientId && data.patientId !== this.patientId) {
         throw new InvalidOperationError("An encounter's patient cannot be changed");
       }
-
-      const isEncounterTypeChanged =
-        data.encounterType && data.encounterType !== this.encounterType;
-      if (isEncounterTypeChanged) {
-        changeTypes.push(EncounterChangeType.EncounterType);
-        await this.onEncounterProgression(data.encounterType, data.submittedTime, user);
+      if (data.plannedLocationId && data.plannedLocationId === this.locationId) {
+        throw new InvalidOperationError('Planned location cannot be the same as current location');
       }
 
-      const isLocationChanged = data.locationId && data.locationId !== this.locationId;
-      if (isLocationChanged) {
-        changeTypes.push(EncounterChangeType.Location);
-        await this.addLocationChangeNote(
-          'Changed location',
-          data.locationId,
-          data.submittedTime,
-          user,
-        );
-
-        // When we move to a new location, clear the planned location move
-        additionalChanges.plannedLocationId = null;
-        additionalChanges.plannedLocationStartTime = null;
-      }
-
+      // Handle planned location cancellation (when set to null)
       if (data.plannedLocationId === null) {
         // The automatic timeout doesn't provide a submittedTime, prevents double noting a cancellation
         if (this.plannedLocationId && data.submittedTime) {
           const currentlyPlannedLocation = await Location.findOne({
             where: { id: this.plannedLocationId },
           });
-          await this.addSystemNote(
-            `Cancelled planned move to ${currentlyPlannedLocation?.name}`,
-            data.submittedTime,
-            user,
-          );
+          systemNoteRows.push(`Cancelled planned move to ‘${currentlyPlannedLocation?.name}’`);
         }
         additionalChanges.plannedLocationStartTime = null;
       }
 
+      // Handle new planned location assignment
       if (data.plannedLocationId && data.plannedLocationId !== this.plannedLocationId) {
-        if (data.plannedLocationId === this.locationId) {
-          throw new InvalidOperationError(
-            'Planned location cannot be the same as current location',
-          );
+        const { Location } = this.sequelize.models;
+        const oldLocation = await Location.findOne({
+          where: { id: this.locationId },
+          include: 'locationGroup',
+        });
+        const newLocation = await Location.findOne({
+          where: { id: data.plannedLocationId },
+          include: 'locationGroup',
+        });
+        if (!newLocation) {
+          throw new InvalidOperationError('Invalid location specified');
         }
 
-        await this.addLocationChangeNote(
-          'Added a planned location change',
-          data.plannedLocationId,
-          data.submittedTime,
-          user,
+        systemNoteRows.push(
+          `Added a planned location change from ‘${Location.formatFullLocationName(oldLocation!)}’ to ‘${Location.formatFullLocationName(newLocation)}’`,
         );
 
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      const isDepartmentChanged = data.departmentId && data.departmentId !== this.departmentId;
-      if (isDepartmentChanged) {
-        changeTypes.push(EncounterChangeType.Department);
-        await this.addDepartmentChangeNote(data.departmentId, data.submittedTime, user);
+      // Handle diet changes (many-to-many relationship, so handled separately)
+      const generateDietString = (diets: ReferenceData[]) => {
+        return diets.map((diet: ReferenceData) => diet.name).join(', ') || '-';
+      };
+      const oldDiets = await (this as any).getDiets();
+      const oldDietIds = oldDiets.map((diet: ReferenceData) => diet.id);
+      if (data.dietIds && !isEqual(oldDietIds, JSON.parse(data.dietIds))) {
+        const newDietIds = JSON.parse(data.dietIds);
+        const newDiets = await ReferenceData.findAll({
+          where: { id: { [Op.in]: newDietIds } },
+        });
+        systemNoteRows.push(
+          `Changed diet from ‘${generateDietString(oldDiets)}’ to ‘${generateDietString(newDiets)}’`,
+        );
       }
 
-      const isClinicianChanged = data.examinerId && data.examinerId !== this.examinerId;
-      if (isClinicianChanged) {
-        changeTypes.push(EncounterChangeType.Examiner);
-        await this.updateClinician(data.examinerId, data.submittedTime, user);
-      }
+      await recordForeignKeyChange({
+        columnName: 'locationId',
+        fieldLabel: 'location',
+        model: Location,
+        sequelizeOptions: {
+          include: ['locationGroup'],
+        },
+        accessor: Location.formatFullLocationName,
+        changeType: EncounterChangeType.Location,
+        onChange: async () => {
+          // When we move to a new location, clear the planned location move
+          additionalChanges.plannedLocationId = null;
+          additionalChanges.plannedLocationStartTime = null;
+        },
+      });
+      await recordTextColumnChange({
+        columnName: 'encounterType',
+        fieldLabel: 'encounter type',
+        changeType: EncounterChangeType.EncounterType,
+        onChange: async () => {
+          await this.closeTriage(data.submittedTime);
+        },
+      });
+      await recordForeignKeyChange({
+        columnName: 'departmentId',
+        fieldLabel: 'department',
+        model: Department,
+        changeType: EncounterChangeType.Department,
+      });
+      await recordForeignKeyChange({
+        columnName: 'examinerId',
+        fieldLabel: 'supervising clinician',
+        model: User,
+        accessor: (record: any) => record?.displayName ?? '-',
+        changeType: EncounterChangeType.Examiner,
+      });
+      await recordTextColumnChange({
+        columnName: 'startDate',
+        fieldLabel: 'start date',
+      });
+      await recordTextColumnChange({
+        columnName: 'estimatedEndDate',
+        fieldLabel: 'estimated discharge date',
+      });
+      await recordForeignKeyChange({
+        columnName: 'patientBillingTypeId',
+        fieldLabel: 'patient type',
+        model: ReferenceData,
+      });
+      await recordForeignKeyChange({
+        columnName: 'referralSourceId',
+        fieldLabel: 'referral source',
+        model: ReferenceData,
+      });
+      await recordTextColumnChange({
+        columnName: 'reasonForEncounter',
+        fieldLabel: 'reason for encounter',
+      });
 
       const { submittedTime, ...encounterData } = data;
       const updatedEncounter = await super.update({ ...encounterData, ...additionalChanges }, user);
@@ -685,6 +695,15 @@ export class Encounter extends Model {
           changeType: changeTypes,
           submittedTime,
         });
+      }
+
+      if (systemNoteRows.length > 0) {
+        const formattedSystemNote = systemNoteRows.map(row => `• ${row}`).join('\n');
+        await this.addSystemNote(
+          formattedSystemNote,
+          submittedTime || getCurrentDateTimeString(),
+          user,
+        );
       }
 
       return updatedEncounter;

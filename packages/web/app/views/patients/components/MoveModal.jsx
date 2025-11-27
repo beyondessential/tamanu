@@ -237,6 +237,7 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
 
   if (isAdmittingToHospital) {
     validationObject.startTime = yup.string().required();
+    validationObject.estimatedEndDate = yup.string().nullable();
     validationObject.patientBillingTypeId = yup.string().nullable();
     validationObject.dietIds = yup
       .array()
