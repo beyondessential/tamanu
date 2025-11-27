@@ -6,11 +6,18 @@ import {
   parseISO,
   setHours,
   setMinutes,
+  differenceInMilliseconds,
   differenceInMinutes,
   addMinutes,
   isSameDay,
+  addMilliseconds,
+  isBefore,
+  isAfter,
+  subMilliseconds,
+  isSameSecond,
+  millisecondsToMinutes,
 } from 'date-fns';
-import React, { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useRef, useCallback, forwardRef } from 'react';
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
 import Skeleton from '@mui/material/Skeleton';
@@ -32,7 +39,9 @@ import { useBookingSlots } from '../../../hooks/useBookingSlots';
 import useOverflow from '../../../hooks/useOverflow';
 import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useDrop, useDrag } from 'react-dnd';
-import { useMoveLocationBookingMutation } from '../../../api/mutations/useMoveLocationBookingMutation';
+import { useReorderLocationBookingMutation } from '../../../api/mutations/useReorderLocationBookingMutation';
+import { cloneDeep } from 'lodash';
+import { ClinicianAssignmentDiscrepancyModal } from './ClinicianAssignmentDiscrepancyModal';
 
 const ScrollWrapper = styled.div`
   width: 100%;
@@ -125,6 +134,10 @@ const AppointmentWrapper = styled.div`
   right: 2px;
   z-index: 1;
 
+  .conditional-tooltip-container {
+    width: 100%;
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -135,6 +148,7 @@ const AppointmentWrapper = styled.div`
     background: ${Colors.white};
     z-index: 1;
     pointer-events: none;
+    border-radius: 0.3125rem;
   }
 
   .appointment-tile {
@@ -220,7 +234,8 @@ const TimeGridCell = styled(Box)`
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: ${Colors.veryLightBlue};
+    background-color: ${props =>
+      props.$isInDragDropProcess ? Colors.white : Colors.veryLightBlue};
   }
 
   &.selected {
@@ -239,6 +254,8 @@ const LoadingSkeleton = styled(Skeleton).attrs({
     animation-duration: 1s !important;
   }
 `;
+
+const pixelsPerMinute = 70 / 60; // 70px per hour
 
 const formatTime = time => {
   return format(new Date(time), 'h:mma').toLowerCase();
@@ -337,83 +354,20 @@ const LocationHeaderContent = ({ location, assignments = [] }) => {
   );
 };
 
-const DroppableSchedule = ({ locationId, timeSlots, slotDuration, children }) => {
-  const scheduleRefs = useRef({});
-  const moveMutation = useMoveLocationBookingMutation();
-  const pixelsPerMinute = 70 / 60; // 70px per hour
-
-  const getMinutesFromScheduleTop = useCallback(
-    (locationId, clientY) => {
-      const el = scheduleRefs.current[locationId];
-      if (!el) return 0;
-      const rect = el.getBoundingClientRect();
-      const offsetY = clientY - rect.top;
-      return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
-    },
-    [pixelsPerMinute],
-  );
-
-  const computeDropStartTime = useCallback(
-    (locationId, clientY) => {
-      if (!timeSlots?.length) return null;
-      const baseStart = timeSlots[0].start;
-      const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
-      return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
-    },
-    [timeSlots, getMinutesFromScheduleTop],
-  );
-
-  const snapToNearestSlot = useCallback(
-    date => {
-      if (!date) return date;
-      const baseStart = timeSlots[0].start;
-
-      // Calculate the time difference from baseStart in milliseconds
-      const timeDiff = date.getTime() - baseStart.getTime();
-
-      // Calculate which slot this falls into (floor to get the previous slot)
-      const slotIndex = Math.floor(timeDiff / slotDuration);
-
-      // Calculate the snapped time
-      const snappedTime = baseStart.getTime() + slotIndex * slotDuration;
-
-      return new Date(snappedTime);
-    },
-    [timeSlots, slotDuration],
-  );
-
+const DroppableSchedule = forwardRef(({ locationId, onDragging, children }, ref) => {
   const registerScheduleRef = useCallback((locationId, el) => {
-    if (el) scheduleRefs.current[locationId] = el;
+    if (el) ref.current[locationId] = el;
   }, []);
 
   const [, drop] = useDrop(
     () => ({
       accept: 'APPOINTMENT',
-      canDrop: item => item.appointment.locationId === locationId,
-      drop: (item, monitor) => {
-        const client = monitor.getClientOffset();
-        if (!client) return;
-        // The initial position of the appointment element itself when dragging started
-        const initialClient = monitor.getInitialClientOffset();
-        // The initial position of the appointment element itself when the drag operation started
-        const initialSource = monitor.getInitialSourceClientOffset();
-        // Align to the top border of the dragged tile
-        let topY = client.y;
-        if (initialClient && initialSource) {
-          // 3: padding to account for the border of the dragged tile
-          topY = client.y - (initialClient.y - initialSource.y) + 3;
-        }
-        const rawStart = computeDropStartTime(locationId, topY);
-        const newStart = snapToNearestSlot(rawStart);
-
-        if (!newStart) return;
-        moveMutation.mutateAsync({
-          id: item.appointment.id,
-          startTime: toDateTimeString(newStart),
-        });
+      canDrop: item => item.locationId === locationId,
+      hover: (item, monitor) => {
+        onDragging(item, monitor);
       },
     }),
-    [locationId, computeDropStartTime, snapToNearestSlot, moveMutation],
+    [locationId],
   );
 
   const setRefs = useCallback(
@@ -425,6 +379,37 @@ const DroppableSchedule = ({ locationId, timeSlots, slotDuration, children }) =>
   );
 
   return <LocationSchedule ref={setRefs}>{children}</LocationSchedule>;
+});
+
+const DraggableAppointment = ({ appointment, children, onDragEnd }) => {
+  const [{ isDragging }, dragRef, preview] = useDrag(
+    () => ({
+      type: 'APPOINTMENT',
+      item: { ...appointment },
+      collect: monitor => ({ isDragging: monitor.isDragging() }),
+      canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+      end: () => {
+        onDragEnd();
+      },
+    }),
+    [appointment],
+  );
+  const renderedChild =
+    typeof children === 'function'
+      ? children({ isDragging })
+      : React.isValidElement(children)
+      ? React.cloneElement(children, { isDragging })
+      : children;
+
+  return isDragging ? (
+    <div ref={preview} style={{ height: '100%', width: '100%', display: 'flex' }}>
+      {renderedChild}
+    </div>
+  ) : (
+    <div ref={dragRef} style={{ height: '100%', width: '100%', display: 'flex' }}>
+      {renderedChild}
+    </div>
+  );
 };
 
 export const LocationBookingsDailyCalendar = ({
@@ -477,10 +462,19 @@ export const LocationBookingsDailyCalendar = ({
     { keepPreviousData: true },
   );
 
-  const appointments = appointmentsData?.data ?? [];
-  const appointmentsByLocation = partitionAppointmentsByLocation(appointments);
-  const assignments = assignmentsData?.data ?? [];
+  const scheduleRefs = useRef({});
+  const dragData = useRef(null);
+  const [triggerReorder, setTriggerReorder] = useState(0);
+  const [isInDragDropProcess, setIsInDragDropProcess] = useState(false);
+  const [clinicianAssignmentDiscrepancyModal, setClinicianAssignmentDiscrepancyModal] = useState(
+    null,
+  );
 
+  const { mutate: reorderMutation } = useReorderLocationBookingMutation({
+    onError: () => setTriggerReorder(0),
+  });
+
+  const assignments = assignmentsData?.data ?? [];
   // Partition assignments by location
   const assignmentsByLocation = {};
   assignments.forEach(assignment => {
@@ -536,26 +530,6 @@ export const LocationBookingsDailyCalendar = ({
 
     return slots;
   }, [bookingSlots, selectedDate]);
-
-  const DraggableAppointment = ({ appointment, children }) => {
-    const [{ isDragging }, dragRef] = useDrag(
-      () => ({
-        type: 'APPOINTMENT',
-        item: { id: appointment.id, appointment },
-        collect: monitor => ({ isDragging: monitor.isDragging() }),
-        canDrag: isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
-      }),
-      [appointment],
-    );
-    return (
-      <div
-        ref={dragRef}
-        style={{ opacity: isDragging ? 0.5 : 1, height: '100%', width: '100%', display: 'flex' }}
-      >
-        {children}
-      </div>
-    );
-  };
 
   // Helper function to find assigned user for a time slot
   const getAssignedUserForSlot = (locationId, slotIndex) => {
@@ -629,6 +603,360 @@ export const LocationBookingsDailyCalendar = ({
     return { top, height };
   };
 
+  const onDragging = (item, monitor) => {
+    dragData.current = {
+      client: monitor.getClientOffset(),
+      // The initial position of the appointment element itself when dragging started
+      initialClient: monitor.getInitialClientOffset(),
+      // The initial position of the appointment element itself when the drag operation started
+      initialSource: monitor.getInitialSourceClientOffset(),
+      canDrop: monitor.canDrop(),
+      item,
+    };
+    setTriggerReorder(prev => prev + 1);
+    setIsInDragDropProcess(true);
+  };
+
+  const getMinutesFromScheduleTop = (locationId, clientY) => {
+    const el = scheduleRefs.current[locationId];
+    if (!el) return 0;
+    const rect = el.getBoundingClientRect();
+    const offsetY = clientY - rect.top;
+    return Math.max(0, Math.floor(offsetY / pixelsPerMinute));
+  };
+
+  const computeDropStartTime = (locationId, clientY) => {
+    if (!timeSlots?.length) return null;
+    const baseStart = timeSlots[0].start;
+    const minutesFromTop = getMinutesFromScheduleTop(locationId, clientY);
+    return new Date(baseStart.getTime() + minutesFromTop * 60 * 1000);
+  };
+
+  const snapToNearestSlot = (date, isMovingToEarly) => {
+    if (!date) return date;
+
+    const baseStart = timeSlots[0].start;
+    // Calculate the time difference from baseStart in milliseconds
+    const timeDiff = date.getTime() - baseStart.getTime();
+    // Calculate which slot this falls into (floor to get the previous slot)
+    const slotIndex = isMovingToEarly
+      ? Math.ceil(timeDiff / slotDuration)
+      : Math.floor(timeDiff / slotDuration);
+    // Calculate the snapped time
+    const snappedTime = baseStart.getTime() + slotIndex * slotDuration;
+
+    return new Date(snappedTime);
+  };
+
+  const partitionAppointmentsByLocationData = useMemo(() => {
+    return partitionAppointmentsByLocation(appointmentsData?.data ?? []);
+  }, [appointmentsData]);
+
+  const checkIfAbleToMoveUp = (newStartTime, appointments, minStartTime) => {
+    const maxDuration = differenceInMilliseconds(newStartTime, minStartTime);
+    return (
+      appointments.reduce((acc, appointment) => {
+        const duration = differenceInMilliseconds(
+          new Date(appointment.endTime),
+          new Date(appointment.startTime),
+        );
+        return acc + duration;
+      }, 0) <= maxDuration
+    );
+  };
+
+  const checkIfAbleToMoveDown = (newEndTime, appointments, maxEndTime) => {
+    const maxDuration = differenceInMilliseconds(maxEndTime, newEndTime);
+    return (
+      appointments.reduce((acc, appointment) => {
+        const duration = differenceInMilliseconds(
+          new Date(appointment.endTime),
+          new Date(appointment.startTime),
+        );
+        return acc + duration;
+      }, 0) <= maxDuration
+    );
+  };
+
+  const moveUpAppointments = (appointments, itemNewStartTime) => {
+    let minNextEndTime = itemNewStartTime;
+    for (const appointment of appointments.reverse()) {
+      const currentStartTime = new Date(appointment.startTime);
+      const currentEndTime = new Date(appointment.endTime);
+      const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
+
+      if (!isAfter(currentEndTime, minNextEndTime)) {
+        // no need to shift any further if the next appointment doesn't conflict with the previous appointment
+        break;
+      }
+
+      const newEndTime = minNextEndTime;
+      const newStartTime = subMilliseconds(newEndTime, appointmentDuration);
+      minNextEndTime = newStartTime;
+
+      appointment.startTime = toDateTimeString(newStartTime);
+      appointment.endTime = toDateTimeString(newEndTime);
+    }
+  };
+
+  const moveDownAppointments = (appointments, itemNewEndTime) => {
+    let minNextStartTime = itemNewEndTime;
+    for (const appointment of appointments) {
+      const currentStartTime = new Date(appointment.startTime);
+      const currentEndTime = new Date(appointment.endTime);
+      const appointmentDuration = differenceInMilliseconds(currentEndTime, currentStartTime);
+
+      if (!isBefore(currentStartTime, minNextStartTime)) {
+        // no need to shift any further if the next appointment doesn't conflict with the previous appointment
+        break;
+      }
+
+      const newStartTime = minNextStartTime;
+      const newEndTime = addMilliseconds(newStartTime, appointmentDuration);
+      minNextStartTime = newEndTime;
+
+      appointment.startTime = toDateTimeString(newStartTime);
+      appointment.endTime = toDateTimeString(newEndTime);
+    }
+  };
+
+  const appointmentsByLocation = useMemo(() => {
+    const data = cloneDeep(partitionAppointmentsByLocationData);
+    if (!triggerReorder || !dragData.current) return data;
+
+    const { client, initialClient, initialSource, canDrop, item } = dragData.current;
+    if (!canDrop || !client) return data;
+
+    const itemOldStartTime = new Date(item.startTime);
+    const itemOldEndTime = new Date(item.endTime);
+    const itemDuration = differenceInMilliseconds(itemOldEndTime, itemOldStartTime);
+    const locationId = item.locationId;
+    const affectedAppointments = (data[locationId] || []).filter(
+      appointment =>
+        appointment.id !== item.id &&
+        isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+    );
+    const overnightAppointments = (data[locationId] || []).filter(
+      appointment => !isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+    );
+    const overnightAppointmentEnd = overnightAppointments.find(appointment =>
+      isSameDay(new Date(appointment.endTime), new Date(item.startTime)),
+    );
+    const overnightAppointmentStart = overnightAppointments.find(appointment =>
+      isSameDay(new Date(appointment.startTime), new Date(item.endTime)),
+    );
+
+    const isMovingToEarly = client.y < initialClient.y;
+    // Align to the top border of the dragged tile
+    let topY = client.y;
+    if (isMovingToEarly) {
+      topY += millisecondsToMinutes(itemDuration) * pixelsPerMinute;
+    }
+    if (initialClient && initialSource) {
+      // 3: padding to account for the border of the dragged tile
+      topY = client.y - (initialClient.y - initialSource.y) + (isMovingToEarly ? 0 : 3);
+    }
+
+    if (client.y === initialClient.y) {
+      return data;
+    }
+
+    const rawStart = computeDropStartTime(locationId, topY);
+    const newStart = snapToNearestSlot(rawStart, isMovingToEarly);
+
+    const minStartTime = overnightAppointmentEnd
+      ? new Date(overnightAppointmentEnd.endTime)
+      : timeSlots[0].start;
+    const maxEndTime = overnightAppointmentStart
+      ? new Date(overnightAppointmentStart.startTime)
+      : timeSlots[timeSlots.length - 1].end;
+
+    let itemNewStartTime = new Date(newStart);
+    let itemNewEndTime = addMilliseconds(itemNewStartTime, itemDuration);
+
+    if (isSameSecond(itemNewStartTime, itemNewEndTime)) {
+      return data;
+    }
+
+    if (isMovingToEarly) {
+      let shouldMoveUpAppointments = [];
+      let shouldMoveDownAppointments = [];
+      // if the new start time is before the min start time, move the appointments up to the min start time
+      if (itemNewStartTime < minStartTime) {
+        itemNewStartTime = minStartTime;
+        itemNewEndTime = addMilliseconds(itemNewStartTime, itemDuration);
+      }
+
+      affectedAppointments.reverse().forEach(appointment => {
+        const startTime = new Date(appointment.startTime);
+        const endTime = new Date(appointment.endTime);
+        const appointmentDuration = differenceInMilliseconds(endTime, startTime);
+        const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
+        // if the selected appointment's start time is before or equal to the current appointment's start time, move the current appointment down
+        if (!isAfter(itemNewStartTime, startTime)) {
+          shouldMoveDownAppointments.push(appointment);
+          return;
+        }
+        // If the selected appointment's end time is before or equal to the current appointment's end time and the middle time is after the selected appointment's start time
+        // and it has enough space to move all the appointments down, add the current appointment to the shouldMoveDownAppointments array.
+        // We must ensure that it's always able to move all the appointments in the shouldMoveDownAppointments array down.
+        if (!isBefore(endTime, itemNewEndTime) && !isBefore(middleTime, itemNewStartTime)) {
+          if (
+            checkIfAbleToMoveDown(
+              itemNewEndTime,
+              [appointment, ...shouldMoveDownAppointments],
+              maxEndTime,
+            )
+          ) {
+            shouldMoveDownAppointments.push(appointment);
+            return;
+          }
+        }
+        shouldMoveUpAppointments.push(appointment);
+      });
+
+      const isAbleToMoveUp = checkIfAbleToMoveUp(
+        itemNewStartTime,
+        shouldMoveUpAppointments,
+        minStartTime,
+      );
+      if (isAbleToMoveUp) {
+        moveUpAppointments(shouldMoveUpAppointments.reverse(), itemNewStartTime);
+      } else {
+        // if not able to move up, move the selected appointment to the end time of the last appointment that can be moved up
+        itemNewStartTime = new Date(shouldMoveUpAppointments[0].endTime);
+        itemNewEndTime = addMilliseconds(itemNewStartTime, itemDuration);
+      }
+
+      // it always has enough space to shift all appointments down
+      moveDownAppointments(shouldMoveDownAppointments.reverse(), itemNewEndTime);
+    } else {
+      let shouldMoveUpAppointments = [];
+      let shouldMoveDownAppointments = [];
+      // if the new end time is after the max end time, move the appointments down to the max end time
+      if (itemNewEndTime > maxEndTime) {
+        itemNewEndTime = maxEndTime;
+        itemNewStartTime = subMilliseconds(itemNewEndTime, itemDuration);
+      }
+
+      affectedAppointments.forEach(appointment => {
+        const startTime = new Date(appointment.startTime);
+        const endTime = new Date(appointment.endTime);
+        const appointmentDuration = differenceInMilliseconds(endTime, startTime);
+        const middleTime = addMilliseconds(startTime, appointmentDuration / 2);
+        // if the selected appointment's end time is after the current appointment's end time, move the current appointment up
+        if (!isBefore(itemNewEndTime, endTime)) {
+          shouldMoveUpAppointments.push(appointment);
+          return;
+        }
+        // If the selected appointment's start time is after or equal to the current appointment's start time and the middle time is before the selected appointment's end time
+        // and it has enough space to move all the appointments up, add the current appointment to the shouldMoveUpAppointments array.
+        // We must ensure that it's always able to move all the appointments in the shouldMoveUpAppointments array up.
+        if (
+          !isAfter(startTime, itemNewStartTime) &&
+          !isAfter(middleTime, itemNewEndTime) &&
+          checkIfAbleToMoveUp(
+            itemNewStartTime,
+            [appointment, ...shouldMoveUpAppointments],
+            minStartTime,
+          )
+        ) {
+          shouldMoveUpAppointments.push(appointment);
+          return;
+        }
+        shouldMoveDownAppointments.push(appointment);
+      });
+
+      const isAbleToMoveDown = checkIfAbleToMoveDown(
+        itemNewEndTime,
+        shouldMoveDownAppointments,
+        maxEndTime,
+      );
+      if (isAbleToMoveDown) {
+        moveDownAppointments(shouldMoveDownAppointments, itemNewEndTime);
+      }
+      // if not able to move down, move the selected appointment to the start time of the first appointment that can be moved down
+      else {
+        itemNewEndTime = new Date(shouldMoveDownAppointments[0].startTime);
+        itemNewStartTime = subMilliseconds(itemNewEndTime, itemDuration);
+      }
+
+      // it always has enough space to shift all appointments up
+      moveUpAppointments(shouldMoveUpAppointments, itemNewStartTime);
+    }
+
+    data[locationId] = [
+      ...affectedAppointments,
+      {
+        ...item,
+        startTime: toDateTimeString(itemNewStartTime),
+        endTime: toDateTimeString(itemNewEndTime),
+      },
+      ...overnightAppointments,
+    ].sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+    return data;
+  }, [partitionAppointmentsByLocationData, triggerReorder, timeSlots]);
+
+  const isAssignedToAClinician = (appointment, assignment) => {
+    const assignmentStart = new Date(assignment.startTime);
+    const appointmentStart = new Date(appointment.startTime);
+    const assignmentEnd = new Date(assignment.endTime);
+    const appointmentEnd = new Date(appointment.endTime);
+
+    return (
+      (isSameSecond(assignmentStart, appointmentStart) ||
+        isBefore(assignmentStart, appointmentStart)) &&
+      (isSameSecond(assignmentEnd, appointmentEnd) || isAfter(assignmentEnd, appointmentEnd))
+    );
+  };
+
+  const onDragEnd = () => {
+    setIsInDragDropProcess(false);
+    if (!dragData.current) return;
+    const locationId = dragData.current.item.locationId;
+    const assignments = assignmentsByLocation[locationId] || [];
+    const currentAssignment = assignments.find(assignment =>
+      isAssignedToAClinician(dragData.current.item, assignment),
+    );
+    const updatedAppointment = appointmentsByLocation[locationId]?.find(
+      appointment => appointment.id === dragData.current.item.id,
+    );
+
+    const isUpdatedAppointmentAssignedToTheSameClinician =
+      currentAssignment &&
+      updatedAppointment &&
+      !!assignments.find(
+        assignment =>
+          assignment.userId === currentAssignment.userId &&
+          isAssignedToAClinician(updatedAppointment, assignment),
+      );
+
+    const onReorder = () => {
+      dragData.current = null;
+      const appointments =
+        appointmentsByLocation[locationId]?.filter(appointment =>
+          isSameDay(new Date(appointment.startTime), new Date(appointment.endTime)),
+        ) || [];
+      reorderMutation({ appointments });
+      setClinicianAssignmentDiscrepancyModal(null);
+    };
+
+    if (currentAssignment && !isUpdatedAppointmentAssignedToTheSameClinician) {
+      setClinicianAssignmentDiscrepancyModal({
+        open: true,
+        onClose: () => {
+          dragData.current = null;
+          setClinicianAssignmentDiscrepancyModal(null);
+          setTriggerReorder(0);
+        },
+        onConfirm: onReorder,
+      });
+      return;
+    }
+
+    onReorder();
+  };
+
   if (isLoading || isAssignmentsLoading || isBookingSlotsLoading) {
     return <LoadingSkeleton data-testid="loadingskeleton-daily" />;
   }
@@ -699,9 +1027,11 @@ export const LocationBookingsDailyCalendar = ({
                 />
 
                 <DroppableSchedule
+                  ref={scheduleRefs}
                   locationId={location.id}
                   timeSlots={timeSlots}
                   slotDuration={slotDuration}
+                  onDragging={onDragging}
                 >
                   {/* Time slot background grid */}
                   {timeSlots.map((slot, slotIndex) => {
@@ -733,6 +1063,7 @@ export const LocationBookingsDailyCalendar = ({
                         onClick={() =>
                           canCreateAppointment && handleCellClick(location.id, slotIndex)
                         }
+                        $isInDragDropProcess={isInDragDropProcess}
                         data-testid={`time-grid-${locationIndex}-${slotIndex}`}
                       />
                     );
@@ -751,15 +1082,19 @@ export const LocationBookingsDailyCalendar = ({
                         }}
                         data-testid={`appointment-wrapper-${locationIndex}-${appointmentIndex}`}
                       >
-                        <DraggableAppointment appointment={appointment}>
-                          <AppointmentTile
-                            appointment={appointment}
-                            hideTime={false}
-                            className="appointment-tile"
-                            onEdit={() => openBookingForm(appointment)}
-                            onCancel={() => openCancelModal(appointment)}
-                            testIdPrefix={`${locationIndex}-${appointmentIndex}`}
-                          />
+                        <DraggableAppointment appointment={appointment} onDragEnd={onDragEnd}>
+                          {({ isDragging }) => (
+                            <AppointmentTile
+                              appointment={appointment}
+                              hideTime={false}
+                              className="appointment-tile"
+                              onEdit={() => openBookingForm(appointment)}
+                              onCancel={() => openCancelModal(appointment)}
+                              testIdPrefix={`${locationIndex}-${appointmentIndex}`}
+                              isDragging={isDragging}
+                              isInDragDropProcess={isInDragDropProcess}
+                            />
+                          )}
                         </DraggableAppointment>
                       </AppointmentWrapper>
                     );
@@ -769,6 +1104,13 @@ export const LocationBookingsDailyCalendar = ({
             );
           })}
         </CalendarGrid>
+        {clinicianAssignmentDiscrepancyModal && (
+          <ClinicianAssignmentDiscrepancyModal
+            open
+            onClose={clinicianAssignmentDiscrepancyModal.onClose}
+            onConfirm={clinicianAssignmentDiscrepancyModal.onConfirm}
+          />
+        )}
       </ScrollWrapper>
     </Box>
   );

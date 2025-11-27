@@ -1,6 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_RECORD_TYPES, NOTE_TYPES, VISIBILITY_STATUSES } from '@tamanu/constants';
+import {
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  VISIBILITY_STATUSES,
+} from '@tamanu/constants';
 import { InvalidParameterError } from '@tamanu/errors';
 
 import { simpleGet, simplePut } from '@tamanu/shared/utils/crudHelpers';
@@ -20,8 +24,9 @@ patientCarePlan.post(
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
+
     await newCarePlan.createNote({
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
       date: req.body.date,
       content: req.body.content,
       authorId: req.user.id,
@@ -46,7 +51,7 @@ patientCarePlan.get(
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
+        noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
         visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       // TODO add test to verify this order
@@ -68,7 +73,7 @@ patientCarePlan.post(
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
+      noteTypeId: NOTE_TYPES.TREATMENT_PLAN,
       content: req.body.content,
       authorId: req.user.id,
       onBehalfOfId: req.body.onBehalfOfId,

@@ -392,7 +392,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
     // It will be fixed properly as part of EPI-160
     id: undefined,
-    noteType: chance.pickone(NOTE_TYPE_VALUES),
+    noteTypeId: chance.pickone(NOTE_TYPE_VALUES),
     revisedById: undefined,
   }),
   Location: () => ({
