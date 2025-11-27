@@ -371,13 +371,77 @@ labRelations.get('/:id/notes', notesWithSingleItemListHandler(NOTE_RECORD_TYPES.
 labRelations.get(
   '/:id/tests',
   asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
     const canListSensitive = req.ability.can('list', 'SensitiveLabRequest');
+    
+    // First, get the lab request to check if it's associated with a panel
+    const labRequest = await models.LabRequest.findByPk(params.id, {
+      include: [{
+        model: models.LabTestPanelRequest,
+        as: 'labTestPanelRequest',
+      }],
+    });
+
+    if (!labRequest) {
+      throw new NotFoundError();
+    }
+
+    // If this is a panel request, we need to order by the panel's test order
+    if (labRequest.labTestPanelRequest?.labTestPanelId) {
+      const { rowsPerPage, page } = query;
+      const model = models.LabTest;
+      const associations = model.getListReferenceAssociations(models) || [];
+
+      const baseQueryOptions = {
+        where: {
+          labRequestId: params.id,
+          ...(!canListSensitive && { '$labTestType.is_sensitive$': false }),
+        },
+        include: [
+          ...associations,
+          {
+            model: models.LabTestType,
+            as: 'labTestType',
+            include: [
+              {
+                model: models.LabTestPanelLabTestTypes,
+                as: 'panelRelations',
+                where: {
+                  labTestPanelId: labRequest.labTestPanelRequest.labTestPanelId,
+                },
+                required: false,
+                attributes: ['order'],
+              },
+            ],
+          },
+        ],
+        order: [
+          [{ model: models.LabTestType, as: 'labTestType' }, { model: models.LabTestPanelLabTestTypes, as: 'panelRelations' }, 'order', 'ASC'],
+        ],
+      };
+
+      const count = await models.LabTest.count({
+        ...baseQueryOptions,
+        distinct: true,
+      });
+
+      const objects = await models.LabTest.findAll({
+        ...baseQueryOptions,
+        limit: rowsPerPage,
+        offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+      });
+
+      const data = objects.map((x) => x.forResponse());
+
+      res.send({ count, data });
+    } else {
+      // For non-panel requests, use the default ordering
     const options = canListSensitive
       ? {}
       : { additionalFilters: { '$labTestType.is_sensitive$': false } };
     const response = await getResourceList(req, 'LabTest', 'labRequestId', options);
-
     res.send(response);
+    }
   }),
 );
 
@@ -546,6 +610,10 @@ labTestPanel.get(
           as: 'category',
         },
       ],
+      order: [[{ model: models.LabTestPanelLabTestTypes, as: 'LabTestPanelLabTestTypes' }, 'order', 'ASC']],
+      through: {
+        attributes: ['order'],
+      },
     });
 
     res.send(response);
@@ -563,7 +631,13 @@ async function createPanelLabRequests(models, body, note, user) {
         model: models.LabTestType,
         as: 'labTestTypes',
         attributes: ['id'],
+        through: {
+          attributes: ['order'],
+        },
       },
+    ],
+    order: [
+      [{ model: models.LabTestType, as: 'labTestTypes' }, models.LabTestPanelLabTestTypes, 'order', 'ASC'],
     ],
   });
 

@@ -8,7 +8,18 @@ export class LabTestPanelExporter extends DefaultDataExporter {
           model: this.models.LabTestType,
           as: 'labTestTypes',
           attributes: ['id'],
+          through: {
+            attributes: ['order'],
+          },
         },
+      ],
+      order: [
+        [
+          { model: this.models.LabTestType, as: 'labTestTypes' },
+          this.models.LabTestPanelLabTestTypes,
+          'order',
+          'ASC',
+        ],
       ],
     });
 
