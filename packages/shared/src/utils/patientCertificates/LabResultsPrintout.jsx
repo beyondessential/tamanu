@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
-import { getReferenceRangeWithUnit } from '@tamanu/utils';
+import { getReferenceRangeWithUnit } from '@tamanu/utils/labTests';
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
