@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { keyBy } from 'lodash';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
@@ -55,11 +56,22 @@ const InsuranceSection = ({ item, discountedPrice }) => {
   if (!item.insurancePlanItems?.length > 0 || !item?.productId) {
     return null;
   }
+  let finalisedInsurancesByPlanId = null;
+
+  if (item.finalisedInsurances) {
+    finalisedInsurancesByPlanId = keyBy(item.finalisedInsurances, 'invoiceInsurancePlanId');
+  }
 
   return (
     <Box mt={1}>
       {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
-        const coverage = calculateCoverageValue(discountedPrice, coverageValue);
+        let displayCoverage = coverageValue;
+
+        if (finalisedInsurancesByPlanId && finalisedInsurancesByPlanId[id]) {
+          displayCoverage = finalisedInsurancesByPlanId[id].coverageValueFinal;
+        }
+
+        const coverage = calculateCoverageValue(discountedPrice, displayCoverage);
         return (
           <Row key={id}>
             <RowName>{label}</RowName>

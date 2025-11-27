@@ -283,10 +283,10 @@ invoiceRoute.put(
     req.checkPermission('write', 'Invoice');
     const { models, params } = req;
     const invoiceId = params.id;
-    const { Invoice, InvoicePriceList } = models;
+    const { Invoice, InvoicePriceList, InvoiceItem, InvoiceItemFinalisedInsurance } = models;
 
     const invoice = await Invoice.findByPk(invoiceId, {
-      attributes: ['encounterId'],
+      attributes: ['id', 'status', 'encounterId'],
     });
 
     if (!invoice) {
@@ -295,15 +295,16 @@ invoiceRoute.put(
 
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
 
-    const invoiceItems = models.InvoiceItem.getListReferenceAssociations(
-      req.models,
-      invoicePriceListId,
-    );
+    const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
+    const invoiceItems = await InvoiceItem.findAll({
+      where: { invoiceId },
+      include: associations,
+    });
 
     const transaction = await req.db.transaction();
 
     try {
-      // Copy product details to invoice item final fields
+      // Copy product details to the invoice item final fields
       for (const item of invoiceItems) {
         if (item.product) {
           item.productNameFinal = item.product.name;
@@ -317,7 +318,22 @@ invoiceRoute.put(
           } else {
             item.priceFinal = item.manualEntryPrice;
           }
-          // Todo: save insurance plan coverage values
+
+          // Save insurance plan coverage values
+          if (item.product.invoiceInsurancePlanItems?.length > 0) {
+            for (const insurancePlanItem of item.product.invoiceInsurancePlanItems) {
+              await InvoiceItemFinalisedInsurance.create(
+                {
+                  id: uuidv4(),
+                  invoiceItemId: item.id,
+                  coverageValueFinal: insurancePlanItem.coverageValue,
+                  invoiceInsurancePlanId: insurancePlanItem.invoiceInsurancePlanId,
+                },
+                { transaction },
+              );
+            }
+          }
+
           await item.save({ transaction });
         }
       }

@@ -1,5 +1,6 @@
 import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import Decimal from 'decimal.js';
+import { keyBy } from 'lodash';
 
 /** @typedef {import('@tamanu/database/models').Invoice} Invoice */
 /** @typedef {import('@tamanu/database/models').InvoiceDiscount} InvoiceDiscount */
@@ -74,11 +75,20 @@ export const getInsuranceCoverageTotal = invoiceItems => {
       return sum;
     }
 
+    let finalisedInsurancesByPlanId = null;
+
+    if (item.finalisedInsurances) {
+      finalisedInsurancesByPlanId = keyBy(item.finalisedInsurances, 'invoiceInsurancePlanId');
+    }
+
     const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
-      if (!itemPlan.coverageValue) {
-        return itemSum;
+      let displayCoverage = itemPlan.coverageValue;
+
+      if (finalisedInsurancesByPlanId && finalisedInsurancesByPlanId[itemPlan.id]) {
+        displayCoverage = finalisedInsurancesByPlanId[itemPlan.id].coverageValueFinal;
       }
-      const coverage = new Decimal(discountedPrice).times(itemPlan.coverageValue / 100).toNumber();
+
+      const coverage = new Decimal(discountedPrice).times(displayCoverage / 100).toNumber();
       return itemSum.plus(coverage);
     }, new Decimal(0));
 

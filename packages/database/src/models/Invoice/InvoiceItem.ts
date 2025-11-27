@@ -115,7 +115,11 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
+  static getListReferenceAssociations(
+    models: Models,
+    invoicePriceListId?: string,
+    tableAlias: string = 'InvoiceItem',
+  ) {
     const productInclude: Record<string, any>[] = [
       {
         model: models.ReferenceData,
@@ -141,7 +145,7 @@ export class InvoiceItem extends Model {
             [Op.in]: literal(`(
               SELECT iip."invoice_insurance_plan_id"
               FROM "invoices_invoice_insurance_plans" iip
-              WHERE iip."invoice_id" = "Invoice"."id"
+              WHERE iip."invoice_id" = "${tableAlias}"."invoice_id"
                 AND iip."deleted_at" IS NULL
             )`),
           },
@@ -174,6 +178,7 @@ export class InvoiceItem extends Model {
         model: models.InvoiceItemDiscount,
         as: 'discount',
       },
+      { model: models.InvoiceItemFinalisedInsurance, as: 'finalisedInsurances' },
     ];
   }
 }
