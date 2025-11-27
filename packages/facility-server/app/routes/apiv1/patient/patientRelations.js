@@ -381,17 +381,7 @@ patientRelations.get(
         'id', lab_tests.id
       )
     ) AS results
-    ${
-      panelId
-        ? `, (
-        SELECT "order"
-        FROM lab_test_panel_lab_test_types
-        WHERE lab_test_panel_id = :panelId
-        AND lab_test_type_id = lab_test_types.id
-        LIMIT 1
-      ) AS panel_order`
-        : ''
-    }
+    ${panelId ? ', panel_join."order" AS panel_order' : ''}
   FROM
     lab_tests
   INNER JOIN
@@ -406,6 +396,15 @@ patientRelations.get(
     reference_data
   ON
     lab_test_types.lab_test_category_id = reference_data.id
+  ${
+    panelId
+      ? `LEFT JOIN
+    lab_test_panel_lab_test_types AS panel_join
+  ON
+    panel_join.lab_test_type_id = lab_test_types.id
+    AND panel_join.lab_test_panel_id = :panelId`
+      : ''
+  }
   WHERE
   encounter_id IN (
       SELECT id
