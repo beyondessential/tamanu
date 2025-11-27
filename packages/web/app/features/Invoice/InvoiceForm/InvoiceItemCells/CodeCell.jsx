@@ -4,6 +4,6 @@ import { ItemCell } from './ItemCell';
 
 export const CodeCell = ({ item }) => (
   <ItemCell width="15%">
-    <ViewOnlyCell>{item.productCode}</ViewOnlyCell>
+    <ViewOnlyCell>{item.productCodeFinal || item.productCode}</ViewOnlyCell>
   </ItemCell>
 );

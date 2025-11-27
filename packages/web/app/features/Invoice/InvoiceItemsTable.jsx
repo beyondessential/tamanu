@@ -50,7 +50,7 @@ const getPrice = row => {
 };
 
 const getInvoiceItemDetails = row => {
-  return row.productNameFinal ?? row.product.name;
+  return row.productNameFinal || row.product.name;
 };
 
 const INVOICE_LINE_COLUMNS = [
@@ -81,7 +81,7 @@ const INVOICE_LINE_COLUMNS = [
     TitleCellComponent: StyledTitleCell,
   },
   {
-    key: 'productCodeFinal',
+    key: 'productCode',
     title: (
       <TranslatedText
         stringId="invoice.table.column.code"

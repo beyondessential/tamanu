@@ -31,7 +31,7 @@ export const DetailsCell = ({
         />
       </NoteModalActionBlocker>
     ) : (
-      <ViewOnlyCell>{item.product?.name}</ViewOnlyCell>
+      <ViewOnlyCell>{item.productNameFinal || item.product?.name}</ViewOnlyCell>
     )}
     {item.note && (
       <Box

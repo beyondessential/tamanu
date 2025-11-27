@@ -32,8 +32,6 @@ const discountAmount = (price, discount) => {
  * @param {InvoiceItem} invoiceItem
  */
 export const getInvoiceItemTotalPrice = invoiceItem => {
-  // Prefer final price if present, then manual entry price, then legacy productPrice,
-  // otherwise fall back to price list item price
   const price =
     invoiceItem.priceFinal ??
     invoiceItem.manualEntryPrice ??

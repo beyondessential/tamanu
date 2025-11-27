@@ -58,10 +58,7 @@ export const InvoiceItemRow = ({
   const isItemEditable = !item.product?.sourceRecordId && editable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
-    formatter: ({ name, id, ...others }) => ({
-      ...others,
-      productName: name,
-      productNameFinal: name,
+    formatter: ({ name, id }) => ({
       label: name,
       value: id,
     }),
