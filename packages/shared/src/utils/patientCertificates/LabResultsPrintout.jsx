@@ -9,6 +9,7 @@ import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
 import { MultiPageHeader } from './printComponents/MultiPageHeader';
+import { Footer } from './printComponents/Footer';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { LabRequestDetailsView } from './LabRequestDetailsView';
@@ -137,6 +138,7 @@ const LabResultsPrintoutComponent = React.memo(
               </View>
             </SectionContainer>
           )}
+          <Footer />
         </Page>
       </Document>
     );
