@@ -293,6 +293,10 @@ invoiceRoute.put(
       throw new NotFoundError('Invoice not found');
     }
 
+    if (invoice.status !== INVOICE_STATUSES.IN_PROGRESS) {
+      throw new InvalidOperationError('Only in progress invoices can be finalised');
+    }
+
     const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
 
     const associations = InvoiceItem.getListReferenceAssociations(models, invoicePriceListId);
