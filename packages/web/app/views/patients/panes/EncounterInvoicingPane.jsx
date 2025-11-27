@@ -124,6 +124,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             </Button>
           </NoteModalActionBlocker>
         )}
+        <InvoiceModalGroup
+          initialModalType={openInvoiceModal}
+          initialInvoice={invoice}
+          encounterId={encounter.id}
+          onClose={() => setOpenInvoiceModal()}
+          data-testid="invoicemodalgroup-rx7c"
+        />
       </EmptyPane>
     );
   }
