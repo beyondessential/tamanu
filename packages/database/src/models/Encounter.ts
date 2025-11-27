@@ -518,8 +518,8 @@ export class Encounter extends Model {
 
       if (changeType) changeTypes.push(changeType);
 
-      const oldRecord = await model.findByPk(this[columnName], { raw: true });
-      const newRecord = await model.findByPk(data[columnName], { raw: true });
+      const oldRecord = await model.findByPk(this[columnName]);
+      const newRecord = await model.findByPk(data[columnName]);
 
       systemNoteRows.push(
         `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
