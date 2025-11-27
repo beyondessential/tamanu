@@ -11,7 +11,6 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
-  useTranslation,
 } from '@tamanu/ui-components';
 import {
   BodyText,
@@ -35,6 +34,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -54,6 +54,10 @@ const StyledFormGrid = styled(FormGrid)`
   position: relative;
 `;
 
+const StyledFormSeparatorLine = styled(FormSeparatorLine)`
+  margin-bottom: 20px;
+`;
+
 const MoveActionsContainer = styled.div`
   position: relative;
   margin-bottom: 20px;
@@ -69,6 +73,10 @@ const CancelMoveButton = styled(Button)`
 const EncounterChangeDescription = styled(LargeBodyText)`
   margin-top: 5px;
   margin-bottom: 20px;
+`;
+
+const EncounterTypeLabel = styled.b`
+  border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
 `;
 
 const BasicMoveFields = () => {
@@ -239,18 +247,22 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
 };
 
+const EncounterTypeDisplay = ({ encounterType }) => (
+  <EncounterTypeLabel $underlineColor={ENCOUNTER_OPTIONS_BY_VALUE[encounterType].color}>
+    <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+  </EncounterTypeLabel>
+);
+
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
-  const { getEnumTranslation } = useTranslation();
   return (
     <EncounterChangeDescription>
       <TranslatedText
-        stringId="patient.encounter.modal.movePatient.action.changeEncounterType"
-        fallback="Changing encounter type from :encounterType to :newEncounterType"
-        replacements={{
-          encounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, encounterType),
-          newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
-        }}
-      />
+        stringId="patient.encounter.modal.movePatient.action.changeEncounterType.prefix"
+        fallback="Changing encounter type from"
+      />{' '}
+      <EncounterTypeDisplay encounterType={encounterType} />{' '}
+      <TranslatedText stringId="general.to" fallback="to" />{' '}
+      <EncounterTypeDisplay encounterType={newEncounterType} />
     </EncounterChangeDescription>
   );
 };
@@ -258,7 +270,7 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
 const HospitalAdmissionFields = () => {
   return (
     <>
-      <FormSeparatorLine />
+      <StyledFormSeparatorLine />
       <SectionHeading>
         <TranslatedText
           stringId="patient.encounter.modal.movePatient.section.encounterDetails.heading"
@@ -397,7 +409,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                   encounterType={encounter.encounterType}
                   newEncounterType={newEncounterType}
                 />
-                <FormSeparatorLine />
+                <StyledFormSeparatorLine />
               </>
             )}
             <SectionHeading>
@@ -440,7 +452,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
                 data-testid="field-tykg"
               />
             </StyledFormGrid>
-            <FormSeparatorLine />
+            <StyledFormSeparatorLine />
             <SectionHeading>
               <TranslatedText
                 stringId="patient.encounter.modal.movePatient.section.basic.heading"
