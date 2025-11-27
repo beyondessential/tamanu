@@ -633,7 +633,7 @@ export class Encounter extends Model {
         sequelizeOptions: {
           include: ['locationGroup'],
         },
-        accessor: Location.formatFullLocationName,
+        accessor: (record: any) => (record ? Location.formatFullLocationName(record) : '-'),
         changeType: EncounterChangeType.Location,
         onChange: async () => {
           // When we move to a new location, clear the planned location move
@@ -659,7 +659,7 @@ export class Encounter extends Model {
         columnName: 'examinerId',
         fieldLabel: 'supervising clinician',
         model: User,
-        accessor: (record: any) => record.displayName ?? '-',
+        accessor: (record: any) => record?.displayName ?? '-',
         changeType: EncounterChangeType.Examiner,
       });
       await recordTextColumnChange({
