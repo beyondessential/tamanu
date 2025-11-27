@@ -8,6 +8,7 @@ import {
   SUBMIT_ATTEMPTED_STATUS,
   ENCOUNTER_TYPES,
   MEDICATION_DURATION_DISPLAY_UNITS_LABELS,
+  NOTE_TYPES
 } from '@tamanu/constants';
 import CloseIcon from '@material-ui/icons/Close';
 import { isFuture, parseISO, set } from 'date-fns';
@@ -744,7 +745,7 @@ export const DischargeForm = ({
   useEffect(() => {
     (async () => {
       const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge').reverse()); // reverse order of array to sort by oldest first
+      setDischargeNotes(notes.filter(n => n.noteTypeId === NOTE_TYPES.DISCHARGE).reverse()); // reverse order of array to sort by oldest first
     })();
   }, [api, encounter.id]);
 
