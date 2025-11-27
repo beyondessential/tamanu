@@ -58,7 +58,7 @@ labRequest.get(
         status: { [Op.in]: finalStatuses },
       },
       order: [['createdAt', 'DESC']],
-      include: [{ model: User, as: 'updatedBy' }],
+      include: [{ model: User, as: 'updatedBy', attributes: ['displayName'] }],
     });
 
     res.send({
