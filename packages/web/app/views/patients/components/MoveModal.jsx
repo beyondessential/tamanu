@@ -34,6 +34,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { useSettings } from '../../../contexts/Settings';
 import { ENCOUNTER_TYPE_LABELS, ENCOUNTER_TYPES } from '@tamanu/constants';
 import { useFormikContext } from 'formik';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 
 const SectionHeading = styled(Heading3)`
   color: ${TAMANU_COLORS.darkestText};
@@ -72,6 +73,10 @@ const CancelMoveButton = styled(Button)`
 const EncounterChangeDescription = styled(LargeBodyText)`
   margin-top: 5px;
   margin-bottom: 20px;
+`;
+
+const EncounterTypeLabel = styled.b`
+  border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
 `;
 
 const BasicMoveFields = () => {
@@ -242,12 +247,8 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
 };
 
-const EncounterTypeLabel = styled.b`
-  border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
-`;
-
 const EncounterTypeDisplay = ({ encounterType }) => (
-  <EncounterTypeLabel $underlineColor={TAMANU_COLORS.outline}>
+  <EncounterTypeLabel $underlineColor={ENCOUNTER_OPTIONS_BY_VALUE[encounterType].color}>
     <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
   </EncounterTypeLabel>
 );
