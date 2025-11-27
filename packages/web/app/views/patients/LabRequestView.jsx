@@ -226,7 +226,6 @@ export const LabRequestView = () => {
   const canWriteLabTest = ability?.can('write', 'LabTest');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
-  const isInterim = INTERIM_STATUSES.includes(labRequest.status);
   const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
 
   const isHidden = HIDDEN_STATUSES.includes(labRequest.status);
@@ -298,7 +297,7 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {isPublished ? (
+              {isPublished || isVerified ? (
                 <OutlinedButton
                   disabled={isHidden}
                   onClick={() => {
