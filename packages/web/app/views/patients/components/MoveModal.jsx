@@ -242,6 +242,16 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
 };
 
+const EncounterTypeLabel = styled.b`
+  border-bottom: 2px solid ${({ $underlineColor }) => $underlineColor};
+`;
+
+const EncounterTypeDisplay = ({ encounterType }) => (
+  <EncounterTypeLabel $underlineColor={TAMANU_COLORS.outline}>
+    <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
+  </EncounterTypeLabel>
+);
+
 const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => {
   return (
     <EncounterChangeDescription>
@@ -249,13 +259,9 @@ const EncounterTypeChangeDescription = ({ encounterType, newEncounterType }) => 
         stringId="patient.encounter.modal.movePatient.action.changeEncounterType.prefix"
         fallback="Changing encounter type from"
       />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={encounterType} />
-      </b>{' '}
+      <EncounterTypeDisplay encounterType={encounterType} />{' '}
       <TranslatedText stringId="general.to" fallback="to" />{' '}
-      <b>
-        <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-      </b>
+      <EncounterTypeDisplay encounterType={newEncounterType} />
     </EncounterChangeDescription>
   );
 };
