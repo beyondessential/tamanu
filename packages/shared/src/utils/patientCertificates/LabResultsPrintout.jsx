@@ -72,7 +72,6 @@ const LabResultsPrintoutComponent = React.memo(
     const showInterimBanner = INTERIM_LAB_REQUEST_STATUSES.includes(labRequest.status);
     const tests = labRequest.tests || [];
     const labResultsColumns = getLabResultsColumns(patientData?.sex);
-
     return (
       <Document>
         <Page size="A4" style={[styles.page, { paddingBottom: 50 }]}>
