@@ -23,6 +23,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       Department,
       Facility,
       ImagingAreaExternalCode,
+      ImagingTypeExternalCode,
       Location,
       Patient,
       ReferenceData,
@@ -43,7 +44,8 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       fake(Department, { locationId: location.id, facilityId: facility.id }),
     );
 
-    const [extCode1, extCode2, pat] = await Promise.all([
+    const [typeExtCode, extCode1, extCode2, pat] = await Promise.all([
+      ImagingTypeExternalCode.create(fake(ImagingTypeExternalCode, { imagingTypeCode: 'xRay' })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
       FhirPatient.materialiseFromUpstream(patient.id),
@@ -57,6 +59,7 @@ describe(`Materialised FHIR - ImagingStudy`, () => {
       facility,
       location,
       department,
+      typeExtCode,
       extCode1,
       extCode2,
       pat,
