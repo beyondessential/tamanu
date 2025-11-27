@@ -239,7 +239,7 @@ import { SidebarPage } from '@pages/SidebarPage';
     expect(encounterValues.area).toBe(formValues.area);
     expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
   });
-  test.only('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
+  test('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
     await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
     await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
     await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
