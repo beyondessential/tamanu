@@ -497,9 +497,13 @@ export class Encounter extends Model {
   async update(...args: any): Promise<any> {
     const [data, user] = args;
     const { Department, Location, EncounterHistory, ReferenceData, User } = this.sequelize.models;
+    // Track change types for encounter history snapshot
     const changeTypes: string[] = [];
+    // To collect system note messages describing all changes in this encounter update
     const systemNoteRows: string[] = [];
 
+    // Records changes to foreign key columns (e.g., locationId, departmentId)
+    // Fetches the related records to get human-readable names for the system note
     const recordForeignKeyChange = async ({
       columnName,
       fieldLabel,
@@ -531,6 +535,8 @@ export class Encounter extends Model {
       await onChange?.();
     };
 
+    // Records changes to text/string columns (e.g., encounterType, reasonForEncounter)
+    // Uses the raw values directly since there's no related record to fetch
     const recordTextColumnChange = async ({
       columnName,
       fieldLabel,
@@ -570,6 +576,7 @@ export class Encounter extends Model {
         throw new InvalidOperationError('Planned location cannot be the same as current location');
       }
 
+      // Handle planned location cancellation (when set to null)
       if (data.plannedLocationId === null) {
         // The automatic timeout doesn't provide a submittedTime, prevents double noting a cancellation
         if (this.plannedLocationId && data.submittedTime) {
@@ -581,6 +588,7 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = null;
       }
 
+      // Handle new planned location assignment
       if (data.plannedLocationId && data.plannedLocationId !== this.plannedLocationId) {
         const { Location } = this.sequelize.models;
         const oldLocation = await Location.findOne({
@@ -602,6 +610,7 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
+      // Handle diet changes (many-to-many relationship, so handled separately)
       const generateDietString = (diets: ReferenceData[]) => {
         return diets.map((diet: ReferenceData) => diet.name).join(', ') || '-';
       };
