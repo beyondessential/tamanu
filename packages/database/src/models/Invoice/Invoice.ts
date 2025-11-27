@@ -182,7 +182,6 @@ export class Invoice extends Model {
         orderedByUserId,
         orderDate: new Date(),
         quantity: 1,
-        productDiscountable: invoiceProduct.discountable,
         note,
         deletedAt: null, // Ensure we restore the item if it already exists
       },
@@ -190,15 +189,6 @@ export class Invoice extends Model {
         conflictFields: ['invoice_id', 'source_record_type', 'source_record_id'],
       },
     );
-    await this.sequelize.models.InvoiceItem.create({
-      invoiceId: invoice.id,
-      sourceRecordType: newItem.getModelName(),
-      sourceRecordId: newItem.id,
-      productId: invoiceProduct.id,
-      orderedByUserId,
-      orderDate: new Date(),
-      quantity: 1,
-    });
   }
 
   static async removeItemFromInvoice(

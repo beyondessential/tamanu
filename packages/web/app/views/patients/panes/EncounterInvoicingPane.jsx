@@ -32,17 +32,8 @@ const EmptyPane = styled(ContentPane)`
 
 const ActionsPane = styled.div`
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-
-  .MuiButtonBase-root {
-    margin-left: 8px;
-  }
-`;
-
-const Menu = styled(ThreeDotMenu)`
-  &.MuiButtonBase-root {
-    margin-left: 0;
-  }
 `;
 
 const InvoiceHeading = styled(Typography).attrs({ component: 'div' })`
@@ -102,10 +93,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
   const canCreateInvoice = ability.can('create', 'Invoice');
-  const handleFinaliseInvoice = () => {
-    handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE);
-  };
-
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
@@ -169,27 +156,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             </InvoiceHeading>
             {(cancelable || deletable || finalisable) && (
               <ActionsPane data-testid="actionspane-l9ey">
-                {finalisable && (
-                  <NoteModalActionBlocker>
-                    <OutlinedButton onClick={handleFinaliseInvoice} data-testid="button-yicz">
-                      <TranslatedText
-                        stringId="invoice.modal.finaliseButton.label"
-                        fallback="Finalise"
-                        data-testid="translatedtext-upzu"
-                      />
-                    </OutlinedButton>
-                  </NoteModalActionBlocker>
-                )}
                 <NoteModalActionBlocker>
-                  <Button
-                    onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
-                    data-testid="button-insurance-2zyp"
-                  >
-                    <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
-                  </Button>
-                </NoteModalActionBlocker>
-                <NoteModalActionBlocker>
-                  <Menu
+                  <ThreeDotMenu
                     items={[
                       {
                         label: (
@@ -216,6 +184,14 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     ]}
                     data-testid="threedotmenu-5t9u"
                   />
+                </NoteModalActionBlocker>
+                <NoteModalActionBlocker>
+                  <Button
+                    onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.INSURANCE)}
+                    data-testid="button-insurance-2zyp"
+                  >
+                    <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
+                  </Button>
                 </NoteModalActionBlocker>
                 {finalisable && (
                   <NoteModalActionBlocker>

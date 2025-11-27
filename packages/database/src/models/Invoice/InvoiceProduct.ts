@@ -2,6 +2,9 @@ import { DataTypes } from 'sequelize';
 import { INVOICE_ITEMS_CATEGORIES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
+import { ReferenceData } from '../ReferenceData';
+import { LabTestType } from '../LabTestType';
+import { LabTestPanel } from '../LabTestPanel';
 
 export class InvoiceProduct extends Model {
   declare id: string;
@@ -12,9 +15,9 @@ export class InvoiceProduct extends Model {
   declare sourceRecordId?: string;
   declare visibilityStatus: string;
 
-  declare sourceRefDataRecord?: any;
-  declare sourceLabTestTypeRecord?: any;
-  declare sourceLabTestPanelRecord?: any;
+  declare sourceRefDataRecord?: ReferenceData;
+  declare sourceLabTestTypeRecord?: LabTestType;
+  declare sourceLabTestPanelRecord?: LabTestPanel;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(

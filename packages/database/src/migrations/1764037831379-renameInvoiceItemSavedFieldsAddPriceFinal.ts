@@ -13,7 +13,7 @@ export async function up(query: QueryInterface): Promise<void> {
 
 export async function down(query: QueryInterface): Promise<void> {
   await query.removeColumn('invoice_items', 'price_final');
-  await query.renameColumn('invoice_items', 'manual_price', 'product_price');
+  await query.renameColumn('invoice_items', 'manual_entry_price', 'product_price');
   await query.renameColumn('invoice_items', 'product_code_final', 'product_code');
   await query.renameColumn('invoice_items', 'product_name_final', 'product_name');
   await query.addColumn('invoice_items', 'product_discountable', {

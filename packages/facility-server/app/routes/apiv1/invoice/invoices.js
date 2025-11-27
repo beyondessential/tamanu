@@ -92,7 +92,8 @@ invoiceRoute.post(
         encounterId: data.encounterId,
       },
     });
-    if (existingInvoice) throw new InvalidOperationError('An invoice already exists for this encounter');
+    if (existingInvoice)
+      throw new InvalidOperationError('An invoice already exists for this encounter');
 
     // Handles invoice creation with default insurer and discount
     const invoice = await req.models.Invoice.initializeInvoice(req.user.id, data);
@@ -122,7 +123,7 @@ const updateInvoiceSchema = z
         orderDate: z.string().date(),
         orderedByUserId: z.string(),
         productId: z.string(),
-        productPrice: z.coerce
+        manualEntryPrice: z.coerce
           .number()
           .transform(amount => round(amount, 2))
           .nullish(),
@@ -280,28 +281,30 @@ invoiceRoute.put(
   '/:id/finalise',
   asyncHandler(async (req, res) => {
     req.checkPermission('write', 'Invoice');
-    const invoiceId = req.params.id;
-    const { Invoice, InvoicePriceList } = req.models;
-    const { encounterId } = req.body;
-
-    if (!encounterId) {
-      throw new NotFoundError('encounterId is required');
-    }
-
-    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(encounterId);
+    const { models, params } = req;
+    const invoiceId = params.id;
+    const { Invoice, InvoicePriceList } = models;
 
     const invoice = await Invoice.findByPk(invoiceId, {
-      include: Invoice.getFullReferenceAssociations(invoicePriceListId),
+      attributes: ['encounterId'],
     });
+
     if (!invoice) {
       throw new NotFoundError('Invoice not found');
     }
+
+    const invoicePriceListId = await InvoicePriceList.getIdForPatientEncounter(invoice.encounterId);
+
+    const invoiceItems = models.InvoiceItem.getListReferenceAssociations(
+      req.models,
+      invoicePriceListId,
+    );
 
     const transaction = await req.db.transaction();
 
     try {
       // Copy product details to invoice item final fields
-      for (const item of invoice.items) {
+      for (const item of invoiceItems) {
         if (item.product) {
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
@@ -331,11 +334,7 @@ invoiceRoute.put(
     res.json(invoice);
   }),
 );
-/**
- * Finalise invoice
- * You cannot delete a Finalised invoice
- * You can delete a cancelled or in progress invoice
- */
+
 invoiceRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -347,9 +346,9 @@ invoiceRoute.delete(
     });
     if (!invoice) throw new NotFoundError('Invoice not found');
 
-    //Finalised invoices cannot be deleted
+    // Finalised invoices cannot be deleted
     if (invoice.status === INVOICE_STATUSES.FINALISED) {
-      throw new InvalidOperationError('Only in progress invoices can be finalised');
+      throw new InvalidOperationError('Only in progress invoices can be deleted');
     }
 
     await invoice.destroy();
