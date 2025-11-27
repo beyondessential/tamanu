@@ -18,6 +18,7 @@ import {
   DEFAULT_LANGUAGE_CODE,
   LOCATION_BOOKABLE_VIEW,
   ENCOUNTER_TYPE_LABELS,
+  NOTE_TYPES,
 } from '@tamanu/constants';
 import { v4 as uuidv4 } from 'uuid';
 import { customAlphabet } from 'nanoid';
@@ -423,6 +424,12 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
         baseWhere['$referenceDrug.is_sensitive$'] = false;
       }
 
+      if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+        baseWhere.id = {
+          [Op.notIn]: [NOTE_TYPES.AREA_TO_BE_IMAGED, NOTE_TYPES.RESULT_DESCRIPTION],
+        };
+      }
+
       return baseWhere;
     },
     {
@@ -478,6 +485,16 @@ REFERENCE_TYPE_VALUES.forEach(typeName => {
       creatingBodyBuilder: req => referenceDataBodyBuilder({ type: typeName, name: req.body.name }),
       afterCreated: afterCreatedReferenceData,
       mapper: item => item,
+      orderBuilder: () => {
+        if (typeName === REFERENCE_TYPES.NOTE_TYPE) {
+          return [
+            // Prioritize treatment plan at the top
+            Sequelize.literal(`
+              CASE "ReferenceData"."id" WHEN '${NOTE_TYPES.TREATMENT_PLAN}' THEN 0 ELSE 1 END
+            `),
+          ];
+        }
+      },
       shouldSkipDefaultOrder: req =>
         req.query.parentId || typeName === REFERENCE_TYPES.MEDICATION_SET,
     },
