@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { ChangeDietModal } from './modals/ChangeDietModal';
+import { ChangeLocationModal } from './modals/ChangeLocationModal';
 
 export class ChangeEncounterDetailsMenu {
   readonly page: Page;
@@ -14,6 +15,7 @@ export class ChangeEncounterDetailsMenu {
   readonly encounterProgressRecordMenuItem!: Locator;
 
   private _changeDietModal?: ChangeDietModal;
+  private _changeLocationModal?: ChangeLocationModal;
 
   constructor(page: Page) {
     this.page = page;
@@ -39,6 +41,13 @@ export class ChangeEncounterDetailsMenu {
       this._changeDietModal = new ChangeDietModal(this.page);
     }
     return this._changeDietModal;
+  }
+
+  getChangeLocationModal(): ChangeLocationModal {
+    if (!this._changeLocationModal) {
+      this._changeLocationModal = new ChangeLocationModal(this.page);
+    }
+    return this._changeLocationModal;
   }
 }
 

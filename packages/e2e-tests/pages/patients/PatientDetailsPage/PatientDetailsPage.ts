@@ -95,6 +95,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly admitOrCheckinButton: Locator;
   readonly patientDetailsTab: Locator;
   readonly dietLabel: Locator;
+  readonly locationLabel: Locator;
 
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
@@ -245,6 +246,7 @@ export class PatientDetailsPage extends BasePatientPage {
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
     this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.locationLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Location' }).locator('..').getByTestId('cardvalue-1v8z');
     this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
     this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
