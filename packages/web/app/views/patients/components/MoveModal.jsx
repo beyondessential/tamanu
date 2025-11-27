@@ -243,6 +243,8 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
       .array()
       .of(yup.string())
       .nullable();
+
+    initialValues.startTime = getCurrentDateTimeString();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
