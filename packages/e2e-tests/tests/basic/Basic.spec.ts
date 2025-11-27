@@ -11,12 +11,11 @@ import { getUser } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import { SidebarPage } from '@pages/SidebarPage';
 
-
+test.setTimeout(100000);
 
     test.describe('Basic tests', () => {
 
     test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
-      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -54,7 +53,6 @@ import { SidebarPage } from '@pages/SidebarPage';
       expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
     });
     test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({ newPatient, patientDetailsPage }) => {
-      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -113,7 +111,6 @@ import { SidebarPage } from '@pages/SidebarPage';
      * @param patientDetailsPage - The patient details page object
      */
     test('[BT-0004][AT-2004]Edit patient details', async ({ newPatient, patientDetailsPage }) => {
-      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       const patientDetailsTabPage = await patientDetailsPage.navigateToPatientDetailsTab();
       const nhn = generateNHN();
@@ -185,7 +182,6 @@ import { SidebarPage } from '@pages/SidebarPage';
     });
 
     test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
-      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
       await patientDetailsPage.navigateToImagingRequestTab();
       const imagingRequestPane = new ImagingRequestPane(patientDetailsPage.page);
