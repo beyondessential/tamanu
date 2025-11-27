@@ -422,15 +422,11 @@ labRelations.get(
         ],
       };
 
-      const count = await LabTest.count({
-        ...baseQueryOptions,
-        distinct: true,
-      });
-
-      const objects = await LabTest.findAll({
+      const { count, rows: objects } = await LabTest.findAndCountAll({
         ...baseQueryOptions,
         limit: rowsPerPage,
         offset: page && rowsPerPage ? page * rowsPerPage : undefined,
+        distinct: true,
       });
 
       const data = objects.map(x => x.forResponse());
