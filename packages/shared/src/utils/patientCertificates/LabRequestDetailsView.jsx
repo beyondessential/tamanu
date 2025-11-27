@@ -53,7 +53,7 @@ const PublishedDetailsRow = ({ request }) => {
           label="Published date & time"
           value={getDisplayDate(request.publishedDate, DATE_TIME_FORMAT)}
         />
-        <DataItem label="Published by" value={request.publishedByDisplayName} />
+        <DataItem label="Published by" value={request.publishedBy?.displayName} />
       </Col>
       <Col>
         <DataItem

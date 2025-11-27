@@ -61,16 +61,10 @@ labRequest.get(
       include: [{ model: User, as: 'updatedBy' }],
     });
 
-    let publishedByDisplayName;
-
-    if (publishedLog) {
-      publishedByDisplayName = publishedLog.updatedBy?.displayName;
-    }
-
     res.send({
       ...labRequestRecord.forResponse(),
       latestAttachment,
-      publishedByDisplayName,
+      publishedBy: publishedLog?.updatedBy,
     });
   }),
 );
