@@ -612,18 +612,7 @@ labTestPanel.get(
           as: 'category',
         },
       ],
-      order: [
-        [
-          { model: models.LabTestPanelLabTestTypes, as: 'LabTestPanelLabTestTypes' },
-          'order',
-          'ASC',
-        ],
-      ],
-      through: {
-        attributes: ['order'],
-      },
     });
-
     res.send(response);
   }),
 );
@@ -639,18 +628,7 @@ async function createPanelLabRequests(models, body, note, user) {
         model: models.LabTestType,
         as: 'labTestTypes',
         attributes: ['id'],
-        through: {
-          attributes: ['order'],
-        },
       },
-    ],
-    order: [
-      [
-        { model: models.LabTestType, as: 'labTestTypes' },
-        models.LabTestPanelLabTestTypes,
-        'order',
-        'ASC',
-      ],
     ],
   });
 
