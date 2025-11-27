@@ -21,7 +21,7 @@ const DEFAULT_FIELD_VAL = (
 
 const displayNotes = (notes: INote[]): string | Element =>
   notes
-    .filter(note => note.noteType === NOTE_TYPES.CLINICAL_MOBILE)
+    .filter(note => note.noteTypeId === NOTE_TYPES.CLINICAL_MOBILE)
     .map(note => note.content)
     .join('\n\n') || DEFAULT_FIELD_VAL;
 
