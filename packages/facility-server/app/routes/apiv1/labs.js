@@ -41,7 +41,7 @@ labRequest.get(
       req.checkPermission('read', 'SensitiveLabRequest');
     }
 
-    const { LabRequest } = req.models;
+    const { LabRequest, LabRequestLog, User } = req.models;
 
     await req.audit.access({
       recordId: labRequestRecord.id,
@@ -50,9 +50,27 @@ labRequest.get(
     });
 
     const latestAttachment = await labRequestRecord.getLatestAttachment();
+
+    const finalStatuses = [LAB_REQUEST_STATUSES.PUBLISHED, LAB_REQUEST_STATUSES.VERIFIED];
+    const publishedLog = await LabRequestLog.findOne({
+      where: {
+        labRequestId: labRequestRecord.id,
+        status: { [Op.in]: finalStatuses },
+      },
+      order: [['createdAt', 'DESC']],
+      include: [{ model: User, as: 'updatedBy' }],
+    });
+
+    let publishedByDisplayName;
+
+    if (publishedLog) {
+      publishedByDisplayName = publishedLog.updatedBy?.displayName;
+    }
+
     res.send({
       ...labRequestRecord.forResponse(),
       latestAttachment,
+      publishedByDisplayName,
     });
   }),
 );
