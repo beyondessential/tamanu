@@ -82,7 +82,7 @@ const LabResultsPrintoutComponent = React.memo(
 
     return (
       <Document>
-        <Page size="A4" style={styles.page}>
+        <Page size="A4" style={[styles.page, { paddingBottom: 50 }]}>
           {tests.length > 0 && (
             <MultiPageHeader
               documentName="Lab request"
