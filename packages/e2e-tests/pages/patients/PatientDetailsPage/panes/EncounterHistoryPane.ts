@@ -90,8 +90,16 @@ export class EncounterHistoryPane {
       (this as any)[key] = page.getByTestId(id);
     }
   }
-  async getLatestEncounter(): Promise<Locator> {
+  getLatestEncounter(): Locator {
     return this.tableBody.locator('tr').first();
+  }
+
+  async waitForPageToLoad(): Promise<void> {
+    await this.tableBody.waitFor({ state: 'visible' });
+  }
+
+  async waitForSectionToLoad(): Promise<void> {
+    await this.waitForPageToLoad();
   }
   async getLatestEncounterValues(): Promise<Record<string, string>> {
     const encounterValues: Record<string, string> = {};

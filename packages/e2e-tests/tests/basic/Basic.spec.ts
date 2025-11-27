@@ -11,11 +11,12 @@ import { getUser } from '@utils/apiHelpers';
 import { format } from 'date-fns';
 import { SidebarPage } from '@pages/SidebarPage';
 
-test.setTimeout(100000);
+
 
     test.describe('Basic tests', () => {
 
     test('[BT-0003][AT-2001]Admit the patient to Triage without adding vitals', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -53,6 +54,7 @@ test.setTimeout(100000);
       expect(parseInt(level1Value)).toBeGreaterThanOrEqual(1);
     });
     test('[BT-0003][AT-2002]Admit the patient to Triage with adding vitals', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       await patientDetailsPage.admitOrCheckinButton.click();
       const createEncounterModal = patientDetailsPage.getCreateEncounterModal();
@@ -111,6 +113,7 @@ test.setTimeout(100000);
      * @param patientDetailsPage - The patient details page object
      */
     test('[BT-0004][AT-2004]Edit patient details', async ({ newPatient, patientDetailsPage }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatient);
       const patientDetailsTabPage = await patientDetailsPage.navigateToPatientDetailsTab();
       const nhn = generateNHN();
@@ -182,6 +185,7 @@ test.setTimeout(100000);
     });
 
     test('[BT-0008][AT-2005]Create and verify new imaging request in imaging request table', async ({ newPatientWithHospitalAdmission, patientDetailsPage, api }) => {
+      test.setTimeout(100000);
       await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
       await patientDetailsPage.navigateToImagingRequestTab();
       const imagingRequestPane = new ImagingRequestPane(patientDetailsPage.page);
@@ -235,4 +239,16 @@ test.setTimeout(100000);
     expect(encounterValues.area).toBe(formValues.area);
     expect(encounterValues.startDate).toBe(`${format(new Date(), 'MM/dd/yyyy')} – Current`);
   });
+  test.only('[BT-0019][AT-2013]Change diet', async ({ newPatientWithHospitalAdmission, patientDetailsPage }) => { 
+    await patientDetailsPage.goToPatient(newPatientWithHospitalAdmission);
+    await patientDetailsPage.encounterHistoryPane.waitForSectionToLoad();
+    await patientDetailsPage.encounterHistoryPane.getLatestEncounter().click();
+    await patientDetailsPage.arrowDownIconMenuButton.click();
+    await patientDetailsPage.changeEncounterDetailsMenu.changeDietMenuItem.click();
+    const changeDietModal = patientDetailsPage.changeEncounterDetailsMenu.getChangeDietModal();
+    await changeDietModal.waitForModalToLoad();
+    const expectedDiet = 'Clear fluids';
+    await changeDietModal.changeDiet(expectedDiet);
+    await expect(patientDetailsPage.dietLabel).toContainText(expectedDiet);
   });
+});

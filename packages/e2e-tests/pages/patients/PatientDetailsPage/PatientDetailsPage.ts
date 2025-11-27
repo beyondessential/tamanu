@@ -14,7 +14,9 @@ import { CreateEncounterModal } from './modals/CreateEncounterModal';
 import { EmergencyTriageModal } from './modals/EmergencyTriageModal';
 import { PatientDetailsTabPage } from './panes/PatientDetailsTabPage';
 import { AllPatientsPage } from '../AllPatientsPage';
+import { EncounterMedicationPane } from '../MedicationsPage/panes/EncounterMedicationPane';
 import { EncounterHistoryPane } from './panes/EncounterHistoryPane';
+import { ChangeEncounterDetailsMenu } from './ChangeEncounterDetailsMenu';
 
 export class PatientDetailsPage extends BasePatientPage {
   readonly prepareDischargeButton: Locator;
@@ -30,7 +32,10 @@ export class PatientDetailsPage extends BasePatientPage {
   notesPane?: NotesPane;
   patientDetailsTabPage?: PatientDetailsTabPage;
   encounterMedicationPane?: EncounterMedicationPane;
+  arrowDownIconMenuButton: Locator;
+
   private _encounterHistoryPane?: EncounterHistoryPane;
+  private _changeEncounterDetailsMenu?: ChangeEncounterDetailsMenu;
   readonly encounterMedicationTab: Locator;
   readonly initiateNewOngoingConditionAddButton: Locator;
   readonly ongoingConditionNameField: Locator;
@@ -89,6 +94,7 @@ export class PatientDetailsPage extends BasePatientPage {
   readonly departmentLabel: Locator;
   readonly admitOrCheckinButton: Locator;
   readonly patientDetailsTab: Locator;
+  readonly dietLabel: Locator;
 
   labRequestPane?: LabRequestPane;
   constructor(page: Page) {
@@ -238,8 +244,10 @@ export class PatientDetailsPage extends BasePatientPage {
     this.encounterMedicationTab = this.page.getByTestId('styledtab-ccs8-medication');
     this.encountersList=this.page.getByTestId('styledtablebody-a0jz').locator('tr');
     this.departmentLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Department' }).locator('..').getByTestId('cardvalue-1v8z');
+    this.dietLabel=this.page.getByTestId('cardlabel-0v8z').filter({ hasText: 'Diet' }).locator('..').getByTestId('cardvalue-1v8z');
     this.admitOrCheckinButton=this.page.getByTestId('component-enxe').filter({ hasText: 'Admit or check-in' });
     this.patientDetailsTab=this.page.getByTestId('tab-details');
+    this.arrowDownIconMenuButton=this.page.getByTestId('menubutton-dc8o');
 
   }
 
@@ -518,6 +526,13 @@ export class PatientDetailsPage extends BasePatientPage {
       this._encounterHistoryPane = new EncounterHistoryPane(this.page);
     }
     return this._encounterHistoryPane;
+  }
+
+  get changeEncounterDetailsMenu(): ChangeEncounterDetailsMenu {
+    if (!this._changeEncounterDetailsMenu) {
+      this._changeEncounterDetailsMenu = new ChangeEncounterDetailsMenu(this.page);
+    }
+    return this._changeEncounterDetailsMenu;
   }
 
   async admitToHospital(): Promise<Record<string, string>> {

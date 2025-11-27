@@ -100,6 +100,7 @@ export class EmergencyTriageModal {
     for (const [key, id] of Object.entries(testIds)) {
       (this as any)[key] = page.getByTestId(id);
     }
+    this.arrivalModeSelect=page.getByRole('dialog').getByTestId('selectinput-phtg-select');
   }
 
   async waitForModalToLoad() {
