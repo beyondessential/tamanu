@@ -509,7 +509,7 @@ export class Encounter extends Model {
       fieldLabel,
       model,
       sequelizeOptions = {},
-      accessor = (record: any) => record.name ?? '-',
+      accessor = (record: typeof Model) => record?.name ?? '-',
       changeType,
       onChange,
     }: {
