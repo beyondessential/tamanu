@@ -48,7 +48,7 @@ export const ConditionalTooltip = ({ visible, children, maxWidth, ...restProps }
   return (
     //  Below div is needed to make ThemedTooltip work
     <ThemedTooltip $maxWidth={maxWidth} {...restProps} data-testid="themedtooltip-50xj">
-      <div>{children}</div>
+      <div className="conditional-tooltip-container">{children}</div>
     </ThemedTooltip>
   );
 };

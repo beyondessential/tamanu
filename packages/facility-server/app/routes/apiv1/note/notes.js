@@ -24,7 +24,7 @@ noteRoute.post(
       recordType: noteData.recordType,
       recordId: noteData.recordId,
       date: noteData.date,
-      noteType: noteData.noteType,
+      noteTypeId: noteData.noteTypeId,
       authorId: noteData.authorId,
       onBehalfOfId: noteData.onBehalfOfId,
       revisedById: noteData.revisedById,
@@ -49,6 +49,10 @@ noteRoute.get(
         {
           model: models.User,
           as: 'onBehalfOf',
+        },
+        {
+          model: models.ReferenceData,
+          as: 'noteTypeReference',
         },
       ],
       where: { id: noteId, visibilityStatus: VISIBILITY_STATUSES.CURRENT },
