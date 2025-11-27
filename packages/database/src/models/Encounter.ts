@@ -605,7 +605,6 @@ export class Encounter extends Model {
       const generateDietString = (diets: ReferenceData[]) => {
         return diets.map((diet: ReferenceData) => diet.name).join(', ') || '-';
       };
-
       const oldDiets = await (this as any).getDiets();
       const oldDietIds = oldDiets.map((diet: ReferenceData) => diet.id);
       if (data.dietIds && !isEqual(oldDietIds, JSON.parse(data.dietIds))) {
