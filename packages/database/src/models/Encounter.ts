@@ -1,4 +1,5 @@
 import { Op, DataTypes } from 'sequelize';
+import { isEqual } from 'lodash';
 
 import {
   ENCOUNTER_TYPE_VALUES,
@@ -23,11 +24,12 @@ import {
 import type { Location } from './Location';
 import type { Patient } from './Patient';
 import type { Discharge } from './Discharge';
+import type { ReferenceData } from './ReferenceData';
+
 import { onCreateEncounterMarkPatientForSync } from '../utils/onCreateEncounterMarkPatientForSync';
 import type { SessionConfig } from '../types/sync';
 import type { User } from './User';
 import { buildEncounterLinkedLookupSelect } from '../sync/buildEncounterLinkedLookupFilter';
-import { compact, isEqual, map } from 'lodash';
 
 export class Encounter extends Model {
   declare id: string;
@@ -502,6 +504,7 @@ export class Encounter extends Model {
       columnName,
       fieldLabel,
       model,
+      sequelizeOptions = {},
       accessor = (record: any) => record.name ?? '-',
       changeType,
       onChange,
@@ -509,6 +512,7 @@ export class Encounter extends Model {
       columnName: keyof Encounter;
       fieldLabel: string;
       model: typeof Model;
+      sequelizeOptions?: any;
       accessor?: (record: any) => string;
       changeType?: EncounterChangeType;
       onChange?: () => Promise<void>;
@@ -518,8 +522,8 @@ export class Encounter extends Model {
 
       if (changeType) changeTypes.push(changeType);
 
-      const oldRecord = await model.findByPk(this[columnName]);
-      const newRecord = await model.findByPk(data[columnName]);
+      const oldRecord = await model.findByPk(this[columnName], sequelizeOptions);
+      const newRecord = await model.findByPk(data[columnName], sequelizeOptions);
 
       systemNoteRows.push(
         `Changed ${fieldLabel} from ‘${accessor(oldRecord)}’ to ‘${accessor(newRecord)}’`,
@@ -598,25 +602,29 @@ export class Encounter extends Model {
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
-      const currentDiets = await (this as any).getDiets();
-      const currentDietIds = map(currentDiets, 'id');
-      if (data.dietIds && !isEqual(currentDietIds, JSON.parse(data.dietIds))) {
+      const generateDietString = (diets: ReferenceData[]) => {
+        return diets.map((diet: ReferenceData) => diet.name).join(', ') || '-';
+      };
+
+      const oldDiets = await (this as any).getDiets();
+      const oldDietIds = oldDiets.map((diet: ReferenceData) => diet.id);
+      if (data.dietIds && !isEqual(oldDietIds, JSON.parse(data.dietIds))) {
         const newDietIds = JSON.parse(data.dietIds);
-        const oldDietString = map(currentDiets, 'name').join(', ') || '-';
-        const newDietNames = await Promise.all(
-          map(newDietIds, async (dietId: string) => {
-            const diet = await ReferenceData.findByPk(dietId);
-            return diet?.name;
-          }),
+        const newDiets = await ReferenceData.findAll({
+          where: { id: { [Op.in]: newDietIds } },
+        });
+        systemNoteRows.push(
+          `Changed diet from ‘${generateDietString(oldDiets)}’ to ‘${generateDietString(newDiets)}’`,
         );
-        const newDietString = compact(newDietNames).join(', ') || '-';
-        systemNoteRows.push(`Changed diet from '${oldDietString}' to '${newDietString}'`);
       }
 
       await recordForeignKeyChange({
         columnName: 'locationId',
         fieldLabel: 'location',
         model: Location,
+        sequelizeOptions: {
+          include: ['locationGroup'],
+        },
         accessor: Location.formatFullLocationName,
         changeType: EncounterChangeType.Location,
         onChange: async () => {
