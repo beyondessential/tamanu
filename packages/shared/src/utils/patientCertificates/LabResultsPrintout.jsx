@@ -1,17 +1,20 @@
 import React from 'react';
-
 import { Document, StyleSheet, View } from '@react-pdf/renderer';
+
 import { LAB_REQUEST_STATUSES } from '@tamanu/constants';
 import { getReferenceRangeWithUnit } from '@tamanu/utils/labTests';
+
 import { PatientDetailsWithBarcode } from './printComponents/PatientDetailsWithBarcode';
 import { styles, CertificateHeader } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
 import { EncounterDetails } from './printComponents/EncounterDetails';
+import { MultiPageHeader } from './printComponents/MultiPageHeader';
 import { withLanguageContext } from '../pdf/languageContext';
 import { Page } from '../pdf/Page';
 import { LabRequestDetailsView } from './LabRequestDetailsView';
 import { Table } from './Table';
 import { P } from './Typography';
+import { getName } from '../patientAccessors';
 
 const INTERIM_STATUSES = [
   LAB_REQUEST_STATUSES.RECEPTION_PENDING,
@@ -79,6 +82,14 @@ const LabResultsPrintoutComponent = React.memo(
     return (
       <Document>
         <Page size="A4" style={styles.page}>
+          {tests.length > 0 && (
+            <MultiPageHeader
+              documentName="Lab request"
+              documentSubname={`Request ID: ${labRequest?.displayId || ''}`}
+              patientId={patientData?.displayId || ''}
+              patientName={getName(patientData)}
+            />
+          )}
           <CertificateHeader>
             <LetterheadSection
               logoSrc={logo}
