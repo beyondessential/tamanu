@@ -444,7 +444,7 @@ export class Encounter extends Model {
 
   async addSystemNote(content: string, date: string, user: ModelProperties<User>) {
     return (this as any).createNote({
-      noteType: NOTE_TYPES.SYSTEM,
+      noteTypeId: NOTE_TYPES.SYSTEM,
       date,
       content,
       ...(user?.id && { authorId: user?.id }),
