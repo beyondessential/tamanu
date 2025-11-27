@@ -666,6 +666,10 @@ export class Encounter extends Model {
         columnName: 'startDate',
         fieldLabel: 'start date',
       });
+      await recordTextColumnChange({
+        columnName: 'estimatedEndDate',
+        fieldLabel: 'estimated discharge date',
+      });
       await recordForeignKeyChange({
         columnName: 'patientBillingTypeId',
         fieldLabel: 'patient type',
