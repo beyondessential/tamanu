@@ -13,7 +13,8 @@ import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { usePatientSearchParameters } from '../contexts/PatientViewSearchParameters.jsx';
 
 const StyledFieldWrapper = styled(Box)`
-  width: 150px;
+  flex: 1 1 0;
+  min-width: 0;
   & .label-field {
     font-size: 12px;
     font-weight: 500;
@@ -22,6 +23,7 @@ const StyledFieldWrapper = styled(Box)`
 
 const Container = styled(Box)`
   display: flex;
+  flex: 1 1 auto;
   padding-top: 5px;
   padding-bottom: 5px;
   gap: 5px;
