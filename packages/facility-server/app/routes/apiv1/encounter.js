@@ -514,12 +514,12 @@ encounterRelations.get(
     const { models, params } = req;
     const encounterId = params.id;
     const noteTypeCounts = await models.Note.count({
-      group: ['noteType'],
+      group: ['noteTypeId'],
       where: { recordId: encounterId, recordType: 'Encounter' },
     });
     const noteTypeToCount = {};
     noteTypeCounts.forEach(n => {
-      noteTypeToCount[n.noteType] = n.count;
+      noteTypeToCount[n.noteTypeId] = n.count;
     });
     res.send({ data: noteTypeToCount });
   }),
