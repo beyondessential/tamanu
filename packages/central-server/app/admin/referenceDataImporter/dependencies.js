@@ -79,6 +79,7 @@ export default {
   },
 
   imagingAreaExternalCode: {},
+  imagingTypeExternalCode: {},
 
   translatedString: {
     loader: translatedStringLoader,
