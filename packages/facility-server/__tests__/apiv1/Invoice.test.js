@@ -7,7 +7,7 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { beforeEach, describe } from 'node:test';
+import { describe } from 'node:test';
 
 describe('Invoice API', () => {
   let app = null;
@@ -17,6 +17,75 @@ describe('Invoice API', () => {
   let user = null;
   let patient = null;
   let priceList = null;
+
+  const createEncounter = async () =>
+    models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+  const createInvoice = async (encounterId, overrides = {}) =>
+    models.Invoice.create({
+      encounterId,
+      displayId: overrides.displayId || `INV-${Date.now()}`,
+      date: new Date(),
+      status: INVOICE_STATUSES.IN_PROGRESS,
+      ...overrides,
+    });
+
+  const createProcedureType = async (overrides = {}) =>
+    models.ReferenceData.create(
+      fake(models.ReferenceData, {
+        type: REFERENCE_TYPES.PROCEDURE_TYPE,
+        name: 'Test Procedure',
+        code: `PROC-${Date.now()}`,
+        ...overrides,
+      }),
+    );
+
+  const createInvoiceProduct = async (procedureType, overrides = {}) =>
+    models.InvoiceProduct.create(
+      fake(models.InvoiceProduct, {
+        category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
+        sourceRecordType: INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
+        sourceRecordId: procedureType.id,
+        ...overrides,
+      }),
+    );
+
+  const createProcedure = async (encounterId, procedureTypeId) =>
+    models.Procedure.create(
+      fake(models.Procedure, {
+        encounterId,
+        procedureTypeId,
+        date: new Date(),
+        physicianId: user.id,
+      }),
+    );
+
+  const createInvoiceItem = async (invoiceId, productId, sourceId, overrides = {}) =>
+    models.InvoiceItem.create({
+      invoiceId,
+      productId,
+      sourceId,
+      orderDate: new Date(),
+      orderedByUserId: user.id,
+      quantity: 1,
+      ...overrides,
+    });
+
+  const createInsurancePlan = async (code, name, defaultCoverage) =>
+    models.InvoiceInsurancePlan.create({
+      code,
+      name,
+      defaultCoverage,
+    });
+
+  const linkInsurancePlanToInvoice = async (invoiceId, insurancePlanId) =>
+    models.InvoicesInvoiceInsurancePlan.create({
+      invoiceId,
+      invoiceInsurancePlanId: insurancePlanId,
+    });
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -34,30 +103,24 @@ describe('Invoice API', () => {
   });
 
   beforeEach(async () => {
-    await models.Encounter.truncate();
-    await models.Invoice.truncate();
-    await models.InvoiceItem.truncate();
-    await models.InvoiceItemFinalisedInsurance.truncate();
-    await models.InvoicesInvoiceInsurancePlan.truncate();
-    await models.InvoiceInsurancePlanItem.truncate();
-    await models.InvoicePriceList.truncate();
-    await models.InvoicePriceListItem.truncate();
+    const tablesToClean = [
+      'Encounter',
+      'Invoice',
+      'InvoiceItem',
+      'InvoiceItemFinalisedInsurance',
+      'InvoicesInvoiceInsurancePlan',
+      'InvoiceInsurancePlanItem',
+      'InvoicePriceListItem',
+    ];
+    await Promise.all(tablesToClean.map(table => models[table].truncate()));
   });
 
   afterAll(() => ctx.close());
 
   describe('PUT /:id/finalise', () => {
     it('should successfully finalise an in-progress invoice', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-001',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
+      const encounter = await createEncounter();
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-FINALISE-001' });
 
       const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
 
@@ -67,34 +130,21 @@ describe('Invoice API', () => {
         status: INVOICE_STATUSES.FINALISED,
       });
 
-      // Verify status was persisted in database
       const updatedInvoice = await models.Invoice.findByPk(invoice.id);
       expect(updatedInvoice.status).toBe(INVOICE_STATUSES.FINALISED);
     });
 
     it('should freeze invoice item product details when finalising', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Surgery',
+        code: 'SURG-001',
+      });
+      const invoiceProduct = await createInvoiceProduct(procedureType, {
+        name: 'Surgery Product',
       });
 
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Surgery',
-          code: 'SURG-001',
-        }),
-      );
-
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-          name: 'Surgery Product',
-        }),
-      );
+      console.log('priceList.id,', priceList?.id);
 
       await models.InvoicePriceListItem.create({
         invoicePriceListId: priceList.id,
@@ -102,28 +152,9 @@ describe('Invoice API', () => {
         price: 150.5,
       });
 
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-002',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
-
-      const procedure = await models.Procedure.create(
-        fake(models.Procedure, {
-          encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
-          date: new Date(),
-          physicianId: user.id,
-        }),
-      );
-
-      const invoiceItem = await models.InvoiceItem.create({
-        invoiceId: invoice.id,
-        productId: invoiceProduct.id,
-        sourceId: procedure.id,
-        orderDate: new Date(),
-        orderedByUserId: user.id,
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-FINALISE-002' });
+      const procedure = await createProcedure(encounter.id, procedureType.id);
+      const invoiceItem = await createInvoiceItem(invoice.id, invoiceProduct.id, procedure.id, {
         quantity: 2,
       });
 
@@ -131,7 +162,6 @@ describe('Invoice API', () => {
 
       expect(result).toHaveSucceeded();
 
-      // Verify finalised fields are populated
       const finalisedItem = await models.InvoiceItem.findByPk(invoiceItem.id);
       expect(finalisedItem.productNameFinal).toBe('Surgery Product');
       expect(finalisedItem.productCodeFinal).toBe('SURG-001');
@@ -139,52 +169,17 @@ describe('Invoice API', () => {
     });
 
     it('should use manual entry price when price list item is not available', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
+      const encounter = await createEncounter();
+      const procedureType = await createProcedureType({
+        name: 'Custom Procedure',
+        code: 'CUSTOM-001',
       });
-
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Custom Procedure',
-          code: 'CUSTOM-001',
-        }),
-      );
-
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-        }),
-      );
-
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-003',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
-
-      const procedure = await models.Procedure.create(
-        fake(models.Procedure, {
-          encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
-          date: new Date(),
-          physicianId: user.id,
-        }),
-      );
+      const invoiceProduct = await createInvoiceProduct(procedureType);
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-FINALISE-003' });
+      const procedure = await createProcedure(encounter.id, procedureType.id);
 
       const manualPrice = 99.99;
-      const invoiceItem = await models.InvoiceItem.create({
-        invoiceId: invoice.id,
-        productId: invoiceProduct.id,
-        sourceId: procedure.id,
-        orderDate: new Date(),
-        orderedByUserId: user.id,
-        quantity: 1,
+      const invoiceItem = await createInvoiceItem(invoice.id, invoiceProduct.id, procedure.id, {
         manualEntryPrice: manualPrice,
       });
 
@@ -192,45 +187,20 @@ describe('Invoice API', () => {
 
       expect(result).toHaveSucceeded();
 
-      // Verify manual price is used
       const finalisedItem = await models.InvoiceItem.findByPk(invoiceItem.id);
       expect(finalisedItem.priceFinal).toBe('99.99');
     });
 
     it('should save insurance plan coverage values to InvoiceItemFinalisedInsurance', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
+      const encounter = await createEncounter();
+      const insurancePlan1 = await createInsurancePlan('PLAN-001', 'Primary Insurance', 80);
+      const insurancePlan2 = await createInsurancePlan('PLAN-002', 'Secondary Insurance', 50);
+
+      const procedureType = await createProcedureType({
+        name: 'Consultation',
+        code: 'CONSULT-001',
       });
-
-      const insurancePlan1 = await models.InvoiceInsurancePlan.create({
-        code: 'PLAN-001',
-        name: 'Primary Insurance',
-        defaultCoverage: 80,
-      });
-
-      const insurancePlan2 = await models.InvoiceInsurancePlan.create({
-        code: 'PLAN-002',
-        name: 'Secondary Insurance',
-        defaultCoverage: 50,
-      });
-
-      const procedureType = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.PROCEDURE_TYPE,
-          name: 'Consultation',
-          code: 'CONSULT-001',
-        }),
-      );
-
-      const invoiceProduct = await models.InvoiceProduct.create(
-        fake(models.InvoiceProduct, {
-          category: INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE,
-          sourceRecordType:
-            INVOICE_ITEMS_CATEGORIES_MODELS[INVOICE_ITEMS_CATEGORIES.PROCEDURE_TYPE],
-          sourceRecordId: procedureType.id,
-        }),
-      );
+      const invoiceProduct = await createInvoiceProduct(procedureType);
 
       await models.InvoicePriceListItem.create({
         invoicePriceListId: priceList.id,
@@ -250,63 +220,38 @@ describe('Invoice API', () => {
         coverageValue: 60,
       });
 
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-004',
-        date: new Date(),
-        status: INVOICE_STATUSES.IN_PROGRESS,
-      });
+      const invoice = await createInvoice(encounter.id, { displayId: 'INV-FINALISE-004' });
+      await linkInsurancePlanToInvoice(invoice.id, insurancePlan1.id);
+      await linkInsurancePlanToInvoice(invoice.id, insurancePlan2.id);
 
-      await models.InvoicesInvoiceInsurancePlan.create({
-        invoiceId: invoice.id,
-        invoiceInsurancePlanId: insurancePlan1.id,
-      });
-
-      await models.InvoicesInvoiceInsurancePlan.create({
-        invoiceId: invoice.id,
-        invoiceInsurancePlanId: insurancePlan2.id,
-      });
-
-      const procedure = await models.Procedure.create(
-        fake(models.Procedure, {
-          encounterId: encounter.id,
-          procedureTypeId: procedureType.id,
-          date: new Date(),
-          physicianId: user.id,
-        }),
-      );
-
-      const invoiceItem = await models.InvoiceItem.create({
-        invoiceId: invoice.id,
-        productId: invoiceProduct.id,
-        sourceId: procedure.id,
-        orderDate: new Date(),
-        orderedByUserId: user.id,
-        quantity: 1,
-      });
+      const procedure = await createProcedure(encounter.id, procedureType.id);
+      const invoiceItem = await createInvoiceItem(invoice.id, invoiceProduct.id, procedure.id);
 
       const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
 
       expect(result).toHaveSucceeded();
 
-      // Verify insurance coverage was saved
       const finalisedInsurances = await models.InvoiceItemFinalisedInsurance.findAll({
         where: { invoiceItemId: invoiceItem.id },
       });
 
       expect(finalisedInsurances).toHaveLength(2);
 
-      const insurances = finalisedInsurances.sort(
+      const [secondary, primary] = finalisedInsurances.sort(
         (a, b) => a.coverageValueFinal - b.coverageValueFinal,
       );
 
-      expect(insurances[0].invoiceItemId).toEqual(invoiceItem.id);
-      expect(insurances[0].invoiceInsurancePlanId).toEqual(insurancePlan2.id);
-      expect(insurances[0].coverageValueFinal).toEqual('60');
+      expect(secondary).toMatchObject({
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: insurancePlan2.id,
+        coverageValueFinal: '60',
+      });
 
-      expect(insurances[1].invoiceItemId).toEqual(invoiceItem.id);
-      expect(insurances[1].invoiceInsurancePlanId).toEqual(insurancePlan1.id);
-      expect(insurances[1].coverageValueFinal).toEqual('90');
+      expect(primary).toMatchObject({
+        invoiceItemId: invoiceItem.id,
+        invoiceInsurancePlanId: insurancePlan1.id,
+        coverageValueFinal: '90',
+      });
     });
 
     it('should return error when trying to finalise a non-existent invoice', async () => {
@@ -317,35 +262,12 @@ describe('Invoice API', () => {
       expect(result.body.error.message).toBe('Invoice not found');
     });
 
-    it('should return error when trying to finalise a cancelled invoice', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-005',
-        date: new Date(),
-        status: INVOICE_STATUSES.CANCELLED,
-      });
-
-      const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
-
-      expect(result).toHaveRequestError();
-      expect(result.body.error.message).toContain('Only in progress invoices can be finalised');
-    });
-
-    it('should return error when trying to finalise an already finalised invoice', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const invoice = await models.Invoice.create({
-        encounterId: encounter.id,
-        displayId: 'INV-FINALISE-006',
-        date: new Date(),
-        status: INVOICE_STATUSES.FINALISED,
-      });
+    it.each([
+      ['cancelled', INVOICE_STATUSES.CANCELLED],
+      ['already finalised', INVOICE_STATUSES.FINALISED],
+    ])('should return error when trying to finalise a %s invoice', async (description, status) => {
+      const encounter = await createEncounter();
+      const invoice = await createInvoice(encounter.id, { status });
 
       const result = await app.put(`/api/invoices/${invoice.id}/finalise`);
 
