@@ -124,7 +124,7 @@ const FullLabRequestDetailsRow = ({ request }) => {
 
 export const LabRequestDetailsView = ({
   labRequests,
-  showFullRequestDetails = true,
+  minimal = false,
   showPublishedDetails = false,
 }) => {
   return (
@@ -136,10 +136,10 @@ export const LabRequestDetailsView = ({
       {labRequests.map((request, index) => {
         return (
           <View key={request.id} style={labDetailsSectionStyles.detailsContainer}>
-            {showFullRequestDetails ? (
-              <FullLabRequestDetailsRow request={request} />
-            ) : (
+            {minimal ? (
               <MinimalLabRequestDetailsRow request={request} />
+            ) : (
+              <FullLabRequestDetailsRow request={request} />
             )}
             <HorizontalRule />
             <SampleDetailsRow request={request} />

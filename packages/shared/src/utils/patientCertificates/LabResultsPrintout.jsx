@@ -107,8 +107,8 @@ const LabResultsPrintoutComponent = React.memo(
           </CertificateHeader>
           <SectionContainer>
             <LabRequestDetailsView
+              minimal
               labRequests={[labRequest]}
-              showFullRequestDetails={false}
               showPublishedDetails
             />
           </SectionContainer>
