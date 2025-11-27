@@ -92,11 +92,13 @@ export const EncounterInvoicingPane = ({ encounter }) => {
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
 
+  const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
   const canDeleteInvoice = ability.can('delete', 'Invoice');
   const cancelable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const editable = invoice && isInvoiceEditable(invoice) && canWriteInvoice;
   const deletable = invoice && invoice.status !== INVOICE_STATUSES.FINALISED && canDeleteInvoice;
+  const finalisable = invoice && isInvoiceEditable(invoice) && canCreateInvoice;
   const insurancePlans = invoice?.insurancePlans.map(plan => plan.name).join(', ');
 
   if (isLoading) {
@@ -152,7 +154,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
               </Box>
               <InvoiceStatus status={invoice.status} data-testid="invoicestatus-qb63" />
             </InvoiceHeading>
-            {(cancelable || deletable) && (
+            {(cancelable || deletable || finalisable) && (
               <ActionsPane data-testid="actionspane-l9ey">
                 <NoteModalActionBlocker>
                   <ThreeDotMenu
@@ -191,6 +193,17 @@ export const EncounterInvoicingPane = ({ encounter }) => {
                     <TranslatedText stringId="invoice.action.insurance" fallback="Insurance plan" />
                   </Button>
                 </NoteModalActionBlocker>
+                {finalisable && (
+                  <NoteModalActionBlocker>
+                    <OutlinedButton
+                      onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.FINALISE_INVOICE)}
+                      style={{ marginRight: 10 }}
+                      data-testid="button-yicz"
+                    >
+                      <TranslatedText stringId="invoice.action.finalise" fallback="Finalise" />
+                    </OutlinedButton>
+                  </NoteModalActionBlocker>
+                )}
               </ActionsPane>
             )}
             {!editable && (
