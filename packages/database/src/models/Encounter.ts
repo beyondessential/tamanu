@@ -633,7 +633,7 @@ export class Encounter extends Model {
         sequelizeOptions: {
           include: ['locationGroup'],
         },
-        accessor: (record: any) => (record ? Location.formatFullLocationName(record) : '-'),
+        accessor: Location.formatFullLocationName,
         changeType: EncounterChangeType.Location,
         onChange: async () => {
           // When we move to a new location, clear the planned location move
