@@ -20,8 +20,9 @@ import { DataFetchingProgramsTable } from '../components/ProgramResponsesTable';
 import { usePatientDataQuery } from '../api/queries/usePatientDataQuery';
 import { useRefreshCount } from '../hooks/useRefreshCount';
 import {
-  UnSavedChangesModal,
-  UnSavedProcedureProgramModal,
+  UnsavedChangesModal,
+  SaveWithoutAdditionalDataModal,
+  CloseWithoutAdditionalDataModal,
 } from '../forms/ProcedureForm/ProcedureFormModals';
 import { ProcedureFormFields } from '../forms/ProcedureForm';
 
@@ -95,9 +96,11 @@ export const ProcedureModal = ({
   const { data: patient } = usePatientDataQuery(patientId);
   const [refreshCount, updateRefreshCount] = useRefreshCount();
   const [selectedSurveyId, setSelectedSurveyId] = useState(null);
-  const [unsavedChangesModalOpen, setUnSavedChangesModalOpen] = useState(false);
-  const [unsavedProgramFormOpen, setUnsavedProgramFormOpen] = useState(false);
-  const [pendingFormData, setPendingFormData] = useState(null); // Add this line
+  const [unsavedChangesModalOpen, setUnsavedChangesModalOpen] = useState(false);
+  const [saveWithoutAdditionalDataModalOpen, setSaveWithoutAdditionalDataModalOpen] = useState(false);
+  const [closeWithoutAdditionalDataModalOpen, setCloseWithoutAdditionalDataModalOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState(null);
+  const [surveyFormDirty, setSurveyFormDirty] = useState(false);
   const procedureId = editedProcedure?.id;
   const { data: programResponses } = useProcedureProgramResponsesQuery(
     patientId,
@@ -129,7 +132,7 @@ export const ProcedureModal = ({
       onSubmit={async data => {
         if (selectedSurveyId) {
           setPendingFormData(data); // Store the form data
-          setUnsavedProgramFormOpen(true);
+          setSaveWithoutAdditionalDataModalOpen(true);
         } else {
           await onSubmit(data);
         }
@@ -137,7 +140,9 @@ export const ProcedureModal = ({
       render={({ submitForm, values, dirty, setFieldValue }) => {
         const handleCancel = () => {
           if (dirty) {
-            setUnSavedChangesModalOpen(true);
+            setUnsavedChangesModalOpen(true);
+          } else if (surveyFormDirty) {
+            setCloseWithoutAdditionalDataModalOpen(true);
           } else {
             onClose();
           }
@@ -204,6 +209,8 @@ export const ProcedureModal = ({
                     />,
                   );
                 }}
+                surveyFormDirty={surveyFormDirty}
+                setSurveyFormDirty={setSurveyFormDirty}
               />
               {programResponses?.data?.length > 0 && (
                 <>
@@ -250,27 +257,38 @@ export const ProcedureModal = ({
                 ) : null}
               </ButtonRow>
             </FormModal>
-            <UnSavedProcedureProgramModal
-              open={unsavedProgramFormOpen}
+            <CloseWithoutAdditionalDataModal
+              open={closeWithoutAdditionalDataModalOpen}
               onCancel={() => {
-                setUnsavedProgramFormOpen(false);
+                setCloseWithoutAdditionalDataModalOpen(false);
+              }}
+              onConfirm={() => {
+                setCloseWithoutAdditionalDataModalOpen(false);
+                onClose();
+              }}
+            />
+            <SaveWithoutAdditionalDataModal
+              open={saveWithoutAdditionalDataModalOpen}
+              onCancel={() => {
+                setSaveWithoutAdditionalDataModalOpen(false);
                 setPendingFormData(null);
               }}
               onConfirm={async () => {
-                setUnsavedProgramFormOpen(false);
+                setSaveWithoutAdditionalDataModalOpen(false);
                 if (pendingFormData) {
                   await onSubmit(pendingFormData);
                   setPendingFormData(null);
                 }
               }}
             />
-            <UnSavedChangesModal
+            <UnsavedChangesModal
               open={unsavedChangesModalOpen}
               onCancel={() => {
-                setUnSavedChangesModalOpen(false);
+                setUnsavedChangesModalOpen(false);
               }}
               onConfirm={() => {
-                setUnSavedChangesModalOpen(false);
+                setUnsavedChangesModalOpen(false);
+                setSurveyFormDirty(false);
                 onClose();
               }}
             />
