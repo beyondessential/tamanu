@@ -56,6 +56,11 @@ patientRelations.get(
 
     const sortKey = orderBy && ENCOUNTER_SORT_KEYS[orderBy];
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+    const sortExpression =
+      sortKey &&
+      (orderBy === 'dischargingClinicianName'
+        ? `${sortKey} ${sortDirection} NULLS LAST`
+        : `${sortKey} ${sortDirection}`);
 
     const searchFilters = [
       makeFilter(encounterType, 'encounters.encounter_type = :encounterType'),
@@ -112,7 +117,7 @@ patientRelations.get(
           dischargingClinician.display_name AS discharging_clinician_name
         ${fromClause}
         ${whereClause}
-        ${sortKey ? `ORDER BY ${sortKey} ${sortDirection}` : ''}
+        ${sortExpression ? `ORDER BY ${sortExpression}` : ''}
       `,
       { patientId: params.id, ...filterReplacements },
       query,
