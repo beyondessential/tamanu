@@ -34,6 +34,10 @@ const ClearButton = styled(TextButton)`
   align-self: center;
   margin-bottom: 15px;
   font-size: 12px;
+  &.MuiButtonBase-root {
+    padding-right: 0px;
+    padding-left: 0px;
+  } 
 `;
 
 export const PatientHistorySearch = () => {
