@@ -26,7 +26,7 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
-import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDataLabel.jsx';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 
 const CardLabel = styled.span`
   margin-right: 5px;

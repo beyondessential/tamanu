@@ -19,7 +19,7 @@ import {
 } from '../../../components/Translation';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
 import { NoteModalActionBlocker } from '../../../components/NoteModalActionBlocker';
-import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDataLabel';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel';
 
 const Border = css`
   border: 1px solid ${Colors.outline};
