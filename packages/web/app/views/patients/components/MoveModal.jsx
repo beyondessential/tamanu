@@ -11,6 +11,7 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
+  useTranslation,
 } from '@tamanu/ui-components';
 import {
   BodyText,
@@ -194,23 +195,24 @@ const PlannedMoveFields = () => {
 };
 
 const EncounterChangeText = ({ newEncounterType }) => {
+  const { getEnumTranslation } = useTranslation();
   if (newEncounterType === ENCOUNTER_TYPES.ADMISSION) {
     return (
       <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
     );
   }
+
   return (
     <TranslatedText
       stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
       fallback="Transfer to :newEncounterType"
       replacements={{
-        newEncounterType: (
-          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-        ),
+        newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
       }}
     />
   );
 };
+
 const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospital }) => {
   const validationObject = {
     examinerId: yup.string().required(),
@@ -231,8 +233,6 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
 
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
-  } else {
-    validationObject.locationId = yup.string().nullable();
   }
 
   if (isAdmittingToHospital) {
