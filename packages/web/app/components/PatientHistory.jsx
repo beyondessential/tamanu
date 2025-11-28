@@ -166,8 +166,6 @@ const StyledMenuButton = styled(MenuButton)`
 const EncounterHistoryHeading = styled(Heading4)`
   white-space: nowrap;
   padding-right: 32px;
-  margin-bottom: 16px;
-  margin-top: 16px;
 `;
 
 const getDate = ({ startDate, endDate, encounterType }) => {
