@@ -1,5 +1,4 @@
 export * from './InvoiceForm';
-export * from './InvoiceItemsTable';
 export * from './InvoiceModalGroup';
 export * from './InvoicesTable';
 export * from './InvoiceSummaryPanel';
