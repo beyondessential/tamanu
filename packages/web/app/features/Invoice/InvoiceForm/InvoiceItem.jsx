@@ -51,11 +51,11 @@ export const InvoiceItemRow = ({
   isDeleteDisabled,
   showActionMenu,
   formArrayMethods,
-  editable,
+  invoiceIsEditable,
   encounterId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const isItemEditable = !item.product?.sourceRecordId && editable;
+  const isItemEditable = !item.product?.id && invoiceIsEditable;
 
   const invoiceProductsSuggester = useSuggester('invoiceProduct', {
     formatter: ({ name, id }) => ({
@@ -118,7 +118,7 @@ export const InvoiceItemRow = ({
 
   const hidePriceInput =
     (priceListPrice !== null && priceListPrice !== undefined) ||
-    !editable ||
+    !invoiceIsEditable ||
     fetchedPriceData?.price;
 
   return (
@@ -135,9 +135,9 @@ export const InvoiceItemRow = ({
         isItemEditable={isItemEditable}
         invoiceProductsSuggester={invoiceProductsSuggester}
         handleChangeProduct={handleChangeProduct}
-        editable={editable}
+        invoiceIsEditable={invoiceIsEditable}
       />
-      <CodeCell item={item} />
+      <CodeCell item={item} isItemEditable={isItemEditable} />
       <QuantityCell index={index} item={item} isItemEditable={isItemEditable} />
       <OrderedByCell
         index={index}
@@ -160,8 +160,7 @@ export const InvoiceItemRow = ({
         item={item}
         formArrayMethods={formArrayMethods}
         isDeleteDisabled={isDeleteDisabled}
-        showActionMenu={showActionMenu}
-        editable={editable}
+        showActionMenu={showActionMenu && invoiceIsEditable}
         hidePriceInput={hidePriceInput}
       />
     </StyledItemRow>

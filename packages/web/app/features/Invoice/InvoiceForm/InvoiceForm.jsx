@@ -104,7 +104,7 @@ export const InvoiceForm = ({ invoice }) => {
                           isDeleteDisabled={values.invoiceItems?.length === 1}
                           showActionMenu={item.productId || values.invoiceItems.length > 1}
                           formArrayMethods={formArrayMethods}
-                          editable={editable && canWriteInvoice}
+                          invoiceIsEditable={editable && canWriteInvoice}
                           data-testid={`invoiceitemrow-ri5o-${index}`}
                         />
                       );

@@ -169,7 +169,6 @@ export const InvoiceItemActionsMenu = ({
   formArrayMethods,
   isDeleteDisabled,
   showActionMenu,
-  editable,
   hidePriceInput,
 }) => {
   const { actionModal, onCloseActionModal, handleAction, menuItems } = useInvoiceItemActionsMenu({
@@ -181,7 +180,7 @@ export const InvoiceItemActionsMenu = ({
   });
   return (
     <>
-      {showActionMenu && editable && (
+      {showActionMenu && (
         <NoteModalActionBlocker>
           <MenuButton items={menuItems} data-testid="threedotmenu-zw6l" />
         </NoteModalActionBlocker>
