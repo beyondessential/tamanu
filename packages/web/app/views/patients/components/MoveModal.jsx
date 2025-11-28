@@ -11,6 +11,7 @@ import {
   Form,
   FormGrid,
   TAMANU_COLORS,
+  useTranslation,
 } from '@tamanu/ui-components';
 import {
   BodyText,
@@ -80,6 +81,12 @@ const EncounterTypeLabel = styled.b`
 `;
 
 const BasicMoveFields = () => {
+  const { setFieldValue, values } = useFormikContext();
+
+  const handleGroupChange = groupValue => {
+    setFieldValue('locationGroupId', groupValue);
+  };
+
   return (
     <>
       <SectionDescription>
@@ -89,7 +96,13 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field name="locationId" component={LocalisedLocationField} data-testid="field-tykg" />
+        <Field
+          name="locationId"
+          component={LocalisedLocationField}
+          groupValue={values.locationGroupId}
+          onGroupChange={handleGroupChange}
+          data-testid="field-tykg"
+        />
       </StyledFormGrid>
     </>
   );
@@ -194,23 +207,24 @@ const PlannedMoveFields = () => {
 };
 
 const EncounterChangeText = ({ newEncounterType }) => {
+  const { getEnumTranslation } = useTranslation();
   if (newEncounterType === ENCOUNTER_TYPES.ADMISSION) {
     return (
       <TranslatedText stringId="encounter.action.admitToHospital" fallback="Admit to hospital" />
     );
   }
+
   return (
     <TranslatedText
       stringId="patient.encounter.modal.movePatient.action.transferToNewEncounterType"
       fallback="Transfer to :newEncounterType"
       replacements={{
-        newEncounterType: (
-          <TranslatedEnum enumValues={ENCOUNTER_TYPE_LABELS} value={newEncounterType} />
-        ),
+        newEncounterType: getEnumTranslation(ENCOUNTER_TYPE_LABELS, newEncounterType),
       }}
     />
   );
 };
+
 const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospital }) => {
   const validationObject = {
     examinerId: yup.string().required(),
@@ -232,7 +246,14 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
   } else {
-    validationObject.locationId = yup.string().nullable();
+    validationObject.locationId = yup
+      .string()
+      .nullable()
+      .when('locationGroupId', {
+        is: value => !!value,
+        then: schema => schema.required('Location is required when area is selected'),
+        otherwise: schema => schema.nullable(),
+      });
   }
 
   if (isAdmittingToHospital) {
@@ -243,6 +264,8 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
       .array()
       .of(yup.string())
       .nullable();
+
+    initialValues.startTime = getCurrentDateTimeString();
   }
 
   return { initialValues, validationSchema: yup.object().shape(validationObject) };
@@ -352,6 +375,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
+    delete rest.locationGroupId;
 
     const locationData = {};
     if (action === PATIENT_MOVE_ACTIONS.PLAN) {
