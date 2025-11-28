@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
-  getItemCoverageValue,
+  getInvoiceItemCoverageValue,
 } from '@tamanu/shared/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
@@ -13,7 +13,6 @@ import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
-import { getInvoiceItemCoverageValue } from '@tamanu/shared/src/utils/index.js';
 
 const ItemCell = styled(StyledItemCell)`
   display: flex;
