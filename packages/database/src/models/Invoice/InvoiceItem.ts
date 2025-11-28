@@ -16,10 +16,10 @@ export class InvoiceItem extends Model {
   declare note?: string;
   declare sourceRecordType?: string;
   declare sourceRecordId?: string;
-  declare productName?: string;
-  declare productPrice?: number;
-  declare productCode?: string;
-  declare productDiscountable: boolean;
+  declare productNameFinal?: string;
+  declare manualEntryPrice?: number;
+  declare priceFinal?: number;
+  declare productCodeFinal?: string;
   declare invoiceId?: string;
   declare orderedByUserId?: string;
 
@@ -50,21 +50,21 @@ export class InvoiceItem extends Model {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        productName: {
+        productNameFinal: {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        productPrice: {
+        manualEntryPrice: {
           type: DataTypes.DECIMAL,
           allowNull: true,
         },
-        productCode: {
-          type: DataTypes.STRING,
+        priceFinal: {
+          type: DataTypes.DECIMAL,
           allowNull: true,
         },
-        productDiscountable: {
-          type: DataTypes.BOOLEAN,
-          allowNull: false,
+        productCodeFinal: {
+          type: DataTypes.STRING,
+          allowNull: true,
         },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
@@ -115,7 +115,11 @@ export class InvoiceItem extends Model {
     };
   }
 
-  static getListReferenceAssociations(models: Models, invoicePriceListId?: string) {
+  static getListReferenceAssociations(
+    models: Models,
+    invoicePriceListId?: string,
+    tableAlias: string = 'InvoiceItem',
+  ) {
     const productInclude: Record<string, any>[] = [
       {
         model: models.ReferenceData,
@@ -141,7 +145,7 @@ export class InvoiceItem extends Model {
             [Op.in]: literal(`(
               SELECT iip."invoice_insurance_plan_id"
               FROM "invoices_invoice_insurance_plans" iip
-              WHERE iip."invoice_id" = "Invoice"."id"
+              WHERE iip."invoice_id" = "${tableAlias}"."invoice_id"
                 AND iip."deleted_at" IS NULL
             )`),
           },
@@ -174,6 +178,7 @@ export class InvoiceItem extends Model {
         model: models.InvoiceItemDiscount,
         as: 'discount',
       },
+      { model: models.InvoiceItemFinalisedInsurance, as: 'finalisedInsurances' },
     ];
   }
 }

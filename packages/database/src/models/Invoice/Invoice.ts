@@ -125,7 +125,11 @@ export class Invoice extends Model {
       {
         model: models.InvoiceItem,
         as: 'items',
-        include: models.InvoiceItem.getListReferenceAssociations(models, invoicePriceListId),
+        include: models.InvoiceItem.getListReferenceAssociations(
+          models,
+          invoicePriceListId,
+          'items',
+        ),
       },
       {
         model: models.InvoicePayment,
@@ -182,7 +186,6 @@ export class Invoice extends Model {
         orderedByUserId,
         orderDate: new Date(),
         quantity: 1,
-        productDiscountable: invoiceProduct.discountable,
         note,
         deletedAt: null, // Ensure we restore the item if it already exists
       },
