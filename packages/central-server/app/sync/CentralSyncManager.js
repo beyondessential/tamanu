@@ -212,17 +212,27 @@ export class CentralSyncManager {
     return session;
   }
 
-  async endSession(sessionId) {
+  async endSession(sessionId, error) {
     const session = await this.connectToSession(sessionId);
     const durationMs = Date.now() - session.startTime;
     log.debug('CentralSyncManager.completingSession', { sessionId, durationMs });
-    await completeSyncSession(this.store, sessionId);
-    log.info('CentralSyncManager.completedSession', {
-      sessionId,
-      durationMs,
-      facilityIds: session.parameters.facilityIds,
-      deviceId: session.parameters.deviceId,
-    });
+    await completeSyncSession(this.store, sessionId, error);
+    if (error) {
+      log.error('CentralSyncManager.completedSession with error', {
+        sessionId,
+        facilityIds: session.parameters.facilityIds,
+        deviceId: session.parameters.deviceId,
+        durationMs,
+        error,
+      });
+    } else {
+      log.info('CentralSyncManager.completedSession', {
+        sessionId,
+        durationMs,
+        facilityIds: session.parameters.facilityIds,
+        deviceId: session.parameters.deviceId,
+      });
+    }
   }
 
   async markSessionAsProcessing(sessionId) {
@@ -626,7 +636,7 @@ export class CentralSyncManager {
       limit,
     );
     const { minSourceTick, maxSourceTick, isMobile } = session.parameters;
-    
+
     // Currently on mobile we don't need to attach changelog to snapshot records
     // as changelog data is not stored on mobile. We can also skip if the source tick range is not available.
     if (isMobile || !minSourceTick || !maxSourceTick) {
