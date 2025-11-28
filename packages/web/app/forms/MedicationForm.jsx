@@ -12,6 +12,7 @@ import {
   MEDICATION_ADMINISTRATION_TIME_SLOTS,
   ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
+  REPEATS_LABELS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -124,6 +125,7 @@ const validationSchema = yup.object().shape({
   ),
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
+  repeats: yup.string().optional(),
 });
 
 const CheckboxGroup = styled.div`
@@ -443,9 +445,7 @@ const MedicationAdministrationForm = ({ frequencyChanged }) => {
                       borderRadius="3px"
                       width="187px"
                       height="fit-content"
-                      border={`1px solid ${
-                        checked ? Colors.primary : Colors.outline
-                      }`}
+                      border={`1px solid ${checked ? Colors.primary : Colors.outline}`}
                     >
                       <CheckInput
                         label={
@@ -646,6 +646,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
+      repeats: editingMedication?.repeats?.toString() ?? '0',
       timeSlots: defaultTimeSlots,
       ...editingMedication,
     };
@@ -770,9 +771,7 @@ export const MedicationForm = ({
                     setValues({ ...values, durationValue: '', durationUnit: '' });
                   }
                 }}
-                checkedIcon={
-                  <StyledIcon className="far fa-check-square" $color={Colors.midText} />
-                }
+                checkedIcon={<StyledIcon className="far fa-check-square" $color={Colors.midText} />}
               />
               <Field
                 name="isPrn"
@@ -966,6 +965,13 @@ export const MedicationForm = ({
                   min={0}
                   component={NumberField}
                   onInput={preventInvalidNumber}
+                />
+                <Field
+                  name="repeats"
+                  label={<TranslatedText stringId="medication.repeats.label" fallback="Repeats" />}
+                  isClearable={false}
+                  component={TranslatedSelectField}
+                  enumValues={REPEATS_LABELS}
                 />
               </>
             )}
