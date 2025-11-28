@@ -15,6 +15,7 @@ import { usePatientSearchParameters } from '../contexts/PatientViewSearchParamet
 const StyledFieldWrapper = styled(Box)`
   flex: 1 1 0;
   min-width: 0;
+  max-width: 220px;
   & .label-field {
     font-size: 12px;
     font-weight: 500;
@@ -23,7 +24,6 @@ const StyledFieldWrapper = styled(Box)`
 
 const Container = styled(Box)`
   display: flex;
-  flex: 1 1 auto;
   padding-top: 5px;
   padding-bottom: 5px;
   gap: 5px;
