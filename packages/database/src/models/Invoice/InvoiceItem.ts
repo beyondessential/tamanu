@@ -120,6 +120,14 @@ export class InvoiceItem extends Model {
     invoicePriceListId?: string,
     tableAlias: string = 'InvoiceItem',
   ) {
+    // Validate tableAlias against allow-list to prevent SQL injection
+    const allowedAliases = ['InvoiceItem', 'items'];
+    if (!allowedAliases.includes(tableAlias)) {
+      throw new Error(
+        `Invalid table alias: ${tableAlias}. Must be one of: ${allowedAliases.join(', ')}`,
+      );
+    }
+
     const productInclude: Record<string, any>[] = [
       {
         model: models.ReferenceData,
