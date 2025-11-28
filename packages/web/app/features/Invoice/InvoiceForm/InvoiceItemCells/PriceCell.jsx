@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { keyBy } from 'lodash';
 import {
   getInvoiceItemTotalDiscountedPrice,
   getInvoiceItemTotalPrice,
+  getItemCoverageValue,
 } from '@tamanu/shared/utils/invoice';
 import Decimal from 'decimal.js';
 import Collapse from '@material-ui/core/Collapse';
@@ -13,6 +13,7 @@ import { ThemedTooltip } from '@tamanu/ui-components';
 import { PriceField } from '../../../../components/Field/PriceField';
 import { ItemCell as StyledItemCell } from './ItemCell';
 import { Price } from '../../Price';
+import { getInvoiceItemCoverageValue } from '@tamanu/shared/src/utils/index.js';
 
 const ItemCell = styled(StyledItemCell)`
   display: flex;
@@ -56,27 +57,17 @@ const InsuranceSection = ({ item, discountedPrice }) => {
   if (!item.insurancePlanItems?.length > 0 || !item?.productId) {
     return null;
   }
-  let finalisedInsurancesByPlanId = null;
-
-  if (item.finalisedInsurances) {
-    finalisedInsurancesByPlanId = keyBy(item.finalisedInsurances, 'invoiceInsurancePlanId');
-  }
 
   return (
     <Box mt={1}>
-      {item.insurancePlanItems.map(({ id, label, coverageValue }) => {
-        let displayCoverage = coverageValue;
-
-        if (finalisedInsurancesByPlanId && finalisedInsurancesByPlanId[id]) {
-          displayCoverage = finalisedInsurancesByPlanId[id].coverageValueFinal;
-        }
-
-        const coverage = calculateCoverageValue(discountedPrice, displayCoverage);
+      {item.insurancePlanItems.map(insurancePlanItem => {
+        const appliedCoverage = getInvoiceItemCoverageValue(item, insurancePlanItem);
+        const coverageForRow = calculateCoverageValue(discountedPrice, appliedCoverage);
         return (
-          <Row key={id}>
-            <RowName>{label}</RowName>
+          <Row key={insurancePlanItem.id}>
+            <RowName>{insurancePlanItem.label}</RowName>
             <RowValue>
-              <Price price={coverage} />
+              <Price price={coverageForRow} />
             </RowValue>
           </Row>
         );

@@ -1,6 +1,5 @@
 import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constants';
 import Decimal from 'decimal.js';
-import { keyBy } from 'lodash';
 
 /** @typedef {import('@tamanu/database/models').Invoice} Invoice */
 /** @typedef {import('@tamanu/database/models').InvoiceDiscount} InvoiceDiscount */
@@ -31,13 +30,23 @@ const discountAmount = (price, discount) => {
 /**
  * Get the price of an invoice item
  * @param {InvoiceItem} invoiceItem
+ * @returns {string|number|null}
  */
-export const getInvoiceItemTotalPrice = invoiceItem => {
-  const price =
+export const getInvoiceItemPrice = invoiceItem => {
+  return (
     invoiceItem.priceFinal ??
     invoiceItem.manualEntryPrice ??
     invoiceItem?.product?.invoicePriceListItem?.price ??
-    0;
+    0 // handle missing price as 0
+  );
+};
+
+/**
+ * Get the price of an invoice item row
+ * @param {InvoiceItem} invoiceItem
+ */
+export const getInvoiceItemTotalPrice = invoiceItem => {
+  const price = getInvoiceItemPrice(invoiceItem);
   const quantity = invoiceItem.quantity || 0;
   return new Decimal(price).times(quantity).toNumber();
 };
@@ -53,6 +62,26 @@ export const getInvoiceItemTotalDiscountedPrice = invoiceItem => {
     return discountedPrice(invoiceItemTotalPrice, invoiceItem?.discount?.amount || 0);
   }
   return invoiceItemTotalPrice - (invoiceItem?.discount?.amount || 0);
+};
+
+/**
+ * Get the display coverage value for an insurance plan item, taking into account finalisedInsurances
+ * @param {Object} item - The invoice item containing finalisedInsurances
+ * @param {Object} insurancePlanItem - The insurance plan item
+ * @returns {number} - The coverage value to display (either finalised or default)
+ */
+export const getInvoiceItemCoverageValue = (item, insurancePlanItem) => {
+  const planCoverageValue = insurancePlanItem.coverageValue ?? 0;
+
+  if (!item.finalisedInsurances || item.finalisedInsurances.length === 0) {
+    return planCoverageValue;
+  }
+
+  const finalisedInsurance = item.finalisedInsurances.find(
+    ins => ins.invoiceInsurancePlanId === insurancePlanItem.id,
+  );
+
+  return finalisedInsurance ? finalisedInsurance.coverageValueFinal : planCoverageValue;
 };
 
 /**
@@ -75,21 +104,10 @@ export const getInsuranceCoverageTotal = invoiceItems => {
       return sum;
     }
 
-    let finalisedInsurancesByPlanId = null;
-
-    if (item.finalisedInsurances) {
-      finalisedInsurancesByPlanId = keyBy(item.finalisedInsurances, 'invoiceInsurancePlanId');
-    }
-
     const totalItemInsurance = item.insurancePlanItems.reduce((itemSum, itemPlan) => {
-      let displayCoverage = itemPlan.coverageValue;
-
-      if (finalisedInsurancesByPlanId && finalisedInsurancesByPlanId[itemPlan.id]) {
-        displayCoverage = finalisedInsurancesByPlanId[itemPlan.id].coverageValueFinal;
-      }
-
-      const coverage = new Decimal(discountedPrice).times(displayCoverage / 100).toNumber();
-      return itemSum.plus(coverage);
+      const appliedCoverage = getInvoiceItemCoverageValue(item, itemPlan);
+      const coverageForRow = new Decimal(discountedPrice).times(appliedCoverage / 100).toNumber();
+      return itemSum.plus(coverageForRow);
     }, new Decimal(0));
 
     const cappedItemInsurance =

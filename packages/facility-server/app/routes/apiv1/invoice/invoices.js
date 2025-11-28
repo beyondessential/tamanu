@@ -5,12 +5,13 @@ import { INVOICE_ITEMS_DISCOUNT_TYPES, INVOICE_STATUSES } from '@tamanu/constant
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 import { Op } from 'sequelize';
+import { getInvoiceItemPrice } from '@tamanu/shared/src/utils';
+import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 import { invoiceItemsRoute } from './invoiceItems';
 import { getCurrentCountryTimeZoneDateTimeString } from '@tamanu/shared/utils/countryDateTime';
 import { patientPaymentRoute } from './patientPayment';
 import { insurancePlansRoute } from './insurancePlans';
 import { round } from 'lodash';
-import { generateInvoiceDisplayId } from '@tamanu/utils/generateInvoiceDisplayId';
 
 const invoiceRoute = express.Router();
 export { invoiceRoute as invoices };
@@ -314,14 +315,7 @@ invoiceRoute.put(
           item.productNameFinal = item.product.name;
           item.productCodeFinal = item.product.getProductCode();
 
-          if (
-            item.product.invoicePriceListItem &&
-            item.product.invoicePriceListItem.price !== null
-          ) {
-            item.priceFinal = item.product.invoicePriceListItem.price;
-          } else {
-            item.priceFinal = item.manualEntryPrice;
-          }
+          item.priceFinal = getInvoiceItemPrice(item);
 
           // Save insurance plan coverage values
           if (item.product.invoiceInsurancePlanItems?.length > 0) {

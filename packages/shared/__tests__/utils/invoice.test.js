@@ -1,46 +1,58 @@
 import { INVOICE_ITEMS_DISCOUNT_TYPES } from '@tamanu/constants';
 import {
+  getInvoiceItemPrice,
   getInvoiceItemTotalPrice,
   getInvoiceItemTotalDiscountedPrice,
+  getInvoiceItemCoverageValue,
   getInsuranceCoverageTotal,
   getInvoiceSummary,
 } from '../../src/utils';
 
 describe('Invoice Utils', () => {
+  describe('getInvoiceItemPrice', () => {
+    it('should return priceFinal when available', () => {
+      const invoiceItem = {
+        priceFinal: 150,
+        manualEntryPrice: 120,
+        product: {
+          invoicePriceListItem: {
+            price: 100,
+          },
+        },
+      };
+      expect(getInvoiceItemPrice(invoiceItem)).toEqual(150);
+    });
+
+    it('should return manualEntryPrice when priceFinal is not available', () => {
+      const invoiceItem = {
+        manualEntryPrice: 120,
+        product: {
+          invoicePriceListItem: {
+            price: 100,
+          },
+        },
+      };
+      expect(getInvoiceItemPrice(invoiceItem)).toEqual(120);
+    });
+
+    it('should return product.invoicePriceListItem.price when neither priceFinal nor manualEntryPrice are available', () => {
+      const invoiceItem = {
+        product: {
+          invoicePriceListItem: {
+            price: 100,
+          },
+        },
+      };
+      expect(getInvoiceItemPrice(invoiceItem)).toEqual(100);
+    });
+
+    it('should return 0 when no price is available', () => {
+      const invoiceItem = {};
+      expect(getInvoiceItemPrice(invoiceItem)).toEqual(0);
+    });
+  });
+
   describe('getInvoiceItemTotalPrice', () => {
-    it('should calculate price from productPrice', () => {
-      const invoiceItem = {
-        productPrice: 100,
-        quantity: 2,
-      };
-      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(200);
-    });
-
-    it('should calculate price from product.invoicePriceListItem.price', () => {
-      const invoiceItem = {
-        product: {
-          invoicePriceListItem: {
-            price: 50,
-          },
-        },
-        quantity: 3,
-      };
-      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(150);
-    });
-
-    it('should prioritize productPrice over product.invoicePriceListItem.price', () => {
-      const invoiceItem = {
-        productPrice: 100,
-        product: {
-          invoicePriceListItem: {
-            price: 50,
-          },
-        },
-        quantity: 2,
-      };
-      expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(200);
-    });
-
     it('should handle missing price as 0', () => {
       const invoiceItem = {
         quantity: 2,
@@ -50,14 +62,14 @@ describe('Invoice Utils', () => {
 
     it('should handle missing quantity as 0', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
       };
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
     });
 
     it('should handle decimal prices correctly', () => {
       const invoiceItem = {
-        productPrice: 12.99,
+        manualEntryPrice: 12.99,
         quantity: 3,
       };
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(38.97);
@@ -65,7 +77,7 @@ describe('Invoice Utils', () => {
 
     it('should handle zero quantity', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 0,
       };
       expect(getInvoiceItemTotalPrice(invoiceItem)).toEqual(0);
@@ -75,7 +87,7 @@ describe('Invoice Utils', () => {
   describe('getInvoiceItemTotalDiscountedPrice', () => {
     it('should return total price when no discount', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
       };
       expect(getInvoiceItemTotalDiscountedPrice(invoiceItem)).toEqual(200);
@@ -83,7 +95,7 @@ describe('Invoice Utils', () => {
 
     it('should apply percentage discount', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
@@ -95,7 +107,7 @@ describe('Invoice Utils', () => {
 
     it('should apply flat discount', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
@@ -107,7 +119,7 @@ describe('Invoice Utils', () => {
 
     it('should handle zero discount amount', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
@@ -119,7 +131,7 @@ describe('Invoice Utils', () => {
 
     it('should handle missing discount amount as 0', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
@@ -130,7 +142,7 @@ describe('Invoice Utils', () => {
 
     it('should handle 100% percentage discount', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
@@ -142,7 +154,7 @@ describe('Invoice Utils', () => {
 
     it('should handle flat discount equal to total price', () => {
       const invoiceItem = {
-        productPrice: 100,
+        manualEntryPrice: 100,
         quantity: 2,
         discount: {
           type: INVOICE_ITEMS_DISCOUNT_TYPES.FLAT,
@@ -153,15 +165,53 @@ describe('Invoice Utils', () => {
     });
   });
 
+  describe('getInvoiceItemCoverageValue', () => {
+    it('should return coverageValue when no finalisedInsurances', () => {
+      const item = {
+        insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+      };
+      const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
+      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+    });
+
+    it('should return coverageValue when finalisedInsurances is empty', () => {
+      const item = {
+        finalisedInsurances: [],
+        insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+      };
+      const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
+      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+    });
+
+    it('should return coverageValueFinal when finalisedInsurances exists for the plan', () => {
+      const item = {
+        finalisedInsurances: [{ invoiceInsurancePlanId: 'plan-1', coverageValueFinal: 60 }],
+        insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+      };
+      const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
+      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(60);
+    });
+
+    it('should return original coverageValue when finalisedInsurances does not match plan', () => {
+      const item = {
+        finalisedInsurances: [{ invoiceInsurancePlanId: 'plan-2', coverageValueFinal: 60 }],
+        insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+      };
+      const insurancePlanItem = { id: 'plan-1', coverageValue: 50 };
+      expect(getInvoiceItemCoverageValue(item, insurancePlanItem)).toEqual(50);
+    });
+  });
+
   describe('getInsuranceCoverageTotal', () => {
     it('should calculate insurance coverage for single item with one plan', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
           insurancePlanItems: [
             {
-              coverageValue: 50, // 50%
+              id: 'plan-1',
+              coverageValue: 50,
             },
           ],
         },
@@ -172,11 +222,11 @@ describe('Invoice Utils', () => {
     it('should calculate insurance coverage for multiple plans', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
           insurancePlanItems: [
-            { coverageValue: 30 }, // 30%
-            { coverageValue: 20 }, // 20%
+            { id: 'plan-1', coverageValue: 30 },
+            { id: 'plan-2', coverageValue: 20 },
           ],
         },
       ];
@@ -186,7 +236,7 @@ describe('Invoice Utils', () => {
     it('should handle items with no insurance', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
           insurancePlanItems: [],
         },
@@ -197,9 +247,12 @@ describe('Invoice Utils', () => {
     it('should handle items with missing coverageValue', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
-          insurancePlanItems: [{ coverageValue: null }, { coverageValue: undefined }],
+          insurancePlanItems: [
+            { id: 'plan-1', coverageValue: null },
+            { id: 'plan-2', coverageValue: undefined },
+          ],
         },
       ];
       expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(0);
@@ -208,15 +261,13 @@ describe('Invoice Utils', () => {
     it('should calculate insurance coverage on discounted price', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
           discount: {
             type: INVOICE_ITEMS_DISCOUNT_TYPES.PERCENTAGE,
-            amount: 0.1, // 10% discount
+            amount: 0.1,
           },
-          insurancePlanItems: [
-            { coverageValue: 50 }, // 50% coverage
-          ],
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
         },
       ];
       // Price after discount: 90, insurance: 45
@@ -226,18 +277,31 @@ describe('Invoice Utils', () => {
     it('should handle multiple items', () => {
       const invoiceItems = [
         {
-          productPrice: 100,
+          manualEntryPrice: 100,
           quantity: 1,
-          insurancePlanItems: [{ coverageValue: 50 }],
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
         },
         {
-          productPrice: 200,
+          manualEntryPrice: 200,
           quantity: 1,
-          insurancePlanItems: [{ coverageValue: 30 }],
+          insurancePlanItems: [{ id: 'plan-2', coverageValue: 30 }],
         },
       ];
       // Item 1: 50, Item 2: 60, Total: 110
       expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(110);
+    });
+
+    it('should use coverageValueFinal from finalisedInsurances when available', () => {
+      const invoiceItems = [
+        {
+          manualEntryPrice: 100,
+          quantity: 1,
+          finalisedInsurances: [{ invoiceInsurancePlanId: 'plan-1', coverageValueFinal: 60 }],
+          insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
+        },
+      ];
+      // Should use 60% instead of 50%
+      expect(getInsuranceCoverageTotal(invoiceItems).toNumber()).toEqual(60);
     });
   });
 
@@ -261,12 +325,12 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 2,
             insurancePlanItems: [],
           },
           {
-            productPrice: 50,
+            manualEntryPrice: 50,
             quantity: 1,
             insurancePlanItems: [],
           },
@@ -284,9 +348,9 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
-            insurancePlanItems: [{ coverageValue: 50 }],
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
           },
         ],
         payments: [],
@@ -301,7 +365,7 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
             insurancePlanItems: [],
           },
@@ -326,9 +390,9 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
-            insurancePlanItems: [{ coverageValue: 50 }],
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
           },
         ],
         payments: [
@@ -351,9 +415,9 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
-            insurancePlanItems: [{ coverageValue: 50 }],
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 50 }],
           },
         ],
         payments: [
@@ -375,7 +439,7 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
             insurancePlanItems: [],
           },
@@ -396,9 +460,9 @@ describe('Invoice Utils', () => {
       const invoice = {
         items: [
           {
-            productPrice: 100,
+            manualEntryPrice: 100,
             quantity: 1,
-            insurancePlanItems: [{ coverageValue: 60 }],
+            insurancePlanItems: [{ id: 'plan-1', coverageValue: 60 }],
           },
         ],
         payments: [
