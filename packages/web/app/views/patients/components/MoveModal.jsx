@@ -81,6 +81,12 @@ const EncounterTypeLabel = styled.b`
 `;
 
 const BasicMoveFields = () => {
+  const { setFieldValue, values } = useFormikContext();
+
+  const handleGroupChange = groupValue => {
+    setFieldValue('locationGroupId', groupValue);
+  };
+
   return (
     <>
       <SectionDescription>
@@ -90,7 +96,13 @@ const BasicMoveFields = () => {
         />
       </SectionDescription>
       <StyledFormGrid columns={2} data-testid="formgrid-wyqp">
-        <Field name="locationId" component={LocalisedLocationField} data-testid="field-tykg" />
+        <Field
+          name="locationId"
+          component={LocalisedLocationField}
+          groupValue={values.locationGroupId}
+          onGroupChange={handleGroupChange}
+          data-testid="field-tykg"
+        />
       </StyledFormGrid>
     </>
   );
@@ -217,6 +229,15 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
+    locationGroupId: yup.string().nullable(),
+    locationId: yup
+      .string()
+      .nullable()
+      .when('locationGroupId', {
+        is: value => !!value,
+        then: schema => schema.required('Location is required when area is selected'),
+        otherwise: schema => schema.nullable(),
+      }),
   };
 
   const initialValues = {
@@ -354,6 +375,7 @@ export const MoveModal = React.memo(({ open, onClose, encounter, newEncounterTyp
   const isAdmittingToHospital = newEncounterType === ENCOUNTER_TYPES.ADMISSION;
   const onSubmit = async values => {
     const { locationId, plannedLocationId, action, ...rest } = values;
+    delete rest.locationGroupId;
 
     const locationData = {};
     if (action === PATIENT_MOVE_ACTIONS.PLAN) {
