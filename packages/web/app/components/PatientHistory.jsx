@@ -163,6 +163,13 @@ const StyledMenuButton = styled(MenuButton)`
   }
 `;
 
+const EncounterHistoryHeading = styled(Heading4)`
+  white-space: nowrap;
+  padding-right: 16px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+`;
+
 const getDate = ({ startDate, endDate, encounterType }) => {
   const patientStatus = getPatientStatus(encounterType);
   return (
@@ -402,13 +409,13 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         refreshCount={refreshCount}
         TableHeader={
           <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Heading4 mt="15px" mb="15px" data-testid="heading4-ssa1">
+            <EncounterHistoryHeading data-testid="heading4-ssa1">
               <TranslatedText
                 stringId="patient.history.table.encounterHistory"
                 fallback="Encounter history"
                 data-testid="translatedtext-nmkf"
               />
-            </Heading4>
+            </EncounterHistoryHeading>
             <PatientHistorySearch />
           </Box>
         }
