@@ -26,6 +26,7 @@ import { isEmergencyPatient } from '../../../utils/isEmergencyPatient';
 import { TranslatedReferenceData } from '../../../components/Translation/index.js';
 import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS } from '@tamanu/constants';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDataLabel.jsx';
 
 const CardLabel = styled.span`
   margin-right: 5px;
@@ -207,21 +208,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
     </InfoCardFirstColumn>
     <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
       <InfoCardItem
-        label={
-          isInpatient(encounter.encounterType) ? (
-            <TranslatedText
-              stringId="encounter.admissionDate.label"
-              fallback="Admission date"
-              data-testid="translatedtext-i6p7"
-            />
-          ) : (
-            <TranslatedText
-              stringId="general.date.label"
-              fallback="Date"
-              data-testid="translatedtext-dn4a"
-            />
-          )
-        }
+        label={getEncounterStartDateLabel(encounter.encounterType)}
         value={
           <>
             <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />
