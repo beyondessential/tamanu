@@ -13,6 +13,7 @@ import {
   ADMINISTRATION_FREQUENCIES,
   FORM_TYPES,
   REPEATS_LABELS,
+  MAX_REPEATS,
 } from '@tamanu/constants';
 import { getReferenceDataStringId } from '@tamanu/shared/utils/translation';
 import {
@@ -125,7 +126,12 @@ const validationSchema = yup.object().shape({
   ),
   quantity: yup.number().integer(),
   patientWeight: yup.number().positive(),
-  repeats: yup.string().optional(),
+  repeats: yup
+    .number()
+    .integer()
+    .min(0)
+    .max(MAX_REPEATS)
+    .optional(),
 });
 
 const CheckboxGroup = styled.div`
@@ -646,7 +652,7 @@ export const MedicationForm = ({
       isVariableDose: false,
       startDate: getCurrentDateTimeString(),
       isOngoing: isOngoingPrescription,
-      repeats: editingMedication?.repeats?.toString() ?? '0',
+      repeats: editingMedication?.repeats ?? 0,
       timeSlots: defaultTimeSlots,
       ...editingMedication,
     };
