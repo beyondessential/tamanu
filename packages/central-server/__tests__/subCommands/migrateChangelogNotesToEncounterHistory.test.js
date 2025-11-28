@@ -14,7 +14,7 @@ const addSystemNote = async (models, recordId, content, date, user) =>
     recordId,
     recordType: NOTE_RECORD_TYPES.ENCOUNTER,
     date,
-    noteType: NOTE_TYPES.SYSTEM,
+    noteTypeId: NOTE_TYPES.SYSTEM,
     content,
     authorId: user?.id || SYSTEM_USER_UUID,
   });
