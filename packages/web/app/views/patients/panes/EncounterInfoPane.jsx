@@ -64,6 +64,15 @@ const StyledModalFormActionRow = styled(ModalFormActionRow)`
   margin-top: 20px;
 `;
 
+const DischargeDateFieldContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const StyledField = styled(Field)`
+  width: 350px;
+`;
+
 const getReferralSource = ({ referralSource }) =>
   referralSource ? (
     <TranslatedReferenceData
@@ -126,17 +135,19 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
         }
         render={({ submitForm }) => (
           <>
-            <Field
-              name="estimatedEndDate"
-              label={
-                <TranslatedText
-                  stringId="encounter.estimatedDischargeDate.label"
-                  fallback="Estimated discharge date"
-                />
-              }
-              component={DateField}
-              saveDateAsString
-            />
+            <DischargeDateFieldContainer>
+              <StyledField
+                name="estimatedEndDate"
+                label={
+                  <TranslatedText
+                    stringId="encounter.estimatedDischargeDate.label"
+                    fallback="Estimated discharge date"
+                  />
+                }
+                component={DateField}
+                saveDateAsString
+              />
+            </DischargeDateFieldContainer>
             <StyledModalFormActionRow onConfirm={submitForm} />
           </>
         )}
