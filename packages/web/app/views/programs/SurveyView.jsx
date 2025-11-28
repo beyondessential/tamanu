@@ -26,12 +26,10 @@ export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
   color: ${Colors.white};
 `;
 
-const DirtyStateTracker = ({ dirty, onFormDirtyChange }) => {
+const DirtyStateTracker = ({ dirty, setDirty }) => {
   useEffect(() => {
-    if (onFormDirtyChange) {
-      onFormDirtyChange(dirty);
-    }
-  }, [dirty, onFormDirtyChange]);
+    setDirty(dirty);
+  }, [dirty, setDirty]);
 
   return null;
 };
@@ -45,7 +43,7 @@ export const SurveyViewForm = ({
   currentUser,
   patientProgramRegistration,
   showCancelButton,
-  onFormDirtyChange,
+  setSurveyFormDirty,
 }) => {
   const { getTranslation } = useTranslation();
   const { encounter } = useEncounter();
@@ -100,7 +98,7 @@ export const SurveyViewForm = ({
 
     return (
       <>
-        <DirtyStateTracker dirty={dirty} onFormDirtyChange={onFormDirtyChange} />
+        <DirtyStateTracker dirty={dirty} setDirty={setSurveyFormDirty} />
         <SurveyScreenPaginator
           survey={survey}
           patient={patient}
