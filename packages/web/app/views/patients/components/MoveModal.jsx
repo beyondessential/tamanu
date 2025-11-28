@@ -229,15 +229,6 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
   const validationObject = {
     examinerId: yup.string().required(),
     departmentId: yup.string().required(),
-    locationGroupId: yup.string().nullable(),
-    locationId: yup
-      .string()
-      .nullable()
-      .when('locationGroupId', {
-        is: value => !!value,
-        then: schema => schema.required('Location is required when area is selected'),
-        otherwise: schema => schema.nullable(),
-      }),
   };
 
   const initialValues = {
@@ -254,6 +245,15 @@ const getFormProps = ({ encounter, enablePatientMoveActions, isAdmittingToHospit
 
     initialValues.plannedLocationId = encounter.plannedLocationId;
     initialValues.action = PATIENT_MOVE_ACTIONS.PLAN;
+  } else {
+    validationObject.locationId = yup
+      .string()
+      .nullable()
+      .when('locationGroupId', {
+        is: value => !!value,
+        then: schema => schema.required('Location is required when area is selected'),
+        otherwise: schema => schema.nullable(),
+      });
   }
 
   if (isAdmittingToHospital) {
