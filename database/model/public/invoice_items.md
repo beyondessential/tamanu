@@ -23,7 +23,7 @@ Quantity ordered.
 {% enddocs %}
 
 {% docs invoice_items__product_name_final %}
-The final product name used on the invoice. This may be manually entered or copied from the product at the time of invoice creation.
+The final product name used on the invoice. Saved from the product name field when the invoice is finalised.
 {% enddocs %}
 
 {% docs invoice_items__manual_entry_price %}
@@ -43,9 +43,9 @@ Foreign key relation for record type.
 {% enddocs %}
 
 {% docs invoice_items__product_code_final %}
-The final product code used on the invoice. This may be manually entered or copied from the product at the time of invoice creation.
+The final product code used on the invoice. Saved from the product code field when the invoice is finalised.
 {% enddocs %}
 
 {% docs invoice_items__price_final %}
-The final price per unit for this item on the invoice. This is determined by the manual_entry_price if provided, otherwise from the product's price at the time of invoice creation.
+The final price per unit for this item on the invoice. This is determined by the manual_entry_price if provided, otherwise from the product's price when the invoice is finalised.
 {% enddocs %}
