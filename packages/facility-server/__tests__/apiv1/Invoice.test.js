@@ -7,7 +7,6 @@ import {
   INVOICE_ITEMS_CATEGORIES_MODELS,
   REFERENCE_TYPES,
 } from '@tamanu/constants';
-import { describe } from 'node:test';
 
 describe('Invoice API', () => {
   let app = null;
@@ -143,8 +142,6 @@ describe('Invoice API', () => {
       const invoiceProduct = await createInvoiceProduct(procedureType, {
         name: 'Surgery Product',
       });
-
-      console.log('priceList.id,', priceList?.id);
 
       await models.InvoicePriceListItem.create({
         invoicePriceListId: priceList.id,

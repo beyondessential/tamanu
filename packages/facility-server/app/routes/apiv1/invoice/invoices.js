@@ -368,7 +368,7 @@ invoiceRoute.delete(
 
     // Finalised invoices cannot be deleted
     if (invoice.status === INVOICE_STATUSES.FINALISED) {
-      throw new InvalidOperationError('Only in progress invoices can be deleted');
+      throw new InvalidOperationError('Finalised invoices cannot be deleted');
     }
 
     await invoice.destroy();
