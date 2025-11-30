@@ -8,7 +8,6 @@ import {
 } from 'date-fns';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { toast } from 'react-toastify';
 
 import { toDateTimeString } from '@tamanu/utils/dateTime';
 
