@@ -198,7 +198,7 @@ appointments.post(
               scheduleData,
             })
           ).firstAppointment
-        : await Appointment.create(appointmentData);
+        : await Appointment.create(appointmentData, { transaction });
 
       await PatientFacility.findOrCreate({
         where: { patientId: appointment.patientId, facilityId },
