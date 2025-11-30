@@ -97,7 +97,7 @@ export function productMatrixByCodeLoaderFactory(config) {
       // Skip empties
       if (rawValue === undefined || rawValue === null || `${rawValue}`.trim() === '') continue;
 
-      const { parsedValue, isValidValue } = valueExtractor(rawValue);
+      const { parsedValue, isValidValue, visibilityStatus } = valueExtractor(rawValue);
       if (!isValidValue) {
         pushError(messages.invalidValue(rawValue, code, invoiceProductId));
         return [];
@@ -119,6 +119,7 @@ export function productMatrixByCodeLoaderFactory(config) {
           [parentIdField]: parentId,
           invoiceProductId,
           [valueField]: parsedValue,
+          ...(visibilityStatus ? { visibilityStatus } : {}),
         },
       });
     }

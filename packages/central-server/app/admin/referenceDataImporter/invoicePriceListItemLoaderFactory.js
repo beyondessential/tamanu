@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from '@tamanu/constants';
 import { productMatrixByCodeLoaderFactory } from './ProductMatrixByCodeLoaderFactory';
 
 export function invoicePriceListItemLoaderFactory() {
@@ -10,7 +11,8 @@ export function invoicePriceListItemLoaderFactory() {
       const isSpecialValue = value === 'manual-entry' || value === 'hidden';
       const parsedValue = isSpecialValue ? null : Number(value);
       const isValidValue = isSpecialValue ? true : !Number.isNaN(parsedValue);
-      return { parsedValue, isValidValue };
+      const visibilityStatus = value === 'hidden' ? VISIBILITY_STATUSES.HISTORICAL : VISIBILITY_STATUSES.CURRENT;
+      return { parsedValue, isValidValue, visibilityStatus };
     },
     messages: {
       duplicateCode: code => `duplicate price list code: ${code}`,
