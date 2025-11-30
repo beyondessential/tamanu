@@ -220,7 +220,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
             <PaymentsSection>
               <PatientPaymentsTable invoice={invoice} />
-              <InvoiceSummaryPanel invoiceItems={invoice?.items} invoice={invoice} />
+              <InvoiceSummaryPanel invoiceItems={invoice?.items} />
               <InsurerPaymentsTable invoice={invoice} />
             </PaymentsSection>
           )}

@@ -5,7 +5,6 @@ import { getInvoiceSummary } from '@tamanu/shared/utils/invoice';
 import { Colors } from '../../constants';
 import { TranslatedText } from '../../components/Translation';
 import { Price } from './Price';
-import { InvoiceDiscountModal } from './InvoiceDiscountModal/InvoiceDiscountModal';
 
 const Container = styled.div`
   align-self: start;
@@ -31,13 +30,11 @@ const TotalCardItem = styled(CardItem)`
   font-weight: 500;
 `;
 
-export const InvoiceSummaryPanel = ({ invoiceItems, invoice }) => {
-  const [open, setOpen] = React.useState();
+export const InvoiceSummaryPanel = ({ invoiceItems }) => {
   const { invoiceItemsTotal, insuranceCoverageTotal, patientTotal } = getInvoiceSummary({
     items: invoiceItems,
   });
   const coverageDisplay = insuranceCoverageTotal * -1;
-
   return (
     <Container>
       <CardItem>
@@ -49,20 +46,6 @@ export const InvoiceSummaryPanel = ({ invoiceItems, invoice }) => {
         <Price price={coverageDisplay} data-testid="translatedtext-qedx" />
       </CardItem>
       <Divider />
-      <div
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        Apply sliding fee scale
-      </div>
-      <InvoiceDiscountModal
-        open={open}
-        invoice={invoice}
-        onClose={() => {
-          setOpen(false);
-        }}
-      />
       <TotalCardItem>
         <TranslatedText stringId="invoice.summary.patientTotal" fallback="Patient total due" />
         <Price price={patientTotal} data-testid="translatedtext-nst0" />
