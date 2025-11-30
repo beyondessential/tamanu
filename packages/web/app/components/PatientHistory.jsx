@@ -249,12 +249,6 @@ const SyncWarningBanner = ({ patient, onRefresh }) => {
   );
 };
 
-// Ensure each row has a stable, unique key even if the backend returns duplicate ids
-const transformEncounterRow = (row, index) => ({
-  ...row,
-  __rowKey: `${row.id}-${index}`,
-});
-
 export const PatientHistory = ({ patient, onItemClick }) => {
   const { patientHistoryParameters } = usePatientSearchParameters();
   const [refreshCount, updateRefreshCount] = useRefreshCount();
@@ -397,8 +391,6 @@ export const PatientHistory = ({ patient, onItemClick }) => {
         data-testid="syncwarningbanner-hi4l"
       />
       <StyledTable
-        transformRow={transformEncounterRow}
-        rowIdKey="__rowKey"
         fetchOptions={patientHistoryParameters}
         columns={columns}
         onRowClick={row => onItemClick(row.id)}
