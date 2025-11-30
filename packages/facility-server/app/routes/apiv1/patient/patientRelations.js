@@ -103,20 +103,25 @@ patientRelations.get(
       db,
       Encounter,
       `
-        SELECT COUNT(1) as count
+        SELECT COUNT(DISTINCT encounters.id) as count
         ${fromClause}
         ${whereClause}
       `,
       `
-        SELECT
-          encounters.*,
-          locations.facility_id AS facility_id,
-          facilities.name AS facility_name,
-          location_groups.name AS location_group_name,
-          location_groups.id AS location_group_id,
-          dischargingClinician.display_name AS discharging_clinician_name
-        ${fromClause}
-        ${whereClause}
+        SELECT *
+        FROM (
+          SELECT
+            encounters.*,
+            locations.facility_id AS facility_id,
+            facilities.name AS facility_name,
+            location_groups.name AS location_group_name,
+            location_groups.id AS location_group_id,
+            dischargingClinician.display_name AS discharging_clinician_name,
+            ROW_NUMBER() OVER (PARTITION BY encounters.id ORDER BY encounters.id) AS __encounter_row_number
+          ${fromClause}
+          ${whereClause}
+        ) AS encounter_rows
+        WHERE __encounter_row_number = 1
         ${sortExpression ? `ORDER BY ${sortExpression}` : ''}
       `,
       { patientId: params.id, ...filterReplacements },
