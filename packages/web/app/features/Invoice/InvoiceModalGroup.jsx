@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { INVOICE_MODAL_TYPES } from '../../constants';
-import { UpsertInvoiceModal } from './UpsertInvoiceModal';
 import { CancelInvoiceModal } from './CancelInvoiceModal';
 import { FinaliseInvoiceModal } from './FinaliseInvoiceModal';
 import { DeleteInvoiceModal } from './DeleteInvoiceModal';
@@ -39,27 +38,8 @@ export const InvoiceModalGroup = ({
   const handleOpenInvoiceModal = (type, keepPreviousModals = false) =>
     setInvoiceModal(keepPreviousModals ? invoiceModal.concat(type) : [type]);
 
-  const handleTemporaryUpdateInvoice = data => {
-    setInvoice({ ...invoice, ...data });
-  };
-
   return (
     <>
-      {invoiceModal.includes(INVOICE_MODAL_TYPES.CREATE_INVOICE) && (
-        <UpsertInvoiceModal
-          open
-          encounterId={encounterId}
-          invoice={invoice}
-          onClose={() => {
-            if (invoiceModal.length === 1) {
-              return handleCloseInvoiceModal();
-            }
-            handleCloseInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE);
-          }}
-          onTemporaryUpdate={handleTemporaryUpdateInvoice}
-          data-testid="upsertinvoicemodal-wt5z"
-        />
-      )}
       {invoiceModal.includes(INVOICE_MODAL_TYPES.INSURANCE) && (
         <InvoiceInsuranceModal
           open

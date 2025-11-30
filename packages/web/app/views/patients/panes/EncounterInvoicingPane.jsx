@@ -5,6 +5,7 @@ import { Button, OutlinedButton } from '@tamanu/ui-components';
 import { Colors } from '../../../constants/styles';
 import { INVOICE_STATUSES } from '@tamanu/constants';
 import PrintIcon from '@material-ui/icons/Print';
+import { getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { isInvoiceEditable } from '@tamanu/shared/utils/invoice';
 import {
@@ -25,6 +26,7 @@ import { useAuth } from '../../../contexts/Auth';
 import { NoteModalActionBlocker } from '../../../components';
 import { usePatientDataQuery } from '../../../api/queries';
 import { InvoiceRecordModal } from '../../../components/PatientPrinting/modals/InvoiceRecordModal';
+import { useCreateInvoice } from '../../../api/mutations/useInvoiceMutation.js';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -89,8 +91,16 @@ export const EncounterInvoicingPane = ({ encounter }) => {
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const { data: invoice, isLoading } = useEncounterInvoiceQuery(encounter.id);
   const { data: patient } = usePatientDataQuery(encounter.patientId);
+  const { mutate: createInvoice, isLoading: isSubmitting } = useCreateInvoice();
 
   const handleOpenInvoiceModal = type => setOpenInvoiceModal(type);
+
+  const handleCreateInvoice = () => {
+    createInvoice({
+      encounterId: encounter.id,
+      date: getCurrentDateTimeString(),
+    });
+  };
 
   const canCreateInvoice = ability.can('create', 'Invoice');
   const canWriteInvoice = ability.can('write', 'Invoice');
@@ -115,7 +125,8 @@ export const EncounterInvoicingPane = ({ encounter }) => {
         {ability.can('create', 'Invoice') && (
           <NoteModalActionBlocker>
             <Button
-              onClick={() => handleOpenInvoiceModal(INVOICE_MODAL_TYPES.CREATE_INVOICE)}
+              onClick={() => handleCreateInvoice()}
+              isSubmitting={isSubmitting}
               data-testid="button-j06y"
             >
               <TranslatedText
@@ -126,13 +137,6 @@ export const EncounterInvoicingPane = ({ encounter }) => {
             </Button>
           </NoteModalActionBlocker>
         )}
-        <InvoiceModalGroup
-          initialModalType={openInvoiceModal}
-          initialInvoice={invoice}
-          encounterId={encounter.id}
-          onClose={() => setOpenInvoiceModal()}
-          data-testid="invoicemodalgroup-rx7c"
-        />
       </EmptyPane>
     );
   }
@@ -216,7 +220,7 @@ export const EncounterInvoicingPane = ({ encounter }) => {
           {invoice.status !== INVOICE_STATUSES.IN_PROGRESS && (
             <PaymentsSection>
               <PatientPaymentsTable invoice={invoice} />
-              <InvoiceSummaryPanel invoiceItems={invoice?.items} />
+              <InvoiceSummaryPanel invoiceItems={invoice?.items} invoice={invoice} />
               <InsurerPaymentsTable invoice={invoice} />
             </PaymentsSection>
           )}

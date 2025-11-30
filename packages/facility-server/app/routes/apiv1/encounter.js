@@ -64,7 +64,7 @@ encounter.post(
     const excludedEncounterTypes = [ENCOUNTER_TYPES.SURVEY_RESPONSE, ENCOUNTER_TYPES.VACCINATION];
     const shouldCreateInvoice = !excludedEncounterTypes.includes(data.encounterType);
     if (isInvoicingEnabled && shouldCreateInvoice) {
-      await models.Invoice.initializeInvoice(req.user.id, {
+      await models.Invoice.create({
         displayId: generateInvoiceDisplayId(),
         status: INVOICE_STATUSES.IN_PROGRESS,
         date: encounterObject.startDate,
@@ -544,7 +544,8 @@ encounterRelations.get(
       include: Invoice.getFullReferenceAssociations(invoicePriceListId),
     });
     if (!invoiceRecord) {
-      throw new NotFoundError('Invoice not found');
+      // Return null rather than a 404 as it is a valid scenario for there not to be an invoice
+      return res.send(null);
     }
 
     await req.audit.access({
