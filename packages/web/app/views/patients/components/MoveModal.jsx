@@ -82,7 +82,6 @@ const EncounterTypeLabel = styled.b`
 
 const BasicMoveFields = () => {
   const { setFieldValue, values } = useFormikContext();
-
   const handleGroupChange = groupValue => {
     setFieldValue('locationGroupId', groupValue);
   };
