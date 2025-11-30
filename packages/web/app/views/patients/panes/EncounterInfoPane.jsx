@@ -35,6 +35,7 @@ import { ThemedTooltip } from '../../../components/Tooltip.jsx';
 import { ENCOUNTER_TYPE_LABELS, FORM_TYPES } from '@tamanu/constants';
 import { DateField, Field, Form, TAMANU_COLORS } from '@tamanu/ui-components';
 import { useEncounter } from '../../../contexts/Encounter.jsx';
+import { getEncounterStartDateLabel } from '../../../utils/getEncounterStartDateLabel.jsx';
 
 const InfoCardFirstColumn = styled.div`
   display: flex;
@@ -283,13 +284,7 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
       </InfoCardFirstColumn>
       <InfoCardSecondColumn data-testid="infocardsecondcolumn-oh1m">
         <InfoCardItem
-          label={
-            <TranslatedText
-              stringId="encounter.arrivalDate.label"
-              fallback="Arrival date"
-              data-testid="translatedtext-i6p7"
-            />
-          }
+          label={getEncounterStartDateLabel(encounter.encounterType)}
           value={
             <>
               <DateDisplay date={encounter.startDate} data-testid="datedisplay-fa08" />{' '}
