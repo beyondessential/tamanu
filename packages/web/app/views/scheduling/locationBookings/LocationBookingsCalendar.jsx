@@ -23,6 +23,7 @@ import { LocationBookingsCalendarHeader } from './LocationBookingsCalendarHeader
 import { partitionAppointmentsByLocation } from './utils';
 import { useSendAppointmentEmail } from '../../../api/mutations';
 import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
+import { notifyError, notifySuccess } from '@tamanu/ui-components';
 
 const getDisplayableDates = date => {
   const start = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
@@ -129,14 +130,14 @@ export const LocationBookingsCalendar = ({
     emailModalState?.appointmentId,
     {
       onSuccess: () =>
-        toast.success(
+        notifySuccess(
           <TranslatedText
             stringId="appointments.action.emailReminder.success"
             fallback="Email successfully sent"
           />,
         ),
       onError: () =>
-        toast.error(
+        notifyError(
           <TranslatedText
             stringId="appointments.action.emailReminder.error"
             fallback="Error sending email"
