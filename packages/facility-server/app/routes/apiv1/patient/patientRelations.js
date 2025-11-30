@@ -103,12 +103,12 @@ patientRelations.get(
       db,
       Encounter,
       `
-        SELECT COUNT(DISTINCT encounters.id) as count
+        SELECT COUNT(1) as count
         ${fromClause}
         ${whereClause}
       `,
       `
-        SELECT DISTINCT
+        SELECT
           encounters.*,
           locations.facility_id AS facility_id,
           facilities.name AS facility_name,
