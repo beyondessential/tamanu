@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import { SYNC_DIRECTIONS } from '@tamanu/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from '@tamanu/constants';
 import { Model } from '../Model';
 import type { InitOptions, Models } from '../../types/model';
 
@@ -24,6 +24,11 @@ export class InvoicePriceListItem extends Model {
         price: {
           type: DataTypes.DECIMAL,
           allowNull: true,
+        },
+        visibilityStatus: {
+          type: DataTypes.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
+          allowNull: false,
         },
       },
       {
