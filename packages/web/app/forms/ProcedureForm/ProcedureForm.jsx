@@ -21,7 +21,9 @@ const Divider = styled(MuiDivider)`
 
 export const ProcedureFormFields = React.memo(({ values }) => {
   const physicianSuggester = useSuggester('practitioner');
-  const departmentSuggester = useSuggester('department');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const anaesthetistSuggester = useSuggester('practitioner');
   const assistantSuggester = useSuggester('practitioner');
   const procedureSuggester = useSuggester('procedureType');

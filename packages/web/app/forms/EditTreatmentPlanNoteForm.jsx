@@ -45,7 +45,7 @@ export const EditTreatmentPlanNoteForm = ({
               disabled
             />
             <NoteTemplateField
-              noteType={note.noteType}
+              noteTypeId={note.noteTypeId}
               onChangeTemplate={onChangeTemplate}
               disabled
             />
