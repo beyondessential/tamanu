@@ -8,6 +8,7 @@ export class InvoicePriceListItem extends Model {
   declare invoicePriceListId: string;
   declare invoiceProductId: string;
   declare price: number | null;
+  declare visibilityStatus: string;
 
   static initModel({ primaryKey, ...options }: InitOptions) {
     super.init(
