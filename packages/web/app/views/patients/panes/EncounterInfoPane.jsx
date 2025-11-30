@@ -149,7 +149,7 @@ const SetDischargeDateModal = ({ encounter, open, onClose }) => {
                 saveDateAsString
               />
             </DischargeDateFieldContainer>
-            <StyledModalFormActionRow onConfirm={submitForm} />
+            <StyledModalFormActionRow onCancel={onClose} onConfirm={submitForm} />
           </>
         )}
       />
