@@ -127,9 +127,11 @@ const MODALS = {
   [MODAL_IDS.VIEW_REPORT]: LabAttachmentModal,
 };
 
-const Menu = ({ setModal, status, disabled }) => {
-  const menuActions = [
-    {
+const Menu = ({ setModal, status, disabled, canReadLabTestResult }) => {
+  const menuActions = [];
+
+  if (canReadLabTestResult) {
+    menuActions.push({
       label: (
         <TranslatedText
           stringId="lab.action.printLabel"
@@ -138,20 +140,20 @@ const Menu = ({ setModal, status, disabled }) => {
         />
       ),
       action: () => setModal(MODAL_IDS.LABEL_PRINT),
-    },
-  ];
-
-  if (INTERIM_LAB_REQUEST_STATUSES.includes(status)) {
-    menuActions.push({
-      label: (
-        <TranslatedText
-          stringId="lab.action.printInterimReport"
-          fallback="Print interim report"
-          data-testid="translatedtext-print-interim-report"
-        />
-      ),
-      action: () => setModal(MODAL_IDS.RESULTS_PRINT),
     });
+
+    if (INTERIM_LAB_REQUEST_STATUSES.includes(status)) {
+      menuActions.push({
+        label: (
+          <TranslatedText
+            stringId="lab.action.printInterimReport"
+            fallback="Print interim report"
+            data-testid="translatedtext-print-interim-report"
+          />
+        ),
+        action: () => setModal(MODAL_IDS.RESULTS_PRINT),
+      });
+    }
   }
 
   if (status !== LAB_REQUEST_STATUSES.PUBLISHED) {
@@ -218,6 +220,7 @@ export const LabRequestView = () => {
   const canWriteLabRequest = ability?.can('write', 'LabRequest');
   const canWriteLabRequestStatus = ability?.can('write', 'LabRequestStatus');
   const canWriteLabTest = ability?.can('write', 'LabTest');
+  const canReadLabTestResult = ability?.can('read', 'LabTestResult');
 
   const isPublished = labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED;
   const isVerified = labRequest.status === LAB_REQUEST_STATUSES.VERIFIED;
@@ -291,39 +294,41 @@ export const LabRequestView = () => {
           isReadOnly={areLabRequestsReadOnly}
           actions={
             <Box display="flex" alignItems="center" data-testid="box-qy3e">
-              {isPublished || isVerified ? (
-                <OutlinedButton
-                  disabled={isHidden}
-                  onClick={() => {
-                    handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
-                  }}
-                  data-testid="outlinedbutton-fdjm"
-                >
-                  <TranslatedText
-                    stringId="lab.action.printResults"
-                    fallback="Print results"
-                    data-testid="translatedtext-7zng"
-                  />
-                </OutlinedButton>
-              ) : (
-                <OutlinedButton
-                  disabled={isHidden}
-                  onClick={() => {
-                    handleChangeModalId(MODAL_IDS.PRINT);
-                  }}
-                  data-testid="outlinedbutton-fdjm"
-                >
-                  <TranslatedText
-                    stringId="lab.action.printRequest"
-                    fallback="Print request"
-                    data-testid="translatedtext-7zng"
-                  />
-                </OutlinedButton>
-              )}
+              {canReadLabTestResult &&
+                (isPublished || isVerified ? (
+                  <OutlinedButton
+                    disabled={isHidden}
+                    onClick={() => {
+                      handleChangeModalId(MODAL_IDS.RESULTS_PRINT);
+                    }}
+                    data-testid="outlinedbutton-fdjm"
+                  >
+                    <TranslatedText
+                      stringId="lab.action.printResults"
+                      fallback="Print results"
+                      data-testid="translatedtext-7zng"
+                    />
+                  </OutlinedButton>
+                ) : (
+                  <OutlinedButton
+                    disabled={isHidden}
+                    onClick={() => {
+                      handleChangeModalId(MODAL_IDS.PRINT);
+                    }}
+                    data-testid="outlinedbutton-fdjm"
+                  >
+                    <TranslatedText
+                      stringId="lab.action.printRequest"
+                      fallback="Print request"
+                      data-testid="translatedtext-7zng"
+                    />
+                  </OutlinedButton>
+                ))}
               <Menu
                 setModal={handleChangeModalId}
                 status={labRequest.status}
                 disabled={isHidden}
+                canReadLabTestResult={canReadLabTestResult}
                 data-testid="menu-pub2"
               />
             </Box>
