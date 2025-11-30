@@ -6,6 +6,12 @@ export function invoicePriceListItemLoaderFactory() {
     itemModel: 'InvoicePriceListItem',
     parentIdField: 'invoicePriceListId',
     valueField: 'price',
+    valueExtractor: value => {
+      const isSpecialValue = value === 'manual-entry' || value === 'hidden';
+      const parsedValue = isSpecialValue ? null : Number(value);
+      const isValidValue = isSpecialValue ? true : !Number.isNaN(parsedValue);
+      return { parsedValue, isValidValue };
+    },
     messages: {
       duplicateCode: code => `duplicate price list code: ${code}`,
       missingParentByCode: code => `InvoicePriceList with code '${code}' does not exist`,
