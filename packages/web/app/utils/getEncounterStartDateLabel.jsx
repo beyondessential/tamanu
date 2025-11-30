@@ -18,8 +18,8 @@ export const getEncounterStartDateLabel = encounterType => {
     case ENCOUNTER_TYPES.TRIAGE:
       return (
         <TranslatedText
-          stringId="encounter.arrivalDate.label"
-          fallback="Arrival date"
+          stringId="encounter.triageDate.label"
+          fallback="Triage date"
           data-testid="translatedtext-qx7p"
         />
       );
