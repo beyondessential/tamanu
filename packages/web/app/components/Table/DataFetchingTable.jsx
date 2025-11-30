@@ -157,7 +157,6 @@ export const DataFetchingTable = memo(
       const transformedData = transformRow ? data.map(transformRow) : data;
       const hasSearchChanged = !isEqual(fetchOptions, fetchState?.fetchOptions);
       const hasSortingChanged = !isEqual(sorting, fetchState?.sorting);
-      const hasPageIncreased = page > (fetchState?.page ?? -1);
 
       if (lazyLoading && hasSearchChanged) {
         // eslint-disable-next-line no-unused-expressions
@@ -166,7 +165,7 @@ export const DataFetchingTable = memo(
 
       // When fetch option is no longer the same (eg: filter changed), it should reload the entire table
       // instead of keep adding data for lazy loading
-      if (lazyLoading && hasPageIncreased && !hasSearchChanged && !hasSortingChanged) {
+      if (lazyLoading && !hasSearchChanged && !hasSortingChanged) {
         return [...(fetchState.data || []), ...(transformedData || [])];
       }
 
