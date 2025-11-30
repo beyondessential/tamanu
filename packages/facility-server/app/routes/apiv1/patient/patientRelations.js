@@ -83,11 +83,17 @@ patientRelations.get(
           ON locations.facility_id = facilities.id
         LEFT JOIN location_groups
           ON location_groups.id = locations.location_group_id
-        LEFT JOIN discharges 
-          ON discharges.encounter_id = encounters.id
-          AND discharges.deleted_at IS NULL
+        LEFT JOIN (
+          SELECT DISTINCT ON (encounter_id)
+            encounter_id,
+            discharger_id
+          FROM discharges
+          WHERE deleted_at IS NULL
+          ORDER BY encounter_id, (discharger_id IS NULL), discharger_id
+        ) AS discharge
+          ON discharge.encounter_id = encounters.id
         LEFT JOIN users AS dischargingClinician 
-          ON dischargingClinician.id = discharges.discharger_id`;
+          ON dischargingClinician.id = discharge.discharger_id`;
 
     const whereClause = `
       WHERE
@@ -103,25 +109,20 @@ patientRelations.get(
       db,
       Encounter,
       `
-        SELECT COUNT(DISTINCT encounters.id) as count
+        SELECT COUNT(1) as count
         ${fromClause}
         ${whereClause}
       `,
       `
-        SELECT *
-        FROM (
-          SELECT
-            encounters.*,
-            locations.facility_id AS facility_id,
-            facilities.name AS facility_name,
-            location_groups.name AS location_group_name,
-            location_groups.id AS location_group_id,
-            dischargingClinician.display_name AS discharging_clinician_name,
-            ROW_NUMBER() OVER (PARTITION BY encounters.id ORDER BY encounters.id) AS __encounter_row_number
-          ${fromClause}
-          ${whereClause}
-        ) AS encounter_rows
-        WHERE __encounter_row_number = 1
+        SELECT
+          encounters.*,
+          locations.facility_id AS facility_id,
+          facilities.name AS facility_name,
+          location_groups.name AS location_group_name,
+          location_groups.id AS location_group_id,
+          dischargingClinician.display_name AS discharging_clinician_name
+        ${fromClause}
+        ${whereClause}
         ${sortExpression ? `ORDER BY ${sortExpression}` : ''}
       `,
       { patientId: params.id, ...filterReplacements },
