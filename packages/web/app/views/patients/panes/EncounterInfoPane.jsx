@@ -311,9 +311,10 @@ export const EncounterInfoPane = React.memo(({ encounter, getSetting, patientBil
               ) : (
                 <>
                   <AddButton onClick={() => setIsEstimatedDischargeModalOpen(true)}>
+                    +{' '}
                     <TranslatedText
                       stringId="encounter.summary.addEstimatedDischargeDate"
-                      fallback="+ Add"
+                      fallback="Add"
                     />
                   </AddButton>
                   <SetDischargeDateModal
