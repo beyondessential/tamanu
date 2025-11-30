@@ -44,6 +44,7 @@ import { ConditionalTooltip } from '../../../components/Tooltip';
 import { useReorderLocationBookingMutation } from '../../../api/mutations/useReorderLocationBookingMutation';
 import { ClinicianAssignmentDiscrepancyModal } from './ClinicianAssignmentDiscrepancyModal';
 import { useSendAppointmentEmail } from '../../../api/mutations';
+import { EmailAddressConfirmationForm } from '../../../forms/EmailAddressConfirmationForm';
 
 const ScrollWrapper = styled.div`
   width: 100%;
