@@ -47,6 +47,71 @@ invoiceRoute.get(
   }),
 );
 
+// Return insurance plan items for a given encounter and product
+invoiceRoute.get(
+  '/insurance-plan-items',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Invoice');
+
+    const { encounterId, productId } = req.query;
+
+    if (!encounterId || !productId) {
+      throw new ValidationError('encounterId and productId are required');
+    }
+
+    const { Invoice, InvoicesInvoiceInsurancePlan, InvoiceInsurancePlanItem, InvoiceInsurancePlan } =
+      req.models;
+
+    // Find the invoice for the encounter (there should be at most one per encounter)
+    const invoice = await Invoice.findOne({
+      where: { encounterId },
+      attributes: ['id'],
+    });
+
+    if (!invoice) {
+      // If no invoice yet, there will be no linked plans
+      return res.json([]);
+    }
+
+    // Get insurance plans linked to this invoice
+    const linkedPlans = await InvoicesInvoiceInsurancePlan.findAll({
+      where: { invoiceId: invoice.id },
+      attributes: ['invoiceInsurancePlanId'],
+    });
+
+    const planIds = linkedPlans.map(lp => lp.invoiceInsurancePlanId);
+
+    if (!planIds.length) {
+      return res.json([]);
+    }
+
+    // Get the plan items for this product and the linked plans
+    const items = await InvoiceInsurancePlanItem.findAll({
+      where: {
+        invoiceProductId: productId,
+        invoiceInsurancePlanId: { [Op.in]: planIds },
+      },
+      attributes: ['invoiceInsurancePlanId', 'coverageValue'],
+      include: [
+        {
+          model: InvoiceInsurancePlan,
+          as: 'invoiceInsurancePlan',
+          attributes: ['name', 'id'],
+        },
+      ],
+    });
+
+    // Normalize to the shape expected by the client UI
+    const response = items.map(it => ({
+      id: it.invoiceInsurancePlanId,
+      label: it.invoiceInsurancePlan?.name,
+      coverageValue: it.coverageValue,
+    }));
+
+    res.json(response);
+  }),
+);
+
 //* Create invoice
 const createInvoiceSchema = z
   .object({

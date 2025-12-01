@@ -5,6 +5,7 @@ import { Colors } from '../../../constants';
 import { IconButton } from '@material-ui/core';
 import { ChevronRight } from '@material-ui/icons';
 import { useInvoicePriceListItemPriceQuery } from '../../../api/queries/useInvoicePriceListItemPriceQuery';
+import { useInvoiceInsurancePlanItemsQuery } from '../../../api/queries/useInvoiceInsurancePlanItemsQuery';
 import {
   PriceCell,
   DateCell,
@@ -90,7 +91,7 @@ export const InvoiceItemRow = ({
   const priceListPrice = item.product?.invoicePriceListItem?.price;
   const hasKnownPrice = Boolean(priceListPrice);
 
-  // Todo: Also need to lookup the insurance plan for the product
+  // Look up price list items
   const { data: fetchedPriceData, isFetching } = useInvoicePriceListItemPriceQuery({
     encounterId,
     productId: item.productId,
@@ -116,6 +117,21 @@ export const InvoiceItemRow = ({
     },
   });
 
+  // Lookup insurance plan items for the selected product
+  useInvoiceInsurancePlanItemsQuery({
+    encounterId,
+    productId: item.productId,
+    enabled: Boolean(item.productId) && !(item.insurancePlanItems?.length > 0),
+    onSuccess: data => {
+      if (!data || data.length === 0) return;
+
+      formArrayMethods.replace(index, {
+        ...item,
+        insurancePlanItems: data,
+      });
+    },
+  });
+
   const hidePriceInput =
     (priceListPrice !== null && priceListPrice !== undefined) ||
     !invoiceIsEditable ||
@@ -123,7 +139,7 @@ export const InvoiceItemRow = ({
 
   return (
     <StyledItemRow>
-      {item.insurancePlanItems?.length > 0 && (
+      {!isItemEditable && item.insurancePlanItems?.length > 0 && (
         <Button onClick={onClick} $isExpanded={isExpanded}>
           <ChevronRight />
         </Button>
