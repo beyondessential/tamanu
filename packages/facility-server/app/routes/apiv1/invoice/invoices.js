@@ -52,68 +52,6 @@ invoiceRoute.get(
   }),
 );
 
-// Return insurance plan items for a given encounter and product
-invoiceRoute.get(
-  '/insurance-plan-items',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Invoice');
-
-    const { encounterId, productId } = req.query;
-
-    if (!encounterId || !productId) {
-      throw new ValidationError('encounterId and productId are required');
-    }
-
-    const { Invoice, InvoiceInsurancePlanItem, InvoiceInsurancePlan } = req.models;
-
-    // Find the invoice for the encounter (there should be at most one per encounter)
-    const invoice = await Invoice.findOne({
-      where: { encounterId },
-      attributes: ['id'],
-    });
-
-    if (!invoice) {
-      // If no invoice yet, there will be no linked plans
-      return res.json([]);
-    }
-
-    // Get the plan items for this product and the linked plans
-    const items = await InvoiceInsurancePlanItem.findAll({
-      where: {
-        invoiceProductId: productId,
-      },
-      attributes: ['invoiceInsurancePlanId', 'coverageValue'],
-      include: [
-        {
-          model: InvoiceInsurancePlan,
-          as: 'invoiceInsurancePlan',
-          required: true,
-          attributes: ['name', 'id'],
-          include: [
-            {
-              model: Invoice,
-              as: 'relatedInvoices',
-              required: true,
-              where: { encounterId },
-              attributes: [],
-              through: { attributes: [] },
-            },
-          ],
-        },
-      ],
-    });
-
-    // Normalise to the shape expected by the client UI
-    const response = items.map(item => ({
-      id: item.invoiceInsurancePlanId,
-      label: item.invoiceInsurancePlan?.name,
-      coverageValue: item.coverageValue,
-    }));
-
-    res.json(response);
-  }),
-);
-
 //* Create invoice
 const createInvoiceSchema = z
   .object({

@@ -20,7 +20,6 @@ export const INVOICE_MODAL_TYPES = {
   FINALISE_INVOICE: 'finaliseInvoice',
   DELETE_INVOICE: 'deleteInvoice',
   INSURANCE: 'insurance',
-  PRINT: 'print',
 };
 
 export const INVOICE_DISCOUNT_TYPES = {
