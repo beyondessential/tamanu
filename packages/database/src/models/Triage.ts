@@ -2,11 +2,12 @@ import { Op, DataTypes } from 'sequelize';
 
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from '@tamanu/constants';
 import { InvalidOperationError } from '@tamanu/errors';
-import { formatShort, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
+import { formatShort, formatTime, getCurrentDateTimeString } from '@tamanu/utils/dateTime';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from '../sync/buildEncounterLinkedSyncFilter';
 import { buildEncounterLinkedLookupFilter } from '../sync/buildEncounterLinkedLookupFilter';
+import { createChangeRecorders } from '../utils/recordModelChanges';
 import { dateTimeType, type InitOptions, type Models } from '../types/model';
 
 export class Triage extends Model {
@@ -134,56 +135,11 @@ export class Triage extends Model {
     // To collect system note messages describing all changes in this triage update
     const systemNoteRows: string[] = [];
 
-    // Records changes to foreign key columns (e.g., practitionerId, chiefComplaintId)
-    // Fetches the related records to get human-readable names for the system note
-    const recordForeignKeyChange = async ({
-      columnName,
-      fieldLabel,
-      model,
-      sequelizeOptions = {},
-      accessor = (record: typeof Model) => record?.name ?? '-',
-      onChange,
-    }: {
-      columnName: keyof Triage;
-      fieldLabel: string;
-      model: typeof Model;
-      sequelizeOptions?: any;
-      accessor?: (record: any) => string;
-      onChange?: () => Promise<void>;
-    }) => {
-      const isChanged = columnName in data && data[columnName] !== this[columnName];
-      if (!isChanged) return;
-
-      const oldRecord = await model.findByPk(this[columnName], sequelizeOptions);
-      const newRecord = await model.findByPk(data[columnName], sequelizeOptions);
-
-      systemNoteRows.push(
-        `Changed ${fieldLabel} from '${accessor(oldRecord)}' to '${accessor(newRecord)}'`,
-      );
-      await onChange?.();
-    };
-
-    // Records changes to text/string columns (e.g., score)
-    // Uses the raw values directly since there's no related record to fetch
-    const recordTextColumnChange = async ({
-      columnName,
-      fieldLabel,
-      formatText = (value: string) => value ?? '-',
-      onChange,
-    }: {
-      columnName: keyof Triage;
-      fieldLabel: string;
-      formatText?: (value: string) => string;
-      onChange?: () => Promise<void>;
-    }) => {
-      const isChanged = columnName in data && data[columnName] !== this[columnName];
-      if (!isChanged) return;
-
-      const oldValue = formatText(this[columnName]);
-      const newValue = formatText(data[columnName]);
-      systemNoteRows.push(`Changed ${fieldLabel} from '${oldValue}' to '${newValue}'`);
-      await onChange?.();
-    };
+    const { recordForeignKeyChange, recordTextColumnChange } = createChangeRecorders(
+      this,
+      data,
+      systemNoteRows,
+    );
 
     const updateTriage = async () => {
       await recordForeignKeyChange({
@@ -210,12 +166,12 @@ export class Triage extends Model {
       await recordTextColumnChange({
         columnName: 'arrivalTime',
         fieldLabel: 'arrival time',
-        formatText: formatShort,
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await recordTextColumnChange({
         columnName: 'triageTime',
         fieldLabel: 'triage time',
-        formatText: formatShort,
+        formatText: date => (date ? `${formatShort(date)} ${formatTime(date)}` : '-'),
       });
       await recordTextColumnChange({
         columnName: 'closedTime',
@@ -224,7 +180,7 @@ export class Triage extends Model {
       });
       await recordTextColumnChange({
         columnName: 'score',
-        fieldLabel: 'score',
+        fieldLabel: 'triage score',
       });
 
       const { submittedTime, ...triageData } = data;
