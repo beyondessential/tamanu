@@ -146,276 +146,267 @@ describe('Encounter', () => {
     expect(result.body.data.every(x => x.noteTypeId === NOTE_TYPES.TREATMENT_PLAN)).toEqual(true);
   });
 
+  it('should fail to get an encounter that does not exist', async () => {
+    const result = await app.get('/api/encounter/nonexistent');
+    expect(result).toHaveRequestError();
+  });
+
+  it('should get a discharge', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const { id: dischargeId } = await models.Discharge.create({
+      encounterId: encounter.id,
+      dischargerId: app.user.id,
+    });
+
+    const result = await app.get(`/api/encounter/${encounter.id}/discharge`);
+
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      id: dischargeId,
+      encounterId: encounter.id,
+      dischargerId: app.user.id,
+      discharger: {
+        id: app.user.id,
+      },
+    });
+  });
+
+  it('should get a list of notes and pin treatment plan notes to the top', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const otherEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    await Promise.all([
+      models.Note.createForRecord(
+        encounter.id,
+        'Encounter',
+        NOTE_TYPES.AREA_TO_BE_IMAGED,
+        'Test 1',
+      ),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
+      models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
+      models.Note.createForRecord(
+        otherEncounter.id,
+        'Encounter',
+        NOTE_TYPES.TREATMENT_PLAN,
+        'Fail',
+      ),
+    ]);
+
+    const result = await app.get(`/api/encounter/${encounter.id}/notes`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(3);
+    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
+  });
+
+  it('should get a list of notes filtered by noteType', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    await Promise.all([
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
+      models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
+    ]);
+
+    const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(2);
+    expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
+  });
+
   it('should get a list of changelog notes of a root note ordered DESC', async () => {
     const encounter = await models.Encounter.create({
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
 
-    it('should fail to get an encounter that does not exist', async () => {
-      const result = await app.get('/api/encounter/nonexistent');
-      expect(result).toHaveRequestError();
-    });
-
-    it('should get a discharge', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const { id: dischargeId } = await models.Discharge.create({
-        encounterId: encounter.id,
-        dischargerId: app.user.id,
-      });
-
-      const result = await app.get(`/api/encounter/${encounter.id}/discharge`);
-
-      expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        id: dischargeId,
-        encounterId: encounter.id,
-        dischargerId: app.user.id,
-        discharger: {
-          id: app.user.id,
-        },
-      });
-    });
-
-    it('should get a list of notes and pin treatment plan notes to the top', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const otherEncounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      await Promise.all([
-        models.Note.createForRecord(
-          encounter.id,
-          'Encounter',
-          NOTE_TYPES.AREA_TO_BE_IMAGED,
-          'Test 1',
-        ),
-        models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.TREATMENT_PLAN, 'Test 2'),
-        models.Note.createForRecord(encounter.id, 'Encounter', NOTE_TYPES.MEDICAL, 'Test 3'),
-        models.Note.createForRecord(
-          otherEncounter.id,
-          'Encounter',
-          NOTE_TYPES.TREATMENT_PLAN,
-          'Fail',
-        ),
-      ]);
-
-      const result = await app.get(`/api/encounter/${encounter.id}/notes`);
-      expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(3);
-      expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
-      expect(result.body.data[0].noteType).toEqual(NOTE_TYPES.TREATMENT_PLAN);
-    });
-
-    it('should get a list of notes filtered by noteType', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      await Promise.all([
-        models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 4'),
-        models.Note.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 5'),
-        models.Note.createForRecord(encounter.id, 'Encounter', 'admission', 'Test 6'),
-      ]);
-
-      const result = await app.get(`/api/encounter/${encounter.id}/notes?noteType=treatmentPlan`);
-      expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(2);
-      expect(result.body.data.every(x => x.noteType === 'treatmentPlan')).toEqual(true);
-    });
-
-    it('should get a list of changelog notes of a root note ordered DESC', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-
-      const rootNote = await models.Note.create(
-        fake(models.Note, {
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          content: 'Root note',
-          authorId: app.user.id,
-          date: toDateTimeString(sub(new Date(), { days: 8 })),
-        }),
-      );
-      const changelog1 = await models.Note.create(
-        fake(models.Note, {
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          content: 'Changelog1',
-          authorId: app.user.id,
-          date: toDateTimeString(sub(new Date(), { days: 6 })),
-          revisedById: rootNote.id,
-        }),
-      );
-      const changelog2 = await models.Note.create(
-        fake(models.Note, {
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          content: 'Changelog2',
-          authorId: app.user.id,
-          date: toDateTimeString(sub(new Date(), { days: 4 })),
-          revisedById: rootNote.id,
-        }),
-      );
-
-      const changelog3 = await models.Note.create(
-        fake(models.Note, {
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          content: 'Changelog3',
-          authorId: app.user.id,
-          date: toDateTimeString(sub(new Date(), { days: 2 })),
-          revisedById: rootNote.id,
-        }),
-      );
-
-      const result = await app.get(
-        `/api/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`,
-      );
-      expect(result).toHaveSucceeded();
-      expect(result.body.count).toEqual(4);
-      expect(result.body.data[0]).toMatchObject({
-        recordId: changelog3.recordId,
+    const rootNote = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-        content: changelog3.content,
-        authorId: changelog3.authorId,
-        date: changelog3.date,
-        revisedById: rootNote.id,
-      });
-      expect(result.body.data[1]).toMatchObject({
-        recordId: changelog2.recordId,
+        content: 'Root note',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 8 })),
+      }),
+    );
+    const changelog1 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-        content: changelog2.content,
-        authorId: changelog2.authorId,
-        date: changelog2.date,
+        content: 'Changelog1',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 6 })),
         revisedById: rootNote.id,
-      });
-      expect(result.body.data[2]).toMatchObject({
-        recordId: changelog1.recordId,
+      }),
+    );
+    const changelog2 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-        content: changelog1.content,
-        authorId: changelog1.authorId,
-        date: changelog1.date,
+        content: 'Changelog2',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 4 })),
         revisedById: rootNote.id,
-      });
+      }),
+    );
+
+    const changelog3 = await models.Note.create(
+      fake(models.Note, {
+        recordId: encounter.id,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        content: 'Changelog3',
+        authorId: app.user.id,
+        date: toDateTimeString(sub(new Date(), { days: 2 })),
+        revisedById: rootNote.id,
+      }),
+    );
+
+    const result = await app.get(`/api/encounter/${encounter.id}/notes/${rootNote.id}/changelogs`);
+    expect(result).toHaveSucceeded();
+    expect(result.body.count).toEqual(4);
+    expect(result.body.data[0]).toMatchObject({
+      recordId: changelog3.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog3.content,
+      authorId: changelog3.authorId,
+      date: changelog3.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[1]).toMatchObject({
+      recordId: changelog2.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog2.content,
+      authorId: changelog2.authorId,
+      date: changelog2.date,
+      revisedById: rootNote.id,
+    });
+    expect(result.body.data[2]).toMatchObject({
+      recordId: changelog1.recordId,
+      recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      content: changelog1.content,
+      authorId: changelog1.authorId,
+      date: changelog1.date,
+      revisedById: rootNote.id,
+    });
+  });
+
+  test.todo('should get a list of procedures');
+  test.todo('should get a list of prescriptions');
+
+  it('should get a list of all documents from an encounter', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const otherEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    // Create four document metadata objects: two from requested encounter,
+    // one from a different encounter, one from the same patient.
+    const metadataOne = {
+      name: 'one',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    };
+    const metadataTwo = {
+      name: 'two',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
+    };
+    const metadataThree = {
+      name: 'three',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-3',
+      encounterId: otherEncounter.id,
+    };
+    const metadataFour = {
+      name: 'four',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-4',
+      patientId: patient.id,
+    };
+
+    await Promise.all([
+      models.DocumentMetadata.create(metadataOne),
+      models.DocumentMetadata.create(metadataTwo),
+      models.DocumentMetadata.create(metadataThree),
+      models.DocumentMetadata.create(metadataFour),
+    ]);
+
+    const result = await app.get(`/api/encounter/${encounter.id}/documentMetadata`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 2,
+      data: expect.any(Array),
+    });
+  });
+
+  it('should get a sorted list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const metadataOne = await models.DocumentMetadata.create({
+      name: 'A',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    });
+    const metadataTwo = await models.DocumentMetadata.create({
+      name: 'B',
+      type: 'image/jpeg',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
     });
 
-    test.todo('should get a list of procedures');
-    test.todo('should get a list of prescriptions');
+    // Sort by name ASC/DESC (presumably sufficient to test only one field)
+    const resultAsc = await app.get(
+      `/api/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
+    );
+    expect(resultAsc).toHaveSucceeded();
+    expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
 
-    it('should get a list of all documents from an encounter', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const otherEncounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      // Create four document metadata objects: two from requested encounter,
-      // one from a different encounter, one from the same patient.
-      const metadataOne = {
-        name: 'one',
-        type: 'application/pdf',
-        attachmentId: 'fake-id-1',
-        encounterId: encounter.id,
-      };
-      const metadataTwo = {
-        name: 'two',
-        type: 'application/pdf',
-        attachmentId: 'fake-id-2',
-        encounterId: encounter.id,
-      };
-      const metadataThree = {
-        name: 'three',
-        type: 'application/pdf',
-        attachmentId: 'fake-id-3',
-        encounterId: otherEncounter.id,
-      };
-      const metadataFour = {
-        name: 'four',
-        type: 'application/pdf',
-        attachmentId: 'fake-id-4',
-        patientId: patient.id,
-      };
+    const resultDesc = await app.get(
+      `/api/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
+    );
+    expect(resultDesc).toHaveSucceeded();
+    expect(resultDesc.body.data[0].id).toBe(metadataTwo.id);
+  });
 
-      await Promise.all([
-        models.DocumentMetadata.create(metadataOne),
-        models.DocumentMetadata.create(metadataTwo),
-        models.DocumentMetadata.create(metadataThree),
-        models.DocumentMetadata.create(metadataFour),
-      ]);
-
-      const result = await app.get(`/api/encounter/${encounter.id}/documentMetadata`);
-      expect(result).toHaveSucceeded();
-      expect(result.body).toMatchObject({
-        count: 2,
-        data: expect.any(Array),
-      });
+  it('should get a paginated list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
     });
 
-    it('should get a sorted list of documents', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-      const metadataOne = await models.DocumentMetadata.create({
-        name: 'A',
+    const documents = [];
+    for (let i = 0; i < 12; i++) {
+      documents.push({
+        name: String(i),
         type: 'application/pdf',
-        attachmentId: 'fake-id-1',
+        attachmentId: `fake-id-${i}`,
         encounterId: encounter.id,
       });
-      const metadataTwo = await models.DocumentMetadata.create({
-        name: 'B',
-        type: 'image/jpeg',
-        attachmentId: 'fake-id-2',
-        encounterId: encounter.id,
-      });
-
-      // Sort by name ASC/DESC (presumably sufficient to test only one field)
-      const resultAsc = await app.get(
-        `/api/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
-      );
-      expect(resultAsc).toHaveSucceeded();
-      expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
-
-      const resultDesc = await app.get(
-        `/api/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
-      );
-      expect(resultDesc).toHaveSucceeded();
-      expect(resultDesc.body.data[0].id).toBe(metadataTwo.id);
-    });
-
-    it('should get a paginated list of documents', async () => {
-      const encounter = await models.Encounter.create({
-        ...(await createDummyEncounter(models)),
-        patientId: patient.id,
-      });
-
-      const documents = [];
-      for (let i = 0; i < 12; i++) {
-        documents.push({
-          name: String(i),
-          type: 'application/pdf',
-          attachmentId: `fake-id-${i}`,
-          encounterId: encounter.id,
-        });
-      }
-      await models.DocumentMetadata.bulkCreate(documents);
-      const result = await app.get(
-        `/api/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
-      );
-      expect(result).toHaveSucceeded();
-      expect(result.body.data.length).toBe(7);
-    });
+    }
+    await models.DocumentMetadata.bulkCreate(documents);
+    const result = await app.get(
+      `/api/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
+    );
+    expect(result).toHaveSucceeded();
+    expect(result.body.data.length).toBe(7);
   });
 
   describe('write', () => {
