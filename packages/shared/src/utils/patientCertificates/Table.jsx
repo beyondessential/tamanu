@@ -89,16 +89,15 @@ export const Table = ({
       {data.map((row, rowIndex) => {
         const sectionLabel = getRowSectionLabel?.(row);
         const lastSectionLabel = rowIndex > 0 ? getRowSectionLabel(data[rowIndex - 1]) : null;
-        const shouldRenderSection = sectionLabel !== lastSectionLabel;
-        const hiddenRowDividerStyle = hideRowDividers
-          ? getHiddenRowDividerStyle(rowIndex, data.length)
-          : undefined;
+        const shouldRenderSection = sectionLabel && sectionLabel !== lastSectionLabel;
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
               <SectionRow label={sectionLabel} columns={visibleColumns} columnStyle={columnStyle} />
             )}
-            <TR style={hiddenRowDividerStyle}>
+            <TR
+              style={hideRowDividers ? getHiddenRowDividerStyle(rowIndex, data.length) : undefined}
+            >
               {visibleColumns.map(({ accessor, key, customStyles = {} }, index) => {
                 const firstColumnStyle =
                   index === 0 ? { borderLeft: basicBorder, textIndent: sectionLabel ? 6 : 0 } : {};
