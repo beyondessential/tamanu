@@ -151,7 +151,7 @@ describe('Invoice price list item import', () => {
       InvoicePriceListItem: {
         created: 0,
         deleted: 0,
-        errored: 1,
+        errored: 2,
         restored: 0,
         skipped: 0,
         updated: 0,
@@ -215,7 +215,16 @@ describe('Invoice price list item import', () => {
 
     const { didntSendReason, errors, stats } = await doImport(ctx, { buffer });
     expect(didntSendReason).toEqual('validationFailed');
-    expect(stats).toEqual({});
+    expect(stats).toEqual({
+      InvoicePriceListItem: {
+        created: 0,
+        deleted: 0,
+        errored: 1,
+        restored: 0,
+        skipped: 0,
+        updated: 0,
+      },
+    });
     expect(errors[0]).toHaveProperty(
       'message',
       'Missing required column: invoiceProductId on invoicePriceListItem at row 2',
