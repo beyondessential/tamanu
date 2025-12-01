@@ -19,7 +19,7 @@ triage.put(
     req.checkPermission('read', 'Triage');
     const triageObject = await models.Triage.findByPk(params.id);
     if (!triageObject) throw new NotFoundError();
-    req.checkPermission('write', triageObject);
+    req.checkPermission('write', 'Triage');
     await triageObject.update(req.body, user);
     res.send(triageObject);
   }),
