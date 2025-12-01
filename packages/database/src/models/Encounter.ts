@@ -667,9 +667,17 @@ export class Encounter extends Model {
         changeType: EncounterChangeType.Examiner,
       });
 
+      let startDateLabel = 'Date';
+      if (this.encounterType === ENCOUNTER_TYPES.ADMISSION) {
+        startDateLabel = 'Admission date';
+      }
+      if (this.encounterType === ENCOUNTER_TYPES.TRIAGE) {
+        startDateLabel = 'Triage date';
+      }
+
       await recordTextColumnChange({
         columnName: 'startDate',
-        fieldLabel: this.encounterType === ENCOUNTER_TYPES.ADMISSION ? 'Admission date' : 'Date',
+        fieldLabel: startDateLabel,
         formatText: formatShort,
       });
       await recordTextColumnChange({
