@@ -40,11 +40,15 @@ const TD = ({ customStyles, ...props }) => (
 const getBodyRowStyle = (rowIndex, rowCount, hideRowDividers) => {
   if (!hideRowDividers) return undefined;
   const isLastRow = rowIndex === rowCount - 1;
-  return { borderTopWidth: 0, borderBottomWidth: isLastRow ? 0 : 1 };
+  if (isLastRow) return { borderTopWidth: 0 };
+  return { borderTopWidth: 0, borderBottomWidth: 0 };
 };
 
 const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsLength) => {
-  const label = getRowSectionLabel?.(row);
+  if (typeof getRowSectionLabel !== 'function') {
+    return { sectionLabel: null, shouldRenderSection: false };
+  }
+  const label = getRowSectionLabel(row);
   if (!label || !visibleColumnsLength) {
     return { sectionLabel: null, shouldRenderSection: false };
   }
@@ -57,6 +61,30 @@ const getSectionInfo = (row, rowIndex, data, getRowSectionLabel, visibleColumnsL
     shouldRenderSection: label !== previousLabel,
   };
 };
+
+const SectionRow = ({ label, columns, columnStyle, bodyStyleOverrides }) => (
+  <TR style={{ borderTopWidth: 0 }}>
+    {columns.map((column, columnIndex) => {
+      const { key, customStyles } = column;
+      const baseStyle =
+        columnIndex === 0 ? { ...columnStyle, borderLeft: basicBorder } : columnStyle;
+      const isLastColumn = columnIndex === columns.length - 1;
+      const sectionCellStyles = [
+        baseStyle,
+        customStyles,
+        bodyStyleOverrides,
+        // Remove inner column dividers so the section label looks like a single row.
+        isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
+      ].filter(Boolean);
+
+      return (
+        <TD key={key} customStyles={sectionCellStyles} bold={columnIndex === 0}>
+          {columnIndex === 0 ? label : ''}
+        </TD>
+      );
+    })}
+  </TR>
+);
 
 export const Table = ({
   data,
@@ -99,30 +127,12 @@ export const Table = ({
         return (
           <React.Fragment key={rowIndex}>
             {shouldRenderSection && (
-              <TR style={{ borderTopWidth: 0 }}>
-                {visibleColumns.map((column, columnIndex) => {
-                  const { key, customStyles } = column;
-                  const baseStyle = columnIndex === 0 ? leftColumnStyle : columnStyle;
-                  const isLastColumn = columnIndex === visibleColumns.length - 1;
-                  const sectionCellStyles = [
-                    baseStyle,
-                    customStyles,
-                    bodyStyleOverrides,
-                    // Remove inner column dividers so the section label looks like a single row.
-                    isLastColumn ? { borderLeftWidth: 0 } : { borderRightWidth: 0 },
-                  ].filter(Boolean);
-
-                  return (
-                    <TD
-                      key={`${key}-section-${rowIndex}`}
-                      customStyles={sectionCellStyles}
-                      bold={columnIndex === 0}
-                    >
-                      {columnIndex === 0 ? sectionLabel : ''}
-                    </TD>
-                  );
-                })}
-              </TR>
+              <SectionRow
+                label={sectionLabel}
+                columns={visibleColumns}
+                columnStyle={columnStyle}
+                bodyStyleOverrides={bodyStyleOverrides}
+              />
             )}
             <TR style={bodyRowStyle}>
               {visibleColumns.map((column, columnIndex) => {
