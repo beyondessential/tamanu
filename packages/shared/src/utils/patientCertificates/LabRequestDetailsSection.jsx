@@ -9,8 +9,6 @@ import { LAB_REQUEST_STATUS_LABELS } from '@tamanu/constants';
 import { useLanguageContext } from '../pdf/languageContext';
 
 const DATE_TIME_FORMAT = 'dd/MM/yyyy h:mma';
-const textFontSize = 9;
-
 
 export const SampleDetailsRow = ({ request }) => (
   <Row>
@@ -97,7 +95,7 @@ export const FullLabRequestDetailsSection = ({ request }) => {
         </Col>
         <Col>
           <Row>
-            <P mt={9} fontSize={textFontSize} bold>
+            <P mt={9} fontSize={9} bold>
               Request ID barcode:
             </P>
             <PrintableBarcode id={request.displayId} />
